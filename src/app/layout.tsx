@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Raleway as MonoFont, Inter as SansFont } from "next/font/google";
+import { Geist_Mono as MonoFont, Geist as SansFont } from "next/font/google";
 import "./globals.css";
 
 const fontSans = SansFont({
@@ -19,9 +19,15 @@ const fontMono = MonoFont({
 });
 
 export const metadata: Metadata = {
-  title: "Yaschet — Product Engineer",
+  title: "Yassine Chettouch — Product Engineer",
   description: "Senior Product Engineer blending design and code.",
+  appleWebApp: {
+    title: "Yaschet.dev",
+  },
 };
+
+import RootProvider from "@components/providers/root-provider";
+import { FloatingNav } from "@components/layout/floating-nav";
 
 export default function RootLayout({
   children,
@@ -35,10 +41,13 @@ export default function RootLayout({
       className={`${fontSans.variable} ${fontMono.variable}`}
     >
       <body
-        className="relative min-h-screen antialiased"
+        className="relative min-h-screen antialiased bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50"
         suppressHydrationWarning={true}
       >
-        {children}
+        <RootProvider>
+          <FloatingNav />
+          {children}
+        </RootProvider>
       </body>
     </html>
   );
