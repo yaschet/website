@@ -129,7 +129,7 @@ export function FloatingNav() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed top-8 left-0 right-0 mx-auto w-fit z-50">
+    <div className="fixed top-[40px] left-0 right-0 mx-auto w-fit z-50">
       <motion.nav
         initial={{ opacity: 0, y: -20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}

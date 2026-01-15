@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { FloatingNav } from "@components/layout/floating-nav";
 import RootProvider from "@components/providers/root-provider";
+import { StatusBanner } from "@components/ui/status-marquee";
 
 const fontSans = SansFont({
   adjustFontFallback: false,
@@ -72,6 +73,7 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <RootProvider>
+          <StatusBanner />
           <FloatingNav />
           {children}
         </RootProvider>
