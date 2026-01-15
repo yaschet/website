@@ -1520,3 +1520,9 @@ button path {
   @apply select-none;
   user-select: none !important;
 }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

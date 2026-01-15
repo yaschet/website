@@ -1,7 +1,8 @@
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { Github, Linkedin } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { AvatarImage } from "../components/ui/avatar";
+import avatarImage from "../../public/images/avatar.jpeg";
 
 export default function Home() {
   return (
@@ -21,10 +22,13 @@ export default function Home() {
           <div className="mx-auto max-w-2xl px-6 py-8 sm:px-8 sm:py-8 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Avatar className="relative size-12 sm:size-14 rounded-full border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-zinc-100 dark:bg-zinc-900">
-                <AvatarImage
-                  src="/images/avatar.jpeg"
+                <Image
+                  src={avatarImage}
                   alt="Yassine Chettouch"
-                  className="grayscale hover:grayscale-0 transition-all duration-500"
+                  className="grayscale hover:grayscale-0 transition-all duration-500 object-cover"
+                  placeholder="blur"
+                  fill
+                  sizes="(max-width: 640px) 48px, 56px"
                 />
                 <AvatarFallback className="flex h-full w-full items-center justify-center bg-zinc-100 dark:bg-zinc-900 text-sm font-medium text-zinc-400 dark:text-zinc-500">
                   YC

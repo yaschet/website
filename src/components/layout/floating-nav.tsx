@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@/src/lib/utils";
-import { AnimatePresence, motion } from "framer-motion";
+import { cn } from "@/src/library/utils";
+import { motion } from "framer-motion";
 import {
   Briefcase,
   FileText,
@@ -14,7 +14,8 @@ import {
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 type NavItem = {
   name: string;
@@ -32,13 +33,69 @@ const navItems: NavItem[] = [
 
 export function FloatingNav() {
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const ref = useRef<HTMLButtonElement>(null);
 
   // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const toggleTheme = async () => {
+    const newTheme = resolvedTheme === "dark" ? "light" : "dark";
+
+    if (resolvedTheme === "dark") {
+      document.documentElement.classList.add("transition-bg-dark");
+    } else {
+      document.documentElement.classList.add("transition-bg-light");
+    }
+
+    if (
+      !ref.current ||
+      !(document as any).startViewTransition ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setTheme(newTheme);
+      document.documentElement.classList.remove(
+        "transition-bg-light",
+        "transition-bg-dark"
+      );
+      return;
+    }
+
+    await (document as any).startViewTransition(() => {
+      flushSync(() => {
+        setTheme(newTheme);
+      });
+    }).ready;
+
+    const { top, left, width, height } = ref.current.getBoundingClientRect();
+    const x = left + width / 2;
+    const y = top + height / 2;
+    const right = window.innerWidth - left;
+    const bottom = window.innerHeight - top;
+    const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
+
+    document.documentElement.animate(
+      {
+        clipPath: [
+          `circle(0px at ${x}px ${y}px)`,
+          `circle(${maxRadius}px at ${x}px ${y}px)`,
+        ],
+      },
+      {
+        duration: 700,
+        easing: "ease-in-out",
+        pseudoElement: "::view-transition-new(root)",
+      }
+    ).onfinish = () => {
+      document.documentElement.classList.remove(
+        "transition-bg-light",
+        "transition-bg-dark"
+      );
+    };
+  };
 
   if (!mounted) return null;
 
@@ -100,7 +157,8 @@ export function FloatingNav() {
         <div className="w-px h-5 bg-zinc-200 dark:bg-zinc-800 mx-1" />
 
         <button
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          ref={ref}
+          onClick={toggleTheme}
           className="relative flex items-center justify-center p-2 rounded-full text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 bg-transparent transition-colors outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
           aria-label="Toggle theme"
         >
