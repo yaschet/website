@@ -14,8 +14,8 @@ export default function Home() {
       <div className="fixed inset-0 mx-auto max-w-2xl border-x border-dashed border-zinc-200 dark:border-zinc-800 pointer-events-none z-20"></div>
 
       <main className="relative z-10 flex flex-col min-h-screen">
-        {/* Nav Grid Row - Explicit 104px (32px padding + ~40px Nav + 32px padding) */}
-        <div className="h-[104px] w-full border-b border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/80 backdrop-blur-[2px]"></div>
+        {/* Nav Spacer: 32px (top-8) + 52px (nav) + 32px (gap) = 116px */}
+        <div className="h-[116px] w-full border-b border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/80 backdrop-blur-[2px]"></div>
 
         {/* Profile Header - Below Nav Row */}
         <header className="w-full border-b border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/80 backdrop-blur-[2px]">

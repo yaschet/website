@@ -17,10 +17,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
-/**
- * Natural Physics Spring Config
- * Tuned for organic, human-like motion with subtle overshoot
- */
 const springConfig = {
   type: "spring" as const,
   mass: 0.6,
@@ -28,9 +24,6 @@ const springConfig = {
   damping: 30,
 };
 
-/**
- * Faster spring for hover interactions
- */
 const hoverSpring = {
   type: "spring" as const,
   mass: 0.4,
@@ -52,10 +45,6 @@ const navItems: NavItem[] = [
   { name: "Gallery", link: "/gallery", icon: Images },
 ];
 
-/**
- * Uniform button size (px = 40px, Golden Ratio friendly)
- * This ensures all buttons are perfect circles
- */
 const BUTTON_SIZE = 40;
 const ICON_SIZE = 18;
 
