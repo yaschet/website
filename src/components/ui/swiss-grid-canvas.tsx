@@ -389,37 +389,55 @@ export function SwissGridProvider({
 							cornerColor,
 						);
 
-						// PASS 4: Apple-Level "Physical Stamp" (Ballistic Snap)
+						// PASS 4: Apple-Level "Physical Stamp" (Stable Low-Frequency Physics)
 						// This is now the ONLY source for bold corner reinforcements
 						const drawPhysicalStamp = (ix: number) => {
 							const railX = Math.round(ix);
 							const ry = Math.round(lineY);
-							const distPast = currentX - railX;
 
-							// The "Stamp Window" - widened to 350px for a "Slow-Motion Impact" feel
-							const stampWindow = 350;
+							// STABLE PROGRESS: Map the corner impact into the global timeline
+							// The line starts at 'trigger' and covers its whole width (up to containerRight)
+							// We calculate the exact frame this corner should be "hit"
+							const impactThreshold = trigger + (ix / width) * 0.25;
+							const dt = Math.max(0, (progress - impactThreshold) * 2000); // Scaled time
 
-							if (distPast > 0) {
-								const rawStampProgress = Math.min(distPast / stampWindow, 1);
+							if (dt > 0) {
+								// HEAVY METAL PHYSICS (Massive Inertia)
+								const mass = 5.0;
+								const stiffness = 40.0;
+								const damping = 8.0;
 
-								// Ballistic Snap Physics: 0 -> 1.4 -> 1.0
-								// Hit peak impact early (15%), then a long luxurious settle
-								const impactPoint = 0.15;
-								const stampScale =
-									rawStampProgress < impactPoint
-										? (rawStampProgress / impactPoint) * 1.4
-										: 1.4 -
-											((rawStampProgress - impactPoint) / (1 - impactPoint)) *
-												0.4;
+								const omega = Math.sqrt(stiffness / mass);
+								const zeta = damping / (2 * Math.sqrt(stiffness * mass));
+								const omega_d = omega * Math.sqrt(1 - zeta * zeta);
 
-								// Kinetic Impact Drop: Start 20px above and gravity-snap down
-								const yOffset =
-									(1 - Math.min(rawStampProgress / impactPoint, 1)) * -20;
+								// THEATRICAL DESCENT: First 150 "time units"
+								const impactT = 150;
+								const isLanded = dt >= impactT;
 
-								// Bolting Rotation: 25deg -> 0deg mechanical locking
-								const rotation =
-									(1 - Math.min(rawStampProgress / impactPoint, 1)) *
-									(25 * (Math.PI / 180));
+								let stampScale = 0;
+								let yOffset = 0;
+								let rotation = 0;
+								let flashAlpha = 0;
+
+								if (!isLanded) {
+									// PHASE 1: DESCENT
+									const descentPath = dt / impactT;
+									stampScale = 0.5 + descentPath * 1.0; // Start at 0.5x to avoid "square" blob
+									yOffset = (1 - descentPath) * -30;
+									rotation = (1 - descentPath) * (20 * (Math.PI / 180));
+								} else {
+									// PHASE 2: OSCILLATION
+									const t = (dt - impactT) / 50; // Slow settle timescale
+									const decay = Math.exp(-zeta * omega * t);
+									const envelope = decay * 0.5;
+									const oscillation = Math.cos(omega_d * t);
+
+									stampScale = 1 + envelope * oscillation;
+									yOffset = 0;
+									rotation = (envelope / 1.2) * Math.sin(omega_d * t * 0.8);
+									flashAlpha = decay * 0.8;
+								}
 
 								ctx.save();
 								ctx.translate(railX, ry + yOffset);
@@ -429,29 +447,40 @@ export function SwissGridProvider({
 								const halfBar = CORNER_DASH_SIZE / 2;
 								const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 
+								// 1. Draw solid structural bars (Clear & Bright)
 								ctx.fillStyle = cornerColor;
+								ctx.globalAlpha = 1.0;
+								ctx.fillRect(
+									-halfCornerThickness,
+									-halfBar,
+									CORNER_THICKNESS,
+									CORNER_DASH_SIZE,
+								);
+								ctx.fillRect(
+									-halfBar,
+									-halfCornerThickness,
+									CORNER_DASH_SIZE,
+									CORNER_THICKNESS,
+								);
 
-								// High-contrast impact flash at the moment of landing
-								if (
-									rawStampProgress > impactPoint - 0.05 &&
-									rawStampProgress < impactPoint + 0.05
-								) {
-									ctx.globalAlpha = 0.8;
+								// 2. Additive "Resonant Flash" (Overlay only)
+								if (flashAlpha > 0.05) {
+									ctx.globalAlpha = flashAlpha;
+									ctx.fillStyle = "white"; // White glow for the clang
+									ctx.fillRect(
+										-halfCornerThickness - 0.5,
+										-halfBar - 0.5,
+										CORNER_THICKNESS + 1,
+										CORNER_DASH_SIZE + 1,
+									);
+									ctx.fillRect(
+										-halfBar - 0.5,
+										-halfCornerThickness - 0.5,
+										CORNER_DASH_SIZE + 1,
+										CORNER_THICKNESS + 1,
+									);
 								}
 
-								// The "Stamped" Mark (V + H bars together)
-								ctx.fillRect(
-									-halfCornerThickness,
-									-halfBar,
-									CORNER_THICKNESS,
-									CORNER_DASH_SIZE,
-								);
-								ctx.fillRect(
-									-halfBar,
-									-halfCornerThickness,
-									CORNER_DASH_SIZE,
-									CORNER_THICKNESS,
-								);
 								ctx.restore();
 							}
 						};
