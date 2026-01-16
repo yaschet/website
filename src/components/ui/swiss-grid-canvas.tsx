@@ -288,7 +288,9 @@ export function SwissGridProvider({
       // ─────────────────────────────────────────────────────────────────────
 
       const verticalProgress = progress;
-      const currentY = height * verticalProgress;
+      // Vertical lead finishes at 70% of global progress to leave headroom for horizontals
+      const leadProgress = Math.min(progress / 0.7, 1);
+      const currentY = height * leadProgress;
 
       // Get horizontal line Y positions for crosshair alignment
       const horizontalYs = sections.map((s) => s.bottom);
@@ -360,14 +362,12 @@ export function SwissGridProvider({
       // PASS 3: Horizontal Momentum & Kinetic Corners
       for (const section of sections) {
         const lineY = section.bottom;
-        const trigger = lineY / height;
+        // Trigger scaled into the 0.7 lead window
+        const trigger = (lineY / height) * 0.7;
 
-        if (verticalProgress >= trigger) {
-          // Elastic Momentum
-          const rawLineProgress = Math.min(
-            (verticalProgress - trigger) * 4,
-            1.2
-          );
+        if (progress >= trigger) {
+          // Velocity slightly adjusted to ensure completion within the 0.3 settle window
+          const rawLineProgress = Math.min((progress - trigger) * 4, 1.2);
           const lineProgress =
             rawLineProgress > 1
               ? 1 + Math.sin((rawLineProgress - 1) * Math.PI * 5) * 0.03
