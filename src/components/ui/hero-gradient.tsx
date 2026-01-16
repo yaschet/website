@@ -33,6 +33,10 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 	 * @description
 	 * Renders a retro CRT/pixelated screen pattern using the Canvas API.
 	 * Evokes 1990s high-tech monitors when zoomed in.
+	 *
+	 * GRID HARMONIZATION:
+	 * Uses 16px spacing to align with the Swiss Grid system (9px dash + 7px gap = 16px cycle).
+	 * Calculates the container offset so dots align with the centered max-w-3xl container.
 	 */
 	const drawDots = useCallback(() => {
 		const canvas = canvasRef.current;
@@ -44,7 +48,6 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 
 		const dpr = window.devicePixelRatio || 1;
 		const rect = container.getBoundingClientRect();
-		// Ensure height is consistent with the container style
 		const drawHeight = Math.max(rect.height, window.innerHeight * 1.2);
 
 		canvas.width = rect.width * dpr;
@@ -53,16 +56,28 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 
 		ctx.clearRect(0, 0, rect.width, drawHeight);
 
-		// Retro CRT pixel grid settings
-		const pixelSize = 1.5; // Larger, visible "pixels"
-		const spacing = 4; // Tight grid like a CRT screen
+		// Grid-aligned retro CRT settings
+		// DOT_SPACING must be a divisor of GRID_CYCLE (16) to maintain vertical alignment
+		// Options: 1, 2, 4, 8, 16 - using 4px for dense retro CRT effect
+		const GRID_CYCLE = 16; // Swiss Grid cycle
+		const DOT_SPACING = 4; // Dense CRT grid (4 dots per grid cycle)
+		const MAX_CONTAINER_WIDTH = 768;
+		const pixelSize = 1.5; // Small dots for authentic CRT feel
+
+		// Calculate the offset to align with the centered max-w-3xl container
+		const containerLeft = Math.max(0, (rect.width - MAX_CONTAINER_WIDTH) / 2);
+		const offsetX = containerLeft % DOT_SPACING;
+
+		// Vertical offset: align with first horizontal grid line at nav bottom (118px)
+		const NAV_HEIGHT = 118;
+		const offsetY = (NAV_HEIGHT + 1) % DOT_SPACING;
 
 		// Subtle but visible — the retro texture
 		ctx.fillStyle = isDark ? "rgba(255, 255, 255, 0.04)" : "rgba(0, 0, 0, 0.035)";
 
-		// Square pixels for authentic retro feel (not circles)
-		for (let x = 0; x < rect.width; x += spacing) {
-			for (let y = 0; y < drawHeight; y += spacing) {
+		// Square pixels for authentic CRT feel
+		for (let x = offsetX; x < rect.width; x += DOT_SPACING) {
+			for (let y = offsetY; y < drawHeight; y += DOT_SPACING) {
 				ctx.fillRect(x, y, pixelSize, pixelSize);
 			}
 		}
