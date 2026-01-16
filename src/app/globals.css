@@ -1632,12 +1632,10 @@ button path {
 /* ═══════════════════════════════════════════════════════════════════════════
    SWISS-PRECISION DASHED BORDERS
    
-   Mathematically synchronized grid:
+   Mathematically synchronized grid with "Intersection Joints".
    - Cycle: 16px (8px dash / 8px gap)
-   - Reason: 768px max-width / 2 = 384px. 384 is divisible by 16.
-   - Result: Perfect square intersections at every corner.
-   
-   Using center-alignment for both horizontal and vertical to lock the phase.
+   - Joints: Vertical ticks injected at +/- 384px to force perfect '+' intersections.
+   - Positioning: Center-aligned to lock phase.
 ═══════════════════════════════════════════════════════════════════════════ */
 
 .border-dash-b,
@@ -1645,31 +1643,39 @@ button path {
   position: relative;
 }
 
-/* Horizontal - Bottom (Full width, center aligned) */
+/* Horizontal - Bottom (Full width + Intersection Joints) */
 .border-dash-b::after {
   content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 1px;
+  height: 9px; /* Height of the vertical joint tick */
+  transform: translateY(50%); /* Center vertically on the border line */
+
+  --dash-color: oklch(0 0 0 / 0.1);
+  --tick-height: 9px;
+
+  /* Layer 1: Horizontal Line (1px height, centered vertically in the 9px block) */
+  /* Layer 2: Vertical Tick Left (at -384px) */
+  /* Layer 3: Vertical Tick Right (at +384px) */
   background: repeating-linear-gradient(
-    to right,
-    oklch(0 0 0 / 0.1) 0px 8px,
-    transparent 8px 16px
-  );
-  background-position: center; /* Locks pattern to screen center */
+        to right,
+        var(--dash-color) 0px 8px,
+        transparent 8px 16px
+      )
+      center / 100% 1px no-repeat,
+    linear-gradient(to bottom, var(--dash-color), var(--dash-color))
+      calc(50% - 384px) center / 1px var(--tick-height) no-repeat,
+    linear-gradient(to bottom, var(--dash-color), var(--dash-color))
+      calc(50% + 384px) center / 1px var(--tick-height) no-repeat;
+
   pointer-events: none;
   z-index: 20;
 }
 
 :is(.dark, [data-theme="dark"]) .border-dash-b::after {
-  background: repeating-linear-gradient(
-    to right,
-    oklch(1 0 0 / 0.1) 0px 8px,
-    transparent 8px 16px
-  );
-  background-position: center;
+  --dash-color: oklch(1 0 0 / 0.1);
 }
 
 /* Vertical - Both sides (Pattern starts from top) */
