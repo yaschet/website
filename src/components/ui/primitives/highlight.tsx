@@ -255,7 +255,6 @@ function Highlight<T extends React.ElementType = "div">({
     if (mode === "parent") {
       const ContainerComponent = Component as React.ElementType;
       return (
-        // @ts-expect-error - Polymorphic component with complex generic inference
         <ContainerComponent
           ref={localRef}
           className={(props as ParentModeHighlightProps)?.containerClassName}
