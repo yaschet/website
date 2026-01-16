@@ -19,7 +19,7 @@ const hoverSpring = {
 
 // Match FloatingNav visual system
 const badgeClasses =
-  "flex items-center justify-center px-3 py-1.5 rounded-full border border-zinc-200/80 dark:border-zinc-800/80 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl shadow-lg shadow-zinc-900/5 dark:shadow-zinc-950/50 text-xs font-medium text-zinc-600 dark:text-zinc-400 cursor-default select-none";
+  "flex items-center justify-center px-3 py-1.5 rounded-full border border-surface-200/80 dark:border-surface-800/80 bg-white/90 dark:bg-surface-950/90 backdrop-blur-xl shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50 text-xs font-medium text-surface-600 dark:text-surface-400 cursor-default select-none";
 
 export function LocationBadge() {
   return (

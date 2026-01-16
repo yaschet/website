@@ -135,7 +135,7 @@ export function FloatingNav() {
         initial={{ opacity: 0, y: -20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={springConfig}
-        className="relative flex items-center gap-1 p-1.5 rounded-full border border-zinc-200/80 dark:border-zinc-800/80 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl shadow-lg shadow-zinc-900/5 dark:shadow-zinc-950/50"
+        className="relative flex items-center gap-1 p-1.5 rounded-full border border-surface-200/80 dark:border-surface-800/80 bg-white/90 dark:bg-surface-950/90 backdrop-blur-xl shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50"
         role="navigation"
         aria-label="Main navigation"
         onMouseLeave={() => setHoveredTab(null)}
@@ -153,9 +153,9 @@ export function FloatingNav() {
                   className={cn(
                     "relative flex items-center justify-center rounded-full transition-colors duration-200",
                     isActive
-                      ? "text-zinc-900 dark:text-zinc-50"
-                      : "text-zinc-500 dark:text-zinc-400",
-                    "hover:text-zinc-900 dark:hover:text-zinc-50"
+                      ? "text-surface-900 dark:text-surface-50"
+                      : "text-surface-500 dark:text-surface-400",
+                    "hover:text-surface-900 dark:hover:text-surface-50"
                   )}
                   style={{
                     width: BUTTON_SIZE,
@@ -167,7 +167,7 @@ export function FloatingNav() {
                   {currentTab === item.link && (
                     <motion.div
                       layoutId="nav-slot"
-                      className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-full -z-10"
+                      className="absolute inset-0 bg-surface-100 dark:bg-surface-800 rounded-full -z-10"
                       transition={hoverSpring}
                     />
                   )}
@@ -191,7 +191,7 @@ export function FloatingNav() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 4, scale: 0.95 }}
                       transition={{ duration: 0.15, ease: "easeOut" }}
-                      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-sm whitespace-nowrap pointer-events-none z-20"
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-surface-700 dark:text-surface-300 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-md shadow-sm whitespace-nowrap pointer-events-none z-20"
                     >
                       {item.name}
                     </motion.div>
@@ -203,7 +203,7 @@ export function FloatingNav() {
         </ul>
 
         <div
-          className="w-px h-6 bg-zinc-200 dark:bg-zinc-700 mx-0.5"
+          className="w-px h-6 bg-surface-200 dark:bg-surface-700 mx-0.5"
           aria-hidden="true"
         />
 
@@ -216,10 +216,10 @@ export function FloatingNav() {
           transition={hoverSpring}
           className={cn(
             "relative flex items-center justify-center rounded-full z-10",
-            "text-zinc-500 dark:text-zinc-400",
-            "hover:text-zinc-900 dark:hover:text-zinc-50",
+            "text-surface-500 dark:text-surface-400",
+            "hover:text-surface-900 dark:hover:text-surface-50",
             "transition-colors duration-200",
-            "outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-zinc-950"
+            "outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-950"
           )}
           style={{
             width: BUTTON_SIZE,
@@ -232,7 +232,7 @@ export function FloatingNav() {
           {currentTab === "theme-toggle" && (
             <motion.div
               layoutId="nav-slot"
-              className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-full -z-10"
+              className="absolute inset-0 bg-surface-100 dark:bg-surface-800 rounded-full -z-10"
               transition={hoverSpring}
             />
           )}
