@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { HeroGradient } from "@/src/components/ui/hero-gradient";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { SwissGrid, SwissGridStyles } from "@/src/components/ui/swiss-grid";
 import { Avatar, AvatarFallback } from "@components/ui/avatar";
 
 import avatarImage from "@/public/images/avatar.jpeg";
@@ -25,10 +26,11 @@ export default function Home() {
 				className="relative z-10 flex min-h-screen flex-col"
 				style={{ overflowAnchor: "none" }}
 			>
-				{/* Vertical Column Borders — Phase 0 */}
-				<Reveal phase={0} className="pointer-events-none fixed inset-0 z-50 h-full w-full">
-					<div className="mx-auto h-full max-w-3xl border-dash-x" />
-				</Reveal>
+				{/* Swiss Grid Styles (CSS variables for dark mode) */}
+				<SwissGridStyles />
+
+				{/* Swiss Grid - GPU-optimized vertical rails with dynamic dash calculation */}
+				<SwissGrid />
 
 				{/* Hero Gradient */}
 				<HeroGradient className="z-0" />
