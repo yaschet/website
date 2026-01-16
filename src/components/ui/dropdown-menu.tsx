@@ -5,7 +5,7 @@ import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { type VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
 import { Button, type ButtonProps } from "@components/ui/button";
-import { cn } from "@library/utils";
+import { cn } from "@/src/lib/utils";
 import type { JSX } from "react";
 
 type DropdownMenuSize = "xs" | "sm" | "md" | "lg" | "xl";

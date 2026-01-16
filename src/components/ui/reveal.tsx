@@ -2,7 +2,10 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { ReactNode } from "react";
-import { useReveal, RevealPhase } from "@components/providers/reveal-provider";
+import {
+  useReveal,
+  RevealPhase,
+} from "@/src/components/providers/reveal-provider";
 
 /**
  * Scroll Reveal

@@ -10,7 +10,7 @@ import {
   type ToggleGroupProps as ToggleGroupPrimitiveProps,
   useToggleGroup as useToggleGroupPrimitive,
 } from "@components/ui/primitives/toggle-group-primitive";
-import { cn } from "@library/utils";
+import { cn } from "@/src/lib/utils";
 import type { toggleVariants } from "@components/ui/toggle";
 
 const [ToggleGroupProvider, useToggleGroup] =

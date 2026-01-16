@@ -5,13 +5,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Briefcase,
   FileText,
-  Home,
-  Images,
+  House,
+  Image as ImageIcon,
   Moon,
   Sun,
   User,
-  type LucideIcon,
-} from "lucide-react";
+} from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -35,15 +35,15 @@ const hoverSpring = {
 type NavItem = {
   name: string;
   link: string;
-  icon: LucideIcon;
+  icon: Icon;
 };
 
 const navItems: NavItem[] = [
-  { name: "Home", link: "/", icon: Home },
+  { name: "Home", link: "/", icon: House },
   { name: "About", link: "/about", icon: User },
   { name: "Work", link: "/projects", icon: Briefcase },
   { name: "Blog", link: "/blog", icon: FileText },
-  { name: "Gallery", link: "/gallery", icon: Images },
+  { name: "Gallery", link: "/gallery", icon: ImageIcon },
 ];
 
 const BUTTON_SIZE = 40;
@@ -179,7 +179,7 @@ export function FloatingNav() {
                     <Icon
                       className="shrink-0"
                       style={{ width: ICON_SIZE, height: ICON_SIZE }}
-                      strokeWidth={1.75}
+                      weight="duotone"
                     />
                   </motion.div>
                 </Link>
@@ -239,12 +239,12 @@ export function FloatingNav() {
           <Sun
             className="rotate-0 scale-100 transition-transform duration-300 dark:-rotate-90 dark:scale-0"
             style={{ width: ICON_SIZE, height: ICON_SIZE }}
-            strokeWidth={1.75}
+            weight="duotone"
           />
           <Moon
             className="absolute rotate-90 scale-0 transition-transform duration-300 dark:rotate-0 dark:scale-100"
             style={{ width: ICON_SIZE, height: ICON_SIZE }}
-            strokeWidth={1.75}
+            weight="duotone"
           />
         </motion.button>
       </motion.nav>

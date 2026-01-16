@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import * as React from "react";
-import { cn } from "@library/utils";
+import { cn } from "@/src/lib/utils";
 import type { Transition } from "motion/react";
 
 type HighlightMode = "children" | "parent";
@@ -43,7 +43,7 @@ type HighlightContextType<T extends string> = {
 };
 
 const HighlightContext = React.createContext<
-  HighlightContextType<any> | undefined
+  HighlightContextType<string> | undefined
 >(undefined);
 
 function useHighlight<T extends string>(): HighlightContextType<T> {

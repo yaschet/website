@@ -1,5 +1,9 @@
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
-import { ArrowRight, Github, Linkedin } from "lucide-react";
+import {
+  ArrowRight,
+  GithubLogo,
+  LinkedinLogo,
+} from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import avatarImage from "../../public/images/avatar.jpeg";
@@ -114,7 +118,7 @@ export default function Home() {
                 className="hover:text-surface-900 dark:hover:text-surface-100 transition-colors"
                 aria-label="GitHub"
               >
-                <Github className="size-5" />
+                <GithubLogo className="size-5" weight="duotone" />
               </Link>
               <Link
                 href="https://linkedin.com/in/yaschet"
@@ -122,7 +126,7 @@ export default function Home() {
                 className="hover:text-surface-900 dark:hover:text-surface-100 transition-colors"
                 aria-label="LinkedIn"
               >
-                <Linkedin className="size-5" />
+                <LinkedinLogo className="size-5" weight="duotone" />
               </Link>
             </div>
           </div>
@@ -155,7 +159,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-900 dark:bg-surface-100 text-surface-50 dark:text-surface-900 rounded-full text-sm font-medium hover:bg-surface-800 dark:hover:bg-surface-200 transition-colors"
               >
                 Let's build something
-                <ArrowRight className="size-4" />
+                <ArrowRight className="size-4" weight="bold" />
               </Link>
             </Reveal>
           </div>
@@ -189,7 +193,10 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-2 text-body-sm text-surface-500 dark:text-surface-400 group-hover:text-surface-900 dark:group-hover:text-surface-100 transition-colors">
                   View case study
-                  <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight
+                    className="size-4 group-hover:translate-x-1 transition-transform"
+                    weight="bold"
+                  />
                 </div>
               </Link>
             </ScrollReveal>
@@ -219,7 +226,10 @@ export default function Home() {
                   </p>
                   <div className="flex items-center gap-1 text-body-sm text-surface-400 group-hover:text-surface-600 dark:group-hover:text-surface-300 transition-colors">
                     View project
-                    <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight
+                      className="size-3 group-hover:translate-x-1 transition-transform"
+                      weight="bold"
+                    />
                   </div>
                 </Link>
               </ScrollReveal>
@@ -235,7 +245,10 @@ export default function Home() {
                   </p>
                   <div className="flex items-center gap-1 text-body-sm text-surface-400 group-hover:text-surface-600 dark:group-hover:text-surface-300 transition-colors">
                     View project
-                    <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight
+                      className="size-3 group-hover:translate-x-1 transition-transform"
+                      weight="bold"
+                    />
                   </div>
                 </Link>
               </ScrollReveal>
