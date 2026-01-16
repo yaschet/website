@@ -39,20 +39,28 @@ import { useReveal } from "@/src/components/providers/reveal-provider";
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Dash length in pixels.
+ * Regular dash length in pixels.
  * MUST BE ODD for symmetric crosshairs - an odd number has a true center pixel.
- * With 9px: dash spans X-4 to X+4, center is exactly at X.
  */
 const DASH_SIZE = 9;
 
-/** Gap length in pixels */
+/** Regular gap length in pixels */
 const GAP_SIZE = 7;
 
-/** Grid line color for light mode */
-const COLOR_LIGHT = "rgba(0, 0, 0, 0.1)";
+/**
+ * CORNER REINFORCEMENTS
+ * Like shipping container corner protectors - thicker and longer at intersections.
+ * Creates a visual "box frame" effect around each section.
+ */
+const CORNER_DASH_SIZE = 17; // 2x longer than regular dashes (must be odd)
+const CORNER_THICKNESS = 3; // 3px thick for bold reinforcement effect
 
-/** Grid line color for dark mode */
-const COLOR_DARK = "rgba(255, 255, 255, 0.1)";
+/**
+ * Grid line colors - subtle rgba values that don't compete with content.
+ * Using surface-tinted colors with low opacity for clean appearance.
+ */
+const COLOR_LIGHT = "rgba(0, 0, 0, 0.12)"; // Slightly more visible than before
+const COLOR_DARK = "rgba(255, 255, 255, 0.12)"; // Consistent opacity
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -381,21 +389,27 @@ function drawVerticalRail(
 	// Round X position FIRST - this is the definitive column for the vertical line
 	const railX = Math.round(x);
 	const halfDash = Math.floor(dashSize / 2);
+	const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
+	const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 
-	// Draw dashes at each intersection, centered on the rounded Y
+	// Draw CORNER REINFORCEMENT dashes at each intersection
+	// These are longer and thicker than regular dashes
 	for (const hy of horizontalYs) {
 		const crosshairY = Math.round(hy);
-		const dashStartY = crosshairY - halfDash;
-		ctx.fillRect(railX, dashStartY, 1, dashSize);
+		const dashStartY = crosshairY - halfCornerDash;
+		// Draw thick vertical bar centered on X
+		ctx.fillRect(railX - halfCornerThickness, dashStartY, CORNER_THICKNESS, CORNER_DASH_SIZE);
 	}
 
 	// Fill in dashes between crosshairs
 	let currentY = 0;
 	while (currentY < height) {
-		// Skip crosshair zones
+		// Skip corner reinforcement zones (larger than regular dashes)
 		const inCrosshair = horizontalYs.some((hy) => {
 			const crosshairY = Math.round(hy);
-			return currentY >= crosshairY - halfDash && currentY < crosshairY + halfDash;
+			return (
+				currentY >= crosshairY - halfCornerDash && currentY < crosshairY + halfCornerDash
+			);
 		});
 
 		if (!inCrosshair) {
@@ -444,22 +458,25 @@ function drawHorizontalLine(
 	const leftCrosshairX = Math.round(containerLeft);
 	const rightCrosshairX = Math.round(containerRight);
 	const halfDash = Math.floor(dashSize / 2);
+	const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
+	const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 
-	// Draw dash centered on left crosshair (calculated from rounded X, not re-rounded)
-	const leftDashStartX = leftCrosshairX - halfDash;
-	ctx.fillRect(leftDashStartX, lineY, dashSize, 1);
+	// Draw CORNER REINFORCEMENT at left crosshair (thick and long)
+	const leftDashStartX = leftCrosshairX - halfCornerDash;
+	ctx.fillRect(leftDashStartX, lineY - halfCornerThickness, CORNER_DASH_SIZE, CORNER_THICKNESS);
 
-	// Draw dash centered on right crosshair
-	const rightDashStartX = rightCrosshairX - halfDash;
-	ctx.fillRect(rightDashStartX, lineY, dashSize, 1);
+	// Draw CORNER REINFORCEMENT at right crosshair
+	const rightDashStartX = rightCrosshairX - halfCornerDash;
+	ctx.fillRect(rightDashStartX, lineY - halfCornerThickness, CORNER_DASH_SIZE, CORNER_THICKNESS);
 
 	// Fill in dashes between, using phase from left crosshair
 	let currentX = Math.round(startX);
 	while (currentX < endX) {
-		// Skip crosshair zones
-		const inLeftCrosshair = currentX >= leftDashStartX && currentX < leftDashStartX + dashSize;
+		// Skip corner reinforcement zones (larger than regular dashes)
+		const inLeftCrosshair =
+			currentX >= leftDashStartX && currentX < leftDashStartX + CORNER_DASH_SIZE;
 		const inRightCrosshair =
-			currentX >= rightDashStartX && currentX < rightDashStartX + dashSize;
+			currentX >= rightDashStartX && currentX < rightDashStartX + CORNER_DASH_SIZE;
 
 		if (!inLeftCrosshair && !inRightCrosshair) {
 			const relativePos = Math.abs(currentX - leftCrosshairX);

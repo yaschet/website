@@ -72,7 +72,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 		const NAV_HEIGHT = 118;
 		const offsetY = (NAV_HEIGHT + 1) % DOT_SPACING;
 
-		// Subtle but visible — the retro texture
+		// CRT dots - subtle retro texture
 		ctx.fillStyle = isDark ? "rgba(255, 255, 255, 0.04)" : "rgba(0, 0, 0, 0.035)";
 
 		// Square pixels for authentic CRT feel
