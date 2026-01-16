@@ -1,21 +1,15 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useReveal } from "../providers/reveal-provider";
 
 /**
  * @component HeroGradient
  * @description
  * High-performance, aesthetically refined background glow designed to provide
  * visual depth and a premium atmosphere for the hero section of the homepage.
- *
- * Technical design considerations:
- * 1. Performance: Utilizes native CSS GPU-accelerated filters (blur) and an optimized
- *    Canvas2D context for the dot pattern to ensure 60fps scrolling.
- * 2. Visual Integrity: Employs a multi-layered radial falloff strategy to simulate
- *    natural atmospheric diffusion (cloud-like) instead of standard linear gradients.
- * 3. Color Theory: Integrates directly with the Evil Martians Harmony color system via
- *    CSS variables, ensuring theme-aware semantic color compliance.
  */
 
 interface HeroGradientProps {
@@ -25,18 +19,18 @@ interface HeroGradientProps {
 
 export function HeroGradient({ className = "" }: HeroGradientProps) {
 	const { resolvedTheme } = useTheme();
+	const { phase } = useReveal();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [mounted, setMounted] = useState(false);
 
-	// Theme resolution is deferred to mount to avoid hydration mismatches between SSR and Client.
 	const isDark = resolvedTheme === "dark";
+	const isEnabled = phase >= 0;
 
 	/**
 	 * @method drawDots
 	 * @description
 	 * Renders a low-contrast pixel-grid pattern using the Canvas API.
-	 * This provides a subtle "trame" effect that adds tactile texture to the gradient areas.
 	 */
 	const drawDots = useCallback(() => {
 		const canvas = canvasRef.current;
@@ -46,24 +40,28 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 		const ctx = canvas.getContext("2d", { alpha: true });
 		if (!ctx) return;
 
-		// Handle high-DPI displays (retina) for crisp pixel rendering.
 		const dpr = window.devicePixelRatio || 1;
 		const rect = container.getBoundingClientRect();
+		// Ensure height is consistent with the container style
+		const drawHeight = Math.max(rect.height, window.innerHeight * 1.2);
+
 		canvas.width = rect.width * dpr;
-		canvas.height = rect.height * dpr;
+		canvas.height = drawHeight * dpr;
 		ctx.scale(dpr, dpr);
 
-		ctx.clearRect(0, 0, rect.width, rect.height);
+		ctx.clearRect(0, 0, rect.width, drawHeight);
 
 		const dotSize = 1;
-		const spacing = 2;
+		const spacing = 12; // Increased spacing for a cleaner "grid" feel
 
-		// Utilize extremely low alpha values to ensure the pattern is felt rather than explicitly seen.
-		ctx.fillStyle = isDark ? "rgba(255, 255, 255, 0.02)" : "rgba(255, 255, 255, 0.3)";
+		// Extremely low alpha values for subtle texture
+		ctx.fillStyle = isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.03)";
 
 		for (let x = 0; x < rect.width; x += spacing) {
-			for (let y = 0; y < rect.height; y += spacing) {
-				ctx.fillRect(x, y, dotSize, dotSize);
+			for (let y = 0; y < drawHeight; y += spacing) {
+				ctx.beginPath();
+				ctx.arc(x, y, dotSize / 2, 0, Math.PI * 2);
+				ctx.fill();
 			}
 		}
 	}, [isDark]);
@@ -88,90 +86,86 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 	}
 
 	return (
-		<div
+		<motion.div
 			ref={containerRef}
+			initial={{ opacity: 0 }}
+			animate={isEnabled ? { opacity: 1 } : { opacity: 0 }}
+			transition={{ duration: 1.5, ease: "easeOut" }}
 			className={`pointer-events-none absolute inset-x-0 top-0 overflow-hidden ${className}`}
 			aria-hidden="true"
 			style={{
-				/**
-				 * @property maskImage
-				 * @description
-				 * Implements a sophisticated clipping mask that creates a "void" effect at the edges.
-				 * This prevents the blurred elements from bleeding into the layout boundaries,
-				 * ensuring the gradient feels contained and premium.
-				 */
 				height: "120vh",
-				maskImage: `
-          linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%)
-        `,
-				WebkitMaskImage: `
-          linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%)
-        `,
+				maskImage:
+					"linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%)",
+				WebkitMaskImage:
+					"linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%)",
 			}}
 		>
-			{/* 
-        LAYERED ATMOSPHERIC DIFFUSION 
-        We use three distinct orbs with varying sizes, blurs, and opacities to 
-        create a non-linear color falloff that simulates real-world lighting.
-      */}
+			{/* LAYERED ATMOSPHERIC DIFFUSION */}
+			<motion.div
+				initial={{ opacity: 0, scale: 0.8 }}
+				animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+				transition={{ duration: 2, ease: "easeOut", delay: 0.2 }}
+				className="absolute inset-0"
+			>
+				{/* Primary Atmospheric Orb */}
+				<div
+					className="absolute"
+					style={{
+						width: "80%",
+						height: "55%",
+						left: "50%",
+						top: "3%",
+						transform: "translateX(-50%)",
+						borderRadius: "100%",
+						backgroundColor: "var(--accent-500)",
+						opacity: isDark ? 0.1 : 0.06,
+						filter: "blur(150px)",
+					}}
+				/>
 
-			{/* Primary Atmospheric Orb */}
-			<div
-				className="absolute"
-				style={{
-					width: "80%",
-					height: "55%",
-					left: "50%",
-					top: "3%",
-					transform: "translateX(-50%)",
-					borderRadius: "100%",
-					backgroundColor: "var(--accent-500)",
-					opacity: isDark ? 0.1 : 0.06,
-					filter: "blur(150px)",
-				}}
-			/>
+				{/* Secondary Depth Orb */}
+				<div
+					className="absolute"
+					style={{
+						width: "60%",
+						height: "40%",
+						left: "50%",
+						top: "8%",
+						transform: "translateX(-50%)",
+						borderRadius: "100%",
+						backgroundColor: "var(--accent-400)",
+						opacity: isDark ? 0.08 : 0.05,
+						filter: "blur(120px)",
+					}}
+				/>
 
-			{/* Secondary Depth Orb */}
-			<div
-				className="absolute"
-				style={{
-					width: "60%",
-					height: "40%",
-					left: "50%",
-					top: "8%",
-					transform: "translateX(-50%)",
-					borderRadius: "100%",
-					backgroundColor: "var(--accent-400)",
-					opacity: isDark ? 0.08 : 0.05,
-					filter: "blur(120px)",
-				}}
-			/>
+				{/* Tertiary Ambient Core */}
+				<div
+					className="absolute"
+					style={{
+						width: "40%",
+						height: "25%",
+						left: "50%",
+						top: "12%",
+						transform: "translateX(-50%)",
+						borderRadius: "100%",
+						backgroundColor: "var(--accent-300)",
+						opacity: isDark ? 0.06 : 0.04,
+						filter: "blur(80px)",
+					}}
+				/>
+			</motion.div>
 
-			{/* Tertiary Ambient Core */}
-			<div
-				className="absolute"
-				style={{
-					width: "40%",
-					height: "25%",
-					left: "50%",
-					top: "12%",
-					transform: "translateX(-50%)",
-					borderRadius: "100%",
-					backgroundColor: "var(--accent-300)",
-					opacity: isDark ? 0.06 : 0.04,
-					filter: "blur(80px)",
-				}}
-			/>
-
-			{/* 
-        TEXTURE OVERLAY
-        Renders on top of the gradients to provide structural definition.
-      */}
-			<canvas
+			{/* TEXTURE OVERLAY */}
+			<motion.canvas
 				ref={canvasRef}
+				initial={{ opacity: 0 }}
+				animate={isEnabled ? { opacity: 1 } : { opacity: 0 }}
+				transition={{ duration: 1.2, delay: 0.5 }}
 				className="absolute inset-0 h-full w-full"
 				style={{ zIndex: 1 }}
 			/>
-		</div>
+		</motion.div>
 	);
 }

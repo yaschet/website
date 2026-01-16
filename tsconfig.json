@@ -4,7 +4,7 @@
 	"compilerOptions": {
 		"target": "ES2020",
 		"useDefineForClassFields": true,
-		"lib": ["ES2020", "DOM", "DOM.Iterable", "WebWorker", "ScriptHost"],
+		"lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker", "ScriptHost"],
 		"module": "ESNext",
 		"esModuleInterop": true,
 		"moduleResolution": "Bundler",

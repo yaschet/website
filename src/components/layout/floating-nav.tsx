@@ -16,13 +16,14 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { useReveal } from "@/src/components/providers/reveal-provider";
 import { cn } from "@/src/lib/utils";
 
 const springConfig = {
 	type: "spring" as const,
-	mass: 0.6,
-	stiffness: 500,
-	damping: 30,
+	mass: 0.4,
+	stiffness: 400,
+	damping: 25,
 };
 
 const hoverSpring = {
@@ -56,9 +57,12 @@ export function FloatingNav() {
 	const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 	const themeButtonRef = useRef<HTMLButtonElement>(null);
 
+	const { phase } = useReveal();
 	useEffect(() => {
 		setMounted(true);
 	}, []);
+
+	const isEnabled = phase >= 1;
 
 	// Find active item based on pathname
 	// We use the item link as the ID
@@ -126,7 +130,9 @@ export function FloatingNav() {
 		<div className="fixed top-8 right-0 left-0 z-50 flex items-center justify-center px-6">
 			<motion.nav
 				initial={{ opacity: 0, y: -20, scale: 0.95 }}
-				animate={{ opacity: 1, y: 0, scale: 1 }}
+				animate={
+					isEnabled ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -20, scale: 0.95 }
+				}
 				transition={springConfig}
 				className="relative flex items-center gap-1 rounded-full border border-surface-200/80 bg-white/90 p-1.5 shadow-lg shadow-surface-900/5 backdrop-blur-xl dark:border-surface-800/80 dark:bg-surface-950/90 dark:shadow-surface-950/50"
 				role="navigation"

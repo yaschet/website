@@ -16,7 +16,7 @@ interface RevealProps {
 	children: ReactNode;
 	delay?: number;
 	className?: string;
-	phase?: RevealPhase; // 1=Borders, 2=Content, 3=UI
+	phase?: RevealPhase; // 0=BG, 1=Nav, 2=Line1, 3=Profile, 4=Line2, 5=Hero, 6=Scroll
 }
 
 const springConfig = {
@@ -26,7 +26,7 @@ const springConfig = {
 	damping: 20,
 };
 
-export function Reveal({ children, delay = 0, className, phase = 2 }: RevealProps) {
+export function Reveal({ children, delay = 0, className, phase = 3 }: RevealProps) {
 	const { phase: currentPhase } = useReveal();
 	const shouldReduceMotion = useReducedMotion();
 
@@ -52,13 +52,17 @@ export function Reveal({ children, delay = 0, className, phase = 2 }: RevealProp
 }
 
 // Special reveal for elements that trigger on scroll AFTER initial load
-export function ScrollReveal({ children, delay = 0, className }: RevealProps) {
+export function ScrollReveal({ children, delay = 0, className, phase = 5 }: RevealProps) {
+	const { phase: currentPhase } = useReveal();
 	const shouldReduceMotion = useReducedMotion();
+
+	// Only allow scroll-reveal to trigger if we've reached the required orchestration phase
+	const isEnabled = currentPhase >= phase;
 
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 30 }}
-			whileInView={{ opacity: 1, y: 0 }}
+			whileInView={isEnabled ? { opacity: 1, y: 0 } : undefined}
 			viewport={{ once: true, margin: "-50px" }}
 			transition={{ ...springConfig, delay }}
 			className={className}

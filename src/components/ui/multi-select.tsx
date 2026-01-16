@@ -115,7 +115,7 @@ export function MultiSelect({
 				</div>
 			</div>
 			<div className="relative mt-2">
-				{isOpen && selectables?.length > 0 ? (
+				{isOpen && (selectables?.length ?? 0) > 0 ? (
 					<div
 						className={cn(
 							"absolute top-0 z-10 w-full animate-in rounded-md border bg-popover text-popover-foreground outline-none",

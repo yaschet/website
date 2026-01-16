@@ -1572,7 +1572,7 @@ html {
 
 html,
 body {
-  @apply bg-surface selection:bg-accent-600 scroll-smooth lining-nums antialiased selection:text-white;
+  @apply bg-surface selection:bg-accent-600 lining-nums antialiased selection:text-white;
 }
 
 .dark,

@@ -11,6 +11,8 @@ const springConfig = {
 	damping: 25,
 };
 
+import { useReveal } from "@/src/components/providers/reveal-provider";
+
 const _hoverSpring = {
 	type: "spring" as const,
 	stiffness: 500,
@@ -22,10 +24,13 @@ const badgeClasses =
 	"flex items-center justify-center px-3 py-1.5 rounded-full border border-surface-200/80 dark:border-surface-800/80 bg-white/90 dark:bg-surface-950/90 backdrop-blur-xl shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50 text-xs font-medium text-surface-600 dark:text-surface-400 cursor-default select-none";
 
 export function LocationBadge() {
+	const { phase } = useReveal();
+	const isEnabled = phase >= 1;
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, scale: 0.9 }}
-			animate={{ opacity: 1, scale: 1 }}
+			animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
 			transition={{ ...springConfig, delay: 0.15 }}
 			whileHover={{ scale: 1.05 }}
 			whileTap={{ scale: 0.95 }}
@@ -37,6 +42,8 @@ export function LocationBadge() {
 }
 
 export function TimeBadge() {
+	const { phase } = useReveal();
+	const isEnabled = phase >= 1;
 	const [time, setTime] = useState<string>("");
 	const [mounted, setMounted] = useState(false);
 
@@ -70,7 +77,7 @@ export function TimeBadge() {
 	return (
 		<motion.div
 			initial={{ opacity: 0, scale: 0.9 }}
-			animate={{ opacity: 1, scale: 1 }}
+			animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
 			transition={{ ...springConfig, delay: 0.2 }}
 			whileHover={{ scale: 1.05 }}
 			whileTap={{ scale: 0.95 }}
