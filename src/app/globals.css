@@ -1628,3 +1628,80 @@ button path {
   animation: none;
   mix-blend-mode: normal;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SWISS-PRECISION DASHED BORDERS
+   
+   Mathematically synchronized grid:
+   - Cycle: 16px (8px dash / 8px gap)
+   - Reason: 768px max-width / 2 = 384px. 384 is divisible by 16.
+   - Result: Perfect square intersections at every corner.
+   
+   Using center-alignment for both horizontal and vertical to lock the phase.
+═══════════════════════════════════════════════════════════════════════════ */
+
+.border-dash-b,
+.border-dash-x {
+  position: relative;
+}
+
+/* Horizontal - Bottom (Full width, center aligned) */
+.border-dash-b::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    oklch(0 0 0 / 0.1) 0px 8px,
+    transparent 8px 16px
+  );
+  background-position: center; /* Locks pattern to screen center */
+  pointer-events: none;
+  z-index: 20;
+}
+
+:is(.dark, [data-theme="dark"]) .border-dash-b::after {
+  background: repeating-linear-gradient(
+    to right,
+    oklch(1 0 0 / 0.1) 0px 8px,
+    transparent 8px 16px
+  );
+  background-position: center;
+}
+
+/* Vertical - Both sides (Pattern starts from top) */
+.border-dash-x::before,
+.border-dash-x::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom,
+    oklch(0 0 0 / 0.1) 0px 8px,
+    transparent 8px 16px
+  );
+  pointer-events: none;
+  z-index: 20;
+}
+
+.border-dash-x::before {
+  left: 0;
+}
+
+.border-dash-x::after {
+  right: 0;
+}
+
+:is(.dark, [data-theme="dark"]) .border-dash-x::before,
+:is(.dark, [data-theme="dark"]) .border-dash-x::after {
+  background: repeating-linear-gradient(
+    to bottom,
+    oklch(1 0 0 / 0.1) 0px 8px,
+    transparent 8px 16px
+  );
+}
