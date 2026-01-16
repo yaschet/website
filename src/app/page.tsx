@@ -37,7 +37,7 @@ import { Reveal, ScrollReveal } from "../components/ui/reveal";
 
 export default function Home() {
   return (
-    <div className="min-h-screen text-surface-900 dark:text-surface-50 font-sans selection:bg-surface-900 selection:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+    <div className="min-h-screen text-surface-900 dark:text-surface-50 selection:bg-surface-900 selection:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
       {/* Vertical Column Borders */}
 
       <Reveal phase={1} className="fixed inset-0 pointer-events-none z-0">
@@ -88,10 +88,10 @@ export default function Home() {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-lg font-semibold tracking-tight text-surface-900 dark:text-surface-100">
+                <h1 className="text-body-lg font-semibold text-surface-900 dark:text-surface-100">
                   Yassine Chettouch
                 </h1>
-                <p className="text-sm text-surface-500 dark:text-surface-400">
+                <p className="text-body-sm text-surface-500 dark:text-surface-400">
                   Senior Product Engineer
                 </p>
               </div>
@@ -135,15 +135,15 @@ export default function Home() {
         <section className="w-full border-b border-dashed border-surface-200 dark:border-surface-800">
           <div className="mx-auto max-w-3xl px-6 sm:px-8 py-12">
             <Reveal>
-              <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight text-surface-900 dark:text-surface-100 leading-[1.1] mb-6">
+              <h1 className="text-heading-xl text-surface-900 dark:text-surface-100 mb-6">
                 I turn ambitious ideas into{" "}
                 <span className="text-surface-400 dark:text-surface-500">
                   revenue-generating products.
                 </span>
-              </h2>
+              </h1>
             </Reveal>
             <Reveal delay={0.1}>
-              <p className="text-lg text-surface-600 dark:text-surface-400 leading-relaxed max-w-xl mb-8">
+              <p className="text-body-lg text-surface-600 dark:text-surface-400 max-w-xl mb-8">
                 Your vision needs more than just a developer—it needs a partner
                 who plays to win. I build systems that scale, experiences that
                 convert, and software that defines your brand.
@@ -177,17 +177,17 @@ export default function Home() {
                 <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-surface-900 ring-1 ring-surface-200 dark:ring-surface-800 mb-6">
                   <div className="absolute inset-0 bg-gradient-to-br from-surface-800 to-surface-900 flex items-center justify-center">
                     <div className="text-center px-6 sm:px-8">
-                      <p className="text-2xl sm:text-3xl font-semibold text-white mb-2">
+                      <h2 className="text-heading-lg text-white mb-2">
                         Protranslate
-                      </p>
-                      <p className="text-sm text-surface-400 max-w-sm mx-auto">
+                      </h2>
+                      <p className="text-body-sm text-surface-400 max-w-sm mx-auto">
                         AI-powered document translation SaaS with real-time
                         collaboration and enterprise-grade security.
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-surface-500 dark:text-surface-400 group-hover:text-surface-900 dark:group-hover:text-surface-100 transition-colors">
+                <div className="flex items-center gap-2 text-body-sm text-surface-500 dark:text-surface-400 group-hover:text-surface-900 dark:group-hover:text-surface-100 transition-colors">
                   View case study
                   <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -210,14 +210,14 @@ export default function Home() {
             <div className="space-y-8">
               <ScrollReveal delay={0.1}>
                 <Link href="/projects/student-portal" className="group block">
-                  <h3 className="text-xl font-medium text-surface-900 dark:text-surface-100 mb-1 group-hover:text-surface-600 dark:group-hover:text-surface-300 transition-colors">
+                  <h3 className="text-heading-md text-surface-900 dark:text-surface-100 mb-1 group-hover:text-surface-600 dark:group-hover:text-surface-300 transition-colors">
                     Student Onboarding Portal
                   </h3>
-                  <p className="text-sm text-surface-500 dark:text-surface-400 mb-2">
+                  <p className="text-body-sm text-surface-500 dark:text-surface-400 mb-2">
                     Enterprise internal tool for streamlining student enrollment
                     and documentation workflows.
                   </p>
-                  <div className="flex items-center gap-1 text-sm text-surface-400 group-hover:text-surface-600 dark:group-hover:text-surface-300 transition-colors">
+                  <div className="flex items-center gap-1 text-body-sm text-surface-400 group-hover:text-surface-600 dark:group-hover:text-surface-300 transition-colors">
                     View project
                     <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -226,14 +226,14 @@ export default function Home() {
 
               <ScrollReveal delay={0.2}>
                 <Link href="/projects/automation-suite" className="group block">
-                  <h3 className="text-xl font-medium text-surface-900 dark:text-surface-100 mb-1 group-hover:text-surface-600 dark:group-hover:text-surface-300 transition-colors">
+                  <h3 className="text-heading-md text-surface-900 dark:text-surface-100 mb-1 group-hover:text-surface-600 dark:group-hover:text-surface-300 transition-colors">
                     AI Automation Suite
                   </h3>
-                  <p className="text-sm text-surface-500 dark:text-surface-400 mb-2">
+                  <p className="text-body-sm text-surface-500 dark:text-surface-400 mb-2">
                     Data cleansing pipelines and intelligent program search
                     engines for complex enterprise data.
                   </p>
-                  <div className="flex items-center gap-1 text-sm text-surface-400 group-hover:text-surface-600 dark:group-hover:text-surface-300 transition-colors">
+                  <div className="flex items-center gap-1 text-body-sm text-surface-400 group-hover:text-surface-600 dark:group-hover:text-surface-300 transition-colors">
                     View project
                     <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -248,7 +248,7 @@ export default function Home() {
             Padding: 32px vertical
         ═══════════════════════════════════════════════════════════════════ */}
         <footer className="mt-auto">
-          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-8 flex items-center justify-between text-sm text-surface-400 dark:text-surface-500">
+          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-8 flex items-center justify-between text-body-sm text-surface-400 dark:text-surface-500">
             <p>© 2025 Yassine Chettouch</p>
             <p>Available for new projects</p>
           </div>

@@ -1475,6 +1475,60 @@
   --default-border-color: var(--color-border);
   --default-border-width: 1px;
 
+  /* Premium Typography System - Swiss Precision Scale */
+  --font-sans: var(--font-app-sans), system-ui, sans-serif;
+  --font-mono: var(--font-app-mono), ui-monospace, monospace;
+
+  /* High-Precision Tracking (Kerning) */
+  --tracking-tightest: -0.04em; /* Display hero */
+  --tracking-tighter: -0.035em; /* H1 titles */
+  --tracking-tight: -0.025em; /* H2 section titles */
+  --tracking-snug: -0.02em; /* H3 subtitles */
+  --tracking-normal: -0.01em; /* Body and UI text */
+  --tracking-wide: 0.01em; /* Mono technical labels */
+  --tracking-wider: 0.02em; /* Small captions */
+  --tracking-widest: 0.05em; /* Eyebrow text */
+
+  /* Impactful Leading (Line Height) */
+  --leading-display: 0.9;
+  --leading-heading: 1;
+  --leading-subheading: 1.1;
+  --leading-body: 1.65;
+  --leading-mono: 1.5;
+
+  /* Typographic Hierarchy - Semantic Scale */
+  --text-display-2xl: 6rem;
+  --text-display-2xl--line-height: var(--leading-display);
+  --text-display-2xl--letter-spacing: var(--tracking-tightest);
+  --text-display-2xl--font-weight: 500;
+
+  --text-display-xl: 4.5rem;
+  --text-display-xl--line-height: var(--leading-display);
+  --text-display-xl--letter-spacing: var(--tracking-tightest);
+  --text-display-xl--font-weight: 500;
+
+  --text-heading-xl: 3rem;
+  --text-heading-xl--line-height: var(--leading-heading);
+  --text-heading-xl--letter-spacing: var(--tracking-tighter);
+  --text-heading-xl--font-weight: 500;
+
+  --text-heading-lg: 2.25rem;
+  --text-heading-lg--line-height: var(--leading-heading);
+  --text-heading-lg--letter-spacing: var(--tracking-tight);
+  --text-heading-lg--font-weight: 500;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: var(--leading-body);
+  --text-body-lg--letter-spacing: var(--tracking-normal);
+
+  --text-body-md: 1.0625rem;
+  --text-body-md--line-height: var(--leading-body);
+  --text-body-md--letter-spacing: var(--tracking-normal);
+
+  --text-body-sm: 0.9375rem;
+  --text-body-sm--line-height: 1.6;
+  --text-body-sm--letter-spacing: 0em;
+
   /* Apple-like Smooth Border Radius - Refined Scale */
   --radius-xs: 0.125rem; /* 2px */
   --radius-sm: 0.25rem; /* 4px */
@@ -1510,6 +1564,10 @@
 
 html {
   @apply text-foreground font-sans;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 html,
@@ -1528,11 +1586,18 @@ h3,
 h4,
 h5,
 h6 {
-  @apply font-mono font-bold;
+  @apply font-sans font-medium tracking-tightest;
+  text-wrap: balance;
 }
 
 p {
-  @apply font-sans leading-relaxed;
+  @apply text-body-md;
+}
+
+code,
+pre {
+  @apply font-mono;
+  font-feature-settings: "kern" 0, "liga" 0, "calt" 1, "zero" 1;
 }
 
 /* Remove focus outline */
