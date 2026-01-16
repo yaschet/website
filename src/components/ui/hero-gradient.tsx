@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useReveal } from "../providers/reveal-provider";
+import { springs } from "@/src/lib/physics";
 
 /**
  * @component HeroGradient
@@ -90,7 +91,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 			ref={containerRef}
 			initial={{ opacity: 0 }}
 			animate={isEnabled ? { opacity: 1 } : { opacity: 0 }}
-			transition={{ duration: 1.5, ease: "easeOut" }}
+			transition={springs.ambient}
 			className={`pointer-events-none absolute inset-x-0 top-0 overflow-hidden ${className}`}
 			aria-hidden="true"
 			style={{
@@ -105,7 +106,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 			<motion.div
 				initial={{ opacity: 0, scale: 0.8 }}
 				animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-				transition={{ duration: 2, ease: "easeOut", delay: 0.2 }}
+				transition={{ ...springs.ambient, delay: 0.2 }}
 				className="absolute inset-0"
 			>
 				{/* Primary Atmospheric Orb */}

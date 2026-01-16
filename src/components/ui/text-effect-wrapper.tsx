@@ -11,6 +11,7 @@ import {
 import React from "react";
 
 import { cn } from "@/src/lib/utils";
+import { springs, stagger, distances, blur } from "@/src/lib/physics";
 
 export type PresetType = "blur" | "fade-in-blur" | "scale" | "fade" | "slide";
 
@@ -39,15 +40,15 @@ export type TextEffectProps = {
 };
 
 const defaultStaggerTimes: Record<PerType, number> = {
-	char: 0.03,
-	word: 0.05,
-	line: 0.1,
+	char: stagger.char,
+	word: stagger.word,
+	line: stagger.section,
 };
 
 const rtlStaggerTimes: Record<PerType, number> = {
-	char: 0.08, // Slower for word-level animation
-	word: 0.05,
-	line: 0.1,
+	char: stagger.word, // Slower for word-level animation in RTL
+	word: stagger.word,
+	line: stagger.section,
 };
 
 const defaultContainerVariants: Variants = {
@@ -75,17 +76,17 @@ const presetVariants: Record<PresetType, { container: Variants; item: Variants }
 	blur: {
 		container: defaultContainerVariants,
 		item: {
-			hidden: { opacity: 0, filter: "blur(12px)" },
-			visible: { opacity: 1, filter: "blur(0px)" },
-			exit: { opacity: 0, filter: "blur(12px)" },
+			hidden: { opacity: 0, filter: blur.normal },
+			visible: { opacity: 1, filter: blur.none },
+			exit: { opacity: 0, filter: blur.normal },
 		},
 	},
 	"fade-in-blur": {
 		container: defaultContainerVariants,
 		item: {
-			hidden: { opacity: 0, y: 20, filter: "blur(12px)" },
-			visible: { opacity: 1, y: 0, filter: "blur(0px)" },
-			exit: { opacity: 0, y: 20, filter: "blur(12px)" },
+			hidden: { opacity: 0, y: distances.small, filter: blur.normal },
+			visible: { opacity: 1, y: 0, filter: blur.none },
+			exit: { opacity: 0, y: distances.small, filter: blur.normal },
 		},
 	},
 	scale: {
@@ -107,9 +108,9 @@ const presetVariants: Record<PresetType, { container: Variants; item: Variants }
 	slide: {
 		container: defaultContainerVariants,
 		item: {
-			hidden: { opacity: 0, y: 20 },
+			hidden: { opacity: 0, y: distances.small },
 			visible: { opacity: 1, y: 0 },
-			exit: { opacity: 0, y: 20 },
+			exit: { opacity: 0, y: distances.small },
 		},
 	},
 };
@@ -363,7 +364,7 @@ export function TextEffectWrapper({
 		/[\u0590-\u05FF\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/.test(
 			String(children),
 		);
-	const stagger = (isRTL ? rtlStaggerTimes[per] : defaultStaggerTimes[per]) / speedReveal;
+	const staggerValue = (isRTL ? rtlStaggerTimes[per] : defaultStaggerTimes[per]) / speedReveal;
 
 	const baseDuration = 0.3 / speedSegment;
 
@@ -377,16 +378,17 @@ export function TextEffectWrapper({
 
 	const computedVariants = {
 		container: createVariantsWithTransition(variants?.container || baseVariants.container, {
-			staggerChildren: customStagger ?? stagger,
+			staggerChildren: customStagger ?? staggerValue,
 			delayChildren: customDelay ?? delay,
 			...containerTransition,
 			exit: {
-				staggerChildren: customStagger ?? stagger,
+				staggerChildren: customStagger ?? staggerValue,
 				staggerDirection: -1,
 			},
 		}),
 		item: createVariantsWithTransition(variants?.item || baseVariants.item, {
-			duration: baseDuration,
+			// Use springs instead of fixed durations
+			...springs.text,
 			...segmentTransition,
 		}),
 	};

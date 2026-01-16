@@ -3,13 +3,14 @@
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 import { type RevealPhase, useReveal } from "@/src/components/providers/reveal-provider";
+import { springs, distances, stagger } from "@/src/lib/physics";
 
 /**
- * Scroll Reveal
+ * Reveal Components
  *
- * Wraps content and animates it into view when scrolled into viewport.
- * Uses spring physics for natural feel.
- * Respects global orchestration phases.
+ * Physics-based reveal animations using spring dynamics.
+ * All transforms are GPU-accelerated (opacity + transform only).
+ * Respects global orchestration phases and reduced motion preferences.
  */
 
 interface RevealProps {
@@ -18,13 +19,6 @@ interface RevealProps {
 	className?: string;
 	phase?: RevealPhase; // 0=BG, 1=Nav, 2=Line1, 3=Profile, 4=Line2, 5=Hero, 6=Scroll
 }
-
-const springConfig = {
-	type: "spring" as const,
-	mass: 0.5,
-	stiffness: 100,
-	damping: 20,
-};
 
 export function Reveal({ children, delay = 0, className, phase = 3 }: RevealProps) {
 	const { phase: currentPhase } = useReveal();
@@ -35,16 +29,18 @@ export function Reveal({ children, delay = 0, className, phase = 3 }: RevealProp
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
+			initial={{ opacity: 0, y: shouldReduceMotion ? 0 : distances.small }}
 			animate={
-				isEnabled ? { opacity: 1, y: 0 } : { opacity: 0, y: shouldReduceMotion ? 0 : 20 }
+				isEnabled
+					? { opacity: 1, y: 0 }
+					: { opacity: 0, y: shouldReduceMotion ? 0 : distances.small }
 			}
 			transition={{
-				...springConfig,
+				...springs.responsive,
 				delay: delay,
 			}}
 			className={className}
-			style={{ willChange: "transform, opacity" }} // GPU optimization
+			style={{ willChange: "transform, opacity" }}
 		>
 			{children}
 		</motion.div>
@@ -61,10 +57,10 @@ export function ScrollReveal({ children, delay = 0, className, phase = 5 }: Reve
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 30 }}
+			initial={{ opacity: 0, y: shouldReduceMotion ? 0 : distances.medium }}
 			whileInView={isEnabled ? { opacity: 1, y: 0 } : undefined}
 			viewport={{ once: true, margin: "-50px" }}
-			transition={{ ...springConfig, delay }}
+			transition={{ ...springs.gentle, delay }}
 			className={className}
 			style={{ willChange: "transform, opacity" }}
 		>
@@ -92,7 +88,7 @@ export function RevealStagger({
 			variants={{
 				visible: {
 					transition: {
-						staggerChildren: 0.1,
+						staggerChildren: stagger.item,
 					},
 				},
 			}}
@@ -109,11 +105,11 @@ export function RevealItem({ children, className }: { children: ReactNode; class
 	return (
 		<motion.div
 			variants={{
-				hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 20 },
+				hidden: { opacity: 0, y: shouldReduceMotion ? 0 : distances.small },
 				visible: {
 					opacity: 1,
 					y: 0,
-					transition: springConfig,
+					transition: springs.responsive,
 				},
 			}}
 			className={className}

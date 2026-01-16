@@ -18,20 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useReveal } from "@/src/components/providers/reveal-provider";
 import { cn } from "@/src/lib/utils";
-
-const springConfig = {
-	type: "spring" as const,
-	mass: 0.4,
-	stiffness: 400,
-	damping: 25,
-};
-
-const hoverSpring = {
-	type: "spring" as const,
-	mass: 0.4,
-	stiffness: 600,
-	damping: 35,
-};
+import { springs } from "@/src/lib/physics";
 
 type NavItem = {
 	name: string;
@@ -133,7 +120,7 @@ export function FloatingNav() {
 				animate={
 					isEnabled ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -20, scale: 0.95 }
 				}
-				transition={springConfig}
+				transition={springs.responsive}
 				className="relative flex items-center gap-1 rounded-full border border-surface-200/80 bg-white/90 p-1.5 shadow-lg shadow-surface-900/5 backdrop-blur-xl dark:border-surface-800/80 dark:bg-surface-950/90 dark:shadow-surface-950/50"
 				role="navigation"
 				aria-label="Main navigation"
@@ -167,13 +154,13 @@ export function FloatingNav() {
 										<motion.div
 											layoutId="nav-slot"
 											className="absolute inset-0 -z-10 rounded-full bg-surface-100 dark:bg-surface-800"
-											transition={hoverSpring}
+											transition={springs.layout}
 										/>
 									)}
 									<motion.div
 										whileHover={{ scale: 1.1 }}
 										whileTap={{ scale: 0.9 }}
-										transition={hoverSpring}
+										transition={springs.snappy}
 									>
 										<Icon
 											className="shrink-0"
@@ -212,7 +199,7 @@ export function FloatingNav() {
 					onClick={toggleTheme}
 					whileHover={{ scale: 1.1 }}
 					whileTap={{ scale: 0.9 }}
-					transition={hoverSpring}
+					transition={springs.snappy}
 					className={cn(
 						"relative z-10 flex items-center justify-center rounded-full",
 						"text-surface-500 dark:text-surface-400",
@@ -230,7 +217,7 @@ export function FloatingNav() {
 						<motion.div
 							layoutId="nav-slot"
 							className="absolute inset-0 -z-10 rounded-full bg-surface-100 dark:bg-surface-800"
-							transition={hoverSpring}
+							transition={springs.layout}
 						/>
 					)}
 					<Sun

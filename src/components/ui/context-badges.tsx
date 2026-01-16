@@ -2,22 +2,8 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-
-// Match FloatingNav spring physics exactly
-const springConfig = {
-	type: "spring" as const,
-	mass: 0.4,
-	stiffness: 400,
-	damping: 25,
-};
-
 import { useReveal } from "@/src/components/providers/reveal-provider";
-
-const _hoverSpring = {
-	type: "spring" as const,
-	stiffness: 500,
-	damping: 30,
-};
+import { springs } from "@/src/lib/physics";
 
 // Match FloatingNav visual system
 const badgeClasses =
@@ -31,7 +17,7 @@ export function LocationBadge() {
 		<motion.div
 			initial={{ opacity: 0, scale: 0.9 }}
 			animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-			transition={{ ...springConfig, delay: 0.15 }}
+			transition={{ ...springs.responsive, delay: 0.15 }}
 			whileHover={{ scale: 1.05 }}
 			whileTap={{ scale: 0.95 }}
 			className={badgeClasses}
@@ -78,7 +64,7 @@ export function TimeBadge() {
 		<motion.div
 			initial={{ opacity: 0, scale: 0.9 }}
 			animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-			transition={{ ...springConfig, delay: 0.2 }}
+			transition={{ ...springs.responsive, delay: 0.2 }}
 			whileHover={{ scale: 1.05 }}
 			whileTap={{ scale: 0.95 }}
 			className={badgeClasses}
