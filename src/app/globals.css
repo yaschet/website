@@ -1583,7 +1583,7 @@ html {
   }
 
   body {
-    @apply bg-background font-sans text-foreground antialiased selection:bg-accent-color-400 selection:text-accent-color-950;
+    @apply bg-background font-sans text-foreground antialiased selection:bg-accent-400 selection:text-accent-950;
   }
 }
 
