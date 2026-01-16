@@ -6,9 +6,9 @@ import { useEffect, useRef, useState, useCallback } from "react";
 /**
  * HeroGradient
  *
- * Premium cloud-like gradient glow floating INSIDE the page.
- * Uses SVG filter with noise to eliminate color banding.
- * Multiple blur layers for natural depth.
+ * Premium cloud-like gradient with subtle noise dithering.
+ * The noise eliminates 8-bit color banding - technique used by Apple, Stripe.
+ * Key: noise must be VERY subtle (~1% opacity) to work without being visible.
  */
 
 interface HeroGradientProps {
@@ -17,15 +17,51 @@ interface HeroGradientProps {
 
 export function HeroGradient({ className = "" }: HeroGradientProps) {
   const { resolvedTheme } = useTheme();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const dotsCanvasRef = useRef<HTMLCanvasElement>(null);
+  const noiseCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
+  const [noiseDataUrl, setNoiseDataUrl] = useState<string>("");
 
   const isDark = resolvedTheme === "dark";
 
+  /**
+   * Create noise dithering pattern - the key to eliminating banding.
+   * Must be VERY subtle - around 1% opacity as per research.
+   */
+  const createNoisePattern = useCallback(() => {
+    const canvas = noiseCanvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Small pattern that tiles - 128x128 is efficient
+    const size = 128;
+    canvas.width = size;
+    canvas.height = size;
+
+    const imageData = ctx.createImageData(size, size);
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      // Random grayscale value
+      const value = Math.random() * 255;
+      data[i] = value; // R
+      data[i + 1] = value; // G
+      data[i + 2] = value; // B
+      // CRITICAL: Very low alpha (1-2%) - invisible but breaks banding
+      // Formula from research: (1/255) = ~0.4% per channel
+      data[i + 3] = 3; // ~1.2% opacity - almost invisible
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    setNoiseDataUrl(canvas.toDataURL());
+  }, []);
+
   // Draw dot grid pattern
   const drawDots = useCallback(() => {
-    const canvas = canvasRef.current;
+    const canvas = dotsCanvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
 
@@ -60,9 +96,10 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 
   useEffect(() => {
     if (mounted) {
+      createNoisePattern();
       requestAnimationFrame(drawDots);
     }
-  }, [mounted, drawDots]);
+  }, [mounted, createNoisePattern, drawDots]);
 
   useEffect(() => {
     window.addEventListener("resize", drawDots);
@@ -76,44 +113,21 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
   return (
     <div
       ref={containerRef}
-      className={`absolute inset-x-0 top-0 h-screen overflow-hidden pointer-events-none ${className}`}
+      className={`absolute inset-x-0 top-0 overflow-hidden pointer-events-none ${className}`}
       aria-hidden="true"
       style={{
-        // Mask that fades to transparent at all edges
+        // Extend past viewport and fade out very gradually
+        height: "120vh",
         maskImage: `
-          linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)
+          linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%)
         `,
         WebkitMaskImage: `
-          linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)
+          linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%)
         `,
       }}
     >
-      {/* SVG filter for noise - breaks up color banding */}
-      <svg className="absolute" width="0" height="0" aria-hidden="true">
-        <defs>
-          <filter id="noise-filter" x="0%" y="0%" width="100%" height="100%">
-            {/* Add subtle noise to break banding */}
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.8"
-              numOctaves="4"
-              result="noise"
-            />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="noise"
-              scale="3"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-      </svg>
-
-      {/* 
-        Premium cloud gradient - LARGER for presence
-        Multiple layers with noise filter to eliminate banding
-      */}
+      {/* Hidden canvas for generating noise pattern */}
+      <canvas ref={noiseCanvasRef} className="hidden" aria-hidden="true" />
 
       {/* Layer 1: Large base cloud */}
       <div
@@ -131,7 +145,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
         }}
       />
 
-      {/* Layer 2: Medium accent cloud - adds depth */}
+      {/* Layer 2: Medium accent cloud */}
       <div
         className="absolute"
         style={{
@@ -147,7 +161,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
         }}
       />
 
-      {/* Layer 3: Small bright core - premium glow center */}
+      {/* Layer 3: Small bright core */}
       <div
         className="absolute"
         style={{
@@ -165,10 +179,24 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 
       {/* Dot grid overlay */}
       <canvas
-        ref={canvasRef}
+        ref={dotsCanvasRef}
         className="absolute inset-0 w-full h-full"
         style={{ zIndex: 1 }}
       />
+
+      {/* Noise dithering overlay - VERY subtle, breaks color banding */}
+      {noiseDataUrl && (
+        <div
+          className="absolute inset-0"
+          style={{
+            zIndex: 2,
+            backgroundImage: `url(${noiseDataUrl})`,
+            backgroundRepeat: "repeat",
+            opacity: 1, // Alpha is already in the canvas data (1.2%)
+            pointerEvents: "none",
+          }}
+        />
+      )}
     </div>
   );
 }

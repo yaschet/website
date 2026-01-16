@@ -1514,7 +1514,7 @@ html {
 
 html,
 body {
-  @apply selection:bg-accent-600 scroll-smooth lining-nums antialiased selection:text-white;
+  @apply bg-surface selection:bg-accent-600 scroll-smooth lining-nums antialiased selection:text-white;
 }
 
 .dark,
