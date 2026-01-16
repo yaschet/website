@@ -1570,6 +1570,23 @@ html {
   text-rendering: optimizeLegibility;
 }
 
+@layer base {
+  *,
+  ::after,
+  ::before {
+    @apply border-surface-200 outline-offset-4 outline-surface-200;
+  }
+
+  html {
+    @apply scroll-smooth selection:bg-surface-200 selection:text-surface-900;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased selection:bg-accent-color-400 selection:text-accent-color-950;
+  }
+}
+
 html,
 body {
   @apply bg-surface selection:bg-accent-600 lining-nums antialiased selection:text-white;

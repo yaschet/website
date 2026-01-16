@@ -136,426 +136,439 @@ interface SwissGridProviderProps {
  * 4. Draws pixel-perfect dashed grid lines
  */
 export function SwissGridProvider({
-  children,
-  dashSize = DASH_SIZE,
-  gapSize = GAP_SIZE,
+	children,
+	dashSize = DASH_SIZE,
+	gapSize = GAP_SIZE,
 }: SwissGridProviderProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const sectionsRef = useRef<Map<string, HTMLElement>>(new Map());
-  const [sections, setSections] = useState<SectionBoundary[]>([]);
-  const [containerBounds, setContainerBounds] = useState<{
-    left: number;
-    right: number;
-    width: number;
-  } | null>(null);
-  const [isDark, setIsDark] = useState(false);
-  const { phase } = useReveal();
-  const shouldReduceMotion = useReducedMotion();
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const sectionsRef = useRef<Map<string, HTMLElement>>(new Map());
+	const [sections, setSections] = useState<SectionBoundary[]>([]);
+	const [containerBounds, setContainerBounds] = useState<{
+		left: number;
+		right: number;
+		width: number;
+	} | null>(null);
+	const [isDark, setIsDark] = useState(false);
+	const { phase } = useReveal();
+	const shouldReduceMotion = useReducedMotion();
 
-  // Physics-based animation progress (0 → 1)
-  // Low stiffness + High mass = Heavy, deliberate mechanical work
-  const drawProgress = useSpring(0, {
-    stiffness: 6,
-    damping: 10,
-    mass: 4,
-    restDelta: 0.001,
-  });
+	// Physics-based animation progress (0 → 1)
+	// Low stiffness + High mass = Heavy, deliberate mechanical work
+	const drawProgress = useSpring(0, {
+		stiffness: 6,
+		damping: 10,
+		mass: 4,
+		restDelta: 0.001,
+	});
 
-  const config: GridConfig = {
-    dashSize,
-    gapSize,
-    colorLight: COLOR_LIGHT,
-    colorDark: COLOR_DARK,
-  };
+	const config: GridConfig = {
+		dashSize,
+		gapSize,
+		colorLight: COLOR_LIGHT,
+		colorDark: COLOR_DARK,
+	};
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Section Registration
-  // ─────────────────────────────────────────────────────────────────────────
+	// ─────────────────────────────────────────────────────────────────────────
+	// Section Registration
+	// ─────────────────────────────────────────────────────────────────────────
 
-  const registerSection = useCallback(
-    (id: string, element: HTMLElement | null) => {
-      if (element) {
-        sectionsRef.current.set(id, element);
-      } else {
-        sectionsRef.current.delete(id);
-      }
-    },
-    []
-  );
+	const registerSection = useCallback((id: string, element: HTMLElement | null) => {
+		if (element) {
+			sectionsRef.current.set(id, element);
+		} else {
+			sectionsRef.current.delete(id);
+		}
+	}, []);
 
-  const unregisterSection = useCallback((id: string) => {
-    sectionsRef.current.delete(id);
-  }, []);
+	const unregisterSection = useCallback((id: string) => {
+		sectionsRef.current.delete(id);
+	}, []);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Position Calculation
-  // ─────────────────────────────────────────────────────────────────────────
+	// ─────────────────────────────────────────────────────────────────────────
+	// Position Calculation
+	// ─────────────────────────────────────────────────────────────────────────
 
-  const recalculatePositions = useCallback(() => {
-    // Get scroll offsets
-    const scrollX = window.scrollX || window.pageXOffset;
-    const scrollY = window.scrollY || window.pageYOffset;
+	const recalculatePositions = useCallback(() => {
+		// Get scroll offsets
+		const scrollX = window.scrollX || window.pageXOffset;
+		const scrollY = window.scrollY || window.pageYOffset;
 
-    // Get container bounds (absolute)
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setContainerBounds({
-        left: rect.left + scrollX,
-        right: rect.right + scrollX,
-        width: rect.width,
-      });
-    }
+		// Get container bounds (absolute)
+		if (containerRef.current) {
+			const rect = containerRef.current.getBoundingClientRect();
+			setContainerBounds({
+				left: rect.left + scrollX,
+				right: rect.right + scrollX,
+				width: rect.width,
+			});
+		}
 
-    // Get section boundaries (absolute)
-    const newSections: SectionBoundary[] = [];
-    sectionsRef.current.forEach((element, id) => {
-      const rect = element.getBoundingClientRect();
-      newSections.push({
-        id,
-        top: rect.top + scrollY,
-        bottom: rect.bottom + scrollY,
-      });
-    });
+		// Get section boundaries (absolute)
+		const newSections: SectionBoundary[] = [];
+		sectionsRef.current.forEach((element, id) => {
+			const rect = element.getBoundingClientRect();
+			newSections.push({
+				id,
+				top: rect.top + scrollY,
+				bottom: rect.bottom + scrollY,
+			});
+		});
 
-    // Sort by top position
-    newSections.sort((a, b) => a.top - b.top);
-    setSections(newSections);
-  }, []);
+		// Sort by top position
+		newSections.sort((a, b) => a.top - b.top);
+		setSections(newSections);
+	}, []);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Dark Mode Detection
-  // ─────────────────────────────────────────────────────────────────────────
+	// ─────────────────────────────────────────────────────────────────────────
+	// Dark Mode Detection
+	// ─────────────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const checkDarkMode = () => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    };
+	useEffect(() => {
+		const checkDarkMode = () => {
+			setIsDark(document.documentElement.classList.contains("dark"));
+		};
 
-    checkDarkMode();
+		checkDarkMode();
 
-    const observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
+		const observer = new MutationObserver(checkDarkMode);
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
 
-    return () => observer.disconnect();
-  }, []);
+		return () => observer.disconnect();
+	}, []);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Canvas Drawing - accepts progress for procedural animation
-  // ─────────────────────────────────────────────────────────────────────────
+	// ─────────────────────────────────────────────────────────────────────────
+	// Canvas Drawing - accepts progress for procedural animation
+	// ─────────────────────────────────────────────────────────────────────────
 
-  const draw = useCallback(
-    (progress: number) => {
-      const canvas = canvasRef.current;
-      if (!canvas || !containerBounds) return;
+	const draw = useCallback(
+		(progress: number) => {
+			const canvas = canvasRef.current;
+			if (!canvas || !containerBounds) return;
 
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+			const ctx = canvas.getContext("2d");
+			if (!ctx) return;
 
-      const dpr = window.devicePixelRatio || 1;
-      const width = document.documentElement.scrollWidth;
-      const height = document.documentElement.scrollHeight;
+			const dpr = window.devicePixelRatio || 1;
+			const width = document.documentElement.scrollWidth;
+			const height = document.documentElement.scrollHeight;
 
-      // Ensure canvas is sized correctly
-      if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
-        canvas.width = width * dpr;
-        canvas.height = height * dpr;
-        canvas.style.width = "100%";
-        canvas.style.height = `${height}px`;
-      }
+			// Ensure canvas is sized correctly
+			if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+				canvas.width = width * dpr;
+				canvas.height = height * dpr;
+				canvas.style.width = "100%";
+				canvas.style.height = `${height}px`;
+			}
 
-      ctx.save();
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, width, height);
+			ctx.save();
+			ctx.setTransform(1, 0, 0, 1, 0, 0);
+			ctx.scale(dpr, dpr);
+			ctx.clearRect(0, 0, width, height);
 
-      // Colors
-      const dashColor = isDark ? config.colorDark : config.colorLight;
-      const cornerColor = isDark ? CORNER_COLOR_DARK : CORNER_COLOR_LIGHT;
+			// Colors
+			const dashColor = isDark ? config.colorDark : config.colorLight;
+			const cornerColor = isDark ? CORNER_COLOR_DARK : CORNER_COLOR_LIGHT;
 
-      const cycle = config.dashSize + config.gapSize;
-      const { left: containerLeft, right: containerRight } = containerBounds;
+			const cycle = config.dashSize + config.gapSize;
+			const { left: containerLeft, right: containerRight } = containerBounds;
 
-      // ─────────────────────────────────────────────────────────────────────
-      // Physics of Paper Sequence:
-      // 1. Construction Scaffold (The Paper Foundation)
-      // 2. Vertical Lead (The Main Rails)
-      // 3. Horizontal Momentum (The Shoot-out with Rebound)
-      // 4. Mechanical Snaps (The Corners bolted down)
-      // ─────────────────────────────────────────────────────────────────────
+			// ─────────────────────────────────────────────────────────────────────
+			// Physics of Paper Sequence:
+			// 1. Construction Scaffold (The Paper Foundation)
+			// 2. Vertical Lead (The Main Rails)
+			// 3. Horizontal Momentum (The Shoot-out with Rebound)
+			// 4. Mechanical Snaps (The Corners bolted down)
+			// ─────────────────────────────────────────────────────────────────────
 
-      const verticalProgress = progress;
-      // Vertical lead finishes at 70% of global progress to leave headroom for horizontals
-      const leadProgress = Math.min(progress / 0.7, 1);
-      const currentY = height * leadProgress;
+			const verticalProgress = progress;
+			// Vertical lead finishes at 70% of global progress to leave headroom for horizontals
+			const leadProgress = Math.min(progress / 0.7, 1);
+			const currentY = height * leadProgress;
 
-      // Get horizontal line Y positions for crosshair alignment
-      const horizontalYs = sections.map((s) => s.bottom);
+			// Get horizontal line Y positions for crosshair alignment
+			const horizontalYs = sections.map((s) => s.bottom);
 
-      // PASS 1: Construction Scaffold (Light foundation)
-      if (progress > 0) {
-        ctx.globalAlpha = 0.06;
-        drawVerticalRail(
-          ctx,
-          containerLeft,
-          height,
-          cycle,
-          config.dashSize,
-          horizontalYs,
-          dashColor,
-          cornerColor
-        );
-        drawVerticalRail(
-          ctx,
-          containerRight,
-          height,
-          cycle,
-          config.dashSize,
-          horizontalYs,
-          dashColor,
-          cornerColor
-        );
-        for (const s of sections) {
-          drawHorizontalLine(
-            ctx,
-            s.bottom,
-            0,
-            width,
-            cycle,
-            config.dashSize,
-            containerLeft,
-            containerRight,
-            dashColor,
-            cornerColor
-          );
-        }
-        ctx.globalAlpha = 1;
-      }
+			// PASS 1: Construction Scaffold (Light foundation)
+			if (progress > 0) {
+				ctx.globalAlpha = 0.06;
+				drawVerticalRail(
+					ctx,
+					containerLeft,
+					height,
+					cycle,
+					config.dashSize,
+					horizontalYs,
+					dashColor,
+					"transparent",
+				);
+				drawVerticalRail(
+					ctx,
+					containerRight,
+					height,
+					cycle,
+					config.dashSize,
+					horizontalYs,
+					dashColor,
+					"transparent",
+				);
+				for (const s of sections) {
+					drawHorizontalLine(
+						ctx,
+						s.bottom,
+						0,
+						width,
+						cycle,
+						config.dashSize,
+						containerLeft,
+						containerRight,
+						dashColor,
+						"transparent",
+					);
+				}
+				ctx.globalAlpha = 1;
+			}
 
-      // PASS 2: Vertical Rails (Primary ink)
-      if (currentY > 0) {
-        drawVerticalRail(
-          ctx,
-          containerLeft,
-          currentY,
-          cycle,
-          config.dashSize,
-          horizontalYs,
-          dashColor,
-          cornerColor
-        );
-        drawVerticalRail(
-          ctx,
-          containerRight,
-          currentY,
-          cycle,
-          config.dashSize,
-          horizontalYs,
-          dashColor,
-          cornerColor
-        );
-      }
+			// PASS 2: Vertical Rails (Primary ink)
+			if (currentY > 0) {
+				drawVerticalRail(
+					ctx,
+					containerLeft,
+					currentY,
+					cycle,
+					config.dashSize,
+					horizontalYs,
+					dashColor,
+					"transparent", // No corners in initial passes
+				);
+				drawVerticalRail(
+					ctx,
+					containerRight,
+					currentY,
+					cycle,
+					config.dashSize,
+					horizontalYs,
+					dashColor,
+					"transparent",
+				);
+			}
 
-      // PASS 3: Horizontal Momentum & Kinetic Corners
-      for (const section of sections) {
-        const lineY = section.bottom;
-        // Trigger scaled into the 0.7 lead window
-        const trigger = (lineY / height) * 0.7;
+			// PASS 3: Horizontal Momentum & Kinetic Corners
+			for (const section of sections) {
+				const lineY = section.bottom;
+				// Trigger scaled into the 0.7 lead window
+				const trigger = (lineY / height) * 0.7;
 
-        if (progress >= trigger) {
-          // Velocity slightly adjusted to ensure completion within the 0.3 settle window
-          const rawLineProgress = Math.min((progress - trigger) * 4, 1.2);
-          const lineProgress =
-            rawLineProgress > 1
-              ? 1 + Math.sin((rawLineProgress - 1) * Math.PI * 5) * 0.03
-              : rawLineProgress;
+				if (progress >= trigger) {
+					// Velocity slightly adjusted to ensure completion within the 0.3 settle window
+					const rawLineProgress = Math.min((progress - trigger) * 4, 1.2);
+					const lineProgress =
+						rawLineProgress > 1
+							? 1 + Math.sin((rawLineProgress - 1) * Math.PI * 5) * 0.03
+							: rawLineProgress;
 
-          if (lineProgress > 0) {
-            const currentX = width * lineProgress;
+					if (lineProgress > 0) {
+						const currentX = width * lineProgress;
 
-            drawHorizontalLine(
-              ctx,
-              lineY,
-              0,
-              currentX,
-              cycle,
-              config.dashSize,
-              containerLeft,
-              containerRight,
-              dashColor,
-              cornerColor
-            );
+						drawHorizontalLine(
+							ctx,
+							lineY,
+							0,
+							currentX,
+							cycle,
+							config.dashSize,
+							containerLeft,
+							containerRight,
+							dashColor,
+							cornerColor,
+						);
 
-            // PASS 4: Apple-Level Kinetic Extrusion (Refined for precision)
-            const drawKineticCorner = (ix: number) => {
-              const railX = Math.round(ix);
-              const ry = Math.round(lineY);
-              const distPast = currentX - railX;
+						// PASS 4: Apple-Level "Physical Stamp" Corners
+						const drawPhysicalStamp = (ix: number) => {
+							const railX = Math.round(ix);
+							const ry = Math.round(lineY);
+							const distPast = currentX - railX;
 
-              if (distPast > 0) {
-                const cornerFactor = Math.min(distPast / CORNER_DASH_SIZE, 1);
-                const impact =
-                  lineProgress > 0.98
-                    ? 1 + Math.sin((lineProgress - 0.98) * 100) * 0.05
-                    : 1;
+							// The "Stamp Window" - how far past must the head be for a full bounce?
+							const stampWindow = CORNER_DASH_SIZE * 1.5;
 
-                ctx.save();
-                ctx.translate(railX, ry);
-                ctx.scale(impact, impact);
+							if (distPast > 0) {
+								const rawStampProgress = Math.min(distPast / stampWindow, 1);
 
-                const currentBarSize = CORNER_DASH_SIZE * cornerFactor;
-                const halfBar = currentBarSize / 2;
-                const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
+								// Physical Scale Bounce: 0 -> 1.1 -> 1.0
+								// Snap to 1.1 quickly (0->0.6 progress), then settle to 1.0
+								const stampScale =
+									rawStampProgress < 0.6
+										? (rawStampProgress / 0.6) * 1.1
+										: 1.1 - ((rawStampProgress - 0.6) / 0.4) * 0.1;
 
-                ctx.fillStyle = cornerColor;
+								// High-speed impact friction (subtle vibration)
+								const impactVibration =
+									rawStampProgress < 1
+										? 1 +
+											Math.sin(rawStampProgress * 50) *
+												0.02 *
+												(1 - rawStampProgress)
+										: 1;
 
-                // Kinetic growth over the static crosshair for "ink density"
-                ctx.fillRect(
-                  -halfCornerThickness,
-                  -halfBar,
-                  CORNER_THICKNESS,
-                  currentBarSize
-                );
-                ctx.fillRect(
-                  -halfBar,
-                  -halfCornerThickness,
-                  currentBarSize,
-                  CORNER_THICKNESS
-                );
+								ctx.save();
+								ctx.translate(railX, ry);
+								ctx.scale(
+									stampScale * impactVibration,
+									stampScale * impactVibration,
+								);
 
-                // Additive Ink Concentration
-                ctx.globalAlpha = cornerFactor * 0.4;
-                ctx.fillRect(
-                  -halfCornerThickness * 2,
-                  -halfCornerThickness * 2,
-                  CORNER_THICKNESS * 2,
-                  CORNER_THICKNESS * 2
-                );
-                ctx.restore();
-              }
-            };
+								const halfBar = CORNER_DASH_SIZE / 2;
+								const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 
-            drawKineticCorner(containerLeft);
-            drawKineticCorner(containerRight);
-          }
-        }
-      }
-      ctx.restore();
-    },
-    [containerBounds, sections, config, isDark]
-  );
+								ctx.fillStyle = cornerColor;
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // ResizeObserver + Draw Loop
-  // ─────────────────────────────────────────────────────────────────────────
+								// The "Stamped" Mark (V + H)
+								ctx.fillRect(
+									-halfCornerThickness,
+									-halfBar,
+									CORNER_THICKNESS,
+									CORNER_DASH_SIZE,
+								);
+								ctx.fillRect(
+									-halfBar,
+									-halfCornerThickness,
+									CORNER_DASH_SIZE,
+									CORNER_THICKNESS,
+								);
 
-  useEffect(() => {
-    recalculatePositions();
+								// Additive Ink Concentration (Final hit)
+								ctx.globalAlpha = Math.min(rawStampProgress * 2, 1) * 0.4;
+								ctx.fillRect(
+									-halfCornerThickness * 2,
+									-halfCornerThickness * 2,
+									CORNER_THICKNESS * 2,
+									CORNER_THICKNESS * 2,
+								);
+								ctx.restore();
+							}
+						};
 
-    // Observe container size changes
-    const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(recalculatePositions);
-    });
+						drawPhysicalStamp(containerLeft);
+						drawPhysicalStamp(containerRight);
+					}
+				}
+			}
+			ctx.restore();
+		},
+		[containerBounds, sections, config, isDark],
+	);
 
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
+	// ─────────────────────────────────────────────────────────────────────────
+	// ResizeObserver + Draw Loop
+	// ─────────────────────────────────────────────────────────────────────────
 
-    // Observe body height changes (crucial for absolute positioning)
-    resizeObserver.observe(document.body);
+	useEffect(() => {
+		recalculatePositions();
 
-    // Observe all sections
-    sectionsRef.current.forEach((element) => {
-      resizeObserver.observe(element);
-    });
+		// Observe container size changes
+		const resizeObserver = new ResizeObserver(() => {
+			requestAnimationFrame(recalculatePositions);
+		});
 
-    // Window resize
-    const handleResize = () => requestAnimationFrame(recalculatePositions);
-    window.addEventListener("resize", handleResize);
+		if (containerRef.current) {
+			resizeObserver.observe(containerRef.current);
+		}
 
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [recalculatePositions]);
+		// Observe body height changes (crucial for absolute positioning)
+		resizeObserver.observe(document.body);
 
-  // Draw when positions change
-  useEffect(() => {
-    requestAnimationFrame(() => draw(drawProgress.get()));
-  }, [draw, drawProgress]);
+		// Observe all sections
+		sectionsRef.current.forEach((element) => {
+			resizeObserver.observe(element);
+		});
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Animation Loop - Subscribe to spring changes
-  // ─────────────────────────────────────────────────────────────────────────
+		// Window resize
+		const handleResize = () => requestAnimationFrame(recalculatePositions);
+		window.addEventListener("resize", handleResize);
 
-  const isVisible = phase >= 0;
+		return () => {
+			resizeObserver.disconnect();
+			window.removeEventListener("resize", handleResize);
+		};
+	}, [recalculatePositions]);
 
-  useEffect(() => {
-    // 1. Reset progress on mount
-    drawProgress.jump(0);
+	// Draw when positions change
+	useEffect(() => {
+		requestAnimationFrame(() => draw(drawProgress.get()));
+	}, [draw, drawProgress]);
 
-    // 2. Ensure we only start when the container is measured and grid is visible
-    if (isVisible && containerBounds) {
-      // 3. Small delay to ensure the browser has settled
-      const timer = setTimeout(() => {
-        if (shouldReduceMotion) {
-          drawProgress.jump(1);
-        } else {
-          drawProgress.set(1);
-        }
-      }, 50); // Minimal delay, intent is everything
+	// ─────────────────────────────────────────────────────────────────────────
+	// Animation Loop - Subscribe to spring changes
+	// ─────────────────────────────────────────────────────────────────────────
 
-      // 4. Subscribe to changes for 60fps redraws
-      const unsubscribe = drawProgress.on("change", (value) => {
-        requestAnimationFrame(() => draw(value));
-      });
+	const isVisible = phase >= 0;
+	// Use a ref for draw to avoid re-sketches on theme change while ensuring latest color
+	const drawRef = useRef(draw);
+	drawRef.current = draw;
 
-      return () => {
-        clearTimeout(timer);
-        unsubscribe();
-      };
-    }
+	// Reset only on mount or visibility change
+	useEffect(() => {
+		if (isVisible) {
+			drawProgress.jump(0);
 
-    // Still need to subscribe for initial state
-    const unsubscribe = drawProgress.on("change", (value) => {
-      requestAnimationFrame(() => draw(value));
-    });
-    return unsubscribe;
-  }, [isVisible, containerBounds, shouldReduceMotion, drawProgress, draw]);
+			const timer = setTimeout(() => {
+				if (shouldReduceMotion) {
+					drawProgress.jump(1);
+				} else {
+					drawProgress.set(1);
+				}
+			}, 50);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Render
-  // ─────────────────────────────────────────────────────────────────────────
+			return () => clearTimeout(timer);
+		}
+	}, [isVisible, drawProgress, shouldReduceMotion]);
 
-  const contextValue: SwissGridContextValue = {
-    registerSection,
-    unregisterSection,
-    containerBounds,
-    config,
-  };
+	// Subscribe to spring and ensure 60fps redraws
+	useEffect(() => {
+		const unsubscribe = drawProgress.on("change", (value) => {
+			requestAnimationFrame(() => drawRef.current(value));
+		});
 
-  return (
-    <SwissGridContext.Provider value={contextValue}>
-      {/* Hidden container to measure max-w-3xl bounds */}
-      <div
-        ref={containerRef}
-        className="pointer-events-none fixed top-0 right-0 left-0 z-[-1] mx-auto h-px max-w-3xl"
-        aria-hidden="true"
-      />
+		// Ensure we draw the current state immediately if something changes
+		requestAnimationFrame(() => drawRef.current(drawProgress.get()));
 
-      {/* Canvas - procedurally animated via draw() */}
-      <canvas
-        ref={canvasRef}
-        className="pointer-events-none absolute inset-0 z-50"
-        aria-hidden="true"
-      />
+		return unsubscribe;
+	}, [drawProgress, isVisible]);
 
-      {children}
-    </SwissGridContext.Provider>
-  );
+	// ─────────────────────────────────────────────────────────────────────────
+	// Render
+	// ─────────────────────────────────────────────────────────────────────────
+
+	const contextValue: SwissGridContextValue = {
+		registerSection,
+		unregisterSection,
+		containerBounds,
+		config,
+	};
+
+	return (
+		<SwissGridContext.Provider value={contextValue}>
+			{/* Hidden container to measure max-w-3xl bounds */}
+			<div
+				ref={containerRef}
+				className="pointer-events-none fixed top-0 right-0 left-0 z-[-1] mx-auto h-px max-w-3xl"
+				aria-hidden="true"
+			/>
+
+			{/* Canvas - procedurally animated via draw() */}
+			<canvas
+				ref={canvasRef}
+				className="pointer-events-none absolute inset-0 z-50"
+				aria-hidden="true"
+			/>
+
+			{children}
+		</SwissGridContext.Provider>
+	);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
