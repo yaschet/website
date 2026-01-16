@@ -6,8 +6,9 @@ import { useEffect, useRef, useState, useCallback } from "react";
 /**
  * HeroGradient
  *
- * Large, soft, diffuse glow emanating from top-center of the page.
- * Dot grid overlay visible only within the gradient area.
+ * Premium cloud-like gradient glow floating INSIDE the page.
+ * Uses SVG filter with noise to eliminate color banding.
+ * Multiple blur layers for natural depth.
  */
 
 interface HeroGradientProps {
@@ -39,14 +40,12 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 
     ctx.clearRect(0, 0, rect.width, rect.height);
 
-    // Small dots with tight spacing (1px dot, ~2px gap)
     const dotSize = 1;
     const spacing = 2;
 
-    // White dots - subtle opacity
     ctx.fillStyle = isDark
-      ? "rgba(255, 255, 255, 0.04)"
-      : "rgba(255, 255, 255, 0.35)";
+      ? "rgba(255, 255, 255, 0.02)"
+      : "rgba(255, 255, 255, 0.3)";
 
     for (let x = 0; x < rect.width; x += spacing) {
       for (let y = 0; y < rect.height; y += spacing) {
@@ -61,7 +60,6 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 
   useEffect(() => {
     if (mounted) {
-      // Small delay to ensure container is rendered
       requestAnimationFrame(drawDots);
     }
   }, [mounted, drawDots]);
@@ -75,27 +73,102 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
     return null;
   }
 
-  // Soft cyan/blue gradient
-  const glowColor = isDark
-    ? "rgba(56, 189, 248, 0.15)" // sky-400 very subtle
-    : "rgba(14, 165, 233, 0.12)"; // sky-500 subtle
-
   return (
     <div
       ref={containerRef}
       className={`absolute inset-x-0 top-0 h-screen overflow-hidden pointer-events-none ${className}`}
       aria-hidden="true"
+      style={{
+        // Mask that fades to transparent at all edges
+        maskImage: `
+          linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)
+        `,
+        WebkitMaskImage: `
+          linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)
+        `,
+      }}
     >
-      {/* Large radial gradient emanating from top-center */}
+      {/* SVG filter for noise - breaks up color banding */}
+      <svg className="absolute" width="0" height="0" aria-hidden="true">
+        <defs>
+          <filter id="noise-filter" x="0%" y="0%" width="100%" height="100%">
+            {/* Add subtle noise to break banding */}
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.8"
+              numOctaves="4"
+              result="noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="3"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* 
+        Premium cloud gradient - LARGER for presence
+        Multiple layers with noise filter to eliminate banding
+      */}
+
+      {/* Layer 1: Large base cloud */}
       <div
-        className="absolute w-full h-full"
+        className="absolute"
         style={{
-          background: `radial-gradient(ellipse 100% 70% at 50% 0%, ${glowColor}, transparent)`,
+          width: "80%",
+          height: "55%",
+          left: "50%",
+          top: "3%",
+          transform: "translateX(-50%)",
+          borderRadius: "50%",
+          backgroundColor: "var(--accent-500)",
+          opacity: isDark ? 0.1 : 0.06,
+          filter: "blur(150px)",
+        }}
+      />
+
+      {/* Layer 2: Medium accent cloud - adds depth */}
+      <div
+        className="absolute"
+        style={{
+          width: "60%",
+          height: "40%",
+          left: "50%",
+          top: "8%",
+          transform: "translateX(-50%)",
+          borderRadius: "50%",
+          backgroundColor: "var(--accent-400)",
+          opacity: isDark ? 0.08 : 0.05,
+          filter: "blur(120px)",
+        }}
+      />
+
+      {/* Layer 3: Small bright core - premium glow center */}
+      <div
+        className="absolute"
+        style={{
+          width: "40%",
+          height: "25%",
+          left: "50%",
+          top: "12%",
+          transform: "translateX(-50%)",
+          borderRadius: "50%",
+          backgroundColor: "var(--accent-300)",
+          opacity: isDark ? 0.06 : 0.04,
+          filter: "blur(80px)",
         }}
       />
 
       {/* Dot grid overlay */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 1 }}
+      />
     </div>
   );
 }
