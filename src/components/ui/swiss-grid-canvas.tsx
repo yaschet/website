@@ -276,10 +276,11 @@ export function SwissGridProvider({
 			const { left: containerLeft, right: containerRight } = containerBounds;
 
 			// ─────────────────────────────────────────────────────────────────────
-			// Weighted Blueprint Sketch Sequence:
-			// 1. Vertical Rails draw 0 -> Full Height (Deliberate Lead)
-			// 2. Horizontals shoot out after the lead passes them
-			// 3. Corners pop in "Late to the Party" at intersections
+			// Physics of Paper Sequence:
+			// 1. Construction Scaffold (The Paper Foundation)
+			// 2. Vertical Lead (The Main Rails)
+			// 3. Horizontal Momentum (The Shoot-out with Rebound)
+			// 4. Mechanical Snaps (The Corners bolted down)
 			// ─────────────────────────────────────────────────────────────────────
 
 			const verticalProgress = progress;
@@ -288,7 +289,48 @@ export function SwissGridProvider({
 			// Get horizontal line Y positions
 			const horizontalYs = sections.map((s) => s.bottom);
 
-			// Draw Vertical Rails (only up to currentY)
+			// PASS 1: Construction Scaffold (Light pen, always visible if active)
+			// This gives the brain a "place to go" before the ink arrives
+			if (progress > 0) {
+				ctx.globalAlpha = 0.06; // Very faint scaffold
+				drawVerticalRail(
+					ctx,
+					containerLeft,
+					height,
+					cycle,
+					config.dashSize,
+					horizontalYs,
+					dashColor,
+					"transparent",
+				);
+				drawVerticalRail(
+					ctx,
+					containerRight,
+					height,
+					cycle,
+					config.dashSize,
+					horizontalYs,
+					dashColor,
+					"transparent",
+				);
+				for (const s of sections) {
+					drawHorizontalLine(
+						ctx,
+						s.bottom,
+						0,
+						width,
+						cycle,
+						config.dashSize,
+						containerLeft,
+						containerRight,
+						dashColor,
+						"transparent",
+					);
+				}
+				ctx.globalAlpha = 1;
+			}
+
+			// PASS 2: Vertical Rails (Primary ink)
 			if (currentY > 0) {
 				drawVerticalRail(
 					ctx,
@@ -296,11 +338,10 @@ export function SwissGridProvider({
 					currentY,
 					cycle,
 					config.dashSize,
-					[], // Corners handled specialized below
+					[],
 					dashColor,
 					"transparent",
 				);
-
 				drawVerticalRail(
 					ctx,
 					containerRight,
@@ -313,15 +354,21 @@ export function SwissGridProvider({
 				);
 			}
 
-			// Draw Horizontal Lines and Specialized Corners
+			// PASS 3: Horizontal Momentum & Rebound
 			for (const section of sections) {
 				const lineY = section.bottom;
 				const trigger = lineY / height;
 
-				// Does the vertical sketch passed this line? (0.02 lead for clarity)
 				if (verticalProgress >= trigger) {
-					// Horizontal shoot-out progress (slower and weighted)
-					const lineProgress = Math.min((verticalProgress - trigger) * 4, 1);
+					// Elastic Overshoot Calculation
+					// progress across this line: 0 -> 1.2 (overshoot) -> 1.0 (settle)
+					const rawLineProgress = Math.min((verticalProgress - trigger) * 4, 1.2);
+
+					// Cubic overshoot/rebound curve
+					const lineProgress =
+						rawLineProgress > 1
+							? 1 + Math.sin((rawLineProgress - 1) * Math.PI * 5) * 0.03
+							: rawLineProgress;
 
 					if (lineProgress > 0) {
 						const currentX = width * lineProgress;
@@ -339,15 +386,17 @@ export function SwissGridProvider({
 							"transparent",
 						);
 
-						// "Late to the Party" Corners - arrive once intersection is fully formed
-						if (lineProgress > 0.95) {
-							// cornerProgress maps 0.95 -> 1.0 logic to a 0.0 -> 1.0 pop
-							const cornerFactor = (lineProgress - 0.95) * 20;
-							const cornerPop =
-								cornerFactor === 1 ? 1 : 1 - Math.pow(1 - cornerFactor, 3);
+						// PASS 4: Mechanical Snaps (Late arrival + Impact effect)
+						if (lineProgress > 0.9) {
+							// Arrival factor (0 -> 1 during the settle phase)
+							const arrival = Math.min((lineProgress - 0.9) * 10, 1);
+							// Impact vibrate: high frequency oscillation as it "bolts"
+							const impact = 1 + Math.sin(arrival * 50) * 0.1 * (1 - arrival);
 
-							if (cornerPop > 0) {
-								ctx.globalAlpha = cornerPop;
+							if (arrival > 0) {
+								ctx.globalAlpha = arrival;
+								ctx.save();
+
 								const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
 								const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 								const railXLeft = Math.round(containerLeft);
@@ -356,37 +405,43 @@ export function SwissGridProvider({
 
 								ctx.fillStyle = cornerColor;
 
-								// Left Intersect
-								if (currentX >= railXLeft + halfCornerDash) {
-									ctx.fillRect(
-										railXLeft - halfCornerThickness,
-										ry - halfCornerDash,
-										CORNER_THICKNESS,
-										CORNER_DASH_SIZE,
-									);
-									ctx.fillRect(
-										railXLeft - halfCornerDash,
-										ry - halfCornerThickness,
-										CORNER_DASH_SIZE,
-										CORNER_THICKNESS,
-									);
-								}
+								// Scale from intersection point (Impact effect)
+								const drawIntersect = (ix: number) => {
+									if (currentX >= ix + halfCornerDash) {
+										ctx.save();
+										ctx.translate(ix, ry);
+										ctx.scale(impact, impact);
+										// V part
+										ctx.fillRect(
+											-halfCornerThickness,
+											-halfCornerDash,
+											CORNER_THICKNESS,
+											CORNER_DASH_SIZE,
+										);
+										// H part
+										ctx.fillRect(
+											-halfCornerDash,
+											-halfCornerThickness,
+											CORNER_DASH_SIZE,
+											CORNER_THICKNESS,
+										);
 
-								// Right Intersect
-								if (currentX >= railXRight + halfCornerDash) {
-									ctx.fillRect(
-										railXRight - halfCornerThickness,
-										ry - halfCornerDash,
-										CORNER_THICKNESS,
-										CORNER_DASH_SIZE,
-									);
-									ctx.fillRect(
-										railXRight - halfCornerDash,
-										ry - halfCornerThickness,
-										CORNER_DASH_SIZE,
-										CORNER_THICKNESS,
-									);
-								}
+										// Additive Density (Double hit at center)
+										ctx.globalAlpha = arrival * 0.4;
+										ctx.fillRect(
+											-halfCornerThickness * 2,
+											-halfCornerThickness * 2,
+											CORNER_THICKNESS * 2,
+											CORNER_THICKNESS * 2,
+										);
+										ctx.restore();
+									}
+								};
+
+								drawIntersect(railXLeft);
+								drawIntersect(railXRight);
+
+								ctx.restore();
 								ctx.globalAlpha = 1;
 							}
 						}
