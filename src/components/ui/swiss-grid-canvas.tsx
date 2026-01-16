@@ -396,21 +396,34 @@ export function SwissGridProvider({
 							const ry = Math.round(lineY);
 							const distPast = currentX - railX;
 
-							// The "Stamp Window" - trigger window past the rail
-							const stampWindow = CORNER_DASH_SIZE * 2;
+							// The "Stamp Window" - widened to 350px for a "Slow-Motion Impact" feel
+							const stampWindow = 350;
 
 							if (distPast > 0) {
 								const rawStampProgress = Math.min(distPast / stampWindow, 1);
 
-								// Ballistic Snap Physics: 0 -> 1.15 -> 1.0
-								// High-speed expansion followed by elastic settling
+								// Ballistic Snap Physics: 0 -> 1.4 -> 1.0
+								// Hit peak impact early (15%), then a long luxurious settle
+								const impactPoint = 0.15;
 								const stampScale =
-									rawStampProgress < 0.4
-										? (rawStampProgress / 0.4) * 1.15
-										: 1.15 - ((rawStampProgress - 0.4) / 0.6) * 0.15;
+									rawStampProgress < impactPoint
+										? (rawStampProgress / impactPoint) * 1.4
+										: 1.4 -
+											((rawStampProgress - impactPoint) / (1 - impactPoint)) *
+												0.4;
+
+								// Kinetic Impact Drop: Start 20px above and gravity-snap down
+								const yOffset =
+									(1 - Math.min(rawStampProgress / impactPoint, 1)) * -20;
+
+								// Bolting Rotation: 25deg -> 0deg mechanical locking
+								const rotation =
+									(1 - Math.min(rawStampProgress / impactPoint, 1)) *
+									(25 * (Math.PI / 180));
 
 								ctx.save();
-								ctx.translate(railX, ry);
+								ctx.translate(railX, ry + yOffset);
+								ctx.rotate(rotation);
 								ctx.scale(stampScale, stampScale);
 
 								const halfBar = CORNER_DASH_SIZE / 2;
@@ -418,8 +431,15 @@ export function SwissGridProvider({
 
 								ctx.fillStyle = cornerColor;
 
+								// High-contrast impact flash at the moment of landing
+								if (
+									rawStampProgress > impactPoint - 0.05 &&
+									rawStampProgress < impactPoint + 0.05
+								) {
+									ctx.globalAlpha = 0.8;
+								}
+
 								// The "Stamped" Mark (V + H bars together)
-								// This ensures they snap in as a single coordinated physical object
 								ctx.fillRect(
 									-halfCornerThickness,
 									-halfBar,
