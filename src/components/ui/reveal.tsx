@@ -17,10 +17,10 @@ interface RevealProps {
 	children: ReactNode;
 	delay?: number;
 	className?: string;
-	phase?: RevealPhase; // 0=BG, 1=Nav, 2=Line1, 3=Profile, 4=Line2, 5=Hero, 6=Scroll
+	phase?: RevealPhase; // 0=Structure, 1=Primary, 2=Hero, 3=Scroll
 }
 
-export function Reveal({ children, delay = 0, className, phase = 3 }: RevealProps) {
+export function Reveal({ children, delay = 0, className, phase = 1 }: RevealProps) {
 	const { phase: currentPhase } = useReveal();
 	const shouldReduceMotion = useReducedMotion();
 
@@ -48,7 +48,7 @@ export function Reveal({ children, delay = 0, className, phase = 3 }: RevealProp
 }
 
 // Special reveal for elements that trigger on scroll AFTER initial load
-export function ScrollReveal({ children, delay = 0, className, phase = 5 }: RevealProps) {
+export function ScrollReveal({ children, delay = 0, className, phase = 3 }: RevealProps) {
 	const { phase: currentPhase } = useReveal();
 	const shouldReduceMotion = useReducedMotion();
 

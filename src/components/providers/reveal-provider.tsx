@@ -3,14 +3,28 @@
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 
-// 0: Initial (Background: Beam + Grid)
-// 1: Navigation & Badges
-// 2: First Horizontal Line
-// 3: Profile Info (Avatar, Name, Title, Socials)
-// 4: Second Horizontal Line
-// 5: Hero Content
-// 6: Post-Hero Scroll Sections
-export type RevealPhase = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+/**
+ * Reveal Phase System — Psychology-First Timing
+ *
+ * Total orchestration: ~250ms (imperceptible as "waiting")
+ *
+ * Phase 0: Structure (instant)
+ *   - Background gradient, grid, borders, lines
+ *   - These are scaffolding, not content — no animation
+ *
+ * Phase 1: Primary Content (+50ms)
+ *   - Navigation, badges, profile section
+ *   - The "who is this" moment
+ *
+ * Phase 2: Hero Content (+150ms)
+ *   - Headline, CTA, hero messaging
+ *   - The "what do they do" moment
+ *
+ * Phase 3: Scroll Content (scroll-triggered only)
+ *   - Featured work, more projects
+ *   - Only animates when scrolled into view
+ */
+export type RevealPhase = 0 | 1 | 2 | 3;
 
 interface RevealContextType {
 	phase: RevealPhase;
@@ -34,31 +48,25 @@ export function RevealProvider({ children }: RevealProviderProps) {
 	const [phase, setPhase] = useState<RevealPhase>(0);
 
 	useEffect(() => {
-		// Force scroll to top on initial mount to ensure clean start
+		// Force scroll to top on initial mount
 		if (typeof window !== "undefined") {
 			window.scrollTo(0, 0);
 		}
 
-		// Phase 1: Nav & Badges - 400ms
-		const t1 = setTimeout(() => setPhase(1), 400);
-		// Phase 2: First Line - 700ms
-		const t2 = setTimeout(() => setPhase(2), 700);
-		// Phase 3: Profile - 900ms
-		const t3 = setTimeout(() => setPhase(3), 900);
-		// Phase 4: Second Line - 1200ms
-		const t4 = setTimeout(() => setPhase(4), 1200);
-		// Phase 5: Hero Content - 1400ms
-		const t5 = setTimeout(() => setPhase(5), 1400);
-		// Phase 6: Post-Hero Content - 1800ms
-		const t6 = setTimeout(() => setPhase(6), 1800);
+		// Phase 1: Primary content (nav, profile) — 50ms
+		const t1 = setTimeout(() => setPhase(1), 50);
+
+		// Phase 2: Hero content (headline, CTA) — 150ms
+		const t2 = setTimeout(() => setPhase(2), 150);
+
+		// Phase 3: Scroll content ready — 250ms
+		// This just unlocks scroll-triggered animations
+		const t3 = setTimeout(() => setPhase(3), 250);
 
 		return () => {
 			clearTimeout(t1);
 			clearTimeout(t2);
 			clearTimeout(t3);
-			clearTimeout(t4);
-			clearTimeout(t5);
-			clearTimeout(t6);
 		};
 	}, []);
 

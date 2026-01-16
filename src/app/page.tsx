@@ -38,9 +38,8 @@ import { Reveal, ScrollReveal } from "../components/ui/reveal";
 export default function Home() {
 	return (
 		<div className="min-h-screen text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
-			{/* Vertical Column Borders */}
-
-			<Reveal phase={1} className="pointer-events-none fixed inset-0 z-0">
+			{/* Vertical Column Borders — Phase 0: Instant structure */}
+			<Reveal phase={0} className="pointer-events-none fixed inset-0 z-0">
 				<div className="mx-auto h-full max-w-3xl border-surface-200/50 border-x border-dashed dark:border-surface-800/50" />
 			</Reveal>
 
@@ -51,7 +50,7 @@ export default function Home() {
 				{/* Hero Gradient - positioned behind first sections */}
 				<HeroGradient className="z-0" />
 
-				{/* Nav Row: Context badges + Nav space */}
+				{/* Nav Row: Context badges + Nav space — Phase 1: Primary content */}
 				<Reveal phase={1} className="relative z-20 w-full">
 					<div className="h-[118px] w-full border-surface-200 border-b border-dashed dark:border-surface-800">
 						<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 sm:px-8">
@@ -71,11 +70,11 @@ export default function Home() {
 					</div>
 				</Reveal>
 
-				{/* Horizontal Line 1 Reveal */}
-				<Reveal phase={2} className="w-full">
+				{/* Profile Section — Phase 1: Primary content */}
+				<Reveal phase={1} className="w-full">
 					<header className="w-full border-surface-200 border-b border-dashed dark:border-surface-800">
 						<Reveal
-							phase={3}
+							phase={1}
 							className="mx-auto flex max-w-3xl items-center justify-between px-6 py-8 sm:px-8"
 						>
 							<div className="flex items-center gap-4">
@@ -134,11 +133,11 @@ export default function Home() {
 					</header>
 				</Reveal>
 
-				{/* Horizontal Line 2 Reveal */}
-				<Reveal phase={4} className="w-full">
+				{/* Hero Section — Phase 2: Hero content */}
+				<Reveal phase={2} className="w-full">
 					<section className="w-full border-surface-200 border-b border-dashed dark:border-surface-800">
 						<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-							<Reveal phase={5}>
+							<Reveal phase={2}>
 								<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
 									I turn ambitious ideas into{" "}
 									<span className="text-surface-400 dark:text-surface-500">
@@ -146,14 +145,14 @@ export default function Home() {
 									</span>
 								</h1>
 							</Reveal>
-							<Reveal phase={5} delay={0.1}>
+							<Reveal phase={2} delay={0.05}>
 								<p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
 									Your vision needs more than just a developer—it needs a partner
 									who plays to win. I build systems that scale, experiences that
 									convert, and software that defines your brand.
 								</p>
 							</Reveal>
-							<Reveal phase={5} delay={0.2}>
+							<Reveal phase={2} delay={0.1}>
 								<Link
 									href="mailto:hello@yaschet.dev"
 									className="inline-flex items-center gap-2 rounded-full bg-surface-900 px-5 py-2.5 font-medium text-sm text-surface-50 transition-colors hover:bg-surface-800 dark:bg-surface-100 dark:text-surface-900 dark:hover:bg-surface-200"
@@ -166,95 +165,90 @@ export default function Home() {
 					</section>
 				</Reveal>
 
-				{/* ROW 4: Featured Project */}
-				<Reveal phase={6} className="w-full">
-					<section className="w-full border-surface-200 border-b border-dashed dark:border-surface-800">
-						<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-							<ScrollReveal phase={6}>
-								<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-									Featured Work
-								</p>
-							</ScrollReveal>
-							<ScrollReveal phase={6} delay={0.1}>
-								<Link href="/projects/protranslate" className="group block">
-									<div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-xl bg-surface-900 ring-1 ring-surface-200 dark:ring-surface-800">
-										<div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-800 to-surface-900">
-											<div className="px-6 text-center sm:px-8">
-												<h2 className="mb-2 text-heading-lg text-white">
-													Protranslate
-												</h2>
-												<p className="mx-auto max-w-sm text-body-sm text-surface-400">
-													AI-powered document translation SaaS with
-													real-time collaboration and enterprise-grade
-													security.
-												</p>
-											</div>
+				{/* ROW 4: Featured Project — Phase 3: Scroll content */}
+				<section className="w-full border-surface-200 border-b border-dashed dark:border-surface-800">
+					<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+						<ScrollReveal phase={3}>
+							<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+								Featured Work
+							</p>
+						</ScrollReveal>
+						<ScrollReveal phase={3} delay={0.05}>
+							<Link href="/projects/protranslate" className="group block">
+								<div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-xl bg-surface-900 ring-1 ring-surface-200 dark:ring-surface-800">
+									<div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-800 to-surface-900">
+										<div className="px-6 text-center sm:px-8">
+											<h2 className="mb-2 text-heading-lg text-white">
+												Protranslate
+											</h2>
+											<p className="mx-auto max-w-sm text-body-sm text-surface-400">
+												AI-powered document translation SaaS with real-time
+												collaboration and enterprise-grade security.
+											</p>
 										</div>
 									</div>
-									<div className="flex items-center gap-2 text-body-sm text-surface-500 transition-colors group-hover:text-surface-900 dark:text-surface-400 dark:group-hover:text-surface-100">
-										View case study
+								</div>
+								<div className="flex items-center gap-2 text-body-sm text-surface-500 transition-colors group-hover:text-surface-900 dark:text-surface-400 dark:group-hover:text-surface-100">
+									View case study
+									<ArrowRight
+										className="size-4 transition-transform group-hover:translate-x-1"
+										weight="bold"
+									/>
+								</div>
+							</Link>
+						</ScrollReveal>
+					</div>
+				</section>
+
+				{/* ROW 5: More Projects — Phase 3: Scroll content */}
+				<section className="w-full border-surface-200 border-b border-dashed dark:border-surface-800">
+					<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+						<ScrollReveal phase={3}>
+							<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+								More Work
+							</p>
+						</ScrollReveal>
+						<div className="space-y-8">
+							<ScrollReveal phase={3} delay={0.05}>
+								<Link href="/projects/student-portal" className="group block">
+									<h3 className="mb-1 text-heading-md text-surface-900 transition-colors group-hover:text-surface-600 dark:text-surface-100 dark:group-hover:text-surface-300">
+										Student Onboarding Portal
+									</h3>
+									<p className="mb-2 text-body-sm text-surface-500 dark:text-surface-400">
+										Enterprise internal tool for streamlining student enrollment
+										and documentation workflows.
+									</p>
+									<div className="flex items-center gap-1 text-body-sm text-surface-400 transition-colors group-hover:text-surface-600 dark:group-hover:text-surface-300">
+										View project
 										<ArrowRight
-											className="size-4 transition-transform group-hover:translate-x-1"
+											className="size-3 transition-transform group-hover:translate-x-1"
+											weight="bold"
+										/>
+									</div>
+								</Link>
+							</ScrollReveal>
+
+							<ScrollReveal phase={3} delay={0.1}>
+								<Link href="/projects/automation-suite" className="group block">
+									<h3 className="mb-1 text-heading-md text-surface-900 transition-colors group-hover:text-surface-600 dark:text-surface-100 dark:group-hover:text-surface-300">
+										AI Automation Suite
+									</h3>
+									<p className="mb-2 text-body-sm text-surface-500 dark:text-surface-400">
+										Data cleansing pipelines and intelligent program search
+										engines for complex enterprise data.
+									</p>
+									<div className="flex items-center gap-1 text-body-sm text-surface-400 transition-colors group-hover:text-surface-600 dark:group-hover:text-surface-300">
+										View project
+										<ArrowRight
+											className="size-3 transition-transform group-hover:translate-x-1"
 											weight="bold"
 										/>
 									</div>
 								</Link>
 							</ScrollReveal>
 						</div>
-					</section>
-				</Reveal>
-
-				{/* ROW 5: More Projects */}
-				<Reveal phase={6} className="w-full">
-					<section className="w-full border-surface-200 border-b border-dashed dark:border-surface-800">
-						<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-							<ScrollReveal phase={6}>
-								<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-									More Work
-								</p>
-							</ScrollReveal>
-							<div className="space-y-8">
-								<ScrollReveal phase={6} delay={0.1}>
-									<Link href="/projects/student-portal" className="group block">
-										<h3 className="mb-1 text-heading-md text-surface-900 transition-colors group-hover:text-surface-600 dark:text-surface-100 dark:group-hover:text-surface-300">
-											Student Onboarding Portal
-										</h3>
-										<p className="mb-2 text-body-sm text-surface-500 dark:text-surface-400">
-											Enterprise internal tool for streamlining student
-											enrollment and documentation workflows.
-										</p>
-										<div className="flex items-center gap-1 text-body-sm text-surface-400 transition-colors group-hover:text-surface-600 dark:group-hover:text-surface-300">
-											View project
-											<ArrowRight
-												className="size-3 transition-transform group-hover:translate-x-1"
-												weight="bold"
-											/>
-										</div>
-									</Link>
-								</ScrollReveal>
-
-								<ScrollReveal phase={6} delay={0.2}>
-									<Link href="/projects/automation-suite" className="group block">
-										<h3 className="mb-1 text-heading-md text-surface-900 transition-colors group-hover:text-surface-600 dark:text-surface-100 dark:group-hover:text-surface-300">
-											AI Automation Suite
-										</h3>
-										<p className="mb-2 text-body-sm text-surface-500 dark:text-surface-400">
-											Data cleansing pipelines and intelligent program search
-											engines for complex enterprise data.
-										</p>
-										<div className="flex items-center gap-1 text-body-sm text-surface-400 transition-colors group-hover:text-surface-600 dark:group-hover:text-surface-300">
-											View project
-											<ArrowRight
-												className="size-3 transition-transform group-hover:translate-x-1"
-												weight="bold"
-											/>
-										</div>
-									</Link>
-								</ScrollReveal>
-							</div>
-						</div>
-					</section>
-				</Reveal>
+					</div>
+				</section>
 
 				{/* ═══════════════════════════════════════════════════════════════════
             ROW 6: Footer
