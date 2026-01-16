@@ -129,7 +129,7 @@ export function FloatingNav() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed top-[40px] left-0 right-0 mx-auto w-fit z-50">
+    <div className="fixed top-8 left-0 right-0 z-50 flex items-center justify-center px-6">
       <motion.nav
         initial={{ opacity: 0, y: -20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -149,25 +149,23 @@ export function FloatingNav() {
               <li key={item.link} className="relative">
                 <Link
                   href={item.link}
-                  onMouseEnter={() => setHoveredTab(item.link)}
                   className={cn(
-                    "relative flex items-center justify-center rounded-full outline-none select-none z-10",
-                    "transition-colors duration-200",
-                    "focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-zinc-950",
-                    isActive || isHovered
+                    "relative flex items-center justify-center rounded-full transition-colors duration-200",
+                    isActive
                       ? "text-zinc-900 dark:text-zinc-50"
-                      : "text-zinc-500 dark:text-zinc-400"
+                      : "text-zinc-500 dark:text-zinc-400",
+                    "hover:text-zinc-900 dark:hover:text-zinc-50"
                   )}
                   style={{
                     width: BUTTON_SIZE,
                     height: BUTTON_SIZE,
                   }}
-                  aria-label={item.name}
+                  onMouseEnter={() => setHoveredTab(item.link)}
                   aria-current={isActive ? "page" : undefined}
                 >
                   {currentTab === item.link && (
                     <motion.div
-                      layoutId="hover-slot"
+                      layoutId="nav-slot"
                       className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-full -z-10"
                       transition={hoverSpring}
                     />
@@ -219,8 +217,6 @@ export function FloatingNav() {
             "relative flex items-center justify-center rounded-full z-10",
             "text-zinc-500 dark:text-zinc-400",
             "hover:text-zinc-900 dark:hover:text-zinc-50",
-            // Remove discrete hover bg since we have the shared one
-            // "hover:bg-zinc-100 dark:hover:bg-zinc-800",
             "transition-colors duration-200",
             "outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-zinc-950"
           )}
@@ -234,7 +230,7 @@ export function FloatingNav() {
         >
           {currentTab === "theme-toggle" && (
             <motion.div
-              layoutId="hover-slot"
+              layoutId="nav-slot"
               className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-full -z-10"
               transition={hoverSpring}
             />

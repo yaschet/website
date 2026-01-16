@@ -3,20 +3,67 @@ import { ArrowRight, Github, Linkedin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import avatarImage from "../../public/images/avatar.jpeg";
+import { LocationBadge, TimeBadge } from "../components/ui/context-badges";
+
+/**
+ * SPACING SYSTEM (φ-based, 8px base)
+ * ────────────────────────────────────
+ * 8px   = base unit
+ * 16px  = 2×base
+ * 24px  = 3×base (φ¹ ≈ 1.618 × 8 ≈ 13 → rounded to 16 or 24)
+ * 32px  = 4×base
+ * 48px  = 6×base
+ * 64px  = 8×base
+ *
+ * GRID ROW HEIGHTS
+ * ────────────────────────────────────
+ * Row 0: StatusBanner = 32px (fixed in layout.tsx)
+ * Row 1: Nav Grid     = 96px (24px top + 48px nav + 24px bottom)
+ * Row 2: Header       = py-32 content
+ * Row 3: Hero         = py-48 content
+ * Row 4: Featured     = py-48 content
+ * Row 5: More Work    = py-48 content
+ * Row 6: Footer       = py-32 content
+ *
+ * FLOATINGNAV POSITION
+ * ────────────────────────────────────
+ * Banner: 32px
+ * Top padding in nav row: 24px
+ * Nav height: ~48px
+ * → Nav top = 32 + 24 = 56px from viewport top
+ */
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-900 selection:text-zinc-50 dark:selection:bg-zinc-100 dark:selection:text-zinc-900">
       {/* Vertical Column Borders */}
-      <div className="fixed inset-0 mx-auto max-w-3xl border-x border-dashed border-zinc-200/60 dark:border-zinc-800/60 pointer-events-none z-0" />
+      <div className="fixed inset-0 mx-auto max-w-3xl border-x border-dashed border-zinc-200/50 dark:border-zinc-800/50 pointer-events-none z-0" />
 
       <main className="relative z-10 flex flex-col min-h-screen">
-        {/* Nav Spacer (Banner 32px + Nav offset) */}
-        <div className="h-32 border-b border-dashed border-zinc-200 dark:border-zinc-800" />
+        {/* Nav Row: Context badges + Nav space */}
+        <div className="h-[118px] w-full border-b border-dashed border-zinc-200 dark:border-zinc-800">
+          <div className="mx-auto max-w-3xl h-full px-6 sm:px-8 flex items-center justify-between">
+            {/* Left: Location Badge */}
+            <div className="hidden sm:block">
+              <LocationBadge />
+            </div>
 
-        {/* Header Section */}
+            {/* Center: Space for fixed nav (nav is separate, this is just spacing) */}
+            <div className="flex-1" />
+
+            {/* Right: Time Badge */}
+            <div className="hidden sm:block">
+              <TimeBadge />
+            </div>
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            ROW 2: Header (Avatar + Name | Socials)
+            Padding: 32px vertical
+        ═══════════════════════════════════════════════════════════════════ */}
         <header className="w-full border-b border-dashed border-zinc-200 dark:border-zinc-800">
-          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-10 flex items-center justify-between">
+          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-8 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Avatar className="relative size-14 rounded-full border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-zinc-100 dark:bg-zinc-900">
                 <Image
@@ -72,16 +119,19 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Hero Section */}
+        {/* ═══════════════════════════════════════════════════════════════════
+            ROW 3: Hero (Headline + Subtitle + CTA)
+            Padding: 48px vertical
+        ═══════════════════════════════════════════════════════════════════ */}
         <section className="w-full border-b border-dashed border-zinc-200 dark:border-zinc-800">
-          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-16 sm:py-20">
+          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-12">
             <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 leading-[1.1] mb-6">
               I turn ambitious ideas into{" "}
               <span className="text-zinc-400 dark:text-zinc-500">
                 revenue-generating products.
               </span>
             </h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl mb-10">
+            <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl mb-8">
               Your vision needs more than just a developer—it needs a partner
               who plays to win. I build systems that scale, experiences that
               convert, and software that defines your brand.
@@ -96,17 +146,19 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Featured Project */}
+        {/* ═══════════════════════════════════════════════════════════════════
+            ROW 4: Featured Project
+            Padding: 48px vertical
+        ═══════════════════════════════════════════════════════════════════ */}
         <section className="w-full border-b border-dashed border-zinc-200 dark:border-zinc-800">
-          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-16">
+          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-12">
             <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-6">
               Featured Work
             </p>
             <Link href="/projects/protranslate" className="group block">
               <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-zinc-900 ring-1 ring-zinc-200 dark:ring-zinc-800 mb-6">
-                {/* Replace with actual screenshot */}
                 <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
-                  <div className="text-center px-6">
+                  <div className="text-center px-6 sm:px-8">
                     <p className="text-2xl sm:text-3xl font-semibold text-white mb-2">
                       Protranslate
                     </p>
@@ -125,9 +177,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* More Projects */}
+        {/* ═══════════════════════════════════════════════════════════════════
+            ROW 5: More Projects
+            Padding: 48px vertical
+        ═══════════════════════════════════════════════════════════════════ */}
         <section className="w-full border-b border-dashed border-zinc-200 dark:border-zinc-800">
-          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-16">
+          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-12">
             <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-6">
               More Work
             </p>
@@ -163,9 +218,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Footer */}
+        {/* ═══════════════════════════════════════════════════════════════════
+            ROW 6: Footer
+            Padding: 32px vertical
+        ═══════════════════════════════════════════════════════════════════ */}
         <footer className="mt-auto">
-          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-10 flex items-center justify-between text-sm text-zinc-400 dark:text-zinc-500">
+          <div className="mx-auto max-w-3xl px-6 sm:px-8 py-8 flex items-center justify-between text-sm text-zinc-400 dark:text-zinc-500">
             <p>© 2025 Yassine Chettouch</p>
             <p>Available for new projects</p>
           </div>
