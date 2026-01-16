@@ -31,7 +31,7 @@ import {
   type ReactNode,
   type ElementType,
 } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion, useSpring } from "framer-motion";
 import { springs } from "@/src/lib/physics";
 import { useReveal } from "@/src/components/providers/reveal-provider";
 
@@ -153,6 +153,14 @@ export function SwissGridProvider({
   const { phase } = useReveal();
   const shouldReduceMotion = useReducedMotion();
 
+  // Physics-based animation progress (0 → 1)
+  const drawProgress = useSpring(0, {
+    ...springs.gentle,
+    // Slightly slower for the "blueprint sketch" effect
+    stiffness: 200,
+    damping: 30,
+  });
+
   const config: GridConfig = {
     dashSize,
     gapSize,
@@ -235,87 +243,129 @@ export function SwissGridProvider({
   }, []);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Canvas Drawing
+  // Canvas Drawing - accepts progress for procedural animation
   // ─────────────────────────────────────────────────────────────────────────
 
-  const draw = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !containerBounds) return;
+  const draw = useCallback(
+    (progress: number) => {
+      const canvas = canvasRef.current;
+      if (!canvas || !containerBounds) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const width = document.documentElement.scrollWidth;
-    const height = document.documentElement.scrollHeight;
+      const dpr = window.devicePixelRatio || 1;
+      const width = document.documentElement.scrollWidth;
+      const height = document.documentElement.scrollHeight;
 
-    // Set canvas size (accounting for DPR for crisp rendering)
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = "100%";
-    canvas.style.height = `${height}px`;
-    ctx.scale(dpr, dpr);
+      // Set canvas size (accounting for DPR for crisp rendering)
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = "100%";
+      canvas.style.height = `${height}px`;
+      ctx.scale(dpr, dpr);
 
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
+      // Clear canvas
+      ctx.clearRect(0, 0, width, height);
 
-    // Colors
-    const dashColor = isDark ? config.colorDark : config.colorLight;
-    const cornerColor = isDark ? CORNER_COLOR_DARK : CORNER_COLOR_LIGHT;
+      // Colors
+      const dashColor = isDark ? config.colorDark : config.colorLight;
+      const cornerColor = isDark ? CORNER_COLOR_DARK : CORNER_COLOR_LIGHT;
 
-    const cycle = config.dashSize + config.gapSize;
-    const { left: containerLeft, right: containerRight } = containerBounds;
+      const cycle = config.dashSize + config.gapSize;
+      const { left: containerLeft, right: containerRight } = containerBounds;
 
-    // ─────────────────────────────────────────────────────────────────────
-    // Draw Vertical Rails (left and right edges of container)
-    // ─────────────────────────────────────────────────────────────────────
+      // ─────────────────────────────────────────────────────────────────────
+      // Animation Phases (staggered by progress)
+      // Phase 1: Vertical Rails (0% - 50%)
+      // Phase 2: Horizontal Lines (25% - 75%)
+      // Phase 3: Corner Reinforcements (50% - 100%)
+      // ─────────────────────────────────────────────────────────────────────
 
-    // Get horizontal line Y positions for crosshair alignment
-    const horizontalYs = sections.map((s) => s.bottom);
-
-    // Draw left vertical rail
-    drawVerticalRail(
-      ctx,
-      containerLeft,
-      height,
-      cycle,
-      config.dashSize,
-      horizontalYs,
-      dashColor,
-      cornerColor
-    );
-
-    // Draw right vertical rail
-    drawVerticalRail(
-      ctx,
-      containerRight,
-      height,
-      cycle,
-      config.dashSize,
-      horizontalYs,
-      dashColor,
-      cornerColor
-    );
-
-    // ─────────────────────────────────────────────────────────────────────
-    // Draw Horizontal Lines (at section bottoms)
-    // ─────────────────────────────────────────────────────────────────────
-
-    for (const section of sections) {
-      drawHorizontalLine(
-        ctx,
-        section.bottom,
+      const verticalProgress = Math.min(progress * 2, 1); // 0-50% of time
+      const horizontalProgress = Math.max(
         0,
-        width,
-        cycle,
-        config.dashSize,
-        containerLeft,
-        containerRight,
-        dashColor,
-        cornerColor
-      );
-    }
-  }, [containerBounds, sections, config, isDark]);
+        Math.min((progress - 0.25) * 2, 1)
+      ); // 25-75%
+      const cornerProgress = Math.max(0, (progress - 0.5) * 2); // 50-100%
+
+      // Get horizontal line Y positions
+      const horizontalYs = sections.map((s) => s.bottom);
+
+      // ─────────────────────────────────────────────────────────────────────
+      // Draw Vertical Rails (progress-based height)
+      // ─────────────────────────────────────────────────────────────────────
+
+      if (verticalProgress > 0) {
+        const visibleHeight = height * verticalProgress;
+
+        // Left rail
+        drawVerticalRail(
+          ctx,
+          containerLeft,
+          visibleHeight,
+          cycle,
+          config.dashSize,
+          horizontalYs.filter((y) => y <= visibleHeight),
+          dashColor,
+          cornerProgress > 0 ? cornerColor : "transparent"
+        );
+
+        // Right rail
+        drawVerticalRail(
+          ctx,
+          containerRight,
+          visibleHeight,
+          cycle,
+          config.dashSize,
+          horizontalYs.filter((y) => y <= visibleHeight),
+          dashColor,
+          cornerProgress > 0 ? cornerColor : "transparent"
+        );
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // Draw Horizontal Lines (staggered by Y position)
+      // ─────────────────────────────────────────────────────────────────────
+
+      if (horizontalProgress > 0) {
+        const maxY =
+          sections.length > 0
+            ? Math.max(...sections.map((s) => s.bottom))
+            : height;
+
+        for (const section of sections) {
+          // Each line fades in based on its Y position relative to total
+          const lineProgress = section.bottom / maxY;
+          const lineVisible = horizontalProgress >= lineProgress * 0.8;
+
+          if (lineVisible) {
+            // Calculate opacity based on how "settled" the animation is
+            const opacity = Math.min(
+              1,
+              (horizontalProgress - lineProgress * 0.8) * 5
+            );
+
+            ctx.globalAlpha = opacity;
+            drawHorizontalLine(
+              ctx,
+              section.bottom,
+              0,
+              width,
+              cycle,
+              config.dashSize,
+              containerLeft,
+              containerRight,
+              dashColor,
+              cornerProgress > 0 ? cornerColor : "transparent"
+            );
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+    },
+    [containerBounds, sections, config, isDark]
+  );
 
   // ─────────────────────────────────────────────────────────────────────────
   // ResizeObserver + Draw Loop
@@ -353,14 +403,37 @@ export function SwissGridProvider({
 
   // Draw when positions change
   useEffect(() => {
-    requestAnimationFrame(draw);
-  }, [draw]);
+    requestAnimationFrame(() => draw(drawProgress.get()));
+  }, [draw, drawProgress]);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Animation Loop - Subscribe to spring changes
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const isVisible = phase >= 0;
+
+  useEffect(() => {
+    if (isVisible) {
+      // Start the animation
+      if (shouldReduceMotion) {
+        drawProgress.jump(1);
+        requestAnimationFrame(() => draw(1));
+      } else {
+        drawProgress.set(1);
+      }
+    }
+
+    // Subscribe to spring changes for 60fps redraws
+    const unsubscribe = drawProgress.on("change", (value) => {
+      requestAnimationFrame(() => draw(value));
+    });
+
+    return unsubscribe;
+  }, [isVisible, shouldReduceMotion, drawProgress, draw]);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Render
   // ─────────────────────────────────────────────────────────────────────────
-
-  const isVisible = phase >= 0;
 
   const contextValue: SwissGridContextValue = {
     registerSection,
@@ -378,13 +451,10 @@ export function SwissGridProvider({
         aria-hidden="true"
       />
 
-      {/* Canvas overlay - ABSOLUTE positioning to scroll naturally with the page */}
-      <motion.canvas
+      {/* Canvas - procedurally animated via draw() */}
+      <canvas
         ref={canvasRef}
         className="pointer-events-none absolute inset-0 z-50"
-        initial={{ opacity: 0 }}
-        animate={isVisible ? { opacity: 1 } : { opacity: 0 }}
-        transition={shouldReduceMotion ? { duration: 0 } : springs.responsive}
         aria-hidden="true"
       />
 
