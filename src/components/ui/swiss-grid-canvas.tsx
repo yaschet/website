@@ -57,10 +57,16 @@ const CORNER_THICKNESS = 3; // 3px thick for bold reinforcement effect
 
 /**
  * Grid line colors - subtle rgba values that don't compete with content.
- * Using surface-tinted colors with low opacity for clean appearance.
  */
-const COLOR_LIGHT = "rgba(0, 0, 0, 0.12)"; // Slightly more visible than before
-const COLOR_DARK = "rgba(255, 255, 255, 0.12)"; // Consistent opacity
+const COLOR_LIGHT = "rgba(0, 0, 0, 0.12)";
+const COLOR_DARK = "rgba(255, 255, 255, 0.12)";
+
+/**
+ * Corner reinforcement colors - bold text color to make corners SPECIAL.
+ * White on dark mode, black on light mode (matches text color).
+ */
+const CORNER_COLOR_LIGHT = "rgba(0, 0, 0, 0.85)"; // Strong black
+const CORNER_COLOR_DARK = "rgba(255, 255, 255, 0.85)"; // Strong white
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -245,8 +251,9 @@ export function SwissGridProvider({
 		// Clear canvas
 		ctx.clearRect(0, 0, width, height);
 
-		// Set color
-		ctx.fillStyle = isDark ? config.colorDark : config.colorLight;
+		// Colors
+		const dashColor = isDark ? config.colorDark : config.colorLight;
+		const cornerColor = isDark ? CORNER_COLOR_DARK : CORNER_COLOR_LIGHT;
 
 		const cycle = config.dashSize + config.gapSize;
 		const { left: containerLeft, right: containerRight } = containerBounds;
@@ -259,10 +266,28 @@ export function SwissGridProvider({
 		const horizontalYs = sections.map((s) => s.bottom);
 
 		// Draw left vertical rail
-		drawVerticalRail(ctx, containerLeft, height, cycle, config.dashSize, horizontalYs);
+		drawVerticalRail(
+			ctx,
+			containerLeft,
+			height,
+			cycle,
+			config.dashSize,
+			horizontalYs,
+			dashColor,
+			cornerColor,
+		);
 
 		// Draw right vertical rail
-		drawVerticalRail(ctx, containerRight, height, cycle, config.dashSize, horizontalYs);
+		drawVerticalRail(
+			ctx,
+			containerRight,
+			height,
+			cycle,
+			config.dashSize,
+			horizontalYs,
+			dashColor,
+			cornerColor,
+		);
 
 		// ─────────────────────────────────────────────────────────────────────
 		// Draw Horizontal Lines (at section bottoms)
@@ -278,6 +303,8 @@ export function SwissGridProvider({
 				config.dashSize,
 				containerLeft,
 				containerRight,
+				dashColor,
+				cornerColor,
 			);
 		}
 	}, [containerBounds, sections, config, isDark]);
@@ -377,6 +404,8 @@ export function SwissGridProvider({
  * @param cycle - Dash + gap cycle size
  * @param dashSize - Length of each dash
  * @param horizontalYs - Y positions where horizontal lines cross (will be rounded)
+ * @param dashColor - Color for regular dashes
+ * @param cornerColor - Color for corner reinforcements (bold)
  */
 function drawVerticalRail(
 	ctx: CanvasRenderingContext2D,
@@ -385,6 +414,8 @@ function drawVerticalRail(
 	cycle: number,
 	dashSize: number,
 	horizontalYs: number[],
+	dashColor: string,
+	cornerColor: string,
 ): void {
 	// Round X position FIRST - this is the definitive column for the vertical line
 	const railX = Math.round(x);
@@ -392,19 +423,19 @@ function drawVerticalRail(
 	const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
 	const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 
-	// Draw CORNER REINFORCEMENT dashes at each intersection
-	// These are longer and thicker than regular dashes
+	// Draw CORNER REINFORCEMENT dashes at each intersection (SPECIAL color)
+	ctx.fillStyle = cornerColor;
 	for (const hy of horizontalYs) {
 		const crosshairY = Math.round(hy);
 		const dashStartY = crosshairY - halfCornerDash;
-		// Draw thick vertical bar centered on X
 		ctx.fillRect(railX - halfCornerThickness, dashStartY, CORNER_THICKNESS, CORNER_DASH_SIZE);
 	}
 
-	// Fill in dashes between crosshairs
+	// Fill in regular dashes between crosshairs
+	ctx.fillStyle = dashColor;
 	let currentY = 0;
 	while (currentY < height) {
-		// Skip corner reinforcement zones (larger than regular dashes)
+		// Skip corner reinforcement zones
 		const inCrosshair = horizontalYs.some((hy) => {
 			const crosshairY = Math.round(hy);
 			return (
@@ -413,7 +444,6 @@ function drawVerticalRail(
 		});
 
 		if (!inCrosshair) {
-			// Find nearest crosshair for phase alignment
 			const nearestY = Math.round(findNearest(currentY, horizontalYs) ?? 0);
 			const relativePos = Math.abs(currentY - nearestY);
 			const phaseInCycle = relativePos % cycle;
@@ -442,6 +472,8 @@ function drawVerticalRail(
  * @param dashSize - Length of each dash
  * @param containerLeft - Left edge of container (will be rounded)
  * @param containerRight - Right edge of container (will be rounded)
+ * @param dashColor - Color for regular dashes
+ * @param cornerColor - Color for corner reinforcements (bold)
  */
 function drawHorizontalLine(
 	ctx: CanvasRenderingContext2D,
@@ -452,8 +484,10 @@ function drawHorizontalLine(
 	dashSize: number,
 	containerLeft: number,
 	containerRight: number,
+	dashColor: string,
+	cornerColor: string,
 ): void {
-	// Round positions FIRST - these are the definitive coordinates
+	// Round positions FIRST
 	const lineY = Math.round(y);
 	const leftCrosshairX = Math.round(containerLeft);
 	const rightCrosshairX = Math.round(containerRight);
@@ -461,18 +495,18 @@ function drawHorizontalLine(
 	const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
 	const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 
-	// Draw CORNER REINFORCEMENT at left crosshair (thick and long)
+	// Draw CORNER REINFORCEMENT at crosshairs (SPECIAL color)
+	ctx.fillStyle = cornerColor;
 	const leftDashStartX = leftCrosshairX - halfCornerDash;
 	ctx.fillRect(leftDashStartX, lineY - halfCornerThickness, CORNER_DASH_SIZE, CORNER_THICKNESS);
 
-	// Draw CORNER REINFORCEMENT at right crosshair
 	const rightDashStartX = rightCrosshairX - halfCornerDash;
 	ctx.fillRect(rightDashStartX, lineY - halfCornerThickness, CORNER_DASH_SIZE, CORNER_THICKNESS);
 
-	// Fill in dashes between, using phase from left crosshair
+	// Fill in regular dashes
+	ctx.fillStyle = dashColor;
 	let currentX = Math.round(startX);
 	while (currentX < endX) {
-		// Skip corner reinforcement zones (larger than regular dashes)
 		const inLeftCrosshair =
 			currentX >= leftDashStartX && currentX < leftDashStartX + CORNER_DASH_SIZE;
 		const inRightCrosshair =
