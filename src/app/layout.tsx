@@ -68,7 +68,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className="relative min-h-screen antialiased bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50"
+        className="relative min-h-screen antialiased text-zinc-900 dark:text-zinc-50"
         suppressHydrationWarning={true}
       >
         <RootProvider>

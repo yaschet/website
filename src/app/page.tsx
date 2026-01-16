@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import avatarImage from "../../public/images/avatar.jpeg";
 import { LocationBadge, TimeBadge } from "../components/ui/context-badges";
+import { HeroGradient } from "../components/ui/hero-gradient";
+import { Reveal, ScrollReveal } from "../components/ui/reveal";
 
 /**
  * SPACING SYSTEM (φ-based, 8px base)
@@ -35,28 +37,35 @@ import { LocationBadge, TimeBadge } from "../components/ui/context-badges";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-900 selection:text-zinc-50 dark:selection:bg-zinc-100 dark:selection:text-zinc-900">
+    <div className="min-h-screen text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-900 selection:text-zinc-50 dark:selection:bg-zinc-100 dark:selection:text-zinc-900">
       {/* Vertical Column Borders */}
-      <div className="fixed inset-0 mx-auto max-w-3xl border-x border-dashed border-zinc-200/50 dark:border-zinc-800/50 pointer-events-none z-0" />
+
+      <Reveal phase={1} className="fixed inset-0 pointer-events-none z-0">
+        <div className="mx-auto max-w-3xl h-full border-x border-dashed border-zinc-200/50 dark:border-zinc-800/50" />
+      </Reveal>
 
       <main className="relative z-10 flex flex-col min-h-screen">
+        {/* Hero Gradient - positioned behind first sections */}
+        <HeroGradient className="z-0" />
         {/* Nav Row: Context badges + Nav space */}
-        <div className="h-[118px] w-full border-b border-dashed border-zinc-200 dark:border-zinc-800">
-          <div className="mx-auto max-w-3xl h-full px-6 sm:px-8 flex items-center justify-between">
-            {/* Left: Location Badge */}
-            <div className="hidden sm:block">
-              <LocationBadge />
-            </div>
+        <Reveal phase={1} className="w-full relative z-20">
+          <div className="h-[118px] w-full border-b border-dashed border-zinc-200 dark:border-zinc-800">
+            <div className="mx-auto max-w-3xl h-full px-6 sm:px-8 flex items-center justify-between">
+              {/* Left: Location Badge */}
+              <div className="hidden sm:block">
+                <LocationBadge />
+              </div>
 
-            {/* Center: Space for fixed nav (nav is separate, this is just spacing) */}
-            <div className="flex-1" />
+              {/* Center: Space for fixed nav (nav is separate, this is just spacing) */}
+              <div className="flex-1" />
 
-            {/* Right: Time Badge */}
-            <div className="hidden sm:block">
-              <TimeBadge />
+              {/* Right: Time Badge */}
+              <div className="hidden sm:block">
+                <TimeBadge />
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* ═══════════════════════════════════════════════════════════════════
             ROW 2: Header (Avatar + Name | Socials)
@@ -125,24 +134,30 @@ export default function Home() {
         ═══════════════════════════════════════════════════════════════════ */}
         <section className="w-full border-b border-dashed border-zinc-200 dark:border-zinc-800">
           <div className="mx-auto max-w-3xl px-6 sm:px-8 py-12">
-            <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 leading-[1.1] mb-6">
-              I turn ambitious ideas into{" "}
-              <span className="text-zinc-400 dark:text-zinc-500">
-                revenue-generating products.
-              </span>
-            </h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl mb-8">
-              Your vision needs more than just a developer—it needs a partner
-              who plays to win. I build systems that scale, experiences that
-              convert, and software that defines your brand.
-            </p>
-            <Link
-              href="mailto:hello@yaschet.dev"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 dark:bg-zinc-100 text-zinc-50 dark:text-zinc-900 rounded-full text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
-            >
-              Let's build something
-              <ArrowRight className="size-4" />
-            </Link>
+            <Reveal>
+              <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 leading-[1.1] mb-6">
+                I turn ambitious ideas into{" "}
+                <span className="text-zinc-400 dark:text-zinc-500">
+                  revenue-generating products.
+                </span>
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl mb-8">
+                Your vision needs more than just a developer—it needs a partner
+                who plays to win. I build systems that scale, experiences that
+                convert, and software that defines your brand.
+              </p>
+            </Reveal>
+            <Reveal delay={0.2}>
+              <Link
+                href="mailto:hello@yaschet.dev"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 dark:bg-zinc-100 text-zinc-50 dark:text-zinc-900 rounded-full text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
+              >
+                Let's build something
+                <ArrowRight className="size-4" />
+              </Link>
+            </Reveal>
           </div>
         </section>
 
@@ -152,28 +167,32 @@ export default function Home() {
         ═══════════════════════════════════════════════════════════════════ */}
         <section className="w-full border-b border-dashed border-zinc-200 dark:border-zinc-800">
           <div className="mx-auto max-w-3xl px-6 sm:px-8 py-12">
-            <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-6">
-              Featured Work
-            </p>
-            <Link href="/projects/protranslate" className="group block">
-              <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-zinc-900 ring-1 ring-zinc-200 dark:ring-zinc-800 mb-6">
-                <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
-                  <div className="text-center px-6 sm:px-8">
-                    <p className="text-2xl sm:text-3xl font-semibold text-white mb-2">
-                      Protranslate
-                    </p>
-                    <p className="text-sm text-zinc-400 max-w-sm mx-auto">
-                      AI-powered document translation SaaS with real-time
-                      collaboration and enterprise-grade security.
-                    </p>
+            <ScrollReveal>
+              <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-6">
+                Featured Work
+              </p>
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <Link href="/projects/protranslate" className="group block">
+                <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-zinc-900 ring-1 ring-zinc-200 dark:ring-zinc-800 mb-6">
+                  <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
+                    <div className="text-center px-6 sm:px-8">
+                      <p className="text-2xl sm:text-3xl font-semibold text-white mb-2">
+                        Protranslate
+                      </p>
+                      <p className="text-sm text-zinc-400 max-w-sm mx-auto">
+                        AI-powered document translation SaaS with real-time
+                        collaboration and enterprise-grade security.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
-                View case study
-                <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
+                <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
+                  View case study
+                  <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            </ScrollReveal>
           </div>
         </section>
 
@@ -183,37 +202,43 @@ export default function Home() {
         ═══════════════════════════════════════════════════════════════════ */}
         <section className="w-full border-b border-dashed border-zinc-200 dark:border-zinc-800">
           <div className="mx-auto max-w-3xl px-6 sm:px-8 py-12">
-            <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-6">
-              More Work
-            </p>
+            <ScrollReveal>
+              <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-6">
+                More Work
+              </p>
+            </ScrollReveal>
             <div className="space-y-8">
-              <Link href="/projects/student-portal" className="group block">
-                <h3 className="text-xl font-medium text-zinc-900 dark:text-zinc-100 mb-1 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
-                  Student Onboarding Portal
-                </h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
-                  Enterprise internal tool for streamlining student enrollment
-                  and documentation workflows.
-                </p>
-                <div className="flex items-center gap-1 text-sm text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
-                  View project
-                  <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
+              <ScrollReveal delay={0.1}>
+                <Link href="/projects/student-portal" className="group block">
+                  <h3 className="text-xl font-medium text-zinc-900 dark:text-zinc-100 mb-1 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
+                    Student Onboarding Portal
+                  </h3>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
+                    Enterprise internal tool for streamlining student enrollment
+                    and documentation workflows.
+                  </p>
+                  <div className="flex items-center gap-1 text-sm text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
+                    View project
+                    <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              </ScrollReveal>
 
-              <Link href="/projects/automation-suite" className="group block">
-                <h3 className="text-xl font-medium text-zinc-900 dark:text-zinc-100 mb-1 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
-                  AI Automation Suite
-                </h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
-                  Data cleansing pipelines and intelligent program search
-                  engines for complex enterprise data.
-                </p>
-                <div className="flex items-center gap-1 text-sm text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
-                  View project
-                  <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
+              <ScrollReveal delay={0.2}>
+                <Link href="/projects/automation-suite" className="group block">
+                  <h3 className="text-xl font-medium text-zinc-900 dark:text-zinc-100 mb-1 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
+                    AI Automation Suite
+                  </h3>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
+                    Data cleansing pipelines and intelligent program search
+                    engines for complex enterprise data.
+                  </p>
+                  <div className="flex items-center gap-1 text-sm text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
+                    View project
+                    <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              </ScrollReveal>
             </div>
           </div>
         </section>

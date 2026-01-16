@@ -8,6 +8,7 @@ import React, { Fragment } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { NAVIGATION_SHORTCUTS } from "@/src/constants/navigation";
 import { Toaster } from "@components/ui/sonner";
+import { RevealProvider } from "./reveal-provider";
 
 export default function RootProvider({
   children,
@@ -46,33 +47,35 @@ export default function RootProvider({
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem={true}>
-      <Fragment>
-        {children}
+      <RevealProvider>
+        <Fragment>
+          {children}
 
-        <SpeedInsights />
-        <Analytics />
+          <SpeedInsights />
+          <Analytics />
 
-        <ProgressBar
-          color="var(--foreground)" // Using foreground color (black/white) for progress bar
-          delay={300}
-          disableSameURL={true}
-          height="2px"
-          options={{
-            easing: "easeInOutCubic",
-            showSpinner: false,
-            speed: 500,
-          }}
-          shallowRouting={true}
-          startPosition={0.3}
-          stopDelay={200}
-        />
-        <Toaster
-          closeButton={true}
-          expand={false}
-          position="top-center"
-          richColors={false}
-        />
-      </Fragment>
+          <ProgressBar
+            color="var(--foreground)" // Using foreground color (black/white) for progress bar
+            delay={300}
+            disableSameURL={true}
+            height="2px"
+            options={{
+              easing: "easeInOutCubic",
+              showSpinner: false,
+              speed: 500,
+            }}
+            shallowRouting={true}
+            startPosition={0.3}
+            stopDelay={200}
+          />
+          <Toaster
+            closeButton={true}
+            expand={false}
+            position="top-center"
+            richColors={false}
+          />
+        </Fragment>
+      </RevealProvider>
     </ThemeProvider>
   );
 }

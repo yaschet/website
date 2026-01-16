@@ -10,6 +10,7 @@ import {
   Moon,
   Sun,
   User,
+  type LucideIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
@@ -34,7 +35,7 @@ const hoverSpring = {
 type NavItem = {
   name: string;
   link: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
 };
 
 const navItems: NavItem[] = [

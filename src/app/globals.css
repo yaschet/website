@@ -46,6 +46,38 @@
   animation: marquee 30s linear infinite;
 }
 
+/* Ambient floating animations */
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+@keyframes float-slower {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-40px, -20px) scale(1.08);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 20s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float-slower 30s ease-in-out infinite;
+}
+
 /**
  * Animation Keyframes for Enter/Exit
  *
@@ -1482,7 +1514,7 @@ html {
 
 html,
 body {
-  @apply bg-surface selection:bg-accent-600 scroll-smooth lining-nums antialiased selection:text-white;
+  @apply selection:bg-accent-600 scroll-smooth lining-nums antialiased selection:text-white;
 }
 
 .dark,
@@ -1501,14 +1533,6 @@ h6 {
 
 p {
   @apply font-sans leading-relaxed;
-}
-
-.transition-bg-light {
-  background-color: var(--surface-50) !important;
-}
-
-.transition-bg-dark {
-  background-color: var(--surface-950) !important;
 }
 
 /* Remove focus outline */
