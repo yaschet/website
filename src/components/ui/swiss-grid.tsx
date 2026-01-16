@@ -153,12 +153,14 @@ interface VerticalRailProps {
 function VerticalRail({ position, dimensions, animate = true }: VerticalRailProps) {
 	const { dashSize, cycleSize } = dimensions;
 
+	// Pattern: GAP first (0 to dashSize), then DASH (dashSize to cycleSize)
+	// This matches the horizontal pattern for perfect crosshairs
 	const gradient = `repeating-linear-gradient(
 		to bottom,
-		var(--swiss-grid-color, ${GRID_COLOR_LIGHT}) 0px,
-		var(--swiss-grid-color, ${GRID_COLOR_LIGHT}) ${dashSize}px,
+		transparent 0px,
 		transparent ${dashSize}px,
-		transparent ${cycleSize}px
+		var(--swiss-grid-color, ${GRID_COLOR_LIGHT}) ${dashSize}px,
+		var(--swiss-grid-color, ${GRID_COLOR_LIGHT}) ${cycleSize}px
 	)`;
 
 	return (
@@ -189,6 +191,12 @@ interface SwissHorizontalLineProps {
  * This component spans 100% width but aligns its dash pattern to match
  * the vertical rails using the grid context. The key is offsetting the
  * background-position so dashes land exactly at the container edges.
+ *
+ * Math (from Perplexity):
+ * 1. Get container left edge position (L)
+ * 2. Calculate: offset = L % cycleSize
+ * 3. If offset > dashSize, adjust: offset = offset - dashSize
+ * 4. Apply: background-position: calc(-1 * offset)
  */
 export function SwissHorizontalLine({ className = "" }: SwissHorizontalLineProps) {
 	const { dimensions, containerOffset } = useSwissGridContext();
@@ -199,17 +207,22 @@ export function SwissHorizontalLine({ className = "" }: SwissHorizontalLineProps
 
 	const { dashSize, cycleSize } = dimensions;
 
-	// Calculate the offset needed so the pattern aligns at container edges
-	// The pattern should have a dash (not gap) at containerOffset pixels from left
-	// We shift the pattern so it starts at the container edge
-	const patternOffset = containerOffset % cycleSize;
+	// Calculate the offset to align dash at container edge
+	// Pattern: gap first (0-8px), then dash (8-16px)
+	// We want a DASH at containerOffset, so shift pattern accordingly
+	let offset = containerOffset % cycleSize;
+	if (offset > dashSize) {
+		offset = offset - dashSize;
+	}
 
+	// Gradient: starts with GAP (transparent), then DASH
+	// This way when we offset, we can position the dash exactly at the edge
 	const gradient = `repeating-linear-gradient(
 		to right,
-		var(--swiss-grid-color, ${GRID_COLOR_LIGHT}) 0px,
-		var(--swiss-grid-color, ${GRID_COLOR_LIGHT}) ${dashSize}px,
+		transparent 0px,
 		transparent ${dashSize}px,
-		transparent ${cycleSize}px
+		var(--swiss-grid-color, ${GRID_COLOR_LIGHT}) ${dashSize}px,
+		var(--swiss-grid-color, ${GRID_COLOR_LIGHT}) ${cycleSize}px
 	)`;
 
 	return (
@@ -217,7 +230,7 @@ export function SwissHorizontalLine({ className = "" }: SwissHorizontalLineProps
 			className={`h-px w-full ${className}`}
 			style={{
 				background: gradient,
-				backgroundPosition: `${patternOffset}px 0`,
+				backgroundPosition: `${-offset}px 0`,
 			}}
 			aria-hidden="true"
 		/>
