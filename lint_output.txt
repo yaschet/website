@@ -1,0 +1,533 @@
+
+> website@0.1.0 lint /Users/yaschet/Projects/personal/website
+> biome check .
+
+src/components/providers/root-provider.tsx:49:5 lint/complexity/noUselessFragments  FIXABLE  ━━━━━━━━━━━━━━━━━━━
+
+  i This fragment is unnecessary.
+  
+    47 │ 		<ThemeProvider attribute="class" defaultTheme="system" enableSystem={true}>
+    48 │ 			<RevealProvider>
+  > 49 │ 				<Fragment>
+       │ 				^^^^^^^^^^
+  > 50 │ 					{children}
+        ...
+  > 74 │ 					/>
+  > 75 │ 				</Fragment>
+       │ 				^^^^^^^^^^^
+    76 │ 			</RevealProvider>
+    77 │ 		</ThemeProvider>
+  
+  i A fragment is redundant if it contains only one child, or if it is the child of a html element, and is not a keyed fragment.
+  
+  i Unsafe fix: Remove the Fragment
+  
+    47 47 │   		<ThemeProvider attribute="class" defaultTheme="system" enableSystem={true}>
+    48 48 │   			<RevealProvider>
+    49    │ - → → → → <Fragment>
+       49 │ + → → → → 
+    50 50 │   					{children}
+    51 51 │   
+    ····· │ 
+    73 73 │   						richColors={false}
+    74 74 │   					/>
+    75    │ - → → → → </Fragment>
+       75 │ + → → → → 
+    76 76 │   			</RevealProvider>
+    77 77 │   		</ThemeProvider>
+  
+
+biome.json:19:4 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Incorrect usage of ignore a folder found.
+  
+    17 │ 			"!**/next-env.d.ts",
+    18 │ 			"!**/*.stories.*",
+  > 19 │ 			"!**/src/components/stories/**"
+       │ 			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    20 │ 		]
+    21 │ 	},
+  
+  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.
+  
+  i Safe fix: If you want to ignore a folder, use the following pattern instead: !**/src/components/stories.
+  
+    19 │ → → → "!**/src/components/stories/**"
+       │                                  --- 
+
+src/app/layout.tsx:52:15 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    50 │ 			</head>
+    51 │ 			<body
+  > 52 │ 				className="relative min-h-screen antialiased text-surface-900 dark:text-surface-50"
+       │ 				          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    53 │ 				suppressHydrationWarning={true}
+    54 │ 			>
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    50 50 │   			</head>
+    51 51 │   			<body
+    52    │ - → → → → className="relative·min-h-screen·antialiased·text-surface-900·dark:text-surface-50"
+       52 │ + → → → → className="relative·min-h-screen·text-surface-900·antialiased·dark:text-surface-50"
+    53 53 │   				suppressHydrationWarning={true}
+    54 54 │   			>
+  
+
+src/app/layout.tsx:8:10 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+     6 │ import RootProvider from "@components/providers/root-provider";
+     7 │ 
+   > 8 │ import { fontSans, fontVariables } from "@/lib/fonts";
+       │          ^^^^^^^^
+     9 │ 
+    10 │ export const metadata: Metadata = {
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    8 │ import·{·fontSans,·fontVariables·}·from·"@/lib/fonts";
+      │          ----------                                   
+
+src/components/layout/floating-nav.tsx:126:18 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    125 │ 	return (
+  > 126 │ 		<div className="fixed top-8 left-0 right-0 z-50 flex items-center justify-center px-6">
+        │ 		               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    127 │ 			<motion.nav
+    128 │ 				initial={{ opacity: 0, y: -20, scale: 0.95 }}
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    124 124 │   
+    125 125 │   	return (
+    126     │ - → → <div·className="fixed·top-8·left-0·right-0·z-50·flex·items-center·justify-center·px-6">
+        126 │ + → → <div·className="fixed·top-8·right-0·left-0·z-50·flex·items-center·justify-center·px-6">
+    127 127 │   			<motion.nav
+    128 128 │   				initial={{ opacity: 0, y: -20, scale: 0.95 }}
+  
+
+src/components/layout/floating-nav.tsx:131:15 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    129 │ 				animate={{ opacity: 1, y: 0, scale: 1 }}
+    130 │ 				transition={springConfig}
+  > 131 │ 				className="relative flex items-center gap-1 p-1.5 rounded-full border border-surface-200/80 dark:border-surface-800/80 bg-white/90 dark:bg-surface-950/90 backdrop-blur-xl shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50"
+        │ 				          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    132 │ 				role="navigation"
+    133 │ 				aria-label="Main navigation"
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    129 129 │   				animate={{ opacity: 1, y: 0, scale: 1 }}
+    130 130 │   				transition={springConfig}
+    131     │ - → → → → className="relative·flex·items-center·gap-1·p-1.5·rounded-full·border·border-surface-200/80·dark:border-surface-800/80·bg-white/90·dark:bg-surface-950/90·backdrop-blur-xl·shadow-lg·shadow-surface-900/5·dark:shadow-surface-950/50"
+        131 │ + → → → → className="relative·flex·items-center·gap-1·rounded-full·border·border-surface-200/80·bg-white/90·p-1.5·shadow-lg·shadow-surface-900/5·backdrop-blur-xl·dark:border-surface-800/80·dark:bg-surface-950/90·dark:shadow-surface-950/50"
+    132 132 │   				role="navigation"
+    133 133 │   				aria-label="Main navigation"
+  
+
+src/components/layout/floating-nav.tsx:163:22 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    161 │ 										<motion.div
+    162 │ 											layoutId="nav-slot"
+  > 163 │ 											className="absolute inset-0 bg-surface-100 dark:bg-surface-800 rounded-full -z-10"
+        │ 											          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    164 │ 											transition={hoverSpring}
+    165 │ 										/>
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    161 161 │   										<motion.div
+    162 162 │   											layoutId="nav-slot"
+    163     │ - → → → → → → → → → → → className="absolute·inset-0·bg-surface-100·dark:bg-surface-800·rounded-full·-z-10"
+        163 │ + → → → → → → → → → → → className="absolute·inset-0·-z-10·rounded-full·bg-surface-100·dark:bg-surface-800"
+    164 164 │   											transition={hoverSpring}
+    165 165 │   										/>
+  
+
+src/components/layout/floating-nav.tsx:187:22 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    185 │ 											exit={{ opacity: 0, y: 4, scale: 0.95 }}
+    186 │ 											transition={{ duration: 0.15, ease: "easeOut" }}
+  > 187 │ 											className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-surface-700 dark:text-surface-300 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-md shadow-sm whitespace-nowrap pointer-events-none z-20"
+        │ 											          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    188 │ 										>
+    189 │ 											{item.name}
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    185 185 │   											exit={{ opacity: 0, y: 4, scale: 0.95 }}
+    186 186 │   											transition={{ duration: 0.15, ease: "easeOut" }}
+    187     │ - → → → → → → → → → → → className="absolute·top-full·left-1/2·-translate-x-1/2·mt-2·px-2·py-1·text-xs·font-medium·text-surface-700·dark:text-surface-300·bg-white·dark:bg-surface-900·border·border-surface-200·dark:border-surface-800·rounded-md·shadow-sm·whitespace-nowrap·pointer-events-none·z-20"
+        187 │ + → → → → → → → → → → → className="pointer-events-none·absolute·top-full·left-1/2·z-20·mt-2·-translate-x-1/2·whitespace-nowrap·rounded-md·border·border-surface-200·bg-white·px-2·py-1·font-medium·text-surface-700·text-xs·shadow-sm·dark:border-surface-800·dark:bg-surface-900·dark:text-surface-300"
+    188 188 │   										>
+    189 189 │   											{item.name}
+  
+
+src/components/layout/floating-nav.tsx:199:16 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    198 │ 				<div
+  > 199 │ 					className="w-px h-6 bg-surface-200 dark:bg-surface-700 mx-0.5"
+        │ 					          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    200 │ 					aria-hidden="true"
+    201 │ 				/>
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    197 197 │   
+    198 198 │   				<div
+    199     │ - → → → → → className="w-px·h-6·bg-surface-200·dark:bg-surface-700·mx-0.5"
+        199 │ + → → → → → className="mx-0.5·h-6·w-px·bg-surface-200·dark:bg-surface-700"
+    200 200 │   					aria-hidden="true"
+    201 201 │   				/>
+  
+
+src/components/providers/global-store-provider.tsx:3:8 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━
+
+  ! This import is unused.
+  
+    1 │ "use client";
+    2 │ 
+  > 3 │ import { usePathname } from "next/navigation";
+      │        ^^^^^^^^^^^^^^^
+    4 │ import { type ReactNode, createContext, useContext, useRef } from "react";
+    5 │ import { useStore } from "zustand";
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+     1  1 │   "use client";
+     2    │ - 
+     3    │ - import·{·usePathname·}·from·"next/navigation";
+        2 │ + 
+     4  3 │   import { type ReactNode, createContext, useContext, useRef } from "react";
+     5  4 │   import { useStore } from "zustand";
+  
+
+src/components/providers/reveal-provider.tsx:3:8 lint/style/useImportType  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The default import is only used as a type.
+  
+    1 │ "use client";
+    2 │ 
+  > 3 │ import React, { createContext, useContext, useEffect, useState } from "react";
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ 
+    5 │ // reveal phases
+  
+  i Importing the types with import type ensures that they are removed by the compilers and avoids loading unnecessary modules.
+  
+  i Safe fix: Use import type.
+  
+     1  1 │   "use client";
+     2  2 │   
+     3    │ - import·React,·{·createContext,·useContext,·useEffect,·useState·}·from·"react";
+        3 │ + import·type·React·from·"react";
+        4 │ + import·{·createContext,·useContext,·useEffect,·useState·}·from·"react";
+     4  5 │   
+     5  6 │   // reveal phases
+  
+
+src/components/providers/root-provider.tsx:7:8 lint/style/useImportType  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The default import is only used as a type.
+  
+    5 │ import { AppProgressBar as ProgressBar, useRouter } from "next-nprogress-bar";
+    6 │ import { ThemeProvider } from "next-themes";
+  > 7 │ import React, { Fragment } from "react";
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    8 │ import { useHotkeys } from "react-hotkeys-hook";
+    9 │ import { NAVIGATION_SHORTCUTS } from "@/src/constants/navigation";
+  
+  i Importing the types with import type ensures that they are removed by the compilers and avoids loading unnecessary modules.
+  
+  i Safe fix: Use import type.
+  
+     5  5 │   import { AppProgressBar as ProgressBar, useRouter } from "next-nprogress-bar";
+     6  6 │   import { ThemeProvider } from "next-themes";
+     7    │ - import·React,·{·Fragment·}·from·"react";
+        7 │ + import·type·React·from·"react";
+        8 │ + import·{·Fragment·}·from·"react";
+     8  9 │   import { useHotkeys } from "react-hotkeys-hook";
+     9 10 │   import { NAVIGATION_SHORTCUTS } from "@/src/constants/navigation";
+  
+
+src/components/ui/accordion.tsx:26:5 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    24 │ 			ref={ref}
+    25 │ 			className={cn(
+  > 26 │ 				"flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+       │ 				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    27 │ 				className,
+    28 │ 			)}
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    24 24 │   			ref={ref}
+    25 25 │   			className={cn(
+    26    │ - → → → → "flex·flex-1·items-center·justify-between·py-4·text-sm·font-medium·transition-all·hover:underline·[&[data-state=open]>svg]:rotate-180",
+       26 │ + → → → → "flex·flex-1·items-center·justify-between·py-4·font-medium·text-sm·transition-all·hover:underline·[&[data-state=open]>svg]:rotate-180",
+    27 27 │   				className,
+    28 28 │   			)}
+  
+
+src/components/ui/accordion.tsx:32:31 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    30 │ 		>
+    31 │ 			{children}
+  > 32 │ 			<ChevronDownIcon className="text-muted size-4 shrink-0 transition-transform duration-200" />
+       │ 			                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    33 │ 		</AccordionPrimitive.Trigger>
+    34 │ 	</AccordionPrimitive.Header>
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    30 30 │   		>
+    31 31 │   			{children}
+    32    │ - → → → <ChevronDownIcon·className="text-muted·size-4·shrink-0·transition-transform·duration-200"·/>
+       32 │ + → → → <ChevronDownIcon·className="size-4·shrink-0·text-muted·transition-transform·duration-200"·/>
+    33 33 │   		</AccordionPrimitive.Trigger>
+    34 34 │   	</AccordionPrimitive.Header>
+  
+
+src/components/ui/accordion.tsx:44:13 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    42 │ 	<AccordionPrimitive.Content
+    43 │ 		ref={ref}
+  > 44 │ 		className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
+       │ 		          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    45 │ 		{...props}
+    46 │ 	>
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    42 42 │   	<AccordionPrimitive.Content
+    43 43 │   		ref={ref}
+    44    │ - → → className="data-[state=closed]:animate-accordion-up·data-[state=open]:animate-accordion-down·overflow-hidden·text-sm"
+       44 │ + → → className="overflow-hidden·text-sm·data-[state=closed]:animate-accordion-up·data-[state=open]:animate-accordion-down"
+    45 45 │   		{...props}
+    46 46 │   	>
+  
+
+src/app/layout.tsx:48:6 lint/security/noDangerouslySetInnerHtml ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Avoid passing content using the dangerouslySetInnerHTML prop.
+  
+    46 │ 					type="application/ld+json"
+    47 │ 					strategy="beforeInteractive"
+  > 48 │ 					dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+       │ 					^^^^^^^^^^^^^^^^^^^^^^^
+    49 │ 				/>
+    50 │ 			</head>
+  
+  ! Setting content using code can expose users to cross-site scripting (XSS) attacks
+  
+
+src/components/layout/floating-nav.tsx:3:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+    1 │ "use client";
+    2 │ 
+  > 3 │ import { cn } from "@/src/lib/utils";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ import { AnimatePresence, motion } from "framer-motion";
+    5 │ import {
+  
+  i Safe fix: Organize Imports (Biome)
+  
+      1   1 │   "use client";
+      2   2 │   
+      3     │ - import·{·cn·}·from·"@/src/lib/utils";
+      4     │ - import·{·AnimatePresence,·motion·}·from·"framer-motion";
+      5     │ - import·{
+      6     │ - → Briefcase,
+      7     │ - → FileText,
+      8     │ - → House,
+      9     │ - → Image·as·ImageIcon,
+     10     │ - → Moon,
+     11     │ - → Sun,
+     12     │ - → User,
+     13     │ - }·from·"@phosphor-icons/react";
+     14     │ - import·type·{·Icon·}·from·"@phosphor-icons/react";
+     15     │ - import·{·useTheme·}·from·"next-themes";
+     16     │ - import·Link·from·"next/link";
+     17     │ - import·{·usePathname·}·from·"next/navigation";
+     18     │ - import·{·useEffect,·useRef,·useState·}·from·"react";
+     19     │ - import·{·flushSync·}·from·"react-dom";
+          3 │ + import·type·{·Icon·}·from·"@phosphor-icons/react";
+          4 │ + import·{
+          5 │ + → Briefcase,
+          6 │ + → FileText,
+          7 │ + → House,
+          8 │ + → Image·as·ImageIcon,
+          9 │ + → Moon,
+         10 │ + → Sun,
+         11 │ + → User,
+         12 │ + }·from·"@phosphor-icons/react";
+         13 │ + import·{·AnimatePresence,·motion·}·from·"framer-motion";
+         14 │ + import·Link·from·"next/link";
+         15 │ + import·{·usePathname·}·from·"next/navigation";
+         16 │ + import·{·useTheme·}·from·"next-themes";
+         17 │ + import·{·useEffect,·useRef,·useState·}·from·"react";
+         18 │ + import·{·flushSync·}·from·"react-dom";
+         19 │ + import·{·cn·}·from·"@/src/lib/utils";
+     20  20 │   
+     21  21 │   const springConfig = {
+  
+
+src/components/providers/global-store-provider.tsx:3:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+    1 │ "use client";
+    2 │ 
+  > 3 │ import { usePathname } from "next/navigation";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ import { type ReactNode, createContext, useContext, useRef } from "react";
+    5 │ import { useStore } from "zustand";
+  
+  i Safe fix: Organize Imports (Biome)
+  
+     1  1 │   "use client";
+     2  2 │   
+     3    │ - import·{·usePathname·}·from·"next/navigation";
+     4    │ - import·{·type·ReactNode,·createContext,·useContext,·useRef·}·from·"react";
+     5    │ - import·{·useStore·}·from·"zustand";
+     6    │ - import·{·type·GlobalStore,·createGlobalStore·}·from·"@stores/global-store";
+        3 │ + import·{·createGlobalStore,·type·GlobalStore·}·from·"@stores/global-store";
+        4 │ + import·{·usePathname·}·from·"next/navigation";
+        5 │ + import·{·createContext,·type·ReactNode,·useContext,·useRef·}·from·"react";
+        6 │ + import·{·useStore·}·from·"zustand";
+     7  7 │   
+     8  8 │   export type GlobalStoreApi = ReturnType<typeof createGlobalStore>;
+  
+
+src/components/providers/root-provider.tsx:3:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+    1 │ "use client";
+    2 │ 
+  > 3 │ import { Analytics } from "@vercel/analytics/react";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ import { SpeedInsights } from "@vercel/speed-insights/next";
+    5 │ import { AppProgressBar as ProgressBar, useRouter } from "next-nprogress-bar";
+  
+  i Safe fix: Organize Imports (Biome)
+  
+     1  1 │   "use client";
+     2  2 │   
+     3    │ - import·{·Analytics·}·from·"@vercel/analytics/react";
+     4    │ - import·{·SpeedInsights·}·from·"@vercel/speed-insights/next";
+     5    │ - import·{·AppProgressBar·as·ProgressBar,·useRouter·}·from·"next-nprogress-bar";
+     6    │ - import·{·ThemeProvider·}·from·"next-themes";
+     7    │ - import·React,·{·Fragment·}·from·"react";
+     8    │ - import·{·useHotkeys·}·from·"react-hotkeys-hook";
+     9    │ - import·{·NAVIGATION_SHORTCUTS·}·from·"@/src/constants/navigation";
+    10    │ - import·{·Toaster·}·from·"@components/ui/sonner";
+        3 │ + import·{·Toaster·}·from·"@components/ui/sonner";
+        4 │ + import·{·Analytics·}·from·"@vercel/analytics/react";
+        5 │ + import·{·SpeedInsights·}·from·"@vercel/speed-insights/next";
+        6 │ + import·{·AppProgressBar·as·ProgressBar,·useRouter·}·from·"next-nprogress-bar";
+        7 │ + import·{·ThemeProvider·}·from·"next-themes";
+        8 │ + import·React,·{·Fragment·}·from·"react";
+        9 │ + import·{·useHotkeys·}·from·"react-hotkeys-hook";
+       10 │ + import·{·NAVIGATION_SHORTCUTS·}·from·"@/src/constants/navigation";
+    11 11 │   import { RevealProvider } from "./reveal-provider";
+    12 12 │   
+  
+
+src/stores/global-store.ts:1:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+  > 1 │ import { createJSONStorage, persist } from "zustand/middleware";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    2 │ import { createStore } from "zustand/vanilla";
+    3 │ import type { StateCreator } from "zustand";
+  
+  i Safe fix: Organize Imports (Biome)
+  
+     1    │ - import·{·createJSONStorage,·persist·}·from·"zustand/middleware";
+     2    │ - import·{·createStore·}·from·"zustand/vanilla";
+     3    │ - import·type·{·StateCreator·}·from·"zustand";
+     4    │ - import·type·{·StoreApi·}·from·"zustand/vanilla";
+        1 │ + import·type·{·StateCreator·}·from·"zustand";
+        2 │ + import·{·createJSONStorage,·persist·}·from·"zustand/middleware";
+        3 │ + import·type·{·StoreApi·}·from·"zustand/vanilla";
+        4 │ + import·{·createStore·}·from·"zustand/vanilla";
+     5  5 │   
+     6  6 │   export type GlobalState = {
+  
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 399.
+Checked 70 files in 174ms. No fixes applied.
+Found 87 errors.
+Found 330 warnings.
+Found 2 infos.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+
+ ELIFECYCLE  Command failed with exit code 1.

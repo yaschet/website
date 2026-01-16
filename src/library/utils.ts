@@ -1,36 +1,34 @@
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
+import type { ClassValue } from "clsx";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { ClassValue } from "clsx";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+	return twMerge(clsx(inputs));
 }
 
 export async function wait(duration: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, duration);
-  });
+	return new Promise((resolve) => {
+		setTimeout(resolve, duration);
+	});
 }
 
 export { wait as sleep };
 
 export const generateGravatarUrl: (email: string) => string = (email) => {
-  const emailString = email.trim().toLowerCase();
-  const hash: string = createHash("sha256").update(emailString).digest("hex");
-  return `https://www.gravatar.com/avatar/${hash}?d=404&s=480`;
+	const emailString = email.trim().toLowerCase();
+	const hash: string = createHash("sha256").update(emailString).digest("hex");
+	return `https://www.gravatar.com/avatar/${hash}?d=404&s=480`;
 };
 
-export const generateGravatarProfileUrl: (email: string) => string = (
-  email
-) => {
-  if (!email || email === "") {
-    return "https://gravatar.com";
-  }
+export const generateGravatarProfileUrl: (email: string) => string = (email) => {
+	if (!email || email === "") {
+		return "https://gravatar.com";
+	}
 
-  const emailString = email.trim().toLowerCase();
-  const hash: string = createHash("sha256").update(emailString).digest("hex");
-  return `https://www.gravatar.com/${hash}`;
+	const emailString = email.trim().toLowerCase();
+	const hash: string = createHash("sha256").update(emailString).digest("hex");
+	return `https://www.gravatar.com/${hash}`;
 };
 
 /**
@@ -41,13 +39,13 @@ export const generateGravatarProfileUrl: (email: string) => string = (
  * @param limit
  */
 export function getRange(page: number, limit: number) {
-  const from = page;
-  const to = page + limit - 1;
+	const from = page;
+	const to = page + limit - 1;
 
-  return {
-    start: from,
-    end: to,
-  };
+	return {
+		start: from,
+		end: to,
+	};
 }
 
 /**
@@ -55,8 +53,8 @@ export function getRange(page: number, limit: number) {
  * @param text
  */
 export const isArabic = (text: string) => {
-  const arabicPattern = /[\u0600-\u06FF\u0750-\u077F]/;
-  return arabicPattern.test(text);
+	const arabicPattern = /[\u0600-\u06FF\u0750-\u077F]/;
+	return arabicPattern.test(text);
 };
 
 /**
@@ -65,11 +63,11 @@ export const isArabic = (text: string) => {
  * @category Utils/OS
  */
 export function getOS(): "macOS" | "Windows" | "Other" {
-  const userAgent = window.navigator.userAgent;
-  if (userAgent.includes("Mac")) {
-    return "macOS";
-  } else if (userAgent.includes("Win")) {
-    return "Windows";
-  }
-  return "Other";
+	const userAgent = window.navigator.userAgent;
+	if (userAgent.includes("Mac")) {
+		return "macOS";
+	} else if (userAgent.includes("Win")) {
+		return "Windows";
+	}
+	return "Other";
 }

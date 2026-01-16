@@ -1,0 +1,515 @@
+src/components/providers/root-provider.tsx:50:5 lint/complexity/noUselessFragments  FIXABLE  ━━━━━━━━━━━━━━━━━━━
+
+  i This fragment is unnecessary.
+  
+    48 │ 		<ThemeProvider attribute="class" defaultTheme="system" enableSystem={true}>
+    49 │ 			<RevealProvider>
+  > 50 │ 				<Fragment>
+       │ 				^^^^^^^^^^
+  > 51 │ 					{children}
+        ...
+  > 75 │ 					/>
+  > 76 │ 				</Fragment>
+       │ 				^^^^^^^^^^^
+    77 │ 			</RevealProvider>
+    78 │ 		</ThemeProvider>
+  
+  i A fragment is redundant if it contains only one child, or if it is the child of a html element, and is not a keyed fragment.
+  
+  i Unsafe fix: Remove the Fragment
+  
+    48 48 │   		<ThemeProvider attribute="class" defaultTheme="system" enableSystem={true}>
+    49 49 │   			<RevealProvider>
+    50    │ - → → → → <Fragment>
+       50 │ + → → → → 
+    51 51 │   					{children}
+    52 52 │   
+    ····· │ 
+    74 74 │   						richColors={false}
+    75 75 │   					/>
+    76    │ - → → → → </Fragment>
+       76 │ + → → → → 
+    77 77 │   			</RevealProvider>
+    78 78 │   		</ThemeProvider>
+  
+
+src/components/layout/floating-nav.tsx:126:18 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    125 │ 	return (
+  > 126 │ 		<div className="fixed top-8 left-0 right-0 z-50 flex items-center justify-center px-6">
+        │ 		               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    127 │ 			<motion.nav
+    128 │ 				initial={{ opacity: 0, y: -20, scale: 0.95 }}
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    124 124 │   
+    125 125 │   	return (
+    126     │ - → → <div·className="fixed·top-8·left-0·right-0·z-50·flex·items-center·justify-center·px-6">
+        126 │ + → → <div·className="fixed·top-8·right-0·left-0·z-50·flex·items-center·justify-center·px-6">
+    127 127 │   			<motion.nav
+    128 128 │   				initial={{ opacity: 0, y: -20, scale: 0.95 }}
+  
+
+src/components/layout/floating-nav.tsx:131:15 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    129 │ 				animate={{ opacity: 1, y: 0, scale: 1 }}
+    130 │ 				transition={springConfig}
+  > 131 │ 				className="relative flex items-center gap-1 p-1.5 rounded-full border border-surface-200/80 dark:border-surface-800/80 bg-white/90 dark:bg-surface-950/90 backdrop-blur-xl shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50"
+        │ 				          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    132 │ 				role="navigation"
+    133 │ 				aria-label="Main navigation"
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    129 129 │   				animate={{ opacity: 1, y: 0, scale: 1 }}
+    130 130 │   				transition={springConfig}
+    131     │ - → → → → className="relative·flex·items-center·gap-1·p-1.5·rounded-full·border·border-surface-200/80·dark:border-surface-800/80·bg-white/90·dark:bg-surface-950/90·backdrop-blur-xl·shadow-lg·shadow-surface-900/5·dark:shadow-surface-950/50"
+        131 │ + → → → → className="relative·flex·items-center·gap-1·rounded-full·border·border-surface-200/80·bg-white/90·p-1.5·shadow-lg·shadow-surface-900/5·backdrop-blur-xl·dark:border-surface-800/80·dark:bg-surface-950/90·dark:shadow-surface-950/50"
+    132 132 │   				role="navigation"
+    133 133 │   				aria-label="Main navigation"
+  
+
+src/components/layout/floating-nav.tsx:163:22 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    161 │ 										<motion.div
+    162 │ 											layoutId="nav-slot"
+  > 163 │ 											className="absolute inset-0 bg-surface-100 dark:bg-surface-800 rounded-full -z-10"
+        │ 											          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    164 │ 											transition={hoverSpring}
+    165 │ 										/>
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    161 161 │   										<motion.div
+    162 162 │   											layoutId="nav-slot"
+    163     │ - → → → → → → → → → → → className="absolute·inset-0·bg-surface-100·dark:bg-surface-800·rounded-full·-z-10"
+        163 │ + → → → → → → → → → → → className="absolute·inset-0·-z-10·rounded-full·bg-surface-100·dark:bg-surface-800"
+    164 164 │   											transition={hoverSpring}
+    165 165 │   										/>
+  
+
+src/components/layout/floating-nav.tsx:187:22 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    185 │ 											exit={{ opacity: 0, y: 4, scale: 0.95 }}
+    186 │ 											transition={{ duration: 0.15, ease: "easeOut" }}
+  > 187 │ 											className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs font-medium text-surface-700 dark:text-surface-300 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-md shadow-sm whitespace-nowrap pointer-events-none z-20"
+        │ 											          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    188 │ 										>
+    189 │ 											{item.name}
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    185 185 │   											exit={{ opacity: 0, y: 4, scale: 0.95 }}
+    186 186 │   											transition={{ duration: 0.15, ease: "easeOut" }}
+    187     │ - → → → → → → → → → → → className="absolute·top-full·left-1/2·-translate-x-1/2·mt-2·px-2·py-1·text-xs·font-medium·text-surface-700·dark:text-surface-300·bg-white·dark:bg-surface-900·border·border-surface-200·dark:border-surface-800·rounded-md·shadow-sm·whitespace-nowrap·pointer-events-none·z-20"
+        187 │ + → → → → → → → → → → → className="pointer-events-none·absolute·top-full·left-1/2·z-20·mt-2·-translate-x-1/2·whitespace-nowrap·rounded-md·border·border-surface-200·bg-white·px-2·py-1·font-medium·text-surface-700·text-xs·shadow-sm·dark:border-surface-800·dark:bg-surface-900·dark:text-surface-300"
+    188 188 │   										>
+    189 189 │   											{item.name}
+  
+
+src/components/layout/floating-nav.tsx:199:16 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    198 │ 				<div
+  > 199 │ 					className="w-px h-6 bg-surface-200 dark:bg-surface-700 mx-0.5"
+        │ 					          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    200 │ 					aria-hidden="true"
+    201 │ 				/>
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    197 197 │   
+    198 198 │   				<div
+    199     │ - → → → → → className="w-px·h-6·bg-surface-200·dark:bg-surface-700·mx-0.5"
+        199 │ + → → → → → className="mx-0.5·h-6·w-px·bg-surface-200·dark:bg-surface-700"
+    200 200 │   					aria-hidden="true"
+    201 201 │   				/>
+  
+
+src/components/providers/global-store-provider.tsx:4:8 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━
+
+  ! This import is unused.
+  
+    3 │ import { createGlobalStore, type GlobalStore } from "@stores/global-store";
+  > 4 │ import { usePathname } from "next/navigation";
+      │        ^^^^^^^^^^^^^^^
+    5 │ import { createContext, type ReactNode, useContext, useRef } from "react";
+    6 │ import { useStore } from "zustand";
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+     2  2 │   
+     3  3 │   import { createGlobalStore, type GlobalStore } from "@stores/global-store";
+     4    │ - import·{·usePathname·}·from·"next/navigation";
+     5  4 │   import { createContext, type ReactNode, useContext, useRef } from "react";
+     6  5 │   import { useStore } from "zustand";
+  
+
+src/components/ui/accordion.tsx:26:5 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    24 │ 			ref={ref}
+    25 │ 			className={cn(
+  > 26 │ 				"flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+       │ 				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    27 │ 				className,
+    28 │ 			)}
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    24 24 │   			ref={ref}
+    25 25 │   			className={cn(
+    26    │ - → → → → "flex·flex-1·items-center·justify-between·py-4·text-sm·font-medium·transition-all·hover:underline·[&[data-state=open]>svg]:rotate-180",
+       26 │ + → → → → "flex·flex-1·items-center·justify-between·py-4·font-medium·text-sm·transition-all·hover:underline·[&[data-state=open]>svg]:rotate-180",
+    27 27 │   				className,
+    28 28 │   			)}
+  
+
+src/components/ui/accordion.tsx:32:31 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    30 │ 		>
+    31 │ 			{children}
+  > 32 │ 			<ChevronDownIcon className="text-muted size-4 shrink-0 transition-transform duration-200" />
+       │ 			                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    33 │ 		</AccordionPrimitive.Trigger>
+    34 │ 	</AccordionPrimitive.Header>
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    30 30 │   		>
+    31 31 │   			{children}
+    32    │ - → → → <ChevronDownIcon·className="text-muted·size-4·shrink-0·transition-transform·duration-200"·/>
+       32 │ + → → → <ChevronDownIcon·className="size-4·shrink-0·text-muted·transition-transform·duration-200"·/>
+    33 33 │   		</AccordionPrimitive.Trigger>
+    34 34 │   	</AccordionPrimitive.Header>
+  
+
+src/components/ui/accordion.tsx:44:13 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    42 │ 	<AccordionPrimitive.Content
+    43 │ 		ref={ref}
+  > 44 │ 		className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
+       │ 		          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    45 │ 		{...props}
+    46 │ 	>
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    42 42 │   	<AccordionPrimitive.Content
+    43 43 │   		ref={ref}
+    44    │ - → → className="data-[state=closed]:animate-accordion-up·data-[state=open]:animate-accordion-down·overflow-hidden·text-sm"
+       44 │ + → → className="overflow-hidden·text-sm·data-[state=closed]:animate-accordion-up·data-[state=open]:animate-accordion-down"
+    45 45 │   		{...props}
+    46 46 │   	>
+  
+
+src/components/ui/alert-dialog.tsx:21:4 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    19 │ 	<AlertDialogPrimitive.Overlay
+    20 │ 		className={cn(
+  > 21 │ 			"bg-surface-950/20 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 dark:bg-surface-950/50 fixed inset-0 z-50 grid place-items-center overflow-y-auto backdrop-blur-sm",
+       │ 			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    22 │ 			className,
+    23 │ 		)}
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+     19  19 │   	<AlertDialogPrimitive.Overlay
+     20  20 │   		className={cn(
+     21     │ - → → → "bg-surface-950/20·data-[state=open]:animate-in·data-[state=closed]:animate-out·data-[state=closed]:fade-out-0·data-[state=open]:fade-in-0·dark:bg-surface-950/50·fixed·inset-0·z-50·grid·place-items-center·overflow-y-auto·backdrop-blur-sm",
+         21 │ + → → → "data-[state=closed]:fade-out-0·data-[state=open]:fade-in-0·fixed·inset-0·z-50·grid·place-items-center·overflow-y-auto·bg-surface-950/20·backdrop-blur-sm·data-[state=closed]:animate-out·data-[state=open]:animate-in·dark:bg-surface-950/50",
+     22  22 │   			className,
+     23  23 │   		)}
+  
+
+src/components/ui/alert-dialog.tsx:39:6 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    37 │ 				ref={ref}
+    38 │ 				className={cn(
+  > 39 │ 					"bg-popover shadow-large data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-bottom-[2rem] data-[state=open]:slide-in-from-bottom-[2rem] relative z-50 grid w-full max-w-lg gap-4 rounded-3xl p-6 duration-200",
+       │ 					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    40 │ 					className,
+    41 │ 				)}
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+     37  37 │   				ref={ref}
+     38  38 │   				className={cn(
+     39     │ - → → → → → "bg-popover·shadow-large·data-[state=open]:animate-in·data-[state=closed]:animate-out·data-[state=closed]:fade-out-0·data-[state=open]:fade-in-0·data-[state=closed]:zoom-out-95·data-[state=open]:zoom-in-95·data-[state=closed]:slide-out-to-bottom-[2rem]·data-[state=open]:slide-in-from-bottom-[2rem]·relative·z-50·grid·w-full·max-w-lg·gap-4·rounded-3xl·p-6·duration-200",
+         39 │ + → → → → → "data-[state=closed]:fade-out-0·data-[state=open]:fade-in-0·data-[state=closed]:zoom-out-95·data-[state=open]:zoom-in-95·data-[state=closed]:slide-out-to-bottom-[2rem]·data-[state=open]:slide-in-from-bottom-[2rem]·relative·z-50·grid·w-full·max-w-lg·gap-4·rounded-3xl·bg-popover·p-6·shadow-large·duration-200·data-[state=closed]:animate-out·data-[state=open]:animate-in",
+     40  40 │   					className,
+     41  41 │   				)}
+  
+
+src/components/ui/alert-dialog.tsx:72:17 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    70 │ 	<AlertDialogPrimitive.Title
+    71 │ 		ref={ref}
+  > 72 │ 		className={cn("text-lg leading-tight font-semibold tracking-tight", className)}
+       │ 		              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    73 │ 		{...props}
+    74 │ 	/>
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+     70  70 │   	<AlertDialogPrimitive.Title
+     71  71 │   		ref={ref}
+     72     │ - → → className={cn("text-lg·leading-tight·font-semibold·tracking-tight",·className)}
+         72 │ + → → className={cn("font-semibold·text-lg·leading-tight·tracking-tight",·className)}
+     73  73 │   		{...props}
+     74  74 │   	/>
+  
+
+src/components/ui/ambient-background.tsx:12:18 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    10 │ export function AmbientBackground() {
+    11 │ 	return (
+  > 12 │ 		<div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+       │ 		               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    13 │ 			{/* Primary orb - slow float */}
+    14 │ 			<div
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    10 10 │   export function AmbientBackground() {
+    11 11 │   	return (
+    12    │ - → → <div·className="fixed·inset-0·-z-10·overflow-hidden·pointer-events-none">
+       12 │ + → → <div·className="pointer-events-none·fixed·inset-0·-z-10·overflow-hidden">
+    13 13 │   			{/* Primary orb - slow float */}
+    14 14 │   			<div
+  
+
+src/components/ui/ambient-background.tsx:15:15 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    13 │ 			{/* Primary orb - slow float */}
+    14 │ 			<div
+  > 15 │ 				className="absolute w-[600px] h-[600px] rounded-full opacity-30 dark:opacity-20 blur-[120px] animate-float-slow"
+       │ 				          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    16 │ 				style={{
+    17 │ 					background:
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    13 13 │   			{/* Primary orb - slow float */}
+    14 14 │   			<div
+    15    │ - → → → → className="absolute·w-[600px]·h-[600px]·rounded-full·opacity-30·dark:opacity-20·blur-[120px]·animate-float-slow"
+       15 │ + → → → → className="absolute·h-[600px]·w-[600px]·animate-float-slow·rounded-full·opacity-30·blur-[120px]·dark:opacity-20"
+    16 16 │   				style={{
+    17 17 │   					background:
+  
+
+src/components/ui/ambient-background.tsx:26:15 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    24 │ 			{/* Secondary orb - slower float, offset timing */}
+    25 │ 			<div
+  > 26 │ 				className="absolute w-[500px] h-[500px] rounded-full opacity-20 dark:opacity-15 blur-[100px] animate-float-slower"
+       │ 				          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    27 │ 				style={{
+    28 │ 					background:
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    24 24 │   			{/* Secondary orb - slower float, offset timing */}
+    25 25 │   			<div
+    26    │ - → → → → className="absolute·w-[500px]·h-[500px]·rounded-full·opacity-20·dark:opacity-15·blur-[100px]·animate-float-slower"
+       26 │ + → → → → className="absolute·h-[500px]·w-[500px]·animate-float-slower·rounded-full·opacity-20·blur-[100px]·dark:opacity-15"
+    27 27 │   				style={{
+    28 28 │   					background:
+  
+
+src/components/ui/animated-tabs.tsx:69:5 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    67 │ 		<div
+    68 │ 			className={cn(
+  > 69 │ 				"bg-surface-200/80 dark:bg-surface-800/50 inline-flex h-12 items-center justify-start rounded-2xl p-1 backdrop-blur-sm",
+       │ 				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    70 │ 				className,
+    71 │ 			)}
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+     67  67 │   		<div
+     68  68 │   			className={cn(
+     69     │ - → → → → "bg-surface-200/80·dark:bg-surface-800/50·inline-flex·h-12·items-center·justify-start·rounded-2xl·p-1·backdrop-blur-sm",
+         69 │ + → → → → "inline-flex·h-12·items-center·justify-start·rounded-2xl·bg-surface-200/80·p-1·backdrop-blur-sm·dark:bg-surface-800/50",
+     70  70 │   				className,
+     71  71 │   			)}
+  
+
+src/components/ui/animated-tabs.tsx:90:5 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    88 │ 		<button
+    89 │ 			className={cn(
+  > 90 │ 				"group relative flex h-full items-center justify-center rounded-xl px-6 py-2 text-sm font-bold transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+       │ 				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    91 │ 				isActive
+    92 │ 					? "text-primary-foreground"
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+     88  88 │   		<button
+     89  89 │   			className={cn(
+     90     │ - → → → → "group·relative·flex·h-full·items-center·justify-center·rounded-xl·px-6·py-2·text-sm·font-bold·transition-colors·duration-200·focus-visible:ring-2·focus-visible:ring-offset-2·focus-visible:outline-none",
+         90 │ + → → → → "group·relative·flex·h-full·items-center·justify-center·rounded-xl·px-6·py-2·font-bold·text-sm·transition-colors·duration-200·focus-visible:outline-none·focus-visible:ring-2·focus-visible:ring-offset-2",
+     91  91 │   				isActive
+     92  92 │   					? "text-primary-foreground"
+  
+
+src/components/ui/animated-tabs.tsx:101:16 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+     99 │ 			{isActive && (
+    100 │ 				<motion.div
+  > 101 │ 					className="bg-primary absolute inset-0 -z-10 rounded-xl shadow-sm"
+        │ 					          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    102 │ 					layoutId="active-tab-indicator"
+    103 │ 					transition={{
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+     99  99 │   			{isActive && (
+    100 100 │   				<motion.div
+    101     │ - → → → → → className="bg-primary·absolute·inset-0·-z-10·rounded-xl·shadow-sm"
+        101 │ + → → → → → className="absolute·inset-0·-z-10·rounded-xl·bg-primary·shadow-sm"
+    102 102 │   					layoutId="active-tab-indicator"
+    103 103 │   					transition={{
+  
+
+src/components/ui/animated-tabs.tsx:141:7 lint/nursery/useSortedClasses  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! These CSS classes should be sorted.
+  
+    139 │ 					animate={{ opacity: 1, y: 0, scale: 1 }}
+    140 │ 					className={cn(
+  > 141 │ 						"mt-2 w-full focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+        │ 						^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    142 │ 						className,
+    143 │ 					)}
+  
+  i This rule is still being actively worked on, so it may be missing features or have rough edges. Visit https://github.com/biomejs/biome/issues/1274 for more information or to report possible bugs.
+  
+  i This rule belongs to the nursery group, which means it is not yet stable and may change in the future. Visit https://biomejs.dev/linter/#nursery for more information.
+  
+  i Unsafe fix: Sort the classes.
+  
+    139 139 │   					animate={{ opacity: 1, y: 0, scale: 1 }}
+    140 140 │   					className={cn(
+    141     │ - → → → → → → "mt-2·w-full·focus-visible:ring-2·focus-visible:ring-offset-2·focus-visible:outline-none",
+        141 │ + → → → → → → "mt-2·w-full·focus-visible:outline-none·focus-visible:ring-2·focus-visible:ring-offset-2",
+    142 142 │   						className,
+    143 143 │   					)}
+  
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 308.
+Checked 69 files in 33ms. No fixes applied.
+Found 10 errors.
+Found 316 warnings.
+Found 2 infos.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

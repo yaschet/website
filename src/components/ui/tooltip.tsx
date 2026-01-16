@@ -12,43 +12,37 @@ const Tooltip = TooltipPrimitive.Root;
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
 const TooltipContent = React.forwardRef<
-  React.ComponentRef<typeof TooltipPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> & {
-    className?: string;
-    sideOffset?: number;
-  }
+	React.ComponentRef<typeof TooltipPrimitive.Content>,
+	React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> & {
+		className?: string;
+		sideOffset?: number;
+	}
 >(
-  (
-    {
-      className,
-      sideOffset = 4,
-      ...props
-    }: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> & {
-      className?: string;
-      sideOffset?: number;
-    },
-    ref
-  ) => (
-    <TooltipPrimitive.Content
-      ref={ref}
-      className={cn(
-        badgeVariants({ color: "secondary", size: "sm", variant: "soft" }),
-        "shadow-large shadow-surface-1 animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 overflow-hidden p-3",
-        className
-      )}
-      sideOffset={sideOffset}
-      {...props}
-    />
-  )
+	(
+		{
+			className,
+			sideOffset = 4,
+			...props
+		}: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> & {
+			className?: string;
+			sideOffset?: number;
+		},
+		ref,
+	) => (
+		<TooltipPrimitive.Content
+			ref={ref}
+			className={cn(
+				badgeVariants({ color: "secondary", size: "sm", variant: "soft" }),
+				"fade-in-0 zoom-in-95 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 animate-in overflow-hidden p-3 shadow-large shadow-surface-1 data-[state=closed]:animate-out",
+				className,
+			)}
+			sideOffset={sideOffset}
+			{...props}
+		/>
+	),
 );
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
 const TooltipArrow = TooltipPrimitive.Arrow;
 
-export {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-  TooltipArrow,
-};
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, TooltipArrow };
