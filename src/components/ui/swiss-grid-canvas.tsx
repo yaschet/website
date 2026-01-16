@@ -22,14 +22,14 @@
  */
 
 import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-  type ElementType,
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+	type ReactNode,
+	type ElementType,
 } from "react";
 import { useReducedMotion, useSpring } from "framer-motion";
 import { springs } from "@/src/lib/physics";
@@ -74,27 +74,27 @@ const CORNER_COLOR_DARK = "rgba(255, 255, 255, 0.5)"; // Strong white
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface GridConfig {
-  dashSize: number;
-  gapSize: number;
-  colorLight: string;
-  colorDark: string;
+	dashSize: number;
+	gapSize: number;
+	colorLight: string;
+	colorDark: string;
 }
 
 interface SectionBoundary {
-  id: string;
-  top: number;
-  bottom: number;
+	id: string;
+	top: number;
+	bottom: number;
 }
 
 interface SwissGridContextValue {
-  /** Register a section's boundary */
-  registerSection: (id: string, element: HTMLElement | null) => void;
-  /** Unregister a section */
-  unregisterSection: (id: string) => void;
-  /** Current container bounds */
-  containerBounds: { left: number; right: number; width: number } | null;
-  /** Grid configuration */
-  config: GridConfig;
+	/** Register a section's boundary */
+	registerSection: (id: string, element: HTMLElement | null) => void;
+	/** Unregister a section */
+	unregisterSection: (id: string) => void;
+	/** Current container bounds */
+	containerBounds: { left: number; right: number; width: number } | null;
+	/** Grid configuration */
+	config: GridConfig;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -107,11 +107,11 @@ const SwissGridContext = createContext<SwissGridContextValue | null>(null);
  * Hook to access the Swiss Grid context
  */
 export function useSwissGrid() {
-  const context = useContext(SwissGridContext);
-  if (!context) {
-    throw new Error("useSwissGrid must be used within SwissGridProvider");
-  }
-  return context;
+	const context = useContext(SwissGridContext);
+	if (!context) {
+		throw new Error("useSwissGrid must be used within SwissGridProvider");
+	}
+	return context;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -119,11 +119,11 @@ export function useSwissGrid() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface SwissGridProviderProps {
-  children: ReactNode;
-  /** Dash length in pixels (default: 8) */
-  dashSize?: number;
-  /** Gap length in pixels (default: 8) */
-  gapSize?: number;
+	children: ReactNode;
+	/** Dash length in pixels (default: 8) */
+	dashSize?: number;
+	/** Gap length in pixels (default: 8) */
+	gapSize?: number;
 }
 
 /**
@@ -592,58 +592,52 @@ export function SwissGridProvider({
  * @param cornerColor - Color for corner reinforcements (bold)
  */
 function drawVerticalRail(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  height: number,
-  cycle: number,
-  dashSize: number,
-  horizontalYs: number[],
-  dashColor: string,
-  cornerColor: string
+	ctx: CanvasRenderingContext2D,
+	x: number,
+	height: number,
+	cycle: number,
+	dashSize: number,
+	horizontalYs: number[],
+	dashColor: string,
+	cornerColor: string,
 ): void {
-  // Round X position FIRST - this is the definitive column for the vertical line
-  const railX = Math.round(x);
-  const halfDash = Math.floor(dashSize / 2);
-  const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
-  const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
+	// Round X position FIRST - this is the definitive column for the vertical line
+	const railX = Math.round(x);
+	const halfDash = Math.floor(dashSize / 2);
+	const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
+	const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 
-  // Draw CORNER REINFORCEMENT dashes at each intersection (SPECIAL color)
-  ctx.fillStyle = cornerColor;
-  for (const hy of horizontalYs) {
-    const crosshairY = Math.round(hy);
-    const dashStartY = crosshairY - halfCornerDash;
-    ctx.fillRect(
-      railX - halfCornerThickness,
-      dashStartY,
-      CORNER_THICKNESS,
-      CORNER_DASH_SIZE
-    );
-  }
+	// Draw CORNER REINFORCEMENT dashes at each intersection (SPECIAL color)
+	ctx.fillStyle = cornerColor;
+	for (const hy of horizontalYs) {
+		const crosshairY = Math.round(hy);
+		const dashStartY = crosshairY - halfCornerDash;
+		ctx.fillRect(railX - halfCornerThickness, dashStartY, CORNER_THICKNESS, CORNER_DASH_SIZE);
+	}
 
-  // Fill in regular dashes between crosshairs
-  ctx.fillStyle = dashColor;
-  let currentY = 0;
-  while (currentY < height) {
-    // Skip corner reinforcement zones
-    const inCrosshair = horizontalYs.some((hy) => {
-      const crosshairY = Math.round(hy);
-      return (
-        currentY >= crosshairY - halfCornerDash &&
-        currentY < crosshairY + halfCornerDash
-      );
-    });
+	// Fill in regular dashes between crosshairs
+	ctx.fillStyle = dashColor;
+	let currentY = 0;
+	while (currentY < height) {
+		// Skip corner reinforcement zones
+		const inCrosshair = horizontalYs.some((hy) => {
+			const crosshairY = Math.round(hy);
+			return (
+				currentY >= crosshairY - halfCornerDash && currentY < crosshairY + halfCornerDash
+			);
+		});
 
-    if (!inCrosshair) {
-      const nearestY = Math.round(findNearest(currentY, horizontalYs) ?? 0);
-      const relativePos = Math.abs(currentY - nearestY);
-      const phaseInCycle = relativePos % cycle;
+		if (!inCrosshair) {
+			const nearestY = Math.round(findNearest(currentY, horizontalYs) ?? 0);
+			const relativePos = Math.abs(currentY - nearestY);
+			const phaseInCycle = relativePos % cycle;
 
-      if (phaseInCycle < halfDash || phaseInCycle >= cycle - halfDash) {
-        ctx.fillRect(railX, currentY, 1, 1);
-      }
-    }
-    currentY += 1;
-  }
+			if (phaseInCycle < halfDash || phaseInCycle >= cycle - halfDash) {
+				ctx.fillRect(railX, currentY, 1, 1);
+			}
+		}
+		currentY += 1;
+	}
 }
 
 /**
@@ -666,74 +660,62 @@ function drawVerticalRail(
  * @param cornerColor - Color for corner reinforcements (bold)
  */
 function drawHorizontalLine(
-  ctx: CanvasRenderingContext2D,
-  y: number,
-  startX: number,
-  endX: number,
-  cycle: number,
-  dashSize: number,
-  containerLeft: number,
-  containerRight: number,
-  dashColor: string,
-  cornerColor: string
+	ctx: CanvasRenderingContext2D,
+	y: number,
+	startX: number,
+	endX: number,
+	cycle: number,
+	dashSize: number,
+	containerLeft: number,
+	containerRight: number,
+	dashColor: string,
+	cornerColor: string,
 ): void {
-  // Round positions FIRST
-  const lineY = Math.round(y);
-  const leftCrosshairX = Math.round(containerLeft);
-  const rightCrosshairX = Math.round(containerRight);
-  const halfDash = Math.floor(dashSize / 2);
-  const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
-  const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
+	// Round positions FIRST
+	const lineY = Math.round(y);
+	const leftCrosshairX = Math.round(containerLeft);
+	const rightCrosshairX = Math.round(containerRight);
+	const halfDash = Math.floor(dashSize / 2);
+	const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
+	const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 
-  // Draw CORNER REINFORCEMENT at crosshairs (SPECIAL color)
-  ctx.fillStyle = cornerColor;
-  const leftDashStartX = leftCrosshairX - halfCornerDash;
-  ctx.fillRect(
-    leftDashStartX,
-    lineY - halfCornerThickness,
-    CORNER_DASH_SIZE,
-    CORNER_THICKNESS
-  );
+	// Draw CORNER REINFORCEMENT at crosshairs (SPECIAL color)
+	ctx.fillStyle = cornerColor;
+	const leftDashStartX = leftCrosshairX - halfCornerDash;
+	ctx.fillRect(leftDashStartX, lineY - halfCornerThickness, CORNER_DASH_SIZE, CORNER_THICKNESS);
 
-  const rightDashStartX = rightCrosshairX - halfCornerDash;
-  ctx.fillRect(
-    rightDashStartX,
-    lineY - halfCornerThickness,
-    CORNER_DASH_SIZE,
-    CORNER_THICKNESS
-  );
+	const rightDashStartX = rightCrosshairX - halfCornerDash;
+	ctx.fillRect(rightDashStartX, lineY - halfCornerThickness, CORNER_DASH_SIZE, CORNER_THICKNESS);
 
-  // Fill in regular dashes
-  ctx.fillStyle = dashColor;
-  let currentX = Math.round(startX);
-  while (currentX < endX) {
-    const inLeftCrosshair =
-      currentX >= leftDashStartX &&
-      currentX < leftDashStartX + CORNER_DASH_SIZE;
-    const inRightCrosshair =
-      currentX >= rightDashStartX &&
-      currentX < rightDashStartX + CORNER_DASH_SIZE;
+	// Fill in regular dashes
+	ctx.fillStyle = dashColor;
+	let currentX = Math.round(startX);
+	while (currentX < endX) {
+		const inLeftCrosshair =
+			currentX >= leftDashStartX && currentX < leftDashStartX + CORNER_DASH_SIZE;
+		const inRightCrosshair =
+			currentX >= rightDashStartX && currentX < rightDashStartX + CORNER_DASH_SIZE;
 
-    if (!inLeftCrosshair && !inRightCrosshair) {
-      const relativePos = Math.abs(currentX - leftCrosshairX);
-      const phaseInCycle = relativePos % cycle;
+		if (!inLeftCrosshair && !inRightCrosshair) {
+			const relativePos = Math.abs(currentX - leftCrosshairX);
+			const phaseInCycle = relativePos % cycle;
 
-      if (phaseInCycle < halfDash || phaseInCycle >= cycle - halfDash) {
-        ctx.fillRect(currentX, lineY, 1, 1);
-      }
-    }
-    currentX += 1;
-  }
+			if (phaseInCycle < halfDash || phaseInCycle >= cycle - halfDash) {
+				ctx.fillRect(currentX, lineY, 1, 1);
+			}
+		}
+		currentX += 1;
+	}
 }
 
 /**
  * Find the nearest value in an array to a target
  */
 function findNearest(target: number, values: number[]): number | undefined {
-  if (values.length === 0) return undefined;
-  return values.reduce((prev, curr) =>
-    Math.abs(curr - target) < Math.abs(prev - target) ? curr : prev
-  );
+	if (values.length === 0) return undefined;
+	return values.reduce((prev, curr) =>
+		Math.abs(curr - target) < Math.abs(prev - target) ? curr : prev,
+	);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -741,13 +723,13 @@ function findNearest(target: number, values: number[]): number | undefined {
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface SwissGridSectionProps {
-  children: ReactNode;
-  /** Unique identifier for this section */
-  id?: string;
-  /** Additional CSS classes */
-  className?: string;
-  /** HTML tag to render (default: div) */
-  as?: ElementType;
+	children: ReactNode;
+	/** Unique identifier for this section */
+	id?: string;
+	/** Additional CSS classes */
+	className?: string;
+	/** HTML tag to render (default: div) */
+	as?: ElementType;
 }
 
 /**
@@ -757,30 +739,28 @@ interface SwissGridSectionProps {
  * bottom edge position for horizontal line drawing.
  */
 export function SwissGridSection({
-  children,
-  id,
-  className = "",
-  as: Tag = "div",
+	children,
+	id,
+	className = "",
+	as: Tag = "div",
 }: SwissGridSectionProps) {
-  const ref = useRef<HTMLElement>(null);
-  const { registerSection, unregisterSection } = useSwissGrid();
-  const sectionId = useRef(
-    id ?? `section-${Math.random().toString(36).slice(2)}`
-  );
+	const ref = useRef<HTMLElement>(null);
+	const { registerSection, unregisterSection } = useSwissGrid();
+	const sectionId = useRef(id ?? `section-${Math.random().toString(36).slice(2)}`);
 
-  useEffect(() => {
-    registerSection(sectionId.current, ref.current);
+	useEffect(() => {
+		registerSection(sectionId.current, ref.current);
 
-    return () => {
-      unregisterSection(sectionId.current);
-    };
-  }, [registerSection, unregisterSection]);
+		return () => {
+			unregisterSection(sectionId.current);
+		};
+	}, [registerSection, unregisterSection]);
 
-  return (
-    <Tag ref={ref} className={className}>
-      {children}
-    </Tag>
-  );
+	return (
+		<Tag ref={ref} className={className}>
+			{children}
+		</Tag>
+	);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -788,7 +768,7 @@ export function SwissGridSection({
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function SwissGridStyles() {
-  return null; // Colors are handled in canvas drawing
+	return null; // Colors are handled in canvas drawing
 }
 
 export default SwissGridProvider;
