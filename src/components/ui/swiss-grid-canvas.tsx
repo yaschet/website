@@ -155,10 +155,10 @@ export function SwissGridProvider({
 
   // Physics-based animation progress (0 → 1)
   const drawProgress = useSpring(0, {
-    ...springs.gentle,
-    // Slightly slower for the "blueprint sketch" effect
-    stiffness: 200,
-    damping: 30,
+    stiffness: 40,
+    damping: 20,
+    mass: 1.2,
+    restDelta: 0.001,
   });
 
   const config: GridConfig = {
@@ -258,14 +258,17 @@ export function SwissGridProvider({
       const width = document.documentElement.scrollWidth;
       const height = document.documentElement.scrollHeight;
 
-      // Set canvas size (accounting for DPR for crisp rendering)
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      canvas.style.width = "100%";
-      canvas.style.height = `${height}px`;
-      ctx.scale(dpr, dpr);
+      // Ensure canvas is sized correctly
+      if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = "100%";
+        canvas.style.height = `${height}px`;
+      }
 
-      // Clear canvas
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
       ctx.clearRect(0, 0, width, height);
 
       // Colors
@@ -276,93 +279,75 @@ export function SwissGridProvider({
       const { left: containerLeft, right: containerRight } = containerBounds;
 
       // ─────────────────────────────────────────────────────────────────────
-      // Animation Phases (staggered by progress)
-      // Phase 1: Vertical Rails (0% - 50%)
-      // Phase 2: Horizontal Lines (25% - 75%)
-      // Phase 3: Corner Reinforcements (50% - 100%)
+      // Blueprint Sketch Sequence:
+      // 1. Vertical Rails draw 0 -> Full Height
+      // 2. Horizontals shoot out when the vertical rail passes them
       // ─────────────────────────────────────────────────────────────────────
 
-      const verticalProgress = Math.min(progress * 2, 1); // 0-50% of time
-      const horizontalProgress = Math.max(
-        0,
-        Math.min((progress - 0.25) * 2, 1)
-      ); // 25-75%
-      const cornerProgress = Math.max(0, (progress - 0.5) * 2); // 50-100%
+      // Master vertical sketch: use full progress for main rails
+      const verticalProgress = progress;
+      const currentY = height * verticalProgress;
 
       // Get horizontal line Y positions
       const horizontalYs = sections.map((s) => s.bottom);
 
-      // ─────────────────────────────────────────────────────────────────────
-      // Draw Vertical Rails (progress-based height)
-      // ─────────────────────────────────────────────────────────────────────
-
-      if (verticalProgress > 0) {
-        const visibleHeight = height * verticalProgress;
-
-        // Left rail
+      // Draw Vertical Rails (only up to currentY)
+      if (currentY > 0) {
+        // Left
         drawVerticalRail(
           ctx,
           containerLeft,
-          visibleHeight,
+          currentY,
           cycle,
           config.dashSize,
-          horizontalYs.filter((y) => y <= visibleHeight),
+          horizontalYs.filter((y) => y <= currentY),
           dashColor,
-          cornerProgress > 0 ? cornerColor : "transparent"
+          cornerColor
         );
 
-        // Right rail
+        // Right
         drawVerticalRail(
           ctx,
           containerRight,
-          visibleHeight,
+          currentY,
           cycle,
           config.dashSize,
-          horizontalYs.filter((y) => y <= visibleHeight),
+          horizontalYs.filter((y) => y <= currentY),
           dashColor,
-          cornerProgress > 0 ? cornerColor : "transparent"
+          cornerColor
         );
       }
 
-      // ─────────────────────────────────────────────────────────────────────
-      // Draw Horizontal Lines (staggered by Y position)
-      // ─────────────────────────────────────────────────────────────────────
+      // Draw Horizontal Lines (revealed as Verticals pass them)
+      for (const section of sections) {
+        const lineY = section.bottom;
+        const trigger = lineY / height;
 
-      if (horizontalProgress > 0) {
-        const maxY =
-          sections.length > 0
-            ? Math.max(...sections.map((s) => s.bottom))
-            : height;
+        // Does the vertical sketch passed this line yet?
+        // (verticalProgress - trigger) * 3 ensures a slower, more visible shoot-out
+        if (verticalProgress >= trigger) {
+          const lineProgress = Math.min((verticalProgress - trigger) * 3, 1);
 
-        for (const section of sections) {
-          // Each line fades in based on its Y position relative to total
-          const lineProgress = section.bottom / maxY;
-          const lineVisible = horizontalProgress >= lineProgress * 0.8;
+          if (lineProgress > 0) {
+            const currentX = width * lineProgress;
 
-          if (lineVisible) {
-            // Calculate opacity based on how "settled" the animation is
-            const opacity = Math.min(
-              1,
-              (horizontalProgress - lineProgress * 0.8) * 5
-            );
-
-            ctx.globalAlpha = opacity;
             drawHorizontalLine(
               ctx,
-              section.bottom,
+              lineY,
               0,
-              width,
+              currentX,
               cycle,
               config.dashSize,
               containerLeft,
               containerRight,
               dashColor,
-              cornerProgress > 0 ? cornerColor : "transparent"
+              cornerColor
             );
-            ctx.globalAlpha = 1;
           }
         }
       }
+
+      ctx.restore();
     },
     [containerBounds, sections, config, isDark]
   );
@@ -413,23 +398,37 @@ export function SwissGridProvider({
   const isVisible = phase >= 0;
 
   useEffect(() => {
-    if (isVisible) {
-      // Start the animation
-      if (shouldReduceMotion) {
-        drawProgress.jump(1);
-        requestAnimationFrame(() => draw(1));
-      } else {
-        drawProgress.set(1);
-      }
+    // 1. Reset progress on mount
+    drawProgress.jump(0);
+
+    // 2. Ensure we only start when the container is measured and grid is visible
+    if (isVisible && containerBounds) {
+      // 3. Small delay to ensure the browser has settled
+      const timer = setTimeout(() => {
+        if (shouldReduceMotion) {
+          drawProgress.jump(1);
+        } else {
+          drawProgress.set(1);
+        }
+      }, 50); // Minimal delay, intent is everything
+
+      // 4. Subscribe to changes for 60fps redraws
+      const unsubscribe = drawProgress.on("change", (value) => {
+        requestAnimationFrame(() => draw(value));
+      });
+
+      return () => {
+        clearTimeout(timer);
+        unsubscribe();
+      };
     }
 
-    // Subscribe to spring changes for 60fps redraws
+    // Still need to subscribe for initial state
     const unsubscribe = drawProgress.on("change", (value) => {
       requestAnimationFrame(() => draw(value));
     });
-
     return unsubscribe;
-  }, [isVisible, shouldReduceMotion, drawProgress, draw]);
+  }, [isVisible, containerBounds, shouldReduceMotion, drawProgress, draw]);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Render
