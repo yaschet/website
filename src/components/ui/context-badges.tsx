@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock, Crosshair, MapPin } from "@phosphor-icons/react";
+import { Clock, Globe } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -22,17 +22,13 @@ const badgeClasses = cn(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// LOCATION BADGE: Reveals Precise Coordinates on Hover
+// LOCATION BADGE: Context & Availability
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function LocationBadge() {
 	const { phase } = useReveal();
 	const isEnabled = phase >= 1;
 	const [isHovered, setIsHovered] = useState(false);
-
-	// Rabat, Morocco Coordinates
-	const city = "Rabat, Morocco";
-	const coords = "34.0209° N, 6.8416° W";
 
 	return (
 		<motion.div
@@ -42,82 +38,99 @@ export function LocationBadge() {
 			className={badgeClasses}
 			onHoverStart={() => setIsHovered(true)}
 			onHoverEnd={() => setIsHovered(false)}
-			layout
 			role="status"
-			aria-label={`Location: ${city}`}
+			aria-label="Location and Availability"
 		>
-			<motion.div layout className="relative flex items-center gap-2">
-				{/* Icon Swap */}
-				<div className="relative size-3.5">
+			<div className="relative flex items-center gap-2">
+				{/* Icon Swap: Flag → Globe */}
+				<div className="relative size-3.5 overflow-hidden rounded-[1px]">
 					<AnimatePresence mode="wait">
 						{isHovered ? (
 							<motion.div
-								key="coords-icon"
-								initial={{ opacity: 0, scale: 0.5 }}
+								key="globe-icon"
+								initial={{ opacity: 0, scale: 0.8 }}
 								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0.5 }}
-								transition={{ duration: 0.2 }}
-								className="absolute inset-0"
+								exit={{ opacity: 0, scale: 0.8 }}
+								transition={{ duration: 0.15 }}
+								className="absolute inset-0 flex items-center justify-center"
 							>
-								<Crosshair weight="bold" className="size-full" />
+								<Globe
+									weight="bold"
+									className="size-full text-surface-900 dark:text-surface-100"
+								/>
 							</motion.div>
 						) : (
 							<motion.div
-								key="city-icon"
-								initial={{ opacity: 0, scale: 0.5 }}
+								key="flag-icon"
+								initial={{ opacity: 0, scale: 0.8 }}
 								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0.5 }}
-								transition={{ duration: 0.2 }}
-								className="absolute inset-0"
+								exit={{ opacity: 0, scale: 0.8 }}
+								transition={{ duration: 0.15 }}
+								className="absolute inset-0 flex items-center justify-center"
 							>
-								<MapPin weight="duotone" className="size-full" />
+								{/* Moroccan Flag - Premium SVG via flag-icons */}
+								<span
+									className="fi fi-ma size-full"
+									role="img"
+									aria-label="Moroccan flag"
+								/>
 							</motion.div>
 						)}
 					</AnimatePresence>
 				</div>
 
-				{/* Text Swap */}
-				<motion.div layout className="relative h-4 overflow-hidden">
-					<AnimatePresence mode="popLayout" initial={false}>
-						{isHovered ? (
-							<motion.span
-								key="coords"
-								initial={{ y: 20, opacity: 0 }}
-								animate={{ y: 0, opacity: 1 }}
-								exit={{ y: -20, opacity: 0 }}
-								transition={springs.glitch}
-								className="block whitespace-nowrap font-mono text-[10px] tracking-wide tabular-nums leading-4"
-							>
-								{coords}
-							</motion.span>
-						) : (
-							<motion.span
-								key="city"
-								initial={{ y: -20, opacity: 0 }}
-								animate={{ y: 0, opacity: 1 }}
-								exit={{ y: 20, opacity: 0 }}
-								transition={springs.glitch}
-								className="block whitespace-nowrap leading-4"
-							>
-								{city}
-							</motion.span>
-						)}
-					</AnimatePresence>
-				</motion.div>
-			</motion.div>
+				{/* Text Swap - Zero Layout Shift Architecture */}
+				<div className="relative h-4 overflow-hidden">
+					{/* Phantom Element: Reserves space for the widest possible text */}
+					<span
+						className="invisible block whitespace-nowrap font-medium leading-4"
+						aria-hidden="true"
+					>
+						Open to Remote
+					</span>
+
+					{/* Absolute Overlay: The actual animating content */}
+					<div className="absolute inset-0 flex items-center">
+						<AnimatePresence mode="popLayout" initial={false}>
+							{isHovered ? (
+								<motion.span
+									key="status"
+									initial={{ y: 12, opacity: 0 }}
+									animate={{ y: 0, opacity: 1 }}
+									exit={{ y: -12, opacity: 0 }}
+									transition={springs.snappy}
+									className="block w-full whitespace-nowrap font-medium text-surface-900 dark:text-surface-50 leading-4 text-center"
+								>
+									Open to Remote
+								</motion.span>
+							) : (
+								<motion.span
+									key="city"
+									initial={{ y: -12, opacity: 0 }}
+									animate={{ y: 0, opacity: 1 }}
+									exit={{ y: 12, opacity: 0 }}
+									transition={springs.snappy}
+									className="block w-full whitespace-nowrap leading-4 text-center"
+								>
+									Rabat, Morocco
+								</motion.span>
+							)}
+						</AnimatePresence>
+					</div>
+				</div>
+			</div>
 		</motion.div>
 	);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TIME BADGE: Reveals Date on Hover
+// TIME BADGE: Local Time & Timezone Context
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function TimeBadge() {
 	const { phase } = useReveal();
 	const isEnabled = phase >= 1;
 	const [time, setTime] = useState<string>("");
-	const [date, setDate] = useState<string>("");
 	const [mounted, setMounted] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 
@@ -131,15 +144,6 @@ export function TimeBadge() {
 					hour: "2-digit",
 					minute: "2-digit",
 					hour12: false,
-					timeZone: "Africa/Casablanca",
-				}),
-			);
-			// Date: "Fri, Oct 24"
-			setDate(
-				now.toLocaleDateString("en-US", {
-					weekday: "short",
-					month: "short",
-					day: "numeric",
 					timeZone: "Africa/Casablanca",
 				}),
 			);
@@ -166,31 +170,33 @@ export function TimeBadge() {
 			className={badgeClasses}
 			onHoverStart={() => setIsHovered(true)}
 			onHoverEnd={() => setIsHovered(false)}
-			layout
 			role="status"
-			aria-label="Current time in Rabat"
+			aria-label="Local time and timezone"
 		>
-			<motion.div layout className="relative flex items-center gap-2">
+			<div className="relative flex items-center gap-2">
 				{/* Icon Swap */}
 				<div className="relative size-3.5">
 					<AnimatePresence mode="wait">
 						{isHovered ? (
 							<motion.div
-								key="date-icon"
-								initial={{ opacity: 0, scale: 0.5 }}
-								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0.5 }}
+								key="tz-icon"
+								initial={{ opacity: 0, scale: 0.5, rotateX: -90 }}
+								animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+								exit={{ opacity: 0, scale: 0.5, rotateX: 90 }}
 								transition={{ duration: 0.2 }}
 								className="absolute inset-0"
 							>
-								<Calendar weight="bold" className="size-full" />
+								<Clock
+									weight="bold"
+									className="size-full text-surface-900 dark:text-surface-100"
+								/>
 							</motion.div>
 						) : (
 							<motion.div
 								key="time-icon"
-								initial={{ opacity: 0, scale: 0.5 }}
-								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0.5 }}
+								initial={{ opacity: 0, scale: 0.5, rotateX: -90 }}
+								animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+								exit={{ opacity: 0, scale: 0.5, rotateX: 90 }}
 								transition={{ duration: 0.2 }}
 								className="absolute inset-0"
 							>
@@ -200,35 +206,47 @@ export function TimeBadge() {
 					</AnimatePresence>
 				</div>
 
-				{/* Text Swap */}
-				<motion.div layout className="relative h-4 overflow-hidden">
-					<AnimatePresence mode="popLayout" initial={false}>
-						{isHovered ? (
-							<motion.span
-								key="date"
-								initial={{ y: 20, opacity: 0 }}
-								animate={{ y: 0, opacity: 1 }}
-								exit={{ y: -20, opacity: 0 }}
-								transition={springs.glitch}
-								className="block whitespace-nowrap text-[10px] uppercase tracking-wide leading-4"
-							>
-								{date}
-							</motion.span>
-						) : (
-							<motion.span
-								key="time"
-								initial={{ y: -20, opacity: 0 }}
-								animate={{ y: 0, opacity: 1 }}
-								exit={{ y: 20, opacity: 0 }}
-								transition={springs.glitch}
-								className="block whitespace-nowrap font-mono text-xs tabular-nums leading-4"
-							>
-								{time}
-							</motion.span>
-						)}
-					</AnimatePresence>
-				</motion.div>
-			</motion.div>
+				{/* Text Swap - Zero Layout Shift Architecture */}
+				<div className="relative h-4 overflow-hidden">
+					{/* Phantom Element: Reserves space for strict width preservation */}
+					{/* Longest possible time string is "00:00" or "UTC+1" - 5 chars approx */}
+					<span
+						className="invisible block whitespace-nowrap font-mono text-xs tabular-nums leading-4"
+						aria-hidden="true"
+					>
+						00:00
+					</span>
+
+					{/* Absolute Overlay */}
+					<div className="absolute inset-0 flex items-center justify-center">
+						<AnimatePresence mode="popLayout" initial={false}>
+							{isHovered ? (
+								<motion.span
+									key="tz"
+									initial={{ y: 12, opacity: 0 }}
+									animate={{ y: 0, opacity: 1 }}
+									exit={{ y: -12, opacity: 0 }}
+									transition={springs.snappy}
+									className="block w-full whitespace-nowrap font-medium text-surface-900 dark:text-surface-50 leading-4 text-center"
+								>
+									UTC+1
+								</motion.span>
+							) : (
+								<motion.span
+									key="time"
+									initial={{ y: -12, opacity: 0 }}
+									animate={{ y: 0, opacity: 1 }}
+									exit={{ y: 12, opacity: 0 }}
+									transition={springs.snappy}
+									className="block w-full whitespace-nowrap font-mono text-xs tabular-nums leading-4 text-center"
+								>
+									{time}
+								</motion.span>
+							)}
+						</AnimatePresence>
+					</div>
+				</div>
+			</div>
 		</motion.div>
 	);
 }
