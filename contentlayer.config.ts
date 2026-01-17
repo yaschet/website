@@ -61,6 +61,15 @@ export const Project = defineDocumentType(() => ({
       type: "string",
       resolve: (doc) => `/projects/${doc._raw.flattenedPath.split("/").pop()}`,
     },
+    readingTime: {
+      type: "number",
+      resolve: (doc) => {
+        const wordsPerMinute = 200;
+        const textContent = doc.body.raw;
+        const wordCount = textContent.split(/\s+/g).length;
+        return Math.ceil(wordCount / wordsPerMinute);
+      },
+    },
   },
 }));
 

@@ -1,6 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "@/src/lib/utils";
 import { Badge } from "@/src/components/ui/badge";
+import { CodeBlockWrapper } from "@/src/components/mdx/code-block-wrapper";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SWISS DESIGN MDX COMPONENTS
@@ -263,21 +264,17 @@ export function Code({
 
 /**
  * Code Block (Pre)
- * Sharp borders, dark theme
+ * Sharp borders, dark theme, with copy button
  */
-export function Pre({ className, ...props }: ComponentPropsWithoutRef<"pre">) {
+export function Pre({
+  className,
+  children,
+  ...props
+}: ComponentPropsWithoutRef<"pre">) {
   return (
-    <pre
-      className={cn(
-        "mb-8 overflow-x-auto border border-border p-4",
-        "bg-background text-foreground", // Fallback colors
-        "font-mono text-sm leading-relaxed",
-        // Crucial: Override inline code styles for code blocks
-        "[&>code]:border-none [&>code]:bg-transparent [&>code]:p-0 [&>code]:text-inherit",
-        className,
-      )}
-      {...props}
-    />
+    <CodeBlockWrapper className={className} {...props}>
+      {children}
+    </CodeBlockWrapper>
   );
 }
 

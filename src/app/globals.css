@@ -1754,3 +1754,35 @@ pre[data-theme*=" "] {
 .dark pre[data-theme*=" "] {
   background-color: var(--shiki-dark-bg);
 }
+
+/**
+ * MDX Heading Anchor Links
+ * Styled anchors that appear on heading hover
+ */
+.anchor {
+  opacity: 0;
+  margin-left: 0.5rem;
+  font-weight: normal;
+  text-decoration: none;
+  color: var(--surface-400);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
+  transform: translateX(-4px);
+}
+
+h2:hover .anchor,
+h3:hover .anchor,
+h4:hover .anchor {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.anchor:hover {
+  color: var(--surface-950);
+}
+
+.dark .anchor:hover {
+  color: var(--surface-50);
+}

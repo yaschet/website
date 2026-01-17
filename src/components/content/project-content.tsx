@@ -1,7 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeft, Clock } from "@phosphor-icons/react";
 import { useMDXComponent } from "next-contentlayer/hooks";
 import type { Project } from "contentlayer/generated";
 import { Button } from "@/src/components/ui/button";
@@ -11,6 +12,12 @@ import {
   SwissGridSection,
 } from "@/src/components/ui/swiss-grid-canvas";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
+
+// Dynamic import with SSR disabled to avoid Framer Motion issues during static generation
+const ArticleTOC = dynamic(
+  () => import("@/src/components/ui/article-toc").then((mod) => mod.ArticleTOC),
+  { ssr: false },
+);
 
 interface ProjectContentProps {
   project: Project;
@@ -45,6 +52,18 @@ export function ProjectContent({ project }: ProjectContentProps) {
                         month: "long",
                       })}
                     </time>
+                    {/* Reading Time */}
+                    {(project as Project & { readingTime?: number })
+                      .readingTime && (
+                      <span className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
+                        <Clock size={12} weight="bold" />
+                        {
+                          (project as Project & { readingTime?: number })
+                            .readingTime
+                        }{" "}
+                        min read
+                      </span>
+                    )}
                     {project.featured && (
                       <span className="border border-primary px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-primary">
                         Featured
@@ -130,6 +149,9 @@ export function ProjectContent({ project }: ProjectContentProps) {
               </section>
             </ScrollReveal>
           </SwissGridSection>
+
+          {/* Table of Contents - Desktop Only */}
+          <ArticleTOC />
 
           {/* Footer */}
           <footer className="mt-auto w-full">
