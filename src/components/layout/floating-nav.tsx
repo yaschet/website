@@ -125,18 +125,22 @@ export function FloatingNav() {
       });
     }).ready;
 
-    // Swiss horizontal wipe — sharp, geometric, controlled
-    // Wipes from left to right like a precision blade
+    // "The Gravity Shutter" — Legendary Engineering
+    // 1. Direction: Top-to-Bottom. Why? The Nav is at the top. The interaction source is above.
+    //    Gravity dictates the change flows DOWN from the source. It washes over the page.
+    // 2. Physics: Heavy, industrial damping. Not a spring, but a hydraulic piston.
+    // 3. Timing: 650ms. Luxury takes time. Fast is cheap. Deliberate is premium.
     const animation = document.documentElement.animate(
       {
         clipPath: [
-          "inset(0 100% 0 0)", // Hidden (clipped from right)
+          "inset(0 0 100% 0)", // Hidden (clipped from bottom, causing top-down reveal)
           "inset(0 0 0 0)", // Fully revealed
         ],
       },
       {
-        duration: 350, // Swiss efficiency — no wasted time
-        easing: "cubic-bezier(0.16, 1, 0.3, 1)", // Smooth deceleration
+        duration: 650, // The speed of a heavy, well-oiled machine part.
+        // Ease Out Expo: Starts with authority, settles with extreme precision (friction).
+        easing: "cubic-bezier(0.19, 1, 0.22, 1)",
         pseudoElement: "::view-transition-new(root)",
       },
     );
