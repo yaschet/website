@@ -50,103 +50,115 @@ export const PHI_INVERSE = 1 / PHI; // ≈ 0.618
  * Under-damped = bounce | Over-damped = sluggish
  */
 export const springs = {
-	/**
-	 * Micro-interactions (hover, press, focus)
-	 * Feels instant but has physical "push back"
-	 */
-	snappy: {
-		type: "spring" as const,
-		mass: 0.3,
-		stiffness: 700,
-		damping: 30,
-	},
+  /**
+   * Micro-interactions (hover, press, focus)
+   * Feels instant but has physical "push back"
+   */
+  snappy: {
+    type: "spring" as const,
+    mass: 0.3,
+    stiffness: 700,
+    damping: 30,
+  },
 
-	/**
-	 * UI reveals (content appearing, modals)
-	 * Fast attack, smooth settle
-	 */
-	responsive: {
-		type: "spring" as const,
-		mass: 0.5,
-		stiffness: 400,
-		damping: 28,
-	},
+  /**
+   * Precision button interactions (Swiss-level control)
+   * No bounce, no overshoot — just controlled, deliberate motion.
+   * Like a precision instrument clicking into place.
+   */
+  precision: {
+    type: "spring" as const,
+    mass: 0.2,
+    stiffness: 500,
+    damping: 40, // High damping = no oscillation
+  },
 
-	/**
-	 * Content reveals (text, sections)
-	 * Elegant entrance, slightly more mass
-	 */
-	gentle: {
-		type: "spring" as const,
-		mass: 0.7,
-		stiffness: 280,
-		damping: 26,
-	},
+  /**
+   * UI reveals (content appearing, modals)
+   * Fast attack, smooth settle
+   */
+  responsive: {
+    type: "spring" as const,
+    mass: 0.5,
+    stiffness: 400,
+    damping: 28,
+  },
 
-	/**
-	 * Layout animations (shared layout, morphing)
-	 * Smooth and interconnected feeling
-	 */
-	layout: {
-		type: "spring" as const,
-		mass: 0.6,
-		stiffness: 350,
-		damping: 30,
-	},
+  /**
+   * Content reveals (text, sections)
+   * Elegant entrance, slightly more mass
+   */
+  gentle: {
+    type: "spring" as const,
+    mass: 0.7,
+    stiffness: 280,
+    damping: 26,
+  },
 
-	/**
-	 * Background/ambient elements
-	 * Ultra-smooth, almost imperceptible entry
-	 */
-	ambient: {
-		type: "spring" as const,
-		mass: 1.0,
-		stiffness: 120,
-		damping: 22,
-	},
+  /**
+   * Layout animations (shared layout, morphing)
+   * Smooth and interconnected feeling
+   */
+  layout: {
+    type: "spring" as const,
+    mass: 0.6,
+    stiffness: 350,
+    damping: 30,
+  },
 
-	/**
-	 * Playful/celebratory (use sparingly)
-	 * Lower damping = more oscillation
-	 */
-	bouncy: {
-		type: "spring" as const,
-		mass: 0.4,
-		stiffness: 400,
-		damping: 15,
-	},
+  /**
+   * Background/ambient elements
+   * Ultra-smooth, almost imperceptible entry
+   */
+  ambient: {
+    type: "spring" as const,
+    mass: 1.0,
+    stiffness: 120,
+    damping: 22,
+  },
 
-	/**
-	 * Text character reveals
-	 * Must be snappy to keep up with staggered children
-	 */
-	text: {
-		type: "spring" as const,
-		mass: 0.35,
-		stiffness: 500,
-		damping: 28,
-	},
+  /**
+   * Playful/celebratory (use sparingly)
+   * Lower damping = more oscillation
+   */
+  bouncy: {
+    type: "spring" as const,
+    mass: 0.4,
+    stiffness: 400,
+    damping: 15,
+  },
 
-	/**
-	 * Blur clearing (used alongside position springs)
-	 * Should resolve slightly faster than position
-	 */
-	blur: {
-		type: "spring" as const,
-		mass: 0.25,
-		stiffness: 600,
-		damping: 32,
-	},
-	/**
-	 * Data glitch/swap (for coordinates, dates)
-	 * Ultra-fast, electronic feel
-	 */
-	glitch: {
-		type: "spring" as const,
-		mass: 0.2,
-		stiffness: 600,
-		damping: 25,
-	},
+  /**
+   * Text character reveals
+   * Must be snappy to keep up with staggered children
+   */
+  text: {
+    type: "spring" as const,
+    mass: 0.35,
+    stiffness: 500,
+    damping: 28,
+  },
+
+  /**
+   * Blur clearing (used alongside position springs)
+   * Should resolve slightly faster than position
+   */
+  blur: {
+    type: "spring" as const,
+    mass: 0.25,
+    stiffness: 600,
+    damping: 32,
+  },
+  /**
+   * Data glitch/swap (for coordinates, dates)
+   * Ultra-fast, electronic feel
+   */
+  glitch: {
+    type: "spring" as const,
+    mass: 0.2,
+    stiffness: 600,
+    damping: 25,
+  },
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -160,37 +172,39 @@ export const springs = {
  * Uses golden ratio (φ) for advanced orchestration.
  */
 export const stagger = {
-	/** Ultra-fast character-by-character (typewriter effect) */
-	char: 0.02,
+  /** Ultra-fast character-by-character (typewriter effect) */
+  char: 0.02,
 
-	/** Word-by-word text reveals */
-	word: 0.035,
+  /** Word-by-word text reveals */
+  word: 0.035,
 
-	/** List items, cards, small elements */
-	item: 0.05,
+  /** List items, cards, small elements */
+  item: 0.05,
 
-	/** Section-level reveals */
-	section: 0.08,
+  /** Section-level reveals */
+  section: 0.08,
 
-	/**
-	 * φ-based progression (accelerating)
-	 * Each subsequent delay is shorter, creating a "cascade" effect
-	 * Good for: Hero text, feature lists, nav items
-	 */
-	phi: (index: number, baseDelay = 0.04): number => baseDelay * PHI_INVERSE ** (index * 0.6),
+  /**
+   * φ-based progression (accelerating)
+   * Each subsequent delay is shorter, creating a "cascade" effect
+   * Good for: Hero text, feature lists, nav items
+   */
+  phi: (index: number, baseDelay = 0.04): number =>
+    baseDelay * PHI_INVERSE ** (index * 0.6),
 
-	/**
-	 * Inverse φ progression (decelerating)
-	 * Each subsequent delay is longer, creating a "settling" effect
-	 * Good for: Loading states, "appearing from afar"
-	 */
-	phiReverse: (index: number, baseDelay = 0.03): number => baseDelay * PHI ** (index * 0.4),
+  /**
+   * Inverse φ progression (decelerating)
+   * Each subsequent delay is longer, creating a "settling" effect
+   * Good for: Loading states, "appearing from afar"
+   */
+  phiReverse: (index: number, baseDelay = 0.03): number =>
+    baseDelay * PHI ** (index * 0.4),
 
-	/**
-	 * Linear with φ-derived base
-	 * Consistent interval but derived from golden ratio
-	 */
-	phiLinear: 0.04 * PHI_INVERSE, // ≈ 0.025s
+  /**
+   * Linear with φ-derived base
+   * Consistent interval but derived from golden ratio
+   */
+  phiLinear: 0.04 * PHI_INVERSE, // ≈ 0.025s
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -206,20 +220,20 @@ export const stagger = {
  * Optimal: Just enough to be perceptible, not enough to distract.
  */
 export const distances = {
-	/** Micro (tooltips, badges, hover states) */
-	micro: 6,
+  /** Micro (tooltips, badges, hover states) */
+  micro: 6,
 
-	/** Small (text reveals, buttons, inline elements) */
-	small: 12,
+  /** Small (text reveals, buttons, inline elements) */
+  small: 12,
 
-	/** Medium (section reveals, cards) */
-	medium: 20,
+  /** Medium (section reveals, cards) */
+  medium: 20,
 
-	/** Large (hero elements, modals, overlays) */
-	large: 32,
+  /** Large (hero elements, modals, overlays) */
+  large: 32,
 
-	/** Extra large (full-page reveals, dramatic entrances) */
-	xl: 48,
+  /** Extra large (full-page reveals, dramatic entrances) */
+  xl: 48,
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -233,17 +247,17 @@ export const distances = {
  * GPU-accelerated via CSS filter.
  */
 export const blur = {
-	/** Subtle hint of blur */
-	subtle: "blur(4px)",
+  /** Subtle hint of blur */
+  subtle: "blur(4px)",
 
-	/** Standard text/content blur */
-	normal: "blur(8px)",
+  /** Standard text/content blur */
+  normal: "blur(8px)",
 
-	/** Heavy blur for dramatic reveals */
-	heavy: "blur(16px)",
+  /** Heavy blur for dramatic reveals */
+  heavy: "blur(16px)",
 
-	/** Cleared state */
-	none: "blur(0px)",
+  /** Cleared state */
+  none: "blur(0px)",
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -262,10 +276,10 @@ export const blur = {
  * All transform/opacity animations should use springs.
  */
 export const durations = {
-	instant: 0.1,
-	fast: 0.15,
-	normal: 0.25,
-	slow: 0.4,
+  instant: 0.1,
+  fast: 0.15,
+  normal: 0.25,
+  slow: 0.4,
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════

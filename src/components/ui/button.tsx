@@ -1,16 +1,16 @@
 /**
- * Button Component - Swiss Design Edition
+ * Button Component - Swiss Precision Edition
  *
- * Premium interaction engineering with Framer Motion physics.
- * Features compound variants for every color × variant combination,
- * gradient backgrounds, subsurface lighting, and proper state transitions.
+ * Precision-engineered interaction design with coordinated physics.
+ * Every property — scale, Y-translation, shadow — moves as one unified system.
+ * No bounce. No overshoot. Just controlled, deliberate motion.
  */
 
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { type HTMLMotionProps, motion } from "framer-motion";
 import * as React from "react";
-import { Fragment, type ReactNode } from "react";
+import { Fragment, type ReactNode, useMemo } from "react";
 
 import { springs } from "@/src/lib/physics";
 import Spinner from "@/src/components/ui/spinner";
@@ -21,6 +21,43 @@ import {
   TooltipTrigger,
 } from "@/src/components/ui/tooltip";
 import { cn } from "@/src/lib/utils";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHYSICS CONFIGURATION - The Soul of the Interaction
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Coordinated physics states.
+ * All properties animate together as one unified physical object.
+ * Shadows use 3-layer realistic levitation (contact + direct + ambient).
+ */
+const interactionStates = {
+  rest: {
+    scale: 1,
+    y: 0,
+    // Subtle resting shadow — element sits on the surface
+    boxShadow: [
+      "0 1px 2px rgba(0, 0, 0, 0.04)", // Contact
+      "0 1px 3px rgba(0, 0, 0, 0.06)", // Direct
+    ].join(", "),
+  },
+  hover: {
+    scale: 1.01, // 1% — perceptible, not cartoonish
+    y: -2, // Lifts off the page
+    // Premium levitation shadow — element floats above surface
+    boxShadow: [
+      "0 1px 2px rgba(0, 0, 0, 0.03)", // Contact fades as we lift
+      "0 4px 8px -2px rgba(0, 0, 0, 0.08)", // Direct shadow deepens
+      "0 12px 20px -4px rgba(0, 0, 0, 0.10)", // Ambient diffuse appears
+    ].join(", "),
+  },
+  tap: {
+    scale: 0.98, // Compresses — the mechanical "click"
+    y: 0, // Settles back flush with surface
+    // Pressed shadow — element is flush/pressed into surface
+    boxShadow: "0 0px 1px rgba(0, 0, 0, 0.08)",
+  },
+} as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VARIANTS - Compound Architecture for Premium Visual Depth
@@ -39,13 +76,13 @@ const buttonVariants = cva(
     "isolate overflow-visible",
     // Subsurface lighting layer (matches border-radius via rounded-[inherit])
     "after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-[inherit]",
-    "after:transition-opacity after:duration-200 after:ease-out after:content-['']",
+    "after:transition-opacity after:duration-150 after:ease-out after:content-['']",
     // Focus ring (WCAG 2.4.7 compliant)
     "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
     // Disabled state
     "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-    // Transition for color/background changes (NOT transform - that's handled by Framer Motion)
-    "transition-[color,background-color,border-color,box-shadow] duration-200 ease-out",
+    // Color transitions (NOT transform - Framer handles that)
+    "transition-[color,background-color,border-color] duration-150 ease-out",
   ],
   {
     variants: {
@@ -92,18 +129,14 @@ const buttonVariants = cva(
         variant: "solid",
         color: "default",
         className: [
-          // Light mode
           "bg-surface-950 text-surface-50",
           "hover:bg-surface-900 focus-visible:bg-surface-900",
           "active:bg-surface-800",
-          // Dark mode
           "dark:bg-surface-50 dark:text-surface-950",
           "dark:hover:bg-surface-200 dark:focus-visible:bg-surface-200",
           "dark:active:bg-surface-100",
-          // Subsurface lighting
-          "after:bg-gradient-to-br after:from-white/20 after:via-white/10 after:to-transparent",
+          "after:bg-gradient-to-br after:from-white/15 after:via-white/5 after:to-transparent",
           "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
-          // Focus ring
           "focus-visible:ring-surface-400",
         ],
       },
@@ -111,18 +144,14 @@ const buttonVariants = cva(
         variant: "solid",
         color: "primary",
         className: [
-          // Light mode
           "bg-primary-950 text-primary-50",
           "hover:bg-primary-900 focus-visible:bg-primary-900",
           "active:bg-primary-800",
-          // Dark mode
           "dark:bg-primary-50 dark:text-primary-950",
           "dark:hover:bg-primary-200 dark:focus-visible:bg-primary-200",
           "dark:active:bg-primary-100",
-          // Subsurface lighting
-          "after:bg-gradient-to-br after:from-primary-300/30 after:via-primary-400/15 after:to-transparent",
+          "after:bg-gradient-to-br after:from-primary-300/20 after:via-primary-400/10 after:to-transparent",
           "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
-          // Focus ring
           "focus-visible:ring-primary-500",
         ],
       },
@@ -136,7 +165,7 @@ const buttonVariants = cva(
           "dark:bg-accent-500 dark:text-white",
           "dark:hover:bg-accent-600 dark:focus-visible:bg-accent-600",
           "dark:active:bg-accent-700",
-          "after:bg-gradient-to-br after:from-accent-200/40 after:via-accent-300/20 after:to-transparent",
+          "after:bg-gradient-to-br after:from-accent-200/30 after:via-accent-300/15 after:to-transparent",
           "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-accent-500",
         ],
@@ -151,7 +180,7 @@ const buttonVariants = cva(
           "dark:bg-success-500 dark:text-white",
           "dark:hover:bg-success-600 dark:focus-visible:bg-success-600",
           "dark:active:bg-success-700",
-          "after:bg-gradient-to-br after:from-success-200/40 after:via-success-300/20 after:to-transparent",
+          "after:bg-gradient-to-br after:from-success-200/30 after:via-success-300/15 after:to-transparent",
           "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-success-500",
         ],
@@ -166,7 +195,7 @@ const buttonVariants = cva(
           "dark:bg-warning-500 dark:text-warning-950",
           "dark:hover:bg-warning-600 dark:focus-visible:bg-warning-600",
           "dark:active:bg-warning-700",
-          "after:bg-gradient-to-br after:from-warning-200/40 after:via-warning-300/20 after:to-transparent",
+          "after:bg-gradient-to-br after:from-warning-200/30 after:via-warning-300/15 after:to-transparent",
           "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-warning-500",
         ],
@@ -181,7 +210,7 @@ const buttonVariants = cva(
           "dark:bg-info-500 dark:text-white",
           "dark:hover:bg-info-600 dark:focus-visible:bg-info-600",
           "dark:active:bg-info-700",
-          "after:bg-gradient-to-br after:from-info-200/40 after:via-info-300/20 after:to-transparent",
+          "after:bg-gradient-to-br after:from-info-200/30 after:via-info-300/15 after:to-transparent",
           "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-info-500",
         ],
@@ -196,7 +225,7 @@ const buttonVariants = cva(
           "dark:bg-destructive-500 dark:text-white",
           "dark:hover:bg-destructive-600 dark:focus-visible:bg-destructive-600",
           "dark:active:bg-destructive-700",
-          "after:bg-gradient-to-br after:from-destructive-200/40 after:via-destructive-300/20 after:to-transparent",
+          "after:bg-gradient-to-br after:from-destructive-200/30 after:via-destructive-300/15 after:to-transparent",
           "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-destructive-500",
         ],
@@ -215,8 +244,8 @@ const buttonVariants = cva(
           "dark:bg-surface-800 dark:text-surface-100",
           "dark:hover:bg-surface-700 dark:focus-visible:bg-surface-700",
           "dark:active:bg-surface-600",
-          "after:bg-gradient-to-br after:from-surface-100/50 after:to-surface-200/30",
-          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "after:bg-gradient-to-br after:from-surface-50/60 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-surface-400",
         ],
       },
@@ -230,8 +259,8 @@ const buttonVariants = cva(
           "dark:bg-primary-900 dark:text-primary-100",
           "dark:hover:bg-primary-800 dark:focus-visible:bg-primary-800",
           "dark:active:bg-primary-700",
-          "after:bg-gradient-to-br after:from-primary-200/40 after:to-primary-300/20",
-          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "after:bg-gradient-to-br after:from-primary-50/60 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-primary-500",
         ],
       },
@@ -245,8 +274,8 @@ const buttonVariants = cva(
           "dark:bg-accent-900/50 dark:text-accent-300",
           "dark:hover:bg-accent-900 dark:hover:text-accent-200 dark:focus-visible:bg-accent-900 dark:focus-visible:text-accent-200",
           "dark:active:bg-accent-800 dark:active:text-accent-100",
-          "after:bg-gradient-to-br after:from-accent-200/40 after:to-accent-300/20",
-          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "after:bg-gradient-to-br after:from-accent-50/60 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-accent-500",
         ],
       },
@@ -260,8 +289,8 @@ const buttonVariants = cva(
           "dark:bg-success-900/50 dark:text-success-300",
           "dark:hover:bg-success-900 dark:hover:text-success-200 dark:focus-visible:bg-success-900 dark:focus-visible:text-success-200",
           "dark:active:bg-success-800 dark:active:text-success-100",
-          "after:bg-gradient-to-br after:from-success-200/40 after:to-success-300/20",
-          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "after:bg-gradient-to-br after:from-success-50/60 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-success-500",
         ],
       },
@@ -275,8 +304,8 @@ const buttonVariants = cva(
           "dark:bg-warning-900/50 dark:text-warning-300",
           "dark:hover:bg-warning-900 dark:hover:text-warning-200 dark:focus-visible:bg-warning-900 dark:focus-visible:text-warning-200",
           "dark:active:bg-warning-800 dark:active:text-warning-100",
-          "after:bg-gradient-to-br after:from-warning-200/40 after:to-warning-300/20",
-          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "after:bg-gradient-to-br after:from-warning-50/60 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-warning-500",
         ],
       },
@@ -290,8 +319,8 @@ const buttonVariants = cva(
           "dark:bg-info-900/50 dark:text-info-300",
           "dark:hover:bg-info-900 dark:hover:text-info-200 dark:focus-visible:bg-info-900 dark:focus-visible:text-info-200",
           "dark:active:bg-info-800 dark:active:text-info-100",
-          "after:bg-gradient-to-br after:from-info-200/40 after:to-info-300/20",
-          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "after:bg-gradient-to-br after:from-info-50/60 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-info-500",
         ],
       },
@@ -305,14 +334,14 @@ const buttonVariants = cva(
           "dark:bg-destructive-900/50 dark:text-destructive-300",
           "dark:hover:bg-destructive-900 dark:hover:text-destructive-200 dark:focus-visible:bg-destructive-900 dark:focus-visible:text-destructive-200",
           "dark:active:bg-destructive-800 dark:active:text-destructive-100",
-          "after:bg-gradient-to-br after:from-destructive-200/40 after:to-destructive-300/20",
-          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "after:bg-gradient-to-br after:from-destructive-50/60 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
           "focus-visible:ring-destructive-500",
         ],
       },
 
       // ═══════════════════════════════════════════════════════════════════
-      // OUTLINED VARIANTS - Gradient borders and backgrounds on hover
+      // OUTLINED VARIANTS - Borders with fill on hover
       // ═══════════════════════════════════════════════════════════════════
       {
         variant: "outlined",
@@ -414,7 +443,7 @@ const buttonVariants = cva(
       },
 
       // ═══════════════════════════════════════════════════════════════════
-      // PLAIN VARIANTS - Ghost buttons with subtle gradient on hover
+      // PLAIN VARIANTS - Ghost buttons with subtle fill on hover
       // ═══════════════════════════════════════════════════════════════════
       {
         variant: "plain",
@@ -595,6 +624,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       return "sm";
     }
 
+    // Memoize animation states to prevent recreation on every render
+    const motionProps = useMemo(() => {
+      if (isDisabled) {
+        return {
+          initial: interactionStates.rest,
+          animate: interactionStates.rest,
+        };
+      }
+      return {
+        initial: interactionStates.rest,
+        whileHover: interactionStates.hover,
+        whileTap: interactionStates.tap,
+        transition: springs.precision,
+      };
+    }, [isDisabled]);
+
     const content = (
       <Comp
         ref={ref}
@@ -603,10 +648,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         disabled={isDisabled}
         type={type}
-        // Physics-based interactions - the soul of the button
-        whileHover={isDisabled ? undefined : { scale: 1.02 }}
-        whileTap={isDisabled ? undefined : { scale: 0.97 }}
-        transition={springs.snappy}
+        {...motionProps}
         {...props}
       >
         {loading ? (

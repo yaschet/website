@@ -159,13 +159,23 @@ export default function Home() {
                   </Reveal>
                   <Reveal phase={2} delay={0.1}>
                     <div className="flex flex-wrap items-center gap-3">
-                      <Button asChild size="lg">
+                      <Button
+                        asChild
+                        size="lg"
+                        variant="solid"
+                        color={"primary"}
+                      >
                         <Link href="mailto:hello@yaschet.dev">
                           Let's talk
                           <ArrowRight className="size-4" weight="bold" />
                         </Link>
                       </Button>
-                      <Button asChild variant="outlined" size="lg">
+                      <Button
+                        asChild
+                        variant="outlined"
+                        size="lg"
+                        color={"primary"}
+                      >
                         <Link href="/projects">View my work</Link>
                       </Button>
                     </div>
