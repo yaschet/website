@@ -82,7 +82,7 @@ export default function Home() {
                   <div className="flex items-center gap-1">
                     <Button
                       asChild
-                      variant="plain"
+                      variant="solid"
                       size="icon"
                       shape="default"
                       tooltipContent="X (Twitter)"
@@ -104,7 +104,7 @@ export default function Home() {
                     </Button>
                     <Button
                       asChild
-                      variant="plain"
+                      variant="solid"
                       size="icon"
                       shape="default"
                       tooltipContent="GitHub"
@@ -119,7 +119,7 @@ export default function Home() {
                     </Button>
                     <Button
                       asChild
-                      variant="plain"
+                      variant="solid"
                       size="icon"
                       shape="default"
                       tooltipContent="LinkedIn"
