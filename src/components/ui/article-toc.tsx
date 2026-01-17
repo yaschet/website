@@ -1,26 +1,29 @@
 "use client";
 
 /**
- * ArticleTOC - Table of Contents with Reading Progress
+ * ArticleTOC - Premium Sidebar Table of Contents
  *
  * @module article-toc
  * @description
- * A floating Table of Contents that tracks reading progress and highlights
- * the currently visible section. Designed for long-form technical content.
+ * A refined sidebar TOC that follows conventions but executes them beautifully.
+ * Visible headings, typographic active state, continuous scroll tracking.
  *
- * Architecture:
- * 1. Extracts headings from the DOM (h2, h3)
- * 2. Uses IntersectionObserver for efficient scroll tracking
- * 3. Reading progress as a vertical fill line (Swiss aesthetic)
- * 4. Physics-based springs for all animations
+ * Design Principles:
+ * 1. Visible labels — All sections are readable at a glance
+ * 2. Typographic contrast — Active state via font-weight + color
+ * 3. Continuous tracking — Uses scroll position, not discrete thresholds
+ * 4. Swiss aesthetic — High contrast, no mid-grays, sharp edges
  *
- * @example
- * <ArticleTOC contentSelector="article" />
+ * Edge Cases Handled:
+ * - Reduced motion preference
+ * - Dynamic content (images loading after mount)
+ * - Mobile (collapsible drawer)
+ * - Keyboard navigation
  */
 
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { List } from "@phosphor-icons/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { List, X } from "@phosphor-icons/react";
+import { useCallback, useEffect, useState } from "react";
 import { springs } from "@/src/lib/physics";
 import { cn } from "@/src/lib/utils";
 
@@ -28,16 +31,16 @@ import { cn } from "@/src/lib/utils";
 // TYPES
 // ═══════════════════════════════════════════════════════════════════════════
 
-interface Heading {
+interface HeadingMeta {
   id: string;
   text: string;
   level: number;
+  /** Absolute top position from document top */
+  offsetTop: number;
 }
 
 interface ArticleTOCProps {
-  /** CSS selector for the content container (default: "article") */
   contentSelector?: string;
-  /** Optional class name for the container */
   className?: string;
 }
 
@@ -49,17 +52,17 @@ export function ArticleTOC({
   contentSelector = "article",
   className,
 }: ArticleTOCProps) {
-  const [headings, setHeadings] = useState<Heading[]>([]);
-  const [activeId, setActiveId] = useState<string>("");
-  const [isVisible, setIsVisible] = useState(false);
+  const [headings, setHeadings] = useState<HeadingMeta[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const headingElementsRef = useRef<Map<string, IntersectionObserverEntry>>(
-    new Map(),
-  );
+  const [isVisible, setIsVisible] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Reduced motion preference
+  const prefersReducedMotion = useReducedMotion();
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Client-side mount guard (prevents SSR issues)
+  // Mount Guard
   // ─────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -67,121 +70,117 @@ export function ArticleTOC({
   }, []);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Reading Progress
+  // Extract Headings with Positions
   // ─────────────────────────────────────────────────────────────────────────
 
-  const { scrollYProgress } = useScroll();
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    mass: 0.5,
-  });
-  const progressHeight = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Extract Headings from DOM
-  // ─────────────────────────────────────────────────────────────────────────
-
-  useEffect(() => {
+  const calculateHeadingPositions = useCallback(() => {
     if (!mounted) return;
 
     const content = document.querySelector(contentSelector);
     if (!content) return;
 
     const headingElements = content.querySelectorAll("h2, h3");
-    const extractedHeadings: Heading[] = [];
+    const extracted: HeadingMeta[] = [];
 
     headingElements.forEach((heading) => {
       const id = heading.id;
-      const text = heading.textContent || "";
+      const text = heading.textContent?.replace(/#$/, "").trim() || "";
       const level = parseInt(heading.tagName.charAt(1), 10);
 
       if (id && text) {
-        extractedHeadings.push({ id, text, level });
+        const rect = heading.getBoundingClientRect();
+        const offsetTop = rect.top + window.scrollY;
+        extracted.push({ id, text, level, offsetTop });
       }
     });
 
-    setHeadings(extractedHeadings);
+    setHeadings(extracted);
   }, [contentSelector, mounted]);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Intersection Observer for Active Section
-  // ─────────────────────────────────────────────────────────────────────────
-
-  const getActiveHeading = useCallback(() => {
-    const sortedEntries = Array.from(headingElementsRef.current.entries()).sort(
-      ([, a], [, b]) => {
-        const aTop = a.boundingClientRect.top;
-        const bTop = b.boundingClientRect.top;
-        return aTop - bTop;
-      },
-    );
-
-    // Find the first heading that's in or above the viewport
-    for (const [id, entry] of sortedEntries) {
-      if (entry.boundingClientRect.top <= 120) {
-        return id;
-      }
-    }
-
-    // If no heading is above viewport, return the first one
-    return sortedEntries[0]?.[0] || "";
-  }, []);
-
+  // Initial calculation + recalculate on resize
   useEffect(() => {
-    if (!mounted || headings.length === 0) return;
+    calculateHeadingPositions();
 
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          headingElementsRef.current.set(entry.target.id, entry);
-        });
-
-        const activeHeading = getActiveHeading();
-        if (activeHeading) {
-          setActiveId(activeHeading);
-        }
-      },
-      {
-        rootMargin: "-80px 0px -80% 0px",
-        threshold: [0, 0.5, 1],
-      },
-    );
-
-    // Observe all headings
-    headings.forEach(({ id }) => {
-      const element = document.getElementById(id);
-      if (element) {
-        observerRef.current?.observe(element);
-      }
-    });
-
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, [headings, getActiveHeading, mounted]);
+    const handleResize = () => calculateHeadingPositions();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [calculateHeadingPositions]);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Visibility on Scroll
+  // Dynamic Content Handling (images loading, etc.)
   // ─────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (!mounted) return;
 
+    // Recalculate after images load (they shift content)
+    const images = document.querySelectorAll("article img");
+    let loadedCount = 0;
+    const totalImages = images.length;
+
+    if (totalImages === 0) return;
+
+    const handleImageLoad = () => {
+      loadedCount++;
+      if (loadedCount === totalImages) {
+        // All images loaded, recalculate positions
+        calculateHeadingPositions();
+      }
+    };
+
+    images.forEach((img) => {
+      if ((img as HTMLImageElement).complete) {
+        loadedCount++;
+      } else {
+        img.addEventListener("load", handleImageLoad);
+        img.addEventListener("error", handleImageLoad);
+      }
+    });
+
+    // If all images were already loaded
+    if (loadedCount === totalImages) {
+      calculateHeadingPositions();
+    }
+
+    return () => {
+      images.forEach((img) => {
+        img.removeEventListener("load", handleImageLoad);
+        img.removeEventListener("error", handleImageLoad);
+      });
+    };
+  }, [mounted, calculateHeadingPositions]);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Continuous Active Section Tracking
+  // ─────────────────────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!mounted || headings.length === 0) return;
+
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      // Show after scrolling past the header (~300px)
-      setIsVisible(scrollY > 300);
+      const currentScrollY = window.scrollY;
+      const scrollOffset = currentScrollY + 120; // Account for sticky header
+
+      let newActiveIndex = 0;
+      for (let i = headings.length - 1; i >= 0; i--) {
+        if (scrollOffset >= headings[i].offsetTop) {
+          newActiveIndex = i;
+          break;
+        }
+      }
+
+      setActiveIndex(newActiveIndex);
+      setIsVisible(currentScrollY > 200);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    handleScroll(); // Initial call
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [mounted]);
+  }, [mounted, headings]);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Navigation Handler
+  // Navigate to Heading
   // ─────────────────────────────────────────────────────────────────────────
 
   const scrollToHeading = (id: string) => {
@@ -189,82 +188,179 @@ export function ArticleTOC({
     if (element) {
       const offset = 100;
       const top = element.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top, behavior: "smooth" });
+      window.scrollTo({
+        top,
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
+      setIsMobileOpen(false);
     }
   };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Keyboard Navigation
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === "ArrowDown" && index < headings.length - 1) {
+      e.preventDefault();
+      const nextButton = document.querySelector(
+        `[data-toc-index="${index + 1}"]`,
+      ) as HTMLButtonElement;
+      nextButton?.focus();
+    } else if (e.key === "ArrowUp" && index > 0) {
+      e.preventDefault();
+      const prevButton = document.querySelector(
+        `[data-toc-index="${index - 1}"]`,
+      ) as HTMLButtonElement;
+      prevButton?.focus();
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Animation Variants (respect reduced motion)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const containerVariants = prefersReducedMotion
+    ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
+    : {
+        hidden: { opacity: 0, x: -16 },
+        visible: { opacity: 1, x: 0 },
+      };
+
+  const mobileVariants = prefersReducedMotion
+    ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
+    : {
+        hidden: { opacity: 0, y: 8 },
+        visible: { opacity: 1, y: 0 },
+      };
 
   // ─────────────────────────────────────────────────────────────────────────
   // Render
   // ─────────────────────────────────────────────────────────────────────────
 
-  // Don't render until mounted (SSR guard) or if no headings
   if (!mounted || headings.length === 0) return null;
 
+  const TOCList = ({ isMobile = false }: { isMobile?: boolean }) => (
+    <ul className="flex flex-col" role="list">
+      {headings.map(({ id, text, level }, index) => {
+        const isActive = index === activeIndex;
+
+        return (
+          <li key={id}>
+            <button
+              type="button"
+              data-toc-index={index}
+              onClick={() => scrollToHeading(id)}
+              onKeyDown={(e) => handleKeyDown(e, index)}
+              className={cn(
+                "block w-full py-1.5 text-left font-mono text-xs transition-colors duration-150",
+                isMobile ? "max-w-full" : "max-w-[180px] truncate",
+                level === 3 && "pl-3",
+                isActive
+                  ? "font-medium text-surface-950 dark:text-surface-50"
+                  : "text-surface-400 hover:text-surface-600 dark:text-surface-500 dark:hover:text-surface-300",
+              )}
+            >
+              {text}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
   return (
-    <motion.nav
-      initial={{ opacity: 0, x: -20 }}
-      animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-      transition={springs.responsive}
-      className={cn(
-        "fixed top-1/2 left-6 z-40 hidden -translate-y-1/2 xl:block",
-        className,
-      )}
-      aria-label="Table of contents"
-    >
-      <div className="relative flex">
-        {/* Progress Track */}
-        <div className="relative mr-4 w-px">
-          {/* Background Track */}
-          <div className="absolute inset-0 bg-surface-200 dark:bg-surface-800" />
-          {/* Progress Fill */}
-          <motion.div
-            className="absolute top-0 left-0 w-full bg-surface-950 dark:bg-surface-50"
-            style={{ height: progressHeight }}
-          />
+    <>
+      {/* Desktop TOC */}
+      <motion.nav
+        initial="hidden"
+        animate={isVisible ? "visible" : "hidden"}
+        variants={containerVariants}
+        transition={prefersReducedMotion ? { duration: 0 } : springs.responsive}
+        className={cn(
+          "fixed left-8 top-1/2 z-40 hidden -translate-y-1/2 xl:block",
+          className,
+        )}
+        aria-label="Table of contents"
+      >
+        <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-surface-400 dark:text-surface-500">
+          On this page
         </div>
+        <TOCList />
+      </motion.nav>
 
-        {/* TOC Items */}
-        <div className="flex flex-col gap-2">
-          {/* Header */}
-          <div className="mb-2 flex items-center gap-2 text-surface-400 dark:text-surface-500">
-            <List size={14} weight="bold" />
-            <span className="font-mono text-[10px] uppercase tracking-widest">
-              Contents
-            </span>
-          </div>
+      {/* Mobile TOC Button */}
+      <AnimatePresence>
+        {isVisible && (
+          <motion.button
+            type="button"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={prefersReducedMotion ? { duration: 0 } : springs.snappy}
+            onClick={() => setIsMobileOpen(true)}
+            className={cn(
+              "fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center xl:hidden",
+              "border border-surface-200 bg-white dark:border-surface-700 dark:bg-surface-900",
+              "shadow-lg",
+            )}
+            aria-label="Open table of contents"
+          >
+            <List size={20} weight="bold" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
-          {/* Links */}
-          {headings.map(({ id, text, level }) => {
-            const isActive = id === activeId;
+      {/* Mobile TOC Drawer */}
+      <AnimatePresence>
+        {isMobileOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+              className="fixed inset-0 z-50 bg-black/50 xl:hidden"
+              onClick={() => setIsMobileOpen(false)}
+            />
 
-            return (
-              <button
-                type="button"
-                key={id}
-                onClick={() => scrollToHeading(id)}
-                className={cn(
-                  "group relative text-left transition-colors duration-200",
-                  "max-w-[180px] truncate font-mono text-xs",
-                  level === 3 && "pl-3",
-                  isActive
-                    ? "text-surface-950 dark:text-surface-50"
-                    : "text-surface-400 hover:text-surface-700 dark:text-surface-500 dark:hover:text-surface-300",
-                )}
-              >
-                {/* Active Indicator */}
-                {isActive && (
-                  <motion.div
-                    layoutId="toc-indicator"
-                    className="absolute -left-4 top-1/2 h-1.5 w-1.5 -translate-y-1/2 bg-surface-950 dark:bg-surface-50"
-                    transition={springs.layout}
-                  />
-                )}
-                {text}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </motion.nav>
+            {/* Drawer */}
+            <motion.nav
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={mobileVariants}
+              transition={
+                prefersReducedMotion ? { duration: 0 } : springs.responsive
+              }
+              className={cn(
+                "fixed bottom-0 left-0 right-0 z-50 max-h-[70vh] overflow-y-auto xl:hidden",
+                "border-t border-surface-200 bg-white p-6 dark:border-surface-700 dark:bg-surface-900",
+              )}
+              aria-label="Table of contents"
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <span className="font-mono text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+                  On this page
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="flex size-8 items-center justify-center text-surface-500 hover:text-surface-900 dark:hover:text-surface-100"
+                  aria-label="Close"
+                >
+                  <X size={18} weight="bold" />
+                </button>
+              </div>
+              <TOCList isMobile />
+            </motion.nav>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
+
+// Re-export for backwards compatibility
+export { ArticleTOC as ReadingBracket };

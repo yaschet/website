@@ -14,8 +14,9 @@ import {
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 
 // Dynamic import with SSR disabled to avoid Framer Motion issues during static generation
-const ArticleTOC = dynamic(
-  () => import("@/src/components/ui/article-toc").then((mod) => mod.ArticleTOC),
+const ReadingBracket = dynamic(
+  () =>
+    import("@/src/components/ui/article-toc").then((mod) => mod.ReadingBracket),
   { ssr: false },
 );
 
@@ -150,8 +151,8 @@ export function ProjectContent({ project }: ProjectContentProps) {
             </ScrollReveal>
           </SwissGridSection>
 
-          {/* Table of Contents - Desktop Only */}
-          <ArticleTOC />
+          {/* Reading Bracket - Desktop Only */}
+          <ReadingBracket />
 
           {/* Footer */}
           <footer className="mt-auto w-full">
