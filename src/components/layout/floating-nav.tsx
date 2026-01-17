@@ -8,14 +8,14 @@
 "use client";
 
 import {
-  Briefcase,
-  FileText,
-  House,
-  type Icon,
-  Image as ImageIcon,
-  Moon,
-  Sun,
-  User,
+	Briefcase,
+	FileText,
+	House,
+	type Icon,
+	Image as ImageIcon,
+	Moon,
+	Sun,
+	User,
 } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
@@ -33,17 +33,17 @@ import { cn } from "@/src/lib/utils";
 // ═══════════════════════════════════════════════════════════════════════════
 
 type NavItem = {
-  name: string;
-  link: string;
-  icon: Icon;
+	name: string;
+	link: string;
+	icon: Icon;
 };
 
 const navItems: NavItem[] = [
-  { name: "Home", link: "/", icon: House },
-  { name: "About", link: "/about", icon: User },
-  { name: "Work", link: "/projects", icon: Briefcase },
-  { name: "Blog", link: "/blog", icon: FileText },
-  { name: "Gallery", link: "/gallery", icon: ImageIcon },
+	{ name: "Home", link: "/", icon: House },
+	{ name: "About", link: "/about", icon: User },
+	{ name: "Work", link: "/projects", icon: Briefcase },
+	{ name: "Blog", link: "/blog", icon: FileText },
+	{ name: "Gallery", link: "/gallery", icon: ImageIcon },
 ];
 
 const BUTTON_SIZE = 40;
@@ -57,235 +57,222 @@ const ICON_SIZE = 18;
  * FloatingNav - The primary interaction dock of the platform.
  */
 export function FloatingNav() {
-  const pathname = usePathname();
-  const { setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
-  const themeButtonRef = useRef<HTMLButtonElement>(null);
+	const pathname = usePathname();
+	const { setTheme, resolvedTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+	const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+	const themeButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { phase } = useReveal();
+	const { phase } = useReveal();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
-  // Block rendering until mounted to prevent hydration mismatch (theme-related)
-  if (!mounted) return null;
+	// Block rendering until mounted to prevent hydration mismatch (theme-related)
+	if (!mounted) return null;
 
-  const isEnabled = phase >= 1;
+	const isEnabled = phase >= 1;
 
-  // Determine active state based on route matching
-  const activeItem = navItems.find((item) =>
-    item.link === "/" ? pathname === "/" : pathname.startsWith(item.link)
-  );
-  const activeTab = activeItem?.link || "";
+	// Determine active state based on route matching
+	const activeItem = navItems.find((item) =>
+		item.link === "/" ? pathname === "/" : pathname.startsWith(item.link),
+	);
+	const activeTab = activeItem?.link || "";
 
-  // Hover-first priority for the sliding indicator
-  const currentTab = hoveredTab ?? activeTab;
+	// Hover-first priority for the sliding indicator
+	const currentTab = hoveredTab ?? activeTab;
 
-  /**
-   * Implements a high-precision circular clip transition for theme switching.
-   * Leverages the View Transitions API with fallback and GPU acceleration.
-   */
-  const toggleTheme = async () => {
-    const newTheme = resolvedTheme === "dark" ? "light" : "dark";
+	/**
+	 * Implements a high-precision circular clip transition for theme switching.
+	 * Leverages the View Transitions API with fallback and GPU acceleration.
+	 */
+	const toggleTheme = async () => {
+		const newTheme = resolvedTheme === "dark" ? "light" : "dark";
 
-    // Temporary classes for background synchronization during transition
-    const transitionClass = `transition-bg-${
-      resolvedTheme === "light" ? "dark" : "light"
-    }`;
-    document.documentElement.classList.add(transitionClass);
+		// Temporary classes for background synchronization during transition
+		const transitionClass = `transition-bg-${resolvedTheme === "light" ? "dark" : "light"}`;
+		document.documentElement.classList.add(transitionClass);
 
-    if (
-      !themeButtonRef.current ||
-      !("startViewTransition" in document) ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      setTheme(newTheme);
-      document.documentElement.classList.remove(
-        "transition-bg-light",
-        "transition-bg-dark"
-      );
-      return;
-    }
+		if (
+			!themeButtonRef.current ||
+			!("startViewTransition" in document) ||
+			window.matchMedia("(prefers-reduced-motion: reduce)").matches
+		) {
+			setTheme(newTheme);
+			document.documentElement.classList.remove("transition-bg-light", "transition-bg-dark");
+			return;
+		}
 
-    await (
-      document as Document & { startViewTransition: (cb: () => void) => void }
-    ).startViewTransition(() => {
-      flushSync(() => {
-        setTheme(newTheme);
-      });
-    }).ready;
+		await (
+			document as Document & { startViewTransition: (cb: () => void) => void }
+		).startViewTransition(() => {
+			flushSync(() => {
+				setTheme(newTheme);
+			});
+		}).ready;
 
-    const { top, left, width, height } =
-      themeButtonRef.current.getBoundingClientRect();
-    const x = left + width / 2;
-    const y = top + height / 2;
-    const right = window.innerWidth - left;
-    const bottom = window.innerHeight - top;
-    const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
+		const { top, left, width, height } = themeButtonRef.current.getBoundingClientRect();
+		const x = left + width / 2;
+		const y = top + height / 2;
+		const right = window.innerWidth - left;
+		const bottom = window.innerHeight - top;
+		const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
 
-    document.documentElement.animate(
-      {
-        clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${maxRadius}px at ${x}px ${y}px)`,
-        ],
-      },
-      {
-        duration: 600,
-        easing: "cubic-bezier(0.4, 0, 0.2, 1)",
-        pseudoElement: "::view-transition-new(root)",
-      }
-    ).onfinish = () => {
-      document.documentElement.classList.remove(
-        "transition-bg-light",
-        "transition-bg-dark"
-      );
-    };
-  };
+		document.documentElement.animate(
+			{
+				clipPath: [
+					`circle(0px at ${x}px ${y}px)`,
+					`circle(${maxRadius}px at ${x}px ${y}px)`,
+				],
+			},
+			{
+				duration: 600,
+				easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+				pseudoElement: "::view-transition-new(root)",
+			},
+		).onfinish = () => {
+			document.documentElement.classList.remove("transition-bg-light", "transition-bg-dark");
+		};
+	};
 
-  return (
-    <div className="fixed top-8 right-0 left-0 z-50 flex items-center justify-center px-6">
-      <motion.nav
-        initial={{ opacity: 0, y: -20, scale: 0.98 }}
-        animate={
-          isEnabled
-            ? { opacity: 1, y: 0, scale: 1 }
-            : { opacity: 0, y: -20, scale: 0.98 }
-        }
-        transition={springs.responsive}
-        className={cn(
-          "relative flex items-center gap-1 p-1.5",
-          "bg-white/90 backdrop-blur-xl dark:bg-surface-950/90",
-          "border border-surface-200/80 dark:border-surface-800/80",
-          "shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
-          // Architecture of the Blade: Absolute 0px Default
-          "rounded-[var(--radius)]"
-        )}
-        role="navigation"
-        aria-label="Main navigation"
-        onMouseLeave={() => setHoveredTab(null)}
-      >
-        <ul className="relative flex items-center gap-1">
-          {navItems.map((item) => {
-            const isActive = item.link === activeTab;
-            const isHovered = item.link === hoveredTab;
-            const Icon = item.icon;
+	return (
+		<div className="fixed top-8 right-0 left-0 z-50 flex items-center justify-center px-6">
+			<motion.nav
+				initial={{ opacity: 0, y: -20, scale: 0.98 }}
+				animate={
+					isEnabled ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -20, scale: 0.98 }
+				}
+				transition={springs.responsive}
+				className={cn(
+					"relative flex items-center gap-1 p-1.5",
+					"bg-white/90 backdrop-blur-xl dark:bg-surface-950/90",
+					"border border-surface-200/80 dark:border-surface-800/80",
+					"shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
+					// Architecture of the Blade: Absolute 0px Default
+					"rounded-[var(--radius)]",
+				)}
+				role="navigation"
+				aria-label="Main navigation"
+				onMouseLeave={() => setHoveredTab(null)}
+			>
+				<ul className="relative flex items-center gap-1">
+					{navItems.map((item) => {
+						const isActive = item.link === activeTab;
+						const isHovered = item.link === hoveredTab;
+						const Icon = item.icon;
 
-            return (
-              <li key={item.link} className="relative">
-                <Link
-                  href={item.link}
-                  className={cn(
-                    "relative flex items-center justify-center transition-colors duration-200",
-                    "rounded-[var(--radius)]",
-                    isActive
-                      ? "text-surface-900 dark:text-surface-50"
-                      : "text-surface-500 dark:text-surface-400",
-                    "hover:text-surface-900 dark:hover:text-surface-50"
-                  )}
-                  style={{
-                    width: BUTTON_SIZE,
-                    height: BUTTON_SIZE,
-                  }}
-                  onMouseEnter={() => setHoveredTab(item.link)}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  {/* The Sliding Mechanical Block */}
-                  {currentTab === item.link && (
-                    <motion.div
-                      layoutId="nav-slot"
-                      className="absolute inset-0 -z-10 rounded-[var(--radius)] bg-surface-100 dark:bg-surface-800"
-                      transition={springs.layout}
-                    />
-                  )}
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={springs.snappy}
-                  >
-                    <Icon
-                      className="shrink-0"
-                      style={{ width: ICON_SIZE, height: ICON_SIZE }}
-                      weight="duotone"
-                    />
-                  </motion.div>
-                </Link>
+						return (
+							<li key={item.link} className="relative">
+								<Link
+									href={item.link}
+									className={cn(
+										"relative flex items-center justify-center transition-colors duration-200",
+										"rounded-[var(--radius)]",
+										isActive
+											? "text-surface-900 dark:text-surface-50"
+											: "text-surface-500 dark:text-surface-400",
+										"hover:text-surface-900 dark:hover:text-surface-50",
+									)}
+									style={{
+										width: BUTTON_SIZE,
+										height: BUTTON_SIZE,
+									}}
+									onMouseEnter={() => setHoveredTab(item.link)}
+									aria-current={isActive ? "page" : undefined}
+								>
+									{/* The Sliding Mechanical Block */}
+									{currentTab === item.link && (
+										<motion.div
+											layoutId="nav-slot"
+											className="absolute inset-0 -z-10 rounded-[var(--radius)] bg-surface-100 dark:bg-surface-800"
+											transition={springs.layout}
+										/>
+									)}
+									<motion.div
+										whileHover={{ scale: 1.1 }}
+										whileTap={{ scale: 0.9 }}
+										transition={springs.snappy}
+									>
+										<Icon
+											className="shrink-0"
+											style={{ width: ICON_SIZE, height: ICON_SIZE }}
+											weight="duotone"
+										/>
+									</motion.div>
+								</Link>
 
-                {/* Sharp Geometric Tooltip */}
-                <AnimatePresence>
-                  {isHovered && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 4, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 4, scale: 0.98 }}
-                      transition={{ duration: 0.15, ease: "easeOut" }}
-                      className={cn(
-                        "pointer-events-none absolute top-full left-1/2 z-20 mt-3 -translate-x-1/2 whitespace-nowrap",
-                        "px-2 py-1.5 font-bold text-xs",
-                        "bg-white dark:bg-surface-900",
-                        "text-surface-700 dark:text-surface-300",
-                        "border border-surface-200 dark:border-surface-800",
-                        "rounded-none shadow-md" // Absolute zero for tooltips
-                      )}
-                    >
-                      {item.name}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </li>
-            );
-          })}
-        </ul>
+								{/* Sharp Geometric Tooltip */}
+								<AnimatePresence>
+									{isHovered && (
+										<motion.div
+											initial={{ opacity: 0, y: 4, scale: 0.98 }}
+											animate={{ opacity: 1, y: 0, scale: 1 }}
+											exit={{ opacity: 0, y: 4, scale: 0.98 }}
+											transition={{ duration: 0.15, ease: "easeOut" }}
+											className={cn(
+												"pointer-events-none absolute top-full left-1/2 z-20 mt-3 -translate-x-1/2 whitespace-nowrap",
+												"px-2 py-1.5 font-bold text-xs",
+												"bg-white dark:bg-surface-900",
+												"text-surface-700 dark:text-surface-300",
+												"border border-surface-200 dark:border-surface-800",
+												"rounded-none shadow-md", // Absolute zero for tooltips
+											)}
+										>
+											{item.name}
+										</motion.div>
+									)}
+								</AnimatePresence>
+							</li>
+						);
+					})}
+				</ul>
 
-        {/* Vertical Separator - Machined Line */}
-        <div
-          className="mx-1 h-6 w-px bg-surface-200 dark:bg-surface-800"
-          aria-hidden="true"
-        />
+				{/* Vertical Separator - Machined Line */}
+				<div
+					className="mx-1 h-6 w-px bg-surface-200 dark:bg-surface-800"
+					aria-hidden="true"
+				/>
 
-        <motion.button
-          ref={themeButtonRef}
-          onMouseEnter={() => setHoveredTab("theme-toggle")}
-          onClick={toggleTheme}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          transition={springs.snappy}
-          className={cn(
-            "relative z-10 flex items-center justify-center rounded-[var(--radius)]",
-            "text-surface-500 dark:text-surface-400",
-            "hover:text-surface-900 dark:hover:text-surface-50",
-            "outline-none transition-colors duration-200",
-            "focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-950"
-          )}
-          style={{
-            width: BUTTON_SIZE,
-            height: BUTTON_SIZE,
-          }}
-          aria-label={`Switch to ${
-            resolvedTheme === "dark" ? "light" : "dark"
-          } mode`}
-        >
-          {currentTab === "theme-toggle" && (
-            <motion.div
-              layoutId="nav-slot"
-              className="absolute inset-0 -z-10 rounded-[var(--radius)] bg-surface-100 dark:bg-surface-800"
-              transition={springs.layout}
-            />
-          )}
-          <Sun
-            className="rotate-0 scale-100 transition-transform duration-300 dark:-rotate-90 dark:scale-0"
-            style={{ width: ICON_SIZE, height: ICON_SIZE }}
-            weight="duotone"
-          />
-          <Moon
-            className="absolute rotate-90 scale-0 transition-transform duration-300 dark:rotate-0 dark:scale-100"
-            style={{ width: ICON_SIZE, height: ICON_SIZE }}
-            weight="duotone"
-          />
-        </motion.button>
-      </motion.nav>
-    </div>
-  );
+				<motion.button
+					ref={themeButtonRef}
+					onMouseEnter={() => setHoveredTab("theme-toggle")}
+					onClick={toggleTheme}
+					whileHover={{ scale: 1.1 }}
+					whileTap={{ scale: 0.9 }}
+					transition={springs.snappy}
+					className={cn(
+						"relative z-10 flex items-center justify-center rounded-[var(--radius)]",
+						"text-surface-500 dark:text-surface-400",
+						"hover:text-surface-900 dark:hover:text-surface-50",
+						"outline-none transition-colors duration-200",
+						"focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-950",
+					)}
+					style={{
+						width: BUTTON_SIZE,
+						height: BUTTON_SIZE,
+					}}
+					aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
+				>
+					{currentTab === "theme-toggle" && (
+						<motion.div
+							layoutId="nav-slot"
+							className="absolute inset-0 -z-10 rounded-[var(--radius)] bg-surface-100 dark:bg-surface-800"
+							transition={springs.layout}
+						/>
+					)}
+					<Sun
+						className="rotate-0 scale-100 transition-transform duration-300 dark:-rotate-90 dark:scale-0"
+						style={{ width: ICON_SIZE, height: ICON_SIZE }}
+						weight="duotone"
+					/>
+					<Moon
+						className="absolute rotate-90 scale-0 transition-transform duration-300 dark:rotate-0 dark:scale-100"
+						style={{ width: ICON_SIZE, height: ICON_SIZE }}
+						weight="duotone"
+					/>
+				</motion.button>
+			</motion.nav>
+		</div>
+	);
 }

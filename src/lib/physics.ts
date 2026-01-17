@@ -137,6 +137,16 @@ export const springs = {
 		stiffness: 600,
 		damping: 32,
 	},
+	/**
+	 * Data glitch/swap (for coordinates, dates)
+	 * Ultra-fast, electronic feel
+	 */
+	glitch: {
+		type: "spring" as const,
+		mass: 0.2,
+		stiffness: 600,
+		damping: 25,
+	},
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
