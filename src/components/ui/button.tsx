@@ -1,18 +1,18 @@
 /**
- * Button Component
+ * Button Component - Swiss Design Edition
  *
- * Interactive element that triggers an action or event from the user.
- * Supports various styles, sizes, and states, including loading and tooltips.
+ * Premium interaction engineering with Framer Motion physics.
+ * Features compound variants for every color × variant combination,
+ * gradient backgrounds, subsurface lighting, and proper state transitions.
  */
 
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { type HTMLMotionProps, motion } from "framer-motion";
 import * as React from "react";
-import { type ForwardedRef, Fragment, type ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 
 import { springs } from "@/src/lib/physics";
-
 import Spinner from "@/src/components/ui/spinner";
 import {
   Tooltip,
@@ -23,98 +23,505 @@ import {
 import { cn } from "@/src/lib/utils";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// VARIANTS
+// VARIANTS - Compound Architecture for Premium Visual Depth
 // ═══════════════════════════════════════════════════════════════════════════
 
 const buttonVariants = cva(
   [
-    "group relative inline-flex size-auto select-none items-center justify-center gap-2 whitespace-nowrap px-4 py-2 font-bold text-sm",
-    "transition-all duration-200 ease-out",
-    "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-    "isolate transform-gpu cursor-pointer overflow-visible",
+    // Base structure
+    "group relative inline-flex items-center justify-center gap-2 px-4 py-2",
+    "font-bold text-sm whitespace-nowrap select-none",
+    // Swiss precision: 0px radius is enforced via --radius CSS variable
+    "rounded-[var(--radius)]",
+    // GPU-accelerated transforms
+    "transform-gpu cursor-pointer",
+    // Overflow handling for subsurface lighting layer
+    "isolate overflow-visible",
+    // Subsurface lighting layer (matches border-radius via rounded-[inherit])
+    "after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-[inherit]",
+    "after:transition-opacity after:duration-200 after:ease-out after:content-['']",
+    // Focus ring (WCAG 2.4.7 compliant)
     "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-    // Subsurface lighting layer
-    "after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-[inherit] after:transition-opacity after:duration-200 after:ease-out after:content-['']",
+    // Disabled state
+    "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+    // Transition for color/background changes (NOT transform - that's handled by Framer Motion)
+    "transition-[color,background-color,border-color,box-shadow] duration-200 ease-out",
   ],
   {
     variants: {
       variant: {
-        solid:
-          "bg-[var(--btn-bg)] text-[var(--btn-fg)] after:bg-gradient-to-br after:from-white/20 after:to-transparent",
-        soft: "bg-[var(--btn-bg-soft)] text-[var(--btn-fg-soft)] after:bg-gradient-to-br after:from-[var(--btn-bg)]/20 after:to-transparent",
-        outlined:
-          "border border-[var(--btn-border)] bg-gradient-to-br from-[var(--btn-from)] to-[var(--btn-to)] text-[var(--btn-fg-outlined)]",
-        plain:
-          "bg-gradient-to-br bg-transparent from-transparent to-transparent text-[var(--btn-fg-plain)] hover:from-[var(--btn-from-hover)] hover:to-[var(--btn-to-hover)]",
+        solid: "",
+        soft: "",
+        outlined: "border",
+        plain: "",
       },
       color: {
-        default:
-          "[--btn-bg:theme(colors.surface.950)] [--btn-fg:theme(colors.surface.50)]" +
-          "[--btn-bg-soft:theme(colors.surface.100)] [--btn-fg-soft:theme(colors.surface.900)]" +
-          "[--btn-border:theme(colors.surface.200)] [--btn-fg-outlined:theme(colors.surface.950)] [--btn-from:theme(colors.surface.50)] [--btn-to:theme(colors.surface.100)]" +
-          "[--btn-fg-plain:theme(colors.surface.900)] [--btn-from-hover:theme(colors.surface.50)] [--btn-to-hover:theme(colors.surface.100)]",
-        primary:
-          "[--btn-bg:theme(colors.primary.600)] [--btn-fg:theme(colors.primary.50)]" +
-          "[--btn-bg-soft:theme(colors.primary.100)] [--btn-fg-soft:theme(colors.primary.950)]" +
-          "[--btn-border:theme(colors.primary.200)] [--btn-fg-outlined:theme(colors.primary.950)] [--btn-from:theme(colors.primary.50)] [--btn-to:theme(colors.primary.100)]" +
-          "[--btn-fg-plain:theme(colors.primary.600)] [--btn-from-hover:theme(colors.primary.50)] [--btn-to-hover:theme(colors.primary.100)]",
-        accent:
-          "[--btn-bg:theme(colors.accent.500)] [--btn-fg:theme(colors.accent.50)]" +
-          "[--btn-bg-soft:theme(colors.accent.100)] [--btn-fg-soft:theme(colors.accent.950)]" +
-          "[--btn-border:theme(colors.accent.200)] [--btn-fg-outlined:theme(colors.accent.950)] [--btn-from:theme(colors.accent.50)] [--btn-to:theme(colors.accent.100)]" +
-          "[--btn-fg-plain:theme(colors.accent.500)] [--btn-from-hover:theme(colors.accent.50)] [--btn-to-hover:theme(colors.accent.100)]",
-        secondary:
-          "[--btn-bg:theme(colors.secondary.500)] [--btn-fg:theme(colors.secondary.50)]" +
-          "[--btn-bg-soft:theme(colors.secondary.100)] [--btn-fg-soft:theme(colors.secondary.950)]" +
-          "[--btn-border:theme(colors.secondary.200)] [--btn-fg-outlined:theme(colors.secondary.950)] [--btn-from:theme(colors.secondary.50)] [--btn-to:theme(colors.secondary.100)]" +
-          "[--btn-fg-plain:theme(colors.secondary.500)] [--btn-from-hover:theme(colors.secondary.50)] [--btn-to-hover:theme(colors.secondary.100)]",
-        success:
-          "[--btn-bg:theme(colors.success.600)] [--btn-fg:theme(colors.success.50)]" +
-          "[--btn-bg-soft:theme(colors.success.100)] [--btn-fg-soft:theme(colors.success.950)]" +
-          "[--btn-border:theme(colors.success.200)] [--btn-fg-outlined:theme(colors.success.950)] [--btn-from:theme(colors.success.50)] [--btn-to:theme(colors.success.100)]" +
-          "[--btn-fg-plain:theme(colors.success.600)] [--btn-from-hover:theme(colors.success.50)] [--btn-to-hover:theme(colors.success.100)]",
-        warning:
-          "[--btn-bg:theme(colors.warning.500)] [--btn-fg:theme(colors.warning.50)]" +
-          "[--btn-bg-soft:theme(colors.warning.100)] [--btn-fg-soft:theme(colors.warning.950)]" +
-          "[--btn-border:theme(colors.warning.200)] [--btn-fg-outlined:theme(colors.warning.950)] [--btn-from:theme(colors.warning.50)] [--btn-to:theme(colors.warning.100)]" +
-          "[--btn-fg-plain:theme(colors.warning.500)] [--btn-from-hover:theme(colors.warning.50)] [--btn-to-hover:theme(colors.warning.100)]",
-        info:
-          "[--btn-bg:theme(colors.info.500)] [--btn-fg:theme(colors.info.50)]" +
-          "[--btn-bg-soft:theme(colors.info.100)] [--btn-fg-soft:theme(colors.info.950)]" +
-          "[--btn-border:theme(colors.info.200)] [--btn-fg-outlined:theme(colors.info.950)] [--btn-from:theme(colors.info.50)] [--btn-to:theme(colors.info.100)]" +
-          "[--btn-fg-plain:theme(colors.info.500)] [--btn-from-hover:theme(colors.info.50)] [--btn-to-hover:theme(colors.info.100)]",
-        destructive:
-          "[--btn-bg:theme(colors.destructive.600)] [--btn-fg:theme(colors.destructive.50)]" +
-          "[--btn-bg-soft:theme(colors.destructive.100)] [--btn-fg-soft:theme(colors.destructive.950)]" +
-          "[--btn-border:theme(colors.destructive.200)] [--btn-fg-outlined:theme(colors.destructive.950)] [--btn-from:theme(colors.destructive.50)] [--btn-to:theme(colors.destructive.100)]" +
-          "[--btn-fg-plain:theme(colors.destructive.600)] [--btn-from-hover:theme(colors.destructive.50)] [--btn-to-hover:theme(colors.destructive.100)]",
+        default: "",
+        primary: "",
+        accent: "",
+        success: "",
+        warning: "",
+        info: "",
+        destructive: "",
       },
       size: {
-        xs: "px-2.5 py-1 text-xs",
-        sm: "px-3 py-1.5 text-xs",
-        md: "px-4 py-2 text-sm",
-        lg: "px-5 py-3 text-sm",
-        xl: "px-6 py-3 text-lg",
+        xs: "px-2.5 py-1 text-xs gap-1.5",
+        sm: "px-3 py-1.5 text-xs gap-1.5",
+        md: "px-4 py-2 text-sm gap-2",
+        lg: "px-5 py-2.5 text-sm gap-2",
+        xl: "px-6 py-3 text-base gap-2.5",
         icon: "size-10 p-2",
+        "icon-sm": "size-8 p-1.5",
+        "icon-lg": "size-12 p-3",
       },
       shape: {
-        none: "rounded-none",
-        xs: "rounded-[var(--radius-xs)]",
-        sm: "rounded-[var(--radius-sm)]",
-        md: "rounded-[var(--radius-md)]",
-        lg: "rounded-[var(--radius-lg)]",
-        xl: "rounded-[var(--radius-xl)]",
-        full: "rounded-[var(--radius-full)]",
         default: "rounded-[var(--radius)]",
+        none: "rounded-none",
+        sm: "rounded-sm",
+        md: "rounded-md",
+        lg: "rounded-lg",
+        xl: "rounded-xl",
+        full: "rounded-full",
       },
     },
+    compoundVariants: [
+      // ═══════════════════════════════════════════════════════════════════
+      // SOLID VARIANTS - Strong backgrounds with subsurface lighting
+      // ═══════════════════════════════════════════════════════════════════
+      {
+        variant: "solid",
+        color: "default",
+        className: [
+          // Light mode
+          "bg-surface-950 text-surface-50",
+          "hover:bg-surface-900 focus-visible:bg-surface-900",
+          "active:bg-surface-800",
+          // Dark mode
+          "dark:bg-surface-50 dark:text-surface-950",
+          "dark:hover:bg-surface-200 dark:focus-visible:bg-surface-200",
+          "dark:active:bg-surface-100",
+          // Subsurface lighting
+          "after:bg-gradient-to-br after:from-white/20 after:via-white/10 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
+          // Focus ring
+          "focus-visible:ring-surface-400",
+        ],
+      },
+      {
+        variant: "solid",
+        color: "primary",
+        className: [
+          // Light mode
+          "bg-primary-950 text-primary-50",
+          "hover:bg-primary-900 focus-visible:bg-primary-900",
+          "active:bg-primary-800",
+          // Dark mode
+          "dark:bg-primary-50 dark:text-primary-950",
+          "dark:hover:bg-primary-200 dark:focus-visible:bg-primary-200",
+          "dark:active:bg-primary-100",
+          // Subsurface lighting
+          "after:bg-gradient-to-br after:from-primary-300/30 after:via-primary-400/15 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
+          // Focus ring
+          "focus-visible:ring-primary-500",
+        ],
+      },
+      {
+        variant: "solid",
+        color: "accent",
+        className: [
+          "bg-accent-600 text-accent-50",
+          "hover:bg-accent-700 focus-visible:bg-accent-700",
+          "active:bg-accent-800",
+          "dark:bg-accent-500 dark:text-white",
+          "dark:hover:bg-accent-600 dark:focus-visible:bg-accent-600",
+          "dark:active:bg-accent-700",
+          "after:bg-gradient-to-br after:from-accent-200/40 after:via-accent-300/20 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
+          "focus-visible:ring-accent-500",
+        ],
+      },
+      {
+        variant: "solid",
+        color: "success",
+        className: [
+          "bg-success-600 text-success-50",
+          "hover:bg-success-700 focus-visible:bg-success-700",
+          "active:bg-success-800",
+          "dark:bg-success-500 dark:text-white",
+          "dark:hover:bg-success-600 dark:focus-visible:bg-success-600",
+          "dark:active:bg-success-700",
+          "after:bg-gradient-to-br after:from-success-200/40 after:via-success-300/20 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
+          "focus-visible:ring-success-500",
+        ],
+      },
+      {
+        variant: "solid",
+        color: "warning",
+        className: [
+          "bg-warning-500 text-warning-950",
+          "hover:bg-warning-600 focus-visible:bg-warning-600",
+          "active:bg-warning-700",
+          "dark:bg-warning-500 dark:text-warning-950",
+          "dark:hover:bg-warning-600 dark:focus-visible:bg-warning-600",
+          "dark:active:bg-warning-700",
+          "after:bg-gradient-to-br after:from-warning-200/40 after:via-warning-300/20 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
+          "focus-visible:ring-warning-500",
+        ],
+      },
+      {
+        variant: "solid",
+        color: "info",
+        className: [
+          "bg-info-600 text-info-50",
+          "hover:bg-info-700 focus-visible:bg-info-700",
+          "active:bg-info-800",
+          "dark:bg-info-500 dark:text-white",
+          "dark:hover:bg-info-600 dark:focus-visible:bg-info-600",
+          "dark:active:bg-info-700",
+          "after:bg-gradient-to-br after:from-info-200/40 after:via-info-300/20 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
+          "focus-visible:ring-info-500",
+        ],
+      },
+      {
+        variant: "solid",
+        color: "destructive",
+        className: [
+          "bg-destructive-600 text-destructive-50",
+          "hover:bg-destructive-700 focus-visible:bg-destructive-700",
+          "active:bg-destructive-800",
+          "dark:bg-destructive-500 dark:text-white",
+          "dark:hover:bg-destructive-600 dark:focus-visible:bg-destructive-600",
+          "dark:active:bg-destructive-700",
+          "after:bg-gradient-to-br after:from-destructive-200/40 after:via-destructive-300/20 after:to-transparent",
+          "after:opacity-0 hover:after:opacity-100 focus-visible:after:opacity-100",
+          "focus-visible:ring-destructive-500",
+        ],
+      },
+
+      // ═══════════════════════════════════════════════════════════════════
+      // SOFT VARIANTS - Subtle backgrounds with gradient overlays
+      // ═══════════════════════════════════════════════════════════════════
+      {
+        variant: "soft",
+        color: "default",
+        className: [
+          "bg-surface-100 text-surface-900",
+          "hover:bg-surface-200 focus-visible:bg-surface-200",
+          "active:bg-surface-300",
+          "dark:bg-surface-800 dark:text-surface-100",
+          "dark:hover:bg-surface-700 dark:focus-visible:bg-surface-700",
+          "dark:active:bg-surface-600",
+          "after:bg-gradient-to-br after:from-surface-100/50 after:to-surface-200/30",
+          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "focus-visible:ring-surface-400",
+        ],
+      },
+      {
+        variant: "soft",
+        color: "primary",
+        className: [
+          "bg-primary-100 text-primary-900",
+          "hover:bg-primary-200 focus-visible:bg-primary-200",
+          "active:bg-primary-300",
+          "dark:bg-primary-900 dark:text-primary-100",
+          "dark:hover:bg-primary-800 dark:focus-visible:bg-primary-800",
+          "dark:active:bg-primary-700",
+          "after:bg-gradient-to-br after:from-primary-200/40 after:to-primary-300/20",
+          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "focus-visible:ring-primary-500",
+        ],
+      },
+      {
+        variant: "soft",
+        color: "accent",
+        className: [
+          "bg-accent-100 text-accent-700",
+          "hover:bg-accent-200 hover:text-accent-800 focus-visible:bg-accent-200 focus-visible:text-accent-800",
+          "active:bg-accent-300 active:text-accent-900",
+          "dark:bg-accent-900/50 dark:text-accent-300",
+          "dark:hover:bg-accent-900 dark:hover:text-accent-200 dark:focus-visible:bg-accent-900 dark:focus-visible:text-accent-200",
+          "dark:active:bg-accent-800 dark:active:text-accent-100",
+          "after:bg-gradient-to-br after:from-accent-200/40 after:to-accent-300/20",
+          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "focus-visible:ring-accent-500",
+        ],
+      },
+      {
+        variant: "soft",
+        color: "success",
+        className: [
+          "bg-success-100 text-success-700",
+          "hover:bg-success-200 hover:text-success-800 focus-visible:bg-success-200 focus-visible:text-success-800",
+          "active:bg-success-300 active:text-success-900",
+          "dark:bg-success-900/50 dark:text-success-300",
+          "dark:hover:bg-success-900 dark:hover:text-success-200 dark:focus-visible:bg-success-900 dark:focus-visible:text-success-200",
+          "dark:active:bg-success-800 dark:active:text-success-100",
+          "after:bg-gradient-to-br after:from-success-200/40 after:to-success-300/20",
+          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "focus-visible:ring-success-500",
+        ],
+      },
+      {
+        variant: "soft",
+        color: "warning",
+        className: [
+          "bg-warning-100 text-warning-700",
+          "hover:bg-warning-200 hover:text-warning-800 focus-visible:bg-warning-200 focus-visible:text-warning-800",
+          "active:bg-warning-300 active:text-warning-900",
+          "dark:bg-warning-900/50 dark:text-warning-300",
+          "dark:hover:bg-warning-900 dark:hover:text-warning-200 dark:focus-visible:bg-warning-900 dark:focus-visible:text-warning-200",
+          "dark:active:bg-warning-800 dark:active:text-warning-100",
+          "after:bg-gradient-to-br after:from-warning-200/40 after:to-warning-300/20",
+          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "focus-visible:ring-warning-500",
+        ],
+      },
+      {
+        variant: "soft",
+        color: "info",
+        className: [
+          "bg-info-100 text-info-700",
+          "hover:bg-info-200 hover:text-info-800 focus-visible:bg-info-200 focus-visible:text-info-800",
+          "active:bg-info-300 active:text-info-900",
+          "dark:bg-info-900/50 dark:text-info-300",
+          "dark:hover:bg-info-900 dark:hover:text-info-200 dark:focus-visible:bg-info-900 dark:focus-visible:text-info-200",
+          "dark:active:bg-info-800 dark:active:text-info-100",
+          "after:bg-gradient-to-br after:from-info-200/40 after:to-info-300/20",
+          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "focus-visible:ring-info-500",
+        ],
+      },
+      {
+        variant: "soft",
+        color: "destructive",
+        className: [
+          "bg-destructive-100 text-destructive-700",
+          "hover:bg-destructive-200 hover:text-destructive-800 focus-visible:bg-destructive-200 focus-visible:text-destructive-800",
+          "active:bg-destructive-300 active:text-destructive-900",
+          "dark:bg-destructive-900/50 dark:text-destructive-300",
+          "dark:hover:bg-destructive-900 dark:hover:text-destructive-200 dark:focus-visible:bg-destructive-900 dark:focus-visible:text-destructive-200",
+          "dark:active:bg-destructive-800 dark:active:text-destructive-100",
+          "after:bg-gradient-to-br after:from-destructive-200/40 after:to-destructive-300/20",
+          "after:opacity-60 hover:after:opacity-90 focus-visible:after:opacity-90",
+          "focus-visible:ring-destructive-500",
+        ],
+      },
+
+      // ═══════════════════════════════════════════════════════════════════
+      // OUTLINED VARIANTS - Gradient borders and backgrounds on hover
+      // ═══════════════════════════════════════════════════════════════════
+      {
+        variant: "outlined",
+        color: "default",
+        className: [
+          "border-surface-200 bg-transparent text-surface-900",
+          "hover:bg-surface-50 focus-visible:bg-surface-50",
+          "active:bg-surface-100",
+          "dark:border-surface-700 dark:text-surface-100",
+          "dark:hover:bg-surface-800/50 dark:focus-visible:bg-surface-800/50",
+          "dark:active:bg-surface-800",
+          "after:hidden",
+          "focus-visible:ring-surface-400",
+        ],
+      },
+      {
+        variant: "outlined",
+        color: "primary",
+        className: [
+          "border-primary-200 bg-transparent text-primary-900",
+          "hover:bg-primary-50 hover:border-primary-300 focus-visible:bg-primary-50 focus-visible:border-primary-300",
+          "active:bg-primary-100",
+          "dark:border-primary-700 dark:text-primary-100",
+          "dark:hover:bg-primary-900/50 dark:hover:border-primary-600 dark:focus-visible:bg-primary-900/50 dark:focus-visible:border-primary-600",
+          "dark:active:bg-primary-900",
+          "after:hidden",
+          "focus-visible:ring-primary-500",
+        ],
+      },
+      {
+        variant: "outlined",
+        color: "accent",
+        className: [
+          "border-accent-200 bg-transparent text-accent-700",
+          "hover:bg-accent-50 hover:border-accent-300 hover:text-accent-800 focus-visible:bg-accent-50 focus-visible:border-accent-300 focus-visible:text-accent-800",
+          "active:bg-accent-100 active:text-accent-900",
+          "dark:border-accent-700 dark:text-accent-300",
+          "dark:hover:bg-accent-900/50 dark:hover:border-accent-600 dark:hover:text-accent-200 dark:focus-visible:bg-accent-900/50 dark:focus-visible:border-accent-600 dark:focus-visible:text-accent-200",
+          "dark:active:bg-accent-900 dark:active:text-accent-100",
+          "after:hidden",
+          "focus-visible:ring-accent-500",
+        ],
+      },
+      {
+        variant: "outlined",
+        color: "success",
+        className: [
+          "border-success-200 bg-transparent text-success-700",
+          "hover:bg-success-50 hover:border-success-300 hover:text-success-800 focus-visible:bg-success-50 focus-visible:border-success-300 focus-visible:text-success-800",
+          "active:bg-success-100 active:text-success-900",
+          "dark:border-success-700 dark:text-success-300",
+          "dark:hover:bg-success-900/50 dark:hover:border-success-600 dark:hover:text-success-200 dark:focus-visible:bg-success-900/50 dark:focus-visible:border-success-600 dark:focus-visible:text-success-200",
+          "dark:active:bg-success-900 dark:active:text-success-100",
+          "after:hidden",
+          "focus-visible:ring-success-500",
+        ],
+      },
+      {
+        variant: "outlined",
+        color: "warning",
+        className: [
+          "border-warning-200 bg-transparent text-warning-700",
+          "hover:bg-warning-50 hover:border-warning-300 hover:text-warning-800 focus-visible:bg-warning-50 focus-visible:border-warning-300 focus-visible:text-warning-800",
+          "active:bg-warning-100 active:text-warning-900",
+          "dark:border-warning-700 dark:text-warning-300",
+          "dark:hover:bg-warning-900/50 dark:hover:border-warning-600 dark:hover:text-warning-200 dark:focus-visible:bg-warning-900/50 dark:focus-visible:border-warning-600 dark:focus-visible:text-warning-200",
+          "dark:active:bg-warning-900 dark:active:text-warning-100",
+          "after:hidden",
+          "focus-visible:ring-warning-500",
+        ],
+      },
+      {
+        variant: "outlined",
+        color: "info",
+        className: [
+          "border-info-200 bg-transparent text-info-700",
+          "hover:bg-info-50 hover:border-info-300 hover:text-info-800 focus-visible:bg-info-50 focus-visible:border-info-300 focus-visible:text-info-800",
+          "active:bg-info-100 active:text-info-900",
+          "dark:border-info-700 dark:text-info-300",
+          "dark:hover:bg-info-900/50 dark:hover:border-info-600 dark:hover:text-info-200 dark:focus-visible:bg-info-900/50 dark:focus-visible:border-info-600 dark:focus-visible:text-info-200",
+          "dark:active:bg-info-900 dark:active:text-info-100",
+          "after:hidden",
+          "focus-visible:ring-info-500",
+        ],
+      },
+      {
+        variant: "outlined",
+        color: "destructive",
+        className: [
+          "border-destructive-200 bg-transparent text-destructive-700",
+          "hover:bg-destructive-50 hover:border-destructive-300 hover:text-destructive-800 focus-visible:bg-destructive-50 focus-visible:border-destructive-300 focus-visible:text-destructive-800",
+          "active:bg-destructive-100 active:text-destructive-900",
+          "dark:border-destructive-700 dark:text-destructive-300",
+          "dark:hover:bg-destructive-900/50 dark:hover:border-destructive-600 dark:hover:text-destructive-200 dark:focus-visible:bg-destructive-900/50 dark:focus-visible:border-destructive-600 dark:focus-visible:text-destructive-200",
+          "dark:active:bg-destructive-900 dark:active:text-destructive-100",
+          "after:hidden",
+          "focus-visible:ring-destructive-500",
+        ],
+      },
+
+      // ═══════════════════════════════════════════════════════════════════
+      // PLAIN VARIANTS - Ghost buttons with subtle gradient on hover
+      // ═══════════════════════════════════════════════════════════════════
+      {
+        variant: "plain",
+        color: "default",
+        className: [
+          "bg-transparent text-surface-600",
+          "hover:text-surface-900 hover:bg-surface-100 focus-visible:text-surface-900 focus-visible:bg-surface-100",
+          "active:bg-surface-200 active:text-surface-950",
+          "dark:text-surface-400",
+          "dark:hover:text-surface-100 dark:hover:bg-surface-800 dark:focus-visible:text-surface-100 dark:focus-visible:bg-surface-800",
+          "dark:active:bg-surface-700 dark:active:text-surface-50",
+          "after:hidden",
+          "focus-visible:ring-surface-400",
+        ],
+      },
+      {
+        variant: "plain",
+        color: "primary",
+        className: [
+          "bg-transparent text-primary-600",
+          "hover:text-primary-800 hover:bg-primary-50 focus-visible:text-primary-800 focus-visible:bg-primary-50",
+          "active:bg-primary-100 active:text-primary-900",
+          "dark:text-primary-400",
+          "dark:hover:text-primary-200 dark:hover:bg-primary-900/50 dark:focus-visible:text-primary-200 dark:focus-visible:bg-primary-900/50",
+          "dark:active:bg-primary-900 dark:active:text-primary-100",
+          "after:hidden",
+          "focus-visible:ring-primary-500",
+        ],
+      },
+      {
+        variant: "plain",
+        color: "accent",
+        className: [
+          "bg-transparent text-accent-600",
+          "hover:text-accent-700 hover:bg-accent-50 focus-visible:text-accent-700 focus-visible:bg-accent-50",
+          "active:bg-accent-100 active:text-accent-800",
+          "dark:text-accent-400",
+          "dark:hover:text-accent-300 dark:hover:bg-accent-900/50 dark:focus-visible:text-accent-300 dark:focus-visible:bg-accent-900/50",
+          "dark:active:bg-accent-900 dark:active:text-accent-200",
+          "after:hidden",
+          "focus-visible:ring-accent-500",
+        ],
+      },
+      {
+        variant: "plain",
+        color: "success",
+        className: [
+          "bg-transparent text-success-600",
+          "hover:text-success-700 hover:bg-success-50 focus-visible:text-success-700 focus-visible:bg-success-50",
+          "active:bg-success-100 active:text-success-800",
+          "dark:text-success-400",
+          "dark:hover:text-success-300 dark:hover:bg-success-900/50 dark:focus-visible:text-success-300 dark:focus-visible:bg-success-900/50",
+          "dark:active:bg-success-900 dark:active:text-success-200",
+          "after:hidden",
+          "focus-visible:ring-success-500",
+        ],
+      },
+      {
+        variant: "plain",
+        color: "warning",
+        className: [
+          "bg-transparent text-warning-600",
+          "hover:text-warning-700 hover:bg-warning-50 focus-visible:text-warning-700 focus-visible:bg-warning-50",
+          "active:bg-warning-100 active:text-warning-800",
+          "dark:text-warning-400",
+          "dark:hover:text-warning-300 dark:hover:bg-warning-900/50 dark:focus-visible:text-warning-300 dark:focus-visible:bg-warning-900/50",
+          "dark:active:bg-warning-900 dark:active:text-warning-200",
+          "after:hidden",
+          "focus-visible:ring-warning-500",
+        ],
+      },
+      {
+        variant: "plain",
+        color: "info",
+        className: [
+          "bg-transparent text-info-600",
+          "hover:text-info-700 hover:bg-info-50 focus-visible:text-info-700 focus-visible:bg-info-50",
+          "active:bg-info-100 active:text-info-800",
+          "dark:text-info-400",
+          "dark:hover:text-info-300 dark:hover:bg-info-900/50 dark:focus-visible:text-info-300 dark:focus-visible:bg-info-900/50",
+          "dark:active:bg-info-900 dark:active:text-info-200",
+          "after:hidden",
+          "focus-visible:ring-info-500",
+        ],
+      },
+      {
+        variant: "plain",
+        color: "destructive",
+        className: [
+          "bg-transparent text-destructive-600",
+          "hover:text-destructive-700 hover:bg-destructive-50 focus-visible:text-destructive-700 focus-visible:bg-destructive-50",
+          "active:bg-destructive-100 active:text-destructive-800",
+          "dark:text-destructive-400",
+          "dark:hover:text-destructive-300 dark:hover:bg-destructive-900/50 dark:focus-visible:text-destructive-300 dark:focus-visible:bg-destructive-900/50",
+          "dark:active:bg-destructive-900 dark:active:text-destructive-200",
+          "after:hidden",
+          "focus-visible:ring-destructive-500",
+        ],
+      },
+    ],
     defaultVariants: {
-      color: "default",
       variant: "solid",
+      color: "default",
       size: "md",
       shape: "default",
     },
-  }
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -122,7 +529,8 @@ const buttonVariants = cva(
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface ButtonProps
-  extends Omit<HTMLMotionProps<"button">, "color" | "children">,
+  extends
+    Omit<HTMLMotionProps<"button">, "color" | "children">,
     VariantProps<typeof buttonVariants> {
   /** Button content */
   children?: ReactNode;
@@ -130,8 +538,6 @@ export interface ButtonProps
   asChild?: boolean;
   /** Display a Spinner and disable interactions */
   loading?: boolean;
-  /** Ref to the underlying button element */
-  ref?: ForwardedRef<HTMLButtonElement>;
 
   // Tooltip Integration
   /** Explicitly show a tooltip on hover */
@@ -178,14 +584,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
       ...props
     },
-    ref
+    ref,
   ) => {
     const Comp = asChild ? MotionSlot : motion.button;
     const isDisabled = loading || disabled;
 
     function getSpinnerSize() {
-      if (size === "xs" || size === "sm") return "xs";
-      if (size === "lg" || size === "xl") return "md";
+      if (size === "xs" || size === "sm" || size === "icon-sm") return "xs";
+      if (size === "lg" || size === "xl" || size === "icon-lg") return "md";
       return "sm";
     }
 
@@ -193,7 +599,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         ref={ref}
         className={cn(
-          buttonVariants({ className, color, shape, size, variant })
+          buttonVariants({ className, color, shape, size, variant }),
         )}
         disabled={isDisabled}
         type={type}
@@ -237,7 +643,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return content;
-  }
+  },
 );
 
 Button.displayName = "Button";
