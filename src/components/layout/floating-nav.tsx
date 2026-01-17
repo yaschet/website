@@ -84,8 +84,9 @@ export function FloatingNav() {
   const currentTab = hoveredTab ?? activeTab;
 
   /**
-   * Implements a high-precision circular clip transition for theme switching.
-   * Leverages the View Transitions API with fallback and GPU acceleration.
+   * Swiss-precision theme transition.
+   * Uses a horizontal wipe (inset clip-path) — geometric, sharp, controlled.
+   * Adds a guard class to prevent Swiss Grid recalculations during transition.
    */
   const toggleTheme = async () => {
     const newTheme = resolvedTheme === "dark" ? "light" : "dark";
@@ -94,9 +95,10 @@ export function FloatingNav() {
     const transitionClass = `transition-bg-${resolvedTheme === "light" ? "dark" : "light"}`;
     document.documentElement.classList.add(transitionClass);
 
+    // Fallback: no View Transitions API or reduced motion
     if (
-      !themeButtonRef.current ||
-      !("startViewTransition" in document) ||
+      !(document as Document & { startViewTransition?: unknown })
+        .startViewTransition ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
       setTheme(newTheme);
@@ -107,38 +109,40 @@ export function FloatingNav() {
       return;
     }
 
+    // Add guard to prevent Swiss Grid recalculations during transition
+    document.documentElement.classList.add("view-transition-active");
+
     await (
-      document as Document & { startViewTransition: (cb: () => void) => void }
+      document as Document & {
+        startViewTransition: (cb: () => void) => { ready: Promise<void> };
+      }
     ).startViewTransition(() => {
       flushSync(() => {
         setTheme(newTheme);
       });
     }).ready;
 
-    const { top, left, width, height } =
-      themeButtonRef.current.getBoundingClientRect();
-    const x = left + width / 2;
-    const y = top + height / 2;
-    const right = window.innerWidth - left;
-    const bottom = window.innerHeight - top;
-    const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
-
-    document.documentElement.animate(
+    // Swiss horizontal wipe — sharp, geometric, controlled
+    // Wipes from left to right like a precision blade
+    const animation = document.documentElement.animate(
       {
         clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${maxRadius}px at ${x}px ${y}px)`,
+          "inset(0 100% 0 0)", // Hidden (clipped from right)
+          "inset(0 0 0 0)", // Fully revealed
         ],
       },
       {
-        duration: 600,
-        easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+        duration: 350, // Swiss efficiency — no wasted time
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)", // Smooth deceleration
         pseudoElement: "::view-transition-new(root)",
       },
-    ).onfinish = () => {
+    );
+
+    animation.onfinish = () => {
       document.documentElement.classList.remove(
         "transition-bg-light",
         "transition-bg-dark",
+        "view-transition-active",
       );
     };
   };
