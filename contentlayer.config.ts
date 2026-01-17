@@ -47,6 +47,11 @@ export const Project = defineDocumentType(() => ({
       type: "string",
       required: false,
     },
+    coverImages: {
+      type: "list",
+      of: { type: "string" },
+      required: false,
+    },
     featured: {
       type: "boolean",
       default: false,
