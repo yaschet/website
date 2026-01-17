@@ -137,7 +137,7 @@ export function FloatingNav() {
 	};
 
 	return (
-		<div className="fixed top-8 right-0 left-0 z-50 flex items-center justify-center px-6">
+		<div className="pointer-events-none fixed top-8 right-0 left-0 z-50 flex items-center justify-center px-6">
 			<motion.nav
 				initial={{ opacity: 0, y: -20, scale: 0.98 }}
 				animate={
@@ -145,7 +145,7 @@ export function FloatingNav() {
 				}
 				transition={springs.responsive}
 				className={cn(
-					"relative flex items-center gap-1 p-1.5",
+					"pointer-events-auto relative flex items-center gap-1 p-1.5",
 					"bg-white/90 backdrop-blur-xl dark:bg-surface-950/90",
 					"border border-surface-200/80 dark:border-surface-800/80",
 					"shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
