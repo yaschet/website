@@ -129,7 +129,9 @@ export function FloatingNav() {
     // 1. Direction: Top-to-Bottom. Why? The Nav is at the top. The interaction source is above.
     //    Gravity dictates the change flows DOWN from the source. It washes over the page.
     // 2. Physics: Heavy, industrial damping. Not a spring, but a hydraulic piston.
-    // 3. Timing: 650ms. Luxury takes time. Fast is cheap. Deliberate is premium.
+    // 3. Timing: 550ms. The Golden Mean.
+    //    650ms felt slightly "draggy" at the tail end of the expo curve.
+    //    550ms retains the mass but respects the user's time. Efficient Luxury.
     const animation = document.documentElement.animate(
       {
         clipPath: [
@@ -138,7 +140,7 @@ export function FloatingNav() {
         ],
       },
       {
-        duration: 650, // The speed of a heavy, well-oiled machine part.
+        duration: 550, // The perfect balance of Weight vs. Snap.
         // Ease Out Expo: Starts with authority, settles with extreme precision (friction).
         easing: "cubic-bezier(0.19, 1, 0.22, 1)",
         pseudoElement: "::view-transition-new(root)",
