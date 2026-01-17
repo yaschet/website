@@ -32,17 +32,14 @@ export function MonolithCard({
     deployed: {
       label: "DEPLOYED",
       color: "bg-emerald-500",
-      ping: "bg-emerald-400",
     },
     confidential: {
       label: "CONFIDENTIAL",
       color: "bg-amber-500",
-      ping: "bg-amber-400",
     },
     internal: {
       label: "INTERNAL",
       color: "bg-blue-500",
-      ping: "bg-blue-400",
     },
   };
 
@@ -88,20 +85,9 @@ export function MonolithCard({
             <span>{role}</span>
             {/* Status Beacon */}
             <div className="flex items-center gap-2">
-              <span className="relative flex size-2">
-                <span
-                  className={cn(
-                    "absolute inline-flex size-full animate-ping rounded-full opacity-75 duration-1000",
-                    currentStatus.ping,
-                  )}
-                />
-                <span
-                  className={cn(
-                    "relative inline-flex size-2 rounded-full",
-                    currentStatus.color,
-                  )}
-                />
-              </span>
+              <span
+                className={cn("size-1.5 rounded-full", currentStatus.color)}
+              />
               <span className="hidden sm:inline">{currentStatus.label}</span>
             </div>
           </div>
@@ -122,7 +108,7 @@ export function MonolithCard({
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-block rounded-full border border-surface-300 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-surface-600 dark:border-surface-700 dark:text-surface-400"
+                  className="inline-block rounded-sm border border-surface-300 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-surface-600 dark:border-surface-700 dark:text-surface-400"
                 >
                   {tag}
                 </span>
