@@ -1,0 +1,183 @@
+---
+title: "Verto"
+description: "AI-powered translation SaaS with enterprise authentication, Stripe billing integration, and real-time collaborative editing."
+date: 2024-11-15
+tags: ["saas", "ai", "translation"]
+tech:
+  [
+    "Next.js 16",
+    "TypeScript",
+    "Supabase",
+    "OpenAI",
+    "Tiptap",
+    "Stripe",
+    "Trigger.dev",
+  ]
+featured: true
+---
+
+## Overview
+
+Verto is a production-grade SaaS platform that revolutionizes professional document translation using AI. The system handles the complete workflow: authentication, payment processing, document uploads, AI-powered translation, and multi-tenant architecture.
+
+> **Key Insight:** Rather than simple text translation, Verto reconstructs entire documents—preserving layouts, tables, images, and formatting—in the target language.
+
+## Architecture
+
+The platform is built on a modern JAMstack architecture with clear separation of concerns:
+
+| Layer               | Technology            | Purpose                                |
+| ------------------- | --------------------- | -------------------------------------- |
+| **Frontend**        | Next.js 16 App Router | Server components, streaming, RSC      |
+| **Auth**            | Supabase Auth         | Email/password, MFA, magic links       |
+| **Database**        | PostgreSQL + RLS      | Multi-tenant data isolation            |
+| **AI Pipeline**     | OpenAI GPT-4o         | Document analysis and translation      |
+| **Background Jobs** | Trigger.dev           | Async document processing              |
+| **Payments**        | Stripe                | Subscriptions and credit-based billing |
+
+---
+
+## Technical Deep Dive
+
+### Authentication System
+
+The auth layer supports multiple strategies with enterprise-grade security:
+
+- **Email/Password** with secure password hashing
+- **Magic Links** for frictionless onboarding
+- **Multi-Factor Authentication** via TOTP
+- **Session Management** with automatic refresh
+
+```typescript
+// Supabase MFA enforcement in middleware
+export async function middleware(request: NextRequest) {
+  const supabase = createMiddlewareClient({ request });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user && user.factors?.length > 0) {
+    const mfaVerified = await checkMFAStatus(user);
+    if (!mfaVerified) {
+      return NextResponse.redirect("/auth/mfa-verify");
+    }
+  }
+}
+```
+
+### Document Processing Pipeline
+
+Documents flow through a sophisticated pipeline:
+
+1. **Upload** — Chunked uploads with progress tracking
+2. **Analysis** — AI extracts structure (headings, paragraphs, tables)
+3. **Translation** — Parallel processing with context preservation
+4. **Reconstruction** — Layout-aware document regeneration
+5. **Delivery** — Secure download with signed URLs
+
+### Real-Time Collaboration
+
+The translation editor uses **Tiptap** with **Yjs** for CRDT-based collaboration:
+
+- Multiple users can edit simultaneously
+- Conflicts resolved automatically
+- Changes sync in real-time across sessions
+- Full revision history with restore capability
+
+---
+
+## Challenges & Solutions
+
+### Challenge: Large Document Processing
+
+**Problem:** Documents over 50 pages caused memory issues and timeouts.
+
+**Solution:** Implemented chunked processing with Trigger.dev's durable execution. Each chunk processes independently with automatic resume-on-failure.
+
+```typescript
+// Trigger.dev job for document processing
+export const processDocumentJob = task({
+  id: "process-document",
+  retry: { maxAttempts: 3 },
+  run: async (payload: { documentId: string }) => {
+    const chunks = await splitDocument(payload.documentId);
+
+    for (const chunk of chunks) {
+      await io.runTask(`translate-chunk-${chunk.id}`, async () => {
+        return translateChunk(chunk);
+      });
+    }
+  },
+});
+```
+
+### Challenge: Multi-Tenant Data Isolation
+
+**Problem:** Ensuring complete data separation between organizations.
+
+**Solution:** PostgreSQL Row-Level Security policies that automatically scope all queries to the authenticated user's organization.
+
+### Challenge: Translation Quality
+
+**Problem:** Maintaining context across document sections.
+
+**Solution:** Custom prompt engineering with sliding context windows and terminology glossary support.
+
+---
+
+## Key Features
+
+### Credit-Based Billing
+
+The platform uses a **prepaid credit system**:
+
+- Users purchase credit packages via Stripe
+- Each document consumes credits based on word count
+- Real-time balance updates
+- Low-balance notifications and auto-top-up
+
+### Admin Dashboard
+
+Comprehensive admin tooling for platform management:
+
+- User lifecycle management (invite, suspend, delete)
+- Usage analytics and reporting
+- Document audit logs
+- System health monitoring
+
+### Internationalization
+
+Full i18n support with:
+
+- 12 supported interface languages
+- RTL layout support (Arabic, Hebrew)
+- Locale-aware date/number formatting
+
+---
+
+## Results & Metrics
+
+The platform demonstrates strong performance at scale:
+
+| Metric                      | Value        |
+| --------------------------- | ------------ |
+| Documents processed monthly | 1,000+       |
+| Average translation time    | < 30 seconds |
+| Platform uptime             | 99.9%        |
+| User satisfaction score     | 4.8/5        |
+
+---
+
+## Lessons Learned
+
+Building Verto taught me several important lessons:
+
+1. **Start with auth done right** — MFA and proper session handling should be day-one priorities, not afterthoughts.
+
+2. **Design for failure** — Background jobs will fail. Durable execution patterns and idempotent operations are essential.
+
+3. **RLS is powerful but tricky** — Row-Level Security provides strong isolation, but requires careful policy design and testing.
+
+4. **AI prompts need iteration** — The difference between good and great translation quality is in the prompt engineering details.
+
+5. **Credits > Subscriptions for usage-based services** — Users prefer paying for what they use rather than monthly caps.
