@@ -545,9 +545,19 @@ export function SwissGridProvider({
   useEffect(() => {
     recalculatePositions();
 
+    // Guard function to prevent recalculations during view transitions
+    const safeRecalculate = () => {
+      if (
+        document.documentElement.classList.contains("view-transition-active")
+      ) {
+        return;
+      }
+      recalculatePositions();
+    };
+
     // Observe container size changes
     const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(recalculatePositions);
+      requestAnimationFrame(safeRecalculate);
     });
 
     if (containerRef.current) {
@@ -563,11 +573,35 @@ export function SwissGridProvider({
     });
 
     // Window resize
-    const handleResize = () => requestAnimationFrame(recalculatePositions);
+    const handleResize = () => requestAnimationFrame(safeRecalculate);
     window.addEventListener("resize", handleResize);
+
+    // Force recalculation when view-transition-active class is removed
+    // This ensures we get correct positions after the animation completes
+    const classObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "class" &&
+          !document.documentElement.classList.contains("view-transition-active")
+        ) {
+          // Small delay to ensure DOM has fully settled
+          setTimeout(() => {
+            recalculatePositions();
+          }, 50);
+          break;
+        }
+      }
+    });
+
+    classObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
 
     return () => {
       resizeObserver.disconnect();
+      classObserver.disconnect();
       window.removeEventListener("resize", handleResize);
     };
   }, [recalculatePositions]);
