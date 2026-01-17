@@ -16,7 +16,7 @@ import {
   SwissGridSection,
 } from "@/src/components/ui/swiss-grid-canvas";
 
-// Static Assets for Gallery
+// Static Assets
 import Asset1 from "@/public/images/placeholders/asset-1.jpg";
 import Asset2 from "@/public/images/placeholders/asset-2.jpg";
 import Asset3 from "@/public/images/placeholders/asset-3.jpg";
@@ -85,7 +85,7 @@ export default function Home() {
                         Yassine Chettouch
                       </h1>
                       <p className="text-body-sm text-surface-500 dark:text-surface-400">
-                        Senior Product Engineer
+                        Product Engineer
                       </p>
                     </div>
                   </div>
@@ -149,42 +149,31 @@ export default function Home() {
             </Reveal>
           </SwissGridSection>
 
-          {/* Hero Section — Rewritten with Specificity */}
+          {/* Hero */}
           <SwissGridSection id="hero" className="w-full">
             <Reveal phase={2} className="w-full">
               <section className="w-full">
                 <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
                   <Reveal phase={2}>
                     <h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
-                      I build SaaS products{" "}
-                      <span className="text-surface-400 dark:text-surface-500">
-                        from zero to revenue.
-                      </span>
+                      I build production systems.
                     </h1>
                   </Reveal>
                   <Reveal phase={2} delay={0.05}>
                     <p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
-                      I've shipped an AI translation platform processing
-                      thousands of documents monthly, and automated onboarding
-                      flows that eliminated hours of manual work. I design
-                      systems that scale and interfaces that feel effortless.
+                      SaaS platforms, data engines, internal tools. I've spent 5
+                      years shipping software that handles real users, real
+                      payments, and real complexity. Here are three systems I
+                      built.
                     </p>
                   </Reveal>
                   <Reveal phase={2} delay={0.1}>
                     <div className="flex flex-wrap items-center gap-3">
                       <Button asChild size="lg" variant="solid" color="primary">
                         <Link href="mailto:hello@yaschet.dev">
-                          Let's talk
+                          Start a conversation
                           <ArrowRight className="size-4" weight="bold" />
                         </Link>
-                      </Button>
-                      <Button
-                        asChild
-                        variant="outlined"
-                        size="lg"
-                        color="primary"
-                      >
-                        <Link href="/projects">View my work</Link>
                       </Button>
                     </div>
                   </Reveal>
@@ -193,41 +182,29 @@ export default function Home() {
             </Reveal>
           </SwissGridSection>
 
-          {/* About Snippet — Voice & Personality */}
-          <SwissGridSection id="about-snippet" className="w-full">
-            <ScrollReveal phase={2} className="w-full">
-              <section className="w-full">
-                <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-                  <ScrollReveal phase={2}>
-                    <blockquote className="border-l-2 border-surface-300 pl-6 text-body-lg italic text-surface-600 dark:border-surface-700 dark:text-surface-400">
-                      "I obsess over the details others skip—the 200ms animation
-                      curve, the edge case in the form flow, the moment a user
-                      almost bounces but doesn't. Good software should feel like
-                      it was designed just for you."
-                    </blockquote>
-                  </ScrollReveal>
-                </div>
-              </section>
-            </ScrollReveal>
-          </SwissGridSection>
-
-          {/* Featured Project — With Story */}
+          {/* Featured: Verto */}
           <SwissGridSection id="featured" className="w-full">
             <ScrollReveal phase={3} className="w-full">
               <section className="w-full">
                 <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
                   <ScrollReveal phase={3}>
                     <p className="mb-6 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
-                      Featured Work
+                      01 · AI Translation Platform
                     </p>
                   </ScrollReveal>
                   <ScrollReveal phase={3} delay={0.05}>
                     <MonolithCard
                       index="01"
-                      title="Protranslate"
-                      description="An AI-powered translation platform I built from scratch. Handles 50+ languages with real-time collaboration, version control, and enterprise security. Thousands of documents processed monthly."
-                      href="/projects/protranslate"
-                      tags={["Next.js", "Supabase", "OpenAI", "Stripe"]}
+                      title="Verto"
+                      description="Enterprise translation platform. Upload a document, AI reconstructs it in another language—preserving layout, tables, and formatting. MFA auth, credit-based billing, real-time processing. I built and own the entire codebase."
+                      href="/projects/verto"
+                      tags={[
+                        "Next.js",
+                        "Supabase",
+                        "OpenAI",
+                        "Stripe",
+                        "Trigger.dev",
+                      ]}
                       images={[Asset1, Asset2, Asset3, Asset4]}
                     />
                   </ScrollReveal>
@@ -236,118 +213,73 @@ export default function Home() {
             </ScrollReveal>
           </SwissGridSection>
 
-          {/* More Projects — With Stories */}
-          <SwissGridSection id="more-projects" className="w-full">
+          {/* Project 2: Data Engine */}
+          <SwissGridSection id="project-2" className="w-full">
             <ScrollReveal phase={3} className="w-full">
               <section className="w-full">
                 <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
                   <ScrollReveal phase={3}>
                     <p className="mb-6 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
-                      More Work
+                      02 · Data Matching Engine
                     </p>
                   </ScrollReveal>
-                  <div className="space-y-8">
-                    <ScrollReveal phase={3} delay={0.05}>
-                      <MonolithCard
-                        index="02"
-                        title="Student Onboarding Portal"
-                        description="Built for a Moroccan agency processing 500+ applications yearly. Features OCR scanning for IDs and passports, auto-fill workflows, and dynamic question logic. Reduced processing time by 60%."
-                        href="/projects/student-portal"
-                        tags={["React", "Node.js", "PostgreSQL", "OCR"]}
-                        images={[Asset5, Asset6, Asset7, Asset8]}
-                        isPrivate
-                      />
-                    </ScrollReveal>
-                    <ScrollReveal phase={3} delay={0.1}>
-                      <MonolithCard
-                        index="03"
-                        title="SaaS Starter Kit"
-                        description="An open-source template for launching production-ready SaaS products. Includes authentication, billing, admin dashboard, and deployment scripts. Used by developers worldwide."
-                        href="/projects/saas-starter"
-                        tags={["Next.js", "Stripe", "Tailwind"]}
-                        images={[Asset9, Asset10, Asset11, Asset12]}
-                      />
-                    </ScrollReveal>
-                  </div>
+                  <ScrollReveal phase={3} delay={0.05}>
+                    <MonolithCard
+                      index="02"
+                      title="Phoenix"
+                      description="Data pipeline that processes thousands of records through AI cleansing, then matches them using Meilisearch + OpenAI embeddings. 10-hour overnight jobs with state persistence and automatic resume-on-failure."
+                      href="/projects/phoenix"
+                      tags={["Laravel", "Meilisearch", "OpenAI", "Redis"]}
+                      images={[Asset5, Asset6, Asset7, Asset8]}
+                      isPrivate
+                    />
+                  </ScrollReveal>
                 </div>
               </section>
             </ScrollReveal>
           </SwissGridSection>
 
-          {/* Process Section — How I Work */}
-          <SwissGridSection id="process" className="w-full">
+          {/* Project 3: Onboard Flow */}
+          <SwissGridSection id="project-3" className="w-full">
             <ScrollReveal phase={3} className="w-full">
               <section className="w-full">
                 <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
                   <ScrollReveal phase={3}>
                     <p className="mb-6 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
-                      How I Work
+                      03 · Customer Onboarding System
                     </p>
                   </ScrollReveal>
-                  <div className="grid gap-8 sm:grid-cols-3">
-                    <ScrollReveal phase={3} delay={0.05}>
-                      <div className="space-y-3">
-                        <span className="font-mono text-xs text-surface-400">
-                          01
-                        </span>
-                        <h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-                          Understand
-                        </h3>
-                        <p className="text-sm text-surface-600 dark:text-surface-400">
-                          I start by understanding your business, users, and
-                          constraints. No code until the problem is crystal
-                          clear.
-                        </p>
-                      </div>
-                    </ScrollReveal>
-                    <ScrollReveal phase={3} delay={0.1}>
-                      <div className="space-y-3">
-                        <span className="font-mono text-xs text-surface-400">
-                          02
-                        </span>
-                        <h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-                          Build
-                        </h3>
-                        <p className="text-sm text-surface-600 dark:text-surface-400">
-                          I ship fast with weekly updates. You see progress, not
-                          promises. Every decision is documented and reversible.
-                        </p>
-                      </div>
-                    </ScrollReveal>
-                    <ScrollReveal phase={3} delay={0.15}>
-                      <div className="space-y-3">
-                        <span className="font-mono text-xs text-surface-400">
-                          03
-                        </span>
-                        <h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-                          Launch
-                        </h3>
-                        <p className="text-sm text-surface-600 dark:text-surface-400">
-                          I don't disappear after launch. I help you iterate
-                          based on real user feedback until the product works
-                          for your business.
-                        </p>
-                      </div>
-                    </ScrollReveal>
-                  </div>
+                  <ScrollReveal phase={3} delay={0.05}>
+                    <MonolithCard
+                      index="03"
+                      title="Onboard Flow"
+                      description="57-screen customer portal with magic link auth, OCR document scanning, and dynamic form logic. Typeform-style UX with enterprise security. Delivered in 6 weeks with full spec documentation."
+                      href="/projects/onboard-flow"
+                      tags={["Next.js", "Laravel", "AWS S3", "JWT"]}
+                      images={[Asset9, Asset10, Asset11, Asset12]}
+                      isPrivate
+                    />
+                  </ScrollReveal>
                 </div>
               </section>
             </ScrollReveal>
           </SwissGridSection>
 
-          {/* Final CTA */}
+          {/* CTA */}
           <SwissGridSection id="cta" className="w-full">
             <ScrollReveal phase={3} className="w-full">
               <section className="w-full">
                 <div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
                   <ScrollReveal phase={3}>
-                    <div className="text-center">
-                      <h2 className="mb-4 text-heading-lg text-surface-900 dark:text-surface-100">
-                        Ready to build something?
-                      </h2>
-                      <p className="mb-8 text-body-md text-surface-600 dark:text-surface-400">
-                        I'm currently available for new projects.
-                      </p>
+                    <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+                          Have a project in mind?
+                        </h2>
+                        <p className="mt-1 text-body-md text-surface-600 dark:text-surface-400">
+                          I'd like to hear about it.
+                        </p>
+                      </div>
                       <Button asChild size="lg" variant="solid" color="primary">
                         <Link href="mailto:hello@yaschet.dev">
                           Get in touch
@@ -366,8 +298,7 @@ export default function Home() {
             <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
               <ScrollReveal phase={3}>
                 <p className="text-body-sm text-surface-400 dark:text-surface-500">
-                  © {new Date().getFullYear()} Yassine Chettouch. All rights
-                  reserved.
+                  © {new Date().getFullYear()} Yassine Chettouch
                 </p>
               </ScrollReveal>
             </div>
