@@ -10,13 +10,13 @@ import { cn } from "@/src/lib/utils";
 
 // Match FloatingNav visual system but with added interactive capabilities
 const badgeClasses = cn(
-	"group relative flex items-center justify-center overflow-hidden",
+	"group relative z-20 flex items-center justify-center overflow-hidden",
 	"px-3 py-1.5 rounded-[var(--radius)]",
 	"border border-surface-200/80 dark:border-surface-800/80",
 	"bg-white/90 dark:bg-surface-950/90 backdrop-blur-xl",
 	"shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
 	"text-xs font-medium text-surface-600 dark:text-surface-400",
-	"cursor-default select-none transition-colors",
+	"cursor-default select-none transition-colors pointer-events-auto",
 	"hover:bg-surface-50 dark:hover:bg-surface-900",
 	"hover:text-surface-900 dark:hover:text-surface-100",
 );
@@ -40,8 +40,8 @@ export function LocationBadge() {
 			animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
 			transition={{ ...springs.responsive, delay: 0.15 }}
 			className={badgeClasses}
-			onMouseEnter={() => setIsHovered(true)}
-			onMouseLeave={() => setIsHovered(false)}
+			onHoverStart={() => setIsHovered(true)}
+			onHoverEnd={() => setIsHovered(false)}
 			layout
 			role="status"
 			aria-label={`Location: ${city}`}
@@ -164,8 +164,8 @@ export function TimeBadge() {
 			animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
 			transition={{ ...springs.responsive, delay: 0.2 }}
 			className={badgeClasses}
-			onMouseEnter={() => setIsHovered(true)}
-			onMouseLeave={() => setIsHovered(false)}
+			onHoverStart={() => setIsHovered(true)}
+			onHoverEnd={() => setIsHovered(false)}
 			layout
 			role="status"
 			aria-label="Current time in Rabat"

@@ -31,7 +31,7 @@ export default function Home() {
           style={{ overflowAnchor: "none" }}
         >
           {/* Nav Row */}
-          <SwissGridSection id="nav" className="relative w-full">
+          <SwissGridSection id="nav" className="relative z-20 w-full">
             <Reveal phase={1} className="w-full">
               <div className="h-[118px] w-full">
                 <div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 sm:px-8">
