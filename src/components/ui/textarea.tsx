@@ -12,8 +12,35 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <textarea
         className={cn(
-          "flex min-h-[120px] w-full border border-surface-200 bg-surface-100 px-5 py-3 text-sm ring-offset-background placeholder:text-surface-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-800 dark:bg-surface-900 dark:focus-visible:ring-primary-400 dark:focus-visible:ring-offset-0 transition-all duration-200",
-          hasError && "border-destructive focus-visible:ring-destructive",
+          // Base structure
+          "flex min-h-[160px] w-full",
+          // Borders - 2px for premium punch
+          "border-2 border-surface-300 dark:border-surface-700",
+          // Backgrounds - white/dark for high contrast
+          "bg-white dark:bg-surface-950",
+          // Typography - monospace, uppercase, wide tracking
+          "font-mono text-xs uppercase tracking-wider",
+          "text-surface-900 dark:text-surface-50",
+          // Placeholder styling
+          "placeholder:font-mono placeholder:text-xs placeholder:uppercase placeholder:tracking-wider",
+          "placeholder:text-surface-500 dark:placeholder:text-surface-400",
+          // Spacing
+          "px-5 py-4",
+          // Shape
+          "rounded-none ring-offset-background",
+          // Transitions
+          "transition-all duration-200 ease-out",
+          // Hover states
+          "hover:border-surface-900 hover:bg-white",
+          "dark:hover:border-surface-100 dark:hover:bg-surface-950",
+          // Focus states - bold, no layout shift
+          "focus-visible:border-surface-900 focus-visible:bg-surface-50 focus-visible:outline-none",
+          "dark:focus-visible:border-surface-100 dark:focus-visible:bg-surface-900",
+          // Disabled state
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          // Error state override
+          hasError &&
+            "border-destructive-500 bg-destructive-50 focus-visible:border-destructive-600 dark:border-destructive-500 dark:bg-destructive-950/50",
           className,
         )}
         ref={ref}

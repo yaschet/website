@@ -1,9 +1,7 @@
 "use client";
 
-import * as React from "react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { zodValidator } from "@tanstack/zod-form-adapter";
 import { toast } from "sonner";
 import { ArrowRight, Spinner } from "@phosphor-icons/react";
 import {
@@ -21,19 +19,21 @@ export function ContactForm() {
     mutationFn: submitContactForm,
     onSuccess: (data: { success: boolean; error?: string }) => {
       if (data.success) {
-        toast.success("Message sent successfully!", {
-          description: "I'll get back to you as soon as possible.",
+        toast.success("Message Transmitted", {
+          description:
+            "Systems confirmed receipt. Awaiting engineering response.",
         });
         form.reset();
       } else {
-        toast.error("Error", {
-          description: data.error || "Failed to send message.",
+        toast.error("Transmission Failed", {
+          description: data.error || "Uplink interrupted. Please retry.",
         });
       }
     },
     onError: () => {
-      toast.error("Error", {
-        description: "An unexpected error occurred. Please try again.",
+      toast.error("System Error", {
+        description:
+          "An unexpected exception occurred in the communication stack.",
       });
     },
   });
@@ -60,17 +60,18 @@ export function ContactForm() {
         e.stopPropagation();
         form.handleSubmit();
       }}
-      className="space-y-8"
+      className="space-y-10"
     >
       <div className="grid gap-8 sm:grid-cols-2">
+        {/* Name Field */}
         <form.Field name="name">
           {(field) => (
-            <div className="space-y-3">
+            <div className="group space-y-2.5">
               <Label
                 htmlFor={field.name}
-                className="text-xs font-semibold uppercase tracking-widest text-surface-400 dark:text-surface-500"
+                className="block text-xs font-bold uppercase tracking-widest text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
               >
-                Full Name
+                Name
               </Label>
               <Input
                 id={field.name}
@@ -79,13 +80,14 @@ export function ContactForm() {
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 placeholder="John Doe"
+                size="lg"
                 hasError={
                   field.state.meta.isTouched && !!field.state.meta.errors.length
                 }
               />
               {field.state.meta.isTouched &&
                 field.state.meta.errors.length > 0 && (
-                  <p className="text-[10px] font-medium uppercase tracking-tight text-destructive">
+                  <p className="!text-[10px] font-medium uppercase tracking-wide text-destructive">
                     {(field.state.meta.errors[0] as any)?.message ||
                       field.state.meta.errors[0]}
                   </p>
@@ -94,14 +96,15 @@ export function ContactForm() {
           )}
         </form.Field>
 
+        {/* Email Field */}
         <form.Field name="email">
           {(field) => (
-            <div className="space-y-3">
+            <div className="group space-y-2.5">
               <Label
                 htmlFor={field.name}
-                className="text-xs font-semibold uppercase tracking-widest text-surface-400 dark:text-surface-500"
+                className="block text-xs font-bold uppercase tracking-widest text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
               >
-                Email Address
+                Email
               </Label>
               <Input
                 id={field.name}
@@ -110,14 +113,15 @@ export function ContactForm() {
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="john@example.com"
+                placeholder="email@domain.com"
+                size="lg"
                 hasError={
                   field.state.meta.isTouched && !!field.state.meta.errors.length
                 }
               />
               {field.state.meta.isTouched &&
                 field.state.meta.errors.length > 0 && (
-                  <p className="text-[10px] font-medium uppercase tracking-tight text-destructive">
+                  <p className="!text-[10px] font-medium uppercase tracking-wide text-destructive">
                     {(field.state.meta.errors[0] as any)?.message ||
                       field.state.meta.errors[0]}
                   </p>
@@ -127,12 +131,13 @@ export function ContactForm() {
         </form.Field>
       </div>
 
+      {/* Subject Field */}
       <form.Field name="subject">
         {(field) => (
-          <div className="space-y-3">
+          <div className="group space-y-2.5">
             <Label
               htmlFor={field.name}
-              className="text-xs font-semibold uppercase tracking-widest text-surface-400 dark:text-surface-500"
+              className="block text-xs font-bold uppercase tracking-widest text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
             >
               Subject
             </Label>
@@ -143,13 +148,14 @@ export function ContactForm() {
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}
               placeholder="Project Inquiry"
+              size="lg"
               hasError={
                 field.state.meta.isTouched && !!field.state.meta.errors.length
               }
             />
             {field.state.meta.isTouched &&
               field.state.meta.errors.length > 0 && (
-                <p className="text-[10px] font-medium uppercase tracking-tight text-destructive">
+                <p className="!text-[10px] font-medium uppercase tracking-wide text-destructive">
                   {(field.state.meta.errors[0] as any)?.message ||
                     field.state.meta.errors[0]}
                 </p>
@@ -158,12 +164,13 @@ export function ContactForm() {
         )}
       </form.Field>
 
+      {/* Message Field */}
       <form.Field name="message">
         {(field) => (
-          <div className="space-y-3">
+          <div className="group space-y-2.5">
             <Label
               htmlFor={field.name}
-              className="text-xs font-semibold uppercase tracking-widest text-surface-400 dark:text-surface-500"
+              className="block text-xs font-bold uppercase tracking-widest text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
             >
               Message
             </Label>
@@ -180,7 +187,7 @@ export function ContactForm() {
             />
             {field.state.meta.isTouched &&
               field.state.meta.errors.length > 0 && (
-                <p className="text-[10px] font-medium uppercase tracking-tight text-destructive">
+                <p className="!text-[10px] font-medium uppercase tracking-wide text-destructive">
                   {(field.state.meta.errors[0] as any)?.message ||
                     field.state.meta.errors[0]}
                 </p>
@@ -197,7 +204,7 @@ export function ContactForm() {
           return (
             <Button
               type="submit"
-              size="lg"
+              size="xl"
               variant="solid"
               color="primary"
               disabled={!canSubmit || isSubmitting || mutation.isPending}
@@ -205,12 +212,12 @@ export function ContactForm() {
             >
               {isSubmitting || mutation.isPending ? (
                 <>
-                  Sending...
+                  TRANSMITTING...
                   <Spinner className="size-4 animate-spin" />
                 </>
               ) : (
                 <>
-                  Send Message
+                  SEND MESSAGE
                   <ArrowRight className="size-4" weight="bold" />
                 </>
               )}
