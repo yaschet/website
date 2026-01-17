@@ -1,3 +1,5 @@
+import Image, { type StaticImageData } from "next/image";
+import { useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Lock } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/src/lib/utils";
@@ -6,7 +8,8 @@ interface MonolithCardProps {
   title: string;
   description: string;
   href: string;
-  image?: string;
+  image?: string | StaticImageData;
+  images?: (string | StaticImageData)[]; // Gallery Mode
   year: string;
   role: string;
   index: string;
@@ -20,6 +23,7 @@ export function MonolithCard({
   description,
   href,
   image,
+  images,
   year,
   role,
   index,
@@ -27,6 +31,8 @@ export function MonolithCard({
   status = "deployed",
   className,
 }: MonolithCardProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   // Status configuration map
   const statusConfig = {
     deployed: {
@@ -45,6 +51,39 @@ export function MonolithCard({
 
   const currentStatus = statusConfig[status];
 
+  // Resolve content sources
+  // If images[] is provided, use it. Otherwise fallback to single image or placeholder.
+  const galleryImages =
+    images && images.length > 0 ? images : image ? [image] : [];
+  const hasGallery = galleryImages.length > 1;
+
+  // Mechanical Scrub Logic
+  function handleMouseMove(e: MouseEvent<HTMLAnchorElement>) {
+    if (!hasGallery) return;
+
+    const { left, width } = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - left;
+
+    // Calculate discrete index based on mouse position
+    // Physics: Direct mapping (1:1 control)
+    const newIndex = Math.floor((x / width) * galleryImages.length);
+
+    // Clamp index
+    const clampedIndex = Math.max(
+      0,
+      Math.min(newIndex, galleryImages.length - 1),
+    );
+
+    if (clampedIndex !== activeIndex) {
+      setActiveIndex(clampedIndex);
+    }
+  }
+
+  function handleMouseLeave() {
+    // "Reset" feels cleaner/Swiss. The tool resets when let go.
+    setActiveIndex(0);
+  }
+
   return (
     <Link
       href={href}
@@ -54,21 +93,61 @@ export function MonolithCard({
         "aspect-[16/10] sm:aspect-[16/9]",
         className,
       )}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     >
-      {/* Background Layer */}
+      {/* Background Layer (Gallery or Single) */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {image ? (
+        {galleryImages.length > 0 ? (
+          // Gallery Strip (Horizontal Slide)
           <div
-            className="size-full bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
-            style={{ backgroundImage: `url(${image})` }}
-          />
+            className="flex h-full transition-transform duration-300 will-change-transform ease-out"
+            style={{
+              width: `${galleryImages.length * 100}%`,
+              transform: `translateX(-${
+                (activeIndex * 100) / galleryImages.length
+              }%)`,
+            }}
+          >
+            {galleryImages.map((src, i) => (
+              <div key={i} className="relative h-full w-full flex-1">
+                <Image
+                  src={src}
+                  alt={`${title} - View ${i + 1}`}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover"
+                  placeholder={typeof src !== "string" ? "blur" : undefined}
+                  quality={90}
+                />
+              </div>
+            ))}
+          </div>
         ) : (
+          // Placeholder Gradient
           <div className="size-full bg-gradient-to-br from-surface-200 to-surface-100 transition-transform duration-700 ease-out group-hover:scale-105 dark:from-surface-800 dark:to-surface-950" />
         )}
 
         {/* Contrast Overlay */}
         <div className="absolute inset-0 bg-surface-950/10 transition-colors duration-500 group-hover:bg-surface-950/20 dark:bg-surface-950/40 dark:group-hover:bg-surface-950/30" />
       </div>
+
+      {/* Swiss Ticks (Pagination Indicators) */}
+      {hasGallery && (
+        <div className="absolute bottom-0 left-0 right-0 z-30 flex gap-1 px-1 pb-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          {galleryImages.map((_, i) => (
+            <div
+              key={i}
+              className={cn(
+                "h-1 flex-1 rounded-full transition-colors duration-300",
+                i === activeIndex
+                  ? "bg-surface-900 dark:bg-surface-100"
+                  : "bg-surface-900/20 dark:bg-surface-100/20",
+              )}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Data Layer */}
       <div className="absolute inset-0 z-10 flex flex-col justify-between p-6 sm:p-8">

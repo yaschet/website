@@ -16,6 +16,20 @@ import {
   SwissGridSection,
 } from "@/src/components/ui/swiss-grid-canvas";
 
+// Static Assets for Gallery (Automatic Blur Generation)
+import Asset1 from "@/public/images/placeholders/asset-1.jpg";
+import Asset2 from "@/public/images/placeholders/asset-2.jpg";
+import Asset3 from "@/public/images/placeholders/asset-3.jpg";
+import Asset4 from "@/public/images/placeholders/asset-4.jpg";
+import Asset5 from "@/public/images/placeholders/asset-5.jpg";
+import Asset6 from "@/public/images/placeholders/asset-6.jpg";
+import Asset7 from "@/public/images/placeholders/asset-7.jpg";
+import Asset8 from "@/public/images/placeholders/asset-8.jpg";
+import Asset9 from "@/public/images/placeholders/asset-9.jpg";
+import Asset10 from "@/public/images/placeholders/asset-10.jpg";
+import Asset11 from "@/public/images/placeholders/asset-11.jpg";
+import Asset12 from "@/public/images/placeholders/asset-12.jpg";
+
 export default function Home() {
   // Fix scroll position on mount
   useEffect(() => {
@@ -207,6 +221,7 @@ export default function Home() {
                       role="Lead Engineer"
                       index="01"
                       tags={["Next.js", "Supabase", "OpenAI", "Stripe"]}
+                      images={[Asset1, Asset2, Asset3, Asset4]}
                     />
                   </ScrollReveal>
                 </div>
@@ -235,6 +250,7 @@ export default function Home() {
                         index="02"
                         tags={["React", "Node.js", "PostgreSQL"]}
                         status="internal"
+                        images={[Asset5, Asset6, Asset7, Asset8]}
                       />
                     </ScrollReveal>
                     <ScrollReveal phase={3} delay={0.1}>
@@ -246,6 +262,7 @@ export default function Home() {
                         role="Open Source"
                         index="03"
                         tags={["Next.js", "Stripe", "Tailwind"]}
+                        images={[Asset9, Asset10, Asset11, Asset12]}
                       />
                     </ScrollReveal>
                   </div>
