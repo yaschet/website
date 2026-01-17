@@ -141,6 +141,7 @@ const SparklesText: React.FC<SparklesTextProps> = ({
 const Sparkle: React.FC<SparkleType> = ({ color, delay, id, scale, x, y }) => {
 	return (
 		<motion.svg
+			aria-hidden="true"
 			key={id}
 			animate={{
 				opacity: [0, 1, 0],

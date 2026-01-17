@@ -1,18 +1,15 @@
 "use client";
 
-import { ArrowRight } from "@phosphor-icons/react";
-import { GithubLogo, LinkedinLogo } from "@phosphor-icons/react";
+import { Avatar, AvatarFallback } from "@components/ui/avatar";
+import { ArrowRight, GithubLogo, LinkedinLogo } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
-
+import avatarImage from "@/public/images/avatar.jpeg";
 import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { HeroGradient } from "@/src/components/ui/hero-gradient";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
-import { Avatar, AvatarFallback } from "@components/ui/avatar";
-
-import avatarImage from "@/public/images/avatar.jpeg";
 
 export default function Home() {
 	// Fix scroll position on mount
@@ -84,6 +81,7 @@ export default function Home() {
 											aria-label="X"
 										>
 											<svg
+												aria-hidden="true"
 												fill="currentColor"
 												viewBox="0 0 24 24"
 												className="size-5"

@@ -3,8 +3,8 @@
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useReveal } from "../providers/reveal-provider";
 import { springs } from "@/src/lib/physics";
+import { useReveal } from "../providers/reveal-provider";
 
 /**
  * @component HeroGradient
@@ -59,7 +59,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 		// Grid-aligned retro CRT settings
 		// DOT_SPACING must be a divisor of GRID_CYCLE (16) to maintain vertical alignment
 		// Options: 1, 2, 4, 8, 16 - using 4px for dense retro CRT effect
-		const GRID_CYCLE = 16; // Swiss Grid cycle
+		const _GRID_CYCLE = 16; // Swiss Grid cycle
 		const DOT_SPACING = 4; // Dense CRT grid (4 dots per grid cycle)
 		const MAX_CONTAINER_WIDTH = 768;
 		const pixelSize = 1.5; // Small dots for authentic CRT feel

@@ -1,7 +1,15 @@
+/**
+ * Button Component
+ *
+ * Interactive element that triggers an action or event from the user.
+ * Supports various styles, sizes, and states, including loading and tooltips.
+ */
+
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { Fragment } from "react";
+import { type ForwardedRef, Fragment, type ReactNode } from "react";
+
 import Spinner from "@/src/components/ui/spinner";
 import {
 	Tooltip,
@@ -11,14 +19,18 @@ import {
 } from "@/src/components/ui/tooltip";
 import { cn } from "@/src/lib/utils";
 
+// ═══════════════════════════════════════════════════════════════════════════
+// VARIANTS
+// ═══════════════════════════════════════════════════════════════════════════
+
 const buttonVariants = cva(
 	[
 		"group relative inline-flex size-auto select-none items-center justify-center gap-2 whitespace-nowrap px-4 py-2 font-bold text-sm",
 		"transition-all duration-200 ease-out",
 		"disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-		"isolate transform-gpu cursor-pointer overflow-visible font-bold",
+		"isolate transform-gpu cursor-pointer overflow-visible",
 		"ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-		// Gradient layer
+		// Subsurface lighting layer
 		"after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-[inherit] after:transition-opacity after:duration-200 after:ease-out after:content-['']",
 	],
 	{
@@ -81,69 +93,57 @@ const buttonVariants = cva(
 				icon: "size-10 p-2",
 			},
 			shape: {
-				rounded: "rounded-xl",
-				pill: "rounded-full",
-				square: "rounded-none",
+				none: "rounded-none",
+				xs: "rounded-[var(--radius-xs)]",
+				sm: "rounded-[var(--radius-sm)]",
+				md: "rounded-[var(--radius-md)]",
+				lg: "rounded-[var(--radius-lg)]",
+				xl: "rounded-[var(--radius-xl)]",
+				full: "rounded-[var(--radius-full)]",
+				default: "rounded-[var(--radius)]",
 			},
 		},
 		defaultVariants: {
 			color: "default",
 			variant: "solid",
 			size: "md",
-			shape: "rounded",
+			shape: "default",
 		},
 	},
 );
 
-export type ButtonProps = {
+// ═══════════════════════════════════════════════════════════════════════════
+// TYPES
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface ButtonProps
+	extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "color">,
+		VariantProps<typeof buttonVariants> {
+	/** Composition slot for high-level UI orchestration (e.g. Next.js Link) */
 	asChild?: boolean;
-	children: React.ReactNode;
-	className?: string;
-	ref?: React.ForwardedRef<HTMLButtonElement>;
-	variant?: "plain" | "outlined" | "soft" | "solid";
-	color?:
-		| "default"
-		| "primary"
-		| "secondary"
-		| "accent"
-		| "success"
-		| "warning"
-		| "info"
-		| "destructive";
-	size?:
-		| "xs"
-		| "sm"
-		| "md"
-		| "lg"
-		| "xl"
-		| "icon"
-		| "icon-xs"
-		| "icon-sm"
-		| "icon-md"
-		| "icon-lg"
-		| "icon-xl";
-	shape?: "rounded" | "pill" | "square" | "rounded-lg" | "rounded-sm";
-	disabled?: boolean;
+	/** Display a Spinner and disable interactions */
 	loading?: boolean;
+	/** Ref to the underlying button element */
+	ref?: ForwardedRef<HTMLButtonElement>;
 
-	// ? - Tooltip Props:
-	// Provider:
+	// Tooltip Integration
+	/** Explicitly show a tooltip on hover */
 	showTooltip?: boolean;
-	tooltipContent?: string;
+	/** Content of the tooltip */
+	tooltipContent?: ReactNode;
+	/** Delay before showing (ms) */
 	tooltipDelayDuration?: number;
-	tooltipSkipDelayDuration?: number;
-
-	// Content:
+	/** Position relative to the button */
 	tooltipSide?: "top" | "right" | "bottom" | "left";
+	/** Offset from the button edge (px) */
 	tooltipSideOffset?: number;
+	/** Alignment with the button axis */
 	tooltipAlign?: "start" | "center" | "end";
-	tooltipAlignOffset?: number;
-	tooltipAvoidCollisions?: boolean;
-	tooltipArrowPadding?: number;
-	tooltipSticky?: "partial" | "always";
-	tooltipHideWhenDetached?: boolean;
-} & React.ButtonHTMLAttributes<HTMLButtonElement> &
-	VariantProps<typeof buttonVariants>;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 	(
@@ -162,16 +162,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 			tooltipContent,
 			showTooltip = !!tooltipContent,
 			tooltipDelayDuration = 700,
-			tooltipSkipDelayDuration = 300,
-
 			tooltipSide = "top",
 			tooltipSideOffset = 8,
 			tooltipAlign = "center",
-			tooltipAlignOffset = 0,
-			tooltipAvoidCollisions = true,
-			tooltipArrowPadding = 4,
-			tooltipSticky = "partial",
-			tooltipHideWhenDetached = false,
 
 			...props
 		},
@@ -179,74 +172,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 	) => {
 		const Comp = asChild ? Slot : "button";
 
-		if (showTooltip && typeof tooltipContent === "string" && tooltipContent.length > 0) {
-			return (
-				<TooltipProvider
-					delayDuration={tooltipDelayDuration}
-					skipDelayDuration={tooltipSkipDelayDuration}
-				>
-					<Tooltip delayDuration={50}>
-						<TooltipTrigger asChild>
-							<Comp
-								ref={ref}
-								className={cn(
-									buttonVariants({ className, color, shape, size, variant }),
-								)}
-								disabled={loading ? true : disabled}
-								title={undefined}
-								type={type}
-								{...props}
-							>
-								{loading ? (
-									<Fragment>
-										<Spinner
-											aria-hidden="true"
-											className={cn(
-												"text-current",
-												(size === "xs" || size?.startsWith("icon-xs")) &&
-													"size-4",
-												(size === "sm" || size?.startsWith("icon-sm")) &&
-													"size-5",
-												(size === "md" || size?.startsWith("icon-md")) &&
-													"size-5",
-												(size === "lg" || size?.startsWith("icon-lg")) &&
-													"size-5",
-												(size === "xl" || size?.startsWith("icon-xl")) &&
-													"size-6",
-											)}
-											focusable="false"
-											size="sm"
-										/>
-										{children}
-									</Fragment>
-								) : (
-									children
-								)}
-							</Comp>
-						</TooltipTrigger>
-						<TooltipContent
-							align={tooltipAlign}
-							alignOffset={tooltipAlignOffset}
-							arrowPadding={tooltipArrowPadding}
-							avoidCollisions={tooltipAvoidCollisions}
-							hideWhenDetached={tooltipHideWhenDetached}
-							side={tooltipSide}
-							sideOffset={tooltipSideOffset}
-							sticky={tooltipSticky}
-						>
-							{tooltipContent}
-						</TooltipContent>
-					</Tooltip>
-				</TooltipProvider>
-			);
+		function getSpinnerSize() {
+			if (size === "xs" || size === "sm") return "xs";
+			if (size === "lg" || size === "xl") return "md";
+			return "sm";
 		}
 
-		return (
+		const content = (
 			<Comp
 				ref={ref}
 				className={cn(buttonVariants({ className, color, shape, size, variant }))}
-				disabled={loading ? true : disabled}
-				title={undefined}
+				disabled={loading || disabled}
 				type={type}
 				{...props}
 			>
@@ -254,9 +190,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 					<Fragment>
 						<Spinner
 							aria-hidden="true"
-							className="size-5 text-current"
+							className="size-[1.25em] text-current"
 							focusable="false"
-							size="sm"
+							size={getSpinnerSize()}
 						/>
 						{children}
 					</Fragment>
@@ -265,6 +201,25 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 				)}
 			</Comp>
 		);
+
+		if (showTooltip && tooltipContent) {
+			return (
+				<TooltipProvider delayDuration={tooltipDelayDuration}>
+					<Tooltip>
+						<TooltipTrigger asChild>{content}</TooltipTrigger>
+						<TooltipContent
+							align={tooltipAlign}
+							side={tooltipSide}
+							sideOffset={tooltipSideOffset}
+						>
+							{tooltipContent}
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+			);
+		}
+
+		return content;
 	},
 );
 

@@ -45,6 +45,7 @@ export default function RootLayout({
 					id="person-schema"
 					type="application/ld+json"
 					strategy="beforeInteractive"
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD schema is trusted static data
 					dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
 				/>
 			</head>

@@ -9,9 +9,8 @@ import {
 	type Variants,
 } from "motion/react";
 import React from "react";
-
+import { blur, distances, springs, stagger } from "@/src/lib/physics";
 import { cn } from "@/src/lib/utils";
-import { springs, stagger, distances, blur } from "@/src/lib/physics";
 
 export type PresetType = "blur" | "fade-in-blur" | "scale" | "fade" | "slide";
 
@@ -129,8 +128,8 @@ const AnimationComponent: React.FC<{
 				s,
 			);
 
-		const trailingPunctuationRegex = /[.,;:!?؟،؛"'“”«»()\[\]{}]+$/u;
-		const punctuationOnlyRegex = /^[.,;:!?؟،؛"'“”«»()\[\]{}]+$/u;
+		const trailingPunctuationRegex = /[.,;:!?؟،؛"'“”«»()[\]{}]+$/u;
+		const punctuationOnlyRegex = /^[.,;:!?؟،؛"'“”«»()[\]{}]+$/u;
 
 		const isLatinText = (s: string) => {
 			const cleaned = s.replace(trailingPunctuationRegex, "").trim();
@@ -141,7 +140,7 @@ const AnimationComponent: React.FC<{
 		const isPunctuation = (s: string) => punctuationOnlyRegex.test(s.trim());
 		const endsWithPunctuation = (s: string) => trailingPunctuationRegex.test(s);
 		const LRM = "\u200E"; // Left-to-Right Mark
-		const RLM = "\u200F"; // Right-to-Left Mark (for completeness)
+		const _RLM = "\u200F"; // Right-to-Left Mark (for completeness)
 		const LRI = "\u2066"; // Introduce isolate for LTR runs inside RTL context
 		const PDI = "\u2069"; // Pop directional isolate
 
@@ -152,7 +151,7 @@ const AnimationComponent: React.FC<{
 					const seg = new Intl.Segmenter(undefined, {
 						granularity: "grapheme",
 					});
-					return Array.from(seg.segment(s), (it: any) => it.segment as string);
+					return Array.from(seg.segment(s), (it) => (it as { segment: string }).segment);
 				}
 			} catch {
 				// Ignore and fall back
@@ -250,6 +249,7 @@ const AnimationComponent: React.FC<{
 									if (/^\s+$/.test(g)) {
 										return (
 											<span
+												// biome-ignore lint/suspicious/noArrayIndexKey: procedural text animation
 												key={`ws-${i}`}
 												aria-hidden="true"
 												className="whitespace-pre"
@@ -366,7 +366,7 @@ export function TextEffectWrapper({
 		);
 	const staggerValue = (isRTL ? rtlStaggerTimes[per] : defaultStaggerTimes[per]) / speedReveal;
 
-	const baseDuration = 0.3 / speedSegment;
+	const _baseDuration = 0.3 / speedSegment;
 
 	const customStagger = hasTransition(variants?.container?.visible ?? {})
 		? (variants?.container?.visible as TargetAndTransition).transition?.staggerChildren

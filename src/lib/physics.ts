@@ -167,15 +167,14 @@ export const stagger = {
 	 * Each subsequent delay is shorter, creating a "cascade" effect
 	 * Good for: Hero text, feature lists, nav items
 	 */
-	phi: (index: number, baseDelay = 0.04): number =>
-		baseDelay * Math.pow(PHI_INVERSE, index * 0.6),
+	phi: (index: number, baseDelay = 0.04): number => baseDelay * PHI_INVERSE ** (index * 0.6),
 
 	/**
 	 * Inverse φ progression (decelerating)
 	 * Each subsequent delay is longer, creating a "settling" effect
 	 * Good for: Loading states, "appearing from afar"
 	 */
-	phiReverse: (index: number, baseDelay = 0.03): number => baseDelay * Math.pow(PHI, index * 0.4),
+	phiReverse: (index: number, baseDelay = 0.03): number => baseDelay * PHI ** (index * 0.4),
 
 	/**
 	 * Linear with φ-derived base

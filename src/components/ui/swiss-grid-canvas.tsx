@@ -21,18 +21,18 @@
  * - GPU-accelerated canvas rendering
  */
 
+import { useReducedMotion, useSpring } from "framer-motion";
 import {
   createContext,
+  type ElementType,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
-  type ReactNode,
-  type ElementType,
 } from "react";
-import { useReducedMotion, useSpring } from "framer-motion";
-import { springs } from "@/src/lib/physics";
 import { useReveal } from "@/src/components/providers/reveal-provider";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -66,8 +66,8 @@ const COLOR_DARK = "rgba(255, 255, 255, 0.12)";
  * Corner reinforcement colors - bold text color to make corners SPECIAL.
  * White on dark mode, black on light mode (matches text color).
  */
-const CORNER_COLOR_LIGHT = "rgba(0, 0, 0, 0.5)"; // Strong black
-const CORNER_COLOR_DARK = "rgba(255, 255, 255, 0.5)"; // Strong white
+const CORNER_COLOR_LIGHT = "rgba(0, 0, 0, 1)"; // Strong black
+const CORNER_COLOR_DARK = "rgba(255, 255, 255, 1)"; // Strong white
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -162,12 +162,15 @@ export function SwissGridProvider({
     restDelta: 0.001,
   });
 
-  const config: GridConfig = {
-    dashSize,
-    gapSize,
-    colorLight: COLOR_LIGHT,
-    colorDark: COLOR_DARK,
-  };
+  const config: GridConfig = useMemo(
+    () => ({
+      dashSize,
+      gapSize,
+      colorLight: COLOR_LIGHT,
+      colorDark: COLOR_DARK,
+    }),
+    [dashSize, gapSize]
+  );
 
   // ─────────────────────────────────────────────────────────────────────────
   // Section Registration
@@ -280,22 +283,21 @@ export function SwissGridProvider({
       const { left: containerLeft, right: containerRight } = containerBounds;
 
       // ─────────────────────────────────────────────────────────────────────
-      // Physics of Paper Sequence:
-      // 1. Construction Scaffold (The Paper Foundation)
-      // 2. Vertical Lead (The Main Rails)
-      // 3. Horizontal Momentum (The Shoot-out with Rebound)
-      // 4. Mechanical Snaps (The Corners bolted down)
+      // Grid Drawing Sequence:
+      // 1. Scaffold (Base layer)
+      // 2. Vertical Rails (Main structure)
+      // 3. Horizontal Lines (Animated entry)
+      // 4. Corner Reinforcements (Intersections)
       // ─────────────────────────────────────────────────────────────────────
 
-      const verticalProgress = progress;
-      // Vertical lead finishes at 70% of global progress to leave headroom for horizontals
+      const _verticalProgress = progress;
       const leadProgress = Math.min(progress / 0.7, 1);
       const currentY = height * leadProgress;
 
       // Get horizontal line Y positions for crosshair alignment
       const horizontalYs = sections.map((s) => s.bottom);
 
-      // PASS 1: Construction Scaffold (Light foundation)
+      // PASS 1: Base Scaffold
       if (progress > 0) {
         ctx.globalAlpha = 0.06;
         drawVerticalRail(
@@ -306,8 +308,8 @@ export function SwissGridProvider({
           config.dashSize,
           horizontalYs,
           dashColor,
-          dashColor, // Scaffold corners are the same color as dashes
-          false // DON'T SKIP for scaffold - we want a continuous foundation
+          dashColor,
+          false
         );
         drawVerticalRail(
           ctx,
@@ -338,7 +340,7 @@ export function SwissGridProvider({
         ctx.globalAlpha = 1;
       }
 
-      // PASS 2: Vertical Rails (Primary ink)
+      // PASS 2: Vertical Rails
       if (currentY > 0) {
         drawVerticalRail(
           ctx,
@@ -348,7 +350,7 @@ export function SwissGridProvider({
           config.dashSize,
           horizontalYs,
           dashColor,
-          "transparent" // No corners in initial passes
+          "transparent"
         );
         drawVerticalRail(
           ctx,
@@ -362,23 +364,20 @@ export function SwissGridProvider({
         );
       }
 
-      // PASS 3: Horizontal Momentum & Kinetic Corners
+      // PASS 3: Horizontal Lines & Corners
       for (const section of sections) {
         const lineY = section.bottom;
         const trigger = (lineY / height) * 0.7;
 
         if (progress >= trigger) {
-          // ─────────────────────────────────────────────────────────────────
-          // UNIFIED LINE SPRING (Heavy Drafting Machine Stop)
-          // ─────────────────────────────────────────────────────────────────
           const lineT = Math.max(0, (progress - trigger) * 4);
           let lineProgress = 0;
 
           if (lineT < 1) {
-            lineProgress = lineT; // Smooth linear lead
+            lineProgress = lineT;
           } else {
-            // Spring Settle at the stop
-            const t = (lineT - 1) * 15; // Animation time scale
+            // Spring Settle
+            const t = (lineT - 1) * 15;
             const lMass = 1.0;
             const lStiff = 180.0;
             const lDamp = 18.0;
@@ -408,12 +407,12 @@ export function SwissGridProvider({
             cornerColor
           );
 
-          // PASS 4: Apple-Level "Physical Stamp" (Organic True Elevation)
+          // PASS 4: Corner Stamps
           const drawPhysicalStamp = (ix: number) => {
             const railX = Math.round(ix);
             const ry = Math.round(lineY);
 
-            // DETERMINISTIC ORGANIC VARIANCE: Stable seed based on coordinates
+            // Deterministic variance based on coordinates
             const cornerSeed = (railX * 13 + ry * 37) % 100;
             const variance = cornerSeed / 100;
 
@@ -442,8 +441,7 @@ export function SwissGridProvider({
               if (!isLanded) {
                 const descentPath = dt / impactT;
                 stampScale = 1.8 - descentPath * 0.5;
-                rotation =
-                  (1 - descentPath) * ((10 + variance * 10) * (Math.PI / 180));
+                rotation = 0; // Rigid piston drop (no tilt)
                 shadowOffset = (1 - descentPath) * 12;
                 shadowAlpha = descentPath * 0.2;
               } else {
@@ -453,9 +451,7 @@ export function SwissGridProvider({
                 const oscillation = Math.cos(omega_d * t);
 
                 stampScale = 1 + envelope * oscillation;
-                rotation =
-                  (envelope / 1.5) *
-                  Math.sin(omega_d * t * (0.6 + variance * 0.2));
+                rotation = 0; // Rigid piston land (no wobble)
                 flashAlpha = decay * 1.0;
                 shadowOffset = 0;
                 shadowAlpha = 0.18;
@@ -508,7 +504,7 @@ export function SwissGridProvider({
 
               if (flashAlpha > 0.05) {
                 ctx.globalCompositeOperation = "lighter";
-                ctx.fillStyle = "rgba(255, 255, 255, " + flashAlpha * 0.5 + ")";
+                ctx.fillStyle = `rgba(255, 255, 255, ${flashAlpha * 0.5})`;
                 ctx.fillRect(
                   -halfThickness,
                   -halfBar,
@@ -611,7 +607,7 @@ export function SwissGridProvider({
     requestAnimationFrame(() => drawRef.current(drawProgress.get()));
 
     return unsubscribe;
-  }, [drawProgress, isVisible]);
+  }, [drawProgress]);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Render
@@ -637,7 +633,6 @@ export function SwissGridProvider({
       <canvas
         ref={canvasRef}
         className="pointer-events-none absolute inset-0 z-50"
-        aria-hidden="true"
       />
 
       {children}
@@ -673,14 +668,14 @@ function drawVerticalRail(
   dashSize: number,
   horizontalYs: number[],
   dashColor: string,
-  cornerColor: string,
+  _cornerColor: string,
   skipCorners = true
 ): void {
   // Round X position FIRST - this is the definitive column for the vertical line
   const railX = Math.round(x);
   const halfDash = Math.floor(dashSize / 2);
   const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
-  const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
+  const _halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 
   // Regular dashes only (bold corners are now exclusively handled by the PASS 4 physical stamp)
   ctx.fillStyle = dashColor;
@@ -739,7 +734,7 @@ function drawHorizontalLine(
   containerLeft: number,
   containerRight: number,
   dashColor: string,
-  cornerColor: string,
+  _cornerColor: string,
   skipCorners = true
 ): void {
   // Round positions FIRST
@@ -748,7 +743,7 @@ function drawHorizontalLine(
   const rightCrosshairX = Math.round(containerRight);
   const halfDash = Math.floor(dashSize / 2);
   const halfCornerDash = Math.floor(CORNER_DASH_SIZE / 2);
-  const halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
+  const _halfCornerThickness = Math.floor(CORNER_THICKNESS / 2);
 
   // Crosshair boundaries for skipping (corners handled by physical stamp pass)
   const leftDashStartX = leftCrosshairX - halfCornerDash;

@@ -1,12 +1,22 @@
+/**
+ * Card Component
+ *
+ * Displays a card with a header, content, and footer.
+ */
+
 import * as React from "react";
 import { cn } from "@/src/lib/utils";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UI PRIMITIVES
+// ═══════════════════════════════════════════════════════════════════════════
 
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ className, ...props }, ref) => (
 		<div
 			ref={ref}
 			className={cn(
-				"flex w-full flex-col rounded-3xl border border-border bg-card text-card-foreground shadow-md",
+				"flex w-full flex-col rounded-[var(--radius)] border border-border bg-card text-card-foreground shadow-sm",
 				className,
 			)}
 			{...props}
@@ -15,6 +25,9 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
 );
 Card.displayName = "Card";
 
+/**
+ * CardHeader - High-level layout grouping within a card.
+ */
 const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ className, ...props }, ref) => (
 		<div ref={ref} className={cn("flex w-full flex-col gap-2 p-6", className)} {...props} />
@@ -22,6 +35,9 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 );
 CardHeader.displayName = "CardHeader";
 
+/**
+ * CardTitle - Semantic heading for card context.
+ */
 const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
 	({ className, ...props }, ref) => (
 		<h3
@@ -33,6 +49,9 @@ const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HT
 );
 CardTitle.displayName = "CardTitle";
 
+/**
+ * CardDescription - Supporting typography for the card title.
+ */
 const CardDescription = React.forwardRef<
 	HTMLParagraphElement,
 	React.HTMLAttributes<HTMLParagraphElement>
@@ -41,6 +60,9 @@ const CardDescription = React.forwardRef<
 ));
 CardDescription.displayName = "CardDescription";
 
+/**
+ * CardContent - The primary data container within a card.
+ */
 const CardContent = React.forwardRef<
 	HTMLDivElement,
 	React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean }
@@ -48,7 +70,7 @@ const CardContent = React.forwardRef<
 	if (asChild) {
 		return React.cloneElement(
 			React.Children.only(children) as React.ReactElement<
-				React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<any> }
+				React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<unknown> }
 			>,
 			{
 				...props,
@@ -63,32 +85,33 @@ const CardContent = React.forwardRef<
 		</div>
 	);
 });
-
 CardContent.displayName = "CardContent";
 
+/**
+ * CardFooter - Actionable or metadata area at the card terminus.
+ */
 const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ className, ...props }, ref) => (
 		<div ref={ref} className={cn("flex w-full items-center p-6 pt-0", className)} {...props} />
 	),
 );
-
 CardFooter.displayName = "CardFooter";
 
+/**
+ * DefaultCard - Integrated container pattern for rapid composition.
+ */
 const DefaultCard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-	// The Default Card has no specific layout, it's just a card with a border and a background, and a flex layout.
-	// It's meant to be used as a container for other components.
 	({ className, ...props }, ref) => (
 		<div
 			ref={ref}
 			className={cn(
-				"w-full rounded-3xl border border-border bg-card p-4 text-card-foreground shadow-md md:p-6",
+				"w-full rounded-[var(--radius)] border border-border bg-card p-4 text-card-foreground shadow-sm md:p-6",
 				className,
 			)}
 			{...props}
 		/>
 	),
 );
-
 DefaultCard.displayName = "DefaultCard";
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, DefaultCard };

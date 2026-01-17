@@ -1,67 +1,66 @@
+/**
+ * Alert Component
+ *
+ * Displays a callout for user attention.
+ */
+
 "use client";
 
 import { XIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { MotionProps } from "framer-motion";
-import { AnimatePresence, motion } from "framer-motion";
-import React from "react";
+import { AnimatePresence, type MotionProps, motion } from "framer-motion";
+import * as React from "react";
+
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
 
+// ═══════════════════════════════════════════════════════════════════════════
+// VARIANTS
+// ═══════════════════════════════════════════════════════════════════════════
+
 const alertVariants = cva(
-	"relative flex w-full flex-row flex-wrap items-start justify-start gap-3 overflow-hidden rounded-xl border p-4 text-sm",
+	"relative flex w-full flex-row flex-wrap items-start justify-start gap-3 overflow-hidden rounded-[var(--radius)] border p-4 text-sm",
 	{
 		defaultVariants: {
 			variant: "default",
 		},
 		variants: {
 			variant: {
-				default: cn(
+				default:
 					"border-surface-200 bg-surface-1 text-foreground dark:border-surface-800 dark:bg-surface-2",
-				),
-				destructive: cn(
-					"border-destructive-200 bg-destructive-50/50 text-destructive-500 dark:border-destructive-800 dark:bg-destructive-950/20 dark:text-destructive-500 [&>div]:text-destructive-500 dark:[&>div]:text-destructive-500 [&>svg]:text-destructive-300 dark:[&>svg]:text-destructive-700",
-				),
-				info: cn(
-					"border-info-200 bg-info-50/50 text-info-500 dark:border-info-800 dark:bg-info-950/20 dark:text-info-500 [&>div]:text-info-500 dark:[&>div]:text-info-500 [&>svg]:text-info-300 dark:[&>svg]:text-info-700",
-				),
-				success: cn(
-					"border-success-200 bg-success-50/50 text-success-500 dark:border-success-800 dark:bg-success-950/20 dark:text-success-500 [&>div]:text-success-500 dark:[&>div]:text-success-500 [&>svg]:text-success-300 dark:[&>svg]:text-success-700",
-				),
-				warning: cn(
-					"border-warning-200 bg-warning-50/50 text-warning-500 dark:border-warning-800 dark:bg-warning-950/20 dark:text-warning-500 [&>div]:text-warning-500 dark:[&>div]:text-warning-500 [&>svg]:text-warning-300 dark:[&>svg]:text-warning-700",
-				),
+				destructive:
+					"border-destructive-200 bg-destructive-50/50 text-destructive-500 dark:border-destructive-800 dark:bg-destructive-950/20 dark:text-destructive-500",
+				info: "border-info-200 bg-info-50/50 text-info-500 dark:border-info-800 dark:bg-info-950/20 dark:text-info-500",
+				success:
+					"border-success-200 bg-success-50/50 text-success-500 dark:border-success-800 dark:bg-success-950/20 dark:text-success-500",
+				warning:
+					"border-warning-200 bg-warning-50/50 text-warning-500 dark:border-warning-800 dark:bg-warning-950/20 dark:text-warning-500",
 			},
 		},
 	},
 );
 
-const Alert = React.forwardRef<
-	HTMLDivElement,
-	React.HTMLAttributes<HTMLDivElement> &
-		VariantProps<typeof alertVariants> & {
-			onClose?: () => void;
-			withCloseButton?: boolean;
-			show?: boolean;
-			children?: React.ReactNode;
-		}
->(
+// ═══════════════════════════════════════════════════════════════════════════
+// TYPES
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface AlertProps
+	extends React.HTMLAttributes<HTMLDivElement>,
+		VariantProps<typeof alertVariants> {
+	onClose?: () => void;
+	withCloseButton?: boolean;
+	show?: boolean;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
 	(
 		{ children, className, onClose, show = true, variant, withCloseButton = true, ...props },
 		ref,
 	) => {
-		// Find the alert icon among the children
-		const alertIcon = React.Children.toArray(children).find(
-			(child) =>
-				React.isValidElement(child) &&
-				(child.type === AlertIcon || (React.isValidElement(child) && child.type === "svg")),
-		);
-
-		// Filter out the alert icon from the children to get the content children
-		const contentChildren = React.Children.toArray(children).filter(
-			(child) => !(React.isValidElement(child) && child.type === AlertIcon),
-		);
-
 		return (
 			<AnimatePresence mode="wait">
 				{show && (
@@ -72,34 +71,26 @@ const Alert = React.forwardRef<
 						exit={{ opacity: 0, scale: 0.95, y: 5 }}
 						initial={{ opacity: 0, scale: 0.95, y: -5 }}
 						role="alert"
-						transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+						transition={{ duration: 0.2, ease: "easeOut" }}
 						{...(props as MotionProps)}
 					>
-						{/* Alert Icon */}
-						{alertIcon && (
-							<div className="mb-4 flex items-center justify-center">{alertIcon}</div>
-						)}
-						{/* Content Container */}
+						{/* Content Pipeline */}
 						<div className="flex flex-1 flex-col items-start justify-start gap-1">
-							{contentChildren.map((contentChild, index) => (
-								<div key={index} className="w-full max-w-full whitespace-pre-wrap">
-									{contentChild}
-								</div>
-							))}
+							{children}
 						</div>
-						{/* Close Icon */}
+
+						{/* Close Action */}
 						{withCloseButton && (
 							<Button
-								className="size-6 rounded-full p-1"
-								color={variant ?? "default"}
+								className="mt-0.5 size-6 p-0"
+								color={variant === "destructive" ? "destructive" : "default"}
 								size="icon"
 								type="button"
 								variant="soft"
-								onClick={() => {
-									onClose?.();
-								}}
+								onClick={onClose}
 							>
-								<XIcon className="size-3" color="currentColor" weight="regular" />
+								<XIcon className="size-3.5" weight="bold" />
+								<span className="sr-only">Dismiss</span>
 							</Button>
 						)}
 					</motion.div>
@@ -108,52 +99,43 @@ const Alert = React.forwardRef<
 		);
 	},
 );
-
-export default Alert;
-
 Alert.displayName = "Alert";
 
-const AlertIcon = React.forwardRef<
-	HTMLDivElement,
-	React.HTMLAttributes<HTMLDivElement> & { children?: React.ReactNode }
->(({ children, className, ...props }, ref) => (
-	<div ref={ref} className={cn("size-5", className)} {...props}>
-		{children}
-	</div>
-));
-
-AlertIcon.displayName = "AlertIcon";
-
+/**
+ * AlertTitle - Primary heading for the alert module.
+ */
 const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
 	({ className, ...props }, ref) => (
 		<h5
 			ref={ref}
-			className={cn(
-				"mb-1 max-w-full whitespace-pre-wrap font-bold text-sm leading-none tracking-tight",
-				"overflow-wrap-anywhere text-pretty break-words",
-				className,
-			)}
+			className={cn("mb-1 font-medium text-base leading-none tracking-tight", className)}
 			{...props}
 		/>
 	),
 );
 AlertTitle.displayName = "AlertTitle";
 
+/**
+ * AlertDescription - Detailed descriptive content for the alert.
+ */
 const AlertDescription = React.forwardRef<
 	HTMLParagraphElement,
 	React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-	<div
-		ref={ref}
-		className={cn(
-			"max-w-full font-medium text-sm opacity-80 [&_p]:leading-relaxed",
-			"overflow-wrap-anywhere text-pretty break-all",
-			className,
-		)}
-		{...props}
-	/>
+	<div ref={ref} className={cn("text-pretty text-sm opacity-90", className)} {...props} />
 ));
-
 AlertDescription.displayName = "AlertDescription";
+
+/**
+ * AlertIcon - Container for semantic iconography.
+ */
+const AlertIcon = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+	({ children, className, ...props }, ref) => (
+		<div ref={ref} className={cn("mt-0.5 size-4 opacity-90", className)} {...props}>
+			{children}
+		</div>
+	),
+);
+AlertIcon.displayName = "AlertIcon";
 
 export { Alert, AlertIcon, AlertTitle, AlertDescription };

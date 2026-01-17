@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 import { type RevealPhase, useReveal } from "@/src/components/providers/reveal-provider";
-import { springs, distances, stagger } from "@/src/lib/physics";
+import { distances, springs, stagger } from "@/src/lib/physics";
 
 /**
  * Reveal Components

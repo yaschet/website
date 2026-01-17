@@ -1,10 +1,21 @@
+/**
+ * Select Component
+ *
+ * Displays a list of options for the user to pick from—triggered by a button.
+ */
+
 "use client";
 
-import { cn } from "@library/utils";
 import { CaretDownIcon, CaretUpDownIcon, CaretUpIcon, CheckIcon } from "@phosphor-icons/react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { cva } from "class-variance-authority";
 import * as React from "react";
+
+import { cn } from "@/src/lib/utils";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONTEXT & TYPES
+// ═══════════════════════════════════════════════════════════════════════════
 
 type SelectSize = "xs" | "sm" | "md" | "lg" | "xl";
 
@@ -12,6 +23,91 @@ const SelectContext = React.createContext<{ size: SelectSize }>({
 	size: "md",
 });
 
+const useSelectSize = () => React.useContext(SelectContext).size;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VARIANTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const selectTriggerVariants = cva(
+	[
+		"flex w-full items-center justify-between whitespace-nowrap bg-surface-100 dark:bg-surface-900",
+		"transitions-all border border-border shadow-none ring-offset-background duration-200 placeholder:text-muted",
+		"hover:bg-surface-200 focus:outline-none focus:ring-2 focus:ring-ring dark:hover:bg-surface-800",
+		"disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+	],
+	{
+		variants: {
+			size: {
+				xs: "h-7 rounded-[var(--radius-xs)] py-1 pr-1.5 pl-2.5 text-xs",
+				sm: "h-8 rounded-[var(--radius-sm)] py-1.5 pr-2 pl-3 text-xs",
+				md: "h-9 rounded-[var(--radius)] py-2 pr-2 pl-4 text-sm",
+				lg: "h-10 rounded-[var(--radius-md)] py-2.5 pr-3 pl-5 text-sm",
+				xl: "h-11 rounded-[var(--radius-lg)] py-3 pr-3 pl-6 text-lg",
+			},
+		},
+		defaultVariants: {
+			size: "md",
+		},
+	},
+);
+
+const selectContentVariants = cva(
+	[
+		"relative z-50 max-h-60 min-w-[8rem] overflow-hidden border border-border bg-surface-2 text-popover-foreground shadow-lg dark:bg-surface-950",
+		"data-[state=closed]:animate-out data-[state=open]:animate-in",
+		"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+		"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+		"data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+	],
+	{
+		variants: {
+			size: {
+				xs: "rounded-[var(--radius-sm)]",
+				sm: "rounded-[var(--radius-md)]",
+				md: "rounded-[var(--radius)]", // Default: 0px
+				lg: "rounded-[var(--radius-xl)]",
+				xl: "rounded-[var(--radius-xl)]",
+			},
+		},
+		defaultVariants: {
+			size: "md",
+		},
+	},
+);
+
+const selectItemVariants = cva(
+	[
+		"relative flex w-full cursor-default select-none flex-row items-center gap-2 outline-none",
+		"transition-colors focus:bg-primary focus:text-primary-foreground",
+		"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+	],
+	{
+		variants: {
+			size: {
+				xs: "rounded-[var(--radius-xs)] px-2.5 py-1 pr-7 text-xs",
+				sm: "rounded-[var(--radius-sm)] px-3 py-1.5 pr-6 text-xs",
+				md: "rounded-[var(--radius)] px-4 py-2 pr-8 text-sm",
+				lg: "rounded-[var(--radius-md)] px-5 py-2.5 pr-9 text-sm",
+				xl: "rounded-[var(--radius-lg)] px-6 py-3 pr-10 text-lg",
+			},
+		},
+		defaultVariants: {
+			size: "md",
+		},
+	},
+);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPORTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const SelectGroup = SelectPrimitive.Group;
+const SelectValue = SelectPrimitive.Value;
+
+/**
+ * Select - Root orchestrator for selection menus.
+ */
 const Select: React.FC<
 	React.ComponentProps<typeof SelectPrimitive.Root> & { size?: SelectSize }
 > = ({ children, size = "md", ...props }) => (
@@ -20,54 +116,34 @@ const Select: React.FC<
 	</SelectContext.Provider>
 );
 
-const SelectGroup = SelectPrimitive.Group;
-
-const SelectValue = SelectPrimitive.Value;
-
-const selectTriggerVariants = cva(
-	"flex w-full items-center justify-between whitespace-nowrap bg-surface-100 shadow-none ring-offset-background placeholder:text-muted hover:bg-surface-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-900 dark:hover:bg-surface-800 [&>span]:line-clamp-1",
-	{
-		variants: {
-			size: {
-				xs: "h-7 rounded-lg py-1 pr-1.5 pl-2.5 text-xs",
-				sm: "h-8 rounded-lg py-1.5 pr-2 pl-3 text-xs",
-				md: "h-9 rounded-xl py-2 pr-2 pl-4 text-sm",
-				lg: "h-10 rounded-xl py-2.5 pr-3 pl-5 text-sm",
-				xl: "h-11 rounded-2xl py-3 pr-3 pl-6 text-lg",
-			},
-		},
-		defaultVariants: {
-			size: "md",
-		},
-	},
-);
-
+/**
+ * SelectTrigger - Interaction target to open the selection menu.
+ */
 const SelectTrigger = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.Trigger>,
 	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & {
-		className?: string;
 		size?: SelectSize;
 	}
->(({ children, className, size, ...props }, ref) => {
-	const { size: contextSize } = React.useContext(SelectContext);
-	const resolvedSize = size || contextSize;
+>(({ children, className, size: propSize, ...props }, ref) => {
+	const contextSize = useSelectSize();
+	const size = propSize || contextSize;
 
 	return (
 		<SelectPrimitive.Trigger
 			ref={ref}
-			className={cn(selectTriggerVariants({ size: resolvedSize }), className)}
+			className={cn(selectTriggerVariants({ size }), className)}
 			{...props}
 		>
 			{children}
 			<SelectPrimitive.Icon asChild>
 				<CaretUpDownIcon
 					className={cn(
-						"opacity-50",
-						resolvedSize === "xs" && "size-3",
-						resolvedSize === "sm" && "size-3.5",
-						(resolvedSize === "md" || !resolvedSize) && "size-4",
-						resolvedSize === "lg" && "size-4",
-						resolvedSize === "xl" && "size-5",
+						"opacity-50 transition-transform duration-200",
+						size === "xs" && "size-3",
+						size === "sm" && "size-3.5",
+						size === "md" && "size-4",
+						size === "lg" && "size-4",
+						size === "xl" && "size-5",
 					)}
 					weight="bold"
 				/>
@@ -75,96 +151,17 @@ const SelectTrigger = React.forwardRef<
 		</SelectPrimitive.Trigger>
 	);
 });
-SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
-const SelectScrollUpButton = React.forwardRef<
-	React.ComponentRef<typeof SelectPrimitive.ScrollUpButton>,
-	React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton> & { className?: string }
->(({ className, ...props }, ref) => (
-	<SelectPrimitive.ScrollUpButton
-		ref={ref}
-		className={cn("flex cursor-default items-center justify-center py-1", className)}
-		{...props}
-	>
-		<CaretUpIcon
-			className={cn(
-				"size-4",
-				"opacity-50",
-				"dark:opacity-50",
-				"dark:hover:opacity-100",
-				"hover:opacity-100",
-			)}
-			weight="duotone"
-		/>
-	</SelectPrimitive.ScrollUpButton>
-));
-
-SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName;
-
-const SelectScrollDownButton = React.forwardRef<
-	React.ComponentRef<typeof SelectPrimitive.ScrollDownButton>,
-	React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton> & { className?: string }
->(({ className, ...props }, ref) => (
-	<SelectPrimitive.ScrollDownButton
-		ref={ref}
-		className={cn("flex cursor-default items-center justify-center py-1", className)}
-		{...props}
-	>
-		<CaretDownIcon
-			className={cn(
-				"size-4",
-				"opacity-50",
-				"dark:opacity-50",
-				"dark:hover:opacity-100",
-				"hover:opacity-100",
-			)}
-			weight="duotone"
-		/>
-	</SelectPrimitive.ScrollDownButton>
-));
-SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayName;
-
-const selectContentVariants = cva(
-	"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-60 overflow-hidden border border-border bg-surface-2 text-popover-foreground shadow-large data-[state=closed]:animate-out data-[state=open]:animate-in",
-	{
-		variants: {
-			size: {
-				xs: "rounded-xl",
-				sm: "rounded-2xl",
-				md: "rounded-3xl",
-				lg: "rounded-[2rem]",
-				xl: "rounded-[2.5rem]",
-			},
-		},
-		defaultVariants: {
-			size: "md",
-		},
-	},
-);
-
-const selectViewportVariants = cva("", {
-	variants: {
-		size: {
-			xs: "p-1.5",
-			sm: "p-2",
-			md: "p-3",
-			lg: "p-4",
-			xl: "p-5",
-		},
-	},
-	defaultVariants: {
-		size: "md",
-	},
-});
-
+/**
+ * SelectContent - The primary menu container.
+ */
 const SelectContent = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.Content>,
 	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> & {
-		className?: string;
 		position?: "popper" | "static";
 	}
 >(({ children, className, position = "popper", ...props }, ref) => {
-	const { size } = React.useContext(SelectContext);
+	const size = useSelectSize();
 
 	return (
 		<SelectPrimitive.Portal>
@@ -172,8 +169,7 @@ const SelectContent = React.forwardRef<
 				ref={ref}
 				className={cn(
 					selectContentVariants({ size }),
-					position === "popper" &&
-						"w-[var(--radix-select-trigger-width)] data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1",
+					position === "popper" && "w-[var(--radix-select-trigger-width)] translate-y-1",
 					className,
 				)}
 				position={position}
@@ -182,7 +178,7 @@ const SelectContent = React.forwardRef<
 				<SelectScrollUpButton />
 				<SelectPrimitive.Viewport
 					className={cn(
-						selectViewportVariants({ size }),
+						"p-1",
 						position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]",
 					)}
 				>
@@ -193,110 +189,93 @@ const SelectContent = React.forwardRef<
 		</SelectPrimitive.Portal>
 	);
 });
-SelectContent.displayName = SelectPrimitive.Content.displayName;
 
-const selectLabelVariants = cva("font-semibold text-muted", {
-	variants: {
-		size: {
-			xs: "px-1.5 py-0.5 text-xs",
-			sm: "px-2 py-1 text-xs",
-			md: "px-2 py-1.5 text-sm",
-			lg: "px-3 py-2 text-base",
-			xl: "px-4 py-2.5 text-lg",
-		},
-	},
-	defaultVariants: {
-		size: "md",
-	},
-});
-
-const SelectLabel = React.forwardRef<
-	React.ComponentRef<typeof SelectPrimitive.Label>,
-	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label> & { className?: string }
->(({ className, ...props }, ref) => {
-	const { size } = React.useContext(SelectContext);
-	return (
-		<SelectPrimitive.Label
-			ref={ref}
-			className={cn(selectLabelVariants({ size }), className)}
-			{...props}
-		/>
-	);
-});
-
-SelectLabel.displayName = SelectPrimitive.Label.displayName;
-
-const selectItemVariants = cva(
-	"relative flex w-full cursor-default select-none flex-row items-center gap-2 outline-none focus:bg-primary focus:font-bold focus:text-primary-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-	{
-		variants: {
-			size: {
-				// Border radius follows nesting: items are 1/2 of content radius
-				xs: "rounded-lg px-2.5 py-1 pr-7 text-xs",
-				sm: "rounded-xl px-3 py-1.5 pr-6 text-xs",
-				md: "rounded-xl px-4 py-2 pr-8 text-sm",
-				lg: "rounded-2xl px-5 py-2.5 pr-9 text-sm",
-				xl: "rounded-[1.25rem] px-6 py-3 pr-10 text-lg",
-			},
-		},
-		defaultVariants: {
-			size: "md",
-		},
-	},
-);
-
+/**
+ * SelectItem - Individual selectable entry in a menu.
+ */
 const SelectItem = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.Item>,
-	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & { className?: string }
+	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
 >(({ children, className, ...props }, ref) => {
-	const { size } = React.useContext(SelectContext);
+	const size = useSelectSize();
 	return (
 		<SelectPrimitive.Item
 			ref={ref}
 			className={cn(selectItemVariants({ size }), className)}
 			{...props}
 		>
-			<span
-				className={cn(
-					"absolute flex items-center justify-center",
-					size === "xs" && "right-1.5 size-3",
-					size === "sm" && "right-2 size-3",
-					(size === "md" || !size) && "right-2 size-3.5",
-					size === "lg" && "right-2.5 size-4",
-					size === "xl" && "right-3 size-4",
-				)}
-			>
+			<SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+			<span className="absolute right-2 flex size-[1em] items-center justify-center">
 				<SelectPrimitive.ItemIndicator>
-					<CheckIcon
-						className={cn(
-							size === "xs" && "size-2.5",
-							size === "sm" && "size-3",
-							(size === "md" || !size) && "size-3.5",
-							size === "lg" && "size-4",
-							size === "xl" && "size-4",
-						)}
-						weight="regular"
-					/>
+					<CheckIcon className="size-full" weight="bold" />
 				</SelectPrimitive.ItemIndicator>
 			</span>
-			<SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
 		</SelectPrimitive.Item>
 	);
 });
-SelectItem.displayName = SelectPrimitive.Item.displayName;
 
-const SelectSeparator = React.forwardRef<
-	React.ComponentRef<typeof SelectPrimitive.Separator>,
-	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator> & { className?: string }
->(({ className, ...props }, ref) => (
-	<SelectPrimitive.Separator
+/**
+ * SelectScrollUpButton - Visual indicator for more items above.
+ */
+const SelectScrollUpButton = React.forwardRef<
+	React.ComponentRef<typeof SelectPrimitive.ScrollUpButton>,
+	React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>
+>((props, ref) => (
+	<SelectPrimitive.ScrollUpButton
 		ref={ref}
-		className={cn("-mx-1 my-1 h-px bg-muted", className)}
+		className="flex cursor-default items-center justify-center py-1 opacity-50 hover:opacity-100"
+		{...props}
+	>
+		<CaretUpIcon className="size-4" weight="bold" />
+	</SelectPrimitive.ScrollUpButton>
+));
+
+/**
+ * SelectScrollDownButton - Visual indicator for more items below.
+ */
+const SelectScrollDownButton = React.forwardRef<
+	React.ComponentRef<typeof SelectPrimitive.ScrollDownButton>,
+	React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton>
+>((props, ref) => (
+	<SelectPrimitive.ScrollDownButton
+		ref={ref}
+		className="flex cursor-default items-center justify-center py-1 opacity-50 hover:opacity-100"
+		{...props}
+	>
+		<CaretDownIcon className="size-4" weight="bold" />
+	</SelectPrimitive.ScrollDownButton>
+));
+
+/**
+ * SelectLabel - Descriptive label for menu sections.
+ */
+const SelectLabel = React.forwardRef<
+	React.ComponentRef<typeof SelectPrimitive.Label>,
+	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
+>(({ className, ...props }, ref) => (
+	<SelectPrimitive.Label
+		ref={ref}
+		className={cn(
+			"px-4 py-2 font-bold text-muted-foreground/60 text-xs uppercase tracking-wider",
+			className,
+		)}
 		{...props}
 	/>
 ));
 
-SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
+/**
+ * SelectSeparator - Horizontal line for menu segmentation.
+ */
+const SelectSeparator = React.forwardRef<
+	React.ComponentRef<typeof SelectPrimitive.Separator>,
+	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
+>(({ className, ...props }, ref) => (
+	<SelectPrimitive.Separator
+		ref={ref}
+		className={cn("-mx-1 my-1 h-px bg-border", className)}
+		{...props}
+	/>
+));
 
 export {
 	Select,
