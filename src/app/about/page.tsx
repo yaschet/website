@@ -223,7 +223,7 @@ export default function AboutPage() {
                         </p>
                       </div>
                       <Button asChild size="lg" variant="solid" color="primary">
-                        <Link href="mailto:hello@yaschet.dev">
+                        <Link href="/contact">
                           Start a conversation
                           <ArrowRight className="size-4" weight="bold" />
                         </Link>

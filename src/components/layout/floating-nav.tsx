@@ -9,6 +9,7 @@
 
 import {
   Briefcase,
+  ChatCenteredText,
   FileText,
   House,
   type Icon,
@@ -42,6 +43,7 @@ const navItems: NavItem[] = [
   { name: "About", link: "/about", icon: User },
   { name: "Work", link: "/projects", icon: Briefcase },
   { name: "Blog", link: "/blog", icon: FileText },
+  { name: "Contact", link: "/contact", icon: ChatCenteredText },
 ];
 
 const BUTTON_SIZE = 40;

@@ -166,7 +166,7 @@ export default function ProjectsPage() {
           {/* CTA */}
           <SwissGridSection id="projects-cta" className="w-full">
             <ScrollReveal phase={3} className="w-full">
-              <section className="w-full border-t border-surface-200 dark:border-surface-800">
+              <section className="w-full">
                 <div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
                   <ScrollReveal phase={3}>
                     <div className="text-center">
@@ -178,7 +178,7 @@ export default function ProjectsPage() {
                         help.
                       </p>
                       <Button asChild size="lg" variant="solid" color="primary">
-                        <Link href="mailto:hello@yaschet.dev">
+                        <Link href="/contact">
                           Get in touch
                           <ArrowRight className="size-4" weight="bold" />
                         </Link>

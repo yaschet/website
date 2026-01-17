@@ -170,7 +170,7 @@ export default function Home() {
                   <Reveal phase={2} delay={0.1}>
                     <div className="flex flex-wrap items-center gap-3">
                       <Button asChild size="lg" variant="solid" color="primary">
-                        <Link href="mailto:hello@yaschet.dev">
+                        <Link href="/contact">
                           Start a conversation
                           <ArrowRight className="size-4" weight="bold" />
                         </Link>
@@ -281,7 +281,7 @@ export default function Home() {
                         </p>
                       </div>
                       <Button asChild size="lg" variant="solid" color="primary">
-                        <Link href="mailto:hello@yaschet.dev">
+                        <Link href="/contact">
                           Get in touch
                           <ArrowRight className="size-4" weight="bold" />
                         </Link>
