@@ -89,6 +89,9 @@ export function FloatingNav() {
    * Adds a guard class to prevent Swiss Grid recalculations during transition.
    */
   const toggleTheme = async () => {
+    // 1. IMPROVED GUARD: Add this IMMEDIATELY to block any Swiss Grid updates
+    document.documentElement.classList.add("view-transition-active");
+
     const newTheme = resolvedTheme === "dark" ? "light" : "dark";
 
     // Temporary classes for background synchronization during transition
@@ -105,12 +108,12 @@ export function FloatingNav() {
       document.documentElement.classList.remove(
         "transition-bg-light",
         "transition-bg-dark",
+        "view-transition-active", // Valid cleanup
       );
       return;
     }
 
-    // Add guard to prevent Swiss Grid recalculations during transition
-    document.documentElement.classList.add("view-transition-active");
+    // (Guard was already added at step 1)
 
     await (
       document as Document & {

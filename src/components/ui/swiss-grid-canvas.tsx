@@ -545,33 +545,21 @@ export function SwissGridProvider({
   useEffect(() => {
     recalculatePositions();
 
-    // Debounce timer for resize events
-    let resizeTimer: NodeJS.Timeout;
-
-    // Guarded and debounced recalculation
-    // 1. Checks for view-transition-active class
-    // 2. Debounces by 150ms to filter out transient layout shifts
+    // Guarded recalculation (Instant - Real Physics)
+    // ONLY checks for view-transition-active class to prevent specific animation shifts.
+    // Otherwise updates INSTANTLY via requestAnimationFrame for responsive Swiss feel.
     const safeRecalculate = () => {
-      clearTimeout(resizeTimer);
-
       if (
         document.documentElement.classList.contains("view-transition-active")
       ) {
         return;
       }
-
-      resizeTimer = setTimeout(() => {
-        if (
-          !document.documentElement.classList.contains("view-transition-active")
-        ) {
-          recalculatePositions();
-        }
-      }, 150);
+      recalculatePositions();
     };
 
     // Observe container size changes
     const resizeObserver = new ResizeObserver(() => {
-      safeRecalculate();
+      requestAnimationFrame(safeRecalculate);
     });
 
     if (containerRef.current) {
@@ -618,7 +606,6 @@ export function SwissGridProvider({
       resizeObserver.disconnect();
       classObserver.disconnect();
       window.removeEventListener("resize", handleResize);
-      clearTimeout(resizeTimer);
     };
   }, [recalculatePositions]);
 
