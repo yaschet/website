@@ -12,37 +12,33 @@ import { cn } from "@/src/lib/utils";
 import { CopyButton } from "@/src/components/ui/copy-button";
 
 interface CodeBlockWrapperProps {
-  children: ReactNode;
-  className?: string;
+	children: ReactNode;
+	className?: string;
 }
 
-export function CodeBlockWrapper({
-  children,
-  className,
-  ...props
-}: CodeBlockWrapperProps) {
-  const preRef = useRef<HTMLPreElement>(null);
+export function CodeBlockWrapper({ children, className, ...props }: CodeBlockWrapperProps) {
+	const preRef = useRef<HTMLPreElement>(null);
 
-  return (
-    <div className="group relative mb-8">
-      <pre
-        ref={preRef}
-        className={cn(
-          "overflow-x-auto border border-border p-4",
-          "bg-background text-foreground",
-          "font-mono text-sm leading-relaxed",
-          "[&>code]:border-none [&>code]:bg-transparent [&>code]:p-0 [&>code]:text-inherit",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </pre>
-      {/* Copy Button - reads text from pre ref */}
-      <CopyButton
-        text={typeof children === "string" ? children : ""}
-        className="absolute right-2 top-2"
-      />
-    </div>
-  );
+	return (
+		<div className="group relative mb-8">
+			<pre
+				ref={preRef}
+				className={cn(
+					"overflow-x-auto border border-border p-4",
+					"bg-background text-foreground",
+					"font-mono text-sm leading-relaxed",
+					"[&>code]:border-none [&>code]:bg-transparent [&>code]:p-0 [&>code]:text-inherit",
+					className,
+				)}
+				{...props}
+			>
+				{children}
+			</pre>
+			{/* Copy Button - reads text from pre ref */}
+			<CopyButton
+				text={typeof children === "string" ? children : ""}
+				className="absolute right-2 top-2"
+			/>
+		</div>
+	);
 }
