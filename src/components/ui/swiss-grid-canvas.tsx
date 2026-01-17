@@ -426,8 +426,7 @@ export function SwissGridProvider({
             const stiffness = 35.0 + variance * 10.0;
             const damping = 10.0 + variance * 4.0;
 
-            const impactThreshold =
-              trigger + (ix / width) * 0.2 + variance * 0.05;
+            const impactThreshold = trigger + variance * 0.02; // Removed X-axis delay. Rows land in parallel. Reduced variance for precision.
             const dt = Math.max(0, (progress - impactThreshold) * 1800);
 
             if (dt > 0) {
