@@ -509,7 +509,7 @@
   --border: var(--surface-200);
   --input: var(--surface-200);
   --ring: var(--primary);
-  --radius: 0px; /* Base Radius: Zero (The Absolute Truth) */
+  --radius: 0px !important; /* Base Radius: Zero (The Absolute Truth) */
 
   /* Chart colors (HSL format for compatibility) */
   --chart-1: 12 76% 61%;
