@@ -24,8 +24,7 @@ export default function Home() {
   return (
     <SwissGridProvider>
       <div className="min-h-screen text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
-        {/* Hero Gradient */}
-        <HeroGradient className="fixed inset-0 z-0 size-full" />
+        {/* Positioned inside profile section now */}
 
         <main
           className="relative z-10 flex min-h-screen flex-col"
@@ -49,8 +48,11 @@ export default function Home() {
           </SwissGridSection>
 
           {/* Profile Section */}
-          <SwissGridSection id="profile" className="w-full">
-            <Reveal phase={1} className="w-full">
+          <SwissGridSection id="profile" className="relative w-full">
+            {/* Hero Gradient — absolute within profile section, scrolls with content */}
+            <HeroGradient className="absolute inset-x-0 top-0 z-0 h-screen" />
+
+            <Reveal phase={1} className="relative z-10 w-full">
               <header className="w-full">
                 <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-8 sm:px-8">
                   <div className="flex items-center gap-4">
