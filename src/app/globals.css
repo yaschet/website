@@ -16,13 +16,6 @@
 @import "@evilmartians/harmony/css/emerald.css";
 
 /**
- * Flag Icons - Premium SVG Country Flags
- * Provides crisp, vector-based flags at any size.
- * @see https://github.com/lipis/flag-icons
- */
-@import "flag-icons/css/flag-icons.min.css";
-
-/**
  * Tailwind CSS v4 - Native OKLCH Support
  *
  * v4 natively handles OKLCH colors and opacity without polyfills.

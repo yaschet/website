@@ -1,28 +1,70 @@
 "use client";
 
-import { Clock, Globe } from "@phosphor-icons/react";
+import { Clock } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
 import { useReveal } from "@/src/components/providers/reveal-provider";
 import { springs } from "@/src/lib/physics";
 import { cn } from "@/src/lib/utils";
 
-// Match FloatingNav visual system but with added interactive capabilities
-const badgeClasses = cn(
-	"group relative z-20 flex items-center justify-center overflow-hidden",
-	"px-3 py-1.5 rounded-[var(--radius)]",
+/**
+ * Context Badges
+ *
+ * Swiss-balanced status indicators:
+ * - Insignia zone: Edge-mounted flag/icon (no padding)
+ * - Content zone: Balanced padding (X = Y)
+ * - Tooltip for secondary info
+ *
+ * @module context-badges
+ */
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONSTANTS - Swiss Grid Mathematics
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Badge height - matches the padding unit for perfect squares */
+const BADGE_HEIGHT = 28; // px
+const INSIGNIA_SIZE = 28; // px - square, fills edge-to-edge
+const CONTENT_PADDING = 8; // px - X = Y for Swiss balance
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SHARED STYLES
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Base badge container - no horizontal padding, that's per-zone */
+const badgeBaseClasses = cn(
+	"group relative z-20 flex items-center",
+	"rounded-[var(--radius)]",
 	"border border-surface-200/80 dark:border-surface-800/80",
 	"bg-white/90 dark:bg-surface-950/90 backdrop-blur-xl",
 	"shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
 	"text-xs font-medium text-surface-600 dark:text-surface-400",
-	"cursor-default select-none transition-colors pointer-events-auto",
-	"hover:bg-surface-50 dark:hover:bg-surface-900",
-	"hover:text-surface-900 dark:hover:text-surface-100",
+	"select-none pointer-events-auto cursor-default",
+);
+
+/** Insignia zone - edge-mounted, no padding, clips flag to bounds */
+const insigniaClasses = cn(
+	"flex items-center justify-center shrink-0 overflow-hidden",
+	"rounded-l-[var(--radius)]",
+	"bg-surface-100/50 dark:bg-surface-800/50",
+);
+
+/** Content zone - balanced padding */
+const contentClasses = cn("flex items-center");
+
+const tooltipClasses = cn(
+	"pointer-events-none absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2 whitespace-nowrap",
+	"px-2 py-1.5 font-bold text-xs",
+	"bg-white dark:bg-surface-900",
+	"text-surface-700 dark:text-surface-300",
+	"border border-surface-200 dark:border-surface-800",
+	"rounded-none shadow-md",
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// LOCATION BADGE: Context & Availability
+// LOCATION BADGE
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function LocationBadge() {
@@ -32,99 +74,49 @@ export function LocationBadge() {
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, scale: 0.9 }}
-			animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-			transition={{ ...springs.responsive, delay: 0.15 }}
-			className={badgeClasses}
-			onHoverStart={() => setIsHovered(true)}
-			onHoverEnd={() => setIsHovered(false)}
+			initial={{ opacity: 0, y: 8 }}
+			animate={isEnabled ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+			transition={springs.responsive}
+			className={badgeBaseClasses}
+			style={{ height: BADGE_HEIGHT }}
+			onMouseEnter={() => setIsHovered(true)}
+			onMouseLeave={() => setIsHovered(false)}
 			role="status"
-			aria-label="Location and Availability"
+			aria-label="Rabat, Morocco - Open to Remote"
 		>
-			<div className="relative flex items-center gap-2">
-				{/* Icon Swap: Flag → Globe */}
-				<div className="relative size-3.5 overflow-hidden rounded-[1px]">
-					<AnimatePresence mode="wait">
-						{isHovered ? (
-							<motion.div
-								key="globe-icon"
-								initial={{ opacity: 0, scale: 0.8 }}
-								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0.8 }}
-								transition={{ duration: 0.15 }}
-								className="absolute inset-0 flex items-center justify-center"
-							>
-								<Globe
-									weight="bold"
-									className="size-full text-surface-900 dark:text-surface-100"
-								/>
-							</motion.div>
-						) : (
-							<motion.div
-								key="flag-icon"
-								initial={{ opacity: 0, scale: 0.8 }}
-								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0.8 }}
-								transition={{ duration: 0.15 }}
-								className="absolute inset-0 flex items-center justify-center"
-							>
-								{/* Moroccan Flag - Premium SVG via flag-icons */}
-								<span
-									className="fi fi-ma size-full"
-									role="img"
-									aria-label="Moroccan flag"
-								/>
-							</motion.div>
-						)}
-					</AnimatePresence>
-				</div>
+			{/* Insignia Zone - Flag bleeds to edge like a banner */}
+			<div
+				className={insigniaClasses}
+				style={{ width: INSIGNIA_SIZE, height: INSIGNIA_SIZE }}
+			>
+				<SquareFlag flag={CountryFlagMA} size={`${INSIGNIA_SIZE}px`} />
+			</div>
 
-				{/* Text Swap - Zero Layout Shift Architecture */}
-				<div className="relative h-4 overflow-hidden">
-					{/* Phantom Element: Reserves space for the widest possible text */}
-					<span
-						className="invisible block whitespace-nowrap font-medium leading-4"
-						aria-hidden="true"
+			{/* Content Zone - Balanced padding */}
+			<div className={contentClasses} style={{ padding: CONTENT_PADDING }}>
+				<span className="leading-none">Rabat, Morocco</span>
+			</div>
+
+			{/* Tooltip */}
+			<AnimatePresence>
+				{isHovered && (
+					<motion.div
+						initial={{ opacity: 0, y: 4, scale: 0.98 }}
+						animate={{ opacity: 1, y: 0, scale: 1 }}
+						exit={{ opacity: 0, y: 4, scale: 0.98 }}
+						transition={{ duration: 0.15, ease: "easeOut" }}
+						className={tooltipClasses}
 					>
 						Open to Remote
-					</span>
-
-					{/* Absolute Overlay: The actual animating content */}
-					<div className="absolute inset-0 flex items-center">
-						<AnimatePresence mode="popLayout" initial={false}>
-							{isHovered ? (
-								<motion.span
-									key="status"
-									initial={{ y: 12, opacity: 0 }}
-									animate={{ y: 0, opacity: 1 }}
-									exit={{ y: -12, opacity: 0 }}
-									transition={springs.snappy}
-									className="block w-full whitespace-nowrap font-medium text-surface-900 dark:text-surface-50 leading-4 text-center"
-								>
-									Open to Remote
-								</motion.span>
-							) : (
-								<motion.span
-									key="city"
-									initial={{ y: -12, opacity: 0 }}
-									animate={{ y: 0, opacity: 1 }}
-									exit={{ y: 12, opacity: 0 }}
-									transition={springs.snappy}
-									className="block w-full whitespace-nowrap leading-4 text-center"
-								>
-									Rabat, Morocco
-								</motion.span>
-							)}
-						</AnimatePresence>
-					</div>
-				</div>
-			</div>
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</motion.div>
 	);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TIME BADGE: Local Time & Timezone Context
+// TIME BADGE
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function TimeBadge() {
@@ -138,7 +130,6 @@ export function TimeBadge() {
 		setMounted(true);
 		const updateTime = () => {
 			const now = new Date();
-			// Time: "14:30"
 			setTime(
 				now.toLocaleTimeString("en-US", {
 					hour: "2-digit",
@@ -148,105 +139,67 @@ export function TimeBadge() {
 				}),
 			);
 		};
-
 		updateTime();
 		const interval = setInterval(updateTime, 1000);
 		return () => clearInterval(interval);
 	}, []);
 
+	// SSR hydration safety
 	if (!mounted) {
 		return (
-			<div className={badgeClasses}>
-				<span className="opacity-0">00:00</span>
+			<div className={badgeBaseClasses} style={{ height: BADGE_HEIGHT }}>
+				<div
+					className={insigniaClasses}
+					style={{ width: INSIGNIA_SIZE, height: INSIGNIA_SIZE }}
+				>
+					<Clock weight="duotone" className="size-4" />
+				</div>
+				<div className={contentClasses} style={{ padding: CONTENT_PADDING }}>
+					<span className="opacity-0 font-mono text-xs tabular-nums">00:00</span>
+				</div>
 			</div>
 		);
 	}
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, scale: 0.9 }}
-			animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-			transition={{ ...springs.responsive, delay: 0.2 }}
-			className={badgeClasses}
-			onHoverStart={() => setIsHovered(true)}
-			onHoverEnd={() => setIsHovered(false)}
+			initial={{ opacity: 0, y: 8 }}
+			animate={isEnabled ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+			transition={{ ...springs.responsive, delay: 0.05 }}
+			className={badgeBaseClasses}
+			style={{ height: BADGE_HEIGHT }}
+			onMouseEnter={() => setIsHovered(true)}
+			onMouseLeave={() => setIsHovered(false)}
 			role="status"
-			aria-label="Local time and timezone"
+			aria-label={`Current time ${time}, Timezone UTC+1`}
 		>
-			<div className="relative flex items-center gap-2">
-				{/* Icon Swap */}
-				<div className="relative size-3.5">
-					<AnimatePresence mode="wait">
-						{isHovered ? (
-							<motion.div
-								key="tz-icon"
-								initial={{ opacity: 0, scale: 0.5, rotateX: -90 }}
-								animate={{ opacity: 1, scale: 1, rotateX: 0 }}
-								exit={{ opacity: 0, scale: 0.5, rotateX: 90 }}
-								transition={{ duration: 0.2 }}
-								className="absolute inset-0"
-							>
-								<Clock
-									weight="bold"
-									className="size-full text-surface-900 dark:text-surface-100"
-								/>
-							</motion.div>
-						) : (
-							<motion.div
-								key="time-icon"
-								initial={{ opacity: 0, scale: 0.5, rotateX: -90 }}
-								animate={{ opacity: 1, scale: 1, rotateX: 0 }}
-								exit={{ opacity: 0, scale: 0.5, rotateX: 90 }}
-								transition={{ duration: 0.2 }}
-								className="absolute inset-0"
-							>
-								<Clock weight="duotone" className="size-full" />
-							</motion.div>
-						)}
-					</AnimatePresence>
-				</div>
-
-				{/* Text Swap - Zero Layout Shift Architecture */}
-				<div className="relative h-4 overflow-hidden">
-					{/* Phantom Element: Reserves space for strict width preservation */}
-					{/* Longest possible time string is "00:00" or "UTC+1" - 5 chars approx */}
-					<span
-						className="invisible block whitespace-nowrap font-mono text-xs tabular-nums leading-4"
-						aria-hidden="true"
-					>
-						00:00
-					</span>
-
-					{/* Absolute Overlay */}
-					<div className="absolute inset-0 flex items-center justify-center">
-						<AnimatePresence mode="popLayout" initial={false}>
-							{isHovered ? (
-								<motion.span
-									key="tz"
-									initial={{ y: 12, opacity: 0 }}
-									animate={{ y: 0, opacity: 1 }}
-									exit={{ y: -12, opacity: 0 }}
-									transition={springs.snappy}
-									className="block w-full whitespace-nowrap font-medium text-surface-900 dark:text-surface-50 leading-4 text-center"
-								>
-									UTC+1
-								</motion.span>
-							) : (
-								<motion.span
-									key="time"
-									initial={{ y: -12, opacity: 0 }}
-									animate={{ y: 0, opacity: 1 }}
-									exit={{ y: 12, opacity: 0 }}
-									transition={springs.snappy}
-									className="block w-full whitespace-nowrap font-mono text-xs tabular-nums leading-4 text-center"
-								>
-									{time}
-								</motion.span>
-							)}
-						</AnimatePresence>
-					</div>
-				</div>
+			{/* Insignia Zone - Icon edge-mounted */}
+			<div
+				className={insigniaClasses}
+				style={{ width: INSIGNIA_SIZE, height: INSIGNIA_SIZE }}
+			>
+				<Clock weight="duotone" className="size-4" />
 			</div>
+
+			{/* Content Zone - Balanced padding */}
+			<div className={contentClasses} style={{ padding: CONTENT_PADDING }}>
+				<span className="font-mono text-xs tabular-nums leading-none">{time}</span>
+			</div>
+
+			{/* Tooltip */}
+			<AnimatePresence>
+				{isHovered && (
+					<motion.div
+						initial={{ opacity: 0, y: 4, scale: 0.98 }}
+						animate={{ opacity: 1, y: 0, scale: 1 }}
+						exit={{ opacity: 0, y: 4, scale: 0.98 }}
+						transition={{ duration: 0.15, ease: "easeOut" }}
+						className={tooltipClasses}
+					>
+						UTC+1
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</motion.div>
 	);
 }
