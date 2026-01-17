@@ -10,6 +10,7 @@ import { Button } from "@/src/components/ui/button";
 import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { HeroGradient } from "@/src/components/ui/hero-gradient";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { MonolithCard } from "@/src/components/ui/monolith-card";
 import {
   SwissGridProvider,
   SwissGridSection,
@@ -198,29 +199,15 @@ export default function Home() {
                     </p>
                   </ScrollReveal>
                   <ScrollReveal phase={3} delay={0.05}>
-                    <Link href="/projects/protranslate" className="group block">
-                      <div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-[var(--radius)] bg-surface-900 ring-1 ring-surface-200 dark:ring-surface-800">
-                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-800 to-surface-900">
-                          <div className="px-6 text-center sm:px-8">
-                            <h2 className="mb-2 text-heading-lg text-white">
-                              Protranslate
-                            </h2>
-                            <p className="mx-auto max-w-sm text-body-sm text-surface-400">
-                              AI-powered document translation SaaS with
-                              real-time collaboration and enterprise-grade
-                              security.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 text-body-sm text-surface-500 transition-colors group-hover:text-surface-900 dark:text-surface-400 dark:group-hover:text-surface-100">
-                        View case study
-                        <ArrowRight
-                          className="size-4 transition-transform group-hover:translate-x-1"
-                          weight="bold"
-                        />
-                      </div>
-                    </Link>
+                    <MonolithCard
+                      title="Protranslate"
+                      description="AI-powered document translation SaaS with real-time collaboration and enterprise-grade security."
+                      href="/projects/protranslate"
+                      year="2024"
+                      role="Lead Engineer"
+                      index="01"
+                      tags={["Next.js", "Supabase", "OpenAI", "Stripe"]}
+                    />
                   </ScrollReveal>
                 </div>
               </section>
@@ -239,47 +226,27 @@ export default function Home() {
                   </ScrollReveal>
                   <div className="space-y-8">
                     <ScrollReveal phase={3} delay={0.05}>
-                      <Link
+                      <MonolithCard
+                        title="Student Onboarding Portal"
+                        description="Enterprise internal tool for streamlining student enrollment, document verification, and compliance tracking."
                         href="/projects/student-portal"
-                        className="group block"
-                      >
-                        <h3 className="mb-1 text-heading-md text-surface-900 transition-colors group-hover:text-surface-600 dark:text-surface-100 dark:group-hover:text-surface-300">
-                          Student Onboarding Portal
-                        </h3>
-                        <p className="mb-2 text-body-sm text-surface-500 dark:text-surface-400">
-                          Enterprise internal tool for streamlining student
-                          enrollment and documentation workflows.
-                        </p>
-                        <div className="flex items-center gap-1 text-body-sm text-surface-400 transition-colors group-hover:text-surface-600 dark:group-hover:text-surface-300">
-                          View project
-                          <ArrowRight
-                            className="size-3 transition-transform group-hover:translate-x-1"
-                            weight="bold"
-                          />
-                        </div>
-                      </Link>
+                        year="2023"
+                        role="Full Stack Dev"
+                        index="02"
+                        tags={["React", "Node.js", "PostgreSQL"]}
+                        status="internal"
+                      />
                     </ScrollReveal>
-
                     <ScrollReveal phase={3} delay={0.1}>
-                      <Link
+                      <MonolithCard
+                        title="SaaS Starter Kit"
+                        description="Production-ready Next.js template with authentication, billing, and admin dashboard."
                         href="/projects/saas-starter"
-                        className="group block"
-                      >
-                        <h3 className="mb-1 text-heading-md text-surface-900 transition-colors group-hover:text-surface-600 dark:text-surface-100 dark:group-hover:text-surface-300">
-                          SaaS Starter Kit
-                        </h3>
-                        <p className="mb-2 text-body-sm text-surface-500 dark:text-surface-400">
-                          Production-ready Next.js template with authentication,
-                          billing, and admin dashboard.
-                        </p>
-                        <div className="flex items-center gap-1 text-body-sm text-surface-400 transition-colors group-hover:text-surface-600 dark:group-hover:text-surface-300">
-                          View project
-                          <ArrowRight
-                            className="size-3 transition-transform group-hover:translate-x-1"
-                            weight="bold"
-                          />
-                        </div>
-                      </Link>
+                        year="2023"
+                        role="Open Source"
+                        index="03"
+                        tags={["Next.js", "Stripe", "Tailwind"]}
+                      />
                     </ScrollReveal>
                   </div>
                 </div>
