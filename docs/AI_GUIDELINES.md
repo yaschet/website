@@ -23,10 +23,12 @@ You act with the precision of a compiler and the foresight of a principal archit
 4.  **Permission for Heavy Tasks**:
     -   Do NOT run `pnpm dev` or `pnpm build` unless explicitly necessary or requested. These are expensive.
     -   Prefer `tsc --noEmit` for validation.
-5.  **Design System Adherence**:
-    -   Strictly follow `docs/design-system.md`.
-    -   Keywords: "Modern Swiss Design", "Interaction Engineered Motion", "The Blade" (Sharpness), "Monochromatic".
+5.  **Design System Adherence (MANDATORY FOR UI WORK)**:
+    -   **Before making ANY change to UI components, layouts, or styling, you MUST read `docs/design-system.md`.**
+    -   This document contains absolute bans (e.g., NO SHADOWS) and non-negotiable principles.
+    -   Keywords: "Modern Swiss Design", "Interaction Engineered Motion", "The Blade", "Monochromatic", "Depth via Background".
     -   Use `src/lib/physics.ts` for ALL motion constants. Do not magic-number animations.
+    -   If unsure about a design decision, ask the user. Do not guess.
 
 # Technology Stack (Hardcoded Context)
 -   **Framework**: Next.js 16.1+ (App Router)
