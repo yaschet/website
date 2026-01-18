@@ -1,13 +1,12 @@
 "use client";
-"use no memo";
 
 import { useState, type MouseEvent } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Clock } from "@phosphor-icons/react";
-import { useMDXComponent } from "next-contentlayer/hooks";
-import type { Project } from "contentlayer/generated";
+import { useMDXComponent } from "next-contentlayer2/hooks";
+import type { Project } from "contentlayer2/generated";
 import { Button } from "@/src/components/ui/button";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import {

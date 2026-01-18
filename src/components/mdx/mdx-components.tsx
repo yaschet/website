@@ -1,4 +1,3 @@
-"use no memo";
 import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "@/src/lib/utils";
 import { Badge } from "@/src/components/ui/badge";
