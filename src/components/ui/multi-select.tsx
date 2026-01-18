@@ -2,7 +2,7 @@
 
 import { Badge } from "@components/ui/badge";
 import { Command, CommandGroup, CommandItem } from "@components/ui/command";
-import { cn } from "@library/utils";
+import { cn } from "@/src/lib/utils";
 import { XIcon } from "@phosphor-icons/react";
 import { Command as CommandPrimitive } from "cmdk";
 import * as React from "react";

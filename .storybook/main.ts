@@ -1,7 +1,12 @@
-import type { StorybookConfig } from "@storybook/react-vite";
-import { mergeConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+import type { StorybookConfig } from "@storybook/nextjs-vite";
 
+/**
+ * Storybook Configuration
+ *
+ * @remarks
+ * Uses `@storybook/nextjs-vite` for native Next.js 16 compatibility.
+ * This framework handles `next/link`, `next/image`, and `next/router` polyfills automatically.
+ */
 const config: StorybookConfig = {
 	stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
 	addons: [
@@ -12,30 +17,12 @@ const config: StorybookConfig = {
 		"storybook-addon-pseudo-states",
 	],
 	framework: {
-		name: "@storybook/react-vite",
+		name: "@storybook/nextjs-vite",
 		options: {},
 	},
 	core: {
 		disableTelemetry: true,
 	},
-	viteFinal: async (viteConfig) =>
-		mergeConfig(viteConfig, {
-			plugins: [tsconfigPaths()],
-			// Polyfill process.env for Next.js components (next/link, next/image)
-			define: {
-				"process.env": JSON.stringify({}),
-				"process.env.NODE_ENV": JSON.stringify("development"),
-			},
-			// Force Vite to re-bundle Next.js with the polyfill applied
-			optimizeDeps: {
-				esbuildOptions: {
-					define: {
-						"process.env": JSON.stringify({}),
-						"process.env.NODE_ENV": JSON.stringify("development"),
-					},
-				},
-			},
-		}),
 };
 
 export default config;

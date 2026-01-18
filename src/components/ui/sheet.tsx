@@ -5,7 +5,7 @@ import { XIcon } from "@phosphor-icons/react";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { cn } from "@/src/library/utils";
+import { cn } from "@/src/lib/utils";
 
 const Sheet = SheetPrimitive.Root;
 

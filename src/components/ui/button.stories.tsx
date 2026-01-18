@@ -1,143 +1,119 @@
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect, userEvent, within } from "storybook/test";
 import { Button } from "./button";
 
 /**
- * ## Button - Swiss Precision Edition
- *
- * A high-performance, precision-engineered button component.
- * Features coordinated physics for hover and tap states,
- * subsurface lighting effects, and integrated Radix UI tooltips.
+ * Primary UI action element with physics-based hover/tap feedback.
  */
 const meta: Meta<typeof Button> = {
-	title: "UI/Button",
+	title: "Primitives/Button",
 	component: Button,
 	tags: ["autodocs"],
+	parameters: {
+		layout: "centered",
+		docs: {
+			description: {
+				component:
+					"A GPU-accelerated button with layered spring animations for scale, Y-translation, and shadow.",
+			},
+		},
+	},
 	argTypes: {
 		variant: {
 			control: "select",
 			options: ["solid", "soft", "outlined", "plain"],
-			description: "The visual style of the button.",
+			description: "Visual weight of the button.",
+			table: { category: "Appearance" },
 		},
 		color: {
 			control: "select",
 			options: ["default", "primary", "accent", "success", "warning", "info", "destructive"],
-			description: "The semantic color scheme.",
+			description: "Semantic color mapping.",
+			table: { category: "Appearance" },
 		},
 		size: {
 			control: "select",
 			options: ["xs", "sm", "md", "lg", "xl", "icon", "icon-sm", "icon-lg"],
-			description: "The physical size of the button.",
+			description: "Physical dimensions.",
+			table: { category: "Dimensions" },
 		},
 		shape: {
 			control: "select",
 			options: ["default", "none", "sm", "md", "lg", "xl", "full"],
-			description: "Override for the border radius.",
+			description: "Border radius override.",
+			table: { category: "Dimensions" },
 		},
 		loading: {
 			control: "boolean",
-			description: "Displays a loading spinner and disables interaction.",
+			description: "Shows spinner and disables interaction.",
+			table: { category: "State" },
+		},
+		disabled: {
+			control: "boolean",
+			table: { category: "State" },
 		},
 		asChild: {
-			table: {
-				disable: true,
-			},
+			table: { disable: true },
+		},
+		tooltipContent: {
+			control: "text",
+			description: "Tooltip text on hover.",
+			table: { category: "Tooltip" },
+		},
+		tooltipSide: {
+			control: "select",
+			options: ["top", "right", "bottom", "left"],
+			table: { category: "Tooltip" },
 		},
 	},
 	args: {
-		children: "Precision Button",
+		children: "Button",
 		variant: "solid",
 		color: "default",
 		size: "md",
 		loading: false,
+		disabled: false,
 	},
 };
 
 export default meta;
-type Story = StoryObj<typeof Button>;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-/**
- * The core brand identity.
- * High contrast, sharp edges (0px radius by default).
- */
-export const SolidPrimary: Story = {
-	args: {
-		variant: "solid",
-		color: "primary",
-		children: "Solid Primary",
-	},
+export const Primary: Story = {
+	args: { variant: "solid", color: "primary", children: "Primary Action" },
 };
 
-/**
- * Accessible accent color for specific UI call-to-actions.
- */
-export const SolidAccent: Story = {
-	args: {
-		variant: "solid",
-		color: "accent",
-		children: "Solid Accent",
-	},
+export const Accent: Story = {
+	args: { variant: "solid", color: "accent", children: "Accent" },
 };
 
-/**
- * Low-emphasis background with subtle text contrast.
- */
 export const Soft: Story = {
-	args: {
-		variant: "soft",
-		color: "default",
-		children: "Soft Button",
-	},
+	args: { variant: "soft", color: "default", children: "Soft" },
 };
 
-/**
- * Architectural refinement using fine-line borders.
- */
 export const Outlined: Story = {
-	args: {
-		variant: "outlined",
-		color: "default",
-		children: "Outlined Button",
-	},
+	args: { variant: "outlined", color: "default", children: "Outlined" },
 };
 
-/**
- * Minimalist ghost button for secondary actions.
- */
 export const Plain: Story = {
-	args: {
-		variant: "plain",
-		color: "default",
-		children: "Plain Button",
-	},
+	args: { variant: "plain", color: "default", children: "Plain" },
 };
 
-/**
- * Integrated Radix UI Tooltip with engineering-grade timing (700ms default).
- */
 export const WithTooltip: Story = {
 	args: {
-		children: "Hover me",
-		tooltipContent: "Precision-timed engineering tooltip",
+		children: "Hover",
+		tooltipContent: "Tooltip content",
 		tooltipSide: "top",
 	},
 };
 
-/**
- * Coordinated spinner transition that maintains button width.
- */
 export const Loading: Story = {
-	args: {
-		loading: true,
-		children: "Saving changes...",
-	},
+	args: { loading: true, children: "Saving..." },
 };
 
-/**
- * Destructive action with immediate visual urgency.
- */
 export const Destructive: Story = {
 	args: {
 		variant: "solid",
@@ -145,64 +121,37 @@ export const Destructive: Story = {
 		children: (
 			<>
 				<TrashIcon size={16} weight="bold" />
-				Delete Content
+				Delete
 			</>
 		),
 	},
 };
 
-/**
- * Icon-only variants for compact UI real estate.
- */
-export const Icon: Story = {
+export const IconOnly: Story = {
 	args: {
 		variant: "outlined",
 		size: "icon",
 		children: <PlusIcon size={20} weight="bold" />,
-		tooltipContent: "Add New Item",
+		tooltipContent: "Add item",
 	},
 };
 
-/**
- * Forced pseudo-states for documentation purposes.
- * Enabled via `storybook-addon-pseudo-states`.
- */
 export const HoverState: Story = {
-	args: {
-		...SolidPrimary.args,
-		children: "Forced Hover",
-	},
-	parameters: {
-		pseudo: { hover: true },
-	},
+	args: { ...Primary.args, children: "Hover" },
+	parameters: { pseudo: { hover: true } },
 };
 
 export const ActiveState: Story = {
-	args: {
-		...SolidPrimary.args,
-		children: "Forced Active",
-	},
-	parameters: {
-		pseudo: { active: true },
-	},
+	args: { ...Primary.args, children: "Active" },
+	parameters: { pseudo: { active: true } },
 };
 
-/**
- * 2026 Standard: Interaction Testing
- * Using the 'play' function to simulate user behavior.
- */
-import { expect, userEvent, within } from "storybook/test";
-
 export const InteractionTest: Story = {
-	args: {
-		...SolidPrimary.args,
-		children: "Click Test",
-	},
+	args: { ...Primary.args, children: "Click" },
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		const button = canvas.getByRole("button");
 		await userEvent.click(button);
-		// In a real test, you'd assert on some outcome
 		await expect(button).toBeInTheDocument();
 	},
 };

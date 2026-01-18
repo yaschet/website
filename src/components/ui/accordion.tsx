@@ -1,9 +1,26 @@
-"use client";
-
+/**
+ * Vertically stacked interactive headings that each reveal a section of content.
+ *
+ * @remarks
+ * Built on Radix UI's Accordion primitive. Engineered for accessibility
+ * and geometric precision. Supports single or multiple open items.
+ *
+ * @example
+ * ```tsx
+ * <Accordion type="single" collapsible>
+ *   <AccordionItem value="item-1">
+ *     <AccordionTrigger>Is it accessible?</AccordionTrigger>
+ *     <AccordionContent>Yes, it adheres to the WAI-ARIA design pattern.</AccordionContent>
+ *   </AccordionItem>
+ * </Accordion>
+ * ```
+ *
+ * @public
+ */
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import * as React from "react";
-import { cn } from "@/library/utils";
+import { cn } from "@/src/lib/index";
 
 const Accordion = AccordionPrimitive.Root;
 

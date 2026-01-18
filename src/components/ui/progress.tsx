@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@library/utils";
+import { cn } from "@/src/lib/utils";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
 import { cva } from "class-variance-authority";
 import * as React from "react";

@@ -1,8 +1,20 @@
 /**
- * FloatingNav Component
+ * Fixed-position navigation dock with animated active indicator.
  *
- * A responsive navigation bar that floats above content.
- * Features a sliding active indicator and smooth theme transitions.
+ * @remarks
+ * A glassmorphic navigation bar that floats above page content. Features:
+ * - Sliding pill indicator that tracks the active route
+ * - GPU-accelerated spring animations via Framer Motion
+ * - Theme toggle with View Transitions API support
+ * - Keyboard navigation with focus management
+ *
+ * @example
+ * ```tsx
+ * // Typically placed in root layout
+ * <FloatingNav />
+ * ```
+ *
+ * @public
  */
 
 "use client";

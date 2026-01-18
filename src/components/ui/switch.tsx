@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@library/utils";
+import { cn } from "@/src/lib/utils";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 import { cva, type VariantProps } from "class-variance-authority";
 import { motion } from "motion/react";

@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@library/utils";
+import { cn } from "@/src/lib/utils";
 import * as TogglePrimitive from "@radix-ui/react-toggle";
 import { cva, type VariantProps } from "class-variance-authority";
 import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";

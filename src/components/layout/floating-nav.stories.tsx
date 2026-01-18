@@ -1,27 +1,28 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { FloatingNav } from "./floating-nav";
 
 /**
- * ## FloatingNav
- *
- * The primary interaction dock.
- * Features:
- * - **Sliding Indicator**: Mechanical "slot" that follows hover and active state.
- * - **The Gravity Shutter**: Top-down theme transition.
- * - **Responsive Adaptation**: Handles viewport constraints with balanced padding.
+ * Fixed-position navigation dock with animated active indicator.
  */
 const meta: Meta<typeof FloatingNav> = {
 	title: "Layout/FloatingNav",
 	component: FloatingNav,
+	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",
+		docs: {
+			description: {
+				component:
+					"A glassmorphic navigation bar that floats above page content with GPU-accelerated spring animations and theme toggle support.",
+			},
+		},
 		nextjs: {
 			appDirectory: true,
 		},
 	},
 	decorators: [
 		(Story) => (
-			<div className="h-screen w-full bg-surface-50 p-20 dark:bg-surface-950">
+			<div className="flex h-screen w-full items-end justify-center bg-surface-50 p-20 dark:bg-surface-950">
 				<Story />
 			</div>
 		),
@@ -29,6 +30,6 @@ const meta: Meta<typeof FloatingNav> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof FloatingNav>;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};

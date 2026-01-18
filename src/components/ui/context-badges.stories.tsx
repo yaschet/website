@@ -1,41 +1,49 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { LocationBadge, TimeBadge } from "./context-badges";
-import React from "react";
 
 /**
- * ## Context Badges
- *
- * Premium, state-aware badges used in the header and navigation.
- * Featuring:
- * - **Insignia zone**: Edge-mounted flag/icon (no padding)
- * - **Content zone**: Balanced padding (X = Y)
- * - **Reveal integration**: Coordinated entrance phases
+ * Premium, state-aware badges for header and navigation context.
  */
 const meta: Meta = {
-  title: "UI/ContextBadges",
-  parameters: {
-    layout: "centered",
-  },
+	title: "Components/ContextBadges",
+	tags: ["autodocs"],
+	parameters: {
+		layout: "centered",
+		docs: {
+			description: {
+				component:
+					"Geometric badges with edge-mounted insignia and Swiss-balanced content zones. Integrated with the Reveal orchestration system.",
+			},
+		},
+	},
 };
 
 export default meta;
 
-export const Location: StoryObj = {
-  render: () => <LocationBadge />,
-};
+type Story = StoryObj;
 
-export const Time: StoryObj = {
-  render: () => <TimeBadge />,
+/**
+ * High-fidelity location indicator with edge-mounted flag insignia.
+ */
+export const Location: Story = {
+	render: () => <LocationBadge />,
 };
 
 /**
- * Demonstrates the Swiss-balanced alignment when multiple badges are used together.
+ * Precision time indicator with dynamic GMT calculation.
  */
-export const Group: StoryObj = {
-  render: () => (
-    <div className="flex items-center gap-3">
-      <LocationBadge />
-      <TimeBadge />
-    </div>
-  ),
+export const Time: Story = {
+	render: () => <TimeBadge />,
+};
+
+/**
+ * Demonstrates the architectural alignment when multiple badges are clustered.
+ */
+export const Group: Story = {
+	render: () => (
+		<div className="flex items-center gap-3">
+			<LocationBadge />
+			<TimeBadge />
+		</div>
+	),
 };

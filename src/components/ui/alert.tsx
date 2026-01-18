@@ -1,7 +1,20 @@
 /**
- * Alert Component
+ * Contextual callout message for user attention and status updates.
  *
- * Displays a callout for user attention.
+ * @remarks
+ * Features orchestrated entrance/exit animations via Framer Motion.
+ * Supports 5 semantic levels: default, destructive, info, success, warning.
+ *
+ * @example
+ * ```tsx
+ * <Alert variant="destructive">
+ *   <AlertIcon><WarningCircle /></AlertIcon>
+ *   <AlertTitle>Critical Error</AlertTitle>
+ *   <AlertDescription>Your session has expired.</AlertDescription>
+ * </Alert>
+ * ```
+ *
+ * @public
  */
 
 "use client";

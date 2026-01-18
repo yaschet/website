@@ -1,7 +1,18 @@
 /**
- * Badge Component
+ * Semantic status indicator for categorization and labeling.
  *
- * Displays a small status label or category indicator.
+ * @remarks
+ * A compact inline element for displaying tags, statuses, or metadata.
+ * Supports 4 visual variants (solid, soft, outlined, plain) and 7 semantic colors.
+ * All styles are GPU-accelerated and respect the design system radius tokens.
+ *
+ * @example
+ * ```tsx
+ * <Badge variant="solid" color="success">Active</Badge>
+ * <Badge variant="outlined" color="warning" size="sm">Pending</Badge>
+ * ```
+ *
+ * @public
  */
 
 import { cva, type VariantProps } from "class-variance-authority";
@@ -156,8 +167,12 @@ export interface BadgeProps
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Badge - Core UI primitive for status tags and labels.
- * Aligns with the "Architecture of the Blade" geometric standard.
+ * Badge component implementing the design system's label primitive.
+ *
+ * @param props - Badge configuration including variant, color, size, and shape.
+ * @returns A styled span element with the appropriate visual treatment.
+ *
+ * @public
  */
 function Badge({ className, color, disabled, size, variant, shape, ...props }: BadgeProps) {
 	return (
