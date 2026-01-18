@@ -15,8 +15,6 @@
 			"!**/build",
 			"!**/public",
 			"!**/next-env.d.ts",
-			"!**/*.stories.*",
-			"!**/src/components/stories",
 			"!**/src/app/globals.css"
 		]
 	},
