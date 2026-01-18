@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Project } from "contentlayer2/generated";
 import { ProjectCard } from "./project-card";
 
 /**
@@ -55,7 +56,7 @@ const mockProject = {
 
 export const Featured: Story = {
 	args: {
-		project: mockProject as any,
+		project: mockProject as unknown as Project,
 	},
 };
 
@@ -66,6 +67,6 @@ export const Standard: Story = {
 			featured: false,
 			title: "Swiss Grid System",
 			tech: ["Canvas API", "Physics", "React"],
-		} as any,
+		} as unknown as Project,
 	},
 };

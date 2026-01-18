@@ -1,10 +1,10 @@
 "use client";
 
-import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
-import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
+import { ContactForm } from "@/src/components/forms/contact-form";
 import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { HeroGradient } from "@/src/components/ui/hero-gradient";
-import { ContactForm } from "@/src/components/forms/contact-form";
+import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
 export default function ContactPage() {
 	return (
@@ -35,7 +35,7 @@ export default function ContactPage() {
 						<Reveal phase={1} className="relative z-10 w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-8 sm:px-8">
-									<p className="mb-2 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+									<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 										Contact
 									</p>
 									<h1 className="text-heading-xl text-surface-900 dark:text-surface-100">

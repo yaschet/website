@@ -1,8 +1,8 @@
 "use server";
 
 import { Resend } from "resend";
-import { contactSchema, type ContactFormValues } from "@/src/lib/schemas/contact";
 import { env } from "@/src/env";
+import { type ContactFormValues, contactSchema } from "@/src/lib/schemas/contact";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -40,7 +40,7 @@ export async function submitContactForm(values: ContactFormValues) {
 			success: true,
 			data: data,
 		};
-	} catch (err) {
+	} catch (_err) {
 		return {
 			success: false,
 			error: "An unexpected error occurred.",

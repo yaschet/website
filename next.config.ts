@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 import { withContentlayer } from "next-contentlayer2";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: false,
+	/* config options here */
+	reactCompiler: false,
 };
 
 export default withContentlayer(nextConfig);

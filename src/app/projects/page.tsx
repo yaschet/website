@@ -1,12 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react";
-import { Button } from "@/src/components/ui/button";
-import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
-import { MonolithCard } from "@/src/components/ui/monolith-card";
-import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
-
+import Link from "next/link";
 // Static Assets
 import Asset1 from "@/public/images/placeholders/asset-1.jpg";
 import Asset2 from "@/public/images/placeholders/asset-2.jpg";
@@ -20,6 +15,10 @@ import Asset9 from "@/public/images/placeholders/asset-9.jpg";
 import Asset10 from "@/public/images/placeholders/asset-10.jpg";
 import Asset11 from "@/public/images/placeholders/asset-11.jpg";
 import Asset12 from "@/public/images/placeholders/asset-12.jpg";
+import { Button } from "@/src/components/ui/button";
+import { MonolithCard } from "@/src/components/ui/monolith-card";
+import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
 export default function ProjectsPage() {
 	return (
@@ -31,7 +30,7 @@ export default function ProjectsPage() {
 						<Reveal phase={1} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 sm:px-8">
-									<p className="mb-2 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+									<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 										Work
 									</p>
 									<h1 className="mb-4 text-heading-xl text-surface-900 dark:text-surface-100">

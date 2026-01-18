@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react";
+import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
 import { Reveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
@@ -14,7 +14,7 @@ export default function BlogPage() {
 					<SwissGridSection id="blog-coming-soon" className="w-full">
 						<Reveal phase={1} className="w-full">
 							<section className="mx-auto max-w-xl text-center">
-								<p className="mb-4 font-mono text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+								<p className="mb-4 font-mono text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 									Coming Soon
 								</p>
 								<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">

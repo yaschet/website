@@ -101,7 +101,7 @@ export function MonolithCard({
 						>
 							{galleryImages.map((src, i) => (
 								<div
-									key={`${index}-image-${i}`}
+									key={`${title}-img-${typeof src === "string" ? src : src.src}`}
 									className="relative h-full w-full flex-1"
 								>
 									<Image
@@ -120,9 +120,9 @@ export function MonolithCard({
 						{/* Gallery Indicators */}
 						{hasGallery && (
 							<div className="absolute inset-x-0 bottom-0 flex gap-0.5 p-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-								{galleryImages.map((_, i) => (
+								{galleryImages.map((src, i) => (
 									<div
-										key={`tick-${index}-${i}`}
+										key={`${title}-ind-${typeof src === "string" ? src : src.src}`}
 										className={cn(
 											"h-0.5 flex-1 transition-colors duration-200",
 											i === activeIndex

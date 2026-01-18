@@ -6,13 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import avatarImage from "@/public/images/avatar.jpeg";
-import { Button } from "@/src/components/ui/button";
-import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
-import { HeroGradient } from "@/src/components/ui/hero-gradient";
-import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
-import { MonolithCard } from "@/src/components/ui/monolith-card";
-import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
-
 // Static Assets
 import Asset1 from "@/public/images/placeholders/asset-1.jpg";
 import Asset2 from "@/public/images/placeholders/asset-2.jpg";
@@ -26,6 +19,12 @@ import Asset9 from "@/public/images/placeholders/asset-9.jpg";
 import Asset10 from "@/public/images/placeholders/asset-10.jpg";
 import Asset11 from "@/public/images/placeholders/asset-11.jpg";
 import Asset12 from "@/public/images/placeholders/asset-12.jpg";
+import { Button } from "@/src/components/ui/button";
+import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
+import { HeroGradient } from "@/src/components/ui/hero-gradient";
+import { MonolithCard } from "@/src/components/ui/monolith-card";
+import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
 export default function Home() {
 	useEffect(() => {
@@ -190,7 +189,7 @@ export default function Home() {
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
 									<ScrollReveal phase={3}>
-										<p className="mb-6 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+										<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 											01 · AI Translation Platform
 										</p>
 									</ScrollReveal>
@@ -221,7 +220,7 @@ export default function Home() {
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
 									<ScrollReveal phase={3}>
-										<p className="mb-6 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+										<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 											02 · Data Matching Engine
 										</p>
 									</ScrollReveal>
@@ -247,7 +246,7 @@ export default function Home() {
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
 									<ScrollReveal phase={3}>
-										<p className="mb-6 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+										<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 											03 · Customer Onboarding System
 										</p>
 									</ScrollReveal>

@@ -1,9 +1,9 @@
 "use client";
 
 import { Avatar, AvatarFallback } from "@components/ui/avatar";
+import { ArrowRight } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "@phosphor-icons/react";
 import avatarImage from "@/public/images/avatar.jpeg";
 import { Button } from "@/src/components/ui/button";
 import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
@@ -55,7 +55,7 @@ export default function AboutPage() {
 											</AvatarFallback>
 										</Avatar>
 										<div>
-											<p className="mb-2 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+											<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 												About
 											</p>
 											<h1 className="text-heading-xl text-surface-900 dark:text-surface-100">
@@ -77,7 +77,7 @@ export default function AboutPage() {
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<ScrollReveal phase={2}>
-										<p className="mb-8 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 											01 · Introduction
 										</p>
 									</ScrollReveal>
@@ -118,7 +118,7 @@ export default function AboutPage() {
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<ScrollReveal phase={2}>
-										<p className="mb-8 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 											02 · What I Build
 										</p>
 									</ScrollReveal>
@@ -182,7 +182,7 @@ export default function AboutPage() {
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<ScrollReveal phase={2}>
-										<p className="mb-8 font-medium text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 											03 · How I Work
 										</p>
 									</ScrollReveal>
