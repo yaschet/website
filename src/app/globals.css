@@ -1422,7 +1422,7 @@
     user-select: none;
   }
 
-  /*!* ? - Custom Scrollbar: *!*/
+  /* Custom Scrollbar */
   /*::-webkit-scrollbar {*/
   /*    width: 10px;*/
   /*    height: 10px;*/
@@ -1558,8 +1558,11 @@
 }
 
 @layer components {
-  .table-spacing {
-    border-spacing: 0.75rem; /* spacing.3 = 12px = 0.75rem */
+  .code-block-pre > code {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    color: inherit !important;
   }
 }
 
@@ -1679,7 +1682,7 @@ button path {
   /* Center-aligned: 768px / 16px = 48 cycles = perfect alignment at edges */
   background: repeating-linear-gradient(
     to right,
-    oklch(0 0 0 / 0.1) 0px 8px,
+    rgba(0, 0, 0, 0.1) 0px 8px,
     transparent 8px 16px
   );
   background-position: center;
@@ -1690,7 +1693,7 @@ button path {
 :is(.dark, [data-theme="dark"]) .border-dash-b::after {
   background: repeating-linear-gradient(
     to right,
-    oklch(1 0 0 / 0.1) 0px 8px,
+    rgba(255, 255, 255, 0.1) 0px 8px,
     transparent 8px 16px
   );
   background-position: center;
@@ -1706,7 +1709,7 @@ button path {
   width: 1px;
   background: repeating-linear-gradient(
     to bottom,
-    oklch(0 0 0 / 0.1) 0px 8px,
+    rgba(0, 0, 0, 0.1) 0px 8px,
     transparent 8px 16px
   );
   pointer-events: none;
@@ -1733,25 +1736,26 @@ button path {
 /**
  * MDX Code Block Dual Theme Support
  * Handles switching between --shiki-light and --shiki-dark variables
+ * Using safer selectors to avoid cssnano-simple parsing issues
  */
-code[data-theme*=" "],
-code[data-theme*=" "] span {
+code[data-theme],
+code[data-theme] span {
   color: var(--shiki-light);
   background-color: var(--shiki-light-bg);
 }
 
-.dark code[data-theme*=" "],
-.dark code[data-theme*=" "] span {
+.dark code[data-theme],
+.dark code[data-theme] span {
   color: var(--shiki-dark);
   background-color: var(--shiki-dark-bg);
 }
 
 /* Ensure Pre background matches the code background */
-pre[data-theme*=" "] {
+pre[data-theme] {
   background-color: var(--shiki-light-bg);
 }
 
-.dark pre[data-theme*=" "] {
+.dark pre[data-theme] {
   background-color: var(--shiki-dark-bg);
 }
 
