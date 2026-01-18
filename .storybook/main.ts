@@ -21,6 +21,20 @@ const config: StorybookConfig = {
 	viteFinal: async (viteConfig) =>
 		mergeConfig(viteConfig, {
 			plugins: [tsconfigPaths()],
+			// Polyfill process.env for Next.js components (next/link, next/image)
+			define: {
+				"process.env": JSON.stringify({}),
+				"process.env.NODE_ENV": JSON.stringify("development"),
+			},
+			// Force Vite to re-bundle Next.js with the polyfill applied
+			optimizeDeps: {
+				esbuildOptions: {
+					define: {
+						"process.env": JSON.stringify({}),
+						"process.env.NODE_ENV": JSON.stringify("development"),
+					},
+				},
+			},
 		}),
 };
 
