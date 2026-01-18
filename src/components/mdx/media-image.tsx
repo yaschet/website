@@ -3,6 +3,11 @@
  *
  * @remarks
  * Image with zoom functionality.
+ * Features:
+ * - Pre-loads full-resolution image for instant lightbox
+ * - Dynamic aspect ratio from static imports
+ * - Subtle corner hint on hover (Swiss design)
+ * - Native Next.js blur placeholder support
  *
  * @example
  * ```tsx
@@ -14,7 +19,9 @@
 
 "use client";
 
+import { MagnifyingGlassPlus } from "@phosphor-icons/react/dist/ssr";
 import { AnimatePresence, motion } from "framer-motion";
+import type { StaticImageData } from "next/image";
 import NextImage from "next/image";
 import { useCallback, useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
@@ -28,29 +35,52 @@ interface MediaImageProps {
 	height?: number;
 	caption?: string;
 	className?: string;
+	/** Load immediately (for above-the-fold images) */
+	priority?: boolean;
 }
 
 export function MediaImage({
 	src: rawSrc,
 	alt = "",
-	width = 1200,
-	height = 800,
+	width: propWidth,
+	height: propHeight,
 	caption,
 	className,
+	priority = false,
 }: MediaImageProps) {
 	const layoutId = useId();
 	const [isOpen, setIsOpen] = useState(false);
-	const [isLoaded, setIsLoaded] = useState(false);
+	const [isPreloaded, setIsPreloaded] = useState(false);
 	const [mounted, setMounted] = useState(false);
 
-	// Resolve asset and extract blur data
+	// Resolve asset and extract data from static imports
 	const src = resolveAsset(rawSrc);
 	const isStatic = typeof src !== "string";
-	const blurDataURL = isStatic ? (src as import("next/image").StaticImageData).blurDataURL : null;
+
+	// Extract actual dimensions from static imports, or use props/defaults
+	const staticData = isStatic ? (src as StaticImageData) : null;
+	const actualWidth = staticData?.width ?? propWidth ?? 1200;
+	const actualHeight = staticData?.height ?? propHeight ?? 800;
+	const blurDataURL = staticData?.blurDataURL ?? null;
+
+	// Calculate aspect ratio from actual dimensions
+	const aspectRatio = actualWidth / actualHeight;
+
+	// Get the actual source URL for preloading
+	const srcUrl = isStatic ? staticData?.src : (src as string);
 
 	useEffect(() => {
 		setMounted(true);
 	}, []);
+
+	// Pre-load full-resolution image on mount for instant lightbox
+	useEffect(() => {
+		if (!srcUrl || isPreloaded) return;
+
+		const img = new window.Image();
+		img.src = srcUrl;
+		img.onload = () => setIsPreloaded(true);
+	}, [srcUrl, isPreloaded]);
 
 	const close = useCallback(() => {
 		setIsOpen(false);
@@ -77,69 +107,45 @@ export function MediaImage({
 		};
 	}, [isOpen, close]);
 
-	const aspectRatio = width / height;
-
 	return (
 		<>
-			<figure className="mb-8">
+			<figure className="group mb-8">
 				<motion.div
 					layoutId={layoutId}
 					onClick={() => setIsOpen(true)}
 					transition={springs.layout}
 					className={cn(
 						"relative w-full cursor-zoom-in overflow-hidden",
-						"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-800",
+						"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900",
+						// Subtle scale on hover
+						"transition-transform duration-300 ease-out hover:scale-[1.01]",
 						className,
 					)}
-					style={{
-						aspectRatio,
-						boxShadow: [
-							"0 1px 2px rgba(0, 0, 0, 0.04)",
-							"0 4px 8px -2px rgba(0, 0, 0, 0.06)",
-							"0 12px 24px -4px rgba(0, 0, 0, 0.08)",
-						].join(", "),
-					}}
+					style={{ aspectRatio }}
 				>
-					{/* Custom Blur Placeholder - using base64 from asset */}
-					{blurDataURL && !isLoaded && (
-						<motion.div
-							initial={{ opacity: 1 }}
-							animate={{ opacity: 1 }}
-							exit={{ opacity: 0 }}
-							className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat"
-							style={{
-								backgroundImage: `url(${blurDataURL})`,
-								filter: "blur(20px)",
-								scale: 1.1, // Scale up to hide edges
-							}}
-						/>
-					)}
-
 					<NextImage
 						src={src}
 						alt={alt}
-						width={isStatic ? undefined : width}
-						height={isStatic ? undefined : height}
-						fill={!isStatic}
+						fill
 						sizes="(max-width: 768px) 100vw, 768px"
-						className={cn(
-							"relative z-10 size-full object-cover transition-all duration-500",
-							isOpen ? "scale-95 opacity-0" : "scale-100 opacity-100",
-							isLoaded ? "blur-0" : "blur-lg",
-						)}
-						onLoad={() => setIsLoaded(true)}
-						// We don't use the built-in placeholder="blur" to avoid shared layout conflicts
+						className="size-full object-cover"
+						placeholder={blurDataURL ? "blur" : "empty"}
+						blurDataURL={blurDataURL ?? undefined}
+						priority={priority}
 					/>
 
-					{/* Hover Badge */}
-					<div className="absolute inset-0 z-20 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-200 hover:bg-black/10 hover:opacity-100">
-						<span className="border border-surface-200 bg-white/95 px-3 py-1.5 font-mono text-[10px] text-surface-900 uppercase tracking-widest shadow-md dark:border-surface-800 dark:bg-surface-950/95 dark:text-surface-100">
-							Zoom
-						</span>
-					</div>
-
-					<div className="absolute top-3 left-3 z-20 border border-surface-200 bg-white/95 px-2 py-0.5 font-mono text-[10px] text-surface-900 uppercase tracking-widest opacity-0 transition-opacity group-hover:opacity-100 dark:border-surface-800 dark:bg-surface-950/95 dark:text-surface-100">
-						Image
+					{/* Hover Hint: Subtle corner badge (Swiss design) */}
+					<div
+						className={cn(
+							"absolute right-3 bottom-3 z-20",
+							"flex items-center gap-1.5 px-2 py-1",
+							"border border-surface-200 bg-white/95 dark:border-surface-700 dark:bg-surface-900/95",
+							"font-mono text-[10px] text-surface-600 uppercase tracking-widest dark:text-surface-400",
+							"opacity-0 transition-opacity duration-200 group-hover:opacity-100",
+						)}
+					>
+						<MagnifyingGlassPlus size={12} weight="bold" />
+						<span>Zoom</span>
 					</div>
 				</motion.div>
 
@@ -155,6 +161,7 @@ export function MediaImage({
 					<AnimatePresence>
 						{isOpen && (
 							<>
+								{/* Backdrop */}
 								<motion.div
 									initial={{ opacity: 0 }}
 									animate={{ opacity: 1 }}
@@ -165,49 +172,54 @@ export function MediaImage({
 									aria-hidden="true"
 								/>
 
-								<section
-									className="pointer-events-none fixed inset-0 z-[9999] flex items-center justify-center p-8"
+								{/* Lightbox Container */}
+								<div
+									className="fixed inset-0 z-[9999] flex cursor-zoom-out items-center justify-center"
+									onClick={close}
+									onKeyDown={(e) => e.key === "Escape" && close()}
+									role="dialog"
 									aria-label="Enlarged image"
+									aria-modal="true"
 								>
 									<motion.div
 										layoutId={layoutId}
 										transition={springs.layout}
 										className="pointer-events-auto relative overflow-hidden bg-surface-900"
 										style={{
-											maxWidth: "92vw",
-											maxHeight: "92vh",
+											// Use viewport-relative sizing that respects aspect ratio
+											width: `min(92vw, 92vh * ${aspectRatio})`,
+											height: `min(92vh, 92vw / ${aspectRatio})`,
 											aspectRatio,
 										}}
 									>
 										<NextImage
 											src={src}
 											alt={alt}
-											width={isStatic ? undefined : width}
-											height={isStatic ? undefined : height}
-											fill={!isStatic}
+											fill
 											sizes="95vw"
 											className="size-full object-contain"
-											priority
+											priority // Load immediately when lightbox opens
 										/>
 									</motion.div>
-								</section>
+								</div>
 
-								{/* UI Controls */}
+								{/* Caption */}
 								{(caption || alt) && (
 									<motion.div
 										initial={{ opacity: 0, y: 10 }}
 										animate={{ opacity: 1, y: 0 }}
 										exit={{ opacity: 0, y: 10 }}
 										transition={springs.gentle}
-										className="pointer-events-none fixed bottom-6 left-1/2 z-[10000] -translate-x-1/2 border border-surface-200 bg-white/95 px-4 py-2 font-mono text-surface-900 text-xs dark:border-surface-800 dark:bg-surface-900/95 dark:text-surface-100"
+										className="pointer-events-none fixed bottom-6 left-1/2 z-[10000] -translate-x-1/2 border border-surface-700 bg-surface-900/95 px-4 py-2 font-mono text-surface-100 text-xs"
 									>
 										{caption || alt}
 									</motion.div>
 								)}
 
+								{/* Close hint */}
 								<motion.div
 									initial={{ opacity: 0 }}
-									animate={{ opacity: 0.3 }}
+									animate={{ opacity: 0.4 }}
 									exit={{ opacity: 0 }}
 									transition={{ delay: 0.3 }}
 									className="pointer-events-none fixed top-6 right-6 z-[10000] font-mono text-white text-xs uppercase tracking-wider"
