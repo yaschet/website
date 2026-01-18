@@ -1,11 +1,9 @@
 import type { NextConfig } from "next";
-import { withContentlayer } from "next-contentlayer";
+import { withContentlayer } from "next-contentlayer2";
 
 const nextConfig: NextConfig = {
-	/* config options here */
-	reactCompiler: true,
-	// Add empty turbopack config to allow webpack-based plugins like Contentlayer
-	turbopack: {},
+  /* config options here */
+  reactCompiler: false,
 };
 
 export default withContentlayer(nextConfig);
