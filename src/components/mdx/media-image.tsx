@@ -5,18 +5,14 @@
  *
  * @module media-image
  * @description
- * Swiss-precision image component with expand-in-place zoom.
+ * Modern Swiss image component with expand-in-place zoom.
  * Uses Framer Motion layoutId for shared element transitions.
  *
- * Swiss Design Principles:
- * - No blur (stark contrasts, clarity)
+ * Modern Swiss Design:
+ * - Subtle backdrop blur (glassmorphism)
  * - Sharp corners (0 radius)
- * - High contrast overlay (90% black)
+ * - High contrast overlay
  * - Mono typography for captions
- *
- * Technical Note:
- * Next.js Image with `fill` breaks layoutId transitions.
- * Must use explicit width/height for animation to work.
  */
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -53,26 +49,34 @@ export function MediaImage({
     setMounted(true);
   }, []);
 
-  // Handle keyboard close
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        setIsOpen(false);
-      }
-    },
-    [isOpen],
-  );
+  // Handle closing
+  const close = useCallback(() => {
+    setIsOpen(false);
+    // Immediately reset body overflow
+    document.body.style.overflow = "";
+  }, []);
 
+  // Handle keyboard close
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        close();
+      }
+    };
+
     if (isOpen) {
       document.addEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "hidden";
-      return () => {
-        document.removeEventListener("keydown", handleKeyDown);
-        document.body.style.overflow = "";
-      };
     }
-  }, [isOpen, handleKeyDown]);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      // Always reset on cleanup
+      if (isOpen) {
+        document.body.style.overflow = "";
+      }
+    };
+  }, [isOpen, close]);
 
   const aspectRatio = width / height;
 
@@ -80,7 +84,7 @@ export function MediaImage({
     <>
       {/* In-content Thumbnail */}
       <figure className="mb-8">
-        {/* Only render thumbnail when NOT open (prevents duplicate during animation) */}
+        {/* Only render thumbnail when NOT open */}
         {!isOpen && (
           <motion.div
             layoutId={layoutId}
@@ -93,7 +97,6 @@ export function MediaImage({
             )}
             style={{
               aspectRatio,
-              // Premium layered shadow
               boxShadow: [
                 "0 1px 2px rgba(0, 0, 0, 0.04)",
                 "0 4px 8px -2px rgba(0, 0, 0, 0.06)",
@@ -138,44 +141,39 @@ export function MediaImage({
           <AnimatePresence>
             {isOpen && (
               <>
-                {/* Overlay Background */}
+                {/* Overlay Background - handles all clicks */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  onClick={() => setIsOpen(false)}
-                  className="fixed inset-0 z-[9998] cursor-zoom-out bg-black/90"
+                  onClick={close}
+                  className="fixed inset-0 z-[9998] cursor-zoom-out bg-black/90 backdrop-blur-sm"
                   aria-hidden="true"
                 />
 
-                {/* Image Container */}
-                <div
-                  className="pointer-events-none fixed inset-0 z-[9999] flex items-center justify-center p-8"
-                  onClick={() => setIsOpen(false)}
+                {/* Image Container - centered, clicks pass through to overlay */}
+                <motion.div
+                  layoutId={layoutId}
+                  transition={springs.layout}
+                  onClick={close}
+                  className="fixed left-1/2 top-1/2 z-[9999] -translate-x-1/2 -translate-y-1/2 cursor-zoom-out"
+                  style={{
+                    maxWidth: "90vw",
+                    maxHeight: "90vh",
+                    aspectRatio,
+                  }}
                 >
-                  <motion.div
-                    layoutId={layoutId}
-                    transition={springs.layout}
-                    className="pointer-events-auto cursor-zoom-out"
-                    style={{
-                      // Calculate max dimensions while maintaining aspect ratio
-                      maxWidth: "90vw",
-                      maxHeight: "90vh",
-                      aspectRatio,
-                    }}
-                  >
-                    <NextImage
-                      src={src}
-                      alt={alt}
-                      width={width}
-                      height={height}
-                      sizes="90vw"
-                      className="size-full object-contain"
-                      priority
-                    />
-                  </motion.div>
-                </div>
+                  <NextImage
+                    src={src}
+                    alt={alt}
+                    width={width}
+                    height={height}
+                    sizes="90vw"
+                    className="size-full object-contain"
+                    priority
+                  />
+                </motion.div>
 
                 {/* Caption Badge */}
                 {(caption || alt) && (
@@ -196,7 +194,7 @@ export function MediaImage({
                   animate={{ opacity: 0.5 }}
                   exit={{ opacity: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="pointer-events-none fixed top-6 right-6 z-[10000] font-mono text-xs uppercase tracking-wider text-white/60"
+                  className="pointer-events-none fixed right-6 top-6 z-[10000] font-mono text-xs uppercase tracking-wider text-white/60"
                 >
                   ESC
                 </motion.div>
