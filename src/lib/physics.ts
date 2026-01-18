@@ -62,15 +62,16 @@ export const springs = {
 	},
 
 	/**
-	 * Precision button interactions (Swiss-level control)
-	 * No bounce, no overshoot — just controlled, deliberate motion.
-	 * Like a precision instrument clicking into place.
+	 * Button micro-interactions (hover, press)
+	 * Optimally damped: Just below critical for a subtle "pop" without bounce.
+	 * Critical damping = 2 * sqrt(stiffness * mass) = 2 * sqrt(400 * 0.3) ≈ 22
+	 * We use 20 (slightly under-damped) for organic feel.
 	 */
-	precision: {
+	button: {
 		type: "spring" as const,
-		mass: 0.2,
-		stiffness: 500,
-		damping: 40, // High damping = no oscillation
+		mass: 0.3,
+		stiffness: 400,
+		damping: 20,
 	},
 
 	/**
@@ -158,6 +159,52 @@ export const springs = {
 		mass: 0.2,
 		stiffness: 600,
 		damping: 25,
+	},
+} as const;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LAYERED BUTTON TRANSITIONS (animations.dev standard)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Orchestrated Button Animation
+ *
+ * Per-property springs create a "layered" feel where different aspects
+ * of the animation resolve at different rates:
+ * - Scale: Fast and snappy (the immediate response)
+ * - Y: Medium, the "hero" motion
+ * - Shadow: Slow fade-in as a secondary effect
+ *
+ * This is what separates "alive" UI from "mechanical" UI.
+ */
+export const buttonTransition = {
+	// Scale is the "instant feedback" — snappy, resolves first
+	scale: {
+		type: "spring" as const,
+		mass: 0.25,
+		stiffness: 500,
+		damping: 22, // Critical ≈ 22, perfectly damped
+	},
+	// Y position is the "hero" — slightly more mass, slower settle
+	y: {
+		type: "spring" as const,
+		mass: 0.4,
+		stiffness: 350,
+		damping: 24,
+	},
+	// Shadow fades in as a "secondary effect" — slowest, heaviest
+	boxShadow: {
+		type: "spring" as const,
+		mass: 0.6,
+		stiffness: 200,
+		damping: 28,
+	},
+	// Default for any other animated properties
+	default: {
+		type: "spring" as const,
+		mass: 0.3,
+		stiffness: 400,
+		damping: 20,
 	},
 } as const;
 
