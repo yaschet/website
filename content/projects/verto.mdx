@@ -15,10 +15,10 @@ tech:
   ]
 coverImages:
   [
-    "/images/placeholders/asset-1.jpg",
-    "/images/placeholders/asset-2.jpg",
-    "/images/placeholders/asset-3.jpg",
-    "/images/placeholders/asset-4.jpg",
+    "/images/verto/hero-dashboard.jpg",
+    "/images/verto/hero-editor.jpg",
+    "/images/verto/hero-translation.jpg",
+    "/images/verto/hero-billing.jpg",
   ]
 featured: true
 ---
@@ -30,6 +30,11 @@ Verto is a production-grade SaaS platform that revolutionizes professional docum
 > **Key Insight:** Rather than simple text translation, Verto reconstructs entire documents—preserving layouts, tables, images, and formatting—in the target language.
 
 ## Architecture
+
+<Image
+  src="/images/verto/architecture-overview.jpg"
+  alt="System architecture showing the complete tech stack from frontend to AI pipeline"
+/>
 
 The platform is built on a modern JAMstack architecture with clear separation of concerns:
 
@@ -47,6 +52,11 @@ The platform is built on a modern JAMstack architecture with clear separation of
 ## Technical Deep Dive
 
 ### Authentication System
+
+<Image
+  src="/images/verto/auth-mfa-flow.jpg"
+  alt="MFA verification flow with TOTP codes"
+/>
 
 The auth layer supports multiple strategies with enterprise-grade security:
 
@@ -74,6 +84,11 @@ export async function middleware(request: NextRequest) {
 
 ### Document Processing Pipeline
 
+<Image
+  src="/images/verto/document-pipeline.jpg"
+  alt="Document processing pipeline from upload to delivery"
+/>
+
 Documents flow through a sophisticated pipeline:
 
 1. **Upload** — Chunked uploads with progress tracking
@@ -83,6 +98,15 @@ Documents flow through a sophisticated pipeline:
 5. **Delivery** — Secure download with signed URLs
 
 ### Real-Time Collaboration
+
+<Gallery
+  images={[
+    "/images/verto/hero-editor.jpg",
+    "/images/verto/hero-translation.jpg",
+    "/images/verto/hero-dashboard.jpg",
+  ]}
+  caption="Translation editor interface showing real-time collaboration features"
+/>
 
 The translation editor uses **Tiptap** with **Yjs** for CRDT-based collaboration:
 
@@ -126,6 +150,12 @@ export const processDocumentJob = task({
 
 ### Challenge: Translation Quality
 
+<Compare
+  before="/images/verto/editor-before.jpg"
+  after="/images/verto/editor-after.jpg"
+  caption="Document before and after AI translation with layout preservation"
+/>
+
 **Problem:** Maintaining context across document sections.
 
 **Solution:** Custom prompt engineering with sliding context windows and terminology glossary support.
@@ -136,6 +166,11 @@ export const processDocumentJob = task({
 
 ### Credit-Based Billing
 
+<Image
+  src="/images/verto/credit-system.jpg"
+  alt="Credit purchase and balance management interface"
+/>
+
 The platform uses a **prepaid credit system**:
 
 - Users purchase credit packages via Stripe
@@ -144,6 +179,11 @@ The platform uses a **prepaid credit system**:
 - Low-balance notifications and auto-top-up
 
 ### Admin Dashboard
+
+<Image
+  src="/images/verto/admin-dashboard.jpg"
+  alt="Admin dashboard showing user management and analytics"
+/>
 
 Comprehensive admin tooling for platform management:
 
@@ -163,6 +203,11 @@ Full i18n support with:
 ---
 
 ## Results & Metrics
+
+<Image
+  src="/images/verto/metrics-results.jpg"
+  alt="Platform performance metrics and user satisfaction scores"
+/>
 
 The platform demonstrates strong performance at scale:
 
