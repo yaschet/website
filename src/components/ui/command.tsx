@@ -1,11 +1,33 @@
+/**
+ * Command palette component.
+ *
+ * @remarks
+ * Built on 'cmdk'.
+ *
+ * @example
+ * ```tsx
+ * <Command>
+ *   <CommandInput placeholder="Type a command..." />
+ *   <CommandList>
+ *     <CommandEmpty>No results found.</CommandEmpty>
+ *     <CommandGroup heading="Suggestions">
+ *       <CommandItem>Calendar</CommandItem>
+ *     </CommandGroup>
+ *   </CommandList>
+ * </Command>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import type { DialogProps } from "@radix-ui/react-dialog";
 import { Command as CommandPrimitive } from "cmdk";
 import * as React from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { cn } from "@/src/lib/utils";
+import { Dialog, DialogContent } from "@/src/components/ui/dialog";
+import { cn } from "@/src/lib/index";
 
 const Command = React.forwardRef<
 	React.ComponentRef<typeof CommandPrimitive>,

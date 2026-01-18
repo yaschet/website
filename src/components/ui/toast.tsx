@@ -1,11 +1,18 @@
 /**
- * Toast Component - High-Precision Notification Module
+ * Toast component.
  *
- * Implements a structural alert primitive aligned with the Swiss Grid.
- * Purges the rounded-md "bubble" aesthetic for rigid 90-degree geometry.
+ * @remarks
+ * Built on Radix UI's Toast primitive.
  *
- * Part of "The Architecture of the Blade" (0px default radius).
- * Built on Radix UI Toast primitives with integrated semantic variance.
+ * @example
+ * ```tsx
+ * <Toast variant="success">
+ *   <ToastTitle>Title</ToastTitle>
+ *   <ToastDescription>Description</ToastDescription>
+ * </Toast>
+ * ```
+ *
+ * @public
  */
 
 "use client";
@@ -15,7 +22,7 @@ import * as ToastPrimitives from "@radix-ui/react-toast";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // EXPORTS
@@ -30,7 +37,7 @@ const ToastProvider = ToastPrimitives.Provider;
 const toastVariants = cva(
 	[
 		"group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden border p-4 pr-6 shadow-lg transition-all",
-		"rounded-[var(--radius)]", // Geometry: Absolute 0px Default
+		"rounded-[var(--radius)]",
 		"data-[state=closed]:animate-out data-[state=open]:animate-in",
 		"data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
 		"data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=end]:animate-out data-[swipe=move]:transition-none",
@@ -57,7 +64,7 @@ const toastVariants = cva(
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * ToastViewport - Fixed container for toast stacking.
+ * ToastViewport - Fixed container.
  */
 const ToastViewport = React.forwardRef<
 	React.ComponentRef<typeof ToastPrimitives.Viewport>,
@@ -77,7 +84,7 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 /**
- * Toast - The notification root element.
+ * Toast - Notification root.
  */
 const Toast = React.forwardRef<
 	React.ComponentRef<typeof ToastPrimitives.Root>,
@@ -95,7 +102,7 @@ const Toast = React.forwardRef<
 Toast.displayName = ToastPrimitives.Root.displayName;
 
 /**
- * ToastAction - Interaction target within a toast.
+ * ToastAction - Action button.
  */
 const ToastAction = React.forwardRef<
 	React.ComponentRef<typeof ToastPrimitives.Action>,
@@ -117,7 +124,7 @@ const ToastAction = React.forwardRef<
 ToastAction.displayName = ToastPrimitives.Action.displayName;
 
 /**
- * ToastClose - Integrated dismissal orchestration.
+ * ToastClose - Close button.
  */
 const ToastClose = React.forwardRef<
 	React.ComponentRef<typeof ToastPrimitives.Close>,
@@ -141,7 +148,7 @@ const ToastClose = React.forwardRef<
 ToastClose.displayName = ToastPrimitives.Close.displayName;
 
 /**
- * ToastTitle - Primary notification heading.
+ * ToastTitle - Notification heading.
  */
 const ToastTitle = React.forwardRef<
 	React.ComponentRef<typeof ToastPrimitives.Title>,
@@ -158,7 +165,7 @@ const ToastTitle = React.forwardRef<
 ToastTitle.displayName = ToastPrimitives.Title.displayName;
 
 /**
- * ToastDescription - Supporting contextual information.
+ * ToastDescription - Notification content.
  */
 const ToastDescription = React.forwardRef<
 	React.ComponentRef<typeof ToastPrimitives.Description>,

@@ -1,3 +1,21 @@
+/**
+ * Smoothly animated collapsible information panel.
+ *
+ * @remarks
+ * Built on Headless UI's Disclosure and Framer Motion for transitions.
+ * Features an architecturally precise layout with integrated Phosphor icons
+ * for state indication. Used for optional details and auxiliary content.
+ *
+ * @example
+ * ```tsx
+ * <AnimatedDisclosure title="Structural Details">
+ *   <p>Procedural documentation for the monolith architecture.</p>
+ * </AnimatedDisclosure>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";

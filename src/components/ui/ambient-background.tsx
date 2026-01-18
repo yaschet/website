@@ -1,11 +1,21 @@
-"use client";
-
 /**
- * Ambient Background
+ * Atmospheric background management system.
  *
- * A slowly floating gradient orb that adds "life" to the page.
- * Pure CSS animation for performance.
+ * @remarks
+ * Renders a subtle background effect using canvas or CSS.
+ * slowly oscillating radial gradients and a procedural noise grain.
+ * Uses GPU-accelerated CSS animations for zero-overhead persistence.
+ *
+ * @example
+ * ```tsx
+ * // Placed at root layout level
+ * <AmbientBackground />
+ * ```
+ *
+ * @public
  */
+
+"use client";
 
 export function AmbientBackground() {
 	return (

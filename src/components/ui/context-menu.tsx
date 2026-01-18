@@ -1,11 +1,20 @@
 /**
- * ContextMenu Component - High-Precision Contextual Interface
+ * Context menu component (right-click menu).
  *
- * Implements a geometric popover primitive aligned with the Swiss Grid.
- * Purges bloated radius-scales for mathematically pure 90-degree geometry.
+ * @remarks
+ * Built on Radix UI's ContextMenu primitive.
  *
- * Part of "The Architecture of the Blade" (0px default radius).
- * Built on Radix UI ContextMenu primitives.
+ * @example
+ * ```tsx
+ * <ContextMenu>
+ *   <ContextMenuTrigger>Right click</ContextMenuTrigger>
+ *   <ContextMenuContent>
+ *     <ContextMenuItem>Item</ContextMenuItem>
+ *   </ContextMenuContent>
+ * </ContextMenu>
+ * ```
+ *
+ * @public
  */
 
 "use client";
@@ -13,7 +22,7 @@
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu";
 import { CheckIcon, ChevronRightIcon, DotFilledIcon } from "@radix-ui/react-icons";
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // EXPORTS
@@ -31,7 +40,7 @@ const ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * ContextMenuSubTrigger - Trigger for nested sub-menus.
+ * ContextMenuSubTrigger - Trigger for submenus.
  */
 const ContextMenuSubTrigger = React.forwardRef<
 	React.ComponentRef<typeof ContextMenuPrimitive.SubTrigger>,
@@ -45,7 +54,7 @@ const ContextMenuSubTrigger = React.forwardRef<
 			"flex cursor-default select-none items-center px-2 py-1.5 text-sm outline-none transition-colors",
 			"focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
 			"dark:data-[state=open]:bg-surface-900 dark:focus:bg-surface-900 dark:focus:text-surface-50",
-			"rounded-[var(--radius-xs)]", // Machined precision for items
+			"rounded-[var(--radius-xs)]",
 			inset && "pl-8",
 			className,
 		)}
@@ -58,7 +67,7 @@ const ContextMenuSubTrigger = React.forwardRef<
 ContextMenuSubTrigger.displayName = ContextMenuPrimitive.SubTrigger.displayName;
 
 /**
- * ContextMenuSubContent - Container for nested sub-menus.
+ * ContextMenuSubContent - Container for submenus.
  */
 const ContextMenuSubContent = React.forwardRef<
 	React.ComponentRef<typeof ContextMenuPrimitive.SubContent>,
@@ -68,7 +77,7 @@ const ContextMenuSubContent = React.forwardRef<
 		ref={ref}
 		className={cn(
 			"z-50 min-w-[8rem] overflow-hidden border border-border bg-popover p-1 text-popover-foreground shadow-lg",
-			"rounded-[var(--radius)]", // Geometry: Absolute 0px Default
+			"rounded-[var(--radius)]",
 			"fade-in-0 zoom-in-95 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 animate-in data-[state=closed]:animate-out",
 			"dark:border-surface-800 dark:bg-surface-950 dark:text-surface-50",
 			className,
@@ -79,7 +88,7 @@ const ContextMenuSubContent = React.forwardRef<
 ContextMenuSubContent.displayName = ContextMenuPrimitive.SubContent.displayName;
 
 /**
- * ContextMenuContent - The primary context menu container.
+ * ContextMenuContent - Main menu container.
  */
 const ContextMenuContent = React.forwardRef<
 	React.ComponentRef<typeof ContextMenuPrimitive.Content>,
@@ -90,7 +99,7 @@ const ContextMenuContent = React.forwardRef<
 			ref={ref}
 			className={cn(
 				"z-50 min-w-[8rem] overflow-hidden border border-border bg-popover p-1 text-popover-foreground shadow-xl",
-				"rounded-[var(--radius)]", // Geometry: Absolute 0px Default
+				"rounded-[var(--radius)]",
 				"fade-in-0 zoom-in-95 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 animate-in data-[state=closed]:animate-out",
 				"dark:border-surface-800 dark:bg-surface-950 dark:text-surface-50",
 				className,
@@ -102,7 +111,7 @@ const ContextMenuContent = React.forwardRef<
 ContextMenuContent.displayName = ContextMenuPrimitive.Content.displayName;
 
 /**
- * ContextMenuItem - Individual actionable entry.
+ * ContextMenuItem - Action item.
  */
 const ContextMenuItem = React.forwardRef<
 	React.ComponentRef<typeof ContextMenuPrimitive.Item>,
@@ -116,7 +125,7 @@ const ContextMenuItem = React.forwardRef<
 			"relative flex cursor-default select-none items-center px-3 py-2 text-sm outline-none transition-colors",
 			"focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 			"dark:focus:bg-surface-900 dark:focus:text-surface-50",
-			"rounded-[var(--radius-xs)]", // Machined precision for items
+			"rounded-[var(--radius-xs)]",
 			inset && "pl-8",
 			className,
 		)}

@@ -1,13 +1,14 @@
 "use client";
 
-import { Toaster } from "@components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AppProgressBar as ProgressBar, useRouter } from "next-nprogress-bar";
 import { ThemeProvider } from "next-themes";
-import React, { useMemo } from "react";
+import type React from "react";
+import { useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { Toaster } from "@/src/components/ui/sonner";
 import { NAVIGATION_SHORTCUTS } from "@/src/constants/navigation";
 import { RevealProvider } from "./reveal-provider";
 

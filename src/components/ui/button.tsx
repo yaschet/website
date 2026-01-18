@@ -1,9 +1,17 @@
 /**
- * Button Component - Swiss Precision Edition
+ * Button component with support for multiple variants, sizes, and loading states.
  *
- * Precision-engineered interaction design with coordinated physics.
- * Every property — scale, Y-translation, shadow — moves as one unified system.
- * No bounce. No overshoot. Just controlled, deliberate motion.
+ * @remarks
+ * Supports polymorphic rendering via `asChild`, tooltips, and Framer Motion animations.
+ *
+ * @example
+ * ```tsx
+ * <Button variant="solid" color="primary" onClick={onClick}>
+ *   Action
+ * </Button>
+ * ```
+ *
+ * @public
  */
 
 import { Slot } from "@radix-ui/react-slot";
@@ -18,17 +26,14 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/src/components/ui/tooltip";
-import { buttonTransition } from "@/src/lib/physics";
-import { cn } from "@/src/lib/utils";
+import { buttonTransition, cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PHYSICS CONFIGURATION - The Soul of the Interaction
+// ANIMATION CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Coordinated physics states.
- * All properties animate together as one unified physical object.
- * Shadows use 3-layer realistic levitation (contact + direct + ambient).
+ * Framer Motion interaction states.
  */
 const interactionStates = {
 	rest: {
@@ -43,7 +48,7 @@ const interactionStates = {
 	hover: {
 		scale: 1.02, // 2% — visually perceptible lift
 		y: -3, // Noticeable lift off the page
-		// Premium levitation shadow — element floats above surface
+		// Elevation shadow
 		boxShadow: [
 			"0 1px 2px rgba(0, 0, 0, 0.03)", // Contact fades as we lift
 			"0 6px 12px -3px rgba(0, 0, 0, 0.10)", // Direct shadow deepens
@@ -51,7 +56,7 @@ const interactionStates = {
 		].join(", "),
 	},
 	tap: {
-		scale: 0.97, // Compresses — the mechanical "click"
+		scale: 0.97,
 		y: 0, // Settles back flush with surface
 		// Pressed shadow — element is flush/pressed into surface
 		boxShadow: "0 0px 1px rgba(0, 0, 0, 0.10)",
@@ -59,7 +64,7 @@ const interactionStates = {
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// VARIANTS - Compound Architecture for Premium Visual Depth
+// VARIANTS
 // ═══════════════════════════════════════════════════════════════════════════
 
 const buttonVariants = cva(
@@ -67,7 +72,7 @@ const buttonVariants = cva(
 		// Base structure
 		"group relative inline-flex items-center justify-center gap-2 px-4 py-2",
 		"select-none whitespace-nowrap font-bold text-sm",
-		// Swiss precision: 0px radius is enforced via --radius CSS variable
+		// Border radius defined by CSS variable
 		"rounded-[var(--radius)]",
 		// GPU-accelerated transforms
 		"transform-gpu cursor-pointer",
@@ -561,7 +566,7 @@ export interface ButtonProps
 		VariantProps<typeof buttonVariants> {
 	/** Button content */
 	children?: ReactNode;
-	/** Composition slot for high-level UI orchestration (e.g. Next.js Link) */
+	/** Composition slot for high-level UI composition (e.g. Next.js Link) */
 	asChild?: boolean;
 	/** Display a Spinner and disable interactions */
 	loading?: boolean;
@@ -622,7 +627,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 			return "sm";
 		}
 
-		// Layered per-property transitions for "alive" motion (animations.dev)
+		// Layered per-property transitions
 		const motionProps = useMemo(() => {
 			if (isDisabled) {
 				return {

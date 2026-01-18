@@ -1,3 +1,22 @@
+/**
+ * Text reveal management with multi-lingual support.
+ *
+ * @remarks
+ * Wrapper for animating text elements. Supports character, word, and line splitting.
+ * level animations with automated RTL context detection. Features integrated
+ * punctuation management for bidirectional text and GPU-optimized motion
+ * presets (blur, scale, fade, slide).
+ *
+ * @example
+ * ```tsx
+ * <TextEffectWrapper per="word" preset="fade-in-blur">
+ *   Custom text splitting logic.
+ * </TextEffectWrapper>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import {
@@ -9,8 +28,7 @@ import {
 	type Variants,
 } from "motion/react";
 import React from "react";
-import { blur, distances, springs, stagger } from "@/src/lib/physics";
-import { cn } from "@/src/lib/utils";
+import { blur, cn, distances, springs, stagger } from "@/src/lib/index";
 
 export type PresetType = "blur" | "fade-in-blur" | "scale" | "fade" | "slide";
 

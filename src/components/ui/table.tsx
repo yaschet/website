@@ -1,5 +1,30 @@
-import { cn } from "@/src/lib/utils";
+/**
+ * Table component.
+ *
+ * @remarks
+ * Standard HTML table structure with semantic row variants.
+ *
+ * @example
+ * ```tsx
+ * <Table>
+ *   <TableHeader>
+ *     <TableRow>
+ *       <TableHead>Header</TableHead>
+ *     </TableRow>
+ *   </TableHeader>
+ *   <TableBody>
+ *     <TableRow>
+ *       <TableCell>Data</TableCell>
+ *     </TableRow>
+ *   </TableBody>
+ * </Table>
+ * ```
+ *
+ * @public
+ */
+
 import * as React from "react";
+import { cn } from "@/src/lib/index";
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
 	({ className, ...props }, ref) => (

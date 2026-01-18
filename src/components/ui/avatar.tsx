@@ -1,10 +1,27 @@
+/**
+ * Avatar component.
+ *
+ * @remarks
+ * Built on Radix UI's Avatar primitive. Integrates with `next/image` and `boring-avatars`.
+ *
+ * @example
+ * ```tsx
+ * <Avatar>
+ *   <AvatarImage src="/img.jpg" />
+ *   <AvatarFallback name="User" />
+ * </Avatar>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import BoringAvatar from "boring-avatars";
 import Image from "next/image";
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 type AvatarProps = React.ComponentProps<typeof BoringAvatar>;
 

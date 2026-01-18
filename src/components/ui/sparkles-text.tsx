@@ -1,10 +1,26 @@
+/**
+ * High-impact decorative text with synchronized sparkling emitters.
+ *
+ * @remarks
+ * Text component that adds procedural sparkle animations.
+ * entities with randomized lifetimes, scales, and colors. Leveraging
+ * Framer Motion for GPU-optimized particle management.
+ *
+ * @example
+ * ```tsx
+ * <SparklesText text="Ethereal Architecture" colors={{ first: "#FF0000", second: "#00FF00" }} />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import { motion } from "framer-motion";
 import type React from "react";
 import type { CSSProperties, HTMLAttributes, ReactElement } from "react";
 import { useEffect, useState } from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 type SparkleType = {
 	id: string;

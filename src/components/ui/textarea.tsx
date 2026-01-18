@@ -1,7 +1,21 @@
+/**
+ * Multi-line text input component.
+ *
+ * @remarks
+ * Extends standard textarea attributes with explicit error state support and custom styling.
+ *
+ * @example
+ * ```tsx
+ * <Textarea placeholder="Enter your message" hasError={Boolean(errors.message)} />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
 	hasError?: boolean;
@@ -14,7 +28,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 				className={cn(
 					// Base structure
 					"flex min-h-[160px] w-full",
-					// Borders - 2px for premium punch
+					// Borders
 					"border-2 border-surface-300 dark:border-surface-700",
 					// Backgrounds - white/dark for high contrast
 					"bg-white dark:bg-surface-950",

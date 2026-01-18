@@ -1540,7 +1540,7 @@
   --radius-xl: 1rem; /* 16px */
   --radius-full: 9999px; /* Legacy Pill Support */
 
-  /* Cloud-like Smooth Shadows - Refined for Ultra-Softness */
+  /* Soft Shadows */
   --shadow-xs: 0 1px 3px 0 rgb(0 0 0 / 0.02), 0 1px 2px -1px rgb(0 0 0 / 0.02);
   --shadow-sm:
     0 2px 8px -2px rgb(0 0 0 / 0.02), 0 4px 16px -4px rgb(0 0 0 / 0.04);

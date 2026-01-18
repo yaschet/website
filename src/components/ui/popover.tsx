@@ -1,7 +1,18 @@
 /**
- * Popover Component
+ * Popover component for overlays.
  *
- * Displays rich content in a portal, triggered by a button.
+ * @remarks
+ * Built on Radix UI's Popover primitive.
+ *
+ * @example
+ * ```tsx
+ * <Popover>
+ *   <PopoverTrigger>Open</PopoverTrigger>
+ *   <PopoverContent>Content</PopoverContent>
+ * </Popover>
+ * ```
+ *
+ * @public
  */
 
 "use client";
@@ -9,7 +20,7 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // EXPORTS
@@ -67,7 +78,7 @@ export interface PopoverContentProps
 /**
  * PopoverContent
  *
- * The primary overlay container.
+ * The primary container.
  */
 const PopoverContent = React.forwardRef<
 	React.ComponentRef<typeof PopoverPrimitive.Content>,

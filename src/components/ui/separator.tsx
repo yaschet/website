@@ -1,8 +1,22 @@
+/**
+ * Separator component.
+ *
+ * @remarks
+ * Built on Radix UI's Separator primitive.
+ *
+ * @example
+ * ```tsx
+ * <Separator />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
-import { cn } from "@/src/lib/utils";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import * as React from "react";
+import { cn } from "@/src/lib/index";
 
 const Separator = React.forwardRef<
 	React.ComponentRef<typeof SeparatorPrimitive.Root>,

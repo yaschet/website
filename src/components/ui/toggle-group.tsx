@@ -1,3 +1,20 @@
+/**
+ * ToggleGroup component.
+ *
+ * @remarks
+ * Built on Radix UI's ToggleGroup primitive.
+ *
+ * @example
+ * ```tsx
+ * <ToggleGroup type="multiple">
+ *   <ToggleGroupItem value="bold">Bold</ToggleGroupItem>
+ *   <ToggleGroupItem value="italic">Italic</ToggleGroupItem>
+ * </ToggleGroup>
+ * ```
+ *
+ * @public
+ */
+
 import {
 	ToggleGroupItem as ToggleGroupItemPrimitive,
 	type ToggleGroupItemProps as ToggleGroupItemPrimitiveProps,
@@ -7,7 +24,7 @@ import {
 import type { toggleVariants } from "@components/ui/toggle";
 import type { VariantProps } from "class-variance-authority";
 import { getStrictContext } from "@/src/lib/get-strict-context";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 const [ToggleGroupProvider, useToggleGroup] =
 	getStrictContext<VariantProps<typeof toggleVariants>>("ToggleGroupContext");

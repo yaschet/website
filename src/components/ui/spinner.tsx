@@ -1,3 +1,17 @@
+/**
+ * Spinner component.
+ *
+ * @remarks
+ * Uses Phosphor Icons and Framer Motion.
+ *
+ * @example
+ * ```tsx
+ * <Spinner size="md" />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import { type IconProps, CircleNotchIcon as SpinnerIcon } from "@phosphor-icons/react";
@@ -5,7 +19,7 @@ import { cva } from "class-variance-authority";
 import type { MotionProps } from "framer-motion";
 import { motion } from "framer-motion";
 import React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 const spinnerVariants = cva("size-5", {
 	defaultVariants: {

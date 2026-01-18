@@ -1,7 +1,15 @@
 /**
- * Checkbox Component
+ * Checkbox component for boolean or indeterminate states.
  *
- * A control that allows the user to toggle between checked and not checked.
+ * @remarks
+ * Built on Radix UI's Checkbox primitive. Includes animated check/indeterminate indicators.
+ *
+ * @example
+ * ```tsx
+ * <Checkbox checked={isChecked} onCheckedChange={setIsChecked} />
+ * ```
+ *
+ * @public
  */
 
 "use client";
@@ -11,7 +19,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { motion } from "motion/react";
 import * as React from "react";
 
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VARIANTS

@@ -1,18 +1,24 @@
 /**
- * VirtualizedScrollArea Component - High-Precision Scrolling Module
+ * High-performance virtualized scrolling viewport.
  *
- * Engineered to support high-performance list virtualization (e.g., TanStack Virtual).
- * Forwards refs to the Viewport element for accurate positional measurement.
+ * @remarks
+ * Supports large lists via virtualization. Features 0px radius styling and custom scrollbar appearance.
  *
- * Part of "The Architecture of the Blade" (0px default radius).
- * Built on Radix UI ScrollArea primitives.
+ * @example
+ * ```tsx
+ * <VirtualizedScrollArea className="h-96">
+ *   {virtualRows.map(row => <div key={row.index}>...</div>)}
+ * </VirtualizedScrollArea>
+ * ```
+ *
+ * @public
  */
 
 "use client";
 
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -49,7 +55,7 @@ const VirtualizedScrollArea = React.forwardRef<
 VirtualizedScrollArea.displayName = "VirtualizedScrollArea";
 
 /**
- * ScrollBar - The geometric track and thumb orchestrator.
+ * ScrollBar - The geometric track and thumb manager.
  */
 const ScrollBar = React.forwardRef<
 	React.ComponentRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
@@ -69,7 +75,7 @@ const ScrollBar = React.forwardRef<
 		<ScrollAreaPrimitive.ScrollAreaThumb
 			className={cn(
 				"relative flex-1 bg-border/60 transition-colors hover:bg-border",
-				"rounded-none", // Architecture of the Blade: Rigid 90-degree scroll thumbs
+				"rounded-none",
 			)}
 		/>
 	</ScrollAreaPrimitive.ScrollAreaScrollbar>

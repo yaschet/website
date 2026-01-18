@@ -1,16 +1,15 @@
 /**
- * Contextual callout message for user attention and status updates.
+ * Alert component.
  *
  * @remarks
- * Features orchestrated entrance/exit animations via Framer Motion.
- * Supports 5 semantic levels: default, destructive, info, success, warning.
+ * Displays a callout for user attention.
  *
  * @example
  * ```tsx
  * <Alert variant="destructive">
  *   <AlertIcon><WarningCircle /></AlertIcon>
- *   <AlertTitle>Critical Error</AlertTitle>
- *   <AlertDescription>Your session has expired.</AlertDescription>
+ *   <AlertTitle>Error</AlertTitle>
+ *   <AlertDescription>Description</AlertDescription>
  * </Alert>
  * ```
  *
@@ -25,7 +24,7 @@ import { AnimatePresence, type MotionProps, motion } from "framer-motion";
 import * as React from "react";
 
 import { Button } from "@/src/components/ui/button";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VARIANTS
@@ -115,7 +114,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
 Alert.displayName = "Alert";
 
 /**
- * AlertTitle - Primary heading for the alert module.
+ * AlertTitle - Alert heading.
  */
 const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
 	({ className, ...props }, ref) => (
@@ -129,7 +128,7 @@ const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<H
 AlertTitle.displayName = "AlertTitle";
 
 /**
- * AlertDescription - Detailed descriptive content for the alert.
+ * AlertDescription - Alert content.
  */
 const AlertDescription = React.forwardRef<
 	HTMLParagraphElement,
@@ -140,7 +139,7 @@ const AlertDescription = React.forwardRef<
 AlertDescription.displayName = "AlertDescription";
 
 /**
- * AlertIcon - Container for semantic iconography.
+ * AlertIcon - Icon container.
  */
 const AlertIcon = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ children, className, ...props }, ref) => (

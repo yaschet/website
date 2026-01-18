@@ -4,9 +4,9 @@ import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 
 /**
- * Reveal Phase System — Psychology-First Timing
+ * Reveal Phase System
  *
- * Total orchestration: ~250ms (imperceptible as "waiting")
+ * Total duration: ~250ms (imperceptible as "waiting")
  *
  * Phase 0: Structure (instant)
  *   - Background gradient, grid, borders, lines
@@ -44,6 +44,16 @@ interface RevealProviderProps {
 	children: React.ReactNode;
 }
 
+/**
+ * Manages staggered content delivery for improved perceived performance.
+ *
+ * @remarks
+ * Manages the "Reveal Phase System" (0-3) which unlocks UI layers sequentially.
+ * This ensures critical content loads first (LCP optimization) while
+ * preventing layout thrashing and cognitive overload.
+ *
+ * @public
+ */
 export function RevealProvider({ children }: RevealProviderProps) {
 	const [phase, setPhase] = useState<RevealPhase>(0);
 

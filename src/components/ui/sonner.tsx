@@ -1,6 +1,20 @@
+/**
+ * Toast notification component.
+ *
+ * @remarks
+ * Wraps the 'sonner' library.
+ *
+ * @example
+ * ```tsx
+ * <Toaster />
+ * toast.success("Success");
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
-import { cn } from "@/src/lib/utils";
 import {
 	CheckIcon,
 	ExclamationMarkIcon,
@@ -11,6 +25,7 @@ import { useTheme } from "next-themes";
 import type { ComponentProps } from "react";
 import { Toaster as Sonner } from "sonner";
 import Spinner from "@/src/components/ui/spinner";
+import { cn } from "@/src/lib/index";
 
 type ToasterProps = ComponentProps<typeof Sonner>;
 
@@ -60,7 +75,7 @@ function Toaster({ ...props }: ToasterProps) {
 						"group-[.toast]:text-surface-500 group-[.toast]:dark:text-surface-400 group-[.toast]:text-xs group-[.toast]:font-medium",
 					closeButton: cn(
 						"text-surface-600 hover:text-foreground dark:text-surface-400 dark:hover:text-foreground",
-						"bg-surface-100 hover:bg-surface-200 dark:bg-surface-800 dark:hover:bg-surface-700 transition-colors",
+						"bg-surface-100 transition-colors hover:bg-surface-200 dark:bg-surface-800 dark:hover:bg-surface-700",
 						"border border-surface-200 dark:border-surface-800",
 						"rounded-none",
 					),

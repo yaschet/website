@@ -1,17 +1,25 @@
+/**
+ * Reveal component.
+ *
+ * @remarks
+ * Manages entrance animations for children.
+ *
+ * @example
+ * ```tsx
+ * <Reveal>
+ *   <h1>Content</h1>
+ * </Reveal>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 import { type RevealPhase, useReveal } from "@/src/components/providers/reveal-provider";
-import { distances, springs, stagger } from "@/src/lib/physics";
-
-/**
- * Reveal Components
- *
- * Physics-based reveal animations using spring dynamics.
- * All transforms are GPU-accelerated (opacity + transform only).
- * Respects global orchestration phases and reduced motion preferences.
- */
+import { distances, springs, stagger } from "@/src/lib/index";
 
 interface RevealProps {
 	children: ReactNode;
@@ -52,7 +60,7 @@ export function ScrollReveal({ children, delay = 0, className, phase = 3 }: Reve
 	const { phase: currentPhase } = useReveal();
 	const shouldReduceMotion = useReducedMotion();
 
-	// Only allow scroll-reveal to trigger if we've reached the required orchestration phase
+	// Only allow scroll-reveal to trigger if we've reached the required animation phase
 	const isEnabled = currentPhase >= phase;
 
 	return (

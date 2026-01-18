@@ -1,22 +1,25 @@
+/**
+ * Toggle switch component.
+ *
+ * @remarks
+ * Built on Radix UI's Switch primitive. Features Framer Motion layout animations
+ * and semantic color variants.
+ *
+ * @example
+ * ```tsx
+ * <Switch checked={enabled} onCheckedChange={setEnabled} />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
-import { cn } from "@/src/lib/utils";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 import { cva, type VariantProps } from "class-variance-authority";
 import { motion } from "motion/react";
 import * as React from "react";
-
-/**
- * Switch component with beautiful Framer Motion animations.
- * Built on Radix UI primitives for accessibility.
- *
- * Features:
- * - Layout-based slide animation with spring physics
- * - Width expansion on press for tactile feedback
- * - Smooth color transitions
- * - Multiple color and size variants
- * - Full keyboard accessibility
- */
+import { cn } from "@/src/lib/index";
 
 // Switch root variants
 const switchVariants = cva(

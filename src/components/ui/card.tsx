@@ -1,11 +1,26 @@
 /**
- * Card Component
+ * Compound component for displaying grouped content.
  *
- * Displays a card with a header, content, and footer.
+ * @remarks
+ * Includes subcomponents for Header, Title, Description, Content, and Footer.
+ *
+ * @example
+ * ```tsx
+ * <Card>
+ *   <CardHeader>
+ *     <CardTitle>Title</CardTitle>
+ *     <CardDescription>Description</CardDescription>
+ *   </CardHeader>
+ *   <CardContent>Content</CardContent>
+ *   <CardFooter>Footer</CardFooter>
+ * </Card>
+ * ```
+ *
+ * @public
  */
 
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UI PRIMITIVES

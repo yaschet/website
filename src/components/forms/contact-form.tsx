@@ -1,17 +1,34 @@
 "use client";
 
+import { ArrowRight, Spinner } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowRight, Spinner } from "@phosphor-icons/react";
-import { contactSchema, type ContactFormValues } from "@/src/lib/schemas/contact";
 import { submitContactForm } from "@/src/app/actions/contact";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { Textarea } from "@/src/components/ui/textarea";
 import { Label } from "@/src/components/ui/label";
+import { Textarea } from "@/src/components/ui/textarea";
+import { type ContactFormValues, contactSchema } from "@/src/lib/schemas/contact";
 
+/**
+ * Interactive contact form with TanStack Form integration.
+ *
+ * @remarks
+ * Features real-time validation, server action integration, and
+ * optimistic UI updates. Uses standard form field components.
+ *
+ * @public
+ */
 export function ContactForm() {
+	const getErrorMessage = (error: unknown): string => {
+		if (typeof error === "string") return error;
+		if (error && typeof error === "object" && "message" in error) {
+			return String((error as { message: unknown }).message);
+		}
+		return "Invalid input";
+	};
+
 	const mutation = useMutation({
 		mutationFn: submitContactForm,
 		onSuccess: (data: { success: boolean; error?: string }) => {
@@ -64,7 +81,7 @@ export function ContactForm() {
 						<div className="group space-y-2.5">
 							<Label
 								htmlFor={field.name}
-								className="block text-xs font-bold uppercase tracking-widest text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
+								className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
 							>
 								Name
 							</Label>
@@ -81,9 +98,8 @@ export function ContactForm() {
 								}
 							/>
 							{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-								<p className="!text-[10px] font-medium uppercase tracking-wide text-destructive">
-									{(field.state.meta.errors[0] as any)?.message ||
-										field.state.meta.errors[0]}
+								<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
+									{getErrorMessage(field.state.meta.errors[0])}
 								</p>
 							)}
 						</div>
@@ -96,7 +112,7 @@ export function ContactForm() {
 						<div className="group space-y-2.5">
 							<Label
 								htmlFor={field.name}
-								className="block text-xs font-bold uppercase tracking-widest text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
+								className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
 							>
 								Email
 							</Label>
@@ -114,9 +130,8 @@ export function ContactForm() {
 								}
 							/>
 							{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-								<p className="!text-[10px] font-medium uppercase tracking-wide text-destructive">
-									{(field.state.meta.errors[0] as any)?.message ||
-										field.state.meta.errors[0]}
+								<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
+									{getErrorMessage(field.state.meta.errors[0])}
 								</p>
 							)}
 						</div>
@@ -130,7 +145,7 @@ export function ContactForm() {
 					<div className="group space-y-2.5">
 						<Label
 							htmlFor={field.name}
-							className="block text-xs font-bold uppercase tracking-widest text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
+							className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
 						>
 							Subject
 						</Label>
@@ -147,9 +162,8 @@ export function ContactForm() {
 							}
 						/>
 						{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-							<p className="!text-[10px] font-medium uppercase tracking-wide text-destructive">
-								{(field.state.meta.errors[0] as any)?.message ||
-									field.state.meta.errors[0]}
+							<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
+								{getErrorMessage(field.state.meta.errors[0])}
 							</p>
 						)}
 					</div>
@@ -162,7 +176,7 @@ export function ContactForm() {
 					<div className="group space-y-2.5">
 						<Label
 							htmlFor={field.name}
-							className="block text-xs font-bold uppercase tracking-widest text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
+							className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
 						>
 							Message
 						</Label>
@@ -178,17 +192,21 @@ export function ContactForm() {
 							}
 						/>
 						{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-							<p className="!text-[10px] font-medium uppercase tracking-wide text-destructive">
-								{(field.state.meta.errors[0] as any)?.message ||
-									field.state.meta.errors[0]}
+							<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
+								{getErrorMessage(field.state.meta.errors[0])}
 							</p>
 						)}
 					</div>
 				)}
 			</form.Field>
 
-			<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-				{(selectorData: any) => {
+			<form.Subscribe
+				// biome-ignore lint/suspicious/noExplicitAny: library type mismatch
+				selector={(state: any) =>
+					[state.canSubmit, state.isSubmitting] as [boolean, boolean]
+				}
+			>
+				{(selectorData: [boolean, boolean]) => {
 					const [canSubmit, isSubmitting] = selectorData;
 					return (
 						<Button

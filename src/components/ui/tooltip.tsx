@@ -1,7 +1,18 @@
 /**
- * Tooltip Component
+ * Tooltip component.
  *
- * A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.
+ * @remarks
+ * Built on Radix UI's Tooltip primitive.
+ *
+ * @example
+ * ```tsx
+ * <Tooltip>
+ *   <TooltipTrigger>Hover</TooltipTrigger>
+ *   <TooltipContent>Content</TooltipContent>
+ * </Tooltip>
+ * ```
+ *
+ * @public
  */
 
 "use client";
@@ -10,7 +21,7 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as React from "react";
 
 import { badgeVariants } from "@/src/components/ui/badge";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // EXPORTS

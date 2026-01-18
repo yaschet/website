@@ -1,8 +1,25 @@
+/**
+ * Drawer component.
+ *
+ * @remarks
+ * Built on 'vaul'.
+ *
+ * @example
+ * ```tsx
+ * <Drawer>
+ *   <DrawerTrigger>Open</DrawerTrigger>
+ *   <DrawerContent>Content</DrawerContent>
+ * </Drawer>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
-import { cn } from "@/src/lib/utils";
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
+import { cn } from "@/src/lib/index";
 
 function Drawer({
 	shouldScaleBackground = true,

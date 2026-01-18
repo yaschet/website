@@ -1,3 +1,19 @@
+/**
+ * Specialized status indicators for location and temporal context.
+ *
+ * @remarks
+ * - Balanced padding and layout.
+ * - Animations managed by RevealProvider.
+ *
+ * @example
+ * ```tsx
+ * <LocationBadge />
+ * <TimeBadge />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import { Clock } from "@phosphor-icons/react";
@@ -6,19 +22,7 @@ import { useEffect, useState } from "react";
 import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
 import { useReveal } from "@/src/components/providers/reveal-provider";
-import { springs } from "@/src/lib/physics";
-import { cn } from "@/src/lib/utils";
-
-/**
- * Context Badges
- *
- * Swiss-balanced status indicators:
- * - Insignia zone: Edge-mounted flag/icon (no padding)
- * - Content zone: Balanced padding (X = Y)
- * - Tooltip for secondary info
- *
- * @module context-badges
- */
+import { cn, springs } from "@/src/lib/index";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS - Swiss Grid Mathematics
@@ -38,15 +42,15 @@ const badgeBaseClasses = cn(
 	"group relative z-20 flex items-center",
 	"rounded-[var(--radius)]",
 	"border border-surface-200/80 dark:border-surface-800/80",
-	"bg-white/90 dark:bg-surface-950/90 backdrop-blur-xl",
+	"bg-white/90 backdrop-blur-xl dark:bg-surface-950/90",
 	"shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
-	"text-xs font-medium text-surface-600 dark:text-surface-400",
-	"select-none pointer-events-auto cursor-default",
+	"font-medium text-surface-600 text-xs dark:text-surface-400",
+	"pointer-events-auto cursor-default select-none",
 );
 
 /** Insignia zone - edge-mounted, no padding, clips flag to bounds */
 const insigniaClasses = cn(
-	"flex items-center justify-center shrink-0 overflow-hidden",
+	"flex shrink-0 items-center justify-center overflow-hidden",
 	"rounded-l-[var(--radius)]",
 	"bg-surface-100/50 dark:bg-surface-800/50",
 );
@@ -155,7 +159,7 @@ export function TimeBadge() {
 					<Clock weight="duotone" className="size-4" />
 				</div>
 				<div className={contentClasses} style={{ padding: CONTENT_PADDING }}>
-					<span className="opacity-0 font-mono text-xs tabular-nums">00:00</span>
+					<span className="font-mono text-xs tabular-nums opacity-0">00:00</span>
 				</div>
 			</div>
 		);

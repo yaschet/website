@@ -1,14 +1,22 @@
-"use client";
-
 /**
- * CopyButton - Client-side copy-to-clipboard button
+ * CopyButton component.
  *
- * Separate client component to avoid SSR issues in MDX components.
+ * @remarks
+ * Client-side component for clipboard interaction.
+ *
+ * @example
+ * ```tsx
+ * <CopyButton text="content" />
+ * ```
+ *
+ * @public
  */
 
-import { useState, useCallback } from "react";
+"use client";
+
 import { Check, Copy } from "@phosphor-icons/react";
-import { cn } from "@/src/lib/utils";
+import { useCallback, useState } from "react";
+import { cn } from "@/src/lib/index";
 
 interface CopyButtonProps {
 	text: string;

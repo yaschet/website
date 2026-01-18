@@ -1,14 +1,13 @@
 /**
- * Physics-First Animation System
+ * Physics Animation Constants
  *
- * Spring parameters derived from real-world physics principles.
+ * Spring parameters for animations.
  * All values are tuned for 60fps GPU-accelerated transforms.
  *
  * @module physics
  * @description
- * This is the single source of truth for all motion in the application.
- * Every animation should import from here to ensure visual consistency
- * and a unified "feel" across the interface.
+ * Central configuration for animation constants.
+ * Ensures consistent motion values across the application.
  *
  * @example
  * import { springs, stagger, distances } from "@/src/lib/physics";
@@ -20,7 +19,7 @@
 // MATHEMATICAL CONSTANTS
 // ═══════════════════════════════════════════════════════════════════════════
 
-/** Golden Ratio - the mathematical foundation for natural visual rhythm */
+/** Golden Ratio constant */
 export const PHI = 1.618033988749895;
 
 /** Inverse Golden Ratio - for decelerating progressions */
@@ -33,16 +32,7 @@ export const PHI_INVERSE = 1 / PHI; // ≈ 0.618
 /**
  * Spring Configurations
  *
- * Named after their perceived "weight" or "feel":
- * - snappy: UI controls, hover states, buttons
- * - responsive: Content reveals, modals, panels
- * - gentle: Hero text, ambient motion
- * - layout: Shared layout animations, morphing
- * - ambient: Background elements, ultra-subtle
- * - bouncy: Playful emphasis (use sparingly)
- *
- * Physics breakdown:
- * - mass: How "heavy" the element feels (lower = faster start)
+ * - mass: Inertia of the element.
  * - stiffness: How "tight" the spring is (higher = faster overall)
  * - damping: How quickly oscillation stops (higher = less bounce)
  *
@@ -52,7 +42,7 @@ export const PHI_INVERSE = 1 / PHI; // ≈ 0.618
 export const springs = {
 	/**
 	 * Micro-interactions (hover, press, focus)
-	 * Feels instant but has physical "push back"
+	 * High stiffness, low mass.
 	 */
 	snappy: {
 		type: "spring" as const,
@@ -63,9 +53,9 @@ export const springs = {
 
 	/**
 	 * Button micro-interactions (hover, press)
-	 * Optimally damped: Just below critical for a subtle "pop" without bounce.
+	 * Critical damping.
 	 * Critical damping = 2 * sqrt(stiffness * mass) = 2 * sqrt(400 * 0.3) ≈ 22
-	 * We use 20 (slightly under-damped) for organic feel.
+	 * Standard under-damped spring.
 	 */
 	button: {
 		type: "spring" as const,
@@ -76,7 +66,7 @@ export const springs = {
 
 	/**
 	 * UI reveals (content appearing, modals)
-	 * Fast attack, smooth settle
+	 * High stiffness, moderate damping.
 	 */
 	responsive: {
 		type: "spring" as const,
@@ -87,7 +77,7 @@ export const springs = {
 
 	/**
 	 * Content reveals (text, sections)
-	 * Elegant entrance, slightly more mass
+	 * Lower stiffness, higher mass.
 	 */
 	gentle: {
 		type: "spring" as const,
@@ -98,7 +88,7 @@ export const springs = {
 
 	/**
 	 * Layout animations (shared layout, morphing)
-	 * Smooth and interconnected feeling
+	 * Smooth stiffness/damping ratio.
 	 */
 	layout: {
 		type: "spring" as const,
@@ -109,7 +99,7 @@ export const springs = {
 
 	/**
 	 * Background/ambient elements
-	 * Ultra-smooth, almost imperceptible entry
+	 * Very low stiffness.
 	 */
 	ambient: {
 		type: "spring" as const,
@@ -131,7 +121,7 @@ export const springs = {
 
 	/**
 	 * Text character reveals
-	 * Must be snappy to keep up with staggered children
+	 * Fast response for list items.
 	 */
 	text: {
 		type: "spring" as const,
@@ -152,7 +142,7 @@ export const springs = {
 	},
 	/**
 	 * Data glitch/swap (for coordinates, dates)
-	 * Ultra-fast, electronic feel
+	 * High stiffness (500).
 	 */
 	glitch: {
 		type: "spring" as const,
@@ -167,18 +157,16 @@ export const springs = {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Orchestrated Button Animation
+ * Button Animation Variant
  *
- * Per-property springs create a "layered" feel where different aspects
- * of the animation resolve at different rates:
- * - Scale: Fast and snappy (the immediate response)
- * - Y: Medium, the "hero" motion
+ * - Scale: Fast transition.
+ * - Y: Moderate transition.
  * - Shadow: Slow fade-in as a secondary effect
  *
- * This is what separates "alive" UI from "mechanical" UI.
+ * Standard micro-interaction.
  */
 export const buttonTransition = {
-	// Scale is the "instant feedback" — snappy, resolves first
+	// Scale transition
 	scale: {
 		type: "spring" as const,
 		mass: 0.25,
@@ -216,10 +204,10 @@ export const buttonTransition = {
  * Stagger Intervals
  *
  * Base delays for sequential element reveals.
- * Uses golden ratio (φ) for advanced orchestration.
+ * Uses golden ratio (φ) for staggering.
  */
 export const stagger = {
-	/** Ultra-fast character-by-character (typewriter effect) */
+	/** Fast interval */
 	char: 0.02,
 
 	/** Word-by-word text reveals */
@@ -277,7 +265,7 @@ export const distances = {
 	/** Large (hero elements, modals, overlays) */
 	large: 32,
 
-	/** Extra large (full-page reveals, dramatic entrances) */
+	/** Large interval (full-page reveals) */
 	xl: 48,
 } as const;
 
@@ -288,7 +276,7 @@ export const distances = {
 /**
  * Blur Intensities
  *
- * For "fade-in-blur" effects. Higher = more dramatic but slower to clear.
+ * For "fade-in-blur" effects. Higher values increase blur radius.
  * GPU-accelerated via CSS filter.
  */
 export const blur = {
@@ -298,7 +286,7 @@ export const blur = {
 	/** Standard text/content blur */
 	normal: "blur(8px)",
 
-	/** Heavy blur for dramatic reveals */
+	/** High blur radius */
 	heavy: "blur(16px)",
 
 	/** Cleared state */

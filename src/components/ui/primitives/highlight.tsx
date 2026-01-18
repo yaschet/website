@@ -1,9 +1,32 @@
+/**
+ * Motion primitive for handling selection highlights.
+ *
+ * @remarks
+ * Component for shared layout animations between elements.
+ * Supports two operational modes:
+ * - 'parent': High-performance layout management where the highlight
+ *   floats independently of child items.
+ * - 'children': Localized highlight state managed per-item.
+ *
+ * Uses 0px default border radius.
+ *
+ * @example
+ * ```tsx
+ * <Highlight mode="parent" className="bg-surface-100 rounded-md">
+ *   <HighlightItem value="item-1">Item 1</HighlightItem>
+ *   <HighlightItem value="item-2">Item 2</HighlightItem>
+ * </Highlight>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import type { Transition } from "motion/react";
 import { AnimatePresence, motion } from "motion/react";
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 type HighlightMode = "children" | "parent";
 

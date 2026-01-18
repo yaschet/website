@@ -1,9 +1,32 @@
+/**
+ * High-performance tab navigation with shared-element indicator.
+ *
+ * @remarks
+ * Tab component with animated transitions using Framer Motion.
+ * synchronized "blob" indicator that flows between active triggers.
+ * Uses strict 0px border radius styling.
+ * backdrop-blur and responsive scaling.
+ *
+ * @example
+ * ```tsx
+ * <Tabs defaultValue="tab1">
+ *   <TabsList>
+ *     <TabsTrigger value="tab1">Overview</TabsTrigger>
+ *     <TabsTrigger value="tab2">Specifications</TabsTrigger>
+ *   </TabsList>
+ *   <TabsContent value="tab1">Context here</TabsContent>
+ * </Tabs>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 type TabsContextType = {
 	activeTab: string;

@@ -1,7 +1,7 @@
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import type { Project } from "contentlayer2/generated";
 import Link from "next/link";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 /**
  * Project showcase card for portfolio display.

@@ -1,7 +1,18 @@
 /**
- * Dialog Component
+ * Modal dialog component.
  *
- * A window overlaid on either the primary window or another dialog window, rendering the content underneath inert.
+ * @remarks
+ * Built on Radix UI's Dialog primitive. Handles focus management and stacking.
+ *
+ * @example
+ * ```tsx
+ * <Dialog>
+ *   <DialogTrigger>Open</DialogTrigger>
+ *   <DialogContent>Content</DialogContent>
+ * </Dialog>
+ * ```
+ *
+ * @public
  */
 
 "use client";
@@ -9,7 +20,7 @@
 import { XIcon } from "@phosphor-icons/react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // EXPORTS
@@ -81,7 +92,7 @@ const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 DialogHeader.displayName = "DialogHeader";
 
 /**
- * DialogFooter - Primary action layout block.
+ * DialogFooter - Helper for dialog actions.
  */
 function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
 	return (
@@ -97,7 +108,7 @@ function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 DialogFooter.displayName = "DialogFooter";
 
 /**
- * DialogTitle - Contextual title with integrated close orchestration.
+ * DialogTitle - Dialog heading.
  */
 const DialogTitle = React.forwardRef<
 	React.ComponentRef<typeof DialogPrimitive.Title>,
@@ -116,7 +127,7 @@ const DialogTitle = React.forwardRef<
 		<span>{children}</span>
 		<DialogPrimitive.Close
 			className={cn(
-				"rounded-[var(--radius-xs)]", // Machined precision for small buttons
+				"rounded-[var(--radius-xs)]",
 				"opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none",
 			)}
 		>
@@ -128,7 +139,7 @@ const DialogTitle = React.forwardRef<
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
 /**
- * DialogDescription - Supporting contextual information.
+ * DialogDescription - Dialog helper text.
  */
 const DialogDescription = React.forwardRef<
 	React.ComponentRef<typeof DialogPrimitive.Description>,

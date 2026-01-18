@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { SwissGridProvider, useSwissGrid } from "./swiss-grid-canvas";
 
 /**
- * Procedural canvas-based crosshair grid overlay for architectural layout precision.
+ * Canvas-based grid overlay for layout visualization.
  */
 const meta: Meta<typeof SwissGridProvider> = {
 	title: "Visuals/SwissGrid",
@@ -60,16 +60,13 @@ export const Default: Story = {
 			<div className="relative flex min-h-screen flex-col gap-20 bg-surface-50 p-10 dark:bg-surface-950">
 				<GridSection
 					id="hero"
-					transparentb
-					className="flex h-64 items-center justify-center border-b border-transparent"
+					className="flex h-64 items-center justify-center border-transparent border-b"
 				>
-					font-bold
-					<h1 className="text-4xl font-bold">Hero Section</h1>
+					<h1 className="font-bold text-4xl">Hero Section</h1>
 				</GridSection>
 				<GridSection
 					id="content"
-					transparentb
-					className="flex h-96 items-center justify-center border-b border-transparent"
+					className="flex h-96 items-center justify-center border-transparent border-b"
 				>
 					<p className="text-xl">Content Section with Grid Intersections</p>
 				</GridSection>

@@ -1,11 +1,34 @@
+/**
+ * Architectural multi-selection interface for tag and category management.
+ *
+ * @remarks
+ * Built on 'cmdk' and Radix UI's accessible primitives. Features an
+ * integrated input field with synchronous badge emitters and temporary
+ * dismissal states. Adheres to the sharp geometric and high-contrast
+ * customized for consistent design tokens.
+ *
+ * @example
+ * ```tsx
+ * <MultiSelect
+ *   options={[
+ *     { label: "React", value: "react" },
+ *     { label: "Next.js", value: "nextjs" }
+ *   ]}
+ *   onValueChange={(selected) => console.log(selected)}
+ * />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
-import { Badge } from "@components/ui/badge";
-import { Command, CommandGroup, CommandItem } from "@components/ui/command";
-import { cn } from "@/src/lib/utils";
 import { XIcon } from "@phosphor-icons/react";
 import { Command as CommandPrimitive } from "cmdk";
 import * as React from "react";
+import { Badge } from "@/src/components/ui/badge";
+import { Command, CommandGroup, CommandItem } from "@/src/components/ui/command";
+import { cn } from "@/src/lib/index";
 
 type Framework = Record<"value" | "label", string>;
 

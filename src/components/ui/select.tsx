@@ -1,7 +1,20 @@
 /**
- * Select Component
+ * Select component for choosing from a list of items.
  *
- * Displays a list of options for the user to pick from—triggered by a button.
+ * @remarks
+ * Built on Radix UI's Select primitive. Supports variable sizes and keyboard navigation.
+ *
+ * @example
+ * ```tsx
+ * <Select defaultValue="option-1">
+ *   <SelectTrigger><SelectValue /></SelectTrigger>
+ *   <SelectContent>
+ *     <SelectItem value="option-1">Option 1</SelectItem>
+ *   </SelectContent>
+ * </Select>
+ * ```
+ *
+ * @public
  */
 
 "use client";
@@ -10,8 +23,7 @@ import { CaretDownIcon, CaretUpDownIcon, CaretUpIcon, CheckIcon } from "@phospho
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { cva } from "class-variance-authority";
 import * as React from "react";
-
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONTEXT & TYPES
@@ -106,7 +118,7 @@ const SelectGroup = SelectPrimitive.Group;
 const SelectValue = SelectPrimitive.Value;
 
 /**
- * Select - Root orchestrator for selection menus.
+ * Select - Root component.
  */
 const Select: React.FC<
 	React.ComponentProps<typeof SelectPrimitive.Root> & { size?: SelectSize }
@@ -117,7 +129,7 @@ const Select: React.FC<
 );
 
 /**
- * SelectTrigger - Interaction target to open the selection menu.
+ * SelectTrigger - The button that toggles the select menu.
  */
 const SelectTrigger = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.Trigger>,
@@ -153,7 +165,7 @@ const SelectTrigger = React.forwardRef<
 });
 
 /**
- * SelectContent - The primary menu container.
+ * SelectContent - Container for the selectable options.
  */
 const SelectContent = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.Content>,
@@ -191,7 +203,7 @@ const SelectContent = React.forwardRef<
 });
 
 /**
- * SelectItem - Individual selectable entry in a menu.
+ * SelectItem - An individual option within the select menu.
  */
 const SelectItem = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.Item>,
@@ -215,7 +227,7 @@ const SelectItem = React.forwardRef<
 });
 
 /**
- * SelectScrollUpButton - Visual indicator for more items above.
+ * SelectScrollUpButton - Scroll up control for long lists.
  */
 const SelectScrollUpButton = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.ScrollUpButton>,
@@ -231,7 +243,7 @@ const SelectScrollUpButton = React.forwardRef<
 ));
 
 /**
- * SelectScrollDownButton - Visual indicator for more items below.
+ * SelectScrollDownButton - Scroll down control for long lists.
  */
 const SelectScrollDownButton = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.ScrollDownButton>,

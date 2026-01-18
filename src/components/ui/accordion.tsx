@@ -1,16 +1,15 @@
 /**
- * Vertically stacked interactive headings that each reveal a section of content.
+ * Accordion component.
  *
  * @remarks
- * Built on Radix UI's Accordion primitive. Engineered for accessibility
- * and geometric precision. Supports single or multiple open items.
+ * Built on Radix UI's Accordion primitive.
  *
  * @example
  * ```tsx
  * <Accordion type="single" collapsible>
- *   <AccordionItem value="item-1">
- *     <AccordionTrigger>Is it accessible?</AccordionTrigger>
- *     <AccordionContent>Yes, it adheres to the WAI-ARIA design pattern.</AccordionContent>
+ *   <AccordionItem value="1">
+ *     <AccordionTrigger>Open</AccordionTrigger>
+ *     <AccordionContent>Content</AccordionContent>
  *   </AccordionItem>
  * </Accordion>
  * ```

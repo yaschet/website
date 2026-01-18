@@ -4,7 +4,7 @@ import { Space_Grotesk, Space_Mono } from "next/font/google";
  * @file fonts.ts
  * @description
  * Professional typography configuration using Next.js Google Fonts.
- * We utilize Space Grotesk for its engineered, Swiss-style precision in headlines,
+ * We utilize Space Grotesk for headlines,
  * and Space Mono for technical data and code snippets.
  */
 
@@ -13,7 +13,7 @@ export const fontSans = Space_Grotesk({
 	display: "swap",
 	variable: "--font-app-sans",
 	weight: ["300", "400", "500", "600", "700"],
-	// Robust Swiss fallback stack
+	// Fallback stack
 	fallback: ["system-ui", "-apple-system", "Helvetica Neue", "Arial", "sans-serif"],
 });
 

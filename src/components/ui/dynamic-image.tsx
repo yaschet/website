@@ -1,12 +1,26 @@
+/**
+ * Architectural image container with automatic theme-switching capabilities.
+ *
+ * @remarks
+ * Renders different images based on the current theme (light/dark).
+ * system or user theme. Provides a Skeleton placeholder during hydration to
+ * prevent layout shifts in thematic transitions.
+ *
+ * @example
+ * ```tsx
+ * <DynamicImage
+ *   lightSrc="/img-light.png"
+ *   darkSrc="/img-dark.png"
+ *   alt="Thematic Illustration"
+ * />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import type { ImageProps, StaticImageData } from "next/image";
-// --------------------------------------------------------------
-//
-// * Note:
-// This component will provide a dynamic image component that will allow us to use the next/image component with light/dark support.
-//
-// --------------------------------------------------------------
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";

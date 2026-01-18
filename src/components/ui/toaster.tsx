@@ -1,3 +1,19 @@
+/**
+ * Viewport container for stacking and managing Radix Toasts.
+ *
+ * @remarks
+ * Integrated with `useToast` hook for declarative notification management.
+ * Follows the geometric standard of the design system.
+ *
+ * @example
+ * ```tsx
+ * // In Root Layout
+ * <Toaster />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import {
@@ -7,8 +23,8 @@ import {
 	ToastProvider,
 	ToastTitle,
 	ToastViewport,
-} from "@components/ui/toast";
-import { useToast } from "@components/ui/use-toast";
+} from "@/src/components/ui/toast";
+import { useToast } from "@/src/components/ui/use-toast";
 
 export function Toaster() {
 	const { toasts } = useToast();

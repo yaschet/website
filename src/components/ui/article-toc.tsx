@@ -1,31 +1,28 @@
-"use client";
-
 /**
- * ArticleTOC - Premium Sidebar Table of Contents
+ * Architectural navigation sidebar for long-form content.
  *
- * @module article-toc
- * @description
- * A refined sidebar TOC that follows conventions but executes them beautifully.
- * Visible headings, typographic active state, continuous scroll tracking.
+ * @remarks
+ * Engineered for high-readability in technical documentation. Features:
+ * - Dynamic heading extraction (h2, h3) with coordinate synchronization.
+ * - Continuous tracking based on scroll velocity and position.
+ * - Typographic active state contrast (monochromatic Swiss standard).
+ * - Automatic image-load detection for coordinate recalculation.
+ * - Responsive mobile drawer fallback.
  *
- * Design Principles:
- * 1. Visible labels — All sections are readable at a glance
- * 2. Typographic contrast — Active state via font-weight + color
- * 3. Continuous tracking — Uses scroll position, not discrete thresholds
- * 4. Swiss aesthetic — High contrast, no mid-grays, sharp edges
+ * @example
+ * ```tsx
+ * <ArticleTOC contentSelector="article" />
+ * ```
  *
- * Edge Cases Handled:
- * - Reduced motion preference
- * - Dynamic content (images loading after mount)
- * - Mobile (collapsible drawer)
- * - Keyboard navigation
+ * @public
  */
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+"use client";
+
 import { List, X } from "@phosphor-icons/react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
-import { springs } from "@/src/lib/physics";
-import { cn } from "@/src/lib/utils";
+import { cn, springs } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -238,7 +235,7 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 	if (!mounted || headings.length === 0) return null;
 
 	const TOCList = ({ isMobile = false }: { isMobile?: boolean }) => (
-		<ul className="flex flex-col" role="list">
+		<ul className="flex flex-col">
 			{headings.map(({ id, text, level }, index) => {
 				const isActive = index === activeIndex;
 
@@ -275,12 +272,12 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 				variants={containerVariants}
 				transition={prefersReducedMotion ? { duration: 0 } : springs.responsive}
 				className={cn(
-					"fixed left-8 top-1/2 z-40 hidden -translate-y-1/2 xl:block",
+					"fixed top-1/2 left-8 z-40 hidden -translate-y-1/2 xl:block",
 					className,
 				)}
 				aria-label="Table of contents"
 			>
-				<div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-surface-400 dark:text-surface-500">
+				<div className="mb-3 font-mono text-[10px] text-surface-400 uppercase tracking-widest dark:text-surface-500">
 					On this page
 				</div>
 				<TOCList />
@@ -297,7 +294,7 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 						transition={prefersReducedMotion ? { duration: 0 } : springs.snappy}
 						onClick={() => setIsMobileOpen(true)}
 						className={cn(
-							"fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center xl:hidden",
+							"fixed right-6 bottom-6 z-40 flex size-12 items-center justify-center xl:hidden",
 							"border border-surface-200 bg-white dark:border-surface-700 dark:bg-surface-900",
 							"shadow-lg",
 						)}
@@ -330,13 +327,13 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 							variants={mobileVariants}
 							transition={prefersReducedMotion ? { duration: 0 } : springs.responsive}
 							className={cn(
-								"fixed bottom-0 left-0 right-0 z-50 max-h-[70vh] overflow-y-auto xl:hidden",
-								"border-t border-surface-200 bg-white p-6 dark:border-surface-700 dark:bg-surface-900",
+								"fixed right-0 bottom-0 left-0 z-50 max-h-[70vh] overflow-y-auto xl:hidden",
+								"border-surface-200 border-t bg-white p-6 dark:border-surface-700 dark:bg-surface-900",
 							)}
 							aria-label="Table of contents"
 						>
 							<div className="mb-4 flex items-center justify-between">
-								<span className="font-mono text-xs uppercase tracking-widest text-surface-400 dark:text-surface-500">
+								<span className="font-mono text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 									On this page
 								</span>
 								<button

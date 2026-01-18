@@ -1,11 +1,28 @@
+/**
+ * Sheet component (sidebar/drawer).
+ *
+ * @remarks
+ * Built on Radix UI's Dialog primitive. Supports 4 directional slide-ins.
+ *
+ * @example
+ * ```tsx
+ * <Sheet>
+ *   <SheetTrigger>Open</SheetTrigger>
+ *   <SheetContent>Content</SheetContent>
+ * </Sheet>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
-import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import { XIcon } from "@phosphor-icons/react";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { ScrollArea, ScrollBar } from "@/src/components/ui/scroll-area";
+import { cn } from "@/src/lib/index";
 
 const Sheet = SheetPrimitive.Root;
 

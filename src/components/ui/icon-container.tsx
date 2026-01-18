@@ -1,6 +1,22 @@
-import { cn } from "@/src/lib/utils";
+/**
+ * IconContainer component.
+ *
+ * @remarks
+ * Container for semantic iconography.
+ *
+ * @example
+ * ```tsx
+ * <IconContainer variant="soft">
+ *   <FilesIcon />
+ * </IconContainer>
+ * ```
+ *
+ * @public
+ */
+
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
+import { cn } from "@/src/lib/index";
 
 const iconContainerVariants = cva(
 	["inline-flex items-center justify-center", "transition-all duration-200 ease-out"],

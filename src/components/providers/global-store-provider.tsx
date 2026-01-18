@@ -12,6 +12,15 @@ export type GlobalStoreProviderProps = {
 	children: ReactNode;
 };
 
+/**
+ * Client-side state management context.
+ *
+ * @remarks
+ * Provides a specialized Zustand store to the component tree, ensuring
+ * safe hydration and preventing cross-request state pollution in SSR/RSC.
+ *
+ * @public
+ */
 export function GlobalStoreProvider({ children }: GlobalStoreProviderProps) {
 	const storeRef = useRef<GlobalStoreApi>(undefined);
 

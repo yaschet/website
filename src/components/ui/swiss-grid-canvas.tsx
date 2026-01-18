@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Swiss Grid Canvas - Pixel-Perfect Grid Overlay
+ * Swiss Grid Canvas - Grid Overlay
  *
  * @module swiss-grid-canvas
  * @description
@@ -154,7 +154,6 @@ export function SwissGridProvider({
 	const shouldReduceMotion = useReducedMotion();
 
 	// Physics-based animation progress (0 → 1)
-	// Low stiffness + High mass = Heavy, deliberate mechanical work
 	const drawProgress = useSpring(0, {
 		stiffness: 6,
 		damping: 10,
@@ -421,7 +420,7 @@ export function SwissGridProvider({
 						const stiffness = 35.0 + variance * 10.0;
 						const damping = 10.0 + variance * 4.0;
 
-						const impactThreshold = trigger + variance * 0.02; // Removed X-axis delay. Rows land in parallel. Reduced variance for precision.
+						const impactThreshold = trigger + variance * 0.02;
 						const dt = Math.max(0, (progress - impactThreshold) * 1800);
 
 						if (dt > 0) {
@@ -441,7 +440,7 @@ export function SwissGridProvider({
 							if (!isLanded) {
 								const descentPath = dt / impactT;
 								stampScale = 1.8 - descentPath * 0.5;
-								rotation = 0; // Rigid piston drop (no tilt)
+								rotation = 0;
 								shadowOffset = (1 - descentPath) * 12;
 								shadowAlpha = descentPath * 0.2;
 							} else {
@@ -451,7 +450,7 @@ export function SwissGridProvider({
 								const oscillation = Math.cos(omega_d * t);
 
 								stampScale = 1 + envelope * oscillation;
-								rotation = 0; // Rigid piston land (no wobble)
+								rotation = 0;
 								flashAlpha = decay * 1.0;
 								shadowOffset = 0;
 								shadowAlpha = 0.18;
@@ -541,7 +540,7 @@ export function SwissGridProvider({
 
 		// Guarded recalculation (Instant - Real Physics)
 		// ONLY checks for view-transition-active class to prevent specific animation shifts.
-		// Otherwise updates INSTANTLY via requestAnimationFrame for responsive Swiss feel.
+		// Otherwise updates via requestAnimationFrame.
 		const safeRecalculate = () => {
 			if (document.documentElement.classList.contains("view-transition-active")) {
 				return;

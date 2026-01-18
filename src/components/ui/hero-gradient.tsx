@@ -1,17 +1,28 @@
+/**
+ * Atmospheric background management for headline content.
+ *
+ * @remarks
+ * - CSS radial gradients for lighting.
+ * - Canvas-based grain overlay.
+ * - GPU-accelerated canvas rendering for dot-matrix density.
+ *
+ * All motion is synchronized with the global `RevealProvider` state.
+ *
+ * @example
+ * ```tsx
+ * <HeroGradient className="h-screen" />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { springs } from "@/src/lib/physics";
+import { springs } from "@/src/lib/index";
 import { useReveal } from "../providers/reveal-provider";
-
-/**
- * @component HeroGradient
- * @description
- * High-performance, aesthetically refined background glow designed to provide
- * visual depth and a premium atmosphere for the hero section of the homepage.
- */
 
 interface HeroGradientProps {
 	/** Optional additional class names for positioning or container overrides. */
@@ -35,7 +46,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 	 * Evokes 1990s high-tech monitors when zoomed in.
 	 *
 	 * GRID HARMONIZATION:
-	 * Uses 16px spacing to align with the Swiss Grid system (9px dash + 7px gap = 16px cycle).
+	 * Uses 16px spacing.
 	 * Calculates the container offset so dots align with the centered max-w-3xl container.
 	 */
 	const drawDots = useCallback(() => {
@@ -59,7 +70,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 		// Grid-aligned retro CRT settings
 		// DOT_SPACING must be a divisor of GRID_CYCLE (16) to maintain vertical alignment
 		// Options: 1, 2, 4, 8, 16 - using 4px for dense retro CRT effect
-		const _GRID_CYCLE = 16; // Swiss Grid cycle
+		const _GRID_CYCLE = 16;
 		const DOT_SPACING = 4; // Dense CRT grid (4 dots per grid cycle)
 		const MAX_CONTAINER_WIDTH = 768;
 		const pixelSize = 1.5; // Small dots for authentic CRT feel
@@ -117,14 +128,14 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 					"linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%)",
 			}}
 		>
-			{/* LAYERED ATMOSPHERIC DIFFUSION */}
+			{/* GRADIENT LAYERS */}
 			<motion.div
 				initial={{ opacity: 0, scale: 0.8 }}
 				animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
 				transition={{ ...springs.ambient, delay: 0.2 }}
 				className="absolute inset-0"
 			>
-				{/* Primary Atmospheric Orb */}
+				{/* Primary Gradient */}
 				<div
 					className="absolute"
 					style={{
@@ -140,7 +151,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 					}}
 				/>
 
-				{/* Secondary Depth Orb */}
+				{/* Secondary Gradient */}
 				<div
 					className="absolute"
 					style={{

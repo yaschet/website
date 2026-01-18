@@ -1,8 +1,24 @@
+/**
+ * ScrollArea component.
+ *
+ * @remarks
+ * Built on Radix UI's ScrollArea primitive.
+ *
+ * @example
+ * ```tsx
+ * <ScrollArea className="h-64">
+ *   <div>Content</div>
+ * </ScrollArea>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
-import { cn } from "@/src/lib/utils";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import * as React from "react";
+import { cn } from "@/src/lib/index";
 
 const ScrollArea = React.forwardRef<
 	React.ComponentRef<typeof ScrollAreaPrimitive.Root>,

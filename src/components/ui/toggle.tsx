@@ -1,19 +1,28 @@
+/**
+ * Toggle button component.
+ *
+ * @remarks
+ * Built on Radix UI's Toggle primitive.
+ *
+ * @example
+ * ```tsx
+ * <Toggle aria-label="Toggle italic">
+ *   <ItalicIcon className="size-4" />
+ * </Toggle>
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
-import { cn } from "@/src/lib/utils";
 import * as TogglePrimitive from "@radix-ui/react-toggle";
 import { cva, type VariantProps } from "class-variance-authority";
 import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
 import type * as React from "react";
 import { useControlledState } from "@/src/hooks/use-controlled-state";
 import { getStrictContext } from "@/src/lib/get-strict-context";
-
-/**
- * Toggle component - Standalone version cloned from Animate UI
- * 100% replica of @animate-ui/components-radix-toggle functionality
- *
- * This is a self-contained implementation that doesn't depend on animate-ui folder.
- */
+import { cn } from "@/src/lib/index";
 
 // ============================================================================
 // PRIMITIVES (Inline from animate-ui/primitives/radix/toggle.tsx)

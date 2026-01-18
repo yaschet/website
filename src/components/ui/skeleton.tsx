@@ -1,17 +1,19 @@
 /**
- * Skeleton Component - Structural Placeholder Primitive
+ * Skeleton component for loading states.
  *
- * Engineered to mirror the geometry of "The Architecture of the Blade."
- * Part of the 0px default system, ensuring visual alignment during load states.
+ * @remarks
+ * Supports rectangular, circle, and text variants.
  *
- * Features:
- * - Deterministic shimmer orchestration
- * - Inherited 0px radius standard
- * - Variant-based geometry (Rectangular, Circle, Text)
+ * @example
+ * ```tsx
+ * <Skeleton className="h-4 w-[250px]" />
+ * ```
+ *
+ * @public
  */
 
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -35,8 +37,7 @@ export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Skeleton - Primary structural placeholder.
- * Aligns with the "Architecture of the Blade" geometric standard.
+ * Skeleton - Structure placeholder.
  */
 const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
 	(
@@ -45,7 +46,7 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
 	) => {
 		const baseClasses = cn(
 			"relative overflow-hidden bg-surface-2 opacity-100 will-change-transform",
-			// Geometry: Inherit 0px Standard or map to Circle
+			// Shape
 			variant === "circle" ? "rounded-full" : "rounded-[var(--radius)]",
 			className,
 		);

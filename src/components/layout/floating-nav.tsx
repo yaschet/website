@@ -1,16 +1,11 @@
 /**
- * Fixed-position navigation dock with animated active indicator.
+ * FloatingNav component.
  *
  * @remarks
- * A glassmorphic navigation bar that floats above page content. Features:
- * - Sliding pill indicator that tracks the active route
- * - GPU-accelerated spring animations via Framer Motion
- * - Theme toggle with View Transitions API support
- * - Keyboard navigation with focus management
+ * Fixed-position navigation bar.
  *
  * @example
  * ```tsx
- * // Typically placed in root layout
  * <FloatingNav />
  * ```
  *
@@ -35,10 +30,8 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-
 import { useReveal } from "@/src/components/providers/reveal-provider";
-import { springs } from "@/src/lib/physics";
-import { cn } from "@/src/lib/utils";
+import { cn, springs } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -66,7 +59,7 @@ const ICON_SIZE = 18;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * FloatingNav - The primary interaction dock of the platform.
+ * FloatingNav - Main navigation.
  */
 export function FloatingNav() {
 	const pathname = usePathname();
@@ -96,35 +89,19 @@ export function FloatingNav() {
 	const currentTab = hoveredTab ?? activeTab;
 
 	/**
-	 * Swiss-precision theme transition.
-	 * Uses a horizontal wipe (inset clip-path) — geometric, sharp, controlled.
-	 * Adds a guard class to prevent Swiss Grid recalculations during transition.
+	 * Toggles the theme with a view transition.
 	 */
 	const toggleTheme = async () => {
-		// 1. IMPROVED GUARD: Add this IMMEDIATELY to block any Swiss Grid updates
-		document.documentElement.classList.add("view-transition-active");
-
 		const newTheme = resolvedTheme === "dark" ? "light" : "dark";
 
-		// Temporary classes for background synchronization during transition
-		const transitionClass = `transition-bg-${resolvedTheme === "light" ? "dark" : "light"}`;
-		document.documentElement.classList.add(transitionClass);
-
-		// Fallback: no View Transitions API or reduced motion
+		// Fallback for no View Transitions
 		if (
 			!(document as Document & { startViewTransition?: unknown }).startViewTransition ||
 			window.matchMedia("(prefers-reduced-motion: reduce)").matches
 		) {
 			setTheme(newTheme);
-			document.documentElement.classList.remove(
-				"transition-bg-light",
-				"transition-bg-dark",
-				"view-transition-active", // Valid cleanup
-			);
 			return;
 		}
-
-		// (Guard was already added at step 1)
 
 		await (
 			document as Document & {
@@ -136,23 +113,12 @@ export function FloatingNav() {
 			});
 		}).ready;
 
-		// "The Gravity Shutter" — Legendary Engineering
-		// 1. Direction: Top-to-Bottom. Why? The Nav is at the top. The interaction source is above.
-		//    Gravity dictates the change flows DOWN from the source. It washes over the page.
-		// 2. Physics: Heavy, industrial damping. Not a spring, but a hydraulic piston.
-		// 3. Timing: 550ms. The Golden Mean.
-		//    650ms felt slightly "draggy" at the tail end of the expo curve.
-		//    550ms retains the mass but respects the user's time. Efficient Luxury.
 		const animation = document.documentElement.animate(
 			{
-				clipPath: [
-					"inset(0 0 100% 0)", // Hidden (clipped from bottom, causing top-down reveal)
-					"inset(0 0 0 0)", // Fully revealed
-				],
+				clipPath: ["inset(0 0 100% 0)", "inset(0 0 0 0)"],
 			},
 			{
-				duration: 550, // The perfect balance of Weight vs. Snap.
-				// Ease Out Expo: Starts with authority, settles with extreme precision (friction).
+				duration: 550,
 				easing: "cubic-bezier(0.19, 1, 0.22, 1)",
 				pseudoElement: "::view-transition-new(root)",
 			},
@@ -179,18 +145,13 @@ export function FloatingNav() {
 					"pointer-events-auto relative flex items-center gap-1 p-1.5",
 					"bg-white/90 backdrop-blur-xl dark:bg-surface-950/90",
 					"border border-surface-200/80 dark:border-surface-800/80",
-					// Architecture of the Blade: Absolute 0px Default
 					"rounded-[var(--radius)]",
 				)}
 				style={{
-					// Premium layered shadow — realistic levitation
-					// Layer 1: Ambient diffuse (large, soft, far)
-					// Layer 2: Direct shadow (medium, slightly offset)
-					// Layer 3: Contact shadow (tight, close to element)
 					boxShadow: [
-						"0 1px 2px rgba(0, 0, 0, 0.04)", // Contact shadow
-						"0 4px 8px -2px rgba(0, 0, 0, 0.06)", // Direct shadow
-						"0 12px 24px -4px rgba(0, 0, 0, 0.08)", // Ambient diffuse
+						"0 1px 2px rgba(0, 0, 0, 0.04)",
+						"0 4px 8px -2px rgba(0, 0, 0, 0.06)",
+						"0 12px 24px -4px rgba(0, 0, 0, 0.08)",
 					].join(", "),
 				}}
 				role="navigation"
@@ -222,7 +183,6 @@ export function FloatingNav() {
 									onMouseEnter={() => setHoveredTab(item.link)}
 									aria-current={isActive ? "page" : undefined}
 								>
-									{/* The Sliding Mechanical Block */}
 									{currentTab === item.link && (
 										<motion.div
 											layoutId="nav-slot"
@@ -243,7 +203,6 @@ export function FloatingNav() {
 									</motion.div>
 								</Link>
 
-								{/* Sharp Geometric Tooltip */}
 								<AnimatePresence>
 									{isHovered && (
 										<motion.div
@@ -269,7 +228,6 @@ export function FloatingNav() {
 					})}
 				</ul>
 
-				{/* Vertical Separator - Machined Line */}
 				<div
 					className="mx-1 h-6 w-px bg-surface-200 dark:bg-surface-800"
 					aria-hidden="true"

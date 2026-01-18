@@ -1,7 +1,20 @@
 /**
- * DropdownMenu Component
+ * Dropdown menu component.
  *
- * Displays a menu to the user—such as a set of actions or functions—triggered by a button.
+ * @remarks
+ * Built on Radix UI's DropdownMenu primitive.
+ *
+ * @example
+ * ```tsx
+ * <DropdownMenu>
+ *   <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+ *   <DropdownMenuContent>
+ *     <DropdownMenuItem>Item</DropdownMenuItem>
+ *   </DropdownMenuContent>
+ * </DropdownMenu>
+ * ```
+ *
+ * @public
  */
 
 "use client";
@@ -12,7 +25,7 @@ import { cva } from "class-variance-authority";
 import * as React from "react";
 
 import { Button, type ButtonProps } from "@/src/components/ui/button";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONTEXT & TYPES
@@ -71,7 +84,7 @@ const dropdownMenuContentVariants = cva(
 			size: {
 				xs: "rounded-[var(--radius-sm)] p-1.5",
 				sm: "rounded-[var(--radius-md)] p-2",
-				md: "rounded-[var(--radius)] p-3", // Architecture of the Blade (0px Default)
+				md: "rounded-[var(--radius)] p-3",
 				lg: "rounded-[var(--radius-xl)] p-4",
 				xl: "rounded-[var(--radius-xl)] p-5",
 			},
@@ -92,7 +105,7 @@ const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
 /**
- * DropdownMenu - Root orchestrator for contextual menus.
+ * DropdownMenu - Root component.
  */
 const DropdownMenu = ({
 	size = "md",
@@ -108,7 +121,7 @@ const DropdownMenu = ({
 };
 
 /**
- * DropdownMenuTrigger - Interaction target to open the menu.
+ * DropdownMenuTrigger - Toggles the menu.
  */
 const DropdownMenuTrigger = React.forwardRef<
 	React.ElementRef<typeof DropdownMenuPrimitive.Trigger>,
@@ -116,7 +129,7 @@ const DropdownMenuTrigger = React.forwardRef<
 >((props, ref) => <DropdownMenuPrimitive.Trigger ref={ref} {...props} />);
 
 /**
- * DropdownMenuTriggerButton - Integrated button trigger that syncs with menu size.
+ * DropdownMenuTriggerButton - Button style trigger.
  */
 export const DropdownMenuTriggerButton = React.forwardRef<
 	HTMLButtonElement,
@@ -132,7 +145,7 @@ export const DropdownMenuTriggerButton = React.forwardRef<
 });
 
 /**
- * DropdownMenuContent - The primary menu container.
+ * DropdownMenuContent - Menu container.
  */
 const DropdownMenuContent = React.forwardRef<
 	React.ComponentRef<typeof DropdownMenuPrimitive.Content>,
@@ -154,7 +167,7 @@ const DropdownMenuContent = React.forwardRef<
 });
 
 /**
- * DropdownMenuItem - Individual actionable entry in a menu.
+ * DropdownMenuItem - Action item.
  */
 const DropdownMenuItem = React.forwardRef<
 	React.ComponentRef<typeof DropdownMenuPrimitive.Item>,

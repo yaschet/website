@@ -1,15 +1,12 @@
 /**
- * Semantic status indicator for categorization and labeling.
+ * Inline badge component for displaying status, tags, or counts.
  *
  * @remarks
- * A compact inline element for displaying tags, statuses, or metadata.
- * Supports 4 visual variants (solid, soft, outlined, plain) and 7 semantic colors.
- * All styles are GPU-accelerated and respect the design system radius tokens.
+ * Supports multiple variants (solid, soft, outlined, plain) and semantic colors.
  *
  * @example
  * ```tsx
  * <Badge variant="solid" color="success">Active</Badge>
- * <Badge variant="outlined" color="warning" size="sm">Pending</Badge>
  * ```
  *
  * @public
@@ -17,7 +14,7 @@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VARIANTS

@@ -1,10 +1,32 @@
+/**
+ * Card component with image gallery and detail sections.
+ *
+ * @remarks
+ * Displays a project or product with a scrubbable image gallery,
+ * data fields, and technical details. Features 0px radius styling.
+ * Supports both public and private (locked) project states.
+ *
+ * @example
+ * ```tsx
+ * <MonolithCard
+ *   title="Project Alpha"
+ *   description="Project technical details."
+ *   href="/alpha"
+ *   tags={["React", "Next.js"]}
+ *   index="01"
+ * />
+ * ```
+ *
+ * @public
+ */
+
 "use client";
 
-import Image, { type StaticImageData } from "next/image";
-import { useState, type MouseEvent } from "react";
-import Link from "next/link";
 import { ArrowUpRight, Lock } from "@phosphor-icons/react/dist/ssr";
-import { cn } from "@/src/lib/utils";
+import Image, { type StaticImageData } from "next/image";
+import Link from "next/link";
+import { type MouseEvent, useState } from "react";
+import { cn } from "@/src/lib/index";
 
 interface MonolithCardProps {
 	title: string;
@@ -32,7 +54,7 @@ export function MonolithCard({
 	const galleryImages = images && images.length > 0 ? images : [];
 	const hasGallery = galleryImages.length > 1;
 
-	// Mechanical Scrub Logic (Image Zone Only)
+	// Image Scrubbing Logic
 	function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
 		if (!hasGallery) return;
 
@@ -61,10 +83,11 @@ export function MonolithCard({
 			)}
 		>
 			{/* IMAGE ZONE — Clean Specimen Display */}
-			<div
+			<section
 				className="relative aspect-[16/9] w-full overflow-hidden bg-surface-100 dark:bg-surface-800"
 				onMouseMove={handleMouseMove}
 				onMouseLeave={handleMouseLeave}
+				aria-label="Image gallery scrub zone"
 			>
 				{galleryImages.length > 0 ? (
 					<>
@@ -77,7 +100,10 @@ export function MonolithCard({
 							}}
 						>
 							{galleryImages.map((src, i) => (
-								<div key={i} className="relative h-full w-full flex-1">
+								<div
+									key={`${index}-image-${i}`}
+									className="relative h-full w-full flex-1"
+								>
 									<Image
 										src={src}
 										alt={`${title} - View ${i + 1}`}
@@ -91,12 +117,12 @@ export function MonolithCard({
 							))}
 						</div>
 
-						{/* Swiss Ticks (Gallery Indicators) */}
+						{/* Gallery Indicators */}
 						{hasGallery && (
 							<div className="absolute inset-x-0 bottom-0 flex gap-0.5 p-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
 								{galleryImages.map((_, i) => (
 									<div
-										key={i}
+										key={`tick-${index}-${i}`}
 										className={cn(
 											"h-0.5 flex-1 transition-colors duration-200",
 											i === activeIndex
@@ -111,19 +137,19 @@ export function MonolithCard({
 				) : (
 					// Placeholder
 					<div className="flex h-full w-full items-center justify-center">
-						<span className="font-mono text-xs uppercase tracking-wider text-surface-400">
+						<span className="font-mono text-surface-400 text-xs uppercase tracking-wider">
 							No Preview
 						</span>
 					</div>
 				)}
-			</div>
+			</section>
 
 			{/* DATA ZONE — Solid Background, Maximum Legibility */}
 			<div className="p-5">
 				{/* Header Row */}
 				<div className="mb-3 flex items-start justify-between gap-4">
 					<div className="flex items-baseline gap-3">
-						<span className="font-mono text-xs text-surface-400 dark:text-surface-500">
+						<span className="font-mono text-surface-400 text-xs dark:text-surface-500">
 							{index}
 						</span>
 						<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
@@ -141,7 +167,7 @@ export function MonolithCard({
 						) : (
 							<ArrowUpRight
 								weight="bold"
-								className="size-3.5 text-surface-600 transition-all duration-300 group-hover:-translate-y-px group-hover:translate-x-px group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+								className="size-3.5 text-surface-600 transition-all duration-300 group-hover:translate-x-px group-hover:-translate-y-px group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
 							/>
 						)}
 					</div>
@@ -156,8 +182,8 @@ export function MonolithCard({
 				<div className="flex flex-wrap gap-1.5">
 					{tags.map((tag) => (
 						<span
-							key={tag}
-							className="inline-block border border-surface-200 bg-surface-100 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-surface-500 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-400"
+							key={`${index}-tag-${tag}`}
+							className="inline-block border border-surface-200 bg-surface-100 px-2 py-0.5 font-mono text-[10px] text-surface-500 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-800 dark:text-surface-400"
 						>
 							{tag}
 						</span>

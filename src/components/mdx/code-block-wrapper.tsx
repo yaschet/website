@@ -1,47 +1,52 @@
-"use client";
-
 /**
- * CodeBlockWrapper - Client component for code blocks with copy functionality
+ * CodeBlockWrapper component.
  *
- * Wraps the pre element with a copy button. Separated from mdx-components
- * to allow client-side hooks while keeping mdx-components as a server component.
+ * @remarks
+ * Wrapper for code blocks with copy functionality.
+ *
+ * @example
+ * ```tsx
+ * <CodeBlockWrapper>
+ *   <code>const x = 1;</code>
+ * </CodeBlockWrapper>
+ * ```
+ *
+ * @public
  */
 
+"use client";
+
 import { type ReactNode, useRef } from "react";
-import { cn } from "@/src/lib/utils";
 import { CopyButton } from "@/src/components/ui/copy-button";
+import { cn } from "@/src/lib/index";
 
 interface CodeBlockWrapperProps {
-  children: ReactNode;
-  className?: string;
+	children: ReactNode;
+	className?: string;
 }
 
-export function CodeBlockWrapper({
-  children,
-  className,
-  ...props
-}: CodeBlockWrapperProps) {
-  const preRef = useRef<HTMLPreElement>(null);
+export function CodeBlockWrapper({ children, className, ...props }: CodeBlockWrapperProps) {
+	const preRef = useRef<HTMLPreElement>(null);
 
-  return (
-    <div className="group relative mb-8">
-      <pre
-        ref={preRef}
-        className={cn(
-          "overflow-x-auto border border-border p-4 code-block-pre",
-          "bg-background text-foreground",
-          "font-mono text-sm leading-relaxed",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </pre>
-      {/* Copy Button - reads text from pre ref */}
-      <CopyButton
-        text={typeof children === "string" ? children : ""}
-        className="absolute right-2 top-2"
-      />
-    </div>
-  );
+	return (
+		<div className="group relative mb-8">
+			<pre
+				ref={preRef}
+				className={cn(
+					"code-block-pre overflow-x-auto border border-border p-4",
+					"bg-background text-foreground",
+					"font-mono text-sm leading-relaxed",
+					className,
+				)}
+				{...props}
+			>
+				{children}
+			</pre>
+			{/* Copy Button - reads text from pre ref */}
+			<CopyButton
+				text={typeof children === "string" ? children : ""}
+				className="absolute top-2 right-2"
+			/>
+		</div>
+	);
 }

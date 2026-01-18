@@ -1,14 +1,23 @@
 /**
- * Input Component
+ * Text input component with integrated password visibility toggle.
  *
- * Displays a form input field or a component that looks like an input field.
+ * @remarks
+ * Supports various sizes and error states. Styled with Tailwind CSS variants.
+ *
+ * @example
+ * ```tsx
+ * <Input type="email" placeholder="Email" />
+ * <Input type="password" placeholder="Password" />
+ * ```
+ *
+ * @public
  */
 
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VARIANTS
@@ -18,7 +27,7 @@ const inputVariants = cva(
 	[
 		"block w-full border-2 border-surface-300 dark:border-surface-700",
 		"bg-white dark:bg-surface-950",
-		"font-mono text-xs uppercase tracking-wider text-surface-900 dark:text-surface-50",
+		"font-mono text-surface-900 text-xs uppercase tracking-wider dark:text-surface-50",
 		"placeholder:font-mono placeholder:text-xs placeholder:uppercase placeholder:tracking-wider",
 		"placeholder:text-surface-500 dark:placeholder:text-surface-400",
 		"rounded-none ring-offset-background",
@@ -37,7 +46,7 @@ const inputVariants = cva(
 		variants: {
 			error: {
 				false: "",
-				true: "border-destructive-500 bg-destructive-50 dark:border-destructive-500 dark:bg-destructive-950/50 focus-visible:border-destructive-600",
+				true: "border-destructive-500 bg-destructive-50 focus-visible:border-destructive-600 dark:border-destructive-500 dark:bg-destructive-950/50",
 			},
 			shape: {
 				none: "rounded-none",
