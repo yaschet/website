@@ -300,7 +300,7 @@ export function ImageGallery({
 									)}
 									placeholder={isStatic ? "blur" : "empty"}
 									draggable={false}
-									priority={i === activeIndex} // Only prioritize active image for LCP
+									priority={i === 0} // Only prioritize the first image (LCP). Neighbors should load lazily.
 								/>
 							) : null}
 						</div>
