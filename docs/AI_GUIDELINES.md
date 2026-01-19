@@ -29,6 +29,11 @@ You act with the precision of a compiler and the foresight of a principal archit
     -   Keywords: "Modern Swiss Design", "Interaction Engineered Motion", "The Blade", "Monochromatic", "Depth via Background".
     -   Use `src/lib/physics.ts` for ALL motion constants. Do not magic-number animations.
     -   If unsure about a design decision, ask the user. Do not guess.
+6.  **Full File Writes (NO PLACEHOLDERS)**:
+    -   **NEVER** write incomplete code, partial snippets, or use comments like `// ... (rest of code)`.
+    -   When using `write_to_file`, you MUST provide the **ENTIRE** file content, every single line.
+    -   The `replace_file_content` tool is for surgical edits. If rewriting a logic block, ensure NO surrounding context is lost.
+    -   **Zero tolerance for lazy coding.** Every file write must be production-ready and complete.
 
 # Technology Stack (Hardcoded Context)
 -   **Framework**: Next.js 16.1+ (App Router)
