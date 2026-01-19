@@ -54,7 +54,7 @@ The aesthetic is the **OPPOSITE** of:
 
 | Property       | Value                                | Rationale                               |
 | :------------- | :----------------------------------- | :-------------------------------------- |
-| **Border Radius** | `0px` (default)                      | "The Blade" – sharp, precise, engineered. |
+| **Border Radius** | `0px` (default)                      | Sharp, precise, engineered. |
 | **Border Width** | `1px` or `2px`                       | High-contrast definition.               |
 | **Spacing**    | `4px` baseline grid (`gap-1`, `p-2`, etc.) | Mathematical consistency.               |
 | **Typography** | Sans-serif (Geist/Inter), Monospace for data | Clean, readable, objective.             |
@@ -70,7 +70,7 @@ The aesthetic is the **OPPOSITE** of:
 -   Typography is the primary visual element.
 -   Objectivity over decoration.
 
-### 2. Precision Engineering ("The Blade")
+### 2. Precision Engineering
 -   Zero rounded corners unless explicitly designed (e.g., avatar).
 -   Pixel-perfect alignment. If something is 1px off, it's wrong.
 -   Elements are "cut", not "smoothed".

@@ -9,7 +9,7 @@ const theme = create({
 	base: "dark",
 
 	// Brand identity
-	brandTitle: "Architecture of the Blade",
+	brandTitle: "YASCHET",
 	brandUrl: "https://yaschet.website",
 	brandImage: "", // You can add a small SVG logo here if available
 	brandTarget: "_self",

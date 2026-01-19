@@ -58,7 +58,6 @@ const checkboxVariants = cva(
 				md: "rounded-[var(--radius-md)]",
 				lg: "rounded-[var(--radius-lg)]",
 				full: "rounded-[var(--radius-full)]",
-				// Default maps to --radius which is 0px in "The Blade" system
 				default: "rounded-[var(--radius)]",
 			},
 		},
