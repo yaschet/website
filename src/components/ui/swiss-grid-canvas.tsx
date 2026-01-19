@@ -251,7 +251,7 @@ export function SwissGridProvider({
 			const ctx = canvas.getContext("2d");
 			if (!ctx) return;
 
-			const dpr = window.devicePixelRatio || 1;
+			const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 			const width = document.documentElement.scrollWidth;
 			const height = document.documentElement.scrollHeight;
 
