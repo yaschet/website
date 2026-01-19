@@ -4,7 +4,7 @@
  * @remarks
  * Manages the layout for projects including the hero gallery, technical
  * metadata, and MDX content rendering. Features:
- * - Dynamic mouse-relative gallery scrubbing.
+ * - Interactive gallery with click/swipe navigation.
  * - Integrated ReadingBracket (TOC) integration.
  * - Global grid synchronization.
  *
@@ -16,16 +16,13 @@
 import { ArrowLeft, Clock } from "@phosphor-icons/react";
 import type { Project } from "contentlayer2/generated";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import Link from "next/link";
 import { useMDXComponent } from "next-contentlayer2/hooks";
-import { type MouseEvent, useState } from "react";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { Button } from "@/src/components/ui/button";
+import { ImageGallery } from "@/src/components/ui/image-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
-import { resolveAsset } from "@/src/lib/assets";
-import { cn } from "@/src/lib/index";
 
 // Dynamic import with SSR disabled to avoid Framer Motion issues during static generation
 const ReadingBracket = dynamic(
@@ -47,25 +44,7 @@ export function ProjectContent({ project }: ProjectContentProps) {
 	const MDXContent = useMDXComponent(project.body.code);
 	const projectData = project as ProjectWithExtras;
 
-	// Hero gallery state (same as MonolithCard)
-	const [activeIndex, setActiveIndex] = useState(0);
 	const galleryImages = projectData.coverImages ?? [];
-	const hasGallery = galleryImages.length > 1;
-
-	function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
-		if (!hasGallery) return;
-		const { left, width } = e.currentTarget.getBoundingClientRect();
-		const x = e.clientX - left;
-		const newIndex = Math.floor((x / width) * galleryImages.length);
-		const clampedIndex = Math.max(0, Math.min(newIndex, galleryImages.length - 1));
-		if (clampedIndex !== activeIndex) {
-			setActiveIndex(clampedIndex);
-		}
-	}
-
-	function handleMouseLeave() {
-		setActiveIndex(0);
-	}
 
 	return (
 		<SwissGridProvider>
@@ -85,64 +64,18 @@ export function ProjectContent({ project }: ProjectContentProps) {
 										<span>Back to Projects</span>
 									</Link>
 
-									{/* Hero Gallery (MonolithCard style) */}
+									{/* Hero Gallery */}
 									{galleryImages.length > 0 && (
-										<section
-											aria-label="Project screenshot gallery"
-											className="group relative mb-8 aspect-[16/9] w-full overflow-hidden border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-800"
-											onMouseMove={handleMouseMove}
-											onMouseLeave={handleMouseLeave}
-										>
-											{/* Gallery Strip */}
-											<div
-												className="flex h-full transition-transform duration-300 ease-out will-change-transform"
-												style={{
-													width: `${galleryImages.length * 100}%`,
-													transform: `translateX(-${(activeIndex * 100) / galleryImages.length}%)`,
-												}}
-											>
-												{galleryImages.map((rawSrc, i) => {
-													const src = resolveAsset(rawSrc);
-													const isStatic = typeof src !== "string";
-
-													return (
-														<div
-															key={rawSrc}
-															className="relative h-full w-full flex-1"
-														>
-															<Image
-																src={src}
-																alt={`${project.title} - View ${i + 1}`}
-																fill
-																sizes="(max-width: 768px) 100vw, 768px"
-																className="object-cover"
-																placeholder={
-																	isStatic ? "blur" : "empty"
-																}
-																priority={i === 0}
-															/>
-														</div>
-													);
-												})}
-											</div>
-
-											{/* Gallery Indicators */}
-											{hasGallery && (
-												<div className="absolute inset-x-0 bottom-0 flex gap-0.5 p-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-													{galleryImages.map((src, i) => (
-														<div
-															key={`tick-${src}`}
-															className={cn(
-																"h-0.5 flex-1 transition-colors duration-200",
-																i === activeIndex
-																	? "bg-surface-900 dark:bg-surface-100"
-																	: "bg-surface-900/20 dark:bg-surface-100/20",
-															)}
-														/>
-													))}
-												</div>
-											)}
-										</section>
+										<div className="mb-8">
+											<ImageGallery
+												images={galleryImages}
+												altPrefix={project.title}
+												aspectRatio="16/9"
+												showArrows={galleryImages.length > 1}
+												showDots={galleryImages.length > 1}
+												showCounter={galleryImages.length > 1}
+											/>
+										</div>
 									)}
 
 									{/* Title */}

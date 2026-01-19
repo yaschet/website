@@ -2,7 +2,7 @@
  * Card component with image gallery and detail sections.
  *
  * @remarks
- * Displays a project or product with a scrubbable image gallery,
+ * Displays a project or product with an interactive image gallery,
  * data fields, and technical details. Features 0px radius styling.
  * Supports both public and private (locked) project states.
  *
@@ -23,9 +23,9 @@
 "use client";
 
 import { ArrowUpRight, Lock } from "@phosphor-icons/react/dist/ssr";
-import Image, { type StaticImageData } from "next/image";
+import type { StaticImageData } from "next/image";
 import Link from "next/link";
-import { type MouseEvent, useState } from "react";
+import { ImageGallery } from "@/src/components/ui/image-gallery";
 import { cn } from "@/src/lib/index";
 
 interface MonolithCardProps {
@@ -49,28 +49,7 @@ export function MonolithCard({
 	isPrivate = false,
 	className,
 }: MonolithCardProps) {
-	const [activeIndex, setActiveIndex] = useState(0);
-
 	const galleryImages = images && images.length > 0 ? images : [];
-	const hasGallery = galleryImages.length > 1;
-
-	// Image Scrubbing Logic
-	function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
-		if (!hasGallery) return;
-
-		const { left, width } = e.currentTarget.getBoundingClientRect();
-		const x = e.clientX - left;
-		const newIndex = Math.floor((x / width) * galleryImages.length);
-		const clampedIndex = Math.max(0, Math.min(newIndex, galleryImages.length - 1));
-
-		if (clampedIndex !== activeIndex) {
-			setActiveIndex(clampedIndex);
-		}
-	}
-
-	function handleMouseLeave() {
-		setActiveIndex(0);
-	}
 
 	return (
 		<Link
@@ -82,67 +61,30 @@ export function MonolithCard({
 				className,
 			)}
 		>
-			{/* IMAGE ZONE — Clean Specimen Display */}
-			<section
-				className="relative aspect-[16/9] w-full overflow-hidden bg-surface-100 dark:bg-surface-800"
-				onMouseMove={handleMouseMove}
-				onMouseLeave={handleMouseLeave}
-				aria-label="Image gallery scrub zone"
-			>
-				{galleryImages.length > 0 ? (
-					<>
-						{/* Gallery Strip */}
-						<div
-							className="flex h-full transition-transform duration-300 ease-out will-change-transform"
-							style={{
-								width: `${galleryImages.length * 100}%`,
-								transform: `translateX(-${(activeIndex * 100) / galleryImages.length}%)`,
-							}}
-						>
-							{galleryImages.map((src, i) => (
-								<div
-									key={`${title}-img-${typeof src === "string" ? src : src.src}`}
-									className="relative h-full w-full flex-1"
-								>
-									<Image
-										src={src}
-										alt={`${title} - View ${i + 1}`}
-										fill
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-										className="object-cover"
-										placeholder={typeof src !== "string" ? "blur" : undefined}
-										quality={90}
-									/>
-								</div>
-							))}
-						</div>
-
-						{/* Gallery Indicators */}
-						{hasGallery && (
-							<div className="absolute inset-x-0 bottom-0 flex gap-0.5 p-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-								{galleryImages.map((src, i) => (
-									<div
-										key={`${title}-ind-${typeof src === "string" ? src : src.src}`}
-										className={cn(
-											"h-0.5 flex-1 transition-colors duration-200",
-											i === activeIndex
-												? "bg-surface-900 dark:bg-surface-100"
-												: "bg-surface-900/20 dark:bg-surface-100/20",
-										)}
-									/>
-								))}
-							</div>
-						)}
-					</>
-				) : (
-					// Placeholder
+			{/* IMAGE ZONE — Interactive Gallery */}
+			{galleryImages.length > 0 ? (
+				<ImageGallery
+					images={galleryImages}
+					altPrefix={title}
+					aspectRatio="16/9"
+					showArrows={galleryImages.length > 1}
+					showDots={galleryImages.length > 1}
+					showCounter={false}
+					arrowSize="sm"
+					className="border-0 border-b border-surface-200 dark:border-surface-800"
+				/>
+			) : (
+				<section
+					className="relative aspect-[16/9] w-full overflow-hidden bg-surface-100 dark:bg-surface-800"
+					aria-label="No preview available"
+				>
 					<div className="flex h-full w-full items-center justify-center">
 						<span className="font-mono text-surface-400 text-xs uppercase tracking-wider">
 							No Preview
 						</span>
 					</div>
-				)}
-			</section>
+				</section>
+			)}
 
 			{/* DATA ZONE — Solid Background, Maximum Legibility */}
 			<div className="p-5">
