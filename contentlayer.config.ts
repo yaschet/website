@@ -165,15 +165,18 @@ export default makeSource({
 						dark: "github-dark",
 					},
 					keepBackground: false,
+					// biome-ignore lint/suspicious/noExplicitAny: Rehype typing is loose
 					onVisitLine(node: any) {
 						// Prevent lines from collapsing in `display: grid` mode
 						if (node.children.length === 0) {
 							node.children = [{ type: "text", value: " " }];
 						}
 					},
+					// biome-ignore lint/suspicious/noExplicitAny: Rehype typing is loose
 					onVisitHighlightedLine(node: any) {
 						node.properties.className?.push("line--highlighted");
 					},
+					// biome-ignore lint/suspicious/noExplicitAny: Rehype typing is loose
 					onVisitHighlightedChars(node: any) {
 						node.properties.className = ["chars--highlighted"];
 					},

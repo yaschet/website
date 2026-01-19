@@ -35,9 +35,6 @@ export function WebVitals() {
 		// Icons based on rating
 		const icon = isGood ? "✅" : isNeedsImprovement ? "⚠️" : "🚨";
 
-		// biome-ignore lint/suspicious/noConsoleLog: Development only
-		console.debug(`[Web Vital] ${name}:`, metric);
-
 		// Toast notification for immediate feedback
 		// We use a custom ID to update existing toasts if needed, or just unique stacks
 		toast(`${icon} ${name}: ${formattedValue}`, {

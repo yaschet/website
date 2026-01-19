@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { withContentlayer } from "next-contentlayer2";
 
 const nextConfig: NextConfig = {
+	// Note: middleware.ts is required for advanced routing/headers even if empty
 	reactCompiler: true,
 
 	images: {
