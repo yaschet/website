@@ -19,7 +19,6 @@ import {
 	ChatCenteredText,
 	FileText,
 	House,
-	type Icon,
 	Moon,
 	Sun,
 	User,

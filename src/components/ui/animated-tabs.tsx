@@ -3,7 +3,7 @@
  *
  * @remarks
  * Tab component with animated transitions using Framer Motion.
- * synchronized "blob" indicator that flows between active triggers.
+ * synchronized shared-element indicator.
  * Uses strict 0px border radius styling.
  * backdrop-blur and responsive scaling.
  *
@@ -25,7 +25,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { getStrictContext } from "@/lib/get-strict-context";
 import { cn } from "@/src/lib/index";
 
 type TabsContextType = {
@@ -34,15 +35,9 @@ type TabsContextType = {
 	wantsAnimation: boolean;
 };
 
-const TabsContext = createContext<TabsContextType | undefined>(undefined);
+const [TabsProvider, useSafeTabsContext] = getStrictContext<TabsContextType>("TabsContext");
 
-const useTabs = () => {
-	const context = useContext(TabsContext);
-	if (!context) {
-		throw new Error("Tabs components must be used within a Tabs provider");
-	}
-	return context;
-};
+const useTabs = useSafeTabsContext;
 
 interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
 	defaultValue?: string;
@@ -77,11 +72,11 @@ export function Tabs({
 	};
 
 	return (
-		<TabsContext.Provider value={{ activeTab, setActiveTab, wantsAnimation }}>
+		<TabsProvider value={{ activeTab, setActiveTab, wantsAnimation }}>
 			<div className={cn("flex w-full flex-col", className)} {...props}>
 				{children}
 			</div>
-		</TabsContext.Provider>
+		</TabsProvider>
 	);
 }
 

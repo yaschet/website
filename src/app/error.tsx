@@ -27,17 +27,17 @@ export default function AppError({
 				{/* 2. CONTENT CELL */}
 				<SwissGridSection
 					id="error-content"
-					className="relative z-10 w-full max-w-3xl mx-auto"
+					className="relative z-10 mx-auto w-full max-w-3xl"
 				>
 					<div className="flex flex-col items-center justify-center px-6 py-24 text-center sm:px-8">
-						{/* Icon Badge */}
+						{/* Status indicator */}
 						<div className="mb-8 flex justify-center">
 							<div className="flex size-14 items-center justify-center bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-900 dark:text-surface-50">
 								<Warning className="size-6 opacity-80" weight="duotone" />
 							</div>
 						</div>
 
-						{/* Minimalist Message */}
+						{/* Heading */}
 						<h1 className="mb-3 font-semibold text-heading-md">System Interruption</h1>
 
 						<p className="mb-10 max-w-md text-body-sm text-surface-500 dark:text-surface-400">
@@ -54,7 +54,7 @@ export default function AppError({
 				</SwissGridSection>
 
 				{/* 3. BOTTOM ANCHOR (Spacer only, no grid line) */}
-				<div className="flex-1 w-full max-w-3xl mx-auto" />
+				<div className="mx-auto w-full max-w-3xl flex-1" />
 			</div>
 		</SwissGridProvider>
 	);

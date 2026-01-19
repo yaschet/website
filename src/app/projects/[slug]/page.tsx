@@ -1,7 +1,7 @@
 import { allProjects } from "contentlayer2/generated";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ProjectContent } from "@/src/components/content/project-content";
+import { ProjectContentRSC } from "@/src/components/content/project-content-rsc";
 
 interface ProjectPageProps {
 	params: Promise<{
@@ -39,5 +39,5 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 		notFound();
 	}
 
-	return <ProjectContent project={project} />;
+	return <ProjectContentRSC project={project} />;
 }

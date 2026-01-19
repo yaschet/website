@@ -39,7 +39,7 @@ export default function Loading() {
 						y="2"
 						width="20"
 						height="20"
-						className="stroke-surface-900 dark:stroke-surface-50 origin-center animate-draw-square"
+						className="origin-center animate-draw-square stroke-surface-900 dark:stroke-surface-50"
 						strokeWidth="2"
 						strokeDasharray="80" /* Perimeter: 20*4 = 80 */
 						strokeDashoffset="80"

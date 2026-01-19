@@ -11,6 +11,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { Toaster } from "@/src/components/ui/sonner";
 import { NAVIGATION_SHORTCUTS } from "@/src/constants/navigation";
 import { RevealProvider } from "./reveal-provider";
+import { WebVitals } from "./web-vitals";
 
 export default function RootProvider({ children }: Readonly<{ children: React.ReactNode }>) {
 	const router = useRouter();
@@ -54,6 +55,7 @@ export default function RootProvider({ children }: Readonly<{ children: React.Re
 
 					<SpeedInsights />
 					<Analytics />
+					<WebVitals />
 
 					<ProgressBar
 						color="var(--foreground)" // Using foreground color (black/white) for progress bar

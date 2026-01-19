@@ -1,44 +1,37 @@
 "use client";
 
 import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Reveal Phase System
  *
  * Total duration: ~250ms (imperceptible as "waiting")
  *
- * Phase 0: Structure (instant)
- *   - Background gradient, grid, borders, lines
- *   - These are scaffolding, not content — no animation
+ * Phase 0: Structure (0ms)
+ *   - Renders layout scaffolding (grid, borders).
  *
- * Phase 1: Primary Content (+50ms)
- *   - Navigation, badges, profile section
- *   - The "who is this" moment
+ * Phase 1: Primary Content (50ms)
+ *   - Renders navigation, badges, and profile information.
  *
- * Phase 2: Hero Content (+150ms)
- *   - Headline, CTA, hero messaging
- *   - The "what do they do" moment
+ * Phase 2: Hero Content (150ms)
+ *   - Renders headlines and primary call-to-action elements.
  *
- * Phase 3: Scroll Content (scroll-triggered only)
- *   - Featured work, more projects
- *   - Only animates when scrolled into view
+ * Phase 3: Scroll Content (250ms)
+ *   - Enables scroll-triggered animations for subsequent sections.
  */
+// No change needed to RevealPhase export
 export type RevealPhase = 0 | 1 | 2 | 3;
 
-interface RevealContextType {
+export interface RevealContextType {
 	phase: RevealPhase;
 }
 
-const RevealContext = createContext<RevealContextType | undefined>(undefined);
+import { getStrictContext } from "@/lib/get-strict-context";
 
-export function useReveal() {
-	const context = useContext(RevealContext);
-	if (!context) {
-		throw new Error("useReveal must be used within a RevealProvider");
-	}
-	return context;
-}
+const [StrictRevealProvider, useReveal] = getStrictContext<RevealContextType>("RevealContext");
+
+export { useReveal };
 
 interface RevealProviderProps {
 	children: React.ReactNode;
@@ -80,5 +73,5 @@ export function RevealProvider({ children }: RevealProviderProps) {
 		};
 	}, []);
 
-	return <RevealContext.Provider value={{ phase }}>{children}</RevealContext.Provider>;
+	return <StrictRevealProvider value={{ phase }}>{children}</StrictRevealProvider>;
 }

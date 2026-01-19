@@ -17,12 +17,12 @@ export default function NotFound() {
 				{/* 2. CONTENT CELL */}
 				<SwissGridSection
 					id="404-content"
-					className="relative z-10 w-full max-w-3xl mx-auto"
+					className="relative z-10 mx-auto w-full max-w-3xl"
 				>
 					<div className="flex flex-col items-center justify-center px-6 py-24 text-center sm:px-8">
 						{/* Badge */}
 						<Reveal phase={1}>
-							<div className="mb-8 inline-flex items-center gap-2 border border-surface-200 bg-surface-50/50 px-3 py-1 font-mono text-xs uppercase tracking-widest text-surface-500 backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/50 dark:text-surface-400">
+							<div className="mb-8 inline-flex items-center gap-2 border border-surface-200 bg-surface-50/50 px-3 py-1 font-mono text-surface-500 text-xs uppercase tracking-widest backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/50 dark:text-surface-400">
 								<span className="size-1.5 rounded-full bg-red-500" />
 								<span>Signal Lost</span>
 							</div>
@@ -55,7 +55,7 @@ export default function NotFound() {
 				</SwissGridSection>
 
 				{/* 3. BOTTOM ANCHOR (Spacer only, no grid line) */}
-				<div className="flex-1 w-full max-w-3xl mx-auto" />
+				<div className="mx-auto w-full max-w-3xl flex-1" />
 			</div>
 		</SwissGridProvider>
 	);
