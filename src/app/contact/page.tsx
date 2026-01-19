@@ -1,15 +1,20 @@
-"use client";
-
+import type { Metadata } from "next";
 import { ContactForm } from "@/src/components/forms/contact-form";
+import { SiteFooter } from "@/src/components/layout/site-footer";
 import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
+export const metadata: Metadata = {
+	title: "Contact | Yassine Chettouch",
+	description: "Let's build something serious together.",
+};
+
 export default function ContactPage() {
 	return (
 		<SwissGridProvider>
-			<div className="min-h-screen text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
-				<main className="relative z-10 flex min-h-screen flex-col">
+			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+				<main className="relative z-10 flex flex-1 flex-col">
 					{/* Nav Row */}
 					<SwissGridSection id="nav" className="relative z-20 w-full">
 						<Reveal phase={1} className="w-full">
@@ -57,18 +62,8 @@ export default function ContactPage() {
 							</section>
 						</ScrollReveal>
 					</SwissGridSection>
-
-					{/* Footer */}
-					<footer className="mt-auto w-full">
-						<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-							<ScrollReveal phase={3}>
-								<p className="text-body-sm text-surface-400 dark:text-surface-500">
-									© {new Date().getFullYear()} Yassine Chettouch
-								</p>
-							</ScrollReveal>
-						</div>
-					</footer>
 				</main>
+				<SiteFooter />
 			</div>
 		</SwissGridProvider>
 	);

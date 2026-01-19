@@ -1,40 +1,34 @@
-"use client";
-
 import { Avatar, AvatarFallback } from "@components/ui/avatar";
-import { ArrowRight, GithubLogo, LinkedinLogo } from "@phosphor-icons/react";
+import { ArrowRight, GithubLogo, LinkedinLogo } from "@phosphor-icons/react/dist/ssr";
+import { allProjects } from "contentlayer2/generated";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
 import avatarImage from "@/public/images/avatar.jpeg";
-// Static Assets
-import Asset1 from "@/public/images/placeholders/asset-1.jpg";
-import Asset2 from "@/public/images/placeholders/asset-2.jpg";
-import Asset3 from "@/public/images/placeholders/asset-3.jpg";
-import Asset4 from "@/public/images/placeholders/asset-4.jpg";
-import Asset5 from "@/public/images/placeholders/asset-5.jpg";
-import Asset6 from "@/public/images/placeholders/asset-6.jpg";
-import Asset7 from "@/public/images/placeholders/asset-7.jpg";
-import Asset8 from "@/public/images/placeholders/asset-8.jpg";
-import Asset9 from "@/public/images/placeholders/asset-9.jpg";
-import Asset10 from "@/public/images/placeholders/asset-10.jpg";
-import Asset11 from "@/public/images/placeholders/asset-11.jpg";
-import Asset12 from "@/public/images/placeholders/asset-12.jpg";
+import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import { MonolithCard } from "@/src/components/ui/monolith-card";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
+export const metadata: Metadata = {
+	title: "Yassine Chettouch | Product Engineer",
+	description: "SaaS platforms, data engines, and production systems.",
+};
+
 export default function Home() {
-	useEffect(() => {
-		window.scrollTo(0, 0);
-	}, []);
+	// Identify featured projects for the landing page
+	const featuredSlugs = ["verto", "phoenix", "onboard-flow"];
+	const featuredProjects = featuredSlugs
+		.map((slug) => allProjects.find((p) => p.slug === slug))
+		.filter((p): p is NonNullable<typeof p> => !!p);
 
 	return (
 		<SwissGridProvider>
-			<div className="min-h-screen text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 				<main
-					className="relative z-10 flex min-h-screen flex-col"
+					className="relative z-10 flex flex-1 flex-col"
 					style={{ overflowAnchor: "none" }}
 				>
 					{/* Nav Row */}
@@ -44,7 +38,7 @@ export default function Home() {
 					<SwissGridSection id="profile" className="relative w-full">
 						<Reveal phase={1} className="relative z-10 w-full">
 							<header className="w-full">
-								<div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-8 sm:px-8">
+								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-8 sm:px-8">
 									<div className="flex items-center gap-4">
 										<Avatar className="relative size-14 overflow-hidden rounded-[var(--radius)] border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900">
 											<Image
@@ -166,133 +160,65 @@ export default function Home() {
 						</Reveal>
 					</SwissGridSection>
 
-					{/* Featured: Verto */}
-					<SwissGridSection id="featured" className="w-full">
-						<ScrollReveal phase={3} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-									<ScrollReveal phase={3}>
-										<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											01 · AI Translation Platform
-										</p>
-									</ScrollReveal>
-									<ScrollReveal phase={3} delay={0.05}>
-										<MonolithCard
-											index="01"
-											title="Verto"
-											description="Enterprise translation platform. Upload a document, AI reconstructs it in another language—preserving layout, tables, and formatting. MFA auth, credit-based billing, real-time processing. I built and own the entire codebase."
-											href="/projects/verto"
-											tags={[
-												"Next.js",
-												"Supabase",
-												"OpenAI",
-												"Stripe",
-												"Trigger.dev",
-											]}
-											images={[Asset1, Asset2, Asset3, Asset4]}
-										/>
-									</ScrollReveal>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
-
-					{/* Project 2: Data Engine */}
-					<SwissGridSection id="project-2" className="w-full">
-						<ScrollReveal phase={3} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-									<ScrollReveal phase={3}>
-										<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											02 · Data Matching Engine
-										</p>
-									</ScrollReveal>
-									<ScrollReveal phase={3} delay={0.05}>
-										<MonolithCard
-											index="02"
-											title="Phoenix"
-											description="Data pipeline that processes thousands of records through AI cleansing, then matches them using Meilisearch + OpenAI embeddings. 10-hour overnight jobs with state persistence and automatic resume-on-failure."
-											href="/projects/phoenix"
-											tags={["Laravel", "Meilisearch", "OpenAI", "Redis"]}
-											images={[Asset5, Asset6, Asset7, Asset8]}
-											isPrivate
-										/>
-									</ScrollReveal>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
-
-					{/* Project 3: Onboard Flow */}
-					<SwissGridSection id="project-3" className="w-full">
-						<ScrollReveal phase={3} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-									<ScrollReveal phase={3}>
-										<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											03 · Customer Onboarding System
-										</p>
-									</ScrollReveal>
-									<ScrollReveal phase={3} delay={0.05}>
-										<MonolithCard
-											index="03"
-											title="Onboard Flow"
-											description="57-screen customer portal with magic link auth, OCR document scanning, and dynamic form logic. Typeform-style UX with enterprise security. Delivered in 6 weeks with full spec documentation."
-											href="/projects/onboard-flow"
-											tags={["Next.js", "Laravel", "AWS S3", "JWT"]}
-											images={[Asset9, Asset10, Asset11, Asset12]}
-											isPrivate
-										/>
-									</ScrollReveal>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
+					{/* Featured Projects */}
+					{featuredProjects.map((project, i) => (
+						<SwissGridSection
+							key={project._id}
+							id={`project-${i + 1}`}
+							className="w-full"
+						>
+							<ScrollReveal phase={3} className="w-full">
+								<section className="w-full">
+									<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+										<ScrollReveal phase={3}>
+											<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+												0{i + 1} · {project.title}
+											</p>
+										</ScrollReveal>
+										<ScrollReveal phase={3} delay={0.05}>
+											<MonolithCard
+												index={`0${i + 1}`}
+												title={project.title}
+												description={project.description}
+												href={project.url_path}
+												tags={project.tech ?? []}
+												images={project.coverImages}
+												isPrivate={!project.url && !project.github}
+											/>
+										</ScrollReveal>
+									</div>
+								</section>
+							</ScrollReveal>
+						</SwissGridSection>
+					))}
 
 					{/* CTA */}
 					<SwissGridSection id="cta" className="w-full">
 						<ScrollReveal phase={3} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<ScrollReveal phase={3}>
-										<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-											<div>
-												<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-													Have a project in mind?
-												</h2>
-												<p className="mt-1 text-body-md text-surface-600 dark:text-surface-400">
-													I'd like to hear about it.
-												</p>
-											</div>
-											<Button
-												asChild
-												size="lg"
-												variant="solid"
-												color="primary"
-											>
-												<Link href="/contact">
-													Get in touch
-													<ArrowRight className="size-4" weight="bold" />
-												</Link>
-											</Button>
+									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+										<div>
+											<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+												Have a project in mind?
+											</h2>
+											<p className="mt-1 text-body-md text-surface-600 dark:text-surface-400">
+												I'd like to hear about it.
+											</p>
 										</div>
-									</ScrollReveal>
+										<Button asChild size="lg" variant="solid" color="primary">
+											<Link href="/contact">
+												Get in touch
+												<ArrowRight className="size-4" weight="bold" />
+											</Link>
+										</Button>
+									</div>
 								</div>
 							</section>
 						</ScrollReveal>
 					</SwissGridSection>
-
-					{/* Footer */}
-					<footer className="w-full">
-						<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-							<ScrollReveal phase={3}>
-								<p className="text-body-sm text-surface-400 dark:text-surface-500">
-									© {new Date().getFullYear()} Yassine Chettouch
-								</p>
-							</ScrollReveal>
-						</div>
-					</footer>
 				</main>
+				<SiteFooter />
 			</div>
 		</SwissGridProvider>
 	);

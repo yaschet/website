@@ -1,34 +1,17 @@
-/**
- * Architectural container for individual project case studies.
- *
- * @remarks
- * Manages the layout for projects including the hero gallery, technical
- * metadata, and MDX content rendering. Features:
- * - Interactive gallery with click/swipe navigation.
- * - Integrated ReadingBracket (TOC) integration.
- * - Global grid synchronization.
- *
- * @public
- */
-
-"use client";
-
-import { ArrowLeft, Clock } from "@phosphor-icons/react";
+import { ArrowLeft, Clock } from "@phosphor-icons/react/dist/ssr";
 import type { Project } from "contentlayer2/generated";
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useMDXComponent } from "next-contentlayer2/hooks";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypePrettyCode from "rehype-pretty-code";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
+import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
 import { ImageGallery } from "@/src/components/ui/image-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
-
-// Dynamic import with SSR disabled to avoid Framer Motion issues during static generation
-const ReadingBracket = dynamic(
-	() => import("@/src/components/ui/article-toc").then((mod) => mod.ReadingBracket),
-	{ ssr: false },
-);
 
 interface ProjectContentProps {
 	project: Project;
@@ -40,10 +23,8 @@ type ProjectWithExtras = Project & {
 	coverImages?: string[];
 };
 
-export function ProjectContent({ project }: ProjectContentProps) {
-	const MDXContent = useMDXComponent(project.body.code);
+export function ProjectContentRSC({ project }: ProjectContentProps) {
 	const projectData = project as ProjectWithExtras;
-
 	const galleryImages = projectData.coverImages ?? [];
 
 	return (
@@ -64,7 +45,7 @@ export function ProjectContent({ project }: ProjectContentProps) {
 										<span>Back to Projects</span>
 									</Link>
 
-									{/* Hero Gallery */}
+									{/* Hero Gallery - Client Island */}
 									{galleryImages.length > 0 && (
 										<div className="mb-8">
 											<ImageGallery
@@ -165,20 +146,82 @@ export function ProjectContent({ project }: ProjectContentProps) {
 						</ScrollReveal>
 					</SwissGridSection>
 
-					{/* Content */}
+					{/* Content - Server Rendered MDX */}
 					<SwissGridSection id="project-content" className="w-full">
 						<ScrollReveal phase={2} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<article>
-										<MDXContent components={mdxComponents} />
+										<MDXRemote
+											source={project.body.raw}
+											components={mdxComponents}
+											options={{
+												mdxOptions: {
+													remarkPlugins: [remarkGfm],
+													rehypePlugins: [
+														rehypeSlug,
+														[
+															rehypeAutolinkHeadings,
+															{
+																properties: {
+																	className: ["anchor"],
+																},
+															},
+														],
+														[
+															rehypePrettyCode,
+															{
+																theme: "github-dark",
+																onVisitLine(node: {
+																	children: {
+																		type: string;
+																		value: string;
+																	}[];
+																}) {
+																	// Prevent lines from collapsing in `display: grid` mode, and allow empty
+																	// lines to be copy/pasted
+																	if (
+																		node.children.length === 0
+																	) {
+																		node.children = [
+																			{
+																				type: "text",
+																				value: " ",
+																			},
+																		];
+																	}
+																},
+																onVisitHighlightedLine(node: {
+																	properties: {
+																		className: string[];
+																	};
+																}) {
+																	node.properties.className.push(
+																		"line--highlighted",
+																	);
+																},
+																onVisitHighlightedWord(node: {
+																	properties: {
+																		className: string[];
+																	};
+																}) {
+																	node.properties.className = [
+																		"word--highlighted",
+																	];
+																},
+															},
+														],
+													],
+												},
+											}}
+										/>
 									</article>
 								</div>
 							</section>
 						</ScrollReveal>
 					</SwissGridSection>
 
-					{/* Reading Bracket - Desktop Only */}
+					{/* Reading Bracket - Client Component */}
 					<ReadingBracket />
 
 					{/* Footer */}

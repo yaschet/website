@@ -5,22 +5,19 @@
  *
  * @module swiss-grid-canvas
  * @description
- * A Canvas-based grid overlay that achieves mathematically perfect crosshair
- * intersections at any viewport size. Unlike CSS gradients, this approach
- * calculates exact intersection points and draws dashes precisely.
+ * Canvas-based grid overlay that calculates intersection points for dashed lines.
  *
  * Architecture:
  * 1. SwissGridProvider - Context for section registration
- * 2. SwissGridCanvas - Fixed canvas overlay that draws the grid
- * 3. SwissGridSection - Wrapper that registers section boundaries
+ * 2. SwissGridCanvas - Fixed canvas overlay
+ * 3. SwissGridSection - Section boundary registration
  *
- * Performance:
- * - Uses ResizeObserver for efficient position tracking
- * - Batches draws with requestAnimationFrame
- * - Scales for devicePixelRatio (Retina displays)
- * - GPU-accelerated canvas rendering
+ * Implementation:
+ * - ResizeObserver for position tracking
+ * - requestAnimationFrame for batching
+ * - Device pixel ratio scaling
+ * - GPU-accelerated rendering
  */
-
 import { useReducedMotion, useSpring } from "framer-motion";
 import {
 	createContext,
@@ -40,34 +37,28 @@ import { useReveal } from "@/src/components/providers/reveal-provider";
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Regular dash length in pixels.
- * MUST BE ODD for symmetric crosshairs - an odd number has a true center pixel.
+ * Dash length in pixels.
+ * Uses odd number for symmetric center alignment.
  */
 const DASH_SIZE = 9;
 
-/** Regular gap length in pixels */
+/** Gap length in pixels. */
 const GAP_SIZE = 7;
 
 /**
- * CORNER REINFORCEMENTS
- * Like shipping container corner protectors - thicker and longer at intersections.
- * Creates a visual "box frame" effect around each section.
+ * Corner reinforcement dimensions.
+ * Increased thickness and length for section intersections.
  */
-const CORNER_DASH_SIZE = 17; // 2x longer than regular dashes (must be odd)
-const CORNER_THICKNESS = 3; // 3px thick for bold reinforcement effect
+const CORNER_DASH_SIZE = 17;
+const CORNER_THICKNESS = 3;
 
-/**
- * Grid line colors - subtle rgba values that don't compete with content.
- */
+/** Grid line opacity-based colors. */
 const COLOR_LIGHT = "rgba(0, 0, 0, 0.12)";
 const COLOR_DARK = "rgba(255, 255, 255, 0.12)";
 
-/**
- * Corner reinforcement colors - bold text color to make corners SPECIAL.
- * White on dark mode, black on light mode (matches text color).
- */
-const CORNER_COLOR_LIGHT = "rgba(0, 0, 0, 1)"; // Strong black
-const CORNER_COLOR_DARK = "rgba(255, 255, 255, 1)"; // Strong white
+/** Corner reinforcement colors matching base text themes. */
+const CORNER_COLOR_LIGHT = "rgba(0, 0, 0, 1)";
+const CORNER_COLOR_DARK = "rgba(255, 255, 255, 1)";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES

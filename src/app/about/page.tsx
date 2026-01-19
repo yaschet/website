@@ -1,20 +1,25 @@
-"use client";
-
 import { Avatar, AvatarFallback } from "@components/ui/avatar";
-import { ArrowRight } from "@phosphor-icons/react";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import avatarImage from "@/public/images/avatar.jpeg";
+import { SiteFooter } from "@/src/components/layout/site-footer";
 import { Button } from "@/src/components/ui/button";
 import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
+export const metadata: Metadata = {
+	title: "About | Yassine Chettouch",
+	description: "Product Engineer based in Rabat, Morocco.",
+};
+
 export default function AboutPage() {
 	return (
 		<SwissGridProvider>
-			<div className="min-h-screen text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
-				<main className="relative z-10 flex min-h-screen flex-col">
+			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+				<main className="relative z-10 flex flex-1 flex-col">
 					{/* Nav Row */}
 					<SwissGridSection id="nav" className="relative z-20 w-full">
 						<Reveal phase={1} className="w-full">
@@ -210,45 +215,28 @@ export default function AboutPage() {
 						<ScrollReveal phase={3} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<ScrollReveal phase={3}>
-										<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-											<div>
-												<h2 className="text-heading-md text-surface-900 dark:text-surface-100">
-													Have a project in mind?
-												</h2>
-												<p className="mt-1 text-body-md text-surface-500 dark:text-surface-400">
-													I'd like to hear about it.
-												</p>
-											</div>
-											<Button
-												asChild
-												size="lg"
-												variant="solid"
-												color="primary"
-											>
-												<Link href="/contact">
-													Start a conversation
-													<ArrowRight className="size-4" weight="bold" />
-												</Link>
-											</Button>
+									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+										<div>
+											<h2 className="text-heading-md text-surface-900 dark:text-surface-100">
+												Have a project in mind?
+											</h2>
+											<p className="mt-1 text-body-md text-surface-500 dark:text-surface-400">
+												I'd like to hear about it.
+											</p>
 										</div>
-									</ScrollReveal>
+										<Button asChild size="lg" variant="solid" color="primary">
+											<Link href="/contact">
+												Start a conversation
+												<ArrowRight className="size-4" weight="bold" />
+											</Link>
+										</Button>
+									</div>
 								</div>
 							</section>
 						</ScrollReveal>
 					</SwissGridSection>
-
-					{/* Footer */}
-					<footer className="mt-auto w-full">
-						<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-							<ScrollReveal phase={3}>
-								<p className="text-body-sm text-surface-400 dark:text-surface-500">
-									© {new Date().getFullYear()} Yassine Chettouch
-								</p>
-							</ScrollReveal>
-						</div>
-					</footer>
 				</main>
+				<SiteFooter />
 			</div>
 		</SwissGridProvider>
 	);
