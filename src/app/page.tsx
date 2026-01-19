@@ -19,8 +19,8 @@ import Asset9 from "@/public/images/placeholders/asset-9.jpg";
 import Asset10 from "@/public/images/placeholders/asset-10.jpg";
 import Asset11 from "@/public/images/placeholders/asset-11.jpg";
 import Asset12 from "@/public/images/placeholders/asset-12.jpg";
+import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { HeroGradient } from "@/src/components/ui/hero-gradient";
 import { MonolithCard } from "@/src/components/ui/monolith-card";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
@@ -39,21 +39,7 @@ export default function Home() {
 					style={{ overflowAnchor: "none" }}
 				>
 					{/* Nav Row */}
-					<SwissGridSection id="nav" className="relative z-20 w-full">
-						<Reveal phase={1} className="w-full">
-							<div className="h-[118px] w-full">
-								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 sm:px-8">
-									<div className="hidden sm:block">
-										<LocationBadge />
-									</div>
-									<div className="flex-1" />
-									<div className="hidden sm:block">
-										<TimeBadge />
-									</div>
-								</div>
-							</div>
-						</Reveal>
-					</SwissGridSection>
+					<SiteHeader />
 
 					{/* Profile Section */}
 					<SwissGridSection id="profile" className="relative w-full">

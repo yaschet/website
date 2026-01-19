@@ -3,6 +3,7 @@ import type { Preview } from "@storybook/nextjs-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { RevealProvider } from "../src/components/providers/reveal-provider";
+import { fontVariables } from "../src/lib/fonts";
 import "../src/app/globals.css";
 
 const queryClient = new QueryClient();
@@ -46,7 +47,9 @@ const preview: Preview = {
 			<QueryClientProvider client={queryClient}>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 					<RevealProvider>
-						<div className="min-h-full p-8 text-surface-900 antialiased transition-colors duration-300 dark:text-surface-50">
+						<div
+							className={`min-h-full p-8 text-surface-900 antialiased transition-colors duration-300 dark:text-surface-50 ${fontVariables}`}
+						>
 							<Story />
 						</div>
 					</RevealProvider>

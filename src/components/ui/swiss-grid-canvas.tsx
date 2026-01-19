@@ -840,7 +840,7 @@ function findNearest(target: number, values: number[]): number | undefined {
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface SwissGridSectionProps {
-	children: ReactNode;
+	children?: ReactNode;
 	/** Unique identifier for this section */
 	id?: string;
 	/** Additional CSS classes */

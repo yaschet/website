@@ -157,6 +157,24 @@
 }
 
 /**
+ * Draw Square Animation Keyframes
+ *
+ * Animates the stroke-dashoffset to draw a square perimeter.
+ * Used for the premium "Architect's Loop" loader.
+ */
+@keyframes draw-square {
+  0% {
+    stroke-dashoffset: 80;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -80;
+  }
+}
+
+/**
  * Animation Utilities
  *
  * The animate-in and animate-out utilities trigger the enter/exit keyframes.
@@ -177,6 +195,10 @@
 
 @utility animate-marquee-vertical {
   animation: marquee-vertical var(--duration) linear infinite;
+}
+
+@utility animate-draw-square {
+  animation: draw-square 3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
 /**

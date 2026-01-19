@@ -21,8 +21,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
-import { useReveal } from "@/src/components/providers/reveal-provider";
-import { cn, springs } from "@/src/lib/index";
+import { cn } from "@/src/lib/index";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS - Swiss Grid Mathematics
@@ -73,15 +72,13 @@ const tooltipClasses = cn(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function LocationBadge() {
-	const { phase } = useReveal();
-	const isEnabled = phase >= 1;
 	const [isHovered, setIsHovered] = useState(false);
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 8 }}
-			animate={isEnabled ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
-			transition={springs.responsive}
+			initial={{ opacity: 0, y: -4 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.3, ease: "easeOut" }}
 			className={badgeBaseClasses}
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
@@ -125,8 +122,6 @@ export function LocationBadge() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function TimeBadge() {
-	const { phase } = useReveal();
-	const isEnabled = phase >= 1;
 	const [time, setTime] = useState<string>("");
 	const [mounted, setMounted] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
@@ -168,9 +163,9 @@ export function TimeBadge() {
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 8 }}
-			animate={isEnabled ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
-			transition={{ ...springs.responsive, delay: 0.05 }}
+			initial={{ opacity: 0, y: -4 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
 			className={badgeBaseClasses}
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
