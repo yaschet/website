@@ -1,46 +1,75 @@
-import React from 'react';
-import { cn } from '@library/utils';
+/**
+ * Skeleton component for loading states.
+ *
+ * @remarks
+ * Supports rectangular, circle, and text variants.
+ *
+ * @example
+ * ```tsx
+ * <Skeleton className="h-4 w-[250px]" />
+ * ```
+ *
+ * @public
+ */
 
-type SkeletonProps = {
-    width?: number | string;
-    height?: number | string;
-    variant?: 'rectangular' | 'circle' | 'text';
-    children?: React.ReactNode;
-    innerClassName?: string;
-} & React.HTMLAttributes<HTMLDivElement>;
+import * as React from "react";
+import { cn } from "@/src/lib/index";
 
-const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(function Skeleton(
-    { children, className, height, innerClassName, variant = 'rectangular', width, ...props },
-    ref,
-) {
-    const baseClasses = cn(
-        'relative',
-        'overflow-hidden',
-        'animate-none',
-        'rounded-xl',
-        'bg-surface-2',
-        'opacity-100',
-        'will-change-transform',
-        className,
-    );
+// ═══════════════════════════════════════════════════════════════════════════
+// TYPES
+// ═══════════════════════════════════════════════════════════════════════════
 
-    const innerClasses = cn(
-        'skeleton-inner',
-        'absolute inset-0',
-        'animate-[shimmer_2s_infinite]',
-        'rounded-xl',
-        'bg-linear-to-r',
-        'from-transparent via-surface-3 to-transparent',
-        variant === 'circle' && 'rounded-full',
-        innerClassName,
-    );
+export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+	/** Fixed width override (CSS value) */
+	width?: number | string;
+	/** Fixed height override (CSS value) */
+	height?: number | string;
+	/** Geometric variant mapping */
+	variant?: "rectangular" | "circle" | "text";
+	/** Optional content to overlay on the skeleton */
+	children?: React.ReactNode;
+	/** Specific styles for the shimmer layer */
+	innerClassName?: string;
+}
 
-    return (
-        <div ref={ref} aria-busy="true" className={baseClasses} {...props}>
-            <div className={innerClasses} style={{ height: height || 'auto', width: width || '100%' }}></div>
-            {children}
-        </div>
-    );
-});
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Skeleton - Structure placeholder.
+ */
+const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
+	(
+		{ children, className, height, innerClassName, variant = "rectangular", width, ...props },
+		ref,
+	) => {
+		const baseClasses = cn(
+			"relative overflow-hidden bg-surface-2 opacity-100 will-change-transform",
+			// Shape
+			variant === "circle" ? "rounded-full" : "rounded-[var(--radius)]",
+			className,
+		);
+
+		const innerClasses = cn(
+			"absolute inset-0 bg-linear-to-r from-transparent via-surface-3 to-transparent",
+			"animate-[shimmer_2s_infinite]",
+			variant === "circle" ? "rounded-full" : "rounded-[var(--radius)]",
+			innerClassName,
+		);
+
+		return (
+			<div ref={ref} aria-busy="true" className={baseClasses} {...props}>
+				<div
+					className={innerClasses}
+					style={{ height: height || "auto", width: width || "100%" }}
+				/>
+				{children}
+			</div>
+		);
+	},
+);
+
+Skeleton.displayName = "Skeleton";
 
 export { Skeleton };

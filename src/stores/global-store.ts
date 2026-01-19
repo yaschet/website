@@ -1,23 +1,23 @@
-import { createJSONStorage, persist } from "zustand/middleware";
-import { createStore } from "zustand/vanilla";
 import type { StateCreator } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import type { StoreApi } from "zustand/vanilla";
+import { createStore } from "zustand/vanilla";
 
 export type GlobalState = {
-  isSoundEnabled: boolean;
-  hasSeenIntro: boolean;
+	isSoundEnabled: boolean;
+	hasSeenIntro: boolean;
 };
 
 export type GlobalActions = {
-  toggleSound: () => void;
-  setHasSeenIntro: () => void;
+	toggleSound: () => void;
+	setHasSeenIntro: () => void;
 };
 
 export type GlobalStore = GlobalState & GlobalActions;
 
 export const defaultGlobalState: GlobalState = {
-  isSoundEnabled: true,
-  hasSeenIntro: false,
+	isSoundEnabled: true,
+	hasSeenIntro: false,
 };
 
 /**
@@ -25,19 +25,18 @@ export const defaultGlobalState: GlobalState = {
  * Manages app-wide interaction settings like sound effects and one-time intro animations.
  */
 export const createGlobalStore = (
-  globalState: GlobalState = defaultGlobalState
+	globalState: GlobalState = defaultGlobalState,
 ): StoreApi<GlobalStore> => {
-  const storeOptions: StateCreator<GlobalStore> = (set) => ({
-    ...globalState,
-    toggleSound: () =>
-      set((state) => ({ isSoundEnabled: !state.isSoundEnabled })),
-    setHasSeenIntro: () => set({ hasSeenIntro: true }),
-  });
+	const storeOptions: StateCreator<GlobalStore> = (set) => ({
+		...globalState,
+		toggleSound: () => set((state) => ({ isSoundEnabled: !state.isSoundEnabled })),
+		setHasSeenIntro: () => set({ hasSeenIntro: true }),
+	});
 
-  return createStore<GlobalStore>()(
-    persist(storeOptions, {
-      name: `app-preferences`,
-      storage: createJSONStorage(() => localStorage),
-    })
-  );
+	return createStore<GlobalStore>()(
+		persist(storeOptions, {
+			name: `app-preferences`,
+			storage: createJSONStorage(() => localStorage),
+		}),
+	);
 };

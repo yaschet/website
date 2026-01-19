@@ -1,45 +1,63 @@
 import type { Metadata } from "next";
-import { Raleway as MonoFont, Inter as SansFont } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
-const fontSans = SansFont({
-  adjustFontFallback: false,
-  display: "swap",
-  subsets: ["latin"],
-  variable: "--font-app-sans",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
+import { FloatingNav } from "@components/layout/floating-nav";
+import RootProvider from "@components/providers/root-provider";
 
-const fontMono = MonoFont({
-  adjustFontFallback: true,
-  display: "swap",
-  subsets: ["latin"],
-  variable: "--font-app-mono",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
+import { fontVariables } from "@/lib/fonts";
 
 export const metadata: Metadata = {
-  title: "Yaschet — Product Engineer",
-  description: "Senior Product Engineer blending design and code.",
+	title: "Yassine Chettouch — Senior Product Engineer",
+	description:
+		"Building systems that scale and experiences that convert. High-performance execution for ambitious products.",
+	icons: {
+		icon: "/images/avatar.jpeg",
+	},
+	appleWebApp: {
+		title: "Yaschet",
+	},
+};
+
+const personSchema = {
+	"@context": "https://schema.org",
+	"@type": "Person",
+	name: "Yassine Chettouch",
+	alternateName: "yaschet",
+	jobTitle: "Senior Product Engineer",
+	url: "https://yaschet.dev",
+	sameAs: [
+		"https://x.com/yaschet",
+		"https://github.com/yaschet",
+		"https://linkedin.com/in/yaschet",
+	],
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html
-      suppressHydrationWarning
-      lang="en"
-      className={`${fontSans.variable} ${fontMono.variable}`}
-    >
-      <body
-        className="relative min-h-screen antialiased"
-        suppressHydrationWarning={true}
-      >
-        {children}
-      </body>
-    </html>
-  );
+	return (
+		<html suppressHydrationWarning lang="en" className={fontVariables}>
+			<head>
+				<Script
+					id="person-schema"
+					type="application/ld+json"
+					strategy="beforeInteractive"
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD schema is trusted static data
+					dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+				/>
+			</head>
+			<body
+				className="relative min-h-screen text-surface-900 antialiased dark:text-surface-50"
+				suppressHydrationWarning={true}
+			>
+				<RootProvider>
+					<FloatingNav />
+					{children}
+				</RootProvider>
+			</body>
+		</html>
+	);
 }

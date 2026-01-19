@@ -11,7 +11,7 @@
  */
 @import "@evilmartians/harmony/css/red.css";
 @import "@evilmartians/harmony/css/zinc.css";
-@import "@evilmartians/harmony/css/blue.css";
+@import "@evilmartians/harmony/css/violet.css";
 @import "@evilmartians/harmony/css/orange.css";
 @import "@evilmartians/harmony/css/emerald.css";
 
@@ -32,6 +32,51 @@
  * Package exports default to ./dist/tailwind-animate.css automatically.
  */
 @import "tw-animate-css";
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Ambient floating animations */
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+@keyframes float-slower {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-40px, -20px) scale(1.08);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 20s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float-slower 30s ease-in-out infinite;
+}
 
 /**
  * Animation Keyframes for Enter/Exit
@@ -112,6 +157,24 @@
 }
 
 /**
+ * Draw Square Animation Keyframes
+ *
+ * Animates the stroke-dashoffset to draw a square perimeter.
+ * Used for the premium "Architect's Loop" loader.
+ */
+@keyframes draw-square {
+  0% {
+    stroke-dashoffset: 80;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -80;
+  }
+}
+
+/**
  * Animation Utilities
  *
  * The animate-in and animate-out utilities trigger the enter/exit keyframes.
@@ -132,6 +195,10 @@
 
 @utility animate-marquee-vertical {
   animation: marquee-vertical var(--duration) linear infinite;
+}
+
+@utility animate-draw-square {
+  animation: draw-square 3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
 /**
@@ -176,29 +243,29 @@
   --primary-color-900: var(--zinc-900);
   --primary-color-950: var(--zinc-950);
 
-  --accent-color-50: var(--blue-50);
-  --accent-color-100: var(--blue-100);
-  --accent-color-200: var(--blue-200);
-  --accent-color-300: var(--blue-300);
-  --accent-color-400: var(--blue-400);
-  --accent-color-500: var(--blue-500);
-  --accent-color-600: var(--blue-600);
-  --accent-color-700: var(--blue-700);
-  --accent-color-800: var(--blue-800);
-  --accent-color-900: var(--blue-900);
-  --accent-color-950: var(--blue-950);
+  --accent-color-50: var(--violet-50);
+  --accent-color-100: var(--violet-100);
+  --accent-color-200: var(--violet-200);
+  --accent-color-300: var(--violet-300);
+  --accent-color-400: var(--violet-400);
+  --accent-color-500: var(--violet-500);
+  --accent-color-600: var(--violet-600);
+  --accent-color-700: var(--violet-700);
+  --accent-color-800: var(--violet-800);
+  --accent-color-900: var(--violet-900);
+  --accent-color-950: var(--violet-950);
 
-  --info-color-50: var(--blue-50);
-  --info-color-100: var(--blue-100);
-  --info-color-200: var(--blue-200);
-  --info-color-300: var(--blue-300);
-  --info-color-400: var(--blue-400);
-  --info-color-500: var(--blue-500);
-  --info-color-600: var(--blue-600);
-  --info-color-700: var(--blue-700);
-  --info-color-800: var(--blue-800);
-  --info-color-900: var(--blue-900);
-  --info-color-950: var(--blue-950);
+  --info-color-50: var(--violet-50);
+  --info-color-100: var(--violet-100);
+  --info-color-200: var(--violet-200);
+  --info-color-300: var(--violet-300);
+  --info-color-400: var(--violet-400);
+  --info-color-500: var(--violet-500);
+  --info-color-600: var(--violet-600);
+  --info-color-700: var(--violet-700);
+  --info-color-800: var(--violet-800);
+  --info-color-900: var(--violet-900);
+  --info-color-950: var(--violet-950);
 
   --warning-color-50: var(--orange-50);
   --warning-color-100: var(--orange-100);
@@ -453,7 +520,7 @@
   --destructive-surface-4: var(--destructive-color-900);
   --destructive-surface-5: var(--destructive-color-950);
 
-  /* ShadCN/UI semantic tokens */
+  /* Engineering-Grade Semantic Tokens */
   --background: var(--surface);
   --card: var(--surface-0);
   --card-foreground: var(--surface-foreground);
@@ -464,7 +531,7 @@
   --border: var(--surface-200);
   --input: var(--surface-200);
   --ring: var(--primary);
-  --radius: 0.75rem;
+  --radius: 0px !important; /* Base Radius: Zero (The Absolute Truth) */
 
   /* Chart colors (HSL format for compatibility) */
   --chart-1: 12 76% 61%;
@@ -635,10 +702,12 @@
  */
 @theme inline {
   /* === Font Families === */
-  --font-sans: var(--font-app-sans), ui-sans-serif, system-ui, sans-serif,
+  --font-sans:
+    var(--font-app-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-mono: var(--font-app-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-mono:
+    var(--font-app-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 
   /* === Accent Colors === */
   --color-accent-50: var(--accent-50);
@@ -906,29 +975,29 @@
     --primary-color-900: var(--zinc-900);
     --primary-color-950: var(--zinc-950);
 
-    --accent-color-50: var(--blue-50);
-    --accent-color-100: var(--blue-100);
-    --accent-color-200: var(--blue-200);
-    --accent-color-300: var(--blue-300);
-    --accent-color-400: var(--blue-400);
-    --accent-color-500: var(--blue-500);
-    --accent-color-600: var(--blue-600);
-    --accent-color-700: var(--blue-700);
-    --accent-color-800: var(--blue-800);
-    --accent-color-900: var(--blue-900);
-    --accent-color-950: var(--blue-950);
+    --accent-color-50: var(--violet-50);
+    --accent-color-100: var(--violet-100);
+    --accent-color-200: var(--violet-200);
+    --accent-color-300: var(--violet-300);
+    --accent-color-400: var(--violet-400);
+    --accent-color-500: var(--violet-500);
+    --accent-color-600: var(--violet-600);
+    --accent-color-700: var(--violet-700);
+    --accent-color-800: var(--violet-800);
+    --accent-color-900: var(--violet-900);
+    --accent-color-950: var(--violet-950);
 
-    --info-color-50: var(--blue-50);
-    --info-color-100: var(--blue-100);
-    --info-color-200: var(--blue-200);
-    --info-color-300: var(--blue-300);
-    --info-color-400: var(--blue-400);
-    --info-color-500: var(--blue-500);
-    --info-color-600: var(--blue-600);
-    --info-color-700: var(--blue-700);
-    --info-color-800: var(--blue-800);
-    --info-color-900: var(--blue-900);
-    --info-color-950: var(--blue-950);
+    --info-color-50: var(--violet-50);
+    --info-color-100: var(--violet-100);
+    --info-color-200: var(--violet-200);
+    --info-color-300: var(--violet-300);
+    --info-color-400: var(--violet-400);
+    --info-color-500: var(--violet-500);
+    --info-color-600: var(--violet-600);
+    --info-color-700: var(--violet-700);
+    --info-color-800: var(--violet-800);
+    --info-color-900: var(--violet-900);
+    --info-color-950: var(--violet-950);
 
     --warning-color-50: var(--orange-50);
     --warning-color-100: var(--orange-100);
@@ -1213,7 +1282,7 @@
     --input: var(--surface-200);
 
     --ring: var(--primary);
-    --radius: 0.75rem;
+    --radius: 0px;
 
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -1375,7 +1444,7 @@
     user-select: none;
   }
 
-  /*!* ? - Custom Scrollbar: *!*/
+  /* Custom Scrollbar */
   /*::-webkit-scrollbar {*/
   /*    width: 10px;*/
   /*    height: 10px;*/
@@ -1430,46 +1499,126 @@
   --default-border-color: var(--color-border);
   --default-border-width: 1px;
 
-  /* Apple-like Smooth Border Radius - Refined Scale */
-  --radius-xs: 0.125rem; /* 2px */
-  --radius-sm: 0.25rem; /* 4px */
-  --radius: 0.375rem; /* 6px */
-  --radius-md: 0.5rem; /* 8px */
-  --radius-lg: 0.625rem; /* 10px */
-  --radius-xl: 0.75rem; /* 12px - Matches padding-3 for nesting */
-  --radius-2xl: 1rem; /* 16px */
-  --radius-3xl: 1.5rem; /* 24px - Standard for Cards */
-  --radius-4xl: 2rem; /* 32px */
+  /* Premium Typography System - Swiss Precision Scale */
+  --font-sans: var(--font-app-sans), system-ui, sans-serif;
+  --font-mono: var(--font-app-mono), ui-monospace, monospace;
 
-  /* Cloud-like Smooth Shadows - Refined for Ultra-Softness */
+  /* High-Precision Tracking (Kerning) */
+  --tracking-tightest: -0.04em; /* Display hero */
+  --tracking-tighter: -0.035em; /* H1 titles */
+  --tracking-tight: -0.025em; /* H2 section titles */
+  --tracking-snug: -0.02em; /* H3 subtitles */
+  --tracking-normal: -0.01em; /* Body and UI text */
+  --tracking-wide: 0.01em; /* Mono technical labels */
+  --tracking-wider: 0.02em; /* Small captions */
+  --tracking-widest: 0.05em; /* Eyebrow text */
+
+  /* Impactful Leading (Line Height) */
+  --leading-display: 0.9;
+  --leading-heading: 1;
+  --leading-subheading: 1.1;
+  --leading-body: 1.65;
+  --leading-mono: 1.5;
+
+  /* Typographic Hierarchy - Semantic Scale */
+  --text-display-2xl: 6rem;
+  --text-display-2xl--line-height: var(--leading-display);
+  --text-display-2xl--letter-spacing: var(--tracking-tightest);
+  --text-display-2xl--font-weight: 500;
+
+  --text-display-xl: 4.5rem;
+  --text-display-xl--line-height: var(--leading-display);
+  --text-display-xl--letter-spacing: var(--tracking-tightest);
+  --text-display-xl--font-weight: 500;
+
+  --text-heading-xl: 3rem;
+  --text-heading-xl--line-height: var(--leading-heading);
+  --text-heading-xl--letter-spacing: var(--tracking-tighter);
+  --text-heading-xl--font-weight: 500;
+
+  --text-heading-lg: 2.25rem;
+  --text-heading-lg--line-height: var(--leading-heading);
+  --text-heading-lg--letter-spacing: var(--tracking-tight);
+  --text-heading-lg--font-weight: 500;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: var(--leading-body);
+  --text-body-lg--letter-spacing: var(--tracking-normal);
+
+  --text-body-md: 1.0625rem;
+  --text-body-md--line-height: var(--leading-body);
+  --text-body-md--letter-spacing: var(--tracking-normal);
+
+  --text-body-sm: 0.9375rem;
+  --text-body-sm--line-height: 1.6;
+  --text-body-sm--letter-spacing: 0em;
+
+  /* Machined Radius System - Precision Tolerances */
+  --radius-xs: 0.125rem; /* 2px - Aligning with Grid thickness */
+  --radius-sm: 0.25rem; /* 4px */
+  --radius: 0px; /* 0px - System Default */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem; /* 16px */
+  --radius-full: 9999px; /* Legacy Pill Support */
+
+  /* Soft Shadows */
   --shadow-xs: 0 1px 3px 0 rgb(0 0 0 / 0.02), 0 1px 2px -1px rgb(0 0 0 / 0.02);
-  --shadow-sm: 0 2px 8px -2px rgb(0 0 0 / 0.02),
-    0 4px 16px -4px rgb(0 0 0 / 0.04);
-  --shadow: 0 4px 12px -2px rgb(0 0 0 / 0.02), 0 8px 24px -4px rgb(0 0 0 / 0.04);
-  --shadow-md: 0 8px 24px -4px rgb(0 0 0 / 0.03),
-    0 16px 48px -8px rgb(0 0 0 / 0.06);
-  --shadow-lg: 0 12px 32px -6px rgb(0 0 0 / 0.03),
-    0 24px 64px -12px rgb(0 0 0 / 0.06);
-  --shadow-xl: 0 20px 48px -10px rgb(0 0 0 / 0.04),
-    0 40px 96px -20px rgb(0 0 0 / 0.08);
-  --shadow-2xl: 0 32px 64px -12px rgb(0 0 0 / 0.06),
-    0 64px 128px -24px rgb(0 0 0 / 0.1);
+  --shadow-sm:
+    0 2px 8px -2px rgb(0 0 0 / 0.02), 0 4px 16px -4px rgb(0 0 0 / 0.04);
+  --shadow:
+    0 4px 12px -2px rgb(0 0 0 / 0.02), 0 8px 24px -4px rgb(0 0 0 / 0.04);
+  --shadow-md:
+    0 8px 24px -4px rgb(0 0 0 / 0.03), 0 16px 48px -8px rgb(0 0 0 / 0.06);
+  --shadow-lg:
+    0 12px 32px -6px rgb(0 0 0 / 0.03), 0 24px 64px -12px rgb(0 0 0 / 0.06);
+  --shadow-xl:
+    0 20px 48px -10px rgb(0 0 0 / 0.04), 0 40px 96px -20px rgb(0 0 0 / 0.08);
+  --shadow-2xl:
+    0 32px 64px -12px rgb(0 0 0 / 0.06), 0 64px 128px -24px rgb(0 0 0 / 0.1);
   --shadow-inner: inset 0 1px 4px 0 rgb(0 0 0 / 0.02);
 }
 
 @layer components {
-  .table-spacing {
-    border-spacing: 0.75rem; /* spacing.3 = 12px = 0.75rem */
+  .code-block-pre > code {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    color: inherit !important;
   }
 }
 
 html {
   @apply text-foreground font-sans;
+  font-feature-settings:
+    "kern" 1,
+    "liga" 1,
+    "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before {
+    @apply border-surface-200 outline-offset-4 outline-surface-200;
+  }
+
+  html {
+    @apply scroll-smooth selection:bg-surface-200 selection:text-surface-900;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased selection:bg-accent-400 selection:text-accent-950;
+  }
 }
 
 html,
 body {
-  @apply bg-surface selection:bg-accent-600 scroll-smooth lining-nums antialiased selection:text-white;
+  @apply bg-surface selection:bg-accent-600 lining-nums antialiased selection:text-white;
 }
 
 .dark,
@@ -1483,19 +1632,22 @@ h3,
 h4,
 h5,
 h6 {
-  @apply font-mono font-bold;
+  @apply font-sans font-medium tracking-tightest;
+  text-wrap: balance;
 }
 
 p {
-  @apply font-sans leading-relaxed;
+  @apply text-body-md;
 }
 
-.transition-bg-light {
-  background-color: var(--surface-50) !important;
-}
-
-.transition-bg-dark {
-  background-color: var(--surface-950) !important;
+code,
+pre {
+  @apply font-mono;
+  font-feature-settings:
+    "kern" 0,
+    "liga" 0,
+    "calt" 1,
+    "zero" 1;
 }
 
 /* Remove focus outline */
@@ -1519,4 +1671,144 @@ button svg,
 button path {
   @apply select-none;
   user-select: none !important;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SWISS-PRECISION DASHED BORDERS - CLEAN IMPLEMENTATION
+   
+   Simple, reliable dashed borders that don't break the layout.
+   - Horizontal: Applied via border-dash-b on the container
+   - Vertical: Applied via border-dash-x on the container
+   - No overflow, no transforms, no complexity
+═══════════════════════════════════════════════════════════════════════════ */
+
+.border-dash-b,
+.border-dash-x {
+  position: relative;
+}
+
+/* Horizontal - Bottom border (CENTER-ALIGNED for perfect crosshairs) */
+.border-dash-b::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  /* Center-aligned: 768px / 16px = 48 cycles = perfect alignment at edges */
+  background: repeating-linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.1) 0px 8px,
+    transparent 8px 16px
+  );
+  background-position: center;
+  pointer-events: none;
+  z-index: 20;
+}
+
+:is(.dark, [data-theme="dark"]) .border-dash-b::after {
+  background: repeating-linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.1) 0px 8px,
+    transparent 8px 16px
+  );
+  background-position: center;
+}
+
+/* Vertical - Both sides */
+.border-dash-x::before,
+.border-dash-x::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1) 0px 8px,
+    transparent 8px 16px
+  );
+  pointer-events: none;
+  z-index: 20;
+}
+
+.border-dash-x::before {
+  left: 0;
+}
+
+.border-dash-x::after {
+  right: 0;
+}
+
+:is(.dark, [data-theme="dark"]) .border-dash-x::before,
+:is(.dark, [data-theme="dark"]) .border-dash-x::after {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.1) 0px 8px,
+    transparent 8px 16px
+  );
+}
+
+/**
+ * MDX Code Block Dual Theme Support
+ * Handles switching between --shiki-light and --shiki-dark variables
+ * Using safer selectors to avoid cssnano-simple parsing issues
+ */
+code[data-theme],
+code[data-theme] span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
+.dark code[data-theme],
+.dark code[data-theme] span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+
+/* Ensure Pre background matches the code background */
+pre[data-theme] {
+  background-color: var(--shiki-light-bg);
+}
+
+.dark pre[data-theme] {
+  background-color: var(--shiki-dark-bg);
+}
+
+/**
+ * MDX Heading Anchor Links
+ * Styled anchors that appear on heading hover
+ */
+.anchor {
+  opacity: 0;
+  margin-left: 0.5rem;
+  font-weight: normal;
+  text-decoration: none;
+  color: var(--surface-400);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
+  transform: translateX(-4px);
+}
+
+h2:hover .anchor,
+h3:hover .anchor,
+h4:hover .anchor {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.anchor:hover {
+  color: var(--surface-950);
+}
+
+.dark .anchor:hover {
+  color: var(--surface-50);
 }
