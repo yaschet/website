@@ -146,7 +146,7 @@ export default function Home() {
 												asChild
 												size="lg"
 												variant="solid"
-												color="primary"
+												color="accent"
 											>
 												<Link href="/contact">
 													Start a conversation
