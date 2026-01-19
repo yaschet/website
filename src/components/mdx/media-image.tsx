@@ -121,7 +121,11 @@ export function MediaImage({
 						"transition-transform duration-300 ease-out hover:scale-[1.01]",
 						className,
 					)}
-					style={{ aspectRatio }}
+					style={{
+						aspectRatio,
+						// PERF: Isolate layout and paint to prevent main-thread blocking reflows
+						contain: "layout paint",
+					}}
 				>
 					<NextImage
 						src={src}
