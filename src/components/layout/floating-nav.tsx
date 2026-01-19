@@ -40,7 +40,7 @@ import { cn, springs } from "@/src/lib/index";
 type NavItem = {
 	name: string;
 	link: string;
-	icon: Icon;
+	icon: React.ElementType;
 };
 
 const navItems: NavItem[] = [

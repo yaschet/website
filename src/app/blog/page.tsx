@@ -4,7 +4,6 @@ import { ArrowLeft } from "@phosphor-icons/react";
 import Link from "next/link";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { HeroGradient } from "@/src/components/ui/hero-gradient";
 import { Reveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
@@ -12,11 +11,6 @@ export default function BlogPage() {
 	return (
 		<SwissGridProvider>
 			<div className="relative flex min-h-screen w-full flex-col bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-50">
-				{/* Atmosphere */}
-				<div className="absolute inset-x-0 top-0 z-0 h-screen opacity-50">
-					<HeroGradient className="h-full w-full" />
-				</div>
-
 				{/* 1. HEADER (Context Badges) */}
 				<SiteHeader />
 

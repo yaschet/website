@@ -2,7 +2,6 @@
 
 import { ContactForm } from "@/src/components/forms/contact-form";
 import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
-import { HeroGradient } from "@/src/components/ui/hero-gradient";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
@@ -30,8 +29,6 @@ export default function ContactPage() {
 
 					{/* Header */}
 					<SwissGridSection id="contact-header" className="relative w-full">
-						<HeroGradient className="absolute inset-x-0 top-0 z-0 h-screen" />
-
 						<Reveal phase={1} className="relative z-10 w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-8 sm:px-8">

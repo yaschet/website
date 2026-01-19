@@ -21,7 +21,6 @@ import Asset11 from "@/public/images/placeholders/asset-11.jpg";
 import Asset12 from "@/public/images/placeholders/asset-12.jpg";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { HeroGradient } from "@/src/components/ui/hero-gradient";
 import { MonolithCard } from "@/src/components/ui/monolith-card";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
@@ -43,8 +42,6 @@ export default function Home() {
 
 					{/* Profile Section */}
 					<SwissGridSection id="profile" className="relative w-full">
-						<HeroGradient className="absolute inset-x-0 top-0 z-0 h-screen" />
-
 						<Reveal phase={1} className="relative z-10 w-full">
 							<header className="w-full">
 								<div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-8 sm:px-8">
