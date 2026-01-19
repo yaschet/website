@@ -3,7 +3,7 @@ import type { Project } from "contentlayer2/generated";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypePrettyCode from "rehype-pretty-code";
+
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import { SiteFooter } from "@/src/components/layout/site-footer";
@@ -13,6 +13,7 @@ import { Button } from "@/src/components/ui/button";
 import { ImageGallery } from "@/src/components/ui/image-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
+import { formatDate } from "@/src/lib/format-date";
 
 interface ProjectContentProps {
 	project: Project;
@@ -68,10 +69,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									{/* Meta Row (inline) */}
 									<div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
 										<time className="font-mono text-muted-foreground text-xs tabular-nums">
-											{new Date(project.date).toLocaleDateString("en-US", {
-												year: "numeric",
-												month: "long",
-											})}
+											{formatDate(project.date)}
 										</time>
 										{projectData.readingTime && (
 											<span className="flex items-center gap-1.5 font-mono text-muted-foreground text-xs">
@@ -166,49 +164,6 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 															{
 																properties: {
 																	className: ["anchor"],
-																},
-															},
-														],
-														[
-															rehypePrettyCode,
-															{
-																theme: "github-dark",
-																onVisitLine(node: {
-																	children: {
-																		type: string;
-																		value: string;
-																	}[];
-																}) {
-																	// Prevent lines from collapsing in `display: grid` mode, and allow empty
-																	// lines to be copy/pasted
-																	if (
-																		node.children.length === 0
-																	) {
-																		node.children = [
-																			{
-																				type: "text",
-																				value: " ",
-																			},
-																		];
-																	}
-																},
-																onVisitHighlightedLine(node: {
-																	properties: {
-																		className: string[];
-																	};
-																}) {
-																	node.properties.className.push(
-																		"line--highlighted",
-																	);
-																},
-																onVisitHighlightedWord(node: {
-																	properties: {
-																		className: string[];
-																	};
-																}) {
-																	node.properties.className = [
-																		"word--highlighted",
-																	];
 																},
 															},
 														],
