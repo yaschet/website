@@ -1,310 +1,160 @@
-/**
- * NOTE: @config directive temporarily disabled
- * Some plugins (NextUI, tailwindcss-animate) may not be v4 compatible yet.
- * Once plugins are updated, uncomment the line below:
- * @config "../../tailwind.config.js";
- */
+/* ═══════════════════════════════════════════════════════════════════════════
+   SYSTEM CONFIGURATION
+   Core architecture setup and framework initialization.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-/**
- * Evil Martians Harmony - OKLCH Color Palette
- * Provides production-ready OKLCH color values
- */
-@import "@evilmartians/harmony/css/red.css";
-@import "@evilmartians/harmony/css/zinc.css";
-@import "@evilmartians/harmony/css/blue.css";
-@import "@evilmartians/harmony/css/orange.css";
-@import "@evilmartians/harmony/css/emerald.css";
-@import "@evilmartians/harmony/css/violet.css";
-
-/**
- * Tailwind CSS v4 - Native OKLCH Support
- *
- * v4 natively handles OKLCH colors and opacity without polyfills.
- * Evil Martians Harmony provides the base OKLCH color values.
- * The @theme directive maps these to Tailwind utilities.
- */
+/* ENGINE: Tailwind CSS v4 Core */
 @import "tailwindcss";
 
-/**
- * Tailwind Animate - v4 Compatible Animations
- *
- * CSS-first animation library replacing tailwindcss-animate.
- * Provides animate-in, animate-out, fade, spin, zoom, and slide utilities.
- * Package exports default to ./dist/tailwind-animate.css automatically.
- */
+/* EXTENSION: v4-Compatible Animation Engine */
 @import "tw-animate-css";
 
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
-
-/* Ambient floating animations */
-@keyframes float-slow {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(30px, -30px) scale(1.05);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.95);
-  }
-}
-
-@keyframes float-slower {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(-40px, -20px) scale(1.08);
-  }
-}
-
-.animate-float-slow {
-  animation: float-slow 20s ease-in-out infinite;
-}
-
-.animate-float-slower {
-  animation: float-slower 30s ease-in-out infinite;
-}
-
-/**
- * Animation Keyframes for Enter/Exit
- *
- * These keyframes are used by animate-in and animate-out utilities.
- * They read CSS variables set by utilities like fade-in, slide-in-from-right, etc.
- */
-@keyframes enter {
-  from {
-    opacity: var(--tw-enter-opacity, 1);
-    transform: translate3d(
-        var(--tw-enter-translate-x, 0),
-        var(--tw-enter-translate-y, 0),
-        0
-      )
-      scale3d(
-        var(--tw-enter-scale, 1),
-        var(--tw-enter-scale, 1),
-        var(--tw-enter-scale, 1)
-      )
-      rotate(var(--tw-enter-rotate, 0));
-  }
-}
-
-@keyframes exit {
-  to {
-    opacity: var(--tw-exit-opacity, 1);
-    transform: translate3d(
-        var(--tw-exit-translate-x, 0),
-        var(--tw-exit-translate-y, 0),
-        0
-      )
-      scale3d(
-        var(--tw-exit-scale, 1),
-        var(--tw-exit-scale, 1),
-        var(--tw-exit-scale, 1)
-      )
-      rotate(var(--tw-exit-rotate, 0));
-  }
-}
-
-/**
- * Marquee Animation Keyframes
- *
- * These keyframes create the infinite scrolling marquee effect.
- */
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(calc(-100% - var(--gap)));
-  }
-}
-
-@keyframes marquee-vertical {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(calc(-100% - var(--gap)));
-  }
-}
-
-/**
- * Shimmer Animation Keyframes
- *
- * Creates a shimmer effect for skeleton loading states.
- * The shimmer moves from left to right with a gradient overlay.
- */
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/**
- * Draw Square Animation Keyframes
- *
- * Animates the stroke-dashoffset to draw a square perimeter.
- * Used for the premium "Architect's Loop" loader.
- */
-@keyframes draw-square {
-  0% {
-    stroke-dashoffset: 80;
-  }
-  50% {
-    stroke-dashoffset: 0;
-  }
-  100% {
-    stroke-dashoffset: -80;
-  }
-}
-
-/**
- * Animation Utilities
- *
- * The animate-in and animate-out utilities trigger the enter/exit keyframes.
- * Combined with utilities like fade-in-0 and slide-in-from-right,
- * they create smooth entrance and exit animations.
- */
-@utility animate-in {
-  animation: enter 0.15s ease;
-}
-
-@utility animate-out {
-  animation: exit 0.15s ease;
-}
-
-@utility animate-marquee {
-  animation: marquee var(--duration) linear infinite;
-}
-
-@utility animate-marquee-vertical {
-  animation: marquee-vertical var(--duration) linear infinite;
-}
-
-@utility animate-draw-square {
-  animation: draw-square 3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-}
-
-/**
- * Dark Mode Configuration
- *
- * Override default dark variant to use class-based toggle instead of prefers-color-scheme.
- * This makes dark: utilities activate when .dark class is present on an ancestor element.
- *
- * Usage: <html class="dark"> or toggle via JavaScript
- */
+/* VARIANT: Dark Mode Configuration (Selector-based toggle) */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/**
- * Color Variable Definitions
- *
- * Harmony provides base OKLCH colors (--red-50, --zinc-50, etc.)
- * We map these to semantic color variables for our design system
- */
+/* ═══════════════════════════════════════════════════════════════════════════
+   CORE VARIABLE SYSTEM
+   Technical definition of the "Noir Wardrobe" palette: High-contrast OKLCH mapping.
+   ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* Intermediate color mappings from Harmony palette */
-  --surface-color-50: var(--zinc-50);
-  --surface-color-100: var(--zinc-100);
-  --surface-color-200: var(--zinc-200);
-  --surface-color-300: var(--zinc-300);
-  --surface-color-400: var(--zinc-400);
-  --surface-color-500: var(--zinc-500);
-  --surface-color-600: var(--zinc-600);
-  --surface-color-700: var(--zinc-700);
-  --surface-color-800: var(--zinc-800);
-  --surface-color-900: var(--zinc-900);
-  --surface-color-950: var(--zinc-950);
+  /* SURFACE: Charcoal/Navy Hybrid (The Suit) */
+  /* Scale derived from Navy Hue (270) | Minimal Chroma (0.01-0.015) for depth. */
+  --surface-color-50: oklch(0.98 0.002 270); /* Bone White */
+  --surface-color-100: oklch(0.95 0.004 270);
+  --surface-color-200: oklch(0.90 0.008 270);
+  --surface-color-300: oklch(0.82 0.010 270);
+  --surface-color-400: oklch(0.70 0.012 270);
+  --surface-color-500: oklch(0.55 0.015 270);
+  --surface-color-600: oklch(0.45 0.015 270);
+  --surface-color-700: oklch(0.35 0.015 270);
+  --surface-color-800: oklch(0.20 0.015 270); /* Deep Charcoal */
+  --surface-color-900: oklch(0.12 0.015 270); /* Midnight Navy */
+  --surface-color-950: oklch(0.08 0.015 270); /* The Void */
 
-  --primary-color-50: var(--zinc-50);
-  --primary-color-100: var(--zinc-100);
-  --primary-color-200: var(--zinc-200);
-  --primary-color-300: var(--zinc-300);
-  --primary-color-400: var(--zinc-400);
-  --primary-color-500: var(--zinc-500);
-  --primary-color-600: var(--zinc-600);
-  --primary-color-700: var(--zinc-700);
-  --primary-color-800: var(--zinc-800);
-  --primary-color-900: var(--zinc-900);
-  --primary-color-950: var(--zinc-950);
+  /* PRIMARY: Mapping direct to Surface (Monochromatic Architecture) */
+  --primary-color-50: oklch(0.98 0.002 270);
+  --primary-color-100: oklch(0.95 0.004 270);
+  --primary-color-200: oklch(0.90 0.008 270);
+  --primary-color-300: oklch(0.82 0.010 270);
+  --primary-color-400: oklch(0.70 0.012 270);
+  --primary-color-500: oklch(0.55 0.015 270);
+  --primary-color-600: oklch(0.45 0.015 270);
+  --primary-color-700: oklch(0.35 0.015 270);
+  --primary-color-800: oklch(0.20 0.015 270);
+  --primary-color-900: oklch(0.12 0.015 270);
+  --primary-color-950: oklch(0.08 0.015 270);
 
-  --accent-color-50: var(--violet-50);
-  --accent-color-100: var(--violet-100);
-  --accent-color-200: var(--violet-200);
-  --accent-color-300: var(--violet-300);
-  --accent-color-400: var(--violet-400);
-  --accent-color-500: var(--violet-500);
-  --accent-color-600: var(--violet-600);
-  --accent-color-700: var(--violet-700);
-  --accent-color-800: var(--violet-800);
-  --accent-color-900: var(--violet-900);
-  --accent-color-950: var(--violet-950);
+  /* ACCENT: Burgundy/Merlot Detail (Hue 20 | Muted Chroma) */
+  --accent-color-50: oklch(0.97 0.01 20);
+  --accent-color-100: oklch(0.92 0.02 20);
+  --accent-color-200: oklch(0.85 0.04 20);
+  --accent-color-300: oklch(0.75 0.08 20);
+  --accent-color-400: oklch(0.65 0.12 20);
+  --accent-color-500: oklch(0.50 0.14 20);
+  --accent-color-600: oklch(0.40 0.14 20);
+  --accent-color-700: oklch(0.30 0.12 20);
+  --accent-color-800: oklch(0.20 0.08 20);
+  --accent-color-900: oklch(0.15 0.05 20);
+  --accent-color-950: oklch(0.10 0.02 20);
 
-  --info-color-50: var(--blue-50);
-  --info-color-100: var(--blue-100);
-  --info-color-200: var(--blue-200);
-  --info-color-300: var(--blue-300);
-  --info-color-400: var(--blue-400);
-  --info-color-500: var(--blue-500);
-  --info-color-600: var(--blue-600);
-  --info-color-700: var(--blue-700);
-  --info-color-800: var(--blue-800);
-  --info-color-900: var(--blue-900);
-  --info-color-950: var(--blue-950);
+  /* INFO: Professional Dark Navy (Hue 250) */
+  --info-color-50: oklch(0.97 0.01 250);
+  --info-color-100: oklch(0.92 0.02 250);
+  --info-color-200: oklch(0.85 0.04 250);
+  --info-color-300: oklch(0.75 0.08 250);
+  --info-color-400: oklch(0.65 0.12 250);
+  --info-color-500: oklch(0.50 0.14 250);
+  --info-color-600: oklch(0.40 0.14 250);
+  --info-color-700: oklch(0.30 0.12 250);
+  --info-color-800: oklch(0.20 0.08 250);
+  --info-color-900: oklch(0.15 0.05 250);
+  --info-color-950: oklch(0.10 0.02 250);
 
-  --warning-color-50: var(--orange-50);
-  --warning-color-100: var(--orange-100);
-  --warning-color-200: var(--orange-200);
-  --warning-color-300: var(--orange-300);
-  --warning-color-400: var(--orange-400);
-  --warning-color-500: var(--orange-500);
-  --warning-color-600: var(--orange-600);
-  --warning-color-700: var(--orange-700);
-  --warning-color-800: var(--orange-800);
-  --warning-color-900: var(--orange-900);
-  --warning-color-950: var(--orange-950);
+  /* WARNING: External Layer (Rust/Camel | Hue 60) */
+  --warning-color-50: oklch(0.98 0.02 60);
+  --warning-color-100: oklch(0.95 0.04 60);
+  --warning-color-200: oklch(0.90 0.08 60);
+  --warning-color-300: oklch(0.82 0.12 60);
+  --warning-color-400: oklch(0.70 0.15 60);
+  --warning-color-500: oklch(0.60 0.15 60);
+  --warning-color-600: oklch(0.50 0.15 60);
+  --warning-color-700: oklch(0.40 0.12 60);
+  --warning-color-800: oklch(0.30 0.08 60);
+  --warning-color-900: oklch(0.20 0.05 60);
+  --warning-color-950: oklch(0.15 0.03 60);
 
-  --success-color-50: var(--emerald-50);
-  --success-color-100: var(--emerald-100);
-  --success-color-200: var(--emerald-200);
-  --success-color-300: var(--emerald-300);
-  --success-color-400: var(--emerald-400);
-  --success-color-500: var(--emerald-500);
-  --success-color-600: var(--emerald-600);
-  --success-color-700: var(--emerald-700);
-  --success-color-800: var(--emerald-800);
-  --success-color-900: var(--emerald-900);
-  --success-color-950: var(--emerald-950);
+  /* SUCCESS: Deep Olive Texture (Hue 135) */
+  --success-color-50: oklch(0.98 0.01 135);
+  --success-color-100: oklch(0.95 0.03 135);
+  --success-color-200: oklch(0.90 0.06 135);
+  --success-color-300: oklch(0.80 0.10 135);
+  --success-color-400: oklch(0.70 0.12 135);
+  --success-color-500: oklch(0.55 0.12 135);
+  --success-color-600: oklch(0.45 0.12 135);
+  --success-color-700: oklch(0.35 0.10 135);
+  --success-color-800: oklch(0.25 0.08 135);
+  --success-color-900: oklch(0.15 0.05 135);
+  --success-color-950: oklch(0.10 0.02 135);
 
-  --destructive-color-50: var(--red-50);
-  --destructive-color-100: var(--red-100);
-  --destructive-color-200: var(--red-200);
-  --destructive-color-300: var(--red-300);
-  --destructive-color-400: var(--red-400);
-  --destructive-color-500: var(--red-500);
-  --destructive-color-600: var(--red-600);
-  --destructive-color-700: var(--red-700);
-  --destructive-color-800: var(--red-800);
-  --destructive-color-900: var(--red-900);
-  --destructive-color-950: var(--red-950);
+  /* DESTRUCTIVE: Crimson Variant (Hue 25 | High Awareness) */
+  --destructive-color-50: oklch(0.97 0.01 25);
+  --destructive-color-100: oklch(0.92 0.03 25);
+  --destructive-color-200: oklch(0.85 0.05 25);
+  --destructive-color-300: oklch(0.75 0.10 25);
+  --destructive-color-400: oklch(0.65 0.15 25);
+  --destructive-color-500: oklch(0.55 0.18 25);
+  --destructive-color-600: oklch(0.45 0.18 25);
+  --destructive-color-700: oklch(0.35 0.15 25);
+  --destructive-color-800: oklch(0.25 0.10 25);
+  --destructive-color-900: oklch(0.15 0.05 25);
+  --destructive-color-950: oklch(0.10 0.02 25);
 
-  /* Semantic color variables for light mode */
+  /* ═══════════════════════════════════════════════════════════════════════════
+     FLAG PALETTE: HARMONIZED TEXTILES
+     Harmonized OKLCH values for internationalized components.
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  /* Base neutrals mapped to surface scale */
+  --flag-palette-black: var(--surface-color-900); /* Primary dark */
+  --flag-palette-white: var(--surface-color-50);  /* Primary light */
+  --flag-palette-bright-white: oklch(1 0 0);       /* Absolute white, use sparingly */
+
+  /* Core primaries */
+  --flag-palette-blue: oklch(0.45 0.12 250);       /* Deep navy */
+  --flag-palette-bright-red: var(--accent-500);   /* Brand red */
+  --flag-palette-yellow: oklch(0.75 0.14 85);      /* Muted yellow */
+
+  /* Earth tones */
+  --flag-palette-green: var(--success-500);      /* Olive */
+  --flag-palette-dark-green: var(--success-600); /* Forest */
+  --flag-palette-brown: oklch(0.50 0.08 60);       /* Brown */
+  --flag-palette-dark-brown: oklch(0.35 0.08 60);  /* Dark brown */
+
+  /* Supporting colors for dark UI contexts */
+  --flag-palette-navy: oklch(0.30 0.10 250);
+  --flag-palette-light-blue: oklch(0.65 0.10 240);
+  --flag-palette-gold: oklch(0.65 0.15 60);
+  --flag-palette-dark-red: var(--accent-600);
+  --flag-palette-dark-pink: oklch(0.45 0.12 340);
+  --flag-palette-pink: oklch(0.75 0.10 340);
+  --flag-palette-purple: oklch(0.40 0.12 300);
+  --flag-palette-violet: oklch(0.55 0.14 300);
+
+  /* Neutral scale derived from surface colors */
+  --flag-palette-dark-grey: var(--surface-color-600);
+  --flag-palette-mid-grey-1: var(--surface-color-400);
+  --flag-palette-mid-grey-2: var(--surface-color-500);
+  --flag-palette-mid-grey-3: var(--surface-color-600);
+  --flag-palette-light-grey: var(--surface-color-200);
+
+  /* Extended yellow */
+  --flag-palette-dark-yellow: oklch(0.70 0.16 85);
+
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     SEMANTIC SYSTEM TOKENS (LIGHT MODE)
+     Functional abstractions mapping hardware primitives to components.
+     ═══════════════════════════════════════════════════════════════════════════ */
   --foreground: var(--surface-color-950);
   --surface: var(--surface-color-50);
   --surface-50: var(--surface-color-50);
@@ -521,7 +371,10 @@
   --destructive-surface-4: var(--destructive-color-900);
   --destructive-surface-5: var(--destructive-color-950);
 
-  /* Engineering-Grade Semantic Tokens */
+  /* ═══════════════════════════════════════════════════════════════════════════
+     ENGINEERING TOKENS: SHADCN/UI COMPATIBILITY
+     Global surface abstractions and layout-critical primitives.
+     ═══════════════════════════════════════════════════════════════════════════ */
   --background: var(--surface);
   --card: var(--surface-0);
   --card-foreground: var(--surface-foreground);
@@ -541,13 +394,15 @@
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
 
-  /* Adaptive hover zone for drag handles (responsive) */
-  /* Scales from 24px (mobile) to 56px (desktop) based on viewport */
-  /* 375px viewport: 24px | 768px viewport: ~38px | 1440px+ viewport: 56px */
+  /* DYNAMIC VIEWPORT TOKENS: Responsive Engineering */
+  /* Scales 24px (mobile) to 56px (desktop) @ 1440px. */
   --hover-zone-size: clamp(1.5rem, 5vw, 3.5rem);
 }
 
-/* Dark mode overrides */
+/* ═══════════════════════════════════════════════════════════════════════════
+   SEMANTIC SYSTEM TOKENS (DARK MODE)
+   Inverted mapping for nocturnal contexts. High-contrast precision maintained.
+   ═══════════════════════════════════════════════════════════════════════════ */
 .dark {
   --foreground: var(--surface-color-50);
   --surface: var(--surface-color-950);
@@ -693,14 +548,11 @@
   --chart-5: 340 75% 55%;
 }
 
-/**
- * @theme inline - Tailwind v4 Color System
- *
- * Maps Tailwind utility classes to our custom color variables.
- * The 'inline' keyword is REQUIRED when referencing other CSS variables with var().
- * This resolves the variables at compile time instead of runtime.
- * v4 automatically handles opacity (e.g., bg-accent-500/50).
- */
+/* ═══════════════════════════════════════════════════════════════════════════
+   TAILWIND v4 THEME MAPPING
+   Integrating CSS variables into the Tailwind utility engine.
+   Resolves var() abstractions at compile-time via 'inline' directive.
+   ═══════════════════════════════════════════════════════════════════════════ */
 @theme inline {
   /* === Font Families === */
   --font-sans:
@@ -933,7 +785,7 @@
   --color-surface-foreground-4: var(--surface-foreground-4);
   --color-surface-foreground-5: var(--surface-foreground-5);
 
-  /* === ShadCN/UI Semantic Colors === */
+  /* === SHADCN/UI SEMANTIC TOKENS === */
   /* v4 @theme inline: Use var() when referencing variables defined in :root */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -948,7 +800,10 @@
   --color-ring: var(--ring);
 }
 
-/* * - Harmony Colors */
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER BASE: COMPATIBILITY & FALLBACKS
+   Direct mapping of Harmony primitives to system tokens for legacy support.
+   ═══════════════════════════════════════════════════════════════════════════ */
 @layer base {
   :root {
     /* - Custom Colors Here: */
@@ -1037,8 +892,11 @@
     --destructive-color-950: var(--red-950);
   }
 
+  /* ═══════════════════════════════════════════════════════════════════════════
+     REGISTRATION: SEMANTIC MAPPING (SECONDARY)
+     Redundant mapping layer for specific component architectures.
+     ═══════════════════════════════════════════════════════════════════════════ */
   :root {
-    /* - The Custom Color Palette: */
     --foreground: var(--surface-color-950);
     --surface: var(--surface-color-50);
     --surface-50: var(--surface-color-50);
@@ -1292,6 +1150,7 @@
     --chart-5: 27 87% 67%;
   }
 
+  /* INVERSION: SECONDARY DARK MODE REGISTRATION */
   .dark {
     --foreground: var(--surface-color-50);
     --surface: var(--surface-color-950);
@@ -1435,6 +1294,10 @@
     --chart-5: 340 75% 55%;
   }
 
+  /* ═══════════════════════════════════════════════════════════════════════════
+     BASE LAYER: GLOBAL ELEMENT RESETS
+     Low-level browser resets and layout defaults.
+     ═══════════════════════════════════════════════════════════════════════════ */
   * {
     @apply box-border;
   }
@@ -1459,11 +1322,7 @@
   /*    @apply rounded-none bg-transparent;*/
   /*}*/
 
-  /**
-     * Tailwind v4 Compatibility Styles
-     *
-     * Restore v3 default behaviors to maintain visual consistency.
-     */
+  /* COMPATIBILITY: Tailwind v4 restoration layer for v3 legacy behaviors. */
 
   /* v4 defaults border-color to currentColor, v3 used gray-200 */
   *,
@@ -1488,11 +1347,10 @@
   }
 }
 
-/**
- * Tailwind v4→v3 Global Defaults
- * Restore v3 ring and shadow defaults for compatibility
- * Uses 'inline' because --default-ring-color references var()
- */
+/* ═══════════════════════════════════════════════════════════════════════════
+   TAILWIND v4 THEME MAPPING (EXTENDED)
+   Standardizing typography, tracking, and geometric precision tokens.
+   ═══════════════════════════════════════════════════════════════════════════ */
 @theme inline {
   /* v4 defaults - restore v3 behavior */
   --default-ring-width: 3px;
@@ -1500,7 +1358,7 @@
   --default-border-color: var(--color-border);
   --default-border-width: 1px;
 
-  /* Premium Typography System - Swiss Precision Scale */
+  /* TYPOGRAPHY: Swiss Precision Hierarchy */
   --font-sans: var(--font-app-sans), system-ui, sans-serif;
   --font-mono: var(--font-app-mono), ui-monospace, monospace;
 
@@ -1554,10 +1412,10 @@
   --text-body-sm--line-height: 1.6;
   --text-body-sm--letter-spacing: 0em;
 
-  /* Machined Radius System - Precision Tolerances */
-  --radius-xs: 0.125rem; /* 2px - Aligning with Grid thickness */
+  /* GEOMETRY: Machined Radius System (Precision Tolerances) */
+  --radius-xs: 0.125rem; /* 2px - Grid thickness alignment */
   --radius-sm: 0.25rem; /* 4px */
-  --radius: 0px; /* 0px - System Default */
+  --radius: 0px; /* 0px - System Default Truth */
   --radius-md: 0.5rem; /* 8px */
   --radius-lg: 0.75rem; /* 12px */
   --radius-xl: 1rem; /* 16px */
@@ -1580,6 +1438,10 @@
   --shadow-inner: inset 0 1px 4px 0 rgb(0 0 0 / 0.02);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER COMPONENTS
+   Component-level overrides and specialized UI abstractions.
+   ═══════════════════════════════════════════════════════════════════════════ */
 @layer components {
   .code-block-pre > code {
     border: none !important;
@@ -1680,13 +1542,12 @@ button path {
   mix-blend-mode: normal;
 }
 
+
+
 /* ═══════════════════════════════════════════════════════════════════════════
-   SWISS-PRECISION DASHED BORDERS - CLEAN IMPLEMENTATION
+   LAYOUT UTILITIES: DASHED GEOMETRY
    
-   Simple, reliable dashed borders that don't break the layout.
-   - Horizontal: Applied via border-dash-b on the container
-   - Vertical: Applied via border-dash-x on the container
-   - No overflow, no transforms, no complexity
+   High-precision procedural borders for architectural layout markers.
 ═══════════════════════════════════════════════════════════════════════════ */
 
 .border-dash-b,
@@ -1756,11 +1617,12 @@ button path {
   );
 }
 
-/**
- * MDX Code Block Dual Theme Support
- * Handles switching between --shiki-light and --shiki-dark variables
- * Using safer selectors to avoid cssnano-simple parsing issues
- */
+/* ═══════════════════════════════════════════════════════════════════════════
+   MDX CONTENT SYSTEM
+   Content-layer specific styling for technical documentation and portfolios.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* COMPONENT: Code Block Dual-Theme Management */
 code[data-theme],
 code[data-theme] span {
   color: var(--shiki-light);
@@ -1782,10 +1644,7 @@ pre[data-theme] {
   background-color: var(--shiki-dark-bg);
 }
 
-/**
- * MDX Heading Anchor Links
- * Styled anchors that appear on heading hover
- */
+/* COMPONENT: Heading Anchor Links (Tactile Hover Reveal) */
 .anchor {
   opacity: 0;
   margin-left: 0.5rem;
@@ -1812,4 +1671,148 @@ h4:hover .anchor {
 
 .dark .anchor:hover {
   color: var(--surface-50);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   INTERACTION ENGINE: ANIMATIONS
+   Physics-based motion and environmental transitions.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* UTILITY: Infinite Marquee Scripting */
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+@keyframes float-slower {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-40px, -20px) scale(1.08);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 20s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float-slower 30s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CORE ANIMATION SYSTEM: KEYFRAMES
+   Low-level animation primitives for entrance and exit sequences.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ENGINE: Entrance Sequences */
+@keyframes enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(
+        var(--tw-enter-translate-x, 0),
+        var(--tw-enter-translate-y, 0),
+        0
+      )
+      scale3d(
+        var(--tw-enter-scale, 1),
+        var(--tw-enter-scale, 1),
+        var(--tw-enter-scale, 1)
+      )
+      rotate(var(--tw-enter-rotate, 0));
+  }
+}
+
+/* ENGINE: Exit Sequences */
+@keyframes exit {
+  to {
+    opacity: var(--tw-exit-opacity, 1);
+    transform: translate3d(
+        var(--tw-exit-translate-x, 0),
+        var(--tw-exit-translate-y, 0),
+        0
+      )
+      scale3d(
+        var(--tw-exit-scale, 1),
+        var(--tw-exit-scale, 1),
+        var(--tw-exit-scale, 1)
+      )
+      rotate(var(--tw-exit-rotate, 0));
+  }
+}
+
+/* UTILITY: Core Marquee Keyframes */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+  }
+}
+
+/* UTILITY: Shimmer Loading Physics */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* UTILITY: Architect's Loop (Geometric Drawing) */
+@keyframes draw-square {
+  0% {
+    stroke-dashoffset: 80;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -80;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TAILWIND ANIMATION UTILITIES
+   Functional abstractions for triggering keyframe sequences.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@utility animate-in {
+  animation: enter 0.15s ease;
+}
+
+@utility animate-out {
+  animation: exit 0.15s ease;
+}
+
+@utility animate-marquee {
+  animation: marquee var(--duration) linear infinite;
+}
+
+@utility animate-marquee-vertical {
+  animation: marquee-vertical var(--duration) linear infinite;
+}
+
+@utility animate-draw-square {
+  animation: draw-square 3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }

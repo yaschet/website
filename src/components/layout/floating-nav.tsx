@@ -224,7 +224,7 @@ export function FloatingNav() {
 											<Icon
 												className="shrink-0"
 												style={{ width: ICON_SIZE, height: ICON_SIZE }}
-												weight={isActive ? "fill" : "regular"} // Visual state change
+												weight={isActive ? "regular" : "regular"} // Visual state change
 											/>
 										</motion.div>
 									</motion.div>
