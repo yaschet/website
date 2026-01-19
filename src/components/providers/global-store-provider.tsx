@@ -1,12 +1,14 @@
 "use client";
 
 import { createGlobalStore, type GlobalStore } from "@stores/global-store";
-import { createContext, type ReactNode, useContext, useRef } from "react";
+import { type ReactNode, useRef } from "react";
 import { useStore } from "zustand";
+import { getStrictContext } from "@/lib/get-strict-context";
 
 export type GlobalStoreApi = ReturnType<typeof createGlobalStore>;
 
-const GlobalStoreContext = createContext<GlobalStoreApi | null>(null);
+const [StrictGlobalStoreProvider, useGlobalStoreContext] =
+	getStrictContext<GlobalStoreApi>("GlobalStoreContext");
 
 export type GlobalStoreProviderProps = {
 	children: ReactNode;
@@ -30,18 +32,11 @@ export function GlobalStoreProvider({ children }: GlobalStoreProviderProps) {
 	}
 
 	return (
-		<GlobalStoreContext.Provider value={storeRef.current}>
-			{children}
-		</GlobalStoreContext.Provider>
+		<StrictGlobalStoreProvider value={storeRef.current}>{children}</StrictGlobalStoreProvider>
 	);
 }
 
 export const useGlobalStore = <T,>(selector: (store: GlobalStore) => T): T => {
-	const globalStoreContext = useContext(GlobalStoreContext);
-
-	if (!globalStoreContext) {
-		throw new Error("The 'useGlobalStore' hook must be used within a 'GlobalStoreProvider'.");
-	}
-
+	const globalStoreContext = useGlobalStoreContext();
 	return useStore(globalStoreContext, selector);
 };

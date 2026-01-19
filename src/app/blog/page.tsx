@@ -23,7 +23,7 @@ export default function BlogPage() {
 					{/* 2. CONTENT CELL */}
 					<SwissGridSection id="blog-content" className="w-full">
 						<Reveal phase={1} className="w-full">
-							<section className="mx-auto flex flex-col items-center justify-center px-6 py-24 text-center sm:px-8 max-w-3xl">
+							<section className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-24 text-center sm:px-8">
 								<p className="mb-4 font-mono text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 									Coming Soon
 								</p>
