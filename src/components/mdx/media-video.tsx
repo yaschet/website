@@ -16,7 +16,7 @@
 
 import { Pause, Play } from "@phosphor-icons/react/dist/ssr";
 import { motion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn, springs } from "@/src/lib/index";
 
 interface MediaVideoProps {
@@ -40,9 +40,42 @@ export function MediaVideo({
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [hasStarted, setHasStarted] = useState(false);
 
+	// True Lazy Load: Only inject <source> when near viewport
+	const [shouldLoad, setShouldLoad] = useState(false);
+
+	useEffect(() => {
+		if (shouldLoad) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries[0].isIntersecting) {
+					setShouldLoad(true);
+					observer.disconnect();
+				}
+			},
+			{ rootMargin: "200px" }, // Load slightly before view
+		);
+
+		if (videoRef.current) observer.observe(videoRef.current);
+		return () => observer.disconnect();
+	}, [shouldLoad]);
+
 	const togglePlay = () => {
 		const video = videoRef.current;
 		if (!video) return;
+
+		if (!shouldLoad) {
+			setShouldLoad(true);
+			// Wait for render cycle to inject source
+			setTimeout(() => {
+				if (videoRef.current) {
+					videoRef.current.play();
+					setIsPlaying(true);
+					setHasStarted(true);
+				}
+			}, 50);
+			return;
+		}
 
 		if (isPlaying) {
 			video.pause();
@@ -84,15 +117,16 @@ export function MediaVideo({
 				{/* Video Element */}
 				<video
 					ref={videoRef}
-					src={src}
 					poster={poster}
 					loop={loop}
 					muted={muted}
 					playsInline
-					preload="none"
+					// preload="none" removal: We manually handle source
 					onEnded={handleEnded}
 					className="size-full object-cover"
-				/>
+				>
+					{shouldLoad && <source src={src} type="video/mp4" />}
+				</video>
 
 				{/* Play/Pause Overlay */}
 				<motion.div
