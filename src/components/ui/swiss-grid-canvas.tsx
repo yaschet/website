@@ -606,7 +606,7 @@ export function SwissGridProvider({
 	}, [draw, drawProgress]);
 
 	// ─────────────────────────────────────────────────────────────────────────
-	// Animation Loop - Subscribe to spring changes
+	// Animation Loop - Decoupled RAF (240hz Target)
 	// ─────────────────────────────────────────────────────────────────────────
 
 	const isVisible = phase >= 0;
@@ -631,17 +631,32 @@ export function SwissGridProvider({
 		}
 	}, [isVisible, drawProgress, shouldReduceMotion]);
 
-	// Subscribe to spring and ensure 60fps redraws
+	// Single Independent Render Loop
+	// Decoupled from React render cycle and Framer Motion events for stable 240Hz+ performance
 	useEffect(() => {
-		const unsubscribe = drawProgress.on("change", (value) => {
-			requestAnimationFrame(() => drawRef.current(value));
-		});
+		let rafId: number;
+		let lastProgress = -1;
 
-		// Ensure we draw the current state immediately if something changes
-		requestAnimationFrame(() => drawRef.current(drawProgress.get()));
+		const loop = () => {
+			const currentProgress = drawProgress.get();
 
-		return unsubscribe;
-	}, [drawProgress]);
+			// Only redraw if visual state changed
+			if (currentProgress !== lastProgress) {
+				drawRef.current(currentProgress);
+				lastProgress = currentProgress;
+			}
+
+			// Keep loop alive if animating
+			if (currentProgress < 1 || lastProgress !== 1) {
+				rafId = requestAnimationFrame(loop);
+			}
+		};
+
+		// Start loop
+		rafId = requestAnimationFrame(loop);
+
+		return () => cancelAnimationFrame(rafId);
+	}, [drawProgress]); // Re-run if spring instance changes (rare)
 
 	// ─────────────────────────────────────────────────────────────────────────
 	// Render
