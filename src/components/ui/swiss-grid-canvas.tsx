@@ -20,11 +20,9 @@
  */
 import { useReducedMotion, useSpring } from "framer-motion";
 import {
-	createContext,
 	type ElementType,
 	type ReactNode,
 	useCallback,
-	useContext,
 	useEffect,
 	useMemo,
 	useRef,
@@ -92,18 +90,12 @@ interface SwissGridContextValue {
 // CONTEXT
 // ═══════════════════════════════════════════════════════════════════════════
 
-const SwissGridContext = createContext<SwissGridContextValue | null>(null);
+import { getStrictContext } from "@/lib/get-strict-context";
 
-/**
- * Hook to access the Swiss Grid context
- */
-export function useSwissGrid() {
-	const context = useContext(SwissGridContext);
-	if (!context) {
-		throw new Error("useSwissGrid must be used within SwissGridProvider");
-	}
-	return context;
-}
+const [SwissGridProviderInternal, useSwissGrid] =
+	getStrictContext<SwissGridContextValue>("SwissGridContext");
+
+export { useSwissGrid };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PROVIDER + CANVAS
@@ -661,7 +653,7 @@ export function SwissGridProvider({
 	};
 
 	return (
-		<SwissGridContext.Provider value={contextValue}>
+		<SwissGridProviderInternal value={contextValue}>
 			{/* Hidden container to measure max-w-3xl bounds */}
 			<div
 				ref={containerRef}
@@ -673,7 +665,7 @@ export function SwissGridProvider({
 			<canvas ref={canvasRef} className="pointer-events-none absolute inset-0 z-[5]" />
 
 			{children}
-		</SwissGridContext.Provider>
+		</SwissGridProviderInternal>
 	);
 }
 
