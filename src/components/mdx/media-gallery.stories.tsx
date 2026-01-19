@@ -34,7 +34,7 @@ const meta: Meta<typeof MediaGallery> = {
 		},
 		aspectRatio: {
 			control: "text",
-			description: "Aspect ratio (e.g., 16/9, 4/3, 1/1)",
+			description: "Aspect ratio (e.g., 16/9, 4/3, 1/1, or 'auto' for adaptive)",
 		},
 	},
 };
@@ -44,7 +44,7 @@ type Story = StoryObj<typeof MediaGallery>;
 
 /**
  * Default gallery with multiple images.
- * Click arrows or swipe to navigate.
+ * Uses 'auto' aspect ratio - container morphs to each image's native ratio.
  */
 export const Default: Story = {
 	args: {
@@ -59,7 +59,7 @@ export const Default: Story = {
 };
 
 /**
- * Gallery with individual captions per image.
+ * Gallery with per-image captions.
  * Caption updates as you navigate.
  */
 export const WithPerImageCaptions: Story = {
@@ -74,6 +74,18 @@ export const WithPerImageCaptions: Story = {
 			"Document Processing Pipeline",
 			"Credit-Based Billing System",
 		],
+	},
+};
+
+/**
+ * Fixed aspect ratio (16/9).
+ * Traditional gallery mode - container doesn't morph.
+ */
+export const FixedAspectRatio: Story = {
+	args: {
+		images: ["/images/verto/hero-dashboard.jpg", "/images/verto/hero-editor.jpg"],
+		aspectRatio: "16/9",
+		caption: "Fixed 16:9 aspect ratio",
 	},
 };
 
@@ -95,16 +107,6 @@ export const SquareAspect: Story = {
 		images: ["/images/verto/hero-dashboard.jpg", "/images/verto/hero-editor.jpg"],
 		aspectRatio: "1/1",
 		caption: "Square aspect ratio gallery",
-	},
-};
-
-/**
- * Two images - minimal gallery.
- */
-export const TwoImages: Story = {
-	args: {
-		images: ["/images/verto/editor-before.jpg", "/images/verto/editor-after.jpg"],
-		captions: ["Before Enhancement", "After Enhancement"],
 	},
 };
 

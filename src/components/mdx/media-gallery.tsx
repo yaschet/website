@@ -54,7 +54,7 @@ export function MediaGallery({
 				altPrefix="Gallery image"
 				aspectRatio={aspectRatio}
 				showArrows={images.length > 1}
-				showDots={images.length > 1}
+				showProgress={images.length > 1}
 				showCounter={images.length > 1}
 				onIndexChange={setActiveIndex}
 				className={className}

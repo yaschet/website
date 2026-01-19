@@ -72,7 +72,7 @@ export function ProjectContent({ project }: ProjectContentProps) {
 												altPrefix={project.title}
 												aspectRatio="16/9"
 												showArrows={galleryImages.length > 1}
-												showDots={galleryImages.length > 1}
+												showProgress={galleryImages.length > 1}
 												showCounter={galleryImages.length > 1}
 											/>
 										</div>

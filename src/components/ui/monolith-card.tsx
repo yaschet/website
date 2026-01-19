@@ -68,10 +68,9 @@ export function MonolithCard({
 					altPrefix={title}
 					aspectRatio="16/9"
 					showArrows={galleryImages.length > 1}
-					showDots={galleryImages.length > 1}
+					showProgress={galleryImages.length > 1}
 					showCounter={false}
-					arrowSize="sm"
-					className="border-0 border-b border-surface-200 dark:border-surface-800"
+					className="border-0 border-surface-200 border-b dark:border-surface-800"
 				/>
 			) : (
 				<section
