@@ -143,11 +143,15 @@ export function FloatingNav() {
 				transition={springs.responsive}
 				className={cn(
 					"pointer-events-auto relative flex items-center gap-1 p-1.5",
-					"bg-white/90 backdrop-blur-xl dark:bg-surface-950/90",
+					// OPTIMIZATION: Removed blur for 240Hz performance (Swiss Design: Opacity > Blur)
+					"bg-white/95 dark:bg-surface-950/95",
 					"border border-surface-200/80 dark:border-surface-800/80",
 					"rounded-[var(--radius)]",
 				)}
 				style={{
+					// PERF: GPU Layer Promotion + Layout Isolation
+					willChange: "transform",
+					contain: "layout style",
 					boxShadow: [
 						"0 1px 2px rgba(0, 0, 0, 0.04)",
 						"0 4px 8px -2px rgba(0, 0, 0, 0.06)",
