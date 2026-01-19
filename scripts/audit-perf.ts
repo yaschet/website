@@ -8,38 +8,50 @@ import { execSync } from "node:child_process";
  */
 
 async function main() {
-	console.log("🚀 Starting Route Performance Audit...");
+	// biome-ignore lint/suspicious/noConsoleLog: CLI tool requires output
+	console.log("🚀 Starting Route Performance Audit (TTFB/Status)...");
+	const baseUrl = "http://localhost:3000";
 
-	// 1. Identify routes (mocking local discovery since we can't easily import TS in shell)
-	// In a real senior setup, we'd use a dedicated crawler or parse the sitemap.
-	const routes = [
-		"/",
-		"/about",
-		"/projects",
-		"/blog",
-		"/contact",
-		"/blog/nextjs-16-performance", // Example slug
-	];
+	// 1. Routes to Check
+	const routes = ["/", "/about", "/projects", "/blog", "/contact"];
 
-	console.log(`📊 Auditing ${routes.length} navigation targets...`);
+	// 2. Headless Check (Node.js Fetch)
+	// CAPABILITY: This measures Time to First Byte (TTFB) and network reachability.
+	// LIMITATION: Cannot measure LCP/CLS without a browser (Playwright/Puppeteer).
+
+	console.log(`📊 Auditing ${routes.length} navigation targets on ${baseUrl}...`);
+	console.warn("⚠️  Make sure 'pnpm start' is running on port 3000!");
 
 	for (const route of routes) {
-		const start = Date.now();
+		const url = `${baseUrl}${route}`;
+		const start = performance.now();
 		try {
-			// Mocking a local fetch check
-			// In production/CI, we would use a library like 'lighthouse' or 'k6'
-			console.log(`⏱ Checking: ${route}`);
-			await new Promise((resolve) => setTimeout(resolve, Math.random() * 200 + 50));
-			const duration = Date.now() - start;
+			console.log(`\n⏱  Checking: ${url}`);
 
-			const status = duration > 200 ? "⚠️ SLOW" : "✅ FAST";
-			console.log(`${status} | ${route} | ${duration}ms`);
+			const response = await fetch(url);
+			const duration = performance.now() - start;
+			const ttfb = duration.toFixed(2);
+
+			if (!response.ok) {
+				console.error(`❌ STATUS: ${response.status} ${response.statusText}`);
+				continue;
+			}
+
+			// Threshold: 200ms TTFB is "Excellent" for local, 600ms is "Warning"
+			const status = duration > 600 ? "⚠️ SLOW TTFB" : "✅ FAST";
+			const color = duration > 600 ? "\x1b[33m" : "\x1b[32m"; // Yellow vs Green
+			const reset = "\x1b[0m";
+
+			console.log(`${color}${status} | ${route} | TTFB: ${ttfb}ms ${reset}`);
+			console.log(`   └─ Size: ${(await response.arrayBuffer()).byteLength / 1024} KB`);
 		} catch (error) {
-			console.error(`❌ FAILED: ${route}`);
+			console.error(`❌ FAILED To Connect: Is server running?`);
+			console.error(error);
 		}
 	}
 
-	console.log("\n✨ Audit Complete. Metrics sent to local buffer.");
+	console.log("\n✨ Audit Complete.");
+	console.log("👉 For full LCP/CLS metrics, use the <WebVitals /> HUD in the browser.");
 }
 
 main().catch(console.error);
