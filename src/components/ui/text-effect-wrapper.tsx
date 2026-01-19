@@ -371,6 +371,14 @@ export function TextEffectWrapper({
 	segmentTransition,
 	style,
 }: TextEffectProps) {
+	// Performance Warning: Check for per="char" on long text
+	if (process.env.NODE_ENV === "development" && per === "char" && String(children).length > 200) {
+		// biome-ignore lint/suspicious/noConsole: DX warning for performance
+		console.warn(
+			`[TextEffectWrapper] Performance warning: animating ${String(children).length} characters individually is expensive. Consider per="word" or "line" for long text blocks.`,
+		);
+	}
+
 	const segments = splitText(String(children), per);
 	const MotionTag = motion[as as keyof typeof motion] as typeof motion.div;
 
