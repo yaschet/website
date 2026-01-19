@@ -21,10 +21,10 @@ import {
 	ToggleGroup as ToggleGroupPrimitive,
 	type ToggleGroupProps as ToggleGroupPrimitiveProps,
 } from "@components/ui/primitives/toggle-group-primitive";
-import type { toggleVariants } from "@components/ui/toggle";
 import type { VariantProps } from "class-variance-authority";
 import { getStrictContext } from "@/src/lib/get-strict-context";
 import { cn } from "@/src/lib/index";
+import type { toggleVariants } from "./toggle";
 
 const [ToggleGroupProvider, useToggleGroup] =
 	getStrictContext<VariantProps<typeof toggleVariants>>("ToggleGroupContext");

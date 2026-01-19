@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { Button } from "@/src/components/ui/button";
-import { MonolithCard } from "@/src/components/ui/monolith-card";
+import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
@@ -54,7 +54,7 @@ export default function ProjectsPage() {
 										className="w-full"
 									>
 										<div className="space-y-4">
-											<MonolithCard
+											<ProjectCardGallery
 												index={String(i + 1).padStart(2, "0")}
 												title={project.title}
 												description={project.description}

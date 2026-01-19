@@ -8,7 +8,7 @@ import avatarImage from "@/public/images/avatar.jpeg";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { MonolithCard } from "@/src/components/ui/monolith-card";
+import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
@@ -176,7 +176,7 @@ export default function Home() {
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={3} delay={0.05}>
-											<MonolithCard
+											<ProjectCardGallery
 												index={`0${i + 1}`}
 												title={project.title}
 												description={project.description}

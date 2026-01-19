@@ -8,7 +8,7 @@
  *
  * @example
  * ```tsx
- * <MonolithCard
+ * <ProjectCardGallery
  *   title="Project Alpha"
  *   description="Project technical details."
  *   href="/alpha"
@@ -28,7 +28,7 @@ import Link from "next/link";
 import { ImageGallery } from "@/src/components/ui/image-gallery";
 import { cn } from "@/src/lib/index";
 
-interface MonolithCardProps {
+interface ProjectCardGalleryProps {
 	title: string;
 	description: string;
 	href: string;
@@ -39,7 +39,7 @@ interface MonolithCardProps {
 	className?: string;
 }
 
-export function MonolithCard({
+export function ProjectCardGallery({
 	title,
 	description,
 	href,
@@ -48,7 +48,7 @@ export function MonolithCard({
 	tags,
 	isPrivate = false,
 	className,
-}: MonolithCardProps) {
+}: ProjectCardGalleryProps) {
 	const galleryImages = images && images.length > 0 ? images : [];
 
 	return (

@@ -6,9 +6,9 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { submitContactForm } from "@/src/app/actions/contact";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
-import { Textarea } from "@/src/components/ui/textarea";
+import { Input } from "@/src/components/ui/form/input";
+import { Label } from "@/src/components/ui/form/label";
+import { Textarea } from "@/src/components/ui/form/textarea";
 import { type ContactFormValues, contactSchema } from "@/src/lib/schemas/contact";
 
 /**
