@@ -6,6 +6,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import { SiteFooter } from "@/src/components/layout/site-footer";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
@@ -225,13 +226,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 					<ReadingBracket />
 
 					{/* Footer */}
-					<footer className="mt-auto w-full">
-						<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-							<p className="text-body-sm text-muted-foreground">
-								© {new Date().getFullYear()} Yassine Chettouch. Rabat, Morocco.
-							</p>
-						</div>
-					</footer>
+					<SiteFooter />
 				</main>
 			</div>
 		</SwissGridProvider>

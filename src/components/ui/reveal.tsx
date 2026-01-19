@@ -48,7 +48,7 @@ export function Reveal({ children, delay = 0, className, phase = 1 }: RevealProp
 				delay: delay,
 			}}
 			className={className}
-			style={{ willChange: "transform, opacity" }}
+			style={{}}
 		>
 			{children}
 		</motion.div>
@@ -70,7 +70,7 @@ export function ScrollReveal({ children, delay = 0, className, phase = 3 }: Reve
 			viewport={{ once: true, margin: "-50px" }}
 			transition={{ ...springs.gentle, delay }}
 			className={className}
-			style={{ willChange: "transform, opacity" }}
+			style={{}}
 		>
 			{children}
 		</motion.div>
@@ -121,7 +121,7 @@ export function RevealItem({ children, className }: { children: ReactNode; class
 				},
 			}}
 			className={className}
-			style={{ willChange: "transform, opacity" }}
+			style={{}}
 		>
 			{children}
 		</motion.div>
