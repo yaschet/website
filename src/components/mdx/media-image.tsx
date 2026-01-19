@@ -69,18 +69,19 @@ export function MediaImage({
 	// Get the actual source URL for preloading
 	const srcUrl = isStatic ? staticData?.src : (src as string);
 
+	// Preload handling: Only when user intends to view (Hover)
+	// This prevents the browser from downloading massive images on page load
+	const handleInteraction = useCallback(() => {
+		if (srcUrl && !isPreloaded) {
+			const img = new window.Image();
+			img.src = srcUrl;
+			img.onload = () => setIsPreloaded(true);
+		}
+	}, [srcUrl, isPreloaded]);
+
 	useEffect(() => {
 		setMounted(true);
 	}, []);
-
-	// Pre-load full-resolution image on mount for instant lightbox
-	useEffect(() => {
-		if (!srcUrl || isPreloaded) return;
-
-		const img = new window.Image();
-		img.src = srcUrl;
-		img.onload = () => setIsPreloaded(true);
-	}, [srcUrl, isPreloaded]);
 
 	const close = useCallback(() => {
 		setIsOpen(false);
@@ -113,6 +114,8 @@ export function MediaImage({
 				<motion.div
 					layoutId={layoutId}
 					onClick={() => setIsOpen(true)}
+					onMouseEnter={handleInteraction}
+					onFocus={handleInteraction}
 					transition={springs.layout}
 					className={cn(
 						"relative w-full cursor-zoom-in overflow-hidden",
@@ -136,6 +139,7 @@ export function MediaImage({
 						placeholder={blurDataURL ? "blur" : "empty"}
 						blurDataURL={blurDataURL ?? undefined}
 						priority={priority}
+						decoding="async"
 					/>
 
 					{/* Hover Hint: Subtle corner badge (Swiss design) */}

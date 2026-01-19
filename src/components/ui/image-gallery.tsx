@@ -291,7 +291,7 @@ export function ImageGallery({
 									src={src}
 									alt={alt}
 									fill
-									sizes="(max-width: 768px) 100vw, 768px"
+									sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
 									className={cn(
 										"pointer-events-none select-none",
 										// Use object-contain when adaptive (show full image)
@@ -301,6 +301,7 @@ export function ImageGallery({
 									placeholder={isStatic ? "blur" : "empty"}
 									draggable={false}
 									priority={i === 0} // Only prioritize the first image (LCP). Neighbors should load lazily.
+									decoding="async"
 								/>
 							) : null}
 						</div>
