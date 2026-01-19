@@ -172,7 +172,8 @@ export function MediaImage({
 									exit={{ opacity: 0 }}
 									transition={{ duration: 0.2 }}
 									onClick={close}
-									className="fixed inset-0 z-[9998] cursor-zoom-out bg-black/95 backdrop-blur-md"
+									// OPTIMIZATION: Removed blur for 240Hz lightbox entry
+									className="fixed inset-0 z-[9998] cursor-zoom-out bg-black/98"
 									aria-hidden="true"
 								/>
 

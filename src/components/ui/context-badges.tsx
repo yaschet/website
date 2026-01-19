@@ -42,7 +42,8 @@ const badgeBaseClasses = cn(
 	"group relative z-20 flex items-center",
 	"rounded-[var(--radius)]",
 	"border border-surface-200/80 dark:border-surface-800/80",
-	"bg-white/90 backdrop-blur-xl dark:bg-surface-950/90",
+	// OPTIMIZATION: Removed blur (Swiss Design: Opacity > Blur)
+	"bg-white/95 dark:bg-surface-950/95",
 	"shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
 	"font-medium text-surface-600 text-xs dark:text-surface-400",
 	"pointer-events-auto cursor-default select-none",

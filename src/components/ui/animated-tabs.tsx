@@ -89,7 +89,8 @@ export function TabsList({ className, children, ...props }: React.HTMLAttributes
 	return (
 		<div
 			className={cn(
-				"inline-flex h-12 items-center justify-start rounded-2xl bg-surface-200/80 p-1 backdrop-blur-sm dark:bg-surface-800/50",
+				// OPTIMIZATION: Removed blur (Swiss Design)
+				"inline-flex h-12 items-center justify-start rounded-2xl bg-surface-200/95 p-1 dark:bg-surface-800/95",
 				className,
 			)}
 			{...props}
