@@ -224,7 +224,7 @@ export function FloatingNav() {
 											<Icon
 												className="shrink-0"
 												style={{ width: ICON_SIZE, height: ICON_SIZE }}
-												weight={isActive ? "fill" : "duotone"} // Visual state change
+												weight={isActive ? "fill" : "regular"} // Visual state change
 											/>
 										</motion.div>
 									</motion.div>
@@ -312,12 +312,12 @@ export function FloatingNav() {
 						<Sun
 							className="rotate-0 scale-100 transition-transform duration-300 dark:-rotate-90 dark:scale-0"
 							style={{ width: ICON_SIZE, height: ICON_SIZE }}
-							weight="duotone"
+							weight="regular"
 						/>
 						<Moon
 							className="absolute rotate-90 scale-0 transition-transform duration-300 dark:rotate-0 dark:scale-100"
 							style={{ width: ICON_SIZE, height: ICON_SIZE }}
-							weight="duotone"
+							weight="regular"
 						/>
 					</motion.div>
 				</motion.button>
