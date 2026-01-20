@@ -75,7 +75,7 @@ export default function Home() {
 											href="https://linkedin.com/in/yaschet"
 											target="_blank"
 											aria-label="LinkedIn"
-											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
 										>
 											<LinkedinLogoIcon className="size-5" weight="regular" />
 										</Link>
@@ -83,7 +83,7 @@ export default function Home() {
 											href="https://github.com/yaschet"
 											target="_blank"
 											aria-label="GitHub"
-											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
 										>
 											<GithubLogoIcon className="size-5" weight="regular" />
 										</Link>
@@ -91,7 +91,7 @@ export default function Home() {
 											href="https://x.com/yaschet"
 											target="_blank"
 											aria-label="X"
-											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
 										>
 											<XLogoIcon className="size-5" weight="regular" />
 										</Link>

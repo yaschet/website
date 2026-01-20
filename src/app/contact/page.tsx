@@ -48,7 +48,7 @@ export default function ContactPage() {
 									<p className="mt-6 text-body-sm text-surface-500 dark:text-surface-400">
 										<a
 											href="mailto:hello@yaschet.dev"
-											className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-2 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
+											className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-2 transition-colors hover:text-accent-600 hover:decoration-accent-600 dark:text-surface-100 dark:decoration-surface-700 dark:hover:text-accent-400 dark:hover:decoration-accent-400"
 										>
 											hello@yaschet.dev
 										</a>
