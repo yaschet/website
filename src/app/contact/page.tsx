@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/src/components/forms/contact-form";
 import { SiteFooter } from "@/src/components/layout/site-footer";
+import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
@@ -18,21 +18,9 @@ export default function ContactPage() {
 			<div className="flex flex-1 flex-col pb-29.5 text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 				<main className="relative z-10 flex flex-1 flex-col">
 					{/* Nav Row */}
-					<SwissGridSection id="nav" className="relative z-20 w-full">
-						<Reveal phase={1} className="w-full">
-							<div className="h-[118px] w-full">
-								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 sm:px-8">
-									<div className="hidden sm:block">
-										<LocationBadge />
-									</div>
-									<div className="flex-1" />
-									<div className="hidden sm:block">
-										<TimeBadge />
-									</div>
-								</div>
-							</div>
-						</Reveal>
-					</SwissGridSection>
+					<Reveal phase={1} className="w-full">
+						<SiteHeader />
+					</Reveal>
 
 					{/* Header */}
 					<SwissGridSection id="contact-header" className="relative w-full">

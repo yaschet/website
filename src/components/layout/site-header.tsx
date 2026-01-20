@@ -13,7 +13,7 @@ export function SiteHeader() {
 	return (
 		<SwissGridSection id="header" className="relative z-20 w-full">
 			<div className="h-29.5 w-full" suppressHydrationWarning>
-				<div className="mx-auto flex h-full max-w-3xl items-center justify-between gap-4 px-6 sm:px-8">
+				<div className="mx-auto flex h-full max-w-3xl items-center justify-between gap-3 px-6 sm:px-8">
 					<LocationBadge className="hidden w-40 shrink-0 sm:flex" />
 
 					<MarqueeBadge

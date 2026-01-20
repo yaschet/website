@@ -51,8 +51,10 @@ const CORNER_DASH_SIZE = 17;
 const CORNER_THICKNESS = 3;
 
 /** Grid line opacity-based colors. */
-const COLOR_LIGHT = "rgba(0, 0, 0, 0.12)";
-const COLOR_DARK = "rgba(255, 255, 255, 0.12)";
+// const COLOR_LIGHT = "rgba(0, 0, 0, 0.12)";
+// const COLOR_DARK = "rgba(255, 255, 255, 0.12)";
+const COLOR_LIGHT = "rgba(0, 0, 0, 1)";
+const COLOR_DARK = "rgba(255, 255, 255, 1)";
 
 /** Corner reinforcement colors matching base text themes. */
 const CORNER_COLOR_LIGHT = "rgba(0, 0, 0, 1)";
@@ -662,7 +664,10 @@ export function SwissGridProvider({
 			/>
 
 			{/* Canvas - procedurally animated via draw() */}
-			<canvas ref={canvasRef} className="pointer-events-none absolute inset-0 z-[5]" />
+			<canvas
+				ref={canvasRef}
+				className="pointer-events-none absolute inset-0 z-[5] opacity-[11%]"
+			/>
 
 			{children}
 		</SwissGridProviderInternal>
