@@ -26,18 +26,18 @@ export function SiteFooter() {
 						{/* Social Links */}
 						<nav className="flex items-center gap-6" aria-label="Social Links">
 							<Link
-								href="https://github.com/yaschet"
-								target="_blank"
-								className="font-medium text-surface-600 text-xs transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
-							>
-								GitHub
-							</Link>
-							<Link
 								href="https://linkedin.com/in/yaschet"
 								target="_blank"
 								className="font-medium text-surface-600 text-xs transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
 							>
 								LinkedIn
+							</Link>
+							<Link
+								href="https://github.com/yaschet"
+								target="_blank"
+								className="font-medium text-surface-600 text-xs transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
+							>
+								GitHub
 							</Link>
 							<Link
 								href="https://x.com/yaschet"

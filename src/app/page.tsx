@@ -70,30 +70,30 @@ export default function Home() {
 										</div>
 									</div>
 
-									<div className="flex items-center gap-2">
+									<div className="flex items-center gap-0.5">
 										<Link
-											href="https://x.com/yaschet"
+											href="https://linkedin.com/in/yaschet"
 											target="_blank"
-											aria-label="X"
-											className="inline-flex size-9 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+											aria-label="LinkedIn"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
 										>
-											<XLogoIcon className="size-4" weight="regular" />
+											<LinkedinLogoIcon className="size-5" weight="regular" />
 										</Link>
 										<Link
 											href="https://github.com/yaschet"
 											target="_blank"
 											aria-label="GitHub"
-											className="inline-flex size-9 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
 										>
-											<GithubLogoIcon className="size-4" weight="regular" />
+											<GithubLogoIcon className="size-5" weight="regular" />
 										</Link>
 										<Link
-											href="https://linkedin.com/in/yaschet"
+											href="https://x.com/yaschet"
 											target="_blank"
-											aria-label="LinkedIn"
-											className="inline-flex size-9 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+											aria-label="X"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
 										>
-											<LinkedinLogoIcon className="size-4" weight="regular" />
+											<XLogoIcon className="size-5" weight="regular" />
 										</Link>
 									</div>
 								</div>
