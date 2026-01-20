@@ -127,15 +127,23 @@ export default function Home() {
 												asChild
 												size="lg"
 												variant="solid"
-												color="accent"
+												color="primary"
 											>
-												<Link href="/about">
-													About me
+												<Link href="/projects">
+													Case Studies
 													<ArrowRightIcon
 														className="size-4"
 														weight="bold"
 													/>
 												</Link>
+											</Button>
+											<Button
+												asChild
+												size="lg"
+												variant="outlined"
+												color="default"
+											>
+												<Link href="/contact">Email</Link>
 											</Button>
 										</div>
 									</Reveal>
