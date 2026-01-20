@@ -18,10 +18,18 @@ export function SiteFooter() {
 			<SwissGridSection id="footer" className="w-full">
 				<div className="mx-auto max-w-3xl px-6 py-8 sm:px-8">
 					<div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-						{/* Copyright */}
-						<span className="font-medium text-surface-600 text-xs dark:text-surface-300">
-							© 2026 Yassine Chettouch
-						</span>
+						{/* Copyright & Email */}
+						<div className="flex flex-col items-center gap-1 sm:items-start">
+							<span className="font-medium text-surface-600 text-xs dark:text-surface-300">
+								© 2026 Yassine Chettouch
+							</span>
+							<a
+								href="mailto:hello@yaschet.dev"
+								className="font-medium text-surface-500 text-xs transition-colors hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50"
+							>
+								hello@yaschet.dev
+							</a>
+						</div>
 
 						{/* Social Links */}
 						<nav className="flex items-center gap-6" aria-label="Social Links">

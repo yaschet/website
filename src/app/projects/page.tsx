@@ -84,14 +84,14 @@ export default function ProjectsPage() {
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<div className="text-center">
 										<h2 className="mb-4 text-heading-lg text-surface-900 dark:text-surface-100">
-											Want to talk?
+											Need something similar?
 										</h2>
 										<p className="mb-8 text-body-md text-surface-600 dark:text-surface-400">
-											I'd love to hear what you're building.
+											I build these.
 										</p>
 										<Button asChild size="lg" variant="solid" color="primary">
 											<Link href="/contact">
-												Get in touch
+												Contact
 												<ArrowRight className="size-4" weight="bold" />
 											</Link>
 										</Button>

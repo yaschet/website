@@ -43,11 +43,19 @@ export default function ContactPage() {
 										Contact
 									</p>
 									<h1 className="text-heading-xl text-surface-900 dark:text-surface-100">
-										Let's talk.
+										Get in touch.
 									</h1>
 									<p className="mt-4 max-w-xl text-body-md text-surface-600 dark:text-surface-400">
-										Have a project, question, or opportunity? I'd like to hear
-										about it.
+										Projects, questions, opportunities.
+									</p>
+									<p className="mt-2 text-body-sm text-surface-500 dark:text-surface-400">
+										Email me at{" "}
+										<a
+											href="mailto:hello@yaschet.dev"
+											className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-2 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
+										>
+											hello@yaschet.dev
+										</a>
 									</p>
 								</div>
 							</section>
@@ -65,10 +73,10 @@ export default function ContactPage() {
 												Call
 											</p>
 											<h2 className="text-heading-sm! text-surface-900 dark:text-surface-100">
-												Book a 15-minute intro call.
+												15-minute intro call.
 											</h2>
 											<p className="text-body-sm! text-surface-600 dark:text-surface-400">
-												For projects, roles, or quick scoping.
+												Quick scoping or questions.
 											</p>
 											<div className="pt-1">
 												<Button
