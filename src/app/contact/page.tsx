@@ -41,11 +41,11 @@ export default function ContactPage() {
 										Contact
 									</p>
 									<h1 className="text-heading-xl text-surface-900 dark:text-surface-100">
-										Let's build something serious.
+										Let's talk.
 									</h1>
 									<p className="mt-4 max-w-xl text-body-lg text-surface-500 dark:text-surface-400">
-										Whether you have a specific project in mind or just want to
-										explore a potential partnership, I'm all ears.
+										Have a project, question, or opportunity? I'd like to hear
+										about it.
 									</p>
 								</div>
 							</section>
