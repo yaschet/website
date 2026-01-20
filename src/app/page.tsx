@@ -125,10 +125,10 @@ export default function Home() {
 					</SwissGridSection>
 
 					{/* Hero */}
-                    <SwissGridSection id="hero" className="relative w-full">
-                        {/* Atmospheric Gradient — Contained Design Blob */}
-                        <HeroGradient className="pointer-events-none absolute inset-x-0 top-0 z-0 h-96 w-full" />
-                        
+					<SwissGridSection id="hero" className="relative w-full">
+						{/* Atmospheric Gradient — Contained Design Blob */}
+						<HeroGradient className="pointer-events-none absolute inset-x-0 top-0 z-0 h-96 w-full" />
+
 						<Reveal phase={2} className="relative z-10 w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
@@ -171,30 +171,40 @@ export default function Home() {
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									{/* Section Header */}
 									<ScrollReveal phase={3}>
-										<div className="mb-12">
-											<p className="font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+										<div className="mb-14 grid gap-6 border-surface-200/80 border-b pb-8 sm:grid-cols-[auto,1fr] sm:items-end dark:border-surface-800/80">
+											<div className="font-mono text-surface-600 text-xs uppercase tracking-[0.3em] dark:text-surface-400">
 												Selected Work
-											</p>
-											<p className="mt-3 text-body-sm text-surface-600 dark:text-surface-400">
-												A selection of products I've built end-to-end. Each
-												represents a complete cycle from problem to
-												solution.
-											</p>
+												<span className="mt-3 block h-px w-10 bg-surface-200/80 dark:bg-surface-800/80" />
+											</div>
+											<div>
+												<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+													Products shipped end-to-end.
+												</h2>
+												<p className="mt-3 max-w-2xl text-body-md text-surface-600 dark:text-surface-400">
+													A selection of products I've built end-to-end.
+													Each represents a complete cycle from problem to
+													solution.
+												</p>
+											</div>
 										</div>
 									</ScrollReveal>
 
 									{/* Projects Grid */}
-									<div className="space-y-16">
+									<div className="space-y-12">
 										{featuredProjects.map((project, i) => (
 											<ScrollReveal
 												key={project._id}
 												phase={3}
 												delay={i * 0.05}
 											>
-												<div id={`project-${i + 1}`}>
-													<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-														0{i + 1} · {project.title}
-													</p>
+												<div
+													id={`project-${i + 1}`}
+													className={
+														i === 0
+															? ""
+															: "border-surface-200/80 border-t pt-12 dark:border-surface-800/80"
+													}
+												>
 													<ProjectCardGallery
 														index={`0${i + 1}`}
 														title={project.title}
