@@ -42,7 +42,7 @@ export default function Home() {
 							<header className="w-full">
 								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
 									<div className="flex items-center gap-4">
-										<Avatar className="relative size-14 overflow-hidden rounded-[var(--radius)] border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900">
+										<Avatar className="relative size-14 overflow-hidden rounded-(--radius) border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900">
 											<Image
 												src={avatarImage}
 												alt="Yassine Chettouch"
@@ -125,7 +125,10 @@ export default function Home() {
 					</SwissGridSection>
 
 					{/* Hero */}
-					<SwissGridSection id="hero" className="relative w-full overflow-hidden">
+                    <SwissGridSection id="hero" className="relative w-full">
+                        {/* Atmospheric Gradient — Contained Design Blob */}
+                        <HeroGradient className="pointer-events-none absolute inset-x-0 top-0 z-0 h-96 w-full" />
+                        
 						<Reveal phase={2} className="relative z-10 w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
