@@ -58,6 +58,8 @@ export function MediaGallery({
 				showCounter={images.length > 1}
 				onIndexChange={setActiveIndex}
 				className={className}
+				sizes="(max-width: 768px) 100vw, 768px"
+				quality={85}
 			/>
 
 			{/* Caption */}

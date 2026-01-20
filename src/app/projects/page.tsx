@@ -21,7 +21,7 @@ export default function ProjectsPage() {
 
 	return (
 		<SwissGridProvider>
-			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+			<div className="flex flex-1 flex-col pb-29.5 text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 				<main
 					className="relative z-10 flex flex-1 flex-col"
 					style={{ overflowAnchor: "none" }}

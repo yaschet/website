@@ -74,7 +74,7 @@ export default function RootProvider({ children }: Readonly<{ children: React.Re
 					<Toaster
 						closeButton={true}
 						expand={false}
-						position="top-center"
+						position="top-right"
 						richColors={false}
 					/>
 				</RevealProvider>

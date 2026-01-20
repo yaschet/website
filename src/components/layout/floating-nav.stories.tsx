@@ -22,7 +22,7 @@ const meta: Meta<typeof FloatingNav> = {
 	},
 	decorators: [
 		(Story) => (
-			<div className="flex h-screen w-full items-end justify-center bg-surface-50 p-20 dark:bg-surface-950">
+			<div className="flex h-screen w-full items-end justify-center bg-surface-50 pb-29.5 dark:bg-surface-950">
 				<Story />
 			</div>
 		),

@@ -71,6 +71,8 @@ export function ProjectCardGallery({
 					showProgress={galleryImages.length > 1}
 					showCounter={false}
 					className="border-0 border-surface-200 border-b dark:border-surface-800"
+					sizes="(max-width: 768px) 100vw, 768px"
+					quality={85}
 				/>
 			) : (
 				<section

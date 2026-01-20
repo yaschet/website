@@ -1753,11 +1753,11 @@ h4:hover .anchor {
 
 /* UTILITY: Core Marquee Keyframes */
 @keyframes marquee {
-  from {
+  0% {
     transform: translateX(0);
   }
-  to {
-    transform: translateX(calc(-100% - var(--gap)));
+  100% {
+    transform: translateX(-50%);
   }
 }
 
@@ -1814,5 +1814,6 @@ h4:hover .anchor {
 }
 
 @utility animate-draw-square {
-  animation: draw-square 3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  /* High-RPM (1s) to match sub-300ms page transitions. Sharp Layout easing (0.76, 0, 0.24, 1). */
+  animation: draw-square 1s cubic-bezier(0.76, 0, 0.24, 1) infinite;
 }

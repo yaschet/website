@@ -46,6 +46,10 @@ interface ImageGalleryProps {
 	enableKeyboard?: boolean;
 	/** Additional class names */
 	className?: string;
+	/** Custom sizes attribute for responsive optimization */
+	sizes?: string;
+	/** Image quality (1-100) */
+	quality?: number;
 	/** Callback when index changes */
 	onIndexChange?: (index: number) => void;
 }
@@ -82,6 +86,8 @@ export function ImageGallery({
 	enableKeyboard = true,
 	className,
 	onIndexChange,
+	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw",
+	quality,
 }: ImageGalleryProps) {
 	const [activeIndex, setActiveIndex] = useState(0);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -291,7 +297,7 @@ export function ImageGallery({
 									src={src}
 									alt={alt}
 									fill
-									sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
+									sizes={sizes}
 									className={cn(
 										"pointer-events-none select-none",
 										// Use object-contain when adaptive (show full image)
@@ -302,6 +308,7 @@ export function ImageGallery({
 									draggable={false}
 									priority={i === 0} // Only prioritize the first image (LCP). Neighbors should load lazily.
 									decoding="async"
+									quality={quality}
 								/>
 							) : null}
 						</div>

@@ -88,9 +88,7 @@ export function FloatingNav() {
 
 	if (!mounted) return null;
 
-	const isEnabled = phase >= 1;
-
-	// Visual Priority: Hover > Optimistic Click > Actual Pathname
+	const isEnabled = phase >= 1; // Visual Priority: Hover > Optimistic Click > Actual Pathname
 	const currentTab = hoveredTab ?? optimisticTab;
 
 	/**
@@ -119,7 +117,7 @@ export function FloatingNav() {
 
 		const animation = document.documentElement.animate(
 			{
-				clipPath: ["inset(0 0 100% 0)", "inset(0 0 0 0)"],
+				clipPath: ["inset(100% 0 0 0)", "inset(0 0 0 0)"],
 			},
 			{
 				duration: 550,
@@ -138,18 +136,18 @@ export function FloatingNav() {
 	};
 
 	return (
-		<div className="pointer-events-none fixed top-6 right-0 left-0 z-50 flex items-center justify-center px-6">
+		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-29.5 items-center justify-center px-6">
 			<motion.nav
-				initial={{ y: -20, opacity: 0 }}
-				animate={isEnabled ? { y: 0, opacity: 1 } : { y: -20, opacity: 0 }}
+				initial={{ y: 20, opacity: 0 }}
+				animate={isEnabled ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
 				transition={springs.responsive}
 				className={cn(
 					"pointer-events-auto relative flex items-center p-1.5",
 					// SWISS DESIGN: Solid, High Contrast, No Blur
-					"bg-surface-0 dark:bg-surface-950",
-					"border border-surface-200 dark:border-surface-800",
+					"bg-surface-950 dark:bg-surface-50",
+					"border border-surface-800 dark:border-surface-200",
 					// Enforce 0px radius
-					"rounded-[var(--radius)]",
+					"rounded-(--radius)",
 					// SHADOW: Allowed here for "Floating" context, but kept tight
 					"shadow-sm",
 				)}
@@ -174,11 +172,11 @@ export function FloatingNav() {
 									onClick={() => setOptimisticTab(item.link)} // Optimistic update
 									className={cn(
 										"relative flex items-center justify-center transition-colors duration-200",
-										"rounded-[var(--radius)]",
+										"rounded-(--radius)",
 										// Invert text color when pill is behind item
 										isVisuallyActive
-											? "text-surface-50 dark:text-surface-950" // High Contrast
-											: "text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50", // Muted -> Hover
+											? "text-surface-950 dark:text-surface-50" // High Contrast (Black on White Pill, White on Black Pill)
+											: "text-surface-400 hover:text-surface-50 dark:text-surface-500 dark:hover:text-surface-950", // Muted -> Hover
 									)}
 									style={{
 										width: BUTTON_SIZE,
@@ -203,7 +201,7 @@ export function FloatingNav() {
 										{currentTab === item.link && (
 											<motion.div
 												layoutId="nav-bg"
-												className="absolute inset-0 -z-10 bg-surface-900 dark:bg-surface-50"
+												className="absolute inset-0 -z-10 bg-surface-50 dark:bg-surface-950"
 												transition={springs.snappy}
 												style={{ borderRadius: "var(--radius)" }}
 												// React to parent tap
@@ -238,7 +236,7 @@ export function FloatingNav() {
 											exit={{ opacity: 0, y: 4, scale: 0.98 }}
 											transition={springs.snappy}
 											className={cn(
-												"pointer-events-none absolute top-full left-1/2 z-20 mt-3 -translate-x-1/2 whitespace-nowrap",
+												"pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2 whitespace-nowrap",
 												"px-2.5 py-1.5 font-medium text-xs tracking-wide",
 												"bg-surface-950 text-surface-50", // Inverse tooltip
 												"dark:bg-surface-50 dark:text-surface-950",
@@ -256,7 +254,7 @@ export function FloatingNav() {
 				</ul>
 
 				<div
-					className="mx-1 h-5 w-px bg-surface-200 dark:bg-surface-800"
+					className="mx-1 h-5 w-px bg-surface-800 dark:bg-surface-200"
 					aria-hidden="true"
 				/>
 
@@ -275,11 +273,11 @@ export function FloatingNav() {
 					}}
 					transition={springs.snappy}
 					className={cn(
-						"relative z-10 flex items-center justify-center rounded-[var(--radius)]",
+						"relative z-10 flex items-center justify-center rounded-(--radius)",
 						// COLOR SYNC: Theme Button
 						currentTab === "theme-toggle"
-							? "text-surface-50 dark:text-surface-950" // INVERTED
-							: "text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50",
+							? "text-surface-950 dark:text-surface-50" // INVERTED
+							: "text-surface-400 hover:text-surface-50 dark:text-surface-500 dark:hover:text-surface-950",
 						"outline-none transition-colors duration-200",
 					)}
 					style={{
@@ -291,7 +289,7 @@ export function FloatingNav() {
 					{currentTab === "theme-toggle" && (
 						<motion.div
 							layoutId="nav-bg"
-							className="absolute inset-0 -z-10 bg-surface-900 dark:bg-surface-50"
+							className="absolute inset-0 -z-10 bg-surface-50 dark:bg-surface-950"
 							transition={springs.snappy}
 							style={{ borderRadius: "var(--radius)" }}
 							variants={{
