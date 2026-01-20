@@ -236,7 +236,7 @@ export function FloatingNav() {
 											exit={{ opacity: 0, y: 4, scale: 0.98 }}
 											transition={springs.snappy}
 											className={cn(
-												"pointer-events-none absolute top-full left-1/2 z-20 mt-3 -translate-x-1/2 whitespace-nowrap",
+												"pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2 whitespace-nowrap",
 												"px-2.5 py-1.5 font-medium text-xs tracking-wide",
 												"bg-surface-950 text-surface-50", // Inverse tooltip
 												"dark:bg-surface-50 dark:text-surface-950",
