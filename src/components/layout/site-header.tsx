@@ -1,6 +1,6 @@
 "use client";
 
-import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
+import { LocationBadge, MarqueeBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
 /**
@@ -12,18 +12,23 @@ import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 export function SiteHeader() {
 	return (
 		<SwissGridSection id="header" className="relative z-20 w-full">
-			<div className="h-[118px] w-full" suppressHydrationWarning>
-				<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 sm:px-8">
-					<div className="hidden sm:block">
-						<LocationBadge />
-					</div>
+			<div className="h-29.5 w-full" suppressHydrationWarning>
+				<div className="mx-auto flex h-full max-w-3xl items-center justify-between gap-4 px-6 sm:px-8">
+					<LocationBadge className="hidden w-40 shrink-0 sm:flex" />
 
-					{/* Spacer for potential center content (Logo?) */}
-					<div className="flex-1" />
+					<MarqueeBadge
+						className="hidden flex-1 sm:flex"
+						// Swiss Design: Ticker style, uppercase, consistent separator
+						items={[
+							"PRODUCT ENGINEERING",
+							"DESIGN SYSTEMS",
+							"HIGH-PERFORMANCE INTERFACES",
+							"AI INTEGRATION",
+							"FULL-STACK TYPESCRIPT",
+						]}
+					/>
 
-					<div className="hidden sm:block">
-						<TimeBadge />
-					</div>
+					<TimeBadge className="hidden w-40 shrink-0 sm:flex" />
 				</div>
 			</div>
 		</SwissGridSection>

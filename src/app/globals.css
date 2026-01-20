@@ -1753,11 +1753,11 @@ h4:hover .anchor {
 
 /* UTILITY: Core Marquee Keyframes */
 @keyframes marquee {
-  from {
+  0% {
     transform: translateX(0);
   }
-  to {
-    transform: translateX(calc(-100% - var(--gap)));
+  100% {
+    transform: translateX(-50%);
   }
 }
 
