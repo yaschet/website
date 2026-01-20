@@ -140,6 +140,7 @@ export function MediaImage({
 						blurDataURL={blurDataURL ?? undefined}
 						priority={priority}
 						decoding="async"
+						quality={85}
 					/>
 
 					{/* Hover Hint: Subtle corner badge (Swiss design) */}
