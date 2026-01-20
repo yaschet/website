@@ -7,13 +7,18 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { allProjects } from "contentlayer2/generated";
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import avatarImage from "@/public/images/avatar.jpeg";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
+
+const ProjectCardGallery = dynamic(() =>
+	import("@/src/components/ui/project-card-gallery").then((mod) => mod.ProjectCardGallery),
+);
+
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 import { HeroGradient } from "../components/ui/hero-gradient";
@@ -75,7 +80,7 @@ export default function Home() {
 											href="https://linkedin.com/in/yaschet"
 											target="_blank"
 											aria-label="LinkedIn"
-											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
+											className="inline-flex size-10 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
 										>
 											<LinkedinLogoIcon className="size-5" weight="regular" />
 										</Link>
@@ -83,7 +88,7 @@ export default function Home() {
 											href="https://github.com/yaschet"
 											target="_blank"
 											aria-label="GitHub"
-											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
+											className="inline-flex size-10 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
 										>
 											<GithubLogoIcon className="size-5" weight="regular" />
 										</Link>
@@ -91,7 +96,7 @@ export default function Home() {
 											href="https://x.com/yaschet"
 											target="_blank"
 											aria-label="X"
-											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
+											className="inline-flex size-10 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
 										>
 											<XLogoIcon className="size-5" weight="regular" />
 										</Link>
@@ -160,9 +165,9 @@ export default function Home() {
 									{/* Section Header */}
 									<ScrollReveal phase={3}>
 										<div className="mb-4">
-											<p className="font-mono text-surface-500 text-xs uppercase tracking-[0.18em] dark:text-surface-300">
+											<h2 className="font-mono text-surface-500 text-sm uppercase tracking-[0.18em] dark:text-surface-300">
 												Selected Work
-											</p>
+											</h2>
 										</div>
 									</ScrollReveal>
 
