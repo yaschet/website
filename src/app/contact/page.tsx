@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ContactForm } from "@/src/components/forms/contact-form";
 import { SiteFooter } from "@/src/components/layout/site-footer";
+import { Button } from "@/src/components/ui/button";
 import { LocationBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
@@ -36,14 +38,14 @@ export default function ContactPage() {
 					<SwissGridSection id="contact-header" className="relative w-full">
 						<Reveal phase={1} className="relative z-10 w-full">
 							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-8 sm:px-8">
-									<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+									<p className="mb-2 font-mono text-surface-500 text-xs uppercase tracking-[0.18em] dark:text-surface-400">
 										Contact
 									</p>
 									<h1 className="text-heading-xl text-surface-900 dark:text-surface-100">
 										Let's talk.
 									</h1>
-									<p className="mt-4 max-w-xl text-body-lg text-surface-500 dark:text-surface-400">
+									<p className="mt-4 max-w-xl text-body-md text-surface-600 dark:text-surface-400">
 										Have a project, question, or opportunity? I'd like to hear
 										about it.
 									</p>
@@ -52,12 +54,90 @@ export default function ContactPage() {
 						</Reveal>
 					</SwissGridSection>
 
+					{/* Scheduling */}
+					<SwissGridSection id="schedule" className="w-full">
+						<ScrollReveal phase={2} className="w-full">
+							<section className="w-full">
+								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+									<div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+										<div className="border border-surface-300/80 bg-surface-100 p-6 dark:border-surface-800/80 dark:bg-surface-900">
+											<p className="font-mono text-surface-500 text-xs uppercase tracking-[0.18em] dark:text-surface-400">
+												Call
+											</p>
+											<h2 className="mt-3 text-heading-md text-surface-900 dark:text-surface-100">
+												Book a 15-minute intro call.
+											</h2>
+											<p className="mt-2 text-body-md text-surface-600 dark:text-surface-400">
+												For projects, roles, or quick scoping.
+											</p>
+											<div className="mt-4">
+												<Button
+													asChild
+													size="lg"
+													variant="solid"
+													color="accent"
+												>
+													<Link
+														href="https://cal.com/yassinechettouch/15min"
+														target="_blank"
+													>
+														Book a call
+													</Link>
+												</Button>
+											</div>
+										</div>
+										<div className="border border-surface-300/80 bg-surface-100 p-6 dark:border-surface-800/80 dark:bg-surface-900">
+											<p className="font-mono text-surface-500 text-xs uppercase tracking-[0.18em] dark:text-surface-400">
+												Details
+											</p>
+											<div className="mt-3 grid gap-2 text-body-sm text-surface-600 dark:text-surface-400">
+												<span>Replies in 24 to 48 hours.</span>
+												<span>Rabat, GMT+1.</span>
+											</div>
+											<div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-body-sm">
+												<Link
+													href="mailto:yassinechettouch@gmail.com"
+													className="text-surface-900 transition-colors hover:text-surface-700 dark:text-surface-100 dark:hover:text-surface-50"
+												>
+													Email
+												</Link>
+												<Link
+													href="https://linkedin.com/in/yaschet"
+													target="_blank"
+													className="text-surface-900 transition-colors hover:text-surface-700 dark:text-surface-100 dark:hover:text-surface-50"
+												>
+													LinkedIn
+												</Link>
+												<Link
+													href="https://github.com/yaschet"
+													target="_blank"
+													className="text-surface-900 transition-colors hover:text-surface-700 dark:text-surface-100 dark:hover:text-surface-50"
+												>
+													GitHub
+												</Link>
+												<Link
+													href="https://x.com/yaschet"
+													target="_blank"
+													className="text-surface-900 transition-colors hover:text-surface-700 dark:text-surface-100 dark:hover:text-surface-50"
+												>
+													X
+												</Link>
+											</div>
+										</div>
+									</div>
+								</div>
+							</section>
+						</ScrollReveal>
+					</SwissGridSection>
+
 					{/* Form Section */}
 					<SwissGridSection id="form" className="w-full">
 						<ScrollReveal phase={2} className="w-full">
 							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<ContactForm />
+								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+									<div className="border border-surface-300/80 bg-surface-100 p-6 dark:border-surface-800/80 dark:bg-surface-900">
+										<ContactForm />
+									</div>
 								</div>
 							</section>
 						</ScrollReveal>
