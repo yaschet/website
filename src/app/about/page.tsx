@@ -1,5 +1,10 @@
 import { Avatar, AvatarFallback } from "@components/ui/avatar";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowRightIcon,
+	GithubLogoIcon,
+	LinkedinLogoIcon,
+	XLogoIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,75 +42,101 @@ export default function AboutPage() {
 						</Reveal>
 					</SwissGridSection>
 
-					{/* Header */}
-					<SwissGridSection id="about-header" className="relative w-full">
+					{/* Profile */}
+					<SwissGridSection id="profile" className="relative w-full">
 						<Reveal phase={1} className="relative z-10 w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-8 sm:px-8">
-									<div className="flex flex-col items-start gap-8 sm:flex-row sm:items-center">
-										<Avatar className="relative size-20 overflow-hidden border border-surface-200 bg-surface-100 transition-transform duration-200 hover:scale-[1.02] dark:border-surface-800 dark:bg-surface-900">
+							<header className="w-full">
+								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
+									<div className="flex items-center gap-4">
+										<Avatar className="relative size-14 overflow-hidden rounded-(--radius) border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900">
 											<Image
 												src={avatarImage}
 												alt="Yassine Chettouch"
 												className="object-cover grayscale transition-all duration-500 hover:grayscale-0"
 												placeholder="blur"
 												fill
-												sizes="80px"
+												sizes="56px"
 											/>
-											<AvatarFallback className="flex h-full w-full items-center justify-center bg-surface-100 font-medium text-lg text-surface-400 dark:bg-surface-900 dark:text-surface-500">
+											<AvatarFallback className="flex h-full w-full items-center justify-center bg-surface-100 font-medium text-sm text-surface-400 dark:bg-surface-900 dark:text-surface-500">
 												YC
 											</AvatarFallback>
 										</Avatar>
 										<div>
-											<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-												About
-											</p>
-											<h1 className="text-heading-xl text-surface-900 dark:text-surface-100">
+											<h1 className="font-semibold text-body-lg text-surface-900 dark:text-surface-100">
 												Yassine Chettouch
 											</h1>
-											<p className="mt-2 text-body-lg text-surface-500 dark:text-surface-400">
-												Product Engineer · Rabat, Morocco
+											<p className="text-body-sm text-surface-500 dark:text-surface-400">
+												Product Engineer
 											</p>
 										</div>
 									</div>
+
+									<div className="flex items-center gap-0.5">
+										<Link
+											href="https://linkedin.com/in/yaschet"
+											target="_blank"
+											aria-label="LinkedIn"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+										>
+											<LinkedinLogoIcon className="size-5" weight="regular" />
+										</Link>
+										<Link
+											href="https://github.com/yaschet"
+											target="_blank"
+											aria-label="GitHub"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+										>
+											<GithubLogoIcon className="size-5" weight="regular" />
+										</Link>
+										<Link
+											href="https://x.com/yaschet"
+											target="_blank"
+											aria-label="X"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+										>
+											<XLogoIcon className="size-5" weight="regular" />
+										</Link>
+									</div>
 								</div>
-							</section>
+							</header>
 						</Reveal>
 					</SwissGridSection>
 
-					{/* 01 · Introduction */}
+					{/* 01 · The Short Version */}
 					<SwissGridSection id="story" className="w-full">
 						<ScrollReveal phase={2} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<ScrollReveal phase={2}>
 										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											01 · Introduction
+											01 · The Short Version
 										</p>
 									</ScrollReveal>
 									<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
 										<ScrollReveal phase={2} delay={0.05}>
 											<p>
-												I build software that runs in production. SaaS
-												platforms, data pipelines, internal tools—systems
-												that handle real users, real payments, and real
-												complexity.
+												I started as a graphic designer. Logos, book covers,
+												product mockups. Adobe Illustrator was my first real
+												tool. That background stuck with me: I still think
+												in terms of visual hierarchy, spacing, and how
+												something feels before I think about how it works.
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.1}>
 											<p>
-												Over the past 5 years, I've shipped AI translation
-												platforms, data matching engines, and customer
-												portals. The kind of software that needs auth,
-												billing, multi-tenancy, and architecture that
-												doesn't fall apart at scale.
+												In 2021, I switched to code. Web development let me
+												build complete products. Not just static designs,
+												but things people could actually use. I've been
+												doing that ever since.
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.15}>
 											<p>
-												I work best with founders and companies who need a
-												technical partner— someone who understands both the
-												code and the business problem behind it.
+												Today I work directly with founders and CEOs. They
+												give me a problem, I return a working product.
+												Database schemas, APIs, interfaces, deployment.
+												Whether I'm the only engineer or part of a team, I
+												focus on one thing: shipping.
 											</p>
 										</ScrollReveal>
 									</div>
@@ -114,61 +145,61 @@ export default function AboutPage() {
 						</ScrollReveal>
 					</SwissGridSection>
 
-					{/* 02 · What I Build */}
-					<SwissGridSection id="what-i-build" className="w-full">
+					{/* 02 · How I Think */}
+					<SwissGridSection id="how-i-think" className="w-full">
 						<ScrollReveal phase={2} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<ScrollReveal phase={2}>
 										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											02 · What I Build
+											02 · How I Think
 										</p>
 									</ScrollReveal>
 									<div className="grid gap-8 sm:grid-cols-2">
 										<ScrollReveal phase={2} delay={0.05}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													SaaS Platforms
+													Craftsmanship
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													Auth, billing, teams, permissions. The
-													infrastructure that lets you charge money and
-													scale users.
+													I care about the details. Error states, loading
+													feedback, micro-interactions. The things most
+													people skip.
 												</p>
 											</div>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.1}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													AI Integrations
+													User Empathy
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													OpenAI, embeddings, semantic search. Production
-													systems that process real workloads, not just
-													demos.
+													I think about how someone will feel when they
+													hit an edge case. Frustration is a design
+													failure.
 												</p>
 											</div>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.15}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													Data Pipelines
+													Business Focus
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													Batch processing, resumable jobs, AI-powered
-													cleansing. For when you've got thousands of
-													records to handle.
+													I don't like building features nobody uses. If
+													it doesn't solve a real problem, I'll ask why.
 												</p>
 											</div>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.2}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													Internal Tools
+													Ownership
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													Admin dashboards, customer portals, workflow
-													automation. Tools that make your team faster.
+													I work best when I understand the bigger
+													picture. Give me context and I'll make better
+													decisions on the details.
 												</p>
 											</div>
 										</ScrollReveal>
@@ -185,23 +216,33 @@ export default function AboutPage() {
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<ScrollReveal phase={2}>
 										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											03 · How I Work
+											03 · Engineering Philosophy
 										</p>
 									</ScrollReveal>
 									<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
 										<ScrollReveal phase={2} delay={0.05}>
 											<p>
-												Every project starts with a spec document. You know
-												exactly what you're getting, when you're getting it,
-												and what it costs. No scope creep. No surprises.
+												I architect systems that scale. Not just in traffic,
+												but in team velocity and maintenance cost. If a
+												solution creates more problems than it solves, it's
+												not a solution.
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.1}>
 											<p>
-												Weekly updates with working demos. You see progress,
-												not promises. If something's taking longer than
-												expected, you know about it early—not at the
-												deadline.
+												Ship early. Ship often. I work in weekly cycles with
+												working demos. You see architecture decisions in
+												action, not in Figma files. Technical debt gets
+												documented and prioritized—not hidden until
+												deployment.
+											</p>
+										</ScrollReveal>
+										<ScrollReveal phase={2} delay={0.15}>
+											<p>
+												I optimize for long-term outcomes. Fast code that
+												nobody can maintain is slow code. Clean abstractions
+												that enable the next engineer to ship faster are
+												infrastructure investments.
 											</p>
 										</ScrollReveal>
 									</div>
@@ -210,24 +251,19 @@ export default function AboutPage() {
 						</ScrollReveal>
 					</SwissGridSection>
 
-					{/* CTA */}
-					<SwissGridSection id="about-cta" className="w-full">
+					{/* Contact */}
+					<SwissGridSection id="about-contact" className="w-full">
 						<ScrollReveal phase={3} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-										<div>
-											<h2 className="text-heading-md text-surface-900 dark:text-surface-100">
-												Have a project in mind?
-											</h2>
-											<p className="mt-1 text-body-md text-surface-500 dark:text-surface-400">
-												I'd like to hear about it.
-											</p>
-										</div>
+										<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+											Work with these principles?
+										</h2>
 										<Button asChild size="lg" variant="solid" color="primary">
 											<Link href="/contact">
-												Start a conversation
-												<ArrowRight className="size-4" weight="bold" />
+												Email
+												<ArrowRightIcon className="size-4" weight="bold" />
 											</Link>
 										</Button>
 									</div>

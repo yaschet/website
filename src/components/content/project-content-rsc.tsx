@@ -1,4 +1,4 @@
-import { ArrowLeft, Clock } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, ArrowRight, Clock } from "@phosphor-icons/react/dist/ssr";
 import type { Project } from "contentlayer2/generated";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -172,6 +172,27 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 											}}
 										/>
 									</article>
+								</div>
+							</section>
+						</ScrollReveal>
+					</SwissGridSection>
+
+					{/* CTA - Contextual Inquiry */}
+					<SwissGridSection id="project-cta" className="w-full">
+						<ScrollReveal phase={3} className="w-full">
+							<section className="w-full">
+								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+										<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+											Building something similar?
+										</h2>
+										<Button asChild size="lg" variant="solid" color="primary">
+											<Link href="/contact">
+												Email
+												<ArrowRight className="size-4" weight="bold" />
+											</Link>
+										</Button>
+									</div>
 								</div>
 							</section>
 						</ScrollReveal>

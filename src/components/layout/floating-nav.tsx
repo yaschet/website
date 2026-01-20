@@ -2,12 +2,12 @@
  * FloatingNav component.
  *
  * @remarks
- * Fixed-position navigation bar.
- *
- * @example
- * ```tsx
- * <FloatingNav />
- * ```
+ * "Interaction Engineered" navigation bar.
+ * features:
+ * - Unified Physics Object (Whole button squish)
+ * - Contiguous Hit Zones (Zero gaps)
+ * - Optimistic State
+ * - High-Contrast Swiss Design
  *
  * @public
  */
@@ -45,7 +45,7 @@ type NavItem = {
 const navItems: NavItem[] = [
 	{ name: "Home", link: "/", icon: House },
 	{ name: "About", link: "/about", icon: User },
-	{ name: "Work", link: "/projects", icon: Briefcase },
+	{ name: "Projects", link: "/projects", icon: Briefcase }, // Rename "Work" -> "Projects" to match URL
 	{ name: "Blog", link: "/blog", icon: FileText },
 	{ name: "Contact", link: "/contact", icon: ChatCenteredText },
 ];
@@ -64,7 +64,12 @@ export function FloatingNav() {
 	const pathname = usePathname();
 	const { setTheme, resolvedTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
+
+	// Separate hover state from active state to avoid conflict
 	const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+	// OPTIMISTIC UI: Track active tab locally to support instant click feedback
+	const [optimisticTab, setOptimisticTab] = useState<string | null>(null);
+
 	const themeButtonRef = useRef<HTMLButtonElement>(null);
 
 	const { phase } = useReveal();
@@ -73,19 +78,20 @@ export function FloatingNav() {
 		setMounted(true);
 	}, []);
 
-	// Block rendering until mounted to prevent hydration mismatch (theme-related)
+	// Sync optimistic state with actual pathname when it changes (correction)
+	useEffect(() => {
+		const activeItem = navItems.find((item) =>
+			item.link === "/" ? pathname === "/" : pathname.startsWith(item.link),
+		);
+		setOptimisticTab(activeItem?.link || "");
+	}, [pathname]);
+
 	if (!mounted) return null;
 
 	const isEnabled = phase >= 1;
 
-	// Determine active state based on route matching
-	const activeItem = navItems.find((item) =>
-		item.link === "/" ? pathname === "/" : pathname.startsWith(item.link),
-	);
-	const activeTab = activeItem?.link || "";
-
-	// Hover-first priority for the sliding indicator
-	const currentTab = hoveredTab ?? activeTab;
+	// Visual Priority: Hover > Optimistic Click > Actual Pathname
+	const currentTab = hoveredTab ?? optimisticTab;
 
 	/**
 	 * Toggles the theme with a view transition.
@@ -93,7 +99,6 @@ export function FloatingNav() {
 	const toggleTheme = async () => {
 		const newTheme = resolvedTheme === "dark" ? "light" : "dark";
 
-		// Fallback for no View Transitions
 		if (
 			!(document as Document & { startViewTransition?: unknown }).startViewTransition ||
 			window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -133,51 +138,47 @@ export function FloatingNav() {
 	};
 
 	return (
-		<div className="pointer-events-none fixed top-8 right-0 left-0 z-50 flex items-center justify-center px-6">
+		<div className="pointer-events-none fixed top-6 right-0 left-0 z-50 flex items-center justify-center px-6">
 			<motion.nav
-				initial={{ opacity: 0, y: -20, scale: 0.98 }}
-				animate={
-					isEnabled ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -20, scale: 0.98 }
-				}
+				initial={{ y: -20, opacity: 0 }}
+				animate={isEnabled ? { y: 0, opacity: 1 } : { y: -20, opacity: 0 }}
 				transition={springs.responsive}
 				className={cn(
-					"pointer-events-auto relative flex items-center gap-1 p-1.5",
-					// OPTIMIZATION: Removed blur for 240Hz performance (Swiss Design: Opacity > Blur)
-					"bg-white/95 dark:bg-surface-950/95",
-					"border border-surface-200/80 dark:border-surface-800/80",
+					"pointer-events-auto relative flex items-center p-1.5",
+					// SWISS DESIGN: Solid, High Contrast, No Blur
+					"bg-surface-0 dark:bg-surface-950",
+					"border border-surface-200 dark:border-surface-800",
+					// Enforce 0px radius
 					"rounded-[var(--radius)]",
+					// SHADOW: Allowed here for "Floating" context, but kept tight
+					"shadow-sm",
 				)}
 				style={{
-					// PERF: GPU Layer Promotion + Layout Isolation
 					willChange: "transform",
 					contain: "layout style",
-					boxShadow: [
-						"0 1px 2px rgba(0, 0, 0, 0.04)",
-						"0 4px 8px -2px rgba(0, 0, 0, 0.06)",
-						"0 12px 24px -4px rgba(0, 0, 0, 0.08)",
-					].join(", "),
 				}}
 				role="navigation"
 				aria-label="Main navigation"
 				onMouseLeave={() => setHoveredTab(null)}
 			>
-				<ul className="relative flex items-center gap-1">
+				<ul className="relative flex items-center">
 					{navItems.map((item) => {
-						const isActive = item.link === activeTab;
-						const isHovered = item.link === hoveredTab;
+						const isActive = item.link === optimisticTab; // Logical state (for Icon weight)
+						const isVisuallyActive = currentTab === item.link; // Visual state (for Colors)
 						const Icon = item.icon;
 
 						return (
-							<li key={item.link} className="relative">
+							<li key={item.link} className="relative z-0">
 								<Link
 									href={item.link}
+									onClick={() => setOptimisticTab(item.link)} // Optimistic update
 									className={cn(
 										"relative flex items-center justify-center transition-colors duration-200",
 										"rounded-[var(--radius)]",
-										isActive
-											? "text-surface-900 dark:text-surface-50"
-											: "text-surface-500 dark:text-surface-400",
-										"hover:text-surface-900 dark:hover:text-surface-50",
+										// Invert text color when pill is behind item
+										isVisuallyActive
+											? "text-surface-50 dark:text-surface-950" // High Contrast
+											: "text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50", // Muted -> Hover
 									)}
 									style={{
 										width: BUTTON_SIZE,
@@ -186,40 +187,63 @@ export function FloatingNav() {
 									onMouseEnter={() => setHoveredTab(item.link)}
 									aria-current={isActive ? "page" : undefined}
 								>
-									{currentTab === item.link && (
-										<motion.div
-											layoutId="nav-slot"
-											className="absolute inset-0 -z-10 rounded-[var(--radius)] bg-surface-100 dark:bg-surface-800"
-											transition={springs.layout}
-										/>
-									)}
+									{/* Animation Container: Handles scale effects independently of Link routing */}
 									<motion.div
-										whileHover={{ scale: 1.1 }}
-										whileTap={{ scale: 0.9 }}
+										className="relative flex h-full w-full items-center justify-center"
+										initial="idle"
+										whileHover="hover"
+										whileTap="tap"
+										variants={{
+											idle: { scale: 1 },
+											hover: { scale: 1 },
+											tap: { scale: 0.92 },
+										}}
 										transition={springs.snappy}
 									>
-										<Icon
-											className="shrink-0"
-											style={{ width: ICON_SIZE, height: ICON_SIZE }}
-											weight="duotone"
-										/>
+										{currentTab === item.link && (
+											<motion.div
+												layoutId="nav-bg"
+												className="absolute inset-0 -z-10 bg-surface-900 dark:bg-surface-50"
+												transition={springs.snappy}
+												style={{ borderRadius: "var(--radius)" }}
+												// React to parent tap
+												variants={{
+													tap: {
+														scale: 0.95,
+													},
+												}}
+											/>
+										)}
+
+										<motion.div
+											variants={{
+												hover: { scale: 1.05 },
+												tap: { scale: 1 },
+											}}
+										>
+											<Icon
+												className="shrink-0"
+												style={{ width: ICON_SIZE, height: ICON_SIZE }}
+												weight={isActive ? "bold" : "regular"} // Visual state change
+											/>
+										</motion.div>
 									</motion.div>
 								</Link>
 
 								<AnimatePresence>
-									{isHovered && (
+									{currentTab === item.link && hoveredTab === item.link && (
 										<motion.div
-											initial={{ opacity: 0, y: 4, scale: 0.98 }}
+											initial={{ opacity: 0, y: 8, scale: 0.95 }}
 											animate={{ opacity: 1, y: 0, scale: 1 }}
 											exit={{ opacity: 0, y: 4, scale: 0.98 }}
-											transition={{ duration: 0.15, ease: "easeOut" }}
+											transition={springs.snappy}
 											className={cn(
 												"pointer-events-none absolute top-full left-1/2 z-20 mt-3 -translate-x-1/2 whitespace-nowrap",
-												"px-2 py-1.5 font-bold text-xs",
-												"bg-white dark:bg-surface-900",
-												"text-surface-700 dark:text-surface-300",
-												"border border-surface-200 dark:border-surface-800",
-												"rounded-none shadow-md", // Absolute zero for tooltips
+												"px-2.5 py-1.5 font-medium text-xs tracking-wide",
+												"bg-surface-950 text-surface-50", // Inverse tooltip
+												"dark:bg-surface-50 dark:text-surface-950",
+												"rounded-none",
+												"shadow-xl",
 											)}
 										>
 											{item.name}
@@ -232,7 +256,7 @@ export function FloatingNav() {
 				</ul>
 
 				<div
-					className="mx-1 h-6 w-px bg-surface-200 dark:bg-surface-800"
+					className="mx-1 h-5 w-px bg-surface-200 dark:bg-surface-800"
 					aria-hidden="true"
 				/>
 
@@ -240,15 +264,23 @@ export function FloatingNav() {
 					ref={themeButtonRef}
 					onMouseEnter={() => setHoveredTab("theme-toggle")}
 					onClick={toggleTheme}
-					whileHover={{ scale: 1.1 }}
-					whileTap={{ scale: 0.9 }}
+					// INTERACTION: Match Link Physics
+					initial="idle"
+					whileHover="hover"
+					whileTap="tap"
+					variants={{
+						idle: { scale: 1 },
+						hover: { scale: 1 },
+						tap: { scale: 0.92 },
+					}}
 					transition={springs.snappy}
 					className={cn(
 						"relative z-10 flex items-center justify-center rounded-[var(--radius)]",
-						"text-surface-500 dark:text-surface-400",
-						"hover:text-surface-900 dark:hover:text-surface-50",
+						// COLOR SYNC: Theme Button
+						currentTab === "theme-toggle"
+							? "text-surface-50 dark:text-surface-950" // INVERTED
+							: "text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50",
 						"outline-none transition-colors duration-200",
-						"focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-950",
 					)}
 					style={{
 						width: BUTTON_SIZE,
@@ -258,21 +290,36 @@ export function FloatingNav() {
 				>
 					{currentTab === "theme-toggle" && (
 						<motion.div
-							layoutId="nav-slot"
-							className="absolute inset-0 -z-10 rounded-[var(--radius)] bg-surface-100 dark:bg-surface-800"
-							transition={springs.layout}
+							layoutId="nav-bg"
+							className="absolute inset-0 -z-10 bg-surface-900 dark:bg-surface-50"
+							transition={springs.snappy}
+							style={{ borderRadius: "var(--radius)" }}
+							variants={{
+								tap: {
+									scale: 0.95,
+								},
+							}}
 						/>
 					)}
-					<Sun
-						className="rotate-0 scale-100 transition-transform duration-300 dark:-rotate-90 dark:scale-0"
-						style={{ width: ICON_SIZE, height: ICON_SIZE }}
-						weight="duotone"
-					/>
-					<Moon
-						className="absolute rotate-90 scale-0 transition-transform duration-300 dark:rotate-0 dark:scale-100"
-						style={{ width: ICON_SIZE, height: ICON_SIZE }}
-						weight="duotone"
-					/>
+					{/* FIX: Add relative/flex container for absolute icon positioning */}
+					<motion.div
+						className="relative flex h-full w-full items-center justify-center"
+						variants={{
+							hover: { scale: 1.05 },
+							tap: { scale: 1 },
+						}}
+					>
+						<Sun
+							className="rotate-0 scale-100 transition-transform duration-300 dark:-rotate-90 dark:scale-0"
+							style={{ width: ICON_SIZE, height: ICON_SIZE }}
+							weight="regular"
+						/>
+						<Moon
+							className="absolute rotate-90 scale-0 transition-transform duration-300 dark:rotate-0 dark:scale-100"
+							style={{ width: ICON_SIZE, height: ICON_SIZE }}
+							weight="regular"
+						/>
+					</motion.div>
 				</motion.button>
 			</motion.nav>
 		</div>

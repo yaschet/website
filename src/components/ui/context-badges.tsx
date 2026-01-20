@@ -38,7 +38,7 @@ const CONTENT_PADDING = 8; // px - X = Y for Swiss balance
 
 /** Base badge container - no horizontal padding, that's per-zone */
 const badgeBaseClasses = cn(
-	"group relative z-20 flex items-center",
+	"group relative flex items-center",
 	"rounded-[var(--radius)]",
 	"border border-surface-200/80 dark:border-surface-800/80",
 	// OPTIMIZATION: Removed blur (Swiss Design: Opacity > Blur)
@@ -59,7 +59,7 @@ const insigniaClasses = cn(
 const contentClasses = cn("flex items-center");
 
 const tooltipClasses = cn(
-	"pointer-events-none absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2 whitespace-nowrap",
+	"pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 whitespace-nowrap",
 	"px-2 py-1.5 font-bold text-xs",
 	"bg-white dark:bg-surface-900",
 	"text-surface-700 dark:text-surface-300",
@@ -83,8 +83,6 @@ export function LocationBadge() {
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
-			role="status"
-			aria-label="Rabat, Morocco - Open to Remote"
 		>
 			{/* Insignia Zone - Flag bleeds to edge like a banner */}
 			<div
@@ -144,21 +142,10 @@ export function TimeBadge() {
 		return () => clearInterval(interval);
 	}, []);
 
-	// SSR hydration safety
+	// SSR hydration safety — render nothing until mounted
+	// This prevents opacity-0 rendering artifacts on page load
 	if (!mounted) {
-		return (
-			<div className={badgeBaseClasses} style={{ height: BADGE_HEIGHT }}>
-				<div
-					className={insigniaClasses}
-					style={{ width: INSIGNIA_SIZE, height: INSIGNIA_SIZE }}
-				>
-					<Clock weight="duotone" className="size-4" />
-				</div>
-				<div className={contentClasses} style={{ padding: CONTENT_PADDING }}>
-					<span className="font-mono text-xs tabular-nums opacity-0">00:00</span>
-				</div>
-			</div>
-		);
+		return null;
 	}
 
 	return (

@@ -48,6 +48,7 @@ export function WebVitals() {
 			style: {
 				borderLeft: `4px solid ${getColor(rating)}`,
 			},
+			position: "bottom-left",
 		});
 	});
 

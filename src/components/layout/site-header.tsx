@@ -12,7 +12,7 @@ import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 export function SiteHeader() {
 	return (
 		<SwissGridSection id="header" className="relative z-20 w-full">
-			<div className="h-[118px] w-full">
+			<div className="h-[118px] w-full" suppressHydrationWarning>
 				<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 sm:px-8">
 					<div className="hidden sm:block">
 						<LocationBadge />

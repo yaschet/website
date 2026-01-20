@@ -11,9 +11,6 @@ importers:
       '@emotion/is-prop-valid':
         specifier: ^1.4.0
         version: 1.4.0
-      '@evilmartians/harmony':
-        specifier: ^1.4.0
-        version: 1.4.0
       '@fontsource/inter':
         specifier: ^5.1.1
         version: 5.2.8
@@ -805,9 +802,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
-
-  '@evilmartians/harmony@1.4.0':
-    resolution: {integrity: sha512-NgKkhTnQOSE07IvDxHHPLzFF81TaWU1Ir5nmaRM+PebXAol5vNXnk+Lp2JPgj1P/PBTu6lzSWckSpNjC19XSUw==}
 
   '@fal-works/esbuild-plugin-global-externals@2.1.2':
     resolution: {integrity: sha512-cEee/Z+I12mZcFJshKcCqC8tuX5hG3s+d+9nZ3LabqKF1vKdF41B92pJVCBggjAGORAeOzyyDDKrZwIkLffeOQ==}
@@ -5165,8 +5159,6 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.2':
     optional: true
-
-  '@evilmartians/harmony@1.4.0': {}
 
   '@fal-works/esbuild-plugin-global-externals@2.1.2': {}
 

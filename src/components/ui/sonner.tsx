@@ -29,6 +29,25 @@ import { cn } from "@/src/lib/index";
 
 type ToasterProps = ComponentProps<typeof Sonner>;
 
+const IconContainer = ({
+	children,
+	className,
+}: {
+	children: React.ReactNode;
+	className?: string;
+}) => {
+	return (
+		<div
+			className={cn(
+				"flex size-8 shrink-0 items-center justify-center border border-surface-200 bg-surface-50 transition-colors dark:border-surface-800 dark:bg-surface-900",
+				className,
+			)}
+		>
+			{children}
+		</div>
+	);
+};
+
 function Toaster({ ...props }: ToasterProps) {
 	const { theme = "system" } = useTheme();
 
@@ -37,53 +56,93 @@ function Toaster({ ...props }: ToasterProps) {
 			className={cn("toaster group")}
 			icons={{
 				error: (
-					<WarningDiamondIcon
-						className="size-5 text-destructive"
-						color="currentColor"
-						weight="duotone"
-					/>
+					<IconContainer>
+						<WarningDiamondIcon
+							className="size-5 text-destructive"
+							color="currentColor"
+							weight="regular"
+						/>
+					</IconContainer>
 				),
 				info: (
-					<InfoIcon className="size-5 text-info" color="currentColor" weight="duotone" />
+					<IconContainer>
+						<InfoIcon
+							className="size-5 text-info"
+							color="currentColor"
+							weight="regular"
+						/>
+					</IconContainer>
 				),
-				loading: <Spinner size="xs" />,
+				loading: (
+					<IconContainer className="relative left-5">
+						<Spinner
+							className="size-5 shrink-0 text-surface-500"
+							weight="regular"
+							size="sm"
+						/>
+					</IconContainer>
+				),
 				success: (
-					<CheckIcon
-						className="size-5 text-success"
-						color="currentColor"
-						weight="duotone"
-					/>
+					<IconContainer>
+						<CheckIcon
+							className="size-5 text-success"
+							color="currentColor"
+							weight="regular"
+						/>
+					</IconContainer>
 				),
 				warning: (
-					<ExclamationMarkIcon
-						className="size-5 text-warning"
-						color="currentColor"
-						weight="duotone"
-					/>
+					<IconContainer>
+						<ExclamationMarkIcon
+							className="size-5 text-warning"
+							color="currentColor"
+							weight="regular"
+						/>
+					</IconContainer>
 				),
 			}}
 			theme={theme as ToasterProps["theme"]}
+			position="bottom-right"
 			toastOptions={{
-				className: cn(
-					"rounded-none border-surface-200 bg-white text-surface-900 shadow-xl dark:border-surface-800 dark:bg-surface-950 dark:text-surface-50",
-					"font-sans antialiased",
-				),
+				unstyled: true,
 				classNames: {
-					toast: "group-[.toaster]:flex group-[.toaster]:items-center group-[.toaster]:gap-4 group-[.toaster]:px-6 group-[.toaster]:py-4",
-					title: "group-[.toast]:font-bold group-[.toast]:text-xs group-[.toast]:uppercase group-[.toast]:tracking-[0.1em]",
-					description:
-						"group-[.toast]:text-surface-500 group-[.toast]:dark:text-surface-400 group-[.toast]:text-xs group-[.toast]:font-medium",
-					closeButton: cn(
-						"text-surface-600 hover:text-foreground dark:text-surface-400 dark:hover:text-foreground",
-						"bg-surface-100 transition-colors hover:bg-surface-200 dark:bg-surface-800 dark:hover:bg-surface-700",
+					toast: cn(
+						"group grid w-full grid-cols-[auto_1fr_auto] items-start gap-x-4 p-4",
+						"bg-surface-0 dark:bg-surface-950",
 						"border border-surface-200 dark:border-surface-800",
-						"rounded-none",
+						"rounded-none shadow-none",
+						"[&>[data-icon]]:col-start-1 [&>[data-icon]]:mt-0.5",
+						"[&>[data-loading-icon]]:col-start-1 [&>[data-loading-icon]]:mt-0.5 [&>[data-loading-icon]]:shrink-0",
+						"[&>[data-content]]:col-start-2 [&>[data-content]]:flex [&>[data-content]]:flex-col [&>[data-content]]:gap-1",
+						"[&>[data-content]]:min-h-[2rem] [&>[data-content]]:justify-center",
+						"[&>[data-button]]:col-start-3 [&>[data-button]]:self-center",
+						"[&>[data-cancel]]:col-start-3 [&>[data-cancel]]:self-center",
 					),
-					success:
-						"group-[.toaster]:border-success/30 group-[.toaster]:bg-success-50/50 dark:group-[.toaster]:bg-success-950/20",
-					error: "group-[.toaster]:border-destructive/30 group-[.toaster]:bg-destructive-50/50 dark:group-[.toaster]:bg-destructive-950/20",
+					title: "text-surface-900 dark:text-surface-50 font-bold text-xs uppercase tracking-wider leading-none",
+					description:
+						"text-surface-500 dark:text-surface-400 text-xs font-mono leading-normal",
+					actionButton: cn(
+						"shrink-0 rounded-none px-3 py-1.5 font-bold text-xs",
+						"bg-surface-900 text-surface-50 dark:bg-surface-50 dark:text-surface-900",
+						"transition-transform active:scale-95",
+					),
+					cancelButton: cn(
+						"shrink-0 rounded-none px-3 py-1.5 font-bold text-xs",
+						"bg-surface-100 text-surface-900 dark:bg-surface-800 dark:text-surface-50",
+						"transition-transform hover:bg-surface-200 active:scale-95 dark:hover:bg-surface-700",
+					),
+					closeButton: cn(
+						"absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 transform p-1 opacity-0 group-hover:opacity-100",
+						"text-surface-400 hover:text-surface-900 dark:text-surface-500 dark:hover:text-surface-50",
+						"border border-surface-200 bg-surface-0 dark:border-surface-800 dark:bg-surface-950",
+						"rounded-none transition-all duration-200",
+					),
+					success: "!border-l-success",
+					error: "!border-l-destructive",
+					warning: "!border-l-warning",
+					info: "!border-l-info",
 				},
-				duration: 4000,
+				duration: 5000,
 			}}
 			{...props}
 		/>

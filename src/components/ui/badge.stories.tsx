@@ -27,6 +27,7 @@ const meta: Meta<typeof Badge> = {
 		color: {
 			control: "select",
 			options: [
+				"default", // Changed from primary to default as explicit option
 				"primary",
 				"secondary",
 				"accent",
@@ -46,23 +47,23 @@ const meta: Meta<typeof Badge> = {
 		},
 		shape: {
 			control: "select",
-			options: ["default", "none", "xs", "sm", "md", "lg", "xl", "full"],
+			options: ["default", "sm", "md", "full"], // Simplified shapes based on new component
 			description: "Border radius override.",
 			table: { category: "Dimensions" },
 		},
-		disabled: {
+		interactive: {
 			control: "boolean",
-			description: "Visually indicates a disabled state.",
-			table: { category: "State" },
+			description: "Enables hover/active physics.",
+			table: { category: "Behavior" },
 		},
 	},
 	args: {
 		children: "Badge",
 		variant: "solid",
-		color: "primary",
+		color: "default",
 		size: "md",
 		shape: "default",
-		disabled: false,
+		interactive: false,
 	},
 };
 

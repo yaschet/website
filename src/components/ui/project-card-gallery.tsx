@@ -86,7 +86,7 @@ export function ProjectCardGallery({
 			)}
 
 			{/* DATA ZONE — Solid Background, Maximum Legibility */}
-			<div className="p-5">
+			<div className="p-6">
 				{/* Header Row */}
 				<div className="mb-3 flex items-start justify-between gap-4">
 					<div className="flex items-baseline gap-3">

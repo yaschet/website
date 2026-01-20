@@ -1,5 +1,10 @@
 import { Avatar, AvatarFallback } from "@components/ui/avatar";
-import { ArrowRight, GithubLogo, LinkedinLogo } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowRightIcon,
+	GithubLogoIcon,
+	LinkedinLogoIcon,
+	XLogoIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import { allProjects } from "contentlayer2/generated";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -11,10 +16,12 @@ import { Button } from "@/src/components/ui/button";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
+import { HeroGradient } from "../components/ui/hero-gradient";
 
 export const metadata: Metadata = {
 	title: "Yassine Chettouch | Product Engineer",
-	description: "SaaS platforms, data engines, and production systems.",
+	description:
+		"Product Engineer. Web apps, SaaS platforms, and internal tools. From design to production.",
 };
 
 export default function Home() {
@@ -38,9 +45,9 @@ export default function Home() {
 					<SwissGridSection id="profile" className="relative w-full">
 						<Reveal phase={1} className="relative z-10 w-full">
 							<header className="w-full">
-								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-8 sm:px-8">
+								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
 									<div className="flex items-center gap-4">
-										<Avatar className="relative size-14 overflow-hidden rounded-[var(--radius)] border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900">
+										<Avatar className="relative size-14 overflow-hidden rounded-(--radius) border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900">
 											<Image
 												src={avatarImage}
 												alt="Yassine Chettouch"
@@ -63,59 +70,31 @@ export default function Home() {
 										</div>
 									</div>
 
-									<div className="flex items-center gap-1">
-										<Button
-											asChild
-											variant="solid"
-											size="icon"
-											shape="default"
-											tooltipContent="X (Twitter)"
+									<div className="flex items-center gap-0.5">
+										<Link
+											href="https://linkedin.com/in/yaschet"
+											target="_blank"
+											aria-label="LinkedIn"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
 										>
-											<Link
-												href="https://x.com/yaschet"
-												target="_blank"
-												aria-label="X"
-											>
-												<svg
-													aria-hidden="true"
-													fill="currentColor"
-													viewBox="0 0 24 24"
-													className="size-5"
-												>
-													<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-												</svg>
-											</Link>
-										</Button>
-										<Button
-											asChild
-											variant="solid"
-											size="icon"
-											shape="default"
-											tooltipContent="GitHub"
+											<LinkedinLogoIcon className="size-5" weight="regular" />
+										</Link>
+										<Link
+											href="https://github.com/yaschet"
+											target="_blank"
+											aria-label="GitHub"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
 										>
-											<Link
-												href="https://github.com/yaschet"
-												target="_blank"
-												aria-label="GitHub"
-											>
-												<GithubLogo className="size-5" weight="duotone" />
-											</Link>
-										</Button>
-										<Button
-											asChild
-											variant="solid"
-											size="icon"
-											shape="default"
-											tooltipContent="LinkedIn"
+											<GithubLogoIcon className="size-5" weight="regular" />
+										</Link>
+										<Link
+											href="https://x.com/yaschet"
+											target="_blank"
+											aria-label="X"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-accent-400"
 										>
-											<Link
-												href="https://linkedin.com/in/yaschet"
-												target="_blank"
-												aria-label="LinkedIn"
-											>
-												<LinkedinLogo className="size-5" weight="duotone" />
-											</Link>
-										</Button>
+											<XLogoIcon className="size-5" weight="regular" />
+										</Link>
 									</div>
 								</div>
 							</header>
@@ -123,21 +102,23 @@ export default function Home() {
 					</SwissGridSection>
 
 					{/* Hero */}
-					<SwissGridSection id="hero" className="w-full">
-						<Reveal phase={2} className="w-full">
+					<SwissGridSection id="hero" className="relative w-full">
+						{/* Atmospheric Gradient — Contained Design Blob */}
+						<HeroGradient className="pointer-events-none absolute inset-x-0 top-0 z-0 h-96 w-full" />
+
+						<Reveal phase={2} className="relative z-10 w-full">
 							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<Reveal phase={2}>
 										<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
-											I build production systems.
+											I build products for the web.
 										</h1>
 									</Reveal>
 									<Reveal phase={2} delay={0.05}>
 										<p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
-											SaaS platforms, data engines, internal tools. I've spent
-											5 years shipping software that handles real users, real
-											payments, and real complexity. Here are three systems I
-											built.
+											Web apps. SaaS platforms. Internal tools. From the first
+											idea to the final deploy. Complex systems that feel
+											effortless.
 										</p>
 									</Reveal>
 									<Reveal phase={2} delay={0.1}>
@@ -148,10 +129,21 @@ export default function Home() {
 												variant="solid"
 												color="primary"
 											>
-												<Link href="/contact">
-													Start a conversation
-													<ArrowRight className="size-4" weight="bold" />
+												<Link href="/projects">
+													Case Studies
+													<ArrowRightIcon
+														className="size-4"
+														weight="bold"
+													/>
 												</Link>
+											</Button>
+											<Button
+												asChild
+												size="lg"
+												variant="outlined"
+												color="default"
+											>
+												<Link href="/contact">Email</Link>
 											</Button>
 										</div>
 									</Reveal>
@@ -160,37 +152,46 @@ export default function Home() {
 						</Reveal>
 					</SwissGridSection>
 
-					{/* Featured Projects */}
-					{featuredProjects.map((project, i) => (
-						<SwissGridSection
-							key={project._id}
-							id={`project-${i + 1}`}
-							className="w-full"
-						>
-							<ScrollReveal phase={3} className="w-full">
-								<section className="w-full">
-									<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-										<ScrollReveal phase={3}>
-											<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-												0{i + 1} · {project.title}
+					{/* Selected Work — Unified Container */}
+					<SwissGridSection id="work" className="w-full">
+						<ScrollReveal phase={3} className="w-full">
+							<section className="w-full">
+								<div className="mx-auto max-w-3xl px-6 pt-10 pb-16 sm:px-8">
+									{/* Section Header */}
+									<ScrollReveal phase={3}>
+										<div className="mb-4">
+											<p className="font-mono text-surface-500 text-xs uppercase tracking-[0.18em] dark:text-surface-300">
+												Selected Work
 											</p>
-										</ScrollReveal>
-										<ScrollReveal phase={3} delay={0.05}>
-											<ProjectCardGallery
-												index={`0${i + 1}`}
-												title={project.title}
-												description={project.description}
-												href={project.url_path}
-												tags={project.tech ?? []}
-												images={project.coverImages}
-												isPrivate={!project.url && !project.github}
-											/>
-										</ScrollReveal>
+										</div>
+									</ScrollReveal>
+
+									{/* Projects Grid */}
+									<div className="space-y-6">
+										{featuredProjects.map((project, i) => (
+											<ScrollReveal
+												key={project._id}
+												phase={3}
+												delay={i * 0.05}
+											>
+												<div id={`project-${i + 1}`}>
+													<ProjectCardGallery
+														index={`0${i + 1}`}
+														title={project.title}
+														description={project.description}
+														href={project.url_path}
+														tags={project.tech ?? []}
+														images={project.coverImages}
+														isPrivate={!project.url && !project.github}
+													/>
+												</div>
+											</ScrollReveal>
+										))}
 									</div>
-								</section>
-							</ScrollReveal>
-						</SwissGridSection>
-					))}
+								</div>
+							</section>
+						</ScrollReveal>
+					</SwissGridSection>
 
 					{/* CTA */}
 					<SwissGridSection id="cta" className="w-full">
@@ -200,18 +201,33 @@ export default function Home() {
 									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
 										<div>
 											<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-												Have a project in mind?
+												View selected work.
 											</h2>
-											<p className="mt-1 text-body-md text-surface-600 dark:text-surface-400">
-												I'd like to hear about it.
-											</p>
 										</div>
-										<Button asChild size="lg" variant="solid" color="primary">
-											<Link href="/contact">
-												Get in touch
-												<ArrowRight className="size-4" weight="bold" />
-											</Link>
-										</Button>
+										<div className="flex items-center gap-3">
+											<Button
+												asChild
+												size="lg"
+												variant="outlined"
+												color="default"
+											>
+												<Link href="/contact">Email</Link>
+											</Button>
+											<Button
+												asChild
+												size="lg"
+												variant="solid"
+												color="primary"
+											>
+												<Link href="/projects">
+													Case Studies
+													<ArrowRightIcon
+														className="size-4"
+														weight="bold"
+													/>
+												</Link>
+											</Button>
+										</div>
 									</div>
 								</div>
 							</section>
