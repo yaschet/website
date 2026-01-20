@@ -171,10 +171,9 @@ export default function Home() {
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									{/* Section Header */}
 									<ScrollReveal phase={3}>
-										<div className="mb-14 grid gap-6 border-surface-200/80 border-b pb-8 sm:grid-cols-[auto,1fr] sm:items-end dark:border-surface-800/80">
+										<div className="mb-8 grid gap-5 sm:grid-cols-[auto,1fr] sm:items-end">
 											<div className="font-mono text-surface-600 text-xs uppercase tracking-[0.3em] dark:text-surface-400">
 												Selected Work
-												<span className="mt-3 block h-px w-10 bg-surface-200/80 dark:bg-surface-800/80" />
 											</div>
 											<div>
 												<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
@@ -190,21 +189,14 @@ export default function Home() {
 									</ScrollReveal>
 
 									{/* Projects Grid */}
-									<div className="space-y-12">
+									<div className="space-y-8">
 										{featuredProjects.map((project, i) => (
 											<ScrollReveal
 												key={project._id}
 												phase={3}
 												delay={i * 0.05}
 											>
-												<div
-													id={`project-${i + 1}`}
-													className={
-														i === 0
-															? ""
-															: "border-surface-200/80 border-t pt-12 dark:border-surface-800/80"
-													}
-												>
+												<div id={`project-${i + 1}`}>
 													<ProjectCardGallery
 														index={`0${i + 1}`}
 														title={project.title}
