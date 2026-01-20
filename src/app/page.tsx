@@ -168,28 +168,18 @@ export default function Home() {
 					<SwissGridSection id="work" className="w-full">
 						<ScrollReveal phase={3} className="w-full">
 							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+								<div className="mx-auto max-w-3xl px-6 pt-10 pb-16 sm:px-8">
 									{/* Section Header */}
 									<ScrollReveal phase={3}>
-										<div className="mb-8 grid gap-5 sm:grid-cols-[auto,1fr] sm:items-end">
-											<div className="font-mono text-surface-600 text-xs uppercase tracking-[0.3em] dark:text-surface-400">
+										<div className="mb-4">
+											<p className="font-mono text-surface-500 text-xs uppercase tracking-[0.18em] dark:text-surface-300">
 												Selected Work
-											</div>
-											<div>
-												<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-													Products shipped end-to-end.
-												</h2>
-												<p className="mt-3 max-w-2xl text-body-md text-surface-600 dark:text-surface-400">
-													A selection of products I've built end-to-end.
-													Each represents a complete cycle from problem to
-													solution.
-												</p>
-											</div>
+											</p>
 										</div>
 									</ScrollReveal>
 
 									{/* Projects Grid */}
-									<div className="space-y-8">
+									<div className="space-y-6">
 										{featuredProjects.map((project, i) => (
 											<ScrollReveal
 												key={project._id}
