@@ -165,7 +165,7 @@ export default function Home() {
 									{/* Section Header */}
 									<ScrollReveal phase={3}>
 										<div className="mb-4">
-											<h2 className="font-mono text-surface-500 text-sm uppercase tracking-[0.18em] dark:text-surface-300">
+											<h2 className="font-mono text-sm text-surface-500 uppercase tracking-[0.18em] dark:text-surface-300">
 												Selected Work
 											</h2>
 										</div>

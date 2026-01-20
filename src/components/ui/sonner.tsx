@@ -24,7 +24,7 @@ import {
 import { useTheme } from "next-themes";
 import type { ComponentProps } from "react";
 import { Toaster as Sonner } from "sonner";
-import Spinner from "@/src/components/ui/spinner";
+import { Spinner } from "@/src/components/ui/spinner";
 import { cn } from "@/src/lib/index";
 
 type ToasterProps = ComponentProps<typeof Sonner>;
@@ -75,11 +75,7 @@ function Toaster({ ...props }: ToasterProps) {
 				),
 				loading: (
 					<IconContainer className="relative left-5">
-						<Spinner
-							className="size-5 shrink-0 text-surface-500"
-							weight="regular"
-							size="sm"
-						/>
+						<Spinner className="size-5 shrink-0 text-surface-500" size="sm" />
 					</IconContainer>
 				),
 				success: (

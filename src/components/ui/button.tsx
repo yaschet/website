@@ -21,7 +21,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { type HTMLMotionProps, motion } from "framer-motion";
 import * as React from "react";
 import { Fragment, type ReactNode, useMemo } from "react";
-import Spinner from "@/src/components/ui/spinner";
+import { Spinner } from "@/src/components/ui/spinner";
 import {
 	Tooltip,
 	TooltipContent,

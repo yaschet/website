@@ -1817,3 +1817,7 @@ h4:hover .anchor {
   /* High-RPM (1s) to match sub-300ms page transitions. Sharp Layout easing (0.76, 0, 0.24, 1). */
   animation: draw-square 1s cubic-bezier(0.76, 0, 0.24, 1) infinite;
 }
+
+@utility animate-spin-slow-reverse {
+  animation: spin 3s linear infinite reverse;
+}
