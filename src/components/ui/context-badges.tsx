@@ -417,6 +417,7 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 					{/* First instance with ref for measurement - This constitutes ONE complete cycle */}
 					<div ref={contentRef} className="flex items-center">
 						{items.map((item, i) => (
+							// biome-ignore lint/suspicious/noArrayIndexKey: Static presentation list
 							<div key={`item-${item}-${i}`} className="flex items-center">
 								<span className="cursor-default whitespace-nowrap font-medium text-xs leading-none">
 									{item}
@@ -429,12 +430,14 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 					{/* Dynamically generated copies */}
 					{Array.from({ length: numCopies - 1 }).map((_, copyIndex) => (
 						<div
+							// biome-ignore lint/suspicious/noArrayIndexKey: Virtual copies
 							key={`copy-${copyIndex}`}
 							aria-hidden="true"
 							className="flex items-center"
 						>
 							{items.map((item, itemIndex) => (
 								<div
+									// biome-ignore lint/suspicious/noArrayIndexKey: Virtual copies
 									key={`copy-item-${copyIndex}-${item}-${itemIndex}`}
 									className="flex items-center"
 								>
