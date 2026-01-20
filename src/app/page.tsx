@@ -193,18 +193,33 @@ export default function Home() {
 									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
 										<div>
 											<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-												Work with me.
+												View selected work.
 											</h2>
-											<p className="mt-1 text-body-md text-surface-600 dark:text-surface-400">
-												Open for projects.
-											</p>
 										</div>
-										<Button asChild size="lg" variant="solid" color="primary">
-											<Link href="/contact">
-												Contact
-												<ArrowRightIcon className="size-4" weight="bold" />
-											</Link>
-										</Button>
+										<div className="flex items-center gap-3">
+											<Button
+												asChild
+												size="lg"
+												variant="outlined"
+												color="default"
+											>
+												<Link href="/contact">Email</Link>
+											</Button>
+											<Button
+												asChild
+												size="lg"
+												variant="solid"
+												color="primary"
+											>
+												<Link href="/projects">
+													Case Studies
+													<ArrowRightIcon
+														className="size-4"
+														weight="bold"
+													/>
+												</Link>
+											</Button>
+										</div>
 									</div>
 								</div>
 							</section>

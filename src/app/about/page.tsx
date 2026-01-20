@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback } from "@components/ui/avatar";
 import {
-	ArrowRight,
+	ArrowRightIcon,
 	GithubLogoIcon,
 	LinkedinLogoIcon,
 	XLogoIcon,
@@ -216,23 +216,33 @@ export default function AboutPage() {
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<ScrollReveal phase={2}>
 										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											03 · How I Work
+											03 · Engineering Philosophy
 										</p>
 									</ScrollReveal>
 									<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
 										<ScrollReveal phase={2} delay={0.05}>
 											<p>
-												Every project starts with a spec. I document what
-												we're building before writing code. You know what
-												you're getting, when you're getting it, and what it
-												costs.
+												I architect systems that scale. Not just in traffic,
+												but in team velocity and maintenance cost. If a
+												solution creates more problems than it solves, it's
+												not a solution.
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.1}>
 											<p>
-												I ship working demos weekly. You see progress, not
-												promises. If something takes longer than expected,
-												you know early. Not at the deadline.
+												Ship early. Ship often. I work in weekly cycles with
+												working demos. You see architecture decisions in
+												action, not in Figma files. Technical debt gets
+												documented and prioritized—not hidden until
+												deployment.
+											</p>
+										</ScrollReveal>
+										<ScrollReveal phase={2} delay={0.15}>
+											<p>
+												I optimize for long-term outcomes. Fast code that
+												nobody can maintain is slow code. Clean abstractions
+												that enable the next engineer to ship faster are
+												infrastructure investments.
 											</p>
 										</ScrollReveal>
 									</div>
@@ -241,24 +251,19 @@ export default function AboutPage() {
 						</ScrollReveal>
 					</SwissGridSection>
 
-					{/* CTA */}
-					<SwissGridSection id="about-cta" className="w-full">
+					{/* Contact */}
+					<SwissGridSection id="about-contact" className="w-full">
 						<ScrollReveal phase={3} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-										<div>
-											<h2 className="text-heading-md text-surface-900 dark:text-surface-100">
-												Open for work.
-											</h2>
-											<p className="mt-1 text-body-md text-surface-500 dark:text-surface-400">
-												Full-stack builds. SaaS platforms.
-											</p>
-										</div>
+										<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+											Work with these principles?
+										</h2>
 										<Button asChild size="lg" variant="solid" color="primary">
 											<Link href="/contact">
-												Contact
-												<ArrowRight className="size-4" weight="bold" />
+												Email
+												<ArrowRightIcon className="size-4" weight="bold" />
 											</Link>
 										</Button>
 									</div>

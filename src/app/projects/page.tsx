@@ -1,4 +1,4 @@
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { allProjects } from "contentlayer2/generated";
 import { compareDesc } from "date-fns";
 import type { Metadata } from "next";
@@ -77,22 +77,19 @@ export default function ProjectsPage() {
 						</div>
 					</SwissGridSection>
 
-					{/* CTA */}
-					<SwissGridSection id="projects-cta" className="w-full">
+					{/* Contact */}
+					<SwissGridSection id="projects-contact" className="w-full">
 						<ScrollReveal phase={3} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<div className="text-center">
-										<h2 className="mb-4 text-heading-lg text-surface-900 dark:text-surface-100">
-											Need something similar?
+									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+										<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+											View engineering philosophy.
 										</h2>
-										<p className="mb-8 text-body-md text-surface-600 dark:text-surface-400">
-											I build these.
-										</p>
 										<Button asChild size="lg" variant="solid" color="primary">
-											<Link href="/contact">
-												Contact
-												<ArrowRight className="size-4" weight="bold" />
+											<Link href="/about">
+												About
+												<ArrowRightIcon className="size-4" weight="bold" />
 											</Link>
 										</Button>
 									</div>

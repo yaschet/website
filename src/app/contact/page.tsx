@@ -38,18 +38,14 @@ export default function ContactPage() {
 					<SwissGridSection id="contact-header" className="relative w-full">
 						<Reveal phase={1} className="relative z-10 w-full">
 							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-									<p className="mb-2 font-mono text-surface-500 text-xs uppercase tracking-[0.18em] dark:text-surface-400">
+								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+									<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 										Contact
 									</p>
-									<h1 className="text-heading-xl text-surface-900 dark:text-surface-100">
+									<h1 className="mb-4 text-heading-xl text-surface-900 dark:text-surface-100">
 										Get in touch.
 									</h1>
-									<p className="mt-4 max-w-xl text-body-md text-surface-600 dark:text-surface-400">
-										Projects, questions, opportunities.
-									</p>
-									<p className="mt-2 text-body-sm text-surface-500 dark:text-surface-400">
-										Email me at{" "}
+									<p className="mt-6 text-body-sm text-surface-500 dark:text-surface-400">
 										<a
 											href="mailto:hello@yaschet.dev"
 											className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-2 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
