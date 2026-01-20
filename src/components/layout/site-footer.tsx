@@ -48,6 +48,17 @@ export function SiteFooter() {
 							</Link>
 						</nav>
 					</div>
+					<div className="mt-3 text-center text-[11px] text-surface-500 sm:text-right dark:text-surface-400">
+						<a
+							href="https://github.com/yaschet/website"
+							target="_blank"
+							rel="noreferrer"
+							className="font-mono uppercase tracking-[0.2em] transition-colors hover:text-surface-900 dark:hover:text-surface-50"
+						>
+							source
+						</a>
+						<span className="ml-2">built by hand, in code</span>
+					</div>
 				</div>
 			</SwissGridSection>
 		</footer>

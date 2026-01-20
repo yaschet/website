@@ -1,5 +1,10 @@
 import { Avatar, AvatarFallback } from "@components/ui/avatar";
-import { ArrowRight, GithubLogo, LinkedinLogo } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowRightIcon,
+	GithubLogoIcon,
+	LinkedinLogoIcon,
+	XLogoIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import { allProjects } from "contentlayer2/generated";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -65,59 +70,31 @@ export default function Home() {
 										</div>
 									</div>
 
-									<div className="flex items-center gap-1">
-										<Button
-											asChild
-											variant="solid"
-											size="icon"
-											shape="default"
-											tooltipContent="X (Twitter)"
+									<div className="flex items-center gap-2">
+										<Link
+											href="https://x.com/yaschet"
+											target="_blank"
+											aria-label="X"
+											className="inline-flex size-9 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
 										>
-											<Link
-												href="https://x.com/yaschet"
-												target="_blank"
-												aria-label="X"
-											>
-												<svg
-													aria-hidden="true"
-													fill="currentColor"
-													viewBox="0 0 24 24"
-													className="size-5"
-												>
-													<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-												</svg>
-											</Link>
-										</Button>
-										<Button
-											asChild
-											variant="solid"
-											size="icon"
-											shape="default"
-											tooltipContent="GitHub"
+											<XLogoIcon className="size-4" weight="regular" />
+										</Link>
+										<Link
+											href="https://github.com/yaschet"
+											target="_blank"
+											aria-label="GitHub"
+											className="inline-flex size-9 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
 										>
-											<Link
-												href="https://github.com/yaschet"
-												target="_blank"
-												aria-label="GitHub"
-											>
-												<GithubLogo className="size-5" weight="duotone" />
-											</Link>
-										</Button>
-										<Button
-											asChild
-											variant="solid"
-											size="icon"
-											shape="default"
-											tooltipContent="LinkedIn"
+											<GithubLogoIcon className="size-4" weight="regular" />
+										</Link>
+										<Link
+											href="https://linkedin.com/in/yaschet"
+											target="_blank"
+											aria-label="LinkedIn"
+											className="inline-flex size-9 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
 										>
-											<Link
-												href="https://linkedin.com/in/yaschet"
-												target="_blank"
-												aria-label="LinkedIn"
-											>
-												<LinkedinLogo className="size-5" weight="duotone" />
-											</Link>
-										</Button>
+											<LinkedinLogoIcon className="size-4" weight="regular" />
+										</Link>
 									</div>
 								</div>
 							</header>
@@ -140,7 +117,7 @@ export default function Home() {
 									<Reveal phase={2} delay={0.05}>
 										<p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
 											Web apps. SaaS platforms. Internal tools. From the first
-											idea to the final deploy. Complex systems, built to feel
+											idea to the final deploy. Complex systems that feel
 											effortless.
 										</p>
 									</Reveal>
@@ -154,7 +131,10 @@ export default function Home() {
 											>
 												<Link href="/about">
 													About me
-													<ArrowRight className="size-4" weight="bold" />
+													<ArrowRightIcon
+														className="size-4"
+														weight="bold"
+													/>
 												</Link>
 											</Button>
 										</div>
@@ -222,7 +202,7 @@ export default function Home() {
 										<Button asChild size="lg" variant="solid" color="primary">
 											<Link href="/contact">
 												Get in touch
-												<ArrowRight className="size-4" weight="bold" />
+												<ArrowRightIcon className="size-4" weight="bold" />
 											</Link>
 										</Button>
 									</div>
