@@ -155,3 +155,202 @@ export const InteractionTest: Story = {
 		await expect(button).toBeInTheDocument();
 	},
 };
+
+/**
+ * Complete Showcase: All variants, colors, and sizes in one comprehensive grid.
+ * Useful for design review and documentation.
+ */
+export const Showcase: Story = {
+	parameters: {
+		layout: "fullscreen",
+		docs: {
+			disable: true,
+		},
+	},
+	render: () => {
+		const variants: Array<"solid" | "soft" | "outlined" | "plain"> = [
+			"solid",
+			"soft",
+			"outlined",
+			"plain",
+		];
+		const colors: Array<
+			"default" | "primary" | "accent" | "success" | "warning" | "info" | "destructive"
+		> = ["default", "primary", "accent", "success", "warning", "info", "destructive"];
+		const sizes: Array<"xs" | "sm" | "md" | "lg" | "xl"> = ["xs", "sm", "md", "lg", "xl"];
+
+		return (
+			<div className="min-h-screen bg-surface-50 p-8 dark:bg-surface-950">
+				<div className="mx-auto max-w-7xl">
+					{/* Header */}
+					<div className="mb-12">
+						<h1 className="mb-2 font-bold text-4xl text-surface-900 dark:text-surface-50">
+							Button Showcase
+						</h1>
+						<p className="text-lg text-surface-600 dark:text-surface-400">
+							Complete reference of all button variants, colors, and sizes.
+						</p>
+					</div>
+
+					{/* Variants */}
+					{variants.map((variant) => (
+						<div key={variant} className="mb-16">
+							{/* Variant Header */}
+							<div className="mb-8 border-surface-200 border-b pb-4 dark:border-surface-800">
+								<h2 className="font-bold text-2xl text-surface-900 capitalize dark:text-surface-50">
+									{variant}
+								</h2>
+							</div>
+
+							{/* Colors Grid */}
+							<div className="mb-12 space-y-8">
+								{colors.map((color) => (
+									<div key={color}>
+										{/* Color Label */}
+										<p className="mb-4 font-semibold text-sm text-surface-500 uppercase tracking-widest dark:text-surface-400">
+											{color}
+										</p>
+
+										{/* Size Grid */}
+										<div className="flex flex-wrap gap-4">
+											{sizes.map((size) => (
+												<div
+													key={size}
+													className="flex flex-col items-center gap-2"
+												>
+													<Button
+														variant={variant}
+														color={color}
+														size={size}
+													>
+														Button
+													</Button>
+													<span className="text-surface-500 text-xs dark:text-surface-400">
+														{size}
+													</span>
+												</div>
+											))}
+
+											{/* Icon Buttons */}
+											<div className="flex flex-col items-center gap-2">
+												<Button
+													variant={variant}
+													color={color}
+													size="icon-sm"
+												>
+													<PlusIcon size={16} weight="bold" />
+												</Button>
+												<span className="text-surface-500 text-xs dark:text-surface-400">
+													icon-sm
+												</span>
+											</div>
+
+											<div className="flex flex-col items-center gap-2">
+												<Button variant={variant} color={color} size="icon">
+													<PlusIcon size={18} weight="bold" />
+												</Button>
+												<span className="text-surface-500 text-xs dark:text-surface-400">
+													icon
+												</span>
+											</div>
+
+											<div className="flex flex-col items-center gap-2">
+												<Button
+													variant={variant}
+													color={color}
+													size="icon-lg"
+												>
+													<PlusIcon size={20} weight="bold" />
+												</Button>
+												<span className="text-surface-500 text-xs dark:text-surface-400">
+													icon-lg
+												</span>
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
+					))}
+
+					{/* States Section */}
+					<div className="mb-16">
+						<div className="mb-8 border-surface-200 border-b pb-4 dark:border-surface-800">
+							<h2 className="font-bold text-2xl text-surface-900 dark:text-surface-50">
+								States
+							</h2>
+						</div>
+
+						<div className="space-y-8">
+							{/* Disabled */}
+							<div>
+								<p className="mb-4 font-semibold text-sm text-surface-500 uppercase tracking-widest dark:text-surface-400">
+									Disabled
+								</p>
+								<div className="flex flex-wrap gap-4">
+									<Button variant="solid" color="primary" disabled>
+										Disabled
+									</Button>
+									<Button variant="soft" color="accent" disabled>
+										Disabled
+									</Button>
+									<Button variant="outlined" color="success" disabled>
+										Disabled
+									</Button>
+									<Button variant="plain" color="info" disabled>
+										Disabled
+									</Button>
+								</div>
+							</div>
+
+							{/* Loading */}
+							<div>
+								<p className="mb-4 font-semibold text-sm text-surface-500 uppercase tracking-widest dark:text-surface-400">
+									Loading
+								</p>
+								<div className="flex flex-wrap gap-4">
+									<Button variant="solid" color="primary" loading>
+										Saving
+									</Button>
+									<Button variant="soft" color="accent" loading>
+										Processing
+									</Button>
+									<Button variant="outlined" color="success" loading>
+										Uploading
+									</Button>
+									<Button variant="plain" color="info" loading>
+										Loading
+									</Button>
+								</div>
+							</div>
+
+							{/* With Tooltip */}
+							<div>
+								<p className="mb-4 font-semibold text-sm text-surface-500 uppercase tracking-widest dark:text-surface-400">
+									With Tooltip
+								</p>
+								<div className="flex flex-wrap gap-4">
+									<Button
+										variant="solid"
+										color="primary"
+										tooltipContent="This is a helpful tooltip"
+									>
+										Hover me
+									</Button>
+									<Button
+										variant="outlined"
+										color="success"
+										size="icon"
+										tooltipContent="Add new item"
+									>
+										<PlusIcon size={18} weight="bold" />
+									</Button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	},
+};
