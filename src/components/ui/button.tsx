@@ -118,12 +118,11 @@ const buttonVariants = cva(
 				color: "default",
 				className: [
 					"bg-surface-950 text-surface-50",
-					"hover:bg-surface-900 focus-visible:bg-surface-900",
-					"active:bg-surface-800",
+					"hover:bg-surface-800 focus-visible:bg-surface-800",
+					"active:bg-surface-700",
 					"dark:bg-surface-50 dark:text-surface-950",
-					"dark:focus-visible:bg-surface-200 dark:hover:bg-surface-200",
-					"dark:active:bg-surface-100",
-
+					"dark:focus-visible:bg-surface-100 dark:hover:bg-surface-100",
+					"dark:active:bg-surface-200",
 					"focus-visible:ring-surface-400",
 				],
 			},
@@ -132,12 +131,11 @@ const buttonVariants = cva(
 				color: "primary",
 				className: [
 					"bg-primary-950 text-primary-50",
-					"hover:bg-primary-900 focus-visible:bg-primary-900",
-					"active:bg-primary-800",
+					"hover:bg-primary-800 focus-visible:bg-primary-800",
+					"active:bg-primary-700",
 					"dark:bg-primary-50 dark:text-primary-950",
-					"dark:focus-visible:bg-primary-200 dark:hover:bg-primary-200",
-					"dark:active:bg-primary-100",
-
+					"dark:focus-visible:bg-primary-100 dark:hover:bg-primary-100",
+					"dark:active:bg-primary-200",
 					"focus-visible:ring-primary-500",
 				],
 			},
