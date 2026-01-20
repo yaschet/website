@@ -1,5 +1,10 @@
 import { Avatar, AvatarFallback } from "@components/ui/avatar";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import {
+	ArrowRight,
+	GithubLogoIcon,
+	LinkedinLogoIcon,
+	XLogoIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,39 +42,63 @@ export default function AboutPage() {
 						</Reveal>
 					</SwissGridSection>
 
-					{/* Header */}
-					<SwissGridSection id="about-header" className="relative w-full">
+					{/* Profile */}
+					<SwissGridSection id="profile" className="relative w-full">
 						<Reveal phase={1} className="relative z-10 w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-8 sm:px-8">
-									<div className="flex flex-col items-start gap-8 sm:flex-row sm:items-center">
-										<Avatar className="relative size-20 overflow-hidden border border-surface-200 bg-surface-100 transition-transform duration-200 hover:scale-[1.02] dark:border-surface-800 dark:bg-surface-900">
+							<header className="w-full">
+								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
+									<div className="flex items-center gap-4">
+										<Avatar className="relative size-14 overflow-hidden rounded-(--radius) border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900">
 											<Image
 												src={avatarImage}
 												alt="Yassine Chettouch"
 												className="object-cover grayscale transition-all duration-500 hover:grayscale-0"
 												placeholder="blur"
 												fill
-												sizes="80px"
+												sizes="56px"
 											/>
-											<AvatarFallback className="flex h-full w-full items-center justify-center bg-surface-100 font-medium text-lg text-surface-400 dark:bg-surface-900 dark:text-surface-500">
+											<AvatarFallback className="flex h-full w-full items-center justify-center bg-surface-100 font-medium text-sm text-surface-400 dark:bg-surface-900 dark:text-surface-500">
 												YC
 											</AvatarFallback>
 										</Avatar>
 										<div>
-											<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-												About
-											</p>
-											<h1 className="text-heading-xl text-surface-900 dark:text-surface-100">
+											<h1 className="font-semibold text-body-lg text-surface-900 dark:text-surface-100">
 												Yassine Chettouch
 											</h1>
-											<p className="mt-2 text-body-lg text-surface-500 dark:text-surface-400">
-												Product Engineer · Rabat, Morocco
+											<p className="text-body-sm text-surface-500 dark:text-surface-400">
+												Product Engineer
 											</p>
 										</div>
 									</div>
+
+									<div className="flex items-center gap-0.5">
+										<Link
+											href="https://linkedin.com/in/yaschet"
+											target="_blank"
+											aria-label="LinkedIn"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+										>
+											<LinkedinLogoIcon className="size-5" weight="regular" />
+										</Link>
+										<Link
+											href="https://github.com/yaschet"
+											target="_blank"
+											aria-label="GitHub"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+										>
+											<GithubLogoIcon className="size-5" weight="regular" />
+										</Link>
+										<Link
+											href="https://x.com/yaschet"
+											target="_blank"
+											aria-label="X"
+											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+										>
+											<XLogoIcon className="size-5" weight="regular" />
+										</Link>
+									</div>
 								</div>
-							</section>
+							</header>
 						</Reveal>
 					</SwissGridSection>
 
