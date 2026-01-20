@@ -59,18 +59,18 @@ export default function ContactPage() {
 						<ScrollReveal phase={2} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-									<div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
-										<div className="border border-surface-300/80 bg-surface-100 p-6 dark:border-surface-800/80 dark:bg-surface-900">
+									<div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr]">
+										<div className="space-y-3">
 											<p className="font-mono text-surface-500 text-xs uppercase tracking-[0.18em] dark:text-surface-400">
 												Call
 											</p>
-											<h2 className="mt-3 text-heading-md text-surface-900 dark:text-surface-100">
+											<h2 className="text-heading-sm! text-surface-900 dark:text-surface-100">
 												Book a 15-minute intro call.
 											</h2>
-											<p className="mt-2 text-body-md text-surface-600 dark:text-surface-400">
+											<p className="text-body-sm! text-surface-600 dark:text-surface-400">
 												For projects, roles, or quick scoping.
 											</p>
-											<div className="mt-4">
+											<div className="pt-1">
 												<Button
 													asChild
 													size="lg"
@@ -86,15 +86,29 @@ export default function ContactPage() {
 												</Button>
 											</div>
 										</div>
-										<div className="border border-surface-300/80 bg-surface-100 p-6 dark:border-surface-800/80 dark:bg-surface-900">
+										<div className="space-y-3">
 											<p className="font-mono text-surface-500 text-xs uppercase tracking-[0.18em] dark:text-surface-400">
 												Details
 											</p>
-											<div className="mt-3 grid gap-2 text-body-sm text-surface-600 dark:text-surface-400">
-												<span>Replies in 24 to 48 hours.</span>
-												<span>Rabat, GMT+1.</span>
-											</div>
-											<div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-body-sm">
+											<dl className="grid gap-2 text-body-sm!">
+												<div className="grid grid-cols-[96px,1fr] gap-x-4">
+													<dt className="text-surface-500 text-xs! dark:text-surface-400">
+														Response
+													</dt>
+													<dd className="text-body-sm! text-surface-900 dark:text-surface-100">
+														24 to 48 hours
+													</dd>
+												</div>
+												<div className="grid grid-cols-[96px,1fr] gap-x-4">
+													<dt className="text-surface-500 text-xs! dark:text-surface-400">
+														Timezone
+													</dt>
+													<dd className="text-body-sm! text-surface-900 dark:text-surface-100">
+														Rabat (GMT+1)
+													</dd>
+												</div>
+											</dl>
+											<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-body-sm!">
 												<Link
 													href="mailto:yassinechettouch@gmail.com"
 													className="text-surface-900 transition-colors hover:text-surface-700 dark:text-surface-100 dark:hover:text-surface-50"
@@ -135,7 +149,7 @@ export default function ContactPage() {
 						<ScrollReveal phase={2} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-									<div className="border border-surface-300/80 bg-surface-100 p-6 dark:border-surface-800/80 dark:bg-surface-900">
+									<div>
 										<ContactForm />
 									</div>
 								</div>
