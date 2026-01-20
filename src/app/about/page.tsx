@@ -73,39 +73,41 @@ export default function AboutPage() {
 						</Reveal>
 					</SwissGridSection>
 
-					{/* 01 · Introduction */}
+					{/* 01 · The Short Version */}
 					<SwissGridSection id="story" className="w-full">
 						<ScrollReveal phase={2} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<ScrollReveal phase={2}>
 										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											01 · Introduction
+											01 · The Short Version
 										</p>
 									</ScrollReveal>
 									<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
 										<ScrollReveal phase={2} delay={0.05}>
 											<p>
-												I build software that runs in production. SaaS
-												platforms, data pipelines, internal tools—systems
-												that handle real users, real payments, and real
-												complexity.
+												I started as a graphic designer. Logos, book covers,
+												product mockups. Adobe Illustrator was my first real
+												tool. That background stuck with me: I still think
+												in terms of visual hierarchy, spacing, and how
+												something feels before I think about how it works.
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.1}>
 											<p>
-												Over the past 5 years, I've shipped AI translation
-												platforms, data matching engines, and customer
-												portals. The kind of software that needs auth,
-												billing, multi-tenancy, and architecture that
-												doesn't fall apart at scale.
+												In 2021, I switched to code. Web development let me
+												build complete products. Not just static designs,
+												but things people could actually use. I've been
+												doing that ever since.
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.15}>
 											<p>
-												I work best with founders and companies who need a
-												technical partner— someone who understands both the
-												code and the business problem behind it.
+												Today I work directly with founders and CEOs. They
+												give me a problem, I return a working product.
+												Database schemas, APIs, interfaces, deployment.
+												Whether I'm the only engineer or part of a team, I
+												focus on one thing: shipping.
 											</p>
 										</ScrollReveal>
 									</div>
@@ -114,61 +116,61 @@ export default function AboutPage() {
 						</ScrollReveal>
 					</SwissGridSection>
 
-					{/* 02 · What I Build */}
-					<SwissGridSection id="what-i-build" className="w-full">
+					{/* 02 · How I Think */}
+					<SwissGridSection id="how-i-think" className="w-full">
 						<ScrollReveal phase={2} className="w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<ScrollReveal phase={2}>
 										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											02 · What I Build
+											02 · How I Think
 										</p>
 									</ScrollReveal>
 									<div className="grid gap-8 sm:grid-cols-2">
 										<ScrollReveal phase={2} delay={0.05}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													SaaS Platforms
+													Craftsmanship
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													Auth, billing, teams, permissions. The
-													infrastructure that lets you charge money and
-													scale users.
+													I care about the details. Error states, loading
+													feedback, micro-interactions. The things most
+													people skip.
 												</p>
 											</div>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.1}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													AI Integrations
+													User Empathy
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													OpenAI, embeddings, semantic search. Production
-													systems that process real workloads, not just
-													demos.
+													I think about how someone will feel when they
+													hit an edge case. Frustration is a design
+													failure.
 												</p>
 											</div>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.15}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													Data Pipelines
+													Business Focus
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													Batch processing, resumable jobs, AI-powered
-													cleansing. For when you've got thousands of
-													records to handle.
+													I don't like building features nobody uses. If
+													it doesn't solve a real problem, I'll ask why.
 												</p>
 											</div>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.2}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													Internal Tools
+													Ownership
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													Admin dashboards, customer portals, workflow
-													automation. Tools that make your team faster.
+													I work best when I understand the bigger
+													picture. Give me context and I'll make better
+													decisions on the details.
 												</p>
 											</div>
 										</ScrollReveal>
@@ -191,17 +193,17 @@ export default function AboutPage() {
 									<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
 										<ScrollReveal phase={2} delay={0.05}>
 											<p>
-												Every project starts with a spec document. You know
-												exactly what you're getting, when you're getting it,
-												and what it costs. No scope creep. No surprises.
+												Every project starts with a spec. I document what
+												we're building before writing code. You know what
+												you're getting, when you're getting it, and what it
+												costs.
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.1}>
 											<p>
-												Weekly updates with working demos. You see progress,
-												not promises. If something's taking longer than
-												expected, you know about it early—not at the
-												deadline.
+												I ship working demos weekly. You see progress, not
+												promises. If something takes longer than expected,
+												you know early. Not at the deadline.
 											</p>
 										</ScrollReveal>
 									</div>

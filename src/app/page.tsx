@@ -11,10 +11,12 @@ import { Button } from "@/src/components/ui/button";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
+import { HeroGradient } from "../components/ui/hero-gradient";
 
 export const metadata: Metadata = {
 	title: "Yassine Chettouch | Product Engineer",
-	description: "SaaS platforms, data engines, and production systems.",
+	description:
+		"Product Engineer. Web apps, SaaS platforms, and internal tools. From design to production.",
 };
 
 export default function Home() {
@@ -38,7 +40,7 @@ export default function Home() {
 					<SwissGridSection id="profile" className="relative w-full">
 						<Reveal phase={1} className="relative z-10 w-full">
 							<header className="w-full">
-								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-8 sm:px-8">
+								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
 									<div className="flex items-center gap-4">
 										<Avatar className="relative size-14 overflow-hidden rounded-[var(--radius)] border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900">
 											<Image
@@ -123,21 +125,20 @@ export default function Home() {
 					</SwissGridSection>
 
 					{/* Hero */}
-					<SwissGridSection id="hero" className="w-full">
-						<Reveal phase={2} className="w-full">
+					<SwissGridSection id="hero" className="relative w-full overflow-hidden">
+						<Reveal phase={2} className="relative z-10 w-full">
 							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<Reveal phase={2}>
 										<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
-											I build production systems.
+											I build products for the web.
 										</h1>
 									</Reveal>
 									<Reveal phase={2} delay={0.05}>
 										<p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
-											SaaS platforms, data engines, internal tools. I've spent
-											5 years shipping software that handles real users, real
-											payments, and real complexity. Here are three systems I
-											built.
+											Web apps. SaaS platforms. Internal tools. From the first
+											idea to the final deploy. Complex systems, built to feel
+											effortless.
 										</p>
 									</Reveal>
 									<Reveal phase={2} delay={0.1}>
@@ -148,8 +149,8 @@ export default function Home() {
 												variant="solid"
 												color="accent"
 											>
-												<Link href="/contact">
-													Start a conversation
+												<Link href="/about">
+													About me
 													<ArrowRight className="size-4" weight="bold" />
 												</Link>
 											</Button>
@@ -160,37 +161,54 @@ export default function Home() {
 						</Reveal>
 					</SwissGridSection>
 
-					{/* Featured Projects */}
-					{featuredProjects.map((project, i) => (
-						<SwissGridSection
-							key={project._id}
-							id={`project-${i + 1}`}
-							className="w-full"
-						>
-							<ScrollReveal phase={3} className="w-full">
-								<section className="w-full">
-									<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-										<ScrollReveal phase={3}>
-											<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-												0{i + 1} · {project.title}
+					{/* Selected Work — Unified Container */}
+					<SwissGridSection id="work" className="w-full">
+						<ScrollReveal phase={3} className="w-full">
+							<section className="w-full">
+								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+									{/* Section Header */}
+									<ScrollReveal phase={3}>
+										<div className="mb-12">
+											<p className="font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+												Selected Work
 											</p>
-										</ScrollReveal>
-										<ScrollReveal phase={3} delay={0.05}>
-											<ProjectCardGallery
-												index={`0${i + 1}`}
-												title={project.title}
-												description={project.description}
-												href={project.url_path}
-												tags={project.tech ?? []}
-												images={project.coverImages}
-												isPrivate={!project.url && !project.github}
-											/>
-										</ScrollReveal>
+											<p className="mt-3 text-body-sm text-surface-600 dark:text-surface-400">
+												A selection of products I've built end-to-end. Each
+												represents a complete cycle from problem to
+												solution.
+											</p>
+										</div>
+									</ScrollReveal>
+
+									{/* Projects Grid */}
+									<div className="space-y-16">
+										{featuredProjects.map((project, i) => (
+											<ScrollReveal
+												key={project._id}
+												phase={3}
+												delay={i * 0.05}
+											>
+												<div id={`project-${i + 1}`}>
+													<p className="mb-6 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+														0{i + 1} · {project.title}
+													</p>
+													<ProjectCardGallery
+														index={`0${i + 1}`}
+														title={project.title}
+														description={project.description}
+														href={project.url_path}
+														tags={project.tech ?? []}
+														images={project.coverImages}
+														isPrivate={!project.url && !project.github}
+													/>
+												</div>
+											</ScrollReveal>
+										))}
 									</div>
-								</section>
-							</ScrollReveal>
-						</SwissGridSection>
-					))}
+								</div>
+							</section>
+						</ScrollReveal>
+					</SwissGridSection>
 
 					{/* CTA */}
 					<SwissGridSection id="cta" className="w-full">
@@ -200,10 +218,10 @@ export default function Home() {
 									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
 										<div>
 											<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-												Have a project in mind?
+												Want to talk?
 											</h2>
 											<p className="mt-1 text-body-md text-surface-600 dark:text-surface-400">
-												I'd like to hear about it.
+												I'd love to hear from you.
 											</p>
 										</div>
 										<Button asChild size="lg" variant="solid" color="primary">
