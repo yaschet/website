@@ -88,9 +88,7 @@ export function FloatingNav() {
 
 	if (!mounted) return null;
 
-	const isEnabled = phase >= 1;
-
-	// Visual Priority: Hover > Optimistic Click > Actual Pathname
+	const isEnabled = phase >= 1; // Visual Priority: Hover > Optimistic Click > Actual Pathname
 	const currentTab = hoveredTab ?? optimisticTab;
 
 	/**
@@ -119,7 +117,7 @@ export function FloatingNav() {
 
 		const animation = document.documentElement.animate(
 			{
-				clipPath: ["inset(0 0 100% 0)", "inset(0 0 0 0)"],
+				clipPath: ["inset(100% 0 0 0)", "inset(0 0 0 0)"],
 			},
 			{
 				duration: 550,
@@ -138,10 +136,10 @@ export function FloatingNav() {
 	};
 
 	return (
-		<div className="pointer-events-none fixed top-6 right-0 left-0 z-50 flex items-center justify-center px-6">
+		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-29.5 items-center justify-center px-6">
 			<motion.nav
-				initial={{ y: -20, opacity: 0 }}
-				animate={isEnabled ? { y: 0, opacity: 1 } : { y: -20, opacity: 0 }}
+				initial={{ y: 20, opacity: 0 }}
+				animate={isEnabled ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
 				transition={springs.responsive}
 				className={cn(
 					"pointer-events-auto relative flex items-center p-1.5",
@@ -149,7 +147,7 @@ export function FloatingNav() {
 					"bg-surface-0 dark:bg-surface-950",
 					"border border-surface-200 dark:border-surface-800",
 					// Enforce 0px radius
-					"rounded-[var(--radius)]",
+					"rounded-(--radius)",
 					// SHADOW: Allowed here for "Floating" context, but kept tight
 					"shadow-sm",
 				)}
@@ -174,7 +172,7 @@ export function FloatingNav() {
 									onClick={() => setOptimisticTab(item.link)} // Optimistic update
 									className={cn(
 										"relative flex items-center justify-center transition-colors duration-200",
-										"rounded-[var(--radius)]",
+										"rounded-(--radius)",
 										// Invert text color when pill is behind item
 										isVisuallyActive
 											? "text-surface-50 dark:text-surface-950" // High Contrast
@@ -275,7 +273,7 @@ export function FloatingNav() {
 					}}
 					transition={springs.snappy}
 					className={cn(
-						"relative z-10 flex items-center justify-center rounded-[var(--radius)]",
+						"relative z-10 flex items-center justify-center rounded-(--radius)",
 						// COLOR SYNC: Theme Button
 						currentTab === "theme-toggle"
 							? "text-surface-50 dark:text-surface-950" // INVERTED

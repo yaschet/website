@@ -857,7 +857,7 @@ export function SwissGridSection({
 	}, [registerSection, unregisterSection]);
 
 	return (
-		<Tag ref={ref} className={className}>
+		<Tag ref={ref} className={className} data-swiss-section>
 			{children}
 		</Tag>
 	);
