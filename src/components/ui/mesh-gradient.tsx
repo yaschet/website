@@ -132,9 +132,11 @@ export function MeshGradient({ className = "", children }: MeshGradientProps) {
 				style={{
 					...containerStyle,
 					maskImage:
-						"linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%)",
+						"linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%), linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
+					maskComposite: "intersect",
 					WebkitMaskImage:
-						"linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%)",
+						"linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%), linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
+					WebkitMaskComposite: "source-in",
 				}}
 				aria-hidden="true"
 			>

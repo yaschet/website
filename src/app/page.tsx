@@ -3,6 +3,7 @@ import { allProjects } from "contentlayer2/generated";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteHero } from "@/src/components/layout/site-hero";
@@ -38,49 +39,11 @@ export default function Home() {
 					{/* Nav Row */}
 					<SiteHeader />
 
-					{/* Hero — Unified section (profile + headline) */}
+					{/* Profile Section - Separated from Hero */}
+					<ProfileSection />
+
+					{/* Hero — Headline only */}
 					<SiteHero />
-
-					{/* Selected Work — Unified Container */}
-					<SwissGridSection id="work" className="w-full">
-						<ScrollReveal phase={3} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 pt-10 pb-16 sm:px-8">
-									{/* Section Header */}
-									<ScrollReveal phase={3}>
-										<div className="mb-4">
-											<h2 className="font-mono text-sm text-surface-500 uppercase tracking-[0.18em] dark:text-surface-300">
-												Selected Work
-											</h2>
-										</div>
-									</ScrollReveal>
-
-									{/* Projects Grid */}
-									<div className="space-y-6">
-										{featuredProjects.map((project, i) => (
-											<ScrollReveal
-												key={project._id}
-												phase={3}
-												delay={i * 0.05}
-											>
-												<div id={`project-${i + 1}`}>
-													<ProjectCardGallery
-														index={`0${i + 1}`}
-														title={project.title}
-														description={project.description}
-														href={project.url_path}
-														tags={project.tech ?? []}
-														images={project.coverImages}
-														isPrivate={!project.url && !project.github}
-													/>
-												</div>
-											</ScrollReveal>
-										))}
-									</div>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
 
 					{/* Selected Work — Unified Container */}
 					<SwissGridSection id="work" className="w-full">
