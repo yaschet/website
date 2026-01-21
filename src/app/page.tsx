@@ -116,9 +116,7 @@ export default function Home() {
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
 									<Reveal phase={2}>
 										<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
-											I build{" "}
-											<span className="text-accent-500">products</span> for
-											the web.
+											I build products for the web.
 										</h1>
 									</Reveal>
 									<Reveal phase={2} delay={0.05}>
