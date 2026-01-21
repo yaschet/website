@@ -134,20 +134,33 @@ function HeroContent() {
 						</Reveal>
 						<Reveal phase={2} delay={0.1}>
 							<div className="flex flex-wrap items-center gap-3">
-								<Button asChild size="lg" variant="solid" color="primary">
+								{/* Primary CTA - Always high contrast against atmosphere */}
+								<Button
+									asChild
+									size="lg"
+									variant="solid"
+									color="primary"
+									className={cn(
+										needsLightText
+											? "bg-surface-50 text-surface-950 hover:bg-surface-200"
+											: "bg-surface-950 text-surface-50 hover:bg-surface-800",
+									)}
+								>
 									<Link href="/projects">
 										Case Studies
 										<ArrowRightIcon className="size-4" weight="bold" />
 									</Link>
 								</Button>
+								{/* Secondary CTA - Outlined, adapts to atmosphere */}
 								<Button
 									asChild
 									size="lg"
 									variant="outlined"
 									color="default"
 									className={cn(
-										needsLightText &&
-											"border-surface-700 text-surface-100 hover:bg-surface-800",
+										needsLightText
+											? "border-surface-600 text-surface-100 hover:bg-surface-800/50"
+											: "border-surface-400 text-surface-900 hover:bg-surface-100/50",
 									)}
 								>
 									<Link href="/contact">Email</Link>

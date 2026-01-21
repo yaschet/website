@@ -30,10 +30,10 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { useReveal } from "@/src/components/providers/reveal-provider";
-import { springs } from "@/src/lib/index";
 import SunCalc from "suncalc";
 import { cn } from "@/lib/utils";
+import { useReveal } from "@/src/components/providers/reveal-provider";
+import { springs } from "@/src/lib/index";
 import { useSwissGrid } from "./swiss-grid-canvas";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -686,11 +686,7 @@ export function AtmosphereCanvas({ className, debugHour, children }: AtmosphereC
 				style={containerStyle}
 				aria-hidden="true"
 			>
-				<canvas
-					ref={canvasRef}
-					className="h-full w-full"
-					style={{ display: "block" }}
-				/>
+				<canvas ref={canvasRef} className="h-full w-full" style={{ display: "block" }} />
 			</motion.div>
 			{children}
 		</AtmosphereContext.Provider>
