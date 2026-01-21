@@ -51,10 +51,8 @@ const CORNER_DASH_SIZE = 17;
 const CORNER_THICKNESS = 3;
 
 /** Grid line opacity-based colors. */
-// const COLOR_LIGHT = "rgba(0, 0, 0, 0.12)";
-// const COLOR_DARK = "rgba(255, 255, 255, 0.12)";
-const COLOR_LIGHT = "rgba(0, 0, 0, 1)";
-const COLOR_DARK = "rgba(255, 255, 255, 1)";
+const COLOR_LIGHT = "rgba(0, 0, 0, 0.12)";
+const COLOR_DARK = "rgba(255, 255, 255, 0.12)";
 
 /** Corner reinforcement colors matching base text themes. */
 const CORNER_COLOR_LIGHT = "rgba(0, 0, 0, 1)";
@@ -282,11 +280,14 @@ export function SwissGridProvider({
 			const currentY = height * leadProgress;
 
 			// Get horizontal line Y positions for crosshair alignment
-			const horizontalYs = sections.map((s) => s.bottom);
+			// We now include the TOP of the first section to close the grid
+			const firstSectionTop = sections.length > 0 ? sections[0].top : 0;
+			const horizontalYs = [firstSectionTop, ...sections.map((s) => s.bottom)];
 
 			// PASS 1: Base Scaffold
 			if (progress > 0) {
 				ctx.globalAlpha = 0.06;
+				// Inner Container Rails
 				drawVerticalRail(
 					ctx,
 					containerLeft,
@@ -309,12 +310,41 @@ export function SwissGridProvider({
 					dashColor,
 					false,
 				);
-				for (const s of sections) {
+
+				// Viewport Rails (Far edges)
+				const viewportLeft = 1; // 1px offset to be visible
+				const viewportRight = width - 2; // 2px offset
+
+				drawVerticalRail(
+					ctx,
+					viewportLeft,
+					height,
+					cycle,
+					config.dashSize,
+					horizontalYs,
+					dashColor,
+					dashColor,
+					false, // Draw dots everywhere
+				);
+				drawVerticalRail(
+					ctx,
+					viewportRight,
+					height,
+					cycle,
+					config.dashSize,
+					horizontalYs,
+					dashColor,
+					dashColor,
+					false,
+				);
+
+				// Horizontal scaffold
+				const drawScaffoldLine = (y: number) => {
 					drawHorizontalLine(
 						ctx,
-						s.bottom,
-						0,
-						width,
+						y,
+						containerLeft,
+						containerRight,
 						cycle,
 						config.dashSize,
 						containerLeft,
@@ -323,12 +353,18 @@ export function SwissGridProvider({
 						dashColor,
 						false,
 					);
+				};
+
+				drawScaffoldLine(firstSectionTop);
+				for (const s of sections) {
+					drawScaffoldLine(s.bottom);
 				}
 				ctx.globalAlpha = 1;
 			}
 
 			// PASS 2: Vertical Rails
 			if (currentY > 0) {
+				// Inner rails
 				drawVerticalRail(
 					ctx,
 					containerLeft,
@@ -349,11 +385,42 @@ export function SwissGridProvider({
 					dashColor,
 					"transparent",
 				);
+
+				// Viewport rails (subtle)
+				ctx.globalAlpha = 0.3;
+				drawVerticalRail(
+					ctx,
+					1,
+					currentY,
+					cycle,
+					config.dashSize,
+					horizontalYs,
+					dashColor,
+					"transparent",
+				);
+				drawVerticalRail(
+					ctx,
+					width - 2,
+					currentY,
+					cycle,
+					config.dashSize,
+					horizontalYs,
+					dashColor,
+					"transparent",
+				);
+				ctx.globalAlpha = 1;
 			}
 
 			// PASS 3: Horizontal Lines & Corners
-			for (const section of sections) {
-				const lineY = section.bottom;
+			// We iterate through logical "lines" which includes the top one
+			const linesToDraw = [
+				{ y: firstSectionTop, isTop: true, sectionIndex: 0 },
+				...sections.map((s, i) => ({ y: s.bottom, isTop: false, sectionIndex: i })),
+			];
+
+			for (const line of linesToDraw) {
+				const lineY = line.y;
+				// Trigger based on Y position
 				const trigger = (lineY / height) * 0.7;
 
 				if (progress >= trigger) {
@@ -377,12 +444,17 @@ export function SwissGridProvider({
 						lineProgress = 1 + decay * 0.04 * oscillation; // 4% max overshoot
 					}
 
-					const currentX = width * lineProgress;
+					// Animate from center out or left to right?
+					// Standard swipe: Left to Right within container
+					const startX = containerLeft;
+					const targetWidth = containerRight - containerLeft;
+					const drawnWidth = targetWidth * lineProgress;
+					const currentX = startX + drawnWidth;
 
 					drawHorizontalLine(
 						ctx,
 						lineY,
-						0,
+						startX,
 						currentX,
 						cycle,
 						config.dashSize,
@@ -393,7 +465,29 @@ export function SwissGridProvider({
 					);
 
 					// PASS 4: Corner Stamps
-					const drawPhysicalStamp = (ix: number) => {
+					// Determine corner type based on position
+					// Top line = TL/TR
+					// Bottom line of last section = BL/BR
+					// Middle lines = CROSS
+
+					const isFirstLine = line.isTop;
+					const isLastLine = !line.isTop && line.sectionIndex === sections.length - 1;
+
+					let leftCornerType: "TL" | "BL" | "CROSS" | "T_LEFT" = "CROSS";
+					let rightCornerType: "TR" | "BR" | "CROSS" | "T_RIGHT" = "CROSS";
+
+					if (isFirstLine) {
+						leftCornerType = "TL";
+						rightCornerType = "TR";
+					} else if (isLastLine) {
+						leftCornerType = "BL";
+						rightCornerType = "BR";
+					}
+
+					const drawPhysicalStamp = (
+						ix: number,
+						type: "TL" | "TR" | "BL" | "BR" | "CROSS" | "T_LEFT" | "T_RIGHT",
+					) => {
 						const railX = Math.round(ix);
 						const ry = Math.round(lineY);
 
@@ -442,7 +536,7 @@ export function SwissGridProvider({
 							}
 
 							ctx.save();
-							const halfBar = CORNER_DASH_SIZE / 2;
+							const halfBar = Math.floor(CORNER_DASH_SIZE / 2); // Use floor for precise pixel calc
 							const halfThickness = Math.floor(CORNER_THICKNESS / 2);
 
 							if (shadowAlpha > 0) {
@@ -452,18 +546,16 @@ export function SwissGridProvider({
 								ctx.scale(stampScale, stampScale);
 								ctx.fillStyle = isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.2)";
 								ctx.globalAlpha = shadowAlpha;
-								ctx.fillRect(
-									-halfThickness,
-									-halfBar,
-									CORNER_THICKNESS,
-									CORNER_DASH_SIZE,
-								);
-								ctx.fillRect(
-									-halfBar,
-									-halfThickness,
-									CORNER_DASH_SIZE,
+
+								// SHADOW SHAPE
+								drawCornerShape(
+									ctx,
+									type,
+									halfThickness,
+									halfBar,
 									CORNER_THICKNESS,
 								);
+
 								ctx.restore();
 							}
 
@@ -473,32 +565,18 @@ export function SwissGridProvider({
 							ctx.scale(stampScale, stampScale);
 							ctx.fillStyle = cornerColor;
 							ctx.globalAlpha = 1.0;
-							ctx.fillRect(
-								-halfThickness,
-								-halfBar,
-								CORNER_THICKNESS,
-								CORNER_DASH_SIZE,
-							);
-							ctx.fillRect(
-								-halfBar,
-								-halfThickness,
-								CORNER_DASH_SIZE,
-								CORNER_THICKNESS,
-							);
+
+							// MAIN SHAPE
+							drawCornerShape(ctx, type, halfThickness, halfBar, CORNER_THICKNESS);
 
 							if (flashAlpha > 0.05) {
 								ctx.globalCompositeOperation = "lighter";
 								ctx.fillStyle = `rgba(255, 255, 255, ${flashAlpha * 0.5})`;
-								ctx.fillRect(
-									-halfThickness,
-									-halfBar,
-									CORNER_THICKNESS,
-									CORNER_DASH_SIZE,
-								);
-								ctx.fillRect(
-									-halfBar,
-									-halfThickness,
-									CORNER_DASH_SIZE,
+								drawCornerShape(
+									ctx,
+									type,
+									halfThickness,
+									halfBar,
 									CORNER_THICKNESS,
 								);
 							}
@@ -507,8 +585,8 @@ export function SwissGridProvider({
 						}
 					};
 
-					drawPhysicalStamp(containerLeft);
-					drawPhysicalStamp(containerRight);
+					drawPhysicalStamp(containerLeft, leftCornerType);
+					drawPhysicalStamp(containerRight, rightCornerType);
 				}
 			}
 			ctx.restore();
@@ -664,10 +742,7 @@ export function SwissGridProvider({
 			/>
 
 			{/* Canvas - procedurally animated via draw() */}
-			<canvas
-				ref={canvasRef}
-				className="pointer-events-none absolute inset-0 z-[5] opacity-[11%]"
-			/>
+			<canvas ref={canvasRef} className="pointer-events-none absolute inset-0 z-[5]" />
 
 			{children}
 		</SwissGridProviderInternal>
@@ -677,6 +752,52 @@ export function SwissGridProvider({
 // ═══════════════════════════════════════════════════════════════════════════
 // DRAWING UTILITIES
 // ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Helper to draw specific corner shapes
+ */
+function drawCornerShape(
+	ctx: CanvasRenderingContext2D,
+	type: string,
+	halfThickness: number,
+	halfBar: number,
+	thickness: number,
+) {
+	// Draw Horizontal Parts
+	// CROSS: Left + Right
+	// TL: Right only (Starts at wall)
+	// TR: Left only (Ends at wall)
+	// BL: Right only
+	// BR: Left only
+
+	if (type === "CROSS" || type === "TL" || type === "BL" || type === "T_LEFT") {
+		// Draw Right horizontal arm (from center to right)
+		ctx.fillRect(0, -halfThickness, halfBar, thickness);
+	}
+	if (type === "CROSS" || type === "TR" || type === "BR" || type === "T_RIGHT") {
+		// Draw Left horizontal arm (from left to center)
+		ctx.fillRect(-halfBar, -halfThickness, halfBar, thickness);
+	}
+
+	// Draw Vertical Parts
+	// CROSS: Top + Bottom
+	// TL: Bottom only (Starts at ceiling)
+	// TR: Bottom only
+	// BL: Top only (Ends at floor)
+	// BR: Top only
+
+	if (type === "CROSS" || type === "TL" || type === "TR" || type === "T_DOWN") {
+		// Draw Bottom vertical arm (from center to bottom)
+		ctx.fillRect(-halfThickness, 0, thickness, halfBar);
+	}
+	if (type === "CROSS" || type === "BL" || type === "BR" || type === "T_UP") {
+		// Draw Top vertical arm (from top to center)
+		ctx.fillRect(-halfThickness, -halfBar, thickness, halfBar);
+	}
+
+	// Fill intersection center (to avoid gaps)
+	ctx.fillRect(-halfThickness, -halfThickness, thickness, thickness);
+}
 
 /**
  * Draw a vertical dashed rail with crosshair alignment
