@@ -1,25 +1,26 @@
 /**
- * Atmospheric background for headline content.
+ * Hero Spotlight.
  *
  * @remarks
- * GPU-accelerated ambient gradient using CSS transforms only.
- * Zero canvas, zero blend modes, zero runtime calculations.
+ * Focused glow behind headline content. Single intent, visible presence.
  *
- * Performance: 240fps target via GPU compositing.
- * - Uses `will-change: transform, opacity` for layer promotion
+ * Design: Centered elliptical spotlight, positioned to illuminate the headline.
+ * - Dark mode: Cool surface glow (surface-600)
+ * - Light mode: Warm accent wash (accent-200)
+ *
+ * Performance: 240fps via GPU compositing.
+ * - transform + opacity only
  * - CSS blur filter (GPU-accelerated)
- * - Static SVG noise texture (no JS generation)
- * - Design system color tokens
+ * - No canvas, no blend modes, no runtime calculations
  *
  * Animation: Physics-based theatrical reveal.
- * - Gradient LEADS content by 50ms (depth hierarchy)
- * - Vertical drift (y: 24 → 0) creates weight/gravity
- * - Scale expansion (0.92 → 1) creates emergence
- * - Custom "reveal" spring: tighter than ambient, heavier than responsive
+ * - Spotlight LEADS content by 50ms (depth hierarchy)
+ * - Vertical drift (y → 0) creates rising emergence
+ * - Scale expansion (0.85 → 1) creates focal bloom
  *
  * @example
  * ```tsx
- * <HeroGradient className="h-screen" />
+ * <HeroGradient className="h-96" />
  * ```
  *
  * @public
@@ -30,21 +31,17 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { distances, stagger } from "@/src/lib/index";
+import { distances } from "@/src/lib/index";
 import { useReveal } from "../providers/reveal-provider";
 
 interface HeroGradientProps {
-	/** Optional additional class names for positioning or container overrides. */
 	className?: string;
 }
 
 /**
  * Theatrical reveal spring.
- * Heavier than responsive (mass 0.5), tighter than ambient (stiffness 120).
- * Creates a "rising curtain" feel — deliberate but not sluggish.
- *
- * Critical damping ≈ 2 * sqrt(260 * 0.7) ≈ 27
- * Slightly under-damped for subtle organic overshoot.
+ * Mass 0.7, stiffness 260, damping 24.
+ * Slightly under-damped for organic overshoot.
  */
 const revealSpring = {
 	type: "spring" as const,
@@ -52,32 +49,6 @@ const revealSpring = {
 	stiffness: 260,
 	damping: 24,
 };
-
-/**
- * SVG noise filter for film grain texture.
- * Static, GPU-composited, zero runtime cost.
- */
-function NoiseFilter() {
-	return (
-		<svg className="absolute h-0 w-0" aria-hidden="true">
-			<defs>
-				<filter id="hero-noise" x="0%" y="0%" width="100%" height="100%">
-					<feTurbulence
-						type="fractalNoise"
-						baseFrequency="0.8"
-						numOctaves="4"
-						stitchTiles="stitch"
-						result="noise"
-					/>
-					<feColorMatrix type="saturate" values="0" in="noise" result="mono" />
-					<feComponentTransfer in="mono" result="final">
-						<feFuncA type="linear" slope="0.03" />
-					</feComponentTransfer>
-				</filter>
-			</defs>
-		</svg>
-	);
-}
 
 export function HeroGradient({ className = "" }: HeroGradientProps) {
 	const { resolvedTheme } = useTheme();
@@ -96,158 +67,70 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 		return null;
 	}
 
-	// Gradient LEADS content — creates depth hierarchy
-	// Content delays are 0, 0.05, 0.1 in page.tsx
-	// Gradient starts 50ms earlier
-	const leadOffset = -0.05;
+	// Spotlight LEADS content — creates depth hierarchy
+	const leadOffset = 0;
 
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
 			animate={isEnabled ? { opacity: 1 } : { opacity: 0 }}
 			transition={
-				prefersReducedMotion
-					? { duration: 0 }
-					: { ...revealSpring, delay: Math.max(0, leadOffset) }
+				prefersReducedMotion ? { duration: 0 } : { ...revealSpring, delay: leadOffset }
 			}
 			className={`pointer-events-none overflow-hidden ${className}`}
 			aria-hidden="true"
 			style={{
 				willChange: "opacity",
-				maskImage:
-					"linear-gradient(to bottom, transparent 0%, black 10%, black 30%, transparent 100%)",
-				WebkitMaskImage:
-					"linear-gradient(to bottom, transparent 0%, black 10%, black 30%, transparent 100%)",
 			}}
 		>
-			{/* SVG Filter Definition */}
-			<NoiseFilter />
-
-			{/* ATMOSPHERIC LAYERS — GPU-accelerated CSS gradients */}
-			<div className="absolute inset-0">
-				{/* Primary atmosphere — uses design system surface color */}
-				<div
-					className="absolute"
-					style={{
-						width: "100%",
-						height: "70%",
-						left: "50%",
-						top: "-5%",
-						transform: "translateX(-50%)",
-					}}
-				>
-					<motion.div
-						initial={{
-							opacity: 0,
-							scale: 0.92,
-							y: prefersReducedMotion ? 0 : distances.small,
-						}}
-						animate={
-							isEnabled
-								? { opacity: 1, scale: 1, y: 0 }
-								: {
-										opacity: 0,
-										scale: 0.92,
-										y: prefersReducedMotion ? 0 : distances.small,
-									}
-						}
-						transition={
-							prefersReducedMotion
-								? { duration: 0 }
-								: {
-										opacity: {
-											...revealSpring,
-											delay: stagger.phi(0) + leadOffset,
-										},
-										scale: {
-											...revealSpring,
-											delay: stagger.phi(0) + leadOffset,
-										},
-										y: { ...revealSpring, delay: stagger.phi(0) + leadOffset },
-									}
-						}
-						className="h-full w-full rounded-full"
-						style={{
-							willChange: "transform, opacity",
-							background: isDark
-								? "radial-gradient(ellipse at center, var(--surface-700) 0%, transparent 70%)"
-								: "radial-gradient(ellipse at center, var(--surface-200) 0%, transparent 70%)",
-							opacity: isDark ? 0.4 : 0.5,
-							filter: "blur(80px)",
-						}}
-					/>
-				</div>
-
-				{/* Secondary — subtle accent hint, asymmetric */}
-				<div
-					className="absolute"
-					style={{
-						width: "60%",
-						height: "45%",
-						left: "55%",
-						top: "5%",
-						transform: "translateX(-50%)",
-					}}
-				>
-					<motion.div
-						initial={{
-							opacity: 0,
-							scale: 0.88,
-							y: prefersReducedMotion ? 0 : distances.small * 1.2,
-						}}
-						animate={
-							isEnabled
-								? { opacity: 1, scale: 1, y: 0 }
-								: {
-										opacity: 0,
-										scale: 0.88,
-										y: prefersReducedMotion ? 0 : distances.small * 1.2,
-									}
-						}
-						transition={
-							prefersReducedMotion
-								? { duration: 0 }
-								: {
-										opacity: {
-											...revealSpring,
-											delay: stagger.phi(1) + leadOffset,
-										},
-										scale: {
-											...revealSpring,
-											delay: stagger.phi(1) + leadOffset,
-										},
-										y: { ...revealSpring, delay: stagger.phi(1) + leadOffset },
-									}
-						}
-						className="h-full w-full rounded-full"
-						style={{
-							willChange: "transform, opacity",
-							background: isDark
-								? "radial-gradient(ellipse at center, var(--accent-800) 0%, transparent 65%)"
-								: "radial-gradient(ellipse at center, var(--accent-200) 0%, transparent 65%)",
-							opacity: isDark ? 0.15 : 0.2,
-							filter: "blur(60px)",
-						}}
-					/>
-				</div>
-			</div>
-
-			{/* NOISE TEXTURE — Static SVG filter, GPU-composited */}
-			<motion.div
-				initial={{ opacity: 0 }}
-				animate={isEnabled ? { opacity: 1 } : { opacity: 0 }}
-				transition={
-					prefersReducedMotion
-						? { duration: 0 }
-						: { ...revealSpring, delay: stagger.phi(2) + leadOffset }
-				}
-				className="absolute inset-0"
+			{/* SPOTLIGHT — Single focused glow */}
+			<div
+				className="absolute"
 				style={{
-					willChange: "opacity",
-					filter: "url(#hero-noise)",
-					opacity: isDark ? 0.5 : 0.35,
+					// Positioned to illuminate headline area
+					width: "80%",
+					height: "100%",
+					left: "50%",
+					top: "10%",
+					transform: "translateX(-50%)",
 				}}
-			/>
+			>
+				<motion.div
+					initial={{
+						opacity: 0,
+						scale: 0.85,
+						y: prefersReducedMotion ? 0 : distances.medium,
+					}}
+					animate={
+						isEnabled
+							? { opacity: 1, scale: 1, y: 0 }
+							: {
+									opacity: 0,
+									scale: 0.85,
+									y: prefersReducedMotion ? 0 : distances.medium,
+								}
+					}
+					transition={
+						prefersReducedMotion
+							? { duration: 0 }
+							: {
+									opacity: { ...revealSpring, delay: leadOffset },
+									scale: { ...revealSpring, delay: leadOffset },
+									y: { ...revealSpring, delay: leadOffset },
+								}
+					}
+					className="h-full w-full"
+					style={{
+						willChange: "transform, opacity",
+						// Tight ellipse, visible presence
+						background: isDark
+							? "radial-gradient(ellipse 70% 50% at 50% 30%, var(--surface-600) 0%, transparent 100%)"
+							: "radial-gradient(ellipse 70% 50% at 50% 30%, var(--accent-100) 0%, transparent 100%)",
+						opacity: isDark ? 0.7 : 0.8,
+						filter: "blur(40px)",
+					}}
+				/>
+			</div>
 		</motion.div>
 	);
 }
