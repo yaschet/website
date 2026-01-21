@@ -236,15 +236,15 @@ function getSkyPalette(normalizedTime: number, isDark: boolean): SkyPalette {
 
 	// Light theme with dramatic time changes
 	if (isNight) {
-		// Night mode in light theme - deep twilight blue
-		const nightIntensity = nightFactor;
+		// Night mode in light theme - Cool, minimal silver/blue (High Key Night)
+		// We avoid dark colors here to ensure text contrast remains high in light mode
 		return {
-			skyGradientTop: `hsl(222, 35%, ${12 + (1 - nightIntensity) * 15}%)`,
-			skyGradientBottom: `hsl(228, 30%, ${18 + (1 - nightIntensity) * 20}%)`,
-			cloudColor: `hsl(220, 12%, ${30 + (1 - nightIntensity) * 15}%)`,
-			cloudOpacity: 0.15 + (1 - nightIntensity) * 0.2,
-			isNight: true,
-			starOpacity: nightIntensity * 0.6,
+			skyGradientTop: `hsl(215, 15%, 90%)`,
+			skyGradientBottom: `hsl(215, 10%, 95%)`,
+			cloudColor: `hsl(210, 5%, 99%)`,
+			cloudOpacity: 0.4,
+			isNight: false, // No stars in light mode for cleaner look
+			starOpacity: 0,
 		};
 	}
 
@@ -585,6 +585,20 @@ export function AtmosphereCanvas({ className, debugHour }: AtmosphereCanvasProps
 
 			// Reset filter
 			ctx.filter = "none";
+
+			// Bottom fade overlay - blends atmosphere to surface color
+			// This creates the seamless transition for text contrast
+			const fadeHeight = height * 0.5; // Bottom 50% fades out
+			const fadeGradient = ctx.createLinearGradient(0, height - fadeHeight, 0, height);
+			const surfaceColor = isDark ? "rgb(8, 8, 10)" : "rgb(250, 250, 250)";
+			fadeGradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+			fadeGradient.addColorStop(
+				0.6,
+				isDark ? "rgba(8, 8, 10, 0.7)" : "rgba(250, 250, 250, 0.7)",
+			);
+			fadeGradient.addColorStop(1, surfaceColor);
+			ctx.fillStyle = fadeGradient;
+			ctx.fillRect(0, height - fadeHeight, width, fadeHeight);
 
 			animationRef.current = requestAnimationFrame(render);
 		},

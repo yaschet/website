@@ -50,11 +50,6 @@ export default function Home() {
 					<SwissGridSection id="hero" className="relative w-full">
 						{/* Sky Atmosphere — Contained to hero section only */}
 						<AtmosphereCanvas className="pointer-events-none absolute inset-0 z-[1]" />
-						{/* Gradient fade - transitions atmosphere to surface for text contrast */}
-						<div
-							className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-b from-transparent via-transparent to-surface-50 dark:to-surface-950"
-							aria-hidden="true"
-						/>
 						{/* Profile Row */}
 						<Reveal phase={1} className="relative z-10 w-full">
 							<header className="w-full">

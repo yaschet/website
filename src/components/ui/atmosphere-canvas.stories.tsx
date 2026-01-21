@@ -9,11 +9,12 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import Image from "next/image";
 import Link from "next/link";
 import avatarImage from "@/public/images/avatar.jpeg";
+import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
+import { AtmosphereCanvas } from "@/src/components/ui/atmosphere-canvas";
 import { Button } from "@/src/components/ui/button";
-import { Reveal } from "@/src/components/ui/reveal";
+import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
-import { AtmosphereCanvas } from "./atmosphere-canvas";
 
 /**
  * Atmosphere Canvas — Integrated Hero Section
@@ -37,20 +38,19 @@ const meta: Meta<typeof AtmosphereCanvas> = {
 
 const HeroSectionPreview = ({ debugHour }: { debugHour?: number }) => (
 	<SwissGridProvider>
-		<div className="flex min-h-[640px] flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
+				{/* Nav Row */}
 				<SiteHeader />
+
+				{/* Hero — Unified section (profile + headline) */}
 				<SwissGridSection id="hero" className="relative w-full">
+					{/* Sky Atmosphere — Contained to hero section only */}
 					<AtmosphereCanvas
-						className="pointer-events-none absolute inset-0 z-[1]"
+						className="pointer-events-none absolute inset-0 z-1 -left-1"
 						debugHour={debugHour}
 					/>
-					{/* Gradient fade - transitions atmosphere to surface for text contrast */}
-					<div
-						className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-b from-transparent via-transparent to-surface-50 dark:to-surface-950"
-						aria-hidden="true"
-					/>
-
+					{/* Profile Row */}
 					<Reveal phase={1} className="relative z-10 w-full">
 						<header className="w-full">
 							<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
@@ -108,6 +108,7 @@ const HeroSectionPreview = ({ debugHour }: { debugHour?: number }) => (
 						</header>
 					</Reveal>
 
+					{/* Headline Content */}
 					<Reveal phase={2} className="relative z-10 w-full">
 						<section className="w-full">
 							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
@@ -145,7 +146,42 @@ const HeroSectionPreview = ({ debugHour }: { debugHour?: number }) => (
 						</section>
 					</Reveal>
 				</SwissGridSection>
+
+				{/* CTA */}
+				<SwissGridSection id="cta" className="w-full">
+					<ScrollReveal phase={3} className="w-full">
+						<section className="w-full">
+							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+								<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+									<div>
+										<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+											View selected work.
+										</h2>
+									</div>
+									<div className="flex items-center gap-3">
+										<Button
+											asChild
+											size="lg"
+											variant="outlined"
+											color="default"
+										>
+											<Link href="/contact">Email</Link>
+										</Button>
+										<Button asChild size="lg" variant="solid" color="primary">
+											<Link href="/projects">
+												Case Studies
+												<ArrowRightIcon className="size-4" weight="bold" />
+											</Link>
+										</Button>
+									</div>
+								</div>
+							</div>
+						</section>
+					</ScrollReveal>
+				</SwissGridSection>
 			</main>
+			<SiteFooter />
+			<SwissGridSection id="nav-spacer" className="h-29.5 w-full" />
 		</div>
 	</SwissGridProvider>
 );
