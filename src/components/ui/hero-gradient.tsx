@@ -11,6 +11,12 @@
  * - Static SVG noise texture (no JS generation)
  * - Design system color tokens
  *
+ * Animation: Physics-based theatrical reveal.
+ * - Gradient LEADS content by 50ms (depth hierarchy)
+ * - Vertical drift (y: 24 → 0) creates weight/gravity
+ * - Scale expansion (0.92 → 1) creates emergence
+ * - Custom "reveal" spring: tighter than ambient, heavier than responsive
+ *
  * @example
  * ```tsx
  * <HeroGradient className="h-screen" />
@@ -24,13 +30,28 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { springs, stagger } from "@/src/lib/index";
+import { distances, stagger } from "@/src/lib/index";
 import { useReveal } from "../providers/reveal-provider";
 
 interface HeroGradientProps {
 	/** Optional additional class names for positioning or container overrides. */
 	className?: string;
 }
+
+/**
+ * Theatrical reveal spring.
+ * Heavier than responsive (mass 0.5), tighter than ambient (stiffness 120).
+ * Creates a "rising curtain" feel — deliberate but not sluggish.
+ *
+ * Critical damping ≈ 2 * sqrt(260 * 0.7) ≈ 27
+ * Slightly under-damped for subtle organic overshoot.
+ */
+const revealSpring = {
+	type: "spring" as const,
+	mass: 0.7,
+	stiffness: 260,
+	damping: 24,
+};
 
 /**
  * SVG noise filter for film grain texture.
@@ -75,11 +96,20 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 		return null;
 	}
 
+	// Gradient LEADS content — creates depth hierarchy
+	// Content delays are 0, 0.05, 0.1 in page.tsx
+	// Gradient starts 50ms earlier
+	const leadOffset = -0.05;
+
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
 			animate={isEnabled ? { opacity: 1 } : { opacity: 0 }}
-			transition={prefersReducedMotion ? { duration: 0 } : springs.ambient}
+			transition={
+				prefersReducedMotion
+					? { duration: 0 }
+					: { ...revealSpring, delay: Math.max(0, leadOffset) }
+			}
 			className={`pointer-events-none overflow-hidden ${className}`}
 			aria-hidden="true"
 			style={{
@@ -95,7 +125,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 
 			{/* ATMOSPHERIC LAYERS — GPU-accelerated CSS gradients */}
 			<div className="absolute inset-0">
-				{/* Primary atmosphere — uses design system accent color */}
+				{/* Primary atmosphere — uses design system surface color */}
 				<div
 					className="absolute"
 					style={{
@@ -107,20 +137,38 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 					}}
 				>
 					<motion.div
-						initial={{ opacity: 0, scale: 0.85 }}
-						animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.85 }}
+						initial={{
+							opacity: 0,
+							scale: 0.92,
+							y: prefersReducedMotion ? 0 : distances.small,
+						}}
+						animate={
+							isEnabled
+								? { opacity: 1, scale: 1, y: 0 }
+								: {
+										opacity: 0,
+										scale: 0.92,
+										y: prefersReducedMotion ? 0 : distances.small,
+									}
+						}
 						transition={
 							prefersReducedMotion
 								? { duration: 0 }
 								: {
-										opacity: { ...springs.ambient, delay: stagger.phi(0) },
-										scale: { ...springs.ambient, delay: stagger.phi(0) },
+										opacity: {
+											...revealSpring,
+											delay: stagger.phi(0) + leadOffset,
+										},
+										scale: {
+											...revealSpring,
+											delay: stagger.phi(0) + leadOffset,
+										},
+										y: { ...revealSpring, delay: stagger.phi(0) + leadOffset },
 									}
 						}
 						className="h-full w-full rounded-full"
 						style={{
 							willChange: "transform, opacity",
-							// Using surface token — near-neutral, not distracting
 							background: isDark
 								? "radial-gradient(ellipse at center, var(--surface-700) 0%, transparent 70%)"
 								: "radial-gradient(ellipse at center, var(--surface-200) 0%, transparent 70%)",
@@ -142,20 +190,38 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 					}}
 				>
 					<motion.div
-						initial={{ opacity: 0, scale: 0.8 }}
-						animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+						initial={{
+							opacity: 0,
+							scale: 0.88,
+							y: prefersReducedMotion ? 0 : distances.small * 1.2,
+						}}
+						animate={
+							isEnabled
+								? { opacity: 1, scale: 1, y: 0 }
+								: {
+										opacity: 0,
+										scale: 0.88,
+										y: prefersReducedMotion ? 0 : distances.small * 1.2,
+									}
+						}
 						transition={
 							prefersReducedMotion
 								? { duration: 0 }
 								: {
-										opacity: { ...springs.ambient, delay: stagger.phi(1) },
-										scale: { ...springs.ambient, delay: stagger.phi(1) },
+										opacity: {
+											...revealSpring,
+											delay: stagger.phi(1) + leadOffset,
+										},
+										scale: {
+											...revealSpring,
+											delay: stagger.phi(1) + leadOffset,
+										},
+										y: { ...revealSpring, delay: stagger.phi(1) + leadOffset },
 									}
 						}
 						className="h-full w-full rounded-full"
 						style={{
 							willChange: "transform, opacity",
-							// Accent token — burgundy/merlot from design system
 							background: isDark
 								? "radial-gradient(ellipse at center, var(--accent-800) 0%, transparent 65%)"
 								: "radial-gradient(ellipse at center, var(--accent-200) 0%, transparent 65%)",
@@ -173,7 +239,7 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 				transition={
 					prefersReducedMotion
 						? { duration: 0 }
-						: { ...springs.ambient, delay: stagger.phi(2) }
+						: { ...revealSpring, delay: stagger.phi(2) + leadOffset }
 				}
 				className="absolute inset-0"
 				style={{
