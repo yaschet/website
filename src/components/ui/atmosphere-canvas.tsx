@@ -5,14 +5,15 @@
  *
  * @module atmosphere-canvas
  * @description
- * Aesthetic sky background with soft, organic cloud formations.
- * Uses radial gradients and canvas blur for natural softness.
+ * Aesthetic sky background with layered cloud formations.
+ * Multi-layer rendering with varying blur levels for depth.
+ * Distinct day/night atmosphere with smooth transitions.
  *
  * Visual approach:
- * - Soft gradient-based cloud puffs
- * - Canvas filter blur for organic edges
- * - Time-of-day color adaptation
- * - Theme-aware rendering
+ * - Layered cloud system (background, mid, foreground)
+ * - Progressive blur for atmospheric depth
+ * - Dramatic day/night differentiation
+ * - Golden hour warm tones
  */
 
 import { useTheme } from "next-themes";
@@ -34,7 +35,14 @@ const TARGET_FPS = 30;
 const FRAME_DURATION = 1000 / TARGET_FPS;
 
 /** Cloud movement speed (pixels per second) */
-const DRIFT_SPEED = 12;
+const DRIFT_SPEED = 8;
+
+/** Cloud layer configuration */
+const CLOUD_LAYERS = [
+	{ blur: 80, opacity: 0.3, speed: 0.3, scale: 1.8 }, // Far background - very soft
+	{ blur: 50, opacity: 0.4, speed: 0.5, scale: 1.2 }, // Mid layer
+	{ blur: 30, opacity: 0.5, speed: 0.8, scale: 0.9 }, // Near foreground
+] as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SIMPLEX NOISE - Clean implementation
@@ -173,48 +181,96 @@ interface SkyPalette {
 	skyGradientBottom: string;
 	cloudColor: string;
 	cloudOpacity: number;
+	isNight: boolean;
+	starOpacity: number;
 }
 
 /**
- * Returns sky colors based on time and theme.
- * Light mode: Soft, warm tones. Dark mode: Deep, cool tones.
+ * Returns sky colors based on normalized time position (0-1).
+ *
+ * Time mapping:
+ * - 0.00-0.20: Deep night (dark sky, stars visible)
+ * - 0.20-0.30: Dawn transition (warming up)
+ * - 0.30-0.70: Daytime (bright, blue sky)
+ * - 0.70-0.80: Dusk transition (golden hour)
+ * - 0.80-1.00: Night (dark sky, stars visible)
+ *
+ * @param normalizedTime - 0 = midnight, 0.5 = noon, 1 = midnight
+ * @param isDark - Theme setting
+ * @returns Color palette for current time
  */
 function getSkyPalette(normalizedTime: number, isDark: boolean): SkyPalette {
+	// Calculate time-of-day factors
+	const isNight = normalizedTime < 0.22 || normalizedTime > 0.78;
+	const isDawn = normalizedTime >= 0.22 && normalizedTime <= 0.32;
+	const isDusk = normalizedTime >= 0.68 && normalizedTime <= 0.78;
+	const isGoldenHour = isDawn || isDusk;
+
+	// Night factor: 1 at midnight, 0 at noon
+	const nightFactor = Math.max(
+		0,
+		normalizedTime < 0.25
+			? 1 - normalizedTime * 4
+			: normalizedTime > 0.75
+				? (normalizedTime - 0.75) * 4
+				: 0,
+	);
+
+	// Dawn/dusk warmth factor
+	const dawnWarmth = isDawn ? 1 - Math.abs(normalizedTime - 0.27) * 20 : 0;
+	const duskWarmth = isDusk ? 1 - Math.abs(normalizedTime - 0.73) * 20 : 0;
+	const warmth = Math.max(dawnWarmth, duskWarmth);
+
 	if (isDark) {
-		// Dark mode: Deep navy with subtle time variation
-		const nightDepth = 0.5 + Math.sin(normalizedTime * Math.PI) * 0.15;
+		// Dark theme: Always deep, subtle variation with time
+		const depthVariation = 0.3 + Math.sin(normalizedTime * Math.PI) * 0.2;
 		return {
-			skyGradientTop: `hsl(230, 25%, ${8 + nightDepth * 4}%)`,
-			skyGradientBottom: `hsl(230, 20%, ${12 + nightDepth * 6}%)`,
-			cloudColor: `hsl(230, 15%, ${20 + nightDepth * 10}%)`,
-			cloudOpacity: 0.3 + nightDepth * 0.15,
+			skyGradientTop: `hsl(228, 28%, ${6 + depthVariation * 3}%)`,
+			skyGradientBottom: `hsl(228, 22%, ${10 + depthVariation * 4}%)`,
+			cloudColor: `hsl(225, 15%, ${18 + depthVariation * 8}%)`,
+			cloudOpacity: 0.25 + depthVariation * 0.15,
+			isNight: true,
+			starOpacity: 0.4,
 		};
 	}
 
-	// Light mode: Time-reactive sky
-	// 0.0-0.25: Night to Dawn (cool to warm)
-	// 0.25-0.5: Dawn to Noon (warm to neutral)
-	// 0.5-0.75: Noon to Dusk (neutral to warm)
-	// 0.75-1.0: Dusk to Night (warm to cool)
+	// Light theme with dramatic time changes
+	if (isNight) {
+		// Night mode in light theme - deep twilight blue
+		const nightIntensity = nightFactor;
+		return {
+			skyGradientTop: `hsl(222, 35%, ${12 + (1 - nightIntensity) * 15}%)`,
+			skyGradientBottom: `hsl(228, 30%, ${18 + (1 - nightIntensity) * 20}%)`,
+			cloudColor: `hsl(220, 12%, ${30 + (1 - nightIntensity) * 15}%)`,
+			cloudOpacity: 0.15 + (1 - nightIntensity) * 0.2,
+			isNight: true,
+			starOpacity: nightIntensity * 0.6,
+		};
+	}
 
-	const dawnFactor = Math.max(0, 1 - Math.abs(normalizedTime - 0.25) * 5);
-	const duskFactor = Math.max(0, 1 - Math.abs(normalizedTime - 0.75) * 5);
-	const goldenFactor = Math.max(dawnFactor, duskFactor);
+	if (isGoldenHour) {
+		// Golden hour - warm pink/orange tones
+		const hue = isDawn ? 25 + warmth * 15 : 35 - warmth * 10;
+		const sat = 25 + warmth * 35;
+		return {
+			skyGradientTop: `hsl(${hue}, ${sat}%, ${88 - warmth * 8}%)`,
+			skyGradientBottom: `hsl(${hue + 10}, ${sat * 0.8}%, ${94 - warmth * 4}%)`,
+			cloudColor: `hsl(${hue - 5}, ${sat * 0.5}%, 98%)`,
+			cloudOpacity: 0.6 + warmth * 0.25,
+			isNight: false,
+			starOpacity: 0,
+		};
+	}
 
-	// Hue: 220 (blue) -> 35 (warm) during golden hour
-	const hue = 220 - goldenFactor * 185;
-	// Saturation increases during golden hour
-	const sat = 8 + goldenFactor * 20;
-	// Lightness: bright during day
-	const daylight = Math.sin(normalizedTime * Math.PI);
-	const lightTop = 92 - (1 - daylight) * 15;
-	const lightBottom = 96 - (1 - daylight) * 10;
-
+	// Daytime - bright, calm sky
+	const dayProgress = Math.sin((normalizedTime - 0.3) * Math.PI * 2.5);
 	return {
-		skyGradientTop: `hsl(${hue}, ${sat}%, ${lightTop}%)`,
-		skyGradientBottom: `hsl(${hue}, ${sat * 0.7}%, ${lightBottom}%)`,
-		cloudColor: `hsl(${hue}, ${sat * 0.3}%, 99%)`,
-		cloudOpacity: 0.7 + goldenFactor * 0.2,
+		skyGradientTop: `hsl(210, ${8 + dayProgress * 4}%, ${92 - dayProgress * 2}%)`,
+		skyGradientBottom: `hsl(210, ${6 + dayProgress * 3}%, ${96 - dayProgress}%)`,
+		cloudColor: `hsl(210, 5%, 99%)`,
+		cloudOpacity: 0.55 + dayProgress * 0.15,
+		isNight: false,
+		starOpacity: 0,
 	};
 }
 
@@ -282,10 +338,13 @@ interface CloudPuff {
 	opacity: number; // 0-1
 	speed: number; // Drift speed multiplier
 	seed: number; // For variation
+	layer: number; // 0=back, 1=mid, 2=front
+	stretch: number; // Horizontal stretch factor for organic shapes
 }
 
 /**
- * Generates a set of cloud puffs that form natural-looking cloud formations.
+ * Generates layered cloud puffs with organic shapes.
+ * Creates formations that look like real cumulus clouds.
  */
 function generateCloudPuffs(count: number, seed: number): CloudPuff[] {
 	const puffs: CloudPuff[] = [];
@@ -296,33 +355,44 @@ function generateCloudPuffs(count: number, seed: number): CloudPuff[] {
 		return s / 2147483647;
 	};
 
-	// Create cloud clusters
-	const clusterCount = Math.floor(count / 8);
+	// Create cloud formations for each layer
+	for (let layer = 0; layer < CLOUD_LAYERS.length; layer++) {
+		const layerConfig = CLOUD_LAYERS[layer];
+		const formationsPerLayer = Math.floor(count / (CLOUD_LAYERS.length * 6));
 
-	for (let c = 0; c < clusterCount; c++) {
-		// Cluster center - positioned in upper portion (10-40% from top)
-		const clusterX = rand();
-		const clusterY = 0.1 + rand() * 0.3;
-		const clusterSize = 0.15 + rand() * 0.2;
+		for (let f = 0; f < formationsPerLayer; f++) {
+			// Formation center - upper portion of screen
+			const formationX = rand() * 1.2 - 0.1; // Allow slight overflow
+			const formationY = 0.05 + rand() * 0.35; // 5-40% from top
+			const formationWidth = 0.12 + rand() * 0.18;
+			const formationHeight = formationWidth * (0.3 + rand() * 0.3); // Flatter
 
-		// Puffs within cluster
-		const puffsInCluster = 5 + Math.floor(rand() * 8);
-		for (let i = 0; i < puffsInCluster; i++) {
-			const angle = rand() * Math.PI * 2;
-			const dist = rand() * clusterSize;
+			// Multiple puffs per formation for organic look
+			const puffsInFormation = 4 + Math.floor(rand() * 6);
 
-			puffs.push({
-				x: clusterX + Math.cos(angle) * dist,
-				y: clusterY + Math.sin(angle) * dist * 0.5, // Flatter horizontally
-				radius: 0.08 + rand() * 0.15,
-				opacity: 0.3 + rand() * 0.5,
-				speed: 0.5 + rand() * 0.5,
-				seed: rand() * 1000,
-			});
+			for (let i = 0; i < puffsInFormation; i++) {
+				// Distribute puffs within formation with bias toward center
+				const angle = rand() * Math.PI * 2;
+				const distNorm = rand() * rand(); // Bias toward center
+				const distX = Math.cos(angle) * distNorm * formationWidth;
+				const distY = Math.sin(angle) * distNorm * formationHeight;
+
+				puffs.push({
+					x: formationX + distX,
+					y: formationY + distY,
+					radius: (0.06 + rand() * 0.12) * layerConfig.scale,
+					opacity: (0.4 + rand() * 0.4) * layerConfig.opacity,
+					speed: (0.4 + rand() * 0.6) * layerConfig.speed,
+					seed: rand() * 1000,
+					layer,
+					stretch: 1.2 + rand() * 0.8, // 1.2-2.0 horizontal stretch
+				});
+			}
 		}
 	}
 
-	return puffs;
+	// Sort by layer for proper rendering order
+	return puffs.sort((a, b) => a.layer - b.layer);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -430,16 +500,48 @@ export function AtmosphereCanvas({ className, debugHour }: AtmosphereCanvasProps
 			ctx.fillStyle = skyGradient;
 			ctx.fillRect(0, 0, width, height);
 
-			// Enable blur for soft clouds
-			ctx.filter = "blur(40px)";
+			// Draw stars if night
+			if (palette.starOpacity > 0) {
+				ctx.filter = "none";
+				const starSeed = 12345;
+				let ss = starSeed;
+				const starRand = () => {
+					ss = ((ss * 16807) % 2147483647) >>> 0;
+					return ss / 2147483647;
+				};
 
-			// Draw cloud puffs
+				const starCount = 40;
+				for (let i = 0; i < starCount; i++) {
+					const sx = starRand() * width;
+					const sy = starRand() * height * 0.6; // Only in upper 60%
+					const size = 1 + starRand() * 1.5;
+					// Twinkling effect
+					const twinkle =
+						0.5 + Math.sin(timeRef.current * (1 + starRand() * 2) + i) * 0.5;
+					const alpha = palette.starOpacity * twinkle * (0.4 + starRand() * 0.6);
+
+					ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+					ctx.beginPath();
+					ctx.arc(sx, sy, size * dpr, 0, Math.PI * 2);
+					ctx.fill();
+				}
+			}
+
+			// Draw cloud puffs by layer with progressive blur
 			const drift = timeRef.current * DRIFT_SPEED;
+			let currentLayer = -1;
 
 			for (const puff of puffsRef.current) {
+				// Switch blur level when layer changes
+				if (puff.layer !== currentLayer) {
+					currentLayer = puff.layer;
+					const layerConfig = CLOUD_LAYERS[puff.layer];
+					ctx.filter = `blur(${layerConfig.blur}px)`;
+				}
+
 				// Animated position with subtle vertical wave
-				const waveY = Math.sin(timeRef.current * 0.3 + puff.seed) * 0.01;
-				const noiseOffset = noise.noise2D(puff.seed, timeRef.current * 0.05) * 0.02;
+				const waveY = Math.sin(timeRef.current * 0.25 + puff.seed) * 0.008;
+				const noiseOffset = noise.noise2D(puff.seed, timeRef.current * 0.04) * 0.015;
 
 				let px = puff.x + (drift * puff.speed) / width + noiseOffset;
 				const py = puff.y + waveY;
@@ -447,13 +549,15 @@ export function AtmosphereCanvas({ className, debugHour }: AtmosphereCanvasProps
 				// Wrap around
 				px = (((px % 1.4) + 1.4) % 1.4) - 0.2;
 
-				// Screen coordinates
+				// Screen coordinates with horizontal stretch
 				const sx = px * width;
 				const sy = py * height;
-				const sr = puff.radius * Math.min(width, height);
+				const baseRadius = puff.radius * Math.min(width, height);
+				const radiusX = baseRadius * puff.stretch;
+				const radiusY = baseRadius;
 
-				// Radial gradient for soft puff
-				const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
+				// Radial gradient for soft puff (using ellipse)
+				const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, baseRadius);
 				const alpha = puff.opacity * palette.cloudOpacity;
 
 				grad.addColorStop(
@@ -461,8 +565,12 @@ export function AtmosphereCanvas({ className, debugHour }: AtmosphereCanvasProps
 					palette.cloudColor.replace(")", `, ${alpha})`).replace("hsl", "hsla"),
 				);
 				grad.addColorStop(
-					0.5,
-					palette.cloudColor.replace(")", `, ${alpha * 0.6})`).replace("hsl", "hsla"),
+					0.4,
+					palette.cloudColor.replace(")", `, ${alpha * 0.7})`).replace("hsl", "hsla"),
+				);
+				grad.addColorStop(
+					0.7,
+					palette.cloudColor.replace(")", `, ${alpha * 0.3})`).replace("hsl", "hsla"),
 				);
 				grad.addColorStop(
 					1,
@@ -471,7 +579,7 @@ export function AtmosphereCanvas({ className, debugHour }: AtmosphereCanvasProps
 
 				ctx.fillStyle = grad;
 				ctx.beginPath();
-				ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+				ctx.ellipse(sx, sy, radiusX, radiusY, 0, 0, Math.PI * 2);
 				ctx.fill();
 			}
 
