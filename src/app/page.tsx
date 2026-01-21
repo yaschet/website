@@ -21,7 +21,7 @@ const ProjectCardGallery = dynamic(() =>
 
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
-import { HeroGradient } from "../components/ui/hero-gradient";
+import { AtmosphereCanvas } from "../components/ui/atmosphere-canvas";
 
 export const metadata: Metadata = {
 	title: "Yassine Chettouch | Product Engineer",
@@ -48,8 +48,8 @@ export default function Home() {
 
 					{/* Hero — Unified section (profile + headline) */}
 					<SwissGridSection id="hero" className="relative w-full">
-						{/* Mesh Gradient — Positioned at top, fades down */}
-						<HeroGradient className="pointer-events-none absolute inset-0 z-0" />
+						{/* Sky Atmosphere — Behind Swiss grid (z-[1] < grid z-[5]) */}
+						<AtmosphereCanvas className="pointer-events-none absolute inset-0 z-[1]" />
 
 						{/* Profile Row */}
 						<Reveal phase={1} className="relative z-10 w-full">
