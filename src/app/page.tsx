@@ -50,6 +50,11 @@ export default function Home() {
 					<SwissGridSection id="hero" className="relative w-full">
 						{/* Sky Atmosphere — Contained to hero section only */}
 						<AtmosphereCanvas className="pointer-events-none absolute inset-0 z-[1]" />
+						{/* Gradient fade - transitions atmosphere to surface for text contrast */}
+						<div
+							className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-b from-transparent via-transparent to-surface-50 dark:to-surface-950"
+							aria-hidden="true"
+						/>
 						{/* Profile Row */}
 						<Reveal phase={1} className="relative z-10 w-full">
 							<header className="w-full">
@@ -112,47 +117,44 @@ export default function Home() {
 						<Reveal phase={2} className="relative z-10 w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									{/* Content panel - surface layer for contrast against atmosphere */}
-									<div className="border border-surface-200/40 bg-surface-50/70 p-8 backdrop-blur-xs sm:p-10 dark:border-surface-800/40 dark:bg-surface-950/70">
-										<Reveal phase={2}>
-											<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
-												I build products for the web.
-											</h1>
-										</Reveal>
-										<Reveal phase={2} delay={0.05}>
-											<p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
-												Web apps. SaaS platforms. Internal tools. From the
-												first idea to the final deploy. Complex systems that
-												feel effortless.
-											</p>
-										</Reveal>
-										<Reveal phase={2} delay={0.1}>
-											<div className="flex flex-wrap items-center gap-3">
-												<Button
-													asChild
-													size="lg"
-													variant="solid"
-													color="primary"
-												>
-													<Link href="/projects">
-														Case Studies
-														<ArrowRightIcon
-															className="size-4"
-															weight="bold"
-														/>
-													</Link>
-												</Button>
-												<Button
-													asChild
-													size="lg"
-													variant="outlined"
-													color="default"
-												>
-													<Link href="/contact">Email</Link>
-												</Button>
-											</div>
-										</Reveal>
-									</div>
+									<Reveal phase={2}>
+										<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
+											I build products for the web.
+										</h1>
+									</Reveal>
+									<Reveal phase={2} delay={0.05}>
+										<p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
+											Web apps. SaaS platforms. Internal tools. From the first
+											idea to the final deploy. Complex systems that feel
+											effortless.
+										</p>
+									</Reveal>
+									<Reveal phase={2} delay={0.1}>
+										<div className="flex flex-wrap items-center gap-3">
+											<Button
+												asChild
+												size="lg"
+												variant="solid"
+												color="primary"
+											>
+												<Link href="/projects">
+													Case Studies
+													<ArrowRightIcon
+														className="size-4"
+														weight="bold"
+													/>
+												</Link>
+											</Button>
+											<Button
+												asChild
+												size="lg"
+												variant="outlined"
+												color="default"
+											>
+												<Link href="/contact">Email</Link>
+											</Button>
+										</div>
+									</Reveal>
 								</div>
 							</section>
 						</Reveal>
