@@ -46,8 +46,12 @@ export default function Home() {
 					{/* Nav Row */}
 					<SiteHeader />
 
-					{/* Profile Section */}
-					<SwissGridSection id="profile" className="relative w-full">
+					{/* Hero — Unified section (profile + headline) */}
+					<SwissGridSection id="hero" className="relative w-full">
+						{/* Mesh Gradient — Positioned at top, fades down */}
+						<HeroGradient className="pointer-events-none absolute inset-0 z-0" />
+
+						{/* Profile Row */}
 						<Reveal phase={1} className="relative z-10 w-full">
 							<header className="w-full">
 								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
@@ -104,13 +108,8 @@ export default function Home() {
 								</div>
 							</header>
 						</Reveal>
-					</SwissGridSection>
 
-					{/* Hero */}
-					<SwissGridSection id="hero" className="relative w-full">
-						{/* Atmospheric Gradient — Contained Design Blob */}
-						<HeroGradient className="pointer-events-none absolute inset-x-0 top-0 z-0 h-96 w-full" />
-
+						{/* Headline Content */}
 						<Reveal phase={2} className="relative z-10 w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
