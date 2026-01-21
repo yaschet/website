@@ -240,356 +240,392 @@ export function SwissGridProvider({
 			const canvas = canvasRef.current;
 			if (!canvas || !containerBounds) return;
 
-			const ctx = canvas.getContext("2d");
-			if (!ctx) return;
+			// Wrap in try-catch to prevent layout thread crashes
+			try {
+				const ctx = canvas.getContext("2d");
+				if (!ctx) return;
 
-			const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-			const width = document.documentElement.scrollWidth;
-			const height = document.documentElement.scrollHeight;
+				const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+				const width = document.documentElement.scrollWidth;
+				const height = document.documentElement.scrollHeight;
 
-			// Ensure canvas is sized correctly
-			if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
-				canvas.width = width * dpr;
-				canvas.height = height * dpr;
-				canvas.style.width = "100%";
-				canvas.style.height = `${height}px`;
-			}
+				// Ensure canvas is sized correctly
+				if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+					canvas.width = width * dpr;
+					canvas.height = height * dpr;
+					canvas.style.width = "100%";
+					canvas.style.height = `${height}px`;
+				}
 
-			ctx.save();
-			ctx.setTransform(1, 0, 0, 1, 0, 0);
-			ctx.scale(dpr, dpr);
-			ctx.clearRect(0, 0, width, height);
+				ctx.save();
+				ctx.setTransform(1, 0, 0, 1, 0, 0);
+				ctx.scale(dpr, dpr);
+				ctx.clearRect(0, 0, width, height);
 
-			// Colors
-			const dashColor = isDark ? config.colorDark : config.colorLight;
-			const cornerColor = isDark ? CORNER_COLOR_DARK : CORNER_COLOR_LIGHT;
+				// Colors
+				const dashColor = isDark ? config.colorDark : config.colorLight;
+				const cornerColor = isDark ? CORNER_COLOR_DARK : CORNER_COLOR_LIGHT;
 
-			const cycle = config.dashSize + config.gapSize;
-			const { left: containerLeft, right: containerRight } = containerBounds;
+				const cycle = config.dashSize + config.gapSize;
+				const { left: containerLeft, right: containerRight } = containerBounds;
 
-			// ─────────────────────────────────────────────────────────────────────
-			// Grid Drawing Sequence:
-			// 1. Scaffold (Base layer)
-			// 2. Vertical Rails (Main structure)
-			// 3. Horizontal Lines (Animated entry)
-			// 4. Corner Reinforcements (Intersections)
-			// ─────────────────────────────────────────────────────────────────────
+				// ─────────────────────────────────────────────────────────────────────
+				// Grid Drawing Sequence:
+				// 1. Scaffold (Base layer)
+				// 2. Vertical Rails (Main structure)
+				// 3. Horizontal Lines (Animated entry)
+				// 4. Corner Reinforcements (Intersections)
+				// ─────────────────────────────────────────────────────────────────────
 
-			const _verticalProgress = progress;
-			const leadProgress = Math.min(progress / 0.7, 1);
-			const currentY = height * leadProgress;
+				const _verticalProgress = progress;
+				const leadProgress = Math.min(progress / 0.7, 1);
+				const currentY = height * leadProgress;
 
-			// Get horizontal line Y positions for crosshair alignment
-			// We now include the TOP of the first section to close the grid
-			const firstSectionTop = sections.length > 0 ? sections[0].top : 0;
-			const horizontalYs = [firstSectionTop, ...sections.map((s) => s.bottom)];
+				// Get horizontal line Y positions for crosshair alignment
+				// We now FORCE the top to be 0 (Page Top) to avoid scroll-based drift during nav
+				const firstSectionTop = 0;
+				const horizontalYs = [firstSectionTop, ...sections.map((s) => s.bottom)];
 
-			// PASS 1: Base Scaffold
-			if (progress > 0) {
-				ctx.globalAlpha = 0.06;
-				// Inner Container Rails
-				drawVerticalRail(
-					ctx,
-					containerLeft,
-					height,
-					cycle,
-					config.dashSize,
-					horizontalYs,
-					dashColor,
-					dashColor,
-					false,
-				);
-				drawVerticalRail(
-					ctx,
-					containerRight,
-					height,
-					cycle,
-					config.dashSize,
-					horizontalYs,
-					dashColor,
-					dashColor,
-					false,
-				);
-
-				// Viewport Rails (Far edges)
-				const viewportLeft = 1; // 1px offset to be visible
-				const viewportRight = width - 2; // 2px offset
-
-				drawVerticalRail(
-					ctx,
-					viewportLeft,
-					height,
-					cycle,
-					config.dashSize,
-					horizontalYs,
-					dashColor,
-					dashColor,
-					false, // Draw dots everywhere
-				);
-				drawVerticalRail(
-					ctx,
-					viewportRight,
-					height,
-					cycle,
-					config.dashSize,
-					horizontalYs,
-					dashColor,
-					dashColor,
-					false,
-				);
-
-				// Horizontal scaffold
-				const drawScaffoldLine = (y: number) => {
-					drawHorizontalLine(
+				// PASS 1: Base Scaffold
+				if (progress > 0) {
+					ctx.globalAlpha = 0.06;
+					// Inner Container Rails
+					drawVerticalRail(
 						ctx,
-						y,
 						containerLeft,
-						containerRight,
+						height,
 						cycle,
 						config.dashSize,
-						containerLeft,
-						containerRight,
+						horizontalYs,
 						dashColor,
 						dashColor,
 						false,
 					);
-				};
-
-				drawScaffoldLine(firstSectionTop);
-				for (const s of sections) {
-					drawScaffoldLine(s.bottom);
-				}
-				ctx.globalAlpha = 1;
-			}
-
-			// PASS 2: Vertical Rails
-			if (currentY > 0) {
-				// Inner rails
-				drawVerticalRail(
-					ctx,
-					containerLeft,
-					currentY,
-					cycle,
-					config.dashSize,
-					horizontalYs,
-					dashColor,
-					"transparent",
-				);
-				drawVerticalRail(
-					ctx,
-					containerRight,
-					currentY,
-					cycle,
-					config.dashSize,
-					horizontalYs,
-					dashColor,
-					"transparent",
-				);
-
-				// Viewport rails (subtle)
-				ctx.globalAlpha = 0.3;
-				drawVerticalRail(
-					ctx,
-					1,
-					currentY,
-					cycle,
-					config.dashSize,
-					horizontalYs,
-					dashColor,
-					"transparent",
-				);
-				drawVerticalRail(
-					ctx,
-					width - 2,
-					currentY,
-					cycle,
-					config.dashSize,
-					horizontalYs,
-					dashColor,
-					"transparent",
-				);
-				ctx.globalAlpha = 1;
-			}
-
-			// PASS 3: Horizontal Lines & Corners
-			// We iterate through logical "lines" which includes the top one
-			const linesToDraw = [
-				{ y: firstSectionTop, isTop: true, sectionIndex: 0 },
-				...sections.map((s, i) => ({ y: s.bottom, isTop: false, sectionIndex: i })),
-			];
-
-			for (const line of linesToDraw) {
-				const lineY = line.y;
-				// Trigger based on Y position
-				const trigger = (lineY / height) * 0.7;
-
-				if (progress >= trigger) {
-					const lineT = Math.max(0, (progress - trigger) * 4);
-					let lineProgress = 0;
-
-					if (lineT < 1) {
-						lineProgress = lineT;
-					} else {
-						// Spring Settle
-						const t = (lineT - 1) * 15;
-						const lMass = 1.0;
-						const lStiff = 180.0;
-						const lDamp = 18.0;
-
-						const lOmega = Math.sqrt(lStiff / lMass);
-						const lZeta = lDamp / (2 * Math.sqrt(lStiff * lMass));
-						const decay = Math.exp(-lZeta * lOmega * t);
-						const oscillation = Math.cos(lOmega * Math.sqrt(1 - lZeta ** 2) * t);
-
-						lineProgress = 1 + decay * 0.04 * oscillation; // 4% max overshoot
-					}
-
-					// Animate from center out or left to right?
-					// Standard swipe: Left to Right within container
-					const startX = containerLeft;
-					const targetWidth = containerRight - containerLeft;
-					const drawnWidth = targetWidth * lineProgress;
-					const currentX = startX + drawnWidth;
-
-					drawHorizontalLine(
+					drawVerticalRail(
 						ctx,
-						lineY,
-						startX,
-						currentX,
+						containerRight,
+						height,
 						cycle,
 						config.dashSize,
-						containerLeft,
-						containerRight,
+						horizontalYs,
 						dashColor,
-						cornerColor,
+						dashColor,
+						false,
 					);
 
-					// PASS 4: Corner Stamps
-					// Determine corner type based on position
-					// Top line = TL/TR
-					// Bottom line of last section = BL/BR
-					// Middle lines = CROSS
+					// Viewport Rails (Far edges)
+					const viewportLeft = 1; // 1px offset to be visible
+					const viewportRight = width - 2; // 2px offset
 
-					const isFirstLine = line.isTop;
-					const isLastLine = !line.isTop && line.sectionIndex === sections.length - 1;
+					drawVerticalRail(
+						ctx,
+						viewportLeft,
+						height,
+						cycle,
+						config.dashSize,
+						horizontalYs,
+						dashColor,
+						dashColor,
+						false, // Draw dots everywhere
+					);
+					drawVerticalRail(
+						ctx,
+						viewportRight,
+						height,
+						cycle,
+						config.dashSize,
+						horizontalYs,
+						dashColor,
+						dashColor,
+						false,
+					);
 
-					let leftCornerType: "TL" | "BL" | "CROSS" | "T_LEFT" = "CROSS";
-					let rightCornerType: "TR" | "BR" | "CROSS" | "T_RIGHT" = "CROSS";
-
-					if (isFirstLine) {
-						leftCornerType = "TL";
-						rightCornerType = "TR";
-					} else if (isLastLine) {
-						leftCornerType = "BL";
-						rightCornerType = "BR";
-					}
-
-					const drawPhysicalStamp = (
-						ix: number,
-						type: "TL" | "TR" | "BL" | "BR" | "CROSS" | "T_LEFT" | "T_RIGHT",
-					) => {
-						const railX = Math.round(ix);
-						const ry = Math.round(lineY);
-
-						// Deterministic variance based on coordinates
-						const cornerSeed = (railX * 13 + ry * 37) % 100;
-						const variance = cornerSeed / 100;
-
-						const mass = 4.5 + variance * 1.0;
-						const stiffness = 35.0 + variance * 10.0;
-						const damping = 10.0 + variance * 4.0;
-
-						const impactThreshold = trigger + variance * 0.02;
-						const dt = Math.max(0, (progress - impactThreshold) * 1800);
-
-						if (dt > 0) {
-							const omega = Math.sqrt(stiffness / mass);
-							const zeta = damping / (2 * Math.sqrt(stiffness * mass));
-							const omega_d = omega * Math.sqrt(1 - zeta * zeta);
-
-							const impactT = 120;
-							const isLanded = dt >= impactT;
-
-							let stampScale = 0;
-							let rotation = 0;
-							let flashAlpha = 0;
-							let shadowOffset = 0;
-							let shadowAlpha = 0;
-
-							if (!isLanded) {
-								const descentPath = dt / impactT;
-								stampScale = 1.8 - descentPath * 0.5;
-								rotation = 0;
-								shadowOffset = (1 - descentPath) * 12;
-								shadowAlpha = descentPath * 0.2;
-							} else {
-								const t = (dt - impactT) / 50;
-								const decay = Math.exp(-zeta * omega * t);
-								const envelope = decay * 0.3;
-								const oscillation = Math.cos(omega_d * t);
-
-								stampScale = 1 + envelope * oscillation;
-								rotation = 0;
-								flashAlpha = decay * 1.0;
-								shadowOffset = 0;
-								shadowAlpha = 0.18;
-							}
-
-							ctx.save();
-							const halfBar = Math.floor(CORNER_DASH_SIZE / 2); // Use floor for precise pixel calc
-							const halfThickness = Math.floor(CORNER_THICKNESS / 2);
-
-							if (shadowAlpha > 0) {
-								ctx.save();
-								ctx.translate(railX + shadowOffset, ry + shadowOffset);
-								ctx.rotate(rotation);
-								ctx.scale(stampScale, stampScale);
-								ctx.fillStyle = isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.2)";
-								ctx.globalAlpha = shadowAlpha;
-
-								// SHADOW SHAPE
-								drawCornerShape(
-									ctx,
-									type,
-									halfThickness,
-									halfBar,
-									CORNER_THICKNESS,
-								);
-
-								ctx.restore();
-							}
-
-							ctx.save();
-							ctx.translate(railX, ry);
-							ctx.rotate(rotation);
-							ctx.scale(stampScale, stampScale);
-							ctx.fillStyle = cornerColor;
-							ctx.globalAlpha = 1.0;
-
-							// MAIN SHAPE
-							drawCornerShape(ctx, type, halfThickness, halfBar, CORNER_THICKNESS);
-
-							if (flashAlpha > 0.05) {
-								ctx.globalCompositeOperation = "lighter";
-								ctx.fillStyle = `rgba(255, 255, 255, ${flashAlpha * 0.5})`;
-								drawCornerShape(
-									ctx,
-									type,
-									halfThickness,
-									halfBar,
-									CORNER_THICKNESS,
-								);
-							}
-							ctx.restore();
-							ctx.restore();
-						}
+					// Horizontal scaffold
+					const drawScaffoldLine = (y: number) => {
+						drawHorizontalLine(
+							ctx,
+							y,
+							containerLeft,
+							containerRight,
+							cycle,
+							config.dashSize,
+							containerLeft,
+							containerRight,
+							dashColor,
+							dashColor,
+							false,
+						);
 					};
 
-					drawPhysicalStamp(containerLeft, leftCornerType);
-					drawPhysicalStamp(containerRight, rightCornerType);
+					drawScaffoldLine(firstSectionTop);
+					for (const s of sections) {
+						drawScaffoldLine(s.bottom);
+					}
+					ctx.globalAlpha = 1;
 				}
+
+				// PASS 2: Vertical Rails
+				if (currentY > 0) {
+					// Inner rails
+					drawVerticalRail(
+						ctx,
+						containerLeft,
+						currentY,
+						cycle,
+						config.dashSize,
+						horizontalYs,
+						dashColor,
+						"transparent",
+					);
+					drawVerticalRail(
+						ctx,
+						containerRight,
+						currentY,
+						cycle,
+						config.dashSize,
+						horizontalYs,
+						dashColor,
+						"transparent",
+					);
+
+					// Viewport rails (subtle)
+					ctx.globalAlpha = 0.3;
+					drawVerticalRail(
+						ctx,
+						1,
+						currentY,
+						cycle,
+						config.dashSize,
+						horizontalYs,
+						dashColor,
+						"transparent",
+					);
+					drawVerticalRail(
+						ctx,
+						width - 2,
+						currentY,
+						cycle,
+						config.dashSize,
+						horizontalYs,
+						dashColor,
+						"transparent",
+					);
+					ctx.globalAlpha = 1;
+				}
+
+				// PASS 3: Horizontal Lines & Corners
+				// We iterate through logical "lines" which includes the top one
+				const linesToDraw = [{ y: firstSectionTop, isTop: true, sectionIndex: 0 }];
+
+				// Add intermediate separators
+				for (let i = 0; i < sections.length - 1; i++) {
+					linesToDraw.push({
+						y: sections[i].bottom,
+						isTop: false,
+						sectionIndex: i,
+					});
+				}
+
+				// Add FINAL bottom line at the very bottom of the page
+				if (sections.length > 0) {
+					linesToDraw.push({
+						y: height,
+						isTop: false,
+						sectionIndex: sections.length - 1,
+					});
+				}
+
+				for (const line of linesToDraw) {
+					// VISUAL CLAMP:
+					// 1. Top: Clamp to 1px so the top half of the 2px stroke isn't clipped off-screen (0 -> -1 clip)
+					// 2. Bottom: Clamp to height-1px so bottom half isn't clipped (height -> height+1 clip)
+					const lineY = Math.max(1, Math.min(line.y, height - 1));
+
+					// Trigger based on Y position
+					const trigger = (lineY / height) * 0.7;
+
+					if (progress >= trigger) {
+						const lineT = Math.max(0, (progress - trigger) * 4);
+						let lineProgress = 0;
+
+						if (lineT < 1) {
+							lineProgress = lineT;
+						} else {
+							// Spring Settle
+							const t = (lineT - 1) * 15;
+							const lMass = 1.0;
+							const lStiff = 180.0;
+							const lDamp = 18.0;
+
+							const lOmega = Math.sqrt(lStiff / lMass);
+							const lZeta = lDamp / (2 * Math.sqrt(lStiff * lMass));
+							const decay = Math.exp(-lZeta * lOmega * t);
+							const oscillation = Math.cos(lOmega * Math.sqrt(1 - lZeta ** 2) * t);
+
+							lineProgress = 1 + decay * 0.04 * oscillation; // 4% max overshoot
+						}
+
+						// Animate from center out or left to right?
+						// Standard swipe: Left to Right within container
+						const startX = containerLeft;
+						const targetWidth = containerRight - containerLeft;
+						const drawnWidth = targetWidth * lineProgress;
+						const currentX = startX + drawnWidth;
+
+						drawHorizontalLine(
+							ctx,
+							lineY,
+							startX,
+							currentX,
+							cycle,
+							config.dashSize,
+							containerLeft,
+							containerRight,
+							dashColor,
+							cornerColor,
+						);
+
+						// PASS 4: Corner Stamps
+						// Determine corner type based on position
+						// Top line = TL/TR
+						// Bottom line of last section = BL/BR
+						// Middle lines = CROSS
+
+						const isFirstLine = line.isTop;
+						const isLastLine = !line.isTop && line.sectionIndex === sections.length - 1;
+
+						let leftCornerType: "TL" | "BL" | "CROSS" | "T_LEFT" = "CROSS";
+						let rightCornerType: "TR" | "BR" | "CROSS" | "T_RIGHT" = "CROSS";
+
+						if (isFirstLine) {
+							leftCornerType = "TL";
+							rightCornerType = "TR";
+						} else if (isLastLine) {
+							leftCornerType = "BL";
+							rightCornerType = "BR";
+						} else {
+							// Intermediate lines: Use proper T-junctions
+							// Left Rail: ┣ (Right Arm + Verticals)
+							leftCornerType = "T_LEFT";
+							// Right Rail: ┫ (Left Arm + Verticals)
+							rightCornerType = "T_RIGHT";
+						}
+
+						const drawPhysicalStamp = (
+							ix: number,
+							type: "TL" | "TR" | "BL" | "BR" | "CROSS" | "T_LEFT" | "T_RIGHT",
+						) => {
+							const railX = Math.round(ix);
+							const ry = Math.round(lineY);
+
+							// Deterministic variance based on coordinates
+							const cornerSeed = (railX * 13 + ry * 37) % 100;
+							const variance = cornerSeed / 100;
+
+							const mass = 4.5 + variance * 1.0;
+							const stiffness = 35.0 + variance * 10.0;
+							const damping = 10.0 + variance * 4.0;
+
+							const impactThreshold = trigger + variance * 0.02;
+							const dt = Math.max(0, (progress - impactThreshold) * 1800);
+
+							if (dt > 0) {
+								const omega = Math.sqrt(stiffness / mass);
+								const zeta = damping / (2 * Math.sqrt(stiffness * mass));
+								const omega_d = omega * Math.sqrt(1 - zeta * zeta);
+
+								const impactT = 120;
+								const isLanded = dt >= impactT;
+
+								let stampScale = 0;
+								let rotation = 0;
+								let flashAlpha = 0;
+								let shadowOffset = 0;
+								let shadowAlpha = 0;
+
+								if (!isLanded) {
+									const descentPath = dt / impactT;
+									stampScale = 1.8 - descentPath * 0.5;
+									rotation = 0;
+									shadowOffset = (1 - descentPath) * 12;
+									shadowAlpha = descentPath * 0.2;
+								} else {
+									const t = (dt - impactT) / 50;
+									const decay = Math.exp(-zeta * omega * t);
+									const envelope = decay * 0.3;
+									const oscillation = Math.cos(omega_d * t);
+
+									stampScale = 1 + envelope * oscillation;
+									rotation = 0;
+									flashAlpha = decay * 1.0;
+									shadowOffset = 0;
+									shadowAlpha = 0.18;
+								}
+
+								ctx.save();
+								const halfBar = Math.floor(CORNER_DASH_SIZE / 2); // Use floor for precise pixel calc
+								const halfThickness = Math.floor(CORNER_THICKNESS / 2);
+
+								if (shadowAlpha > 0) {
+									ctx.save();
+									ctx.translate(railX + shadowOffset, ry + shadowOffset);
+									ctx.rotate(rotation);
+									ctx.scale(stampScale, stampScale);
+									ctx.fillStyle = isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.2)";
+									ctx.globalAlpha = shadowAlpha;
+
+									// SHADOW SHAPE
+									drawCornerShape(
+										ctx,
+										type,
+										halfThickness,
+										halfBar,
+										CORNER_THICKNESS,
+									);
+
+									ctx.restore();
+								}
+
+								ctx.save();
+								ctx.translate(railX, ry);
+								ctx.rotate(rotation);
+								ctx.scale(stampScale, stampScale);
+								ctx.fillStyle = cornerColor;
+								ctx.globalAlpha = 1.0;
+
+								// MAIN SHAPE
+								drawCornerShape(
+									ctx,
+									type,
+									halfThickness,
+									halfBar,
+									CORNER_THICKNESS,
+								);
+
+								if (flashAlpha > 0.05) {
+									ctx.globalCompositeOperation = "lighter";
+									ctx.fillStyle = `rgba(255, 255, 255, ${flashAlpha * 0.5})`;
+									drawCornerShape(
+										ctx,
+										type,
+										halfThickness,
+										halfBar,
+										CORNER_THICKNESS,
+									);
+								}
+								ctx.restore();
+								ctx.restore();
+							}
+						};
+
+						drawPhysicalStamp(containerLeft, leftCornerType);
+						drawPhysicalStamp(containerRight, rightCornerType);
+					}
+				}
+				ctx.restore();
+			} catch (e) {
+				console.warn("SwissGridCanvas draw error:", e);
 			}
-			ctx.restore();
 		},
 		[containerBounds, sections, config, isDark],
 	);
@@ -786,11 +822,25 @@ function drawCornerShape(
 	// BL: Top only (Ends at floor)
 	// BR: Top only
 
-	if (type === "CROSS" || type === "TL" || type === "TR" || type === "T_DOWN") {
+	if (
+		type === "CROSS" ||
+		type === "TL" ||
+		type === "TR" ||
+		type === "T_DOWN" ||
+		type === "T_LEFT" ||
+		type === "T_RIGHT"
+	) {
 		// Draw Bottom vertical arm (from center to bottom)
 		ctx.fillRect(-halfThickness, 0, thickness, halfBar);
 	}
-	if (type === "CROSS" || type === "BL" || type === "BR" || type === "T_UP") {
+	if (
+		type === "CROSS" ||
+		type === "BL" ||
+		type === "BR" ||
+		type === "T_UP" ||
+		type === "T_LEFT" ||
+		type === "T_RIGHT"
+	) {
 		// Draw Top vertical arm (from top to center)
 		ctx.fillRect(-halfThickness, -halfBar, thickness, halfBar);
 	}
