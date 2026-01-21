@@ -44,13 +44,13 @@ const RESOLUTION_SCALE = 0.2;
 const FRAME_INTERVAL = 42;
 
 /** Cloud drift speed (pixels per second at full resolution) */
-const DRIFT_SPEED = 0.015;
+const DRIFT_SPEED = 0.012;
 
 /** Cloud density (0-1, higher = more clouds) */
-const CLOUD_DENSITY = 0.4;
+const CLOUD_DENSITY = 0.55;
 
-/** Cloud softness (blur factor) */
-const CLOUD_SOFTNESS = 0.6;
+/** Cloud softness (lower = sharper edges, higher = softer) */
+const CLOUD_SOFTNESS = 0.45;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SKY PALETTES — Time-based color schemes
@@ -119,25 +119,25 @@ const PALETTE_DUSK: SkyPalette = {
 
 /**
  * Night palette (7:00 PM - 5:00 AM)
- * Deep blue night sky
+ * Deep blue night sky with moonlit clouds
  */
 const PALETTE_NIGHT: SkyPalette = {
-	zenith: [12, 18, 30], // Deep night
-	horizon: [25, 35, 55], // Dark horizon
-	cloudLight: [45, 55, 75], // Moonlit cloud
-	cloudShadow: [15, 20, 35], // Deep shadow
-	atmosphereTint: [20, 28, 45], // Night tint
+	zenith: [15, 22, 42], // Deep night blue
+	horizon: [35, 50, 75], // Lighter horizon
+	cloudLight: [70, 85, 115], // Brighter moonlit clouds
+	cloudShadow: [25, 32, 50], // Visible shadow
+	atmosphereTint: [28, 38, 60], // Night tint
 };
 
 /**
- * Dark mode palette - subtle, muted atmosphere
+ * Dark mode palette - subtle, muted atmosphere with visible clouds
  */
 const PALETTE_DARK: SkyPalette = {
-	zenith: [15, 18, 25], // Near black
-	horizon: [25, 30, 40], // Dark gray-blue
-	cloudLight: [40, 45, 55], // Subtle highlight
-	cloudShadow: [12, 15, 22], // Deep shadow
-	atmosphereTint: [18, 22, 30], // Dark tint
+	zenith: [18, 22, 32], // Dark blue-gray
+	horizon: [30, 38, 52], // Slightly lighter horizon
+	cloudLight: [55, 62, 78], // Visible cloud highlight
+	cloudShadow: [22, 26, 38], // Subtle shadow
+	atmosphereTint: [24, 30, 42], // Muted tint
 };
 
 /**
@@ -266,6 +266,8 @@ class SimplexNoise {
 
 interface AtmosphereCanvasProps {
 	className?: string;
+	/** Override hour for Storybook testing (0-24) */
+	debugHour?: number;
 }
 
 const revealSpring = {
@@ -333,9 +335,9 @@ function renderAtmosphere(
 			// Soften cloud edges
 			cloudValue = cloudValue ** CLOUD_SOFTNESS;
 
-			// Clouds are more visible near horizon (atmospheric perspective)
-			const horizonFade = ny ** 0.5;
-			cloudValue *= 0.3 + horizonFade * 0.7;
+			// Clouds visible throughout, slightly more at horizon
+			const horizonBoost = 0.2 + ny * 0.3;
+			cloudValue *= 0.6 + horizonBoost;
 
 			// Cloud lighting (use noise for variation)
 			const lightNoise = noise.noise2D(nx * 3 + 100, ny * 2 + 100) * 0.5 + 0.5;
@@ -370,7 +372,7 @@ function renderAtmosphere(
 	ctx.putImageData(imageData, 0, 0);
 }
 
-export function AtmosphereCanvas({ className = "" }: AtmosphereCanvasProps) {
+export function AtmosphereCanvas({ className = "", debugHour }: AtmosphereCanvasProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const noiseRef = useRef<SimplexNoise | null>(null);
@@ -387,8 +389,8 @@ export function AtmosphereCanvas({ className = "" }: AtmosphereCanvasProps) {
 	const isDark = resolvedTheme === "dark";
 	const isEnabled = phase >= 2;
 
-	// Get current hour for time-based palette
-	const currentHour = new Date().getHours() + new Date().getMinutes() / 60;
+	// Get current hour for time-based palette (debugHour overrides for Storybook)
+	const currentHour = debugHour ?? new Date().getHours() + new Date().getMinutes() / 60;
 	const palette = getPaletteForHour(currentHour, isDark);
 
 	useEffect(() => {

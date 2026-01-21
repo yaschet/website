@@ -48,8 +48,8 @@ export default function Home() {
 
 					{/* Hero — Unified section (profile + headline) */}
 					<SwissGridSection id="hero" className="relative w-full">
-						{/* Sky Atmosphere — Behind Swiss grid (z-[1] < grid z-[5]) */}
-						<AtmosphereCanvas className="pointer-events-none absolute inset-0 z-[1]" />
+						{/* Sky Atmosphere — Behind Swiss grid (negative z so grid at z-[5] is above) */}
+						<AtmosphereCanvas className="pointer-events-none absolute inset-0 -z-10" />
 
 						{/* Profile Row */}
 						<Reveal phase={1} className="relative z-10 w-full">
