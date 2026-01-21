@@ -624,6 +624,7 @@ export function SwissGridProvider({
 				}
 				ctx.restore();
 			} catch (e) {
+				// biome-ignore lint/suspicious/noConsole: Unexpected canvas error
 				console.warn("SwissGridCanvas draw error:", e);
 			}
 		},
@@ -1033,7 +1034,8 @@ export function SwissGridSection({
 	}, [registerSection, unregisterSection]);
 
 	return (
-		<Tag ref={ref} className={className} data-swiss-section>
+		// biome-ignore lint/suspicious/noExplicitAny: Ref type mismatch with dynamic tag
+		<Tag ref={ref as any} className={className} data-swiss-section>
 			{children}
 		</Tag>
 	);
