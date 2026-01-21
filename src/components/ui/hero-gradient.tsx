@@ -18,10 +18,10 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { springs } from "@/src/lib/index";
+import { springs, stagger } from "@/src/lib/index";
 import { useReveal } from "../providers/reveal-provider";
 
 interface HeroGradientProps {
@@ -35,9 +35,11 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [mounted, setMounted] = useState(false);
+	const prefersReducedMotion = useReducedMotion();
 
 	const isDark = resolvedTheme === "dark";
-	const isEnabled = phase >= 0;
+	// Sync with hero content reveal (phase 2)
+	const isEnabled = phase >= 2;
 
 	/**
 	 * @method drawPixels
@@ -128,14 +130,9 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 					"linear-gradient(to bottom, transparent 0%, black 5%, black 40%, transparent 100%)",
 			}}
 		>
-			{/* GRADIENT LAYERS */}
-			<motion.div
-				initial={{ opacity: 0, scale: 0.8 }}
-				animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-				transition={{ ...springs.ambient, delay: 0.2 }}
-				className="absolute inset-0"
-			>
-				{/* Primary Gradient */}
+			{/* GRADIENT LAYERS — Staggered physics-based entrance */}
+			<div className="absolute inset-0">
+				{/* Primary Gradient — Arrives first, scales up */}
 				<div
 					className="absolute"
 					style={{
@@ -144,14 +141,31 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 						left: "50%",
 						top: "3%",
 						transform: "translateX(-50%)",
-						borderRadius: "100%",
-						backgroundColor: "var(--accent-500)",
-						opacity: isDark ? 0.1 : 0.06,
-						filter: "blur(150px)",
 					}}
-				/>
+				>
+					<motion.div
+						initial={{ opacity: 0, scale: 0.7 }}
+						animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.7 }}
+						transition={
+							prefersReducedMotion
+								? { duration: 0 }
+								: {
+										opacity: { ...springs.ambient, delay: stagger.phi(0) },
+										scale: { ...springs.gentle, delay: stagger.phi(0) },
+									}
+						}
+						style={{
+							width: "100%",
+							height: "100%",
+							borderRadius: "100%",
+							backgroundColor: "var(--accent-500)",
+							opacity: isDark ? 0.1 : 0.06,
+							filter: "blur(150px)",
+						}}
+					/>
+				</div>
 
-				{/* Secondary Gradient */}
+				{/* Secondary Gradient — Arrives second */}
 				<div
 					className="absolute"
 					style={{
@@ -160,14 +174,31 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 						left: "50%",
 						top: "8%",
 						transform: "translateX(-50%)",
-						borderRadius: "100%",
-						backgroundColor: "var(--accent-400)",
-						opacity: isDark ? 0.08 : 0.05,
-						filter: "blur(120px)",
 					}}
-				/>
+				>
+					<motion.div
+						initial={{ opacity: 0, scale: 0.65 }}
+						animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.65 }}
+						transition={
+							prefersReducedMotion
+								? { duration: 0 }
+								: {
+										opacity: { ...springs.ambient, delay: stagger.phi(1) },
+										scale: { ...springs.gentle, delay: stagger.phi(1) },
+									}
+						}
+						style={{
+							width: "100%",
+							height: "100%",
+							borderRadius: "100%",
+							backgroundColor: "var(--accent-400)",
+							opacity: isDark ? 0.08 : 0.05,
+							filter: "blur(120px)",
+						}}
+					/>
+				</div>
 
-				{/* Tertiary Ambient Core */}
+				{/* Tertiary Ambient Core — Arrives last, settling into place */}
 				<div
 					className="absolute"
 					style={{
@@ -176,20 +207,41 @@ export function HeroGradient({ className = "" }: HeroGradientProps) {
 						left: "50%",
 						top: "12%",
 						transform: "translateX(-50%)",
-						borderRadius: "100%",
-						backgroundColor: "var(--accent-300)",
-						opacity: isDark ? 0.06 : 0.04,
-						filter: "blur(80px)",
 					}}
-				/>
-			</motion.div>
+				>
+					<motion.div
+						initial={{ opacity: 0, scale: 0.6 }}
+						animate={isEnabled ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
+						transition={
+							prefersReducedMotion
+								? { duration: 0 }
+								: {
+										opacity: { ...springs.ambient, delay: stagger.phi(2) },
+										scale: { ...springs.gentle, delay: stagger.phi(2) },
+									}
+						}
+						style={{
+							width: "100%",
+							height: "100%",
+							borderRadius: "100%",
+							backgroundColor: "var(--accent-300)",
+							opacity: isDark ? 0.06 : 0.04,
+							filter: "blur(80px)",
+						}}
+					/>
+				</div>
+			</div>
 
-			{/* TEXTURE OVERLAY */}
+			{/* TEXTURE OVERLAY — Fades in after gradients settle */}
 			<motion.canvas
 				ref={canvasRef}
 				initial={{ opacity: 0 }}
 				animate={isEnabled ? { opacity: 1 } : { opacity: 0 }}
-				transition={{ duration: 1.2, delay: 0.5 }}
+				transition={
+					prefersReducedMotion
+						? { duration: 0 }
+						: { ...springs.ambient, delay: stagger.phi(3) + 0.2 }
+				}
 				className="absolute inset-0 h-full w-full"
 				style={{ zIndex: 1 }}
 			/>
