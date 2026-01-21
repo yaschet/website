@@ -42,7 +42,7 @@ const HeroSectionPreview = ({ debugHour }: { debugHour?: number }) => (
 				<SiteHeader />
 				<SwissGridSection id="hero" className="relative w-full">
 					<AtmosphereCanvas
-						className="pointer-events-none absolute inset-0 -z-10"
+						className="pointer-events-none absolute inset-0 z-[1]"
 						debugHour={debugHour}
 					/>
 
@@ -106,36 +106,47 @@ const HeroSectionPreview = ({ debugHour }: { debugHour?: number }) => (
 					<Reveal phase={2} className="relative z-10 w-full">
 						<section className="w-full">
 							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-								<Reveal phase={2}>
-									<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
-										I build products for the web.
-									</h1>
-								</Reveal>
-								<Reveal phase={2} delay={0.05}>
-									<p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
-										Web apps. SaaS platforms. Internal tools. From the first
-										idea to the final deploy. Complex systems that feel
-										effortless.
-									</p>
-								</Reveal>
-								<Reveal phase={2} delay={0.1}>
-									<div className="flex flex-wrap items-center gap-3">
-										<Button asChild size="lg" variant="solid" color="primary">
-											<Link href="/projects">
-												Case Studies
-												<ArrowRightIcon className="size-4" weight="bold" />
-											</Link>
-										</Button>
-										<Button
-											asChild
-											size="lg"
-											variant="outlined"
-											color="default"
-										>
-											<Link href="/contact">Email</Link>
-										</Button>
-									</div>
-								</Reveal>
+								{/* Content panel - surface layer for contrast against atmosphere */}
+								<div className="border border-surface-200/40 bg-surface-50/70 p-8 backdrop-blur-xs sm:p-10 dark:border-surface-800/40 dark:bg-surface-950/70">
+									<Reveal phase={2}>
+										<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
+											I build products for the web.
+										</h1>
+									</Reveal>
+									<Reveal phase={2} delay={0.05}>
+										<p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
+											Web apps. SaaS platforms. Internal tools. From the first
+											idea to the final deploy. Complex systems that feel
+											effortless.
+										</p>
+									</Reveal>
+									<Reveal phase={2} delay={0.1}>
+										<div className="flex flex-wrap items-center gap-3">
+											<Button
+												asChild
+												size="lg"
+												variant="solid"
+												color="primary"
+											>
+												<Link href="/projects">
+													Case Studies
+													<ArrowRightIcon
+														className="size-4"
+														weight="bold"
+													/>
+												</Link>
+											</Button>
+											<Button
+												asChild
+												size="lg"
+												variant="outlined"
+												color="default"
+											>
+												<Link href="/contact">Email</Link>
+											</Button>
+										</div>
+									</Reveal>
+								</div>
 							</div>
 						</section>
 					</Reveal>
@@ -158,10 +169,21 @@ export const Default: Story = {
 };
 
 /**
- * Fajr / Blue Hour (5:30 AM)
- * Low-angle morning palette
+ * Night / Early Morning (3:00 AM)
+ * Deep night with stars visible
  */
-export const Fajr: Story = {
+export const NightEarly: Story = {
+	args: {
+		debugHour: 3,
+	},
+	render: (args) => <HeroSectionPreview debugHour={args.debugHour} />,
+};
+
+/**
+ * Dawn / Blue Hour (5:30 AM)
+ * Pre-sunrise transition, warming colors
+ */
+export const Dawn: Story = {
 	args: {
 		debugHour: 5.5,
 	},
@@ -169,10 +191,10 @@ export const Fajr: Story = {
 };
 
 /**
- * Dawn (7:00 AM)
- * Warm morning palette
+ * Golden Hour Morning (7:00 AM)
+ * Warm sunrise palette
  */
-export const Dawn: Story = {
+export const GoldenMorning: Story = {
 	args: {
 		debugHour: 7,
 	},
@@ -180,10 +202,10 @@ export const Dawn: Story = {
 };
 
 /**
- * Day (12:00 PM)
- * Midday palette
+ * Midday (12:00 PM)
+ * Bright, neutral daytime sky
  */
-export const Day: Story = {
+export const Midday: Story = {
 	args: {
 		debugHour: 12,
 	},
@@ -191,23 +213,34 @@ export const Day: Story = {
 };
 
 /**
- * Dusk (18:00 / 6:00 PM)
- * Evening palette
+ * Golden Hour Evening (17:30 / 5:30 PM)
+ * Warm pre-dusk palette
  */
-export const Dusk: Story = {
+export const GoldenEvening: Story = {
 	args: {
-		debugHour: 18,
+		debugHour: 17.5,
 	},
 	render: (args) => <HeroSectionPreview debugHour={args.debugHour} />,
 };
 
 /**
- * Night (20:00 / 8:00 PM)
- * Night palette
+ * Dusk (19:00 / 7:00 PM)
+ * Twilight transition
+ */
+export const Dusk: Story = {
+	args: {
+		debugHour: 19,
+	},
+	render: (args) => <HeroSectionPreview debugHour={args.debugHour} />,
+};
+
+/**
+ * Night (22:00 / 10:00 PM)
+ * Deep night with stars
  */
 export const Night: Story = {
 	args: {
-		debugHour: 20,
+		debugHour: 22,
 	},
 	render: (args) => <HeroSectionPreview debugHour={args.debugHour} />,
 };

@@ -112,44 +112,47 @@ export default function Home() {
 						<Reveal phase={2} className="relative z-10 w-full">
 							<section className="w-full">
 								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<Reveal phase={2}>
-										<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
-											I build products for the web.
-										</h1>
-									</Reveal>
-									<Reveal phase={2} delay={0.05}>
-										<p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
-											Web apps. SaaS platforms. Internal tools. From the first
-											idea to the final deploy. Complex systems that feel
-											effortless.
-										</p>
-									</Reveal>
-									<Reveal phase={2} delay={0.1}>
-										<div className="flex flex-wrap items-center gap-3">
-											<Button
-												asChild
-												size="lg"
-												variant="solid"
-												color="primary"
-											>
-												<Link href="/projects">
-													Case Studies
-													<ArrowRightIcon
-														className="size-4"
-														weight="bold"
-													/>
-												</Link>
-											</Button>
-											<Button
-												asChild
-												size="lg"
-												variant="outlined"
-												color="default"
-											>
-												<Link href="/contact">Email</Link>
-											</Button>
-										</div>
-									</Reveal>
+									{/* Content panel - surface layer for contrast against atmosphere */}
+									<div className="border border-surface-200/40 bg-surface-50/70 p-8 backdrop-blur-xs sm:p-10 dark:border-surface-800/40 dark:bg-surface-950/70">
+										<Reveal phase={2}>
+											<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
+												I build products for the web.
+											</h1>
+										</Reveal>
+										<Reveal phase={2} delay={0.05}>
+											<p className="mb-8 max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
+												Web apps. SaaS platforms. Internal tools. From the
+												first idea to the final deploy. Complex systems that
+												feel effortless.
+											</p>
+										</Reveal>
+										<Reveal phase={2} delay={0.1}>
+											<div className="flex flex-wrap items-center gap-3">
+												<Button
+													asChild
+													size="lg"
+													variant="solid"
+													color="primary"
+												>
+													<Link href="/projects">
+														Case Studies
+														<ArrowRightIcon
+															className="size-4"
+															weight="bold"
+														/>
+													</Link>
+												</Button>
+												<Button
+													asChild
+													size="lg"
+													variant="outlined"
+													color="default"
+												>
+													<Link href="/contact">Email</Link>
+												</Button>
+											</div>
+										</Reveal>
+									</div>
 								</div>
 							</section>
 						</Reveal>
