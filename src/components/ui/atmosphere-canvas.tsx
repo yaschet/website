@@ -14,13 +14,48 @@
  * - Progressive blur for atmospheric depth
  * - Dramatic day/night differentiation
  * - Golden hour warm tones
+ *
+ * UI Integration:
+ * - Exposes `needsLightText` via context for UI components to adapt
+ * - Sky is TIME-REACTIVE, not theme-reactive
  */
 
-import { useTheme } from "next-themes";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+import { useReveal } from "@/src/components/providers/reveal-provider";
+import { springs } from "@/src/lib/index";
 import SunCalc from "suncalc";
 import { cn } from "@/lib/utils";
 import { useSwissGrid } from "./swiss-grid-canvas";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ATMOSPHERE CONTEXT - Exposes sky state to UI components
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface AtmosphereContextValue {
+	/** Whether the current sky needs light text (dark sky) or dark text (bright sky) */
+	needsLightText: boolean;
+	/** Whether it's currently night time */
+	isNight: boolean;
+}
+
+const AtmosphereContext = createContext<AtmosphereContextValue | null>(null);
+
+/**
+ * Hook to access atmosphere state for UI adaptation.
+ * Returns null if used outside of AtmosphereCanvas.
+ */
+export function useAtmosphere(): AtmosphereContextValue | null {
+	return useContext(AtmosphereContext);
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -183,23 +218,28 @@ interface SkyPalette {
 	cloudOpacity: number;
 	isNight: boolean;
 	starOpacity: number;
+	/** Whether UI text should be light (for dark backgrounds) */
+	needsLightText: boolean;
 }
 
 /**
  * Returns sky colors based on normalized time position (0-1).
  *
+ * IMPORTANT: The sky is TIME-REACTIVE, not theme-reactive.
+ * - Night (real time) = dark sky, needs light UI text
+ * - Day (real time) = bright sky, needs dark UI text
+ *
  * Time mapping:
- * - 0.00-0.20: Deep night (dark sky, stars visible)
- * - 0.20-0.30: Dawn transition (warming up)
- * - 0.30-0.70: Daytime (bright, blue sky)
- * - 0.70-0.80: Dusk transition (golden hour)
- * - 0.80-1.00: Night (dark sky, stars visible)
+ * - 0.00-0.22: Deep night (dark sky, stars visible)
+ * - 0.22-0.32: Dawn transition (warming up)
+ * - 0.32-0.68: Daytime (bright, blue sky)
+ * - 0.68-0.78: Dusk transition (golden hour)
+ * - 0.78-1.00: Night (dark sky, stars visible)
  *
  * @param normalizedTime - 0 = midnight, 0.5 = noon, 1 = midnight
- * @param isDark - Theme setting
  * @returns Color palette for current time
  */
-function getSkyPalette(normalizedTime: number, isDark: boolean): SkyPalette {
+function getSkyPalette(normalizedTime: number): SkyPalette {
 	// Calculate time-of-day factors
 	const isNight = normalizedTime < 0.22 || normalizedTime > 0.78;
 	const isDawn = normalizedTime >= 0.22 && normalizedTime <= 0.32;
@@ -221,8 +261,8 @@ function getSkyPalette(normalizedTime: number, isDark: boolean): SkyPalette {
 	const duskWarmth = isDusk ? 1 - Math.abs(normalizedTime - 0.73) * 20 : 0;
 	const warmth = Math.max(dawnWarmth, duskWarmth);
 
-	if (isDark) {
-		// Dark theme: Always deep, subtle variation with time
+	// Night: Dark sky - UI needs light text
+	if (isNight) {
 		const depthVariation = 0.3 + Math.sin(normalizedTime * Math.PI) * 0.2;
 		return {
 			skyGradientTop: `hsl(228, 28%, ${6 + depthVariation * 3}%)`,
@@ -230,47 +270,38 @@ function getSkyPalette(normalizedTime: number, isDark: boolean): SkyPalette {
 			cloudColor: `hsl(225, 15%, ${18 + depthVariation * 8}%)`,
 			cloudOpacity: 0.25 + depthVariation * 0.15,
 			isNight: true,
-			starOpacity: 0.4,
+			starOpacity: 0.4 + nightFactor * 0.3,
+			needsLightText: true,
 		};
 	}
 
-	// Light theme with dramatic time changes
-	if (isNight) {
-		// Night mode in light theme - Cool, minimal silver/blue (High Key Night)
-		// We avoid dark colors here to ensure text contrast remains high in light mode
-		return {
-			skyGradientTop: `hsl(215, 15%, 90%)`,
-			skyGradientBottom: `hsl(215, 10%, 95%)`,
-			cloudColor: `hsl(210, 5%, 99%)`,
-			cloudOpacity: 0.4,
-			isNight: false, // No stars in light mode for cleaner look
-			starOpacity: 0,
-		};
-	}
-
+	// Golden hour (dawn/dusk): Warm tones - still bright enough for dark text
 	if (isGoldenHour) {
-		// Golden hour - warm pink/orange tones
 		const hue = isDawn ? 25 + warmth * 15 : 35 - warmth * 10;
-		const sat = 25 + warmth * 35;
+		const sat = 30 + warmth * 40;
+		// Higher lightness for warm but bright sky
+		const lightness = 75 - warmth * 15;
 		return {
-			skyGradientTop: `hsl(${hue}, ${sat}%, ${88 - warmth * 8}%)`,
-			skyGradientBottom: `hsl(${hue + 10}, ${sat * 0.8}%, ${94 - warmth * 4}%)`,
-			cloudColor: `hsl(${hue - 5}, ${sat * 0.5}%, 98%)`,
-			cloudOpacity: 0.6 + warmth * 0.25,
+			skyGradientTop: `hsl(${hue}, ${sat}%, ${lightness}%)`,
+			skyGradientBottom: `hsl(${hue + 10}, ${sat * 0.7}%, ${lightness + 12}%)`,
+			cloudColor: `hsl(${hue - 5}, ${sat * 0.4}%, 95%)`,
+			cloudOpacity: 0.5 + warmth * 0.2,
 			isNight: false,
 			starOpacity: 0,
+			needsLightText: false, // Bright warm sky, dark text
 		};
 	}
 
-	// Daytime - bright, calm sky
+	// Daytime: Bright sky - UI needs dark text
 	const dayProgress = Math.sin((normalizedTime - 0.3) * Math.PI * 2.5);
 	return {
-		skyGradientTop: `hsl(210, ${8 + dayProgress * 4}%, ${92 - dayProgress * 2}%)`,
-		skyGradientBottom: `hsl(210, ${6 + dayProgress * 3}%, ${96 - dayProgress}%)`,
-		cloudColor: `hsl(210, 5%, 99%)`,
-		cloudOpacity: 0.55 + dayProgress * 0.15,
+		skyGradientTop: `hsl(210, ${15 + dayProgress * 8}%, ${88 - dayProgress * 5}%)`,
+		skyGradientBottom: `hsl(210, ${10 + dayProgress * 5}%, ${94 - dayProgress * 2}%)`,
+		cloudColor: `hsl(210, 5%, 100%)`,
+		cloudOpacity: 0.45 + dayProgress * 0.15,
 		isNight: false,
 		starOpacity: 0,
+		needsLightText: false, // Bright blue sky, dark text
 	};
 }
 
@@ -402,20 +433,30 @@ function generateCloudPuffs(count: number, seed: number): CloudPuff[] {
 interface AtmosphereCanvasProps {
 	className?: string;
 	debugHour?: number;
+	/** Children that will receive atmosphere context */
+	children?: React.ReactNode;
 }
 
 /**
  * Aesthetic sky background with soft cloud formations.
+ * Exposes atmosphere state to children via context.
  *
  * @example
- * <AtmosphereCanvas className="absolute inset-0" />
+ * <AtmosphereCanvas className="absolute inset-0">
+ *   <SiteHero />
+ * </AtmosphereCanvas>
  */
-export function AtmosphereCanvas({ className, debugHour }: AtmosphereCanvasProps) {
+export function AtmosphereCanvas({ className, debugHour, children }: AtmosphereCanvasProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [mounted, setMounted] = useState(false);
-	const { resolvedTheme } = useTheme();
 	const swissGrid = useSwissGrid();
+
+	// Atmosphere state exposed to UI
+	const [atmosphereState, setAtmosphereState] = useState<AtmosphereContextValue>({
+		needsLightText: true, // Default to night (safe for dark backgrounds)
+		isNight: true,
+	});
 
 	// Animation state refs
 	const animationRef = useRef<number>(0);
@@ -489,9 +530,19 @@ export function AtmosphereCanvas({ className, debugHour }: AtmosphereCanvasProps
 				return;
 			}
 
-			// Get palette
-			const isDark = resolvedTheme === "dark";
-			const palette = getSkyPalette(solarRef.current.normalizedPosition, isDark);
+			// Get palette based on TIME (not theme)
+			const palette = getSkyPalette(solarRef.current.normalizedPosition);
+
+			// Update atmosphere state for UI consumers (only when it changes)
+			setAtmosphereState((prev) => {
+				if (
+					prev.needsLightText !== palette.needsLightText ||
+					prev.isNight !== palette.isNight
+				) {
+					return { needsLightText: palette.needsLightText, isNight: palette.isNight };
+				}
+				return prev;
+			});
 
 			// Draw sky gradient
 			const skyGradient = ctx.createLinearGradient(0, 0, 0, height);
@@ -586,23 +637,9 @@ export function AtmosphereCanvas({ className, debugHour }: AtmosphereCanvasProps
 			// Reset filter
 			ctx.filter = "none";
 
-			// Bottom fade overlay - blends atmosphere to surface color
-			// This creates the seamless transition for text contrast
-			const fadeHeight = height * 0.5; // Bottom 50% fades out
-			const fadeGradient = ctx.createLinearGradient(0, height - fadeHeight, 0, height);
-			const surfaceColor = isDark ? "rgb(8, 8, 10)" : "rgb(250, 250, 250)";
-			fadeGradient.addColorStop(0, "rgba(0, 0, 0, 0)");
-			fadeGradient.addColorStop(
-				0.6,
-				isDark ? "rgba(8, 8, 10, 0.7)" : "rgba(250, 250, 250, 0.7)",
-			);
-			fadeGradient.addColorStop(1, surfaceColor);
-			ctx.fillStyle = fadeGradient;
-			ctx.fillRect(0, height - fadeHeight, width, fadeHeight);
-
 			animationRef.current = requestAnimationFrame(render);
 		},
-		[resolvedTheme, debugHour],
+		[debugHour],
 	);
 
 	// Animation lifecycle
@@ -627,22 +664,36 @@ export function AtmosphereCanvas({ className, debugHour }: AtmosphereCanvasProps
 		};
 	}, [swissGrid?.containerBounds]);
 
-	// Fallback background
-	const fallbackBg = resolvedTheme === "dark" ? "bg-surface-950" : "bg-surface-50";
+	// Reveal phase integration
+	const { phase } = useReveal();
+	const shouldReduceMotion = useReducedMotion();
+
+	// Canvas reveals at phase 1 (with primary content)
+	const isRevealed = phase >= 1;
+
+	// Only show when we have proper bounds from SwissGrid
+	const hasBounds = !!swissGrid?.containerBounds;
+	const isReady = mounted && hasBounds;
 
 	return (
-		<div
-			ref={containerRef}
-			className={cn("pointer-events-none absolute z-[1] overflow-hidden", className)}
-			style={containerStyle}
-			aria-hidden="true"
-		>
-			{mounted ? (
-				<canvas ref={canvasRef} className="h-full w-full" style={{ display: "block" }} />
-			) : (
-				<div className={cn("h-full w-full", fallbackBg)} />
-			)}
-		</div>
+		<AtmosphereContext.Provider value={atmosphereState}>
+			<motion.div
+				ref={containerRef}
+				initial={{ opacity: 0 }}
+				animate={isRevealed && isReady ? { opacity: 1 } : { opacity: 0 }}
+				transition={shouldReduceMotion ? { duration: 0 } : springs.gentle}
+				className={cn("pointer-events-none absolute z-1 overflow-hidden", className)}
+				style={containerStyle}
+				aria-hidden="true"
+			>
+				<canvas
+					ref={canvasRef}
+					className="h-full w-full"
+					style={{ display: "block" }}
+				/>
+			</motion.div>
+			{children}
+		</AtmosphereContext.Provider>
 	);
 }
 

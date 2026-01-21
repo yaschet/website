@@ -47,7 +47,7 @@ const HeroSectionPreview = ({ debugHour }: { debugHour?: number }) => (
 				<SwissGridSection id="hero" className="relative w-full">
 					{/* Sky Atmosphere — Contained to hero section only */}
 					<AtmosphereCanvas
-						className="pointer-events-none absolute inset-0 z-1 -left-1"
+						className="pointer-events-none absolute inset-0 -left-1 z-1"
 						debugHour={debugHour}
 					/>
 					{/* Profile Row */}
