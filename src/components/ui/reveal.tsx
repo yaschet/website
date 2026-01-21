@@ -18,6 +18,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { type RevealPhase, useReveal } from "@/src/components/providers/reveal-provider";
 import { distances, springs, stagger } from "@/src/lib/index";
 
@@ -59,14 +60,21 @@ export function Reveal({ children, delay = 0, className, phase = 1 }: RevealProp
 export function ScrollReveal({ children, delay = 0, className, phase = 3 }: RevealProps) {
 	const { phase: currentPhase } = useReveal();
 	const shouldReduceMotion = useReducedMotion();
+	const [hasEnteredView, setHasEnteredView] = useState(false);
 
-	// Only allow scroll-reveal to trigger if we've reached the required animation phase
-	const isEnabled = currentPhase >= phase;
+	// Phase gate: start only after phase is reached
+	const isPhaseReached = currentPhase >= phase;
+	const shouldReveal = isPhaseReached && hasEnteredView;
 
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: shouldReduceMotion ? 0 : distances.medium }}
-			whileInView={isEnabled ? { opacity: 1, y: 0 } : undefined}
+			animate={
+				shouldReveal
+					? { opacity: 1, y: 0 }
+					: { opacity: 0, y: shouldReduceMotion ? 0 : distances.medium }
+			}
+			onViewportEnter={() => setHasEnteredView(true)}
 			viewport={{ once: true, margin: "-50px" }}
 			transition={{ ...springs.gentle, delay }}
 			className={className}

@@ -87,7 +87,7 @@ export function ImageGallery({
 	className,
 	onIndexChange,
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw",
-	quality,
+	quality = 75,
 }: ImageGalleryProps) {
 	const [activeIndex, setActiveIndex] = useState(0);
 	const containerRef = useRef<HTMLDivElement>(null);

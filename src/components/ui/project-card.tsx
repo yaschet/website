@@ -70,7 +70,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 						{project.tech.slice(0, 4).map((tech: string) => (
 							<span
 								key={tech}
-								className="border border-surface-950 bg-transparent px-2 py-1 font-mono text-[10px] text-surface-950 uppercase tracking-wide dark:border-surface-100 dark:text-surface-100"
+								className="border border-surface-950 bg-transparent px-2 py-1 font-mono text-[10px] text-surface-800 uppercase tracking-wide dark:border-surface-100 dark:text-surface-200"
 							>
 								{tech}
 							</span>

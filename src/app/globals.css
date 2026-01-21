@@ -14,48 +14,48 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    CORE VARIABLE SYSTEM
-   Technical definition of the "Noir Wardrobe" palette: High-contrast OKLCH mapping.
+   Achromatic Swiss: Pure grayscale foundation. Color lives in the mesh.
+   Surface: True Black/White (Zero Chroma) | Accent: Sky Blue (Hue 210)
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* SURFACE: Charcoal/Navy Hybrid (The Suit) */
-  /* Scale derived from Navy Hue (270) | Minimal Chroma (0.01-0.015) for depth. */
-  --surface-color-50: oklch(0.98 0.002 270); /* Bone White */
-  --surface-color-100: oklch(0.95 0.004 270);
-  --surface-color-200: oklch(0.90 0.008 270);
-  --surface-color-300: oklch(0.82 0.010 270);
-  --surface-color-400: oklch(0.70 0.012 270);
-  --surface-color-500: oklch(0.55 0.015 270);
-  --surface-color-600: oklch(0.45 0.015 270);
-  --surface-color-700: oklch(0.35 0.015 270);
-  --surface-color-800: oklch(0.20 0.015 270); /* Deep Charcoal */
-  --surface-color-900: oklch(0.12 0.015 270); /* Midnight Navy */
-  --surface-color-950: oklch(0.08 0.015 270); /* The Void */
+  /* SURFACE: Pure Achromatic (Zero Chroma = True Grayscale) */
+  --surface-color-50: oklch(0.985 0 0);
+  --surface-color-100: oklch(0.96 0 0);
+  --surface-color-200: oklch(0.92 0 0);
+  --surface-color-300: oklch(0.84 0 0);
+  --surface-color-400: oklch(0.72 0 0);
+  --surface-color-500: oklch(0.56 0 0);
+  --surface-color-600: oklch(0.44 0 0);
+  --surface-color-700: oklch(0.34 0 0);
+  --surface-color-800: oklch(0.22 0 0);
+  --surface-color-900: oklch(0.14 0 0);
+  --surface-color-950: oklch(0.09 0 0);
 
-  /* PRIMARY: Mapping direct to Surface (Monochromatic Architecture) */
-  --primary-color-50: oklch(0.98 0.002 270);
-  --primary-color-100: oklch(0.95 0.004 270);
-  --primary-color-200: oklch(0.90 0.008 270);
-  --primary-color-300: oklch(0.82 0.010 270);
-  --primary-color-400: oklch(0.70 0.012 270);
-  --primary-color-500: oklch(0.55 0.015 270);
-  --primary-color-600: oklch(0.45 0.015 270);
-  --primary-color-700: oklch(0.35 0.015 270);
-  --primary-color-800: oklch(0.20 0.015 270);
-  --primary-color-900: oklch(0.12 0.015 270);
-  --primary-color-950: oklch(0.08 0.015 270);
+  /* PRIMARY: Direct Surface Mapping (Pure Achromatic) */
+  --primary-color-50: oklch(0.985 0 0);
+  --primary-color-100: oklch(0.96 0 0);
+  --primary-color-200: oklch(0.92 0 0);
+  --primary-color-300: oklch(0.84 0 0);
+  --primary-color-400: oklch(0.72 0 0);
+  --primary-color-500: oklch(0.56 0 0);
+  --primary-color-600: oklch(0.44 0 0);
+  --primary-color-700: oklch(0.34 0 0);
+  --primary-color-800: oklch(0.22 0 0);
+  --primary-color-900: oklch(0.14 0 0);
+  --primary-color-950: oklch(0.09 0 0);
 
-  /* ACCENT: Burgundy/Merlot Detail (Hue 20 | Muted Chroma) */
-  --accent-color-50: oklch(0.97 0.01 20);
-  --accent-color-100: oklch(0.92 0.02 20);
-  --accent-color-200: oklch(0.85 0.04 20);
-  --accent-color-300: oklch(0.75 0.08 20);
-  --accent-color-400: oklch(0.65 0.12 20);
-  --accent-color-500: oklch(0.50 0.14 20);
-  --accent-color-600: oklch(0.40 0.14 20);
-  --accent-color-700: oklch(0.30 0.12 20);
-  --accent-color-800: oklch(0.20 0.08 20);
-  --accent-color-900: oklch(0.15 0.05 20);
-  --accent-color-950: oklch(0.10 0.02 20);
+  /* ACCENT: Electric Blue (Hue 235 | Linear/Stripe territory) */
+  --accent-color-50: oklch(0.97 0.03 235);
+  --accent-color-100: oklch(0.93 0.06 235);
+  --accent-color-200: oklch(0.87 0.10 235);
+  --accent-color-300: oklch(0.78 0.14 235);
+  --accent-color-400: oklch(0.68 0.16 235);
+  --accent-color-500: oklch(0.58 0.16 235);
+  --accent-color-600: oklch(0.50 0.16 235);
+  --accent-color-700: oklch(0.42 0.14 235);
+  --accent-color-800: oklch(0.32 0.10 235);
+  --accent-color-900: oklch(0.22 0.06 235);
+  --accent-color-950: oklch(0.15 0.04 235);
 
   /* INFO: Professional Dark Navy (Hue 250) */
   --info-color-50: oklch(0.97 0.01 250);
@@ -113,24 +113,16 @@
      FLAG PALETTE: HARMONIZED TEXTILES
      Harmonized OKLCH values for internationalized components.
      ═══════════════════════════════════════════════════════════════════════════ */
-
-  /* Base neutrals mapped to surface scale */
-  --flag-palette-black: var(--surface-color-900); /* Primary dark */
-  --flag-palette-white: var(--surface-color-50);  /* Primary light */
-  --flag-palette-bright-white: oklch(1 0 0);       /* Absolute white, use sparingly */
-
-  /* Core primaries */
-  --flag-palette-blue: oklch(0.45 0.12 250);       /* Deep navy */
-  --flag-palette-bright-red: var(--accent-500);   /* Brand red */
-  --flag-palette-yellow: oklch(0.75 0.14 85);      /* Muted yellow */
-
-  /* Earth tones */
-  --flag-palette-green: var(--success-500);      /* Olive */
-  --flag-palette-dark-green: var(--success-600); /* Forest */
-  --flag-palette-brown: oklch(0.50 0.08 60);       /* Brown */
-  --flag-palette-dark-brown: oklch(0.35 0.08 60);  /* Dark brown */
-
-  /* Supporting colors for dark UI contexts */
+  /* --flag-palette-black: var(--surface-color-900); 
+  --flag-palette-white: var(--surface-color-50);
+  --flag-palette-bright-white: oklch(1 0 0);    
+  --flag-palette-blue: oklch(0.45 0.12 250);      
+  --flag-palette-bright-red: var(--destructive-500); 
+  --flag-palette-yellow: oklch(0.75 0.14 85);    
+  --flag-palette-green: var(--success-500);   
+  --flag-palette-dark-green: var(--success-600); 
+  --flag-palette-brown: oklch(0.50 0.08 60);       
+  --flag-palette-dark-brown: oklch(0.35 0.08 60);
   --flag-palette-navy: oklch(0.30 0.10 250);
   --flag-palette-light-blue: oklch(0.65 0.10 240);
   --flag-palette-gold: oklch(0.65 0.15 60);
@@ -139,16 +131,12 @@
   --flag-palette-pink: oklch(0.75 0.10 340);
   --flag-palette-purple: oklch(0.40 0.12 300);
   --flag-palette-violet: oklch(0.55 0.14 300);
-
-  /* Neutral scale derived from surface colors */
   --flag-palette-dark-grey: var(--surface-color-600);
   --flag-palette-mid-grey-1: var(--surface-color-400);
   --flag-palette-mid-grey-2: var(--surface-color-500);
   --flag-palette-mid-grey-3: var(--surface-color-600);
   --flag-palette-light-grey: var(--surface-color-200);
-
-  /* Extended yellow */
-  --flag-palette-dark-yellow: oklch(0.70 0.16 85);
+  --flag-palette-dark-yellow: oklch(0.70 0.16 85);  */
 
 
   /* ═══════════════════════════════════════════════════════════════════════════
@@ -1816,4 +1804,8 @@ h4:hover .anchor {
 @utility animate-draw-square {
   /* High-RPM (1s) to match sub-300ms page transitions. Sharp Layout easing (0.76, 0, 0.24, 1). */
   animation: draw-square 1s cubic-bezier(0.76, 0, 0.24, 1) infinite;
+}
+
+@utility animate-spin-slow-reverse {
+  animation: spin 3s linear infinite reverse;
 }

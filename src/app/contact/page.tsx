@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
 	return (
 		<SwissGridProvider>
-			<div className="flex flex-1 flex-col pb-29.5 text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 				<main className="relative z-10 flex flex-1 flex-col">
 					{/* Nav Row */}
 					<Reveal phase={1} className="w-full">
@@ -150,6 +150,7 @@ export default function ContactPage() {
 					</SwissGridSection>
 				</main>
 				<SiteFooter />
+				<SwissGridSection id="nav-spacer" className="h-29.5 w-full" />
 			</div>
 		</SwissGridProvider>
 	);

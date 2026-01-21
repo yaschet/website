@@ -59,7 +59,7 @@ export function MediaGallery({
 				onIndexChange={setActiveIndex}
 				className={className}
 				sizes="(max-width: 768px) 100vw, 768px"
-				quality={85}
+				quality={75}
 			/>
 
 			{/* Caption */}

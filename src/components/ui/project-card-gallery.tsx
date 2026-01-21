@@ -72,7 +72,7 @@ export function ProjectCardGallery({
 					showCounter={false}
 					className="border-0 border-surface-200 border-b dark:border-surface-800"
 					sizes="(max-width: 768px) 100vw, 768px"
-					quality={85}
+					quality={75}
 				/>
 			) : (
 				<section
@@ -92,7 +92,7 @@ export function ProjectCardGallery({
 				{/* Header Row */}
 				<div className="mb-3 flex items-start justify-between gap-4">
 					<div className="flex items-baseline gap-3">
-						<span className="font-mono text-surface-400 text-xs dark:text-surface-500">
+						<span className="font-mono text-surface-500 text-xs dark:text-surface-400">
 							{index}
 						</span>
 						<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
@@ -126,7 +126,7 @@ export function ProjectCardGallery({
 					{tags.map((tag) => (
 						<span
 							key={`${index}-tag-${tag}`}
-							className="inline-block border border-surface-200 bg-surface-100 px-2 py-0.5 font-mono text-[10px] text-surface-500 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-800 dark:text-surface-400"
+							className="inline-block border border-surface-200 bg-surface-100 px-2 py-0.5 font-mono text-[10px] text-surface-700 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300"
 						>
 							{tag}
 						</span>

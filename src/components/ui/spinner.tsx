@@ -2,11 +2,12 @@
  * Spinner component.
  *
  * @remarks
- * Uses Phosphor Icons and Framer Motion.
+ * Uses SVG and CSS animations to create a "drawing square" effect.
+ * Matches the system loading state design.
  *
  * @example
  * ```tsx
- * <Spinner size="md" />
+ * <Spinner size="md" color="primary" />
  * ```
  *
  * @public
@@ -14,112 +15,74 @@
 
 "use client";
 
-import { type IconProps, CircleNotchIcon as SpinnerIcon } from "@phosphor-icons/react";
-import { cva } from "class-variance-authority";
-import type { MotionProps } from "framer-motion";
-import { motion } from "framer-motion";
-import React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import type * as React from "react";
 import { cn } from "@/src/lib/index";
 
-const spinnerVariants = cva("size-5", {
-	defaultVariants: {
-		color: "primary",
-		size: "md",
-	},
+const spinnerVariants = cva("relative block", {
 	variants: {
-		color: {
-			currentColor: "text-current",
-			danger: "text-destructive",
-			dark: "text-black",
-			default: "text-inherit",
-			info: "text-info",
-			light: "text-white",
-			primary: "text-primary",
-			secondary: "text-secondary",
-			success: "text-success",
-			warning: "text-warning",
-		},
 		size: {
-			lg: "size-16",
-			md: "size-12",
-			sm: "size-8",
-			xl: "size-20",
 			xs: "size-4",
+			sm: "size-6",
+			md: "size-8",
+			lg: "size-12",
+			xl: "size-16",
+		},
+		color: {
+			default: "text-foreground",
+			primary: "text-primary-500",
+			secondary: "text-secondary-500",
+			accent: "text-accent-500",
+			info: "text-info-500",
+			success: "text-success-500",
+			warning: "text-warning-500",
+			destructive: "text-destructive-500",
+			white: "text-white",
 		},
 	},
-});
-
-export type SpinnerProps = IconProps &
-	MotionProps & {
-		size?: "xs" | "sm" | "md" | "lg" | "xl";
-		color?:
-			| "default"
-			| "primary"
-			| "secondary"
-			| "success"
-			| "danger"
-			| "warning"
-			| "info"
-			| "light"
-			| "dark"
-			| "currentColor";
-		className?: string;
-	};
-
-const SpinnerComponent = React.forwardRef<SVGSVGElement, SpinnerProps>(
-	(props, ref): React.JSX.Element => {
-		const { className, color, size, weight = "duotone", ...rest } = props;
-
-		return (
-			<SpinnerIcon
-				ref={ref}
-				className={cn(spinnerVariants({ color, size }), className)}
-				color="currentColor"
-				weight={weight}
-				{...rest}
-			/>
-		);
+	defaultVariants: {
+		size: "md",
+		color: "default",
 	},
-);
-
-SpinnerComponent.displayName = "Spinner";
-
-const MotionSpinner = motion.create(SpinnerComponent, {
-	forwardMotionProps: true,
 });
 
-export function Spinner({
-	className,
-	color = "currentColor",
-	size,
-	weight = "duotone",
-	...props
-}: SpinnerProps) {
-	return (
-		<MotionSpinner
-			animate={{ rotate: 360 }}
-			className={cn("animate-spin", spinnerVariants({ color, size }), className)}
-			color={color}
-			initial={{ rotate: 0 }}
-			size={size}
-			transition={{
-				bounce: 100,
-				damping: 50,
-				delay: 0.2,
-				duration: 3,
-				ease: "easeInOut",
-				mass: 10,
-				repeat: Infinity,
-				restDelta: 10,
-				restSpeed: 0.5,
-				stiffness: 0,
-				type: "spring",
-				velocity: 10,
-			}}
-			weight={weight}
-			{...props}
-		/>
-	);
+export interface SpinnerProps
+	extends Omit<React.SVGProps<SVGSVGElement>, "color">,
+		VariantProps<typeof spinnerVariants> {
+	className?: string;
 }
 
-export default Spinner;
+export function Spinner({ className, size, color, ...props }: SpinnerProps) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={cn(spinnerVariants({ size, color }), className)}
+			{...props}
+		>
+			<title>Loading</title>
+			{/* Track */}
+			<rect
+				x="2"
+				y="2"
+				width="20"
+				height="20"
+				className="stroke-current opacity-10"
+				strokeWidth="2"
+			/>
+			{/* Indicator */}
+			<rect
+				x="2"
+				y="2"
+				width="20"
+				height="20"
+				className="origin-center animate-draw-square stroke-current"
+				strokeWidth="2"
+				strokeDasharray="80"
+				strokeDashoffset="80"
+				strokeLinecap="square"
+			/>
+		</svg>
+	);
+}

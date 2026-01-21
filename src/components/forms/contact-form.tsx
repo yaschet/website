@@ -1,8 +1,7 @@
 "use client";
 
-import { ArrowRight, Spinner } from "@phosphor-icons/react";
+import { ArrowRight } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { submitContactForm } from "@/src/app/actions/contact";
 import { Button } from "@/src/components/ui/button";
@@ -12,44 +11,59 @@ import { Textarea } from "@/src/components/ui/form/textarea";
 import { type ContactFormValues, contactSchema } from "@/src/lib/schemas/contact";
 
 /**
+ * A reusable field component to reduce JSX repetition in the contact form.
+ */
+function FormField({
+	field,
+	label,
+	placeholder,
+	type = "text",
+	isTextArea = false,
+}: {
+	// biome-ignore lint/suspicious/noExplicitAny: Tanstack Form's FieldApi has high type overhead (23+ generics).
+	field: any;
+	label: string;
+	placeholder: string;
+	type?: string;
+	isTextArea?: boolean;
+}) {
+	const Comp = isTextArea ? Textarea : Input;
+
+	return (
+		<div className="group space-y-2.5">
+			<Label
+				htmlFor={field.name}
+				className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
+			>
+				{label}
+			</Label>
+			<Comp
+				id={field.name}
+				name={field.name}
+				// biome-ignore lint/suspicious/noExplicitAny: Input type alignment
+				type={type as any}
+				value={field.state.value}
+				onBlur={field.handleBlur}
+				// biome-ignore lint/suspicious/noExplicitAny: Event type alignment
+				onChange={(e: any) => field.handleChange(e.target.value)}
+				placeholder={placeholder}
+				size={isTextArea ? undefined : "lg"}
+				hasError={field.state.meta.isTouched && !!field.state.meta.errors.length}
+			/>
+			{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+				<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
+					{String(field.state.meta.errors[0])}
+				</p>
+			)}
+		</div>
+	);
+}
+
+/**
  * Interactive contact form with TanStack Form integration.
- *
- * @remarks
- * Features real-time validation, server action integration, and
- * optimistic UI updates. Uses standard form field components.
- *
- * @public
+ * Optimized for architectural simplicity and minimal JSX repetition.
  */
 export function ContactForm() {
-	const getErrorMessage = (error: unknown): string => {
-		if (typeof error === "string") return error;
-		if (error && typeof error === "object" && "message" in error) {
-			return String((error as { message: unknown }).message);
-		}
-		return "Invalid input";
-	};
-
-	const mutation = useMutation({
-		mutationFn: submitContactForm,
-		onSuccess: (data: { success: boolean; error?: string }) => {
-			if (data.success) {
-				toast.success("Message Transmitted", {
-					description: "Systems confirmed receipt. Awaiting engineering response.",
-				});
-				form.reset();
-			} else {
-				toast.error("Transmission Failed", {
-					description: data.error || "Uplink interrupted. Please retry.",
-				});
-			}
-		},
-		onError: () => {
-			toast.error("System Error", {
-				description: "An unexpected exception occurred in the communication stack.",
-			});
-		},
-	});
-
 	const form = useForm({
 		defaultValues: {
 			name: "",
@@ -58,7 +72,23 @@ export function ContactForm() {
 			message: "",
 		} as ContactFormValues,
 		onSubmit: async ({ value }) => {
-			mutation.mutate(value);
+			try {
+				const result = await submitContactForm(value);
+				if (result.success) {
+					toast.success("Message Sent", {
+						description: "I'll get back to you as soon as possible.",
+					});
+					form.reset();
+				} else {
+					toast.error("Failed to Send", {
+						description: result.error || "Please try again later.",
+					});
+				}
+			} catch (_error) {
+				toast.error("Error", {
+					description: "An unexpected error occurred. Please try again.",
+				});
+			}
 		},
 		validators: {
 			onChange: contactSchema,
@@ -75,162 +105,57 @@ export function ContactForm() {
 			className="space-y-10"
 		>
 			<div className="grid gap-8 sm:grid-cols-2">
-				{/* Name Field */}
 				<form.Field name="name">
-					{(field) => (
-						<div className="group space-y-2.5">
-							<Label
-								htmlFor={field.name}
-								className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
-							>
-								Name
-							</Label>
-							<Input
-								id={field.name}
-								name={field.name}
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								placeholder="John Doe"
-								size="lg"
-								hasError={
-									field.state.meta.isTouched && !!field.state.meta.errors.length
-								}
-							/>
-							{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-								<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
-									{getErrorMessage(field.state.meta.errors[0])}
-								</p>
-							)}
-						</div>
-					)}
+					{(field) => <FormField field={field} label="Name" placeholder="John Doe" />}
 				</form.Field>
 
-				{/* Email Field */}
 				<form.Field name="email">
 					{(field) => (
-						<div className="group space-y-2.5">
-							<Label
-								htmlFor={field.name}
-								className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
-							>
-								Email
-							</Label>
-							<Input
-								id={field.name}
-								name={field.name}
-								type="email"
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								placeholder="email@domain.com"
-								size="lg"
-								hasError={
-									field.state.meta.isTouched && !!field.state.meta.errors.length
-								}
-							/>
-							{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-								<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
-									{getErrorMessage(field.state.meta.errors[0])}
-								</p>
-							)}
-						</div>
+						<FormField
+							field={field}
+							label="Email"
+							placeholder="email@domain.com"
+							type="email"
+						/>
 					)}
 				</form.Field>
 			</div>
 
-			{/* Subject Field */}
 			<form.Field name="subject">
 				{(field) => (
-					<div className="group space-y-2.5">
-						<Label
-							htmlFor={field.name}
-							className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
-						>
-							Subject
-						</Label>
-						<Input
-							id={field.name}
-							name={field.name}
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(e) => field.handleChange(e.target.value)}
-							placeholder="Project Inquiry"
-							size="lg"
-							hasError={
-								field.state.meta.isTouched && !!field.state.meta.errors.length
-							}
-						/>
-						{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-							<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
-								{getErrorMessage(field.state.meta.errors[0])}
-							</p>
-						)}
-					</div>
+					<FormField field={field} label="Subject" placeholder="General Inquiry" />
 				)}
 			</form.Field>
 
-			{/* Message Field */}
 			<form.Field name="message">
 				{(field) => (
-					<div className="group space-y-2.5">
-						<Label
-							htmlFor={field.name}
-							className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
-						>
-							Message
-						</Label>
-						<Textarea
-							id={field.name}
-							name={field.name}
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(e) => field.handleChange(e.target.value)}
-							placeholder="Tell me about your project..."
-							hasError={
-								field.state.meta.isTouched && !!field.state.meta.errors.length
-							}
-						/>
-						{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-							<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
-								{getErrorMessage(field.state.meta.errors[0])}
-							</p>
-						)}
-					</div>
+					<FormField field={field} label="Message" placeholder="Message" isTextArea />
 				)}
 			</form.Field>
 
 			<form.Subscribe
-				// biome-ignore lint/suspicious/noExplicitAny: library type mismatch
-				selector={(state: any) =>
-					[state.canSubmit, state.isSubmitting] as [boolean, boolean]
-				}
+				selector={(state) => [state.canSubmit, state.isSubmitting] as [boolean, boolean]}
 			>
-				{(selectorData: [boolean, boolean]) => {
-					const [canSubmit, isSubmitting] = selectorData;
-					return (
-						<Button
-							type="submit"
-							size="xl"
-							variant="solid"
-							color="primary"
-							disabled={!canSubmit || isSubmitting || mutation.isPending}
-							className="w-full sm:w-auto"
-						>
-							{isSubmitting || mutation.isPending ? (
-								<>
-									TRANSMITTING...
-									<Spinner className="size-4 animate-spin" />
-								</>
-							) : (
-								<>
-									SEND MESSAGE
-									<ArrowRight className="size-4" weight="bold" />
-								</>
-							)}
-						</Button>
-					);
-				}}
+				{([canSubmit, isSubmitting]) => (
+					<Button
+						type="submit"
+						size="xl"
+						variant="solid"
+						color="primary"
+						disabled={!canSubmit || isSubmitting}
+						loading={isSubmitting}
+						className="w-full sm:w-auto"
+					>
+						{isSubmitting ? (
+							"TRANSMITTING..."
+						) : (
+							<>
+								SEND MESSAGE
+								<ArrowRight className="size-4" weight="bold" />
+							</>
+						)}
+					</Button>
+				)}
 			</form.Subscribe>
 		</form>
 	);
