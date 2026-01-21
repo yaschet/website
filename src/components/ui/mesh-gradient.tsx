@@ -194,42 +194,32 @@ interface ColorPoint {
 }
 
 /**
- * Light mode: Warm, soft pastels with subtle color variation.
- * Positioned to create a centered spotlight effect.
+ * Light mode: Vercel-style atmospheric haze.
+ * Single color family (cool gray-blue) with subtle warm accent.
+ * Minimal, clean, barely-there.
  */
 const LIGHT_COLORS: ColorPoint[] = [
-	// Primary spotlight: center-upper, warm rose
-	{ x: 0.5, y: 0.25, color: [255, 245, 245], radius: 0.8, weight: 1.0 },
-	// Secondary: upper-left, soft lavender
-	{ x: 0.15, y: 0.15, color: [248, 245, 255], radius: 0.6, weight: 0.7 },
-	// Tertiary: upper-right, warm cream
-	{ x: 0.85, y: 0.2, color: [255, 252, 245], radius: 0.55, weight: 0.65 },
-	// Lower fill: center-bottom, neutral
-	{ x: 0.5, y: 0.75, color: [252, 252, 254], radius: 0.7, weight: 0.5 },
-	// Left accent: soft blue tint
-	{ x: 0.1, y: 0.6, color: [248, 250, 255], radius: 0.5, weight: 0.4 },
+	// Primary glow: upper area, cool gray with blue undertone
+	{ x: 0.5, y: 0.2, color: [240, 242, 248], radius: 0.9, weight: 1.0 },
+	// Warm accent: subtle warmth to prevent sterile feel
+	{ x: 0.75, y: 0.35, color: [250, 248, 245], radius: 0.6, weight: 0.5 },
 ];
 
 /**
- * Dark mode: Deep, rich tones with vivid accents.
- * Same positions as light mode for consistency.
+ * Dark mode: Linear-style deep atmospheric glow.
+ * Single color family (deep blue-gray) radiating from top.
+ * Clean, sophisticated, not colorful.
  */
 const DARK_COLORS: ColorPoint[] = [
-	// Primary spotlight: deep purple core
-	{ x: 0.5, y: 0.25, color: [35, 25, 45], radius: 0.8, weight: 1.0 },
-	// Secondary: dark violet
-	{ x: 0.15, y: 0.15, color: [28, 22, 42], radius: 0.6, weight: 0.7 },
-	// Tertiary: warm dark brown
-	{ x: 0.85, y: 0.2, color: [38, 28, 25], radius: 0.55, weight: 0.65 },
-	// Lower fill: near-black neutral
-	{ x: 0.5, y: 0.75, color: [18, 18, 22], radius: 0.7, weight: 0.5 },
-	// Left accent: deep blue
-	{ x: 0.1, y: 0.6, color: [20, 22, 35], radius: 0.5, weight: 0.4 },
+	// Primary glow: upper area, deep blue-gray atmosphere
+	{ x: 0.5, y: 0.15, color: [22, 26, 35], radius: 0.85, weight: 1.0 },
+	// Secondary depth: adds dimension without color clash
+	{ x: 0.3, y: 0.4, color: [18, 22, 30], radius: 0.7, weight: 0.6 },
 ];
 
-/** Base background colors */
-const BASE_LIGHT: [number, number, number] = [253, 253, 254];
-const BASE_DARK: [number, number, number] = [12, 12, 14];
+/** Base background colors: pure achromatic */
+const BASE_LIGHT: [number, number, number] = [250, 250, 250];
+const BASE_DARK: [number, number, number] = [10, 10, 12];
 
 // ═══════════════════════════════════════════════════════════════════════════
 // GRADIENT RENDERER

@@ -14,48 +14,48 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    CORE VARIABLE SYSTEM
-   Technical definition of the "Noir Wardrobe" palette: High-contrast OKLCH mapping.
+   Achromatic Swiss: Pure grayscale foundation. Color lives in the mesh.
+   Surface: True Black/White (Zero Chroma) | Accent: Sky Blue (Hue 210)
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* SURFACE: Charcoal/Navy Hybrid (The Suit) */
-  /* Scale derived from Navy Hue (270) | Minimal Chroma (0.01-0.015) for depth. */
-  --surface-color-50: oklch(0.98 0.002 270); /* Bone White */
-  --surface-color-100: oklch(0.95 0.004 270);
-  --surface-color-200: oklch(0.90 0.008 270);
-  --surface-color-300: oklch(0.82 0.010 270);
-  --surface-color-400: oklch(0.70 0.012 270);
-  --surface-color-500: oklch(0.55 0.015 270);
-  --surface-color-600: oklch(0.45 0.015 270);
-  --surface-color-700: oklch(0.35 0.015 270);
-  --surface-color-800: oklch(0.20 0.015 270); /* Deep Charcoal */
-  --surface-color-900: oklch(0.12 0.015 270); /* Midnight Navy */
-  --surface-color-950: oklch(0.08 0.015 270); /* The Void */
+  /* SURFACE: Pure Achromatic (Zero Chroma = True Grayscale) */
+  --surface-color-50: oklch(0.985 0 0);
+  --surface-color-100: oklch(0.96 0 0);
+  --surface-color-200: oklch(0.92 0 0);
+  --surface-color-300: oklch(0.84 0 0);
+  --surface-color-400: oklch(0.72 0 0);
+  --surface-color-500: oklch(0.56 0 0);
+  --surface-color-600: oklch(0.44 0 0);
+  --surface-color-700: oklch(0.34 0 0);
+  --surface-color-800: oklch(0.22 0 0);
+  --surface-color-900: oklch(0.14 0 0);
+  --surface-color-950: oklch(0.09 0 0);
 
-  /* PRIMARY: Mapping direct to Surface (Monochromatic Architecture) */
-  --primary-color-50: oklch(0.98 0.002 270);
-  --primary-color-100: oklch(0.95 0.004 270);
-  --primary-color-200: oklch(0.90 0.008 270);
-  --primary-color-300: oklch(0.82 0.010 270);
-  --primary-color-400: oklch(0.70 0.012 270);
-  --primary-color-500: oklch(0.55 0.015 270);
-  --primary-color-600: oklch(0.45 0.015 270);
-  --primary-color-700: oklch(0.35 0.015 270);
-  --primary-color-800: oklch(0.20 0.015 270);
-  --primary-color-900: oklch(0.12 0.015 270);
-  --primary-color-950: oklch(0.08 0.015 270);
+  /* PRIMARY: Direct Surface Mapping (Pure Achromatic) */
+  --primary-color-50: oklch(0.985 0 0);
+  --primary-color-100: oklch(0.96 0 0);
+  --primary-color-200: oklch(0.92 0 0);
+  --primary-color-300: oklch(0.84 0 0);
+  --primary-color-400: oklch(0.72 0 0);
+  --primary-color-500: oklch(0.56 0 0);
+  --primary-color-600: oklch(0.44 0 0);
+  --primary-color-700: oklch(0.34 0 0);
+  --primary-color-800: oklch(0.22 0 0);
+  --primary-color-900: oklch(0.14 0 0);
+  --primary-color-950: oklch(0.09 0 0);
 
-  /* ACCENT: Professional Sky Blue (Hue 220 | Trustworthy, Artistic) */
-  --accent-color-50: oklch(0.97 0.01 220);
-  --accent-color-100: oklch(0.92 0.03 220);
-  --accent-color-200: oklch(0.85 0.06 220);
-  --accent-color-300: oklch(0.75 0.10 220);
-  --accent-color-400: oklch(0.65 0.14 220);
-  --accent-color-500: oklch(0.50 0.16 220);
-  --accent-color-600: oklch(0.42 0.16 220);
-  --accent-color-700: oklch(0.32 0.14 220);
-  --accent-color-800: oklch(0.22 0.10 220);
-  --accent-color-900: oklch(0.15 0.06 220);
-  --accent-color-950: oklch(0.10 0.03 220);
+  /* ACCENT: Neutral with subtle cool undertone (Vercel-style) */
+  --accent-color-50: oklch(0.97 0.005 240);
+  --accent-color-100: oklch(0.92 0.01 240);
+  --accent-color-200: oklch(0.85 0.015 240);
+  --accent-color-300: oklch(0.75 0.02 240);
+  --accent-color-400: oklch(0.65 0.025 240);
+  --accent-color-500: oklch(0.55 0.025 240);
+  --accent-color-600: oklch(0.45 0.025 240);
+  --accent-color-700: oklch(0.35 0.02 240);
+  --accent-color-800: oklch(0.25 0.015 240);
+  --accent-color-900: oklch(0.17 0.01 240);
+  --accent-color-950: oklch(0.12 0.005 240);
 
   /* INFO: Professional Dark Navy (Hue 250) */
   --info-color-50: oklch(0.97 0.01 250);
