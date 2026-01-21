@@ -120,7 +120,7 @@ function HeroContent() {
 			{/* Headline Content */}
 			<Reveal phase={2} className="relative z-10 w-full">
 				<section className="w-full">
-					<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+					<div className="mx-auto max-w-3xl px-6 pt-16 pb-24 sm:px-8">
 						<Reveal phase={2}>
 							<h1 className={cn("mb-6 text-heading-xl!", textPrimary)}>
 								I build products for the web.

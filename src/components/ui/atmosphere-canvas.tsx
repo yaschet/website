@@ -683,7 +683,14 @@ export function AtmosphereCanvas({ className, debugHour, children }: AtmosphereC
 				animate={isRevealed && isReady ? { opacity: 1 } : { opacity: 0 }}
 				transition={shouldReduceMotion ? { duration: 0 } : springs.gentle}
 				className={cn("pointer-events-none absolute z-1 overflow-hidden", className)}
-				style={containerStyle}
+				style={{
+					...containerStyle,
+					// Gradient edge fading: top 20px fade, bottom 80px fade
+					maskImage:
+						"linear-gradient(to bottom, transparent 0%, black 20px, black calc(100% - 80px), transparent 100%)",
+					WebkitMaskImage:
+						"linear-gradient(to bottom, transparent 0%, black 20px, black calc(100% - 80px), transparent 100%)",
+				}}
 				aria-hidden="true"
 			>
 				<canvas ref={canvasRef} className="h-full w-full" style={{ display: "block" }} />
