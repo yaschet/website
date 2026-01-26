@@ -21,6 +21,28 @@ coverImages:
     "/images/verto/translation-details-page.png",
     "/images/verto/landing-page-blur.png",
   ]
+tech:
+  [
+    "Next.js 16",
+    "OpenAI",
+    "Trigger.dev",
+    "Stripe",
+    "Supabase",
+    "Google Cloud",
+    "Tiptap",
+    "TypeScript",
+  ]
+seoKeywords:
+  [
+    "Radix UI",
+    "shadcn/ui",
+    "Recharts",
+    "React-PDF",
+    "framer-motion",
+    "Zod",
+    "React Server Components",
+    "PostgreSQL",
+  ]
 featured: true
 status: "Production"
 hideCoverGallery: true
@@ -213,15 +235,17 @@ Verto is currently in production, solving the "Layout Entropy" problem for real-
 
 This platform required a deep integration of Event-Driven Architecture and Modern Frontend Physics.
 
-| Domain | Core Stack | Implementation Details |
-| --- | --- | --- |
+| Domain | Core Stack | Key Libraries & Patterns |
+| :--- | :--- | :--- |
 | **Frontend** | **Next.js 16** | React Server Components, Server Actions, Edge Runtime. |
-| **UI System** | **Tailwind v4** | `shadcn/ui`, `framer-motion` (Shared Layout Animations). |
-| **Editor** | **Tiptap** | Headless ProseMirror implementation with Custom Node Views. |
-| **State** | **TanStack Query** | Optimistic UI updates synchronized via Supabase Realtime. |
-| **Compute** | **Trigger.dev** | Long-running background jobs (24h max duration). |
-| **Validation** | **Zod** | Strict schema validation for AI Structured Outputs. |
-| **Payments** | **Stripe** | Webhook-driven Ledger synchronization. |
+| **UI System** | **Tailwind v4** | `shadcn/ui` (Radix Primitives), `framer-motion` (Layout Physics), `sonner` (Toast System). |
+| **Editor** | **Tiptap** | Headless ProseMirror implementation with Custom Node Views (React NodeView). |
+| **State** | **TanStack Query** | Optimistic UI updates synchronized via Supabase Realtime (WebSockets). |
+| **Compute** | **Trigger.dev** | Long-running background jobs (24h max duration) on dedicated containers. |
+| **Validation** | **Zod** | Strict schema validation for AI Structured Outputs (`openai.responses`). |
+| **Data Viz** | **Recharts** | Interactive credit consumption and burn-down analytics. |
+| **PDF Engine** | **React-PDF** | Virtualized PDF rendering with `react-window` for large legal files. |
+| **Payments** | **Stripe** | Webhook-driven Ledger synchronization with Idempotency keys. |
 
 ---
 
