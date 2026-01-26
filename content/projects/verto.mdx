@@ -8,7 +8,7 @@ stack:
     "Next.js 16 (Server Actions)",
     "Trigger.dev (Durable Execution)",
     "Supabase (RLS & Realtime)",
-    "OpenAI Vision (GPT-5.2)",
+    "OpenAI Vision Models",
     "PostgreSQL (Double-Entry Ledger)",
     "TypeScript",
   ]
@@ -61,26 +61,26 @@ hideCoverGallery: true
   }}
 />
 
-## 01. The Technical Constraint
+## 01. The Problem
 
-The $30B translation industry has a hidden technical debt: **Layout Entropy**.
+The global translation industry has a hidden technical debt: **Layout Entropy**.
 
 Standard OCR tools (AWS Textract, Tesseract) treat documents as unstructured "bags of words." While they extract text efficiently, they fail to preserve layout topology—breaking tables, merging headers, and displacing stamps.
 
-**The Problem:** Sworn translators save 60 minutes on translation but lose 45 minutes *per document* manually reconstructing formatting in Microsoft Word.
+Sworn translators save 60 minutes on translation but lose 45 minutes *per document* manually reconstructing formatting in Microsoft Word.
 
-**The Solution:** I architected **Verto**, a proprietary reconstruction engine. It does not just "read" text; it rebuilds the document's DOM (Document Object Model) pixel-perfectly in native Google Docs.
+**The Solution:** I architected **Verto**, a proprietary reconstruction engine. It does not just "read" text; it rebuilds the document's DOM with high structural fidelity in native Google Docs.
 
 <Image
   src="/images/verto/review-editor.png"
   alt="Verto Review Editor Interface showing side-by-side comparison"
-  caption="The Verto Editor: A side-by-side verification environment ensuring 100% layout fidelity compared to source."
+  caption="The Verto Editor: A side-by-side verification environment ensuring near-perfect layout fidelity on supported document classes."
   priority={true}
 />
 
 ---
 
-## 02. System Architecture
+## 02. Architecture
 
 The system is designed as an event-driven, stateful reconstruction pipeline. It prioritizes **Durable Execution** over simple request/response cycles.
 
@@ -110,17 +110,17 @@ graph LR
 
 ```
 
-### A. The "Auditor" (Adversarial Verification)
+### A. The Auditor
 
 Generating JSON is easy; guaranteeing legal accuracy is hard. I implemented an **Adversarial Verification Loop** (Agent 2) that challenges the output of the reconstruction engine (Agent 1).
 
 1. **Agent 1 (Builder)**: Generates the document DOM based on visual input.
-2. **Agent 2 (Auditor)**: Performs pixel-level regression testing against the source image.
+2. **Agent 2 (Auditor)**: Performs geometric and visual consistency checks against the source image.
 3. **The Loop**: If the Auditor detects a missing stamp or misaligned table border, it rejects the batch and forces a regeneration with higher attention weights on the failed region.
 
-**Result:** A self-healing system that prioritizes accuracy over speed, crucial for the "Sworn Translation" market.
+**Result:** A self-correcting pipeline that prioritizes accuracy over speed, crucial for the "Sworn Translation" market.
 
-### B. The "Google Docs Bridge" (Custom Compiler)
+### B. The Google Docs Bridge
 
 The Google Docs API allows for programmatic document creation but requires strictly ordered `batchUpdate` requests. It does not accept HTML or raw text dumps.
 
@@ -134,7 +134,7 @@ Google Docs tables cannot be pasted; they must be constructed cell-by-cell. To h
 // Complexity: O(n*m) where n=rows, m=cols.
 
 // Core Logic: Resolving the Virtual Grid for Table Reconstruction
-// This ensures 100% fidelity for complex legal tables.
+// This ensures high structural fidelity for complex legal tables.
 
 for (let r = 0; r < node.content.length; r++) {
     for (const cell of row.content) {
@@ -167,7 +167,7 @@ captions={[
 caption="The Core Platform: High-fidelity interfaces for management and ingestion."
 />
 
-### C. Scalable Processing Pipeline
+### C. Processing Pipeline
 
 Processing 50+ page discovery files exceeds standard context windows. I implemented a **Rolling Context State Machine** that passes a `BatchContext` object between execution steps, enforcing semantic consistency across the entire file lifecycle.
 
@@ -189,7 +189,7 @@ caption="Process & Structure: Visualizing the deep-learning reconstruction pipel
 
 ---
 
-## 03. Infrastructure & Reliability
+## 03. Infrastructure
 
 ### The Double-Entry Ledger
 
@@ -218,27 +218,27 @@ caption="Admin & Operations: Zero-leakage credit management and security infrast
 
 ---
 
-## 04. The Business Impact
+## 04. Impact
 
 Verto is currently in production, solving the "Layout Entropy" problem for real-world legal documents.
 
 | Metric | Standard OCR | Verto Engine |
 | --- | --- | --- |
-| **Table Accuracy** | < 60% (Breaks on merges) | **100% (Virtual Grid Verified)** |
+| **Table Accuracy** | < 60% (Breaks on merges) | **High Fidelity (Virtual Grid Verified)** |
 | **Formatting Time** | 45 Minutes / Doc | **< 2 Minutes (Review Only)** |
-| **Success Rate** | ~85% (Timeouts on large files) | **99.9% (Durable Execution)** |
+| **Job Completion Rate** | ~85% (Timeouts on large files) | **99.9% (Durable Execution)** |
 | **Output** | Static PDF | **Native, Editable Google Doc** |
 
 ---
 
-## 05. Technology Matrix
+## 05. Tech Stack
 
-This platform required a deep integration of Event-Driven Architecture and Modern Frontend Physics.
+This platform required a deep integration of Event-Driven Architecture and Modern Frontend Constraints.
 
 | Domain | Core Stack | Key Libraries & Patterns |
 | :--- | :--- | :--- |
 | **Frontend** | **Next.js 16** | React Server Components, Server Actions, Edge Runtime. |
-| **UI System** | **Tailwind v4** | `shadcn/ui` (Radix Primitives), `framer-motion` (Layout Physics), `sonner` (Toast System). |
+| **UI System** | **Tailwind v4** | `shadcn/ui` (Radix Primitives), `framer-motion` (Layout Constraints), `sonner` (Toast System). |
 | **Editor** | **Tiptap** | Headless ProseMirror implementation with Custom Node Views (React NodeView). |
 | **State** | **TanStack Query** | Optimistic UI updates synchronized via Supabase Realtime (WebSockets). |
 | **Compute** | **Trigger.dev** | Long-running background jobs (24h max duration) on dedicated containers. |
@@ -249,7 +249,7 @@ This platform required a deep integration of Event-Driven Architecture and Moder
 
 ---
 
-## 06. The Architectural Thesis
+## 06. Thesis
 
 Verto proves that solving "Layout Entropy" requires treating documents as **Stateful Systems**, not static assets.
 

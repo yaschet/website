@@ -32,7 +32,7 @@ export function H1({ className, ...props }: ComponentPropsWithoutRef<"h1">) {
 			className={cn(
 				"mt-0 mb-6 text-heading-xl",
 				"text-foreground",
-				"-ml-[0.04em]", // Optical alignment
+				"-ml-[0.3em]", // Optical alignment
 				className,
 			)}
 			{...props}
@@ -50,7 +50,7 @@ export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 				"mt-16 mb-6 first:mt-0",
 				"font-bold text-2xl tracking-tight",
 				"text-foreground",
-				"-ml-[0.04em]", // Optical alignment
+				"-ml-[0.3em]", // Optical alignment
 				className,
 			)}
 			{...props}
@@ -68,7 +68,7 @@ export function H3({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
 				"mt-12 mb-4 first:mt-0",
 				"font-bold text-xl tracking-tight",
 				"text-foreground",
-				"-ml-[0.04em]", // Optical alignment
+				"-ml-[0.3em]", // Optical alignment
 				className,
 			)}
 			{...props}
@@ -238,7 +238,7 @@ export function Code({ className, ...props }: ComponentPropsWithoutRef<"code">) 
 	return (
 		<code
 			className={cn(
-				"relative rounded-none px-[0.3rem] py-[0.15rem] font-medium font-mono text-[0.85em]",
+				"relative rounded-none px-[0.3rem] -py-[0.2rem] font-medium font-mono text-[0.85em] leading-none",
 				"border border-surface-200 dark:border-surface-700",
 				"bg-surface-50 dark:bg-surface-900",
 				"text-surface-900 dark:text-surface-50",
@@ -309,7 +309,12 @@ export function Table({ className, ...props }: ComponentPropsWithoutRef<"table">
 export function THead({ className, ...props }: ComponentPropsWithoutRef<"thead">) {
 	return (
 		<thead
-			className={cn("border-surface-200 border-b dark:border-surface-800", className)}
+			className={cn(
+				"border-surface-200 border-b dark:border-surface-800",
+				"bg-surface-200/50 dark:bg-surface-800/50", // High Contrast Zebra
+				"transition-colors duration-200 hover:bg-surface-200/75 dark:hover:bg-surface-800/75", // Clear hover
+				className,
+			)}
 			{...props}
 		/>
 	);
@@ -332,7 +337,7 @@ export function TR({ className, ...props }: ComponentPropsWithoutRef<"tr">) {
 				"transition-colors duration-200", // Standard transition
 				"border-surface-200 border-b last:border-0 dark:border-surface-800", // Row separators
 				"hover:bg-surface-100 dark:hover:bg-surface-800", // Clear hover
-				"even:bg-surface-100 dark:even:bg-surface-800/50", // High Contrast Zebra
+				"even:bg-surface-100/25 dark:even:bg-surface-800/50", // High Contrast Zebra
 				className,
 			)}
 			{...props}

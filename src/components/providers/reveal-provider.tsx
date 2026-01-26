@@ -51,10 +51,10 @@ export function RevealProvider({ children }: RevealProviderProps) {
 	const [phase, setPhase] = useState<RevealPhase>(0);
 
 	useEffect(() => {
-		// Force scroll to top on initial mount
-		if (typeof window !== "undefined") {
-			window.scrollTo(0, 0);
-		}
+		// // Force scroll to top on initial mount
+		// if (typeof window !== "undefined") {
+		// 	window.scrollTo(0, 0);
+		// }
 
 		// Phase 1: Primary content (nav, profile) — 50ms
 		const t1 = setTimeout(() => setPhase(1), 50);
