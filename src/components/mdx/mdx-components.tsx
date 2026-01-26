@@ -239,10 +239,19 @@ export function Code({ className, ...props }: ComponentPropsWithoutRef<"code">) 
 	);
 }
 
+import { isValidElement } from "react";
+import { MermaidDiagram } from "@/src/components/mdx/mermaid-diagram";
+
 /**
  * Code Block (Pre).
  */
 export function Pre({ className, children, ...props }: ComponentPropsWithoutRef<"pre">) {
+	// Check if this is a mermaid block
+	// MDX passes `code` as children. check className of that code element.
+	if (isValidElement(children) && children.props.className?.includes("language-mermaid")) {
+		return <MermaidDiagram code={children.props.children} />;
+	}
+
 	return (
 		<CodeBlockWrapper className={className} {...props}>
 			{children}

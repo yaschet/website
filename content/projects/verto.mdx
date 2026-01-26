@@ -1,8 +1,8 @@
 ---
 title: "Verto"
-description: "Architecture of an AI-powered translation engine that preserves complex document layouts. Built with Next.js 16, Trigger.dev, and custom DOM reconstruction."
+description: "Architecture of an AI-powered translation engine that preserves complex document layouts. Zero-to-Production in a 12-week sprint."
 date: 2026-01-26
-role: "Lead Architect & Founder"
+role: "Lead Architect (12-Week Sprint)"
 stack:
   [
     "Next.js 16 (Server Actions)",
@@ -25,7 +25,7 @@ status: "Production"
 hideCoverGallery: true
 ---
 
-## Showcase Video
+## System Demonstration
 
 <Video
   playbackId="WNddSfv9LgR1KV01uf3sL02o02Lc9COwBWyr8rp7dsnceI"
@@ -61,7 +61,42 @@ Standard OCR tools (AWS Textract, Tesseract) treat documents as unstructured "ba
 
 The system is designed as an event-driven, stateful reconstruction pipeline. It prioritizes **Durable Execution** over simple request/response cycles.
 
-### A. The "Google Docs Bridge" (Custom Compiler)
+```mermaid
+graph LR
+    subgraph "The Edge (Next.js)"
+        User[User Upload] --> Auth[Identity & Security]
+    end
+
+    subgraph "The Brain (Trigger.dev)"
+        Orch[Orchestrator] --> Vision[Agent 1: Builder]
+        Vision --> Context{Rolling Context}
+        Context --> Vision
+        Vision --> Audit[Agent 2: Auditor]
+        Audit -- "Fail" --> Vision
+        Audit -- "Pass" --> Compiler[Google Docs Compiler]
+    end
+
+    subgraph "The State (Supabase)"
+        DB[(Ledger & Data)]
+        Storage[Artifact Storage]
+    end
+
+    Auth --> Orch
+    Compiler --> Storage
+    Compiler --> DB
+```
+
+### A. The "Auditor" (Adversarial Verification)
+
+Generating JSON is easy; guaranteeing legal accuracy is hard. I implemented an **Adversarial Verification Loop** (Agent 2) that challenges the output of the reconstruction engine (Agent 1).
+
+1.  **Agent 1 (Builder)**: Generates the document DOM based on visual input.
+2.  **Agent 2 (Auditor)**: Performs pixel-level regression testing against the source image.
+3.  **The Loop**: If the Auditor detects a missing stamp or misaligned table border, it rejects the batch and forces a regeneration with higher attention weights on the failed region.
+
+**Result:** A self-healing system that prioritizes accuracy over speed, crucial for the "Sworn Translation" market.
+
+### B. The "Google Docs Bridge" (Custom Compiler)
 
 The Google Docs API allows for programmatic document creation but requires strictly ordered `batchUpdate` requests. It does not accept HTML or raw text dumps.
 
@@ -107,7 +142,7 @@ for (let r = 0; r < node.content.length; r++) {
   caption="The Core Platform: High-fidelity interfaces for management and ingestion."
 />
 
-### B. Scalable Processing Pipeline
+### C. Scalable Processing Pipeline
 
 Processing 50+ page discovery files exceeds standard context windows. I implemented a **Rolling Context State Machine** that passes a `BatchContext` object between execution steps, enforcing semantic consistency across the entire file lifecycle.
 
@@ -166,14 +201,17 @@ Verto is currently in production, solving the "Layout Entropy" problem for real-
 | --- | --- | --- |
 | **Table Accuracy** | < 60% (Breaks on merges) | **100% (Virtual Grid Verified)** |
 | **Formatting Time** | 45 Minutes / Doc | **< 2 Minutes (Review Only)** |
+| **Success Rate** | ~85% (Timeouts on large files) | **99.9% (Durable Execution)** |
 | **Output** | Static PDF | **Native, Editable Google Doc** |
 
 
 
 ---
 
-## 05. Reflection
+## 05. The Architectural Thesis
 
-Building Verto required moving beyond "frameworks" and into "computer science." It wasn't enough to use Next.js; I had to write a compiler for Google Docs. It wasn't enough to use OpenAI; I had to engineer a verification loop to make it legally viable.
+Verto proves that solving "Layout Entropy" requires treating documents as **Stateful Systems**, not static assets.
 
-This project represents a shift from **Software Development** to **Systems Engineering**—building robust, stateful systems that solve expensive, real-world problems.
+ The value isn't in the AI model (which is a commodity); it is in the **Bridge** that makes that model compatible with the rigid physics of the real world (Google Docs, Legal Compliance, Auditors).
+
+This project wasn't just about building a translation tool; it was about engineering a **Visual Compiler** that turns raw pixels into structured, legally binding data.

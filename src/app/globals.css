@@ -1809,3 +1809,42 @@ h4:hover .anchor {
 @utility animate-spin-slow-reverse {
   animation: spin 3s linear infinite reverse;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SYNTAX HIGHLIGHTING (SHIKI / REHYPE-PRETTY-CODE)
+   Handles dual-theme switching via CSS variables.
+   ═══════════════════════════════════════════════════════════════════════════ */
+code[data-theme*=" "],
+code[data-theme*=" "] span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
+.dark code[data-theme*=" "],
+.dark code[data-theme*=" "] span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+
+/* Line numbers/highlighting */
+.line--highlighted {
+  @apply bg-surface-100 dark:bg-surface-800 border-l-2 border-primary-500;
+  width: 100%;
+}
+
+.word--highlighted {
+  @apply bg-surface-200 dark:bg-surface-700 rounded px-1;
+}
+
+[data-rehype-pretty-code-fragment] {
+  @apply relative;
+}
+
+[data-rehype-pretty-code-title] {
+  @apply px-4 py-2 font-mono text-xs font-medium border-b border-surface-200 dark:border-surface-800 bg-surface-50 dark:bg-surface-900 text-surface-600 dark:text-surface-400 rounded-t-lg;
+}
+
+/* Ensure the pre block inherits the correct background if handled by standard block */
+pre {
+    @apply bg-transparent;
+}

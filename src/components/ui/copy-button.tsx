@@ -1,21 +1,8 @@
-/**
- * CopyButton component.
- *
- * @remarks
- * Client-side component for clipboard interaction.
- *
- * @example
- * ```tsx
- * <CopyButton text="content" />
- * ```
- *
- * @public
- */
-
 "use client";
 
 import { Check, Copy } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
+import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/index";
 
 interface CopyButtonProps {
@@ -33,15 +20,15 @@ export function CopyButton({ text, className }: CopyButtonProps) {
 	}, [text]);
 
 	return (
-		<button
-			type="button"
+		<Button
+			variant="plain"
+			size="icon-sm"
+			color="default"
 			onClick={handleCopy}
 			className={cn(
-				"flex size-8 items-center justify-center",
-				"border border-surface-200 bg-surface-50 dark:border-surface-700 dark:bg-surface-800",
-				"opacity-0 transition-all duration-200 group-hover:opacity-100",
-				"hover:border-surface-300 hover:bg-surface-100 dark:hover:border-surface-600 dark:hover:bg-surface-700",
-				"focus:outline-none focus:ring-2 focus:ring-surface-400",
+				"absolute top-2 right-2 z-10",
+				"opacity-0 transition-opacity duration-200 group-hover:opacity-100",
+				"bg-surface-50/80 backdrop-blur dark:bg-surface-800/80",
 				className,
 			)}
 			aria-label={copied ? "Copied!" : "Copy code"}
@@ -49,8 +36,8 @@ export function CopyButton({ text, className }: CopyButtonProps) {
 			{copied ? (
 				<Check size={14} weight="bold" className="text-success-500" />
 			) : (
-				<Copy size={14} weight="bold" className="text-surface-500 dark:text-surface-400" />
+				<Copy size={14} weight="bold" className="text-muted-foreground" />
 			)}
-		</button>
+		</Button>
 	);
 }

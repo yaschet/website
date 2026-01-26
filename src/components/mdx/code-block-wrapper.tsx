@@ -34,8 +34,10 @@ export function CodeBlockWrapper({ children, className, ...props }: CodeBlockWra
 				ref={preRef}
 				className={cn(
 					"code-block-pre overflow-x-auto border border-border p-4",
-					"bg-background text-foreground",
+					// "bg-background text-foreground", // REMOVED: Conflicts with Shiki
 					"font-mono text-sm leading-relaxed",
+					// Ensure background is handled by Shiki or fallback
+					"bg-surface-50 dark:bg-surface-950",
 					className,
 				)}
 				{...props}
@@ -45,6 +47,7 @@ export function CodeBlockWrapper({ children, className, ...props }: CodeBlockWra
 			{/* Copy Button - reads text from pre ref */}
 			<CopyButton
 				text={typeof children === "string" ? children : ""}
+				// Positioning logic is now inside the button or passed here
 				className="absolute top-2 right-2"
 			/>
 		</div>
