@@ -56,6 +56,11 @@ export const Project = defineDocumentType(() => ({
 			type: "boolean",
 			default: false,
 		},
+		hideCoverGallery: {
+			type: "boolean",
+			default: false,
+			required: false,
+		},
 	},
 	computedFields: {
 		slug: {

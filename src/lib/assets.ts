@@ -15,7 +15,6 @@ import VertoAccount from "@/public/images/verto/account-page.png";
 import VertoBilling from "@/public/images/verto/billing-page.png";
 import VertoCustomers from "@/public/images/verto/customers-page.png";
 import VertoDashboard from "@/public/images/verto/dashboard-page.png";
-import VertoEditor from "@/public/images/verto/editor.png";
 import VertoLanding from "@/public/images/verto/landing-page.png";
 import VertoLandingBlur from "@/public/images/verto/landing-page-blur.png";
 import VertoNewTranslation from "@/public/images/verto/new-translation-page.png";
@@ -33,7 +32,6 @@ export const assetMap: Record<string, StaticImageData> = {
 	"/images/verto/billing-page.png": VertoBilling,
 	"/images/verto/customers-page.png": VertoCustomers,
 	"/images/verto/dashboard-page.png": VertoDashboard,
-	"/images/verto/editor.png": VertoEditor,
 	"/images/verto/landing-page-blur.png": VertoLandingBlur,
 	"/images/verto/landing-page.png": VertoLanding,
 	"/images/verto/new-translation-page.png": VertoNewTranslation,

@@ -23,6 +23,7 @@ interface ProjectContentProps {
 type ProjectWithExtras = Project & {
 	readingTime?: number;
 	coverImages?: string[];
+	hideCoverGallery?: boolean;
 };
 
 export function ProjectContentRSC({ project }: ProjectContentProps) {
@@ -48,7 +49,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									</Link>
 
 									{/* Hero Gallery - Client Island */}
-									{galleryImages.length > 0 && (
+									{galleryImages.length > 0 && !projectData.hideCoverGallery && (
 										<div className="mb-8">
 											<ImageGallery
 												images={galleryImages}
