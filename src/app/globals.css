@@ -1813,32 +1813,41 @@ h4:hover .anchor {
 /* ═══════════════════════════════════════════════════════════════════════════
    SYNTAX HIGHLIGHTING (SUGAR HIGH)
    Lightweight, server-side syntax highlighting tokens.
+   Maps to colorful Design System variants (Achromatic Swiss base + Chromatic Tokens).
    ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --sh-keyword: var(--warning-color-600);
+  --sh-string: var(--success-color-600);
+  --sh-comment: var(--surface-color-400);
+  --sh-class: var(--accent-color-600);
+  --sh-variable: var(--surface-color-900);
+  --sh-function: var(--accent-color-500);
+  --sh-operator: var(--surface-color-500);
+  --sh-sign: var(--surface-color-400);
+  --sh-property: var(--accent-color-700);
+  --sh-identifier: var(--surface-color-900);
+  --sh-space: transparent;
+}
+
+.dark {
+  --sh-keyword: var(--warning-color-400);
+  --sh-string: var(--success-color-400);
+  --sh-comment: var(--surface-color-500);
+  --sh-class: var(--accent-color-300);
+  --sh-variable: var(--surface-color-100);
+  --sh-function: var(--accent-color-400);
+  --sh-operator: var(--surface-color-400);
+  --sh-sign: var(--surface-color-500);
+  --sh-property: var(--accent-color-300);
+  --sh-identifier: var(--surface-color-100);
+}
+
 .sh__content {
   display: block;
 }
 
-/* Base Light Mode Tokens */
-.sh__token--keyword { color: var(--primary-color-600); font-weight: 600; }
-.sh__token--string { color: var(--success-color-600); }
-.sh__token--comment { color: var(--surface-color-400); font-style: italic; }
-.sh__token--class { color: var(--primary-color-700); }
-.sh__token--variable { color: var(--surface-color-900); }
-.sh__token--function { color: var(--primary-color-500); }
-.sh__token--operator { color: var(--surface-color-500); }
-.sh__token--sign { color: var(--surface-color-400); }
-.sh__token--property { color: var(--surface-color-700); }
-
-/* Dark Mode Overrides */
-.dark .sh__token--keyword { color: var(--primary-color-400); }
-.dark .sh__token--string { color: var(--success-color-400); }
-.dark .sh__token--comment { color: var(--surface-color-500); }
-.dark .sh__token--class { color: var(--primary-color-300); }
-.dark .sh__token--variable { color: var(--surface-color-100); }
-.dark .sh__token--function { color: var(--primary-color-400); }
-.dark .sh__token--operator { color: var(--surface-color-400); }
-.dark .sh__token--sign { color: var(--surface-color-500); }
-.dark .sh__token--property { color: var(--surface-color-300); }
+.sh__token--keyword { font-weight: 600; }
+.sh__token--comment { font-style: italic; }
 
 /* Line numbers/highlighting */
 .line--highlighted {

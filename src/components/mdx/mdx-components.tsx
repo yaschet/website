@@ -9,6 +9,7 @@
 
 import Image from "next/image";
 import type { ComponentPropsWithoutRef } from "react";
+import { highlight } from "sugar-high";
 import { CodeBlockWrapper } from "@/src/components/mdx/code-block-wrapper";
 import { MediaCompare } from "@/src/components/mdx/media-compare";
 import { MediaGallery } from "@/src/components/mdx/media-gallery";
@@ -246,7 +247,7 @@ import { MermaidDiagram } from "@/src/components/mdx/mermaid-diagram";
  * Code Block (Pre).
  */
 export function Pre({ className, children, ...props }: ComponentPropsWithoutRef<"pre">) {
-	// Check if this is a mermaid block
+	// 1. Mermaid Check
 	if (isValidElement(children)) {
 		const child = children as ReactElement<{ children?: string; className?: string }>;
 		if (child.props?.className?.includes("language-mermaid")) {
@@ -254,15 +255,30 @@ export function Pre({ className, children, ...props }: ComponentPropsWithoutRef<
 		}
 	}
 
-	// Extract the raw code text from the children (which is typically a <code> element)
-	const rawCode = isValidElement(children)
-		? (children as ReactElement<{ children?: React.ReactNode }>).props.children
-		: children;
+	// 2. Extract raw text from MDX children
+	const extractText = (node: React.ReactNode): string => {
+		if (typeof node === "string") return node;
+		if (typeof node === "number") return node.toString();
+		if (Array.isArray(node)) return node.map(extractText).join("");
+		if (isValidElement(node)) {
+			const element = node as ReactElement<{ children?: React.ReactNode }>;
+			return extractText(element.props.children);
+		}
+		return "";
+	};
+
+	const rawCode = extractText(children);
+
+	// 3. Highlight on the server
+	const highlightedHtml = highlight(rawCode);
 
 	return (
-		<CodeBlockWrapper className={className} {...props}>
-			{rawCode}
-		</CodeBlockWrapper>
+		<CodeBlockWrapper
+			className={className}
+			highlightedHtml={highlightedHtml}
+			rawCode={rawCode}
+			{...props}
+		/>
 	);
 }
 

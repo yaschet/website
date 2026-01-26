@@ -34,6 +34,19 @@ export const Project = defineDocumentType(() => ({
 			of: { type: "string" },
 			default: [],
 		},
+		role: {
+			type: "string",
+			required: false,
+		},
+		stack: {
+			type: "list",
+			of: { type: "string" },
+			required: false,
+		},
+		status: {
+			type: "string",
+			required: false,
+		},
 		url: {
 			type: "string",
 			required: false,

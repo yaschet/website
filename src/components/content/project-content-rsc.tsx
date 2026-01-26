@@ -86,23 +86,70 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									</div>
 
 									{/* Description */}
-									<p className="mb-8 max-w-xl text-body-lg text-muted-foreground">
+									<p className="mb-12 max-w-xl text-body-lg text-muted-foreground">
 										{project.description}
 									</p>
 
-									{/* Tech Stack */}
-									{project.tech && project.tech.length > 0 && (
-										<div className="mb-8 flex flex-wrap gap-2">
-											{project.tech.map((tech: string) => (
-												<span
-													key={tech}
-													className="border border-surface-950 bg-transparent px-3 py-1.5 font-mono text-surface-950 text-xs uppercase tracking-wide dark:border-surface-100 dark:text-surface-100"
-												>
-													{tech}
+									{/* Metadata Table (Role, Stack, Status) */}
+									<div className="mb-12 grid grid-cols-1 gap-8 border-surface-200 border-t py-8 sm:grid-cols-2 dark:border-surface-800">
+										{project.role && (
+											<div className="flex flex-col gap-2">
+												<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+													Role
 												</span>
-											))}
-										</div>
-									)}
+												<span className="font-medium text-foreground text-sm">
+													{project.role}
+												</span>
+											</div>
+										)}
+										{project.status && (
+											<div className="flex flex-col gap-2">
+												<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+													Status
+												</span>
+												<span className="font-medium text-foreground text-sm">
+													{project.status}
+												</span>
+											</div>
+										)}
+										{project.stack && project.stack.length > 0 && (
+											<div className="flex flex-col gap-2 sm:col-span-2">
+												<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+													Engine Stack
+												</span>
+												<div className="flex flex-wrap gap-2">
+													{project.stack.map((item: string) => (
+														<span
+															key={item}
+															className="border border-surface-200 bg-surface-50 px-2 py-0.5 font-mono text-[11px] text-surface-600 uppercase tracking-tight dark:border-surface-800 dark:bg-surface-900 dark:text-surface-400"
+														>
+															{item}
+														</span>
+													))}
+												</div>
+											</div>
+										)}
+										{/* Fallback to legacy tech tags if stack is missing */}
+										{!project.stack &&
+											project.tech &&
+											project.tech.length > 0 && (
+												<div className="flex flex-col gap-2 sm:col-span-2">
+													<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+														Technologies
+													</span>
+													<div className="flex flex-wrap gap-2">
+														{project.tech.map((tech: string) => (
+															<span
+																key={tech}
+																className="border border-surface-200 bg-surface-50 px-2 py-0.5 font-mono text-[11px] text-surface-600 uppercase tracking-tight dark:border-surface-800 dark:bg-surface-900 dark:text-surface-400"
+															>
+																{tech}
+															</span>
+														))}
+													</div>
+												</div>
+											)}
+									</div>
 
 									{/* Links */}
 									{(project.url || project.github) && (
