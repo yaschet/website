@@ -36,6 +36,8 @@ interface ProjectCardGalleryProps {
 	index: string;
 	tags: string[];
 	isPrivate?: boolean;
+	challenge?: string;
+	solution?: string;
 	className?: string;
 }
 
@@ -47,9 +49,26 @@ export function ProjectCardGallery({
 	index,
 	tags,
 	isPrivate = false,
+	challenge,
+	solution,
 	className,
 }: ProjectCardGalleryProps) {
 	const galleryImages = images && images.length > 0 ? images : [];
+
+	if (isPrivate) {
+		return (
+			<div
+				className={cn(
+					"group block w-full overflow-hidden rounded-[var(--radius)]",
+					"border border-surface-200 bg-surface-50 dark:border-surface-800 dark:bg-surface-900",
+					"transition-shadow duration-300",
+					className,
+				)}
+			>
+				{renderContent()}
+			</div>
+		);
+	}
 
 	return (
 		<Link
@@ -61,78 +80,123 @@ export function ProjectCardGallery({
 				className,
 			)}
 		>
-			{/* IMAGE ZONE — Interactive Gallery */}
-			{galleryImages.length > 0 ? (
-				<ImageGallery
-					images={galleryImages}
-					altPrefix={title}
-					aspectRatio="16/9"
-					showArrows={galleryImages.length > 1}
-					showProgress={galleryImages.length > 1}
-					showCounter={false}
-					className="border-0 border-surface-200 border-b dark:border-surface-800"
-					sizes="(max-width: 768px) 100vw, 768px"
-					quality={75}
-				/>
-			) : (
-				<section
-					className="relative aspect-[16/9] w-full overflow-hidden bg-surface-100 dark:bg-surface-800"
-					aria-label="No preview available"
-				>
-					<div className="flex h-full w-full items-center justify-center">
-						<span className="font-mono text-surface-400 text-xs uppercase tracking-wider">
-							No Preview
-						</span>
-					</div>
-				</section>
-			)}
-
-			{/* DATA ZONE — Solid Background, Maximum Legibility */}
-			<div className="p-6">
-				{/* Header Row */}
-				<div className="mb-3 flex items-start justify-between gap-4">
-					<div className="flex items-baseline gap-3">
-						<span className="font-mono text-surface-500 text-xs dark:text-surface-400">
-							{index}
-						</span>
-						<h3 className="font-medium text-lg text-surface-900 leading-tight dark:text-surface-50">
-							{title}
-						</h3>
-					</div>
-
-					{/* Action Icon */}
-					<div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-surface-200 bg-surface-100 transition-all duration-300 group-hover:border-surface-900 group-hover:bg-surface-900 dark:border-surface-700 dark:bg-surface-800 dark:group-hover:border-surface-100 dark:group-hover:bg-surface-100">
-						{isPrivate ? (
-							<Lock
-								weight="bold"
-								className="size-3.5 text-surface-600 transition-colors duration-300 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
-							/>
-						) : (
-							<ArrowUpRight
-								weight="bold"
-								className="size-3.5 text-surface-600 transition-all duration-300 group-hover:translate-x-px group-hover:-translate-y-px group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
-							/>
-						)}
-					</div>
-				</div>
-
-				{/* Description */}
-				<p className="mb-4 line-clamp-2 text-sm text-surface-600 dark:text-surface-400">
-					{description}
-				</p>
-
-				{/* Tags — Hard Edge (0 radius) */}
-				<div className="flex flex-wrap gap-1.5">
-					{tags.map((tag) => (
-						<span
-							key={`${index}-tag-${tag}`}
-							className="inline-block border border-surface-200 bg-surface-100 px-2 py-0.5 font-mono text-[10px] text-surface-700 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300"
-						>
-							{tag}
-						</span>
-					))}
-				</div>
-			</div>
+			{renderContent()}
 		</Link>
 	);
+
+	function renderContent() {
+		return (
+			<>
+				{/* IMAGE ZONE — Interactive Gallery */}
+				{galleryImages.length > 0 ? (
+					<div className="relative">
+						<ImageGallery
+							images={galleryImages}
+							altPrefix={title}
+							aspectRatio="16/9"
+							showArrows={galleryImages.length > 1 && !isPrivate}
+							showProgress={galleryImages.length > 1 && !isPrivate}
+							showCounter={false}
+							className="border-0 border-surface-200 border-b dark:border-surface-800"
+							sizes="(max-width: 768px) 100vw, 768px"
+							quality={75}
+						/>
+						{isPrivate && (
+							<div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-50/10 backdrop-blur-3xl transition-all duration-500 dark:bg-surface-900/40">
+								<div className="flex flex-col items-center gap-3">
+									<Lock
+										weight="bold"
+										className="size-5 text-surface-900 opacity-60 dark:text-surface-100"
+									/>
+									<span className="font-medium font-mono text-surface-900 text-xs uppercase tracking-[0.25em] opacity-80 dark:text-surface-100">
+										Coming Soon
+									</span>
+								</div>
+							</div>
+						)}
+					</div>
+				) : (
+					<section
+						className="relative aspect-[16/9] w-full overflow-hidden bg-surface-100 dark:bg-surface-800"
+						aria-label="No preview available"
+					>
+						<div className="flex h-full w-full items-center justify-center">
+							<span className="font-mono text-surface-400 text-xs uppercase tracking-wider">
+								No Preview
+							</span>
+						</div>
+					</section>
+				)}
+
+				{/* DATA ZONE — Solid Background, Maximum Legibility */}
+				<div className="p-6">
+					{/* Header Row */}
+					<div className="mb-3 flex items-start justify-between gap-4">
+						<div className="flex items-baseline gap-3">
+							<span className="font-mono text-surface-500 text-xs dark:text-surface-400">
+								{index}
+							</span>
+							<h3 className="font-medium text-lg text-surface-900 leading-tight dark:text-surface-50">
+								{title}
+							</h3>
+						</div>
+
+						{/* Action Icon */}
+						<div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-surface-200 bg-surface-100 transition-all duration-300 group-hover:border-surface-900 group-hover:bg-surface-900 dark:border-surface-700 dark:bg-surface-800 dark:group-hover:border-surface-100 dark:group-hover:bg-surface-100">
+							{isPrivate ? (
+								<Lock
+									weight="bold"
+									className="size-3.5 text-surface-600 transition-colors duration-300 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+								/>
+							) : (
+								<ArrowUpRight
+									weight="bold"
+									className="size-3.5 text-surface-600 transition-all duration-300 group-hover:translate-x-px group-hover:-translate-y-px group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+								/>
+							)}
+						</div>
+					</div>
+
+					{/* Description */}
+					<p className="mb-4 line-clamp-2 text-sm text-surface-600 dark:text-surface-400">
+						{description}
+					</p>
+
+					{/* Extended Details (Challenge / Solution) */}
+					{(challenge || solution) && (
+						<div className="mb-6 space-y-2 border-surface-200 border-l-2 pl-4 dark:border-surface-700">
+							{challenge && (
+								<div className="text-sm text-surface-600 dark:text-surface-400">
+									<strong className="block font-medium text-surface-900 dark:text-surface-100">
+										Challenge
+									</strong>
+									{challenge}
+								</div>
+							)}
+							{solution && (
+								<div className="text-sm text-surface-600 dark:text-surface-400">
+									<strong className="block font-medium text-surface-900 dark:text-surface-100">
+										Solution
+									</strong>
+									{solution}
+								</div>
+							)}
+						</div>
+					)}
+
+					{/* Tags — Hard Edge (0 radius) */}
+					<div className="flex flex-wrap gap-1.5">
+						{tags.map((tag) => (
+							<span
+								key={`${index}-tag-${tag}`}
+								className="inline-block border border-surface-200 bg-surface-100 px-2 py-0.5 font-mono text-[10px] text-surface-700 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300"
+							>
+								{tag}
+							</span>
+						))}
+					</div>
+				</div>
+			</>
+		);
+	}
 }

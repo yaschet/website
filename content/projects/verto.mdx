@@ -126,7 +126,7 @@ The Google Docs API allows for programmatic document creation but requires stric
 
 I engineered a custom **Intermediate Representation (IR)** mapper (`GoogleDocsMapper`) that translates the AI's ProseMirror AST into specific Google Docs operations.
 
-**The Hardest Problem: Virtual Grid Calculation**
+**Core Challenge: Virtual Grid Calculation**
 Google Docs tables cannot be pasted; they must be constructed cell-by-cell. To handle complex legal tables with merged cells (`rowspan`/`colspan`), the system must "simulate" the table in memory before writing it.
 
 ```typescript
@@ -253,6 +253,6 @@ This platform required a deep integration of Event-Driven Architecture and Moder
 
 Verto proves that solving "Layout Entropy" requires treating documents as **Stateful Systems**, not static assets.
 
-The value isn't in the AI model (which is a commodity); it is in the **Bridge** that makes that model compatible with the rigid physics of the real world (Google Docs, Legal Compliance, Auditors).
+The value isn't in the AI model (which is a commodity); it is in the **Bridge** that makes that model compatible with the rigid constraints of the real world (Google Docs, Legal Compliance, Auditors).
 
 This project wasn't just about building a translation tool; it was about engineering a **Visual Compiler** that turns raw pixels into structured, legally binding data.

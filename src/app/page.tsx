@@ -75,12 +75,37 @@ export default function Home() {
 														href={project.url_path}
 														tags={project.tech ?? []}
 														images={project.coverImages}
-														isPrivate={!project.url && !project.github}
 													/>
 												</div>
 											</ScrollReveal>
 										))}
 									</div>
+								</div>
+							</section>
+						</ScrollReveal>
+					</SwissGridSection>
+
+					{/* NDA Disclaimer */}
+					<SwissGridSection id="home-nda" className="w-full">
+						<ScrollReveal phase={3} className="w-full">
+							<section className="w-full">
+								<div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-24 text-center sm:px-8">
+									<div className="mb-4 flex items-center justify-center gap-2">
+										<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
+											Confidential Work
+										</p>
+									</div>
+									<p className="max-w-md text-sm text-surface-600 leading-relaxed dark:text-surface-400">
+										Due to strict NDAs and client privacy, most commercial
+										enterprise work cannot be publicly displayed.{" "}
+										<Link
+											href="/contact"
+											className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-4 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
+										>
+											Contact me
+										</Link>{" "}
+										directly to discuss enterprise experience.
+									</p>
 								</div>
 							</section>
 						</ScrollReveal>

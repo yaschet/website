@@ -3,6 +3,14 @@ import { allProjects } from "contentlayer2/generated";
 import { compareDesc } from "date-fns";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Asset1 from "@/public/images/placeholders/asset-1.jpg";
+import Asset2 from "@/public/images/placeholders/asset-2.jpg";
+import Asset3 from "@/public/images/placeholders/asset-3.jpg";
+import Asset4 from "@/public/images/placeholders/asset-4.jpg";
+import Asset5 from "@/public/images/placeholders/asset-5.jpg";
+import Asset6 from "@/public/images/placeholders/asset-6.jpg";
+import Asset7 from "@/public/images/placeholders/asset-7.jpg";
+import Asset8 from "@/public/images/placeholders/asset-8.jpg";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
@@ -68,13 +76,85 @@ export default function ProjectsPage() {
 												href={project.url_path}
 												tags={project.tags ?? []}
 												images={project.coverImages}
-												isPrivate={!project.url && !project.github}
 											/>
 										</div>
 									</ScrollReveal>
 								))}
+
+								{/* Project Phoenix - Locked */}
+								<ScrollReveal
+									phase={2}
+									delay={projects.length * 0.05 + 0.05}
+									className="w-full"
+								>
+									<div className="space-y-4">
+										<ProjectCardGallery
+											index={String(projects.length + 1).padStart(2, "0")}
+											title="Project Phoenix"
+											description="Large-scale data matching engine with AI-driven cleansing, semantic search, and resumable processing pipelines."
+											href="#"
+											tags={[
+												"Meilisearch",
+												"OpenAI",
+												"PostgreSQL",
+												"Data Pipelines",
+											]}
+											images={[Asset5, Asset6, Asset7, Asset8]}
+											isPrivate
+											challenge="Match thousands of university programs to student profiles with high accuracy."
+											solution="3-phase system using Meilisearch, OpenAI embeddings, and resumable data pipelines."
+										/>
+									</div>
+								</ScrollReveal>
+
+								{/* Onboard Flow - Locked */}
+								<ScrollReveal
+									phase={2}
+									delay={projects.length * 0.05 + 0.1}
+									className="w-full"
+								>
+									<div className="space-y-4">
+										<ProjectCardGallery
+											index={String(projects.length + 2).padStart(2, "0")}
+											title="Onboard Flow"
+											description="Intelligent customer portal with step-by-step onboarding, document scanning, and dynamic form logic."
+											href="#"
+											tags={["React", "Node.js", "PostgreSQL", "OCR"]}
+											images={[Asset1, Asset2, Asset3, Asset4]}
+											isPrivate
+											challenge="Replace a complex static form with a high-conversion step-by-step experience."
+											solution="Typeform-style portal with OCR scanning and dynamic question logic. Delivered in 6 weeks."
+										/>
+									</div>
+								</ScrollReveal>
 							</div>
 						</div>
+					</SwissGridSection>
+
+					{/* NDA Disclaimer - Separated into its own grid section */}
+					<SwissGridSection id="projects-nda" className="w-full">
+						<ScrollReveal phase={2} className="w-full">
+							<section className="w-full">
+								<div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-24 text-center sm:px-8">
+									<div className="mb-4 flex items-center justify-center gap-2">
+										<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
+											Confidential Work
+										</p>
+									</div>
+									<p className="max-w-md text-sm text-surface-600 leading-relaxed dark:text-surface-400">
+										Due to strict NDAs and client privacy, most commercial
+										enterprise work cannot be publicly displayed.{" "}
+										<Link
+											href="/contact"
+											className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-4 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
+										>
+											Contact me
+										</Link>{" "}
+										directly to discuss enterprise experience.
+									</p>
+								</div>
+							</section>
+						</ScrollReveal>
 					</SwissGridSection>
 
 					{/* Contact */}
