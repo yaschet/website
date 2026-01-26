@@ -14,13 +14,22 @@
 
 "use client";
 
+import MuxPlayer from "@mux/mux-player-react";
 import { Pause, Play } from "@phosphor-icons/react/dist/ssr";
 import { motion } from "framer-motion";
+import type { ComponentProps } from "react";
 import { useEffect, useRef, useState } from "react";
 import { cn, springs } from "@/src/lib/index";
 
+type MuxPlayerProps = ComponentProps<typeof MuxPlayer>;
+
 interface MediaVideoProps {
-	src: string;
+	/** Direct URL to a video file (mp4). mutually exclusive with playbackId. */
+	src?: string;
+	/** Mux Playback ID. If provided, renders MuxPlayer. mutually exclusive with src. */
+	playbackId?: string;
+	/** Mux Data Metadata for analytics. */
+	metadata?: MuxPlayerProps["metadata"];
 	poster?: string;
 	caption?: string;
 	loop?: boolean;
@@ -30,6 +39,8 @@ interface MediaVideoProps {
 
 export function MediaVideo({
 	src,
+	playbackId,
+	metadata,
 	poster,
 	caption,
 	loop = true,
@@ -42,6 +53,7 @@ export function MediaVideo({
 
 	// True Lazy Load: Only inject <source> when near viewport
 	const [shouldLoad, setShouldLoad] = useState(false);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		if (shouldLoad) return;
@@ -56,9 +68,52 @@ export function MediaVideo({
 			{ rootMargin: "200px" }, // Load slightly before view
 		);
 
-		if (videoRef.current) observer.observe(videoRef.current);
+		if (containerRef.current) observer.observe(containerRef.current);
 		return () => observer.disconnect();
 	}, [shouldLoad]);
+
+	if (playbackId) {
+		return (
+			<figure className="group mb-8" ref={containerRef}>
+				<div
+					className={cn(
+						"relative aspect-video w-full overflow-hidden",
+						"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-800",
+						className,
+					)}
+					style={{
+						// Shadow styling for consistency
+						boxShadow: [
+							"0 1px 2px rgba(0, 0, 0, 0.04)",
+							"0 4px 8px -2px rgba(0, 0, 0, 0.06)",
+							"0 12px 24px -4px rgba(0, 0, 0, 0.08)",
+						].join(", "),
+					}}
+				>
+					{shouldLoad && (
+						<MuxPlayer
+							playbackId={playbackId}
+							metadata={metadata}
+							loop={loop}
+							muted={muted}
+							autoPlay={loop && muted} // Autoplay if it's a looping muted video (background style)
+							streamType="on-demand"
+							accentColor="var(--accent)" // Design System: Electric Blue
+							style={{ height: "100%", width: "100%" }}
+							placeholder={poster}
+						/>
+					)}
+				</div>
+
+				{/* Caption */}
+				{caption && (
+					<figcaption className="mt-3 text-center font-mono text-muted-foreground text-xs">
+						{caption}
+					</figcaption>
+				)}
+			</figure>
+		);
+	}
 
 	const togglePlay = () => {
 		const video = videoRef.current;
@@ -94,7 +149,7 @@ export function MediaVideo({
 	};
 
 	return (
-		<figure className="group mb-8">
+		<figure className="group mb-8" ref={containerRef}>
 			<button
 				type="button"
 				aria-label="Video player"
@@ -125,7 +180,7 @@ export function MediaVideo({
 					onEnded={handleEnded}
 					className="size-full object-cover"
 				>
-					{shouldLoad && <source src={src} type="video/mp4" />}
+					{shouldLoad && src && <source src={src} type="video/mp4" />}
 				</video>
 
 				{/* Play/Pause Overlay */}

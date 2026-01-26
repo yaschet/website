@@ -20,6 +20,7 @@
 		"@emotion/is-prop-valid": "^1.4.0",
 		"@fontsource/inter": "^5.1.1",
 		"@headlessui/react": "^2.2.0",
+		"@mux/mux-player-react": "^3.10.2",
 		"@phosphor-icons/react": "^2.1.7",
 		"@radix-ui/react-accordion": "^1.2.3",
 		"@radix-ui/react-alert-dialog": "^1.1.15",
