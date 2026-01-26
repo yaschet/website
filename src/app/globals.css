@@ -1811,42 +1811,34 @@ h4:hover .anchor {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   SYNTAX HIGHLIGHTING (SHIKI / REHYPE-PRETTY-CODE)
-   Handles dual-theme switching via CSS variables.
+   SYNTAX HIGHLIGHTING (SUGAR HIGH)
+   Lightweight, server-side syntax highlighting tokens.
    ═══════════════════════════════════════════════════════════════════════════ */
-
-/* 1. Hide the dark theme block by default (light mode active) */
-[data-theme="dark"] {
-  display: none;
-}
-
-/* 2. Show the light theme block */
-[data-theme="light"] {
+.sh__content {
   display: block;
 }
 
-/* 3. In dark mode, invert visibility */
-.dark [data-theme="dark"] {
-  display: block;
-}
+/* Base Light Mode Tokens */
+.sh__token--keyword { color: var(--primary-color-600); font-weight: 600; }
+.sh__token--string { color: var(--success-color-600); }
+.sh__token--comment { color: var(--surface-color-400); font-style: italic; }
+.sh__token--class { color: var(--primary-color-700); }
+.sh__token--variable { color: var(--surface-color-900); }
+.sh__token--function { color: var(--primary-color-500); }
+.sh__token--operator { color: var(--surface-color-500); }
+.sh__token--sign { color: var(--surface-color-400); }
+.sh__token--property { color: var(--surface-color-700); }
 
-.dark [data-theme="light"] {
-  display: none;
-}
-
-/* 4. FALLBACK & SINGLE-TREE SUPPORT: Handle CSS variables if elements share a tree */
-/* If rehype-pretty-code outputs variables instead of separate trees */
-code[data-theme*=" "],
-code[data-theme*=" "] span {
-  color: var(--shiki-light);
-  background-color: var(--shiki-light-bg);
-}
-
-.dark code[data-theme*=" "],
-.dark code[data-theme*=" "] span {
-  color: var(--shiki-dark);
-  background-color: var(--shiki-dark-bg);
-}
+/* Dark Mode Overrides */
+.dark .sh__token--keyword { color: var(--primary-color-400); }
+.dark .sh__token--string { color: var(--success-color-400); }
+.dark .sh__token--comment { color: var(--surface-color-500); }
+.dark .sh__token--class { color: var(--primary-color-300); }
+.dark .sh__token--variable { color: var(--surface-color-100); }
+.dark .sh__token--function { color: var(--primary-color-400); }
+.dark .sh__token--operator { color: var(--surface-color-400); }
+.dark .sh__token--sign { color: var(--surface-color-500); }
+.dark .sh__token--property { color: var(--surface-color-300); }
 
 /* Line numbers/highlighting */
 .line--highlighted {

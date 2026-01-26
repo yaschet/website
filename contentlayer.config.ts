@@ -1,6 +1,5 @@
 import { defineDocumentType, makeSource } from "contentlayer2/source-files";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
@@ -146,6 +145,8 @@ export default makeSource({
 	mdx: {
 		remarkPlugins: [remarkGfm],
 		rehypePlugins: [
+			// 	// rehypePrettyCode removed in favor of rsc-based sugar-high
+			// ],
 			rehypeSlug,
 			[
 				rehypeAutolinkHeadings,
@@ -159,31 +160,6 @@ export default makeSource({
 						tagName: "span",
 						properties: { className: ["icon", "icon-link"] },
 						children: [{ type: "text", value: "#" }],
-					},
-				},
-			],
-			[
-				rehypePrettyCode,
-				{
-					theme: {
-						light: "github-light",
-						dark: "github-dark",
-					},
-					keepBackground: false,
-					// biome-ignore lint/suspicious/noExplicitAny: Rehype typing is loose
-					onVisitLine(node: any) {
-						// Prevent lines from collapsing in `display: grid` mode
-						if (node.children.length === 0) {
-							node.children = [{ type: "text", value: " " }];
-						}
-					},
-					// biome-ignore lint/suspicious/noExplicitAny: Rehype typing is loose
-					onVisitHighlightedLine(node: any) {
-						node.properties.className?.push("line--highlighted");
-					},
-					// biome-ignore lint/suspicious/noExplicitAny: Rehype typing is loose
-					onVisitHighlightedChars(node: any) {
-						node.properties.className = ["chars--highlighted"];
 					},
 				},
 			],

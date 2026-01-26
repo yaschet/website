@@ -248,15 +248,20 @@ import { MermaidDiagram } from "@/src/components/mdx/mermaid-diagram";
 export function Pre({ className, children, ...props }: ComponentPropsWithoutRef<"pre">) {
 	// Check if this is a mermaid block
 	if (isValidElement(children)) {
-		const child = children as ReactElement<any>;
+		const child = children as ReactElement<{ children?: string; className?: string }>;
 		if (child.props?.className?.includes("language-mermaid")) {
-			return <MermaidDiagram code={child.props.children} />;
+			return <MermaidDiagram code={child.props.children || ""} />;
 		}
 	}
 
+	// Extract the raw code text from the children (which is typically a <code> element)
+	const rawCode = isValidElement(children)
+		? (children as ReactElement<{ children?: React.ReactNode }>).props.children
+		: children;
+
 	return (
 		<CodeBlockWrapper className={className} {...props}>
-			{children}
+			{rawCode}
 		</CodeBlockWrapper>
 	);
 }
