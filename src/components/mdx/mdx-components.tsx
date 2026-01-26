@@ -28,7 +28,15 @@ import { cn } from "@/src/lib/index";
  */
 export function H1({ className, ...props }: ComponentPropsWithoutRef<"h1">) {
 	return (
-		<h1 className={cn("mt-0 mb-6 text-heading-xl", "text-foreground", className)} {...props} />
+		<h1
+			className={cn(
+				"mt-0 mb-6 text-heading-xl",
+				"text-foreground",
+				"-ml-[0.04em]", // Optical alignment
+				className,
+			)}
+			{...props}
+		/>
 	);
 }
 
@@ -42,6 +50,7 @@ export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 				"mt-16 mb-6 first:mt-0",
 				"font-bold text-2xl tracking-tight",
 				"text-foreground",
+				"-ml-[0.04em]", // Optical alignment
 				className,
 			)}
 			{...props}
@@ -59,6 +68,7 @@ export function H3({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
 				"mt-12 mb-4 first:mt-0",
 				"font-bold text-xl tracking-tight",
 				"text-foreground",
+				"-ml-[0.04em]", // Optical alignment
 				className,
 			)}
 			{...props}
@@ -146,7 +156,7 @@ export function UL({ className, ...props }: ComponentPropsWithoutRef<"ul">) {
 	return (
 		<ul
 			className={cn(
-				"mb-6 list-outside list-disc space-y-2 pl-5",
+				"mb-6 list-outside list-disc space-y-2 pl-6", // pl-6 (24px) brings bullet to ~0px
 				"text-muted-foreground",
 				"marker:text-muted-foreground",
 				className,
@@ -163,7 +173,7 @@ export function OL({ className, ...props }: ComponentPropsWithoutRef<"ol">) {
 	return (
 		<ol
 			className={cn(
-				"mb-6 list-outside list-decimal space-y-2 pl-5",
+				"mb-6 list-outside list-decimal space-y-2 pl-8", // pl-8 (32px) brings number to ~0px
 				"text-muted-foreground",
 				"marker:font-mono marker:text-muted-foreground",
 				className,
