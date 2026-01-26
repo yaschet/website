@@ -48,7 +48,6 @@ export function MediaVideo({
 	className,
 }: MediaVideoProps) {
 	const videoRef = useRef<HTMLVideoElement>(null);
-	const muxRef = useRef<any>(null); // Mux Player ref
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [hasStarted, setHasStarted] = useState(false);
 
@@ -84,7 +83,6 @@ export function MediaVideo({
 						className,
 					)}
 					style={{
-						// Shadow styling for consistency
 						boxShadow: [
 							"0 1px 2px rgba(0, 0, 0, 0.04)",
 							"0 4px 8px -2px rgba(0, 0, 0, 0.06)",
@@ -98,16 +96,15 @@ export function MediaVideo({
 							metadata={metadata}
 							loop={loop}
 							muted={muted}
-							autoPlay={loop && muted} // Autoplay if it's a looping muted video (background style)
+							autoPlay={loop && muted}
 							streamType="on-demand"
-							accentColor="var(--accent)" // Design System: Electric Blue
+							accentColor="var(--accent)"
 							style={{ height: "100%", width: "100%" }}
 							placeholder={poster}
 						/>
 					)}
 				</div>
 
-				{/* Caption */}
 				{caption && (
 					<figcaption className="mt-3 text-center font-mono text-muted-foreground text-xs">
 						{caption}
@@ -217,14 +214,14 @@ export function MediaVideo({
 					</motion.div>
 
 					{/* Corner Badge - "Video" indicator */}
-					<div className="absolute top-3 left-3 border border-surface-200 bg-white/90 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-surface-900 opacity-0 transition-opacity group-hover:opacity-100 dark:border-surface-800 dark:bg-surface-900/90 dark:text-surface-100">
+					<div className="absolute top-3 left-3 border border-surface-200 bg-white/90 px-2 py-0.5 font-mono text-[10px] text-surface-900 uppercase tracking-widest opacity-0 transition-opacity group-hover:opacity-100 dark:border-surface-800 dark:bg-surface-900/90 dark:text-surface-100">
 						Video
 					</div>
 				</button>
 
 				{/* Caption */}
 				{caption && (
-					<figcaption className="mt-3 text-center font-mono text-xs text-muted-foreground">
+					<figcaption className="mt-3 text-center font-mono text-muted-foreground text-xs">
 						{caption}
 					</figcaption>
 				)}
@@ -234,7 +231,7 @@ export function MediaVideo({
 
 	// 3. Error Mode (Missing Config)
 	return (
-		<div className="mb-8 flex aspect-video w-full flex-col items-center justify-center rounded-none border border-dashed border-destructive-400 bg-destructive-50 p-4 text-center text-destructive-900 dark:bg-destructive-950/20 dark:text-destructive-200">
+		<div className="mb-8 flex aspect-video w-full flex-col items-center justify-center rounded-none border border-destructive-400 border-dashed bg-destructive-50 p-4 text-center text-destructive-900 dark:bg-destructive-950/20 dark:text-destructive-200">
 			<p className="font-bold">Video Component Error</p>
 			<p className="text-sm">Must provide either `src` (mp4) or `playbackId` (Mux).</p>
 		</div>

@@ -85,7 +85,7 @@ const nextConfig: NextConfig = {
 					},
 					{
 						key: "Content-Security-Policy",
-						value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https:;",
+						value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: mapbox://styles/* https://src.litix.io https://www.gstatic.com http://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob: https://image.mux.com https://*.litix.io; font-src 'self' data: https:; connect-src 'self' https: https://*.mux.com https://*.litix.io https://storage.googleapis.com; media-src 'self' blob: https://*.mux.com; worker-src 'self' blob:;",
 					},
 				],
 			},
