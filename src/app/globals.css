@@ -1814,6 +1814,28 @@ h4:hover .anchor {
    SYNTAX HIGHLIGHTING (SHIKI / REHYPE-PRETTY-CODE)
    Handles dual-theme switching via CSS variables.
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Hide the dark theme block by default (light mode active) */
+[data-theme="dark"] {
+  display: none;
+}
+
+/* 2. Show the light theme block */
+[data-theme="light"] {
+  display: block;
+}
+
+/* 3. In dark mode, invert visibility */
+.dark [data-theme="dark"] {
+  display: block;
+}
+
+.dark [data-theme="light"] {
+  display: none;
+}
+
+/* 4. FALLBACK & SINGLE-TREE SUPPORT: Handle CSS variables if elements share a tree */
+/* If rehype-pretty-code outputs variables instead of separate trees */
 code[data-theme*=" "],
 code[data-theme*=" "] span {
   color: var(--shiki-light);
