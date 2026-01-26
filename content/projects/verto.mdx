@@ -7,9 +7,10 @@ stack:
   [
     "Next.js 16 (Server Actions)",
     "Trigger.dev (Durable Execution)",
-    "Supabase (RLS)",
-    "OpenAI Vision",
+    "Supabase (RLS & Realtime)",
+    "OpenAI Vision (GPT-5.2)",
     "PostgreSQL (Double-Entry Ledger)",
+    "TypeScript",
   ]
 coverImages:
   [
@@ -84,15 +85,16 @@ graph LR
     Auth --> Orch
     Compiler --> Storage
     Compiler --> DB
+
 ```
 
 ### A. The "Auditor" (Adversarial Verification)
 
 Generating JSON is easy; guaranteeing legal accuracy is hard. I implemented an **Adversarial Verification Loop** (Agent 2) that challenges the output of the reconstruction engine (Agent 1).
 
-1.  **Agent 1 (Builder)**: Generates the document DOM based on visual input.
-2.  **Agent 2 (Auditor)**: Performs pixel-level regression testing against the source image.
-3.  **The Loop**: If the Auditor detects a missing stamp or misaligned table border, it rejects the batch and forces a regeneration with higher attention weights on the failed region.
+1. **Agent 1 (Builder)**: Generates the document DOM based on visual input.
+2. **Agent 2 (Auditor)**: Performs pixel-level regression testing against the source image.
+3. **The Loop**: If the Auditor detects a missing stamp or misaligned table border, it rejects the batch and forces a regeneration with higher attention weights on the failed region.
 
 **Result:** A self-healing system that prioritizes accuracy over speed, crucial for the "Sworn Translation" market.
 
@@ -124,22 +126,23 @@ for (let r = 0; r < node.content.length; r++) {
         }
     }
 }
+
 ```
 
 <Gallery
-  images={[
-    "/images/verto/dashboard-page.png",
-    "/images/verto/new-translation-page.png",
-    "/images/verto/translations-page.png",
-    "/images/verto/landing-page-blur.png",
-  ]}
-  captions={[
-    "Executive Metrics: Aggregated volume, revenue, and efficiency stats.",
-    "Ingestion Wizard: Auto-detection of source language and layout types.",
-    "Global Queue: Real-time status tracking for concurrent translation jobs.",
-    "Public Gateway: Converting visitors with 'Language Barrier' value prop.",
-  ]}
-  caption="The Core Platform: High-fidelity interfaces for management and ingestion."
+images={[
+"/images/verto/dashboard-page.png",
+"/images/verto/new-translation-page.png",
+"/images/verto/translations-page.png",
+"/images/verto/landing-page-blur.png",
+]}
+captions={[
+"Executive Metrics: Aggregated volume, revenue, and efficiency stats.",
+"Ingestion Wizard: Auto-detection of source language and layout types.",
+"Global Queue: Real-time status tracking for concurrent translation jobs.",
+"Public Gateway: Converting visitors with 'Language Barrier' value prop.",
+]}
+caption="The Core Platform: High-fidelity interfaces for management and ingestion."
 />
 
 ### C. Scalable Processing Pipeline
@@ -149,17 +152,17 @@ Processing 50+ page discovery files exceeds standard context windows. I implemen
 The compute layer runs on **Trigger.dev** to achieve **Durable Execution**. If a job fails on Page 45, the system resumes from the last committed checkpoint rather than restarting.
 
 <Gallery
-  images={[
-    "/images/verto/translation-details-page.png",
-    "/images/verto/pipeline-processing.png",
-    "/images/verto/templates-page.png",
-  ]}
-  captions={[
-    "Job Inspector: Detailed metadata, token usage, and quality scores (95/100).",
-    "Job Visualization: Step-by-step progress from AI Vision to Google Docs Reconstruction (95% Confidence).",
-    "Schema Library: Pre-defined templates for standardized legal docs (e.g., Certificates).",
-  ]}
-  caption="Process & Structure: Visualizing the deep-learning reconstruction pipeline."
+images={[
+"/images/verto/translation-details-page.png",
+"/images/verto/pipeline-processing.png",
+"/images/verto/templates-page.png",
+]}
+captions={[
+"Job Inspector: Detailed metadata, token usage, and quality scores (95/100).",
+"Job Visualization: Step-by-step progress from AI Vision to Google Docs Reconstruction (95% Confidence).",
+"Schema Library: Pre-defined templates for standardized legal docs (e.g., Certificates).",
+]}
+caption="Process & Structure: Visualizing the deep-learning reconstruction pipeline."
 />
 
 ---
@@ -174,21 +177,21 @@ To handle the "Per-Page" credit system, I rejected simple database increments. I
 * **Race Condition Proof:** This architecture guarantees financial accuracy even when multiple heavy documents finish processing simultaneously.
 
 <Gallery
-  images={[
-    "/images/verto/billing-page.png",
-    "/images/verto/transactions-filter-panel.png",
-    "/images/verto/top-up-page.png",
-    "/images/verto/customers-page.png",
-    "/images/verto/account-page.png",
-  ]}
-  captions={[
-    "Client Portal: Usage tracking and consumption history.",
-    "Ledger Filters: Granular audit tools for transaction types (Purchase vs Consumption).",
-    "Credit Procurement: Tiered purchasing similar to API quota management.",
-    "Tenant Manager: User administration and organization roles.",
-    "Identity Management: Profile settings and MFA configuration.",
-  ]}
-  caption="Admin & Operations: Zero-leakage credit management and security infrastructure."
+images={[
+"/images/verto/billing-page.png",
+"/images/verto/transactions-filter-panel.png",
+"/images/verto/top-up-page.png",
+"/images/verto/customers-page.png",
+"/images/verto/account-page.png",
+]}
+captions={[
+"Client Portal: Usage tracking and consumption history.",
+"Ledger Filters: Granular audit tools for transaction types (Purchase vs Consumption).",
+"Credit Procurement: Tiered purchasing similar to API quota management.",
+"Tenant Manager: User administration and organization roles.",
+"Identity Management: Profile settings and MFA configuration.",
+]}
+caption="Admin & Operations: Zero-leakage credit management and security infrastructure."
 />
 
 ---
@@ -204,14 +207,28 @@ Verto is currently in production, solving the "Layout Entropy" problem for real-
 | **Success Rate** | ~85% (Timeouts on large files) | **99.9% (Durable Execution)** |
 | **Output** | Static PDF | **Native, Editable Google Doc** |
 
+---
 
+## 05. Technology Matrix
+
+This platform required a deep integration of Event-Driven Architecture and Modern Frontend Physics.
+
+| Domain | Core Stack | Implementation Details |
+| --- | --- | --- |
+| **Frontend** | **Next.js 16** | React Server Components, Server Actions, Edge Runtime. |
+| **UI System** | **Tailwind v4** | `shadcn/ui`, `framer-motion` (Shared Layout Animations). |
+| **Editor** | **Tiptap** | Headless ProseMirror implementation with Custom Node Views. |
+| **State** | **TanStack Query** | Optimistic UI updates synchronized via Supabase Realtime. |
+| **Compute** | **Trigger.dev** | Long-running background jobs (24h max duration). |
+| **Validation** | **Zod** | Strict schema validation for AI Structured Outputs. |
+| **Payments** | **Stripe** | Webhook-driven Ledger synchronization. |
 
 ---
 
-## 05. The Architectural Thesis
+## 06. The Architectural Thesis
 
 Verto proves that solving "Layout Entropy" requires treating documents as **Stateful Systems**, not static assets.
 
- The value isn't in the AI model (which is a commodity); it is in the **Bridge** that makes that model compatible with the rigid physics of the real world (Google Docs, Legal Compliance, Auditors).
+The value isn't in the AI model (which is a commodity); it is in the **Bridge** that makes that model compatible with the rigid physics of the real world (Google Docs, Legal Compliance, Auditors).
 
 This project wasn't just about building a translation tool; it was about engineering a **Visual Compiler** that turns raw pixels into structured, legally binding data.

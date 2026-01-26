@@ -14,7 +14,7 @@ export function SiteHeader() {
 		<SwissGridSection id="header" className="relative z-20 w-full">
 			<div className="h-29.5 w-full" suppressHydrationWarning>
 				<div className="mx-auto flex h-full max-w-3xl items-center justify-between gap-3 px-6 sm:px-8">
-					<LocationBadge className="w-40 shrink-0 flex max-w-full" />
+					<LocationBadge className="flex w-40 max-w-full shrink-0" />
 
 					<MarqueeBadge
 						className="hidden flex-1 sm:flex"
@@ -28,7 +28,7 @@ export function SiteHeader() {
 						]}
 					/>
 
-					<TimeBadge className="w-40 shrink-0 flex max-w-full" />
+					<TimeBadge className="flex w-40 max-w-full shrink-0" />
 				</div>
 			</div>
 		</SwissGridSection>
