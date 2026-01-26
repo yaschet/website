@@ -146,7 +146,7 @@ export function UL({ className, ...props }: ComponentPropsWithoutRef<"ul">) {
 	return (
 		<ul
 			className={cn(
-				"mb-6 ml-4 list-disc space-y-2",
+				"mb-6 list-outside list-disc space-y-2 pl-5",
 				"text-muted-foreground",
 				"marker:text-muted-foreground",
 				className,
@@ -163,7 +163,7 @@ export function OL({ className, ...props }: ComponentPropsWithoutRef<"ol">) {
 	return (
 		<ol
 			className={cn(
-				"mb-6 ml-4 list-decimal space-y-2",
+				"mb-6 list-outside list-decimal space-y-2 pl-5",
 				"text-muted-foreground",
 				"marker:font-mono marker:text-muted-foreground",
 				className,
@@ -322,7 +322,7 @@ export function TR({ className, ...props }: ComponentPropsWithoutRef<"tr">) {
 				"transition-colors duration-200", // Standard transition
 				"border-surface-200 border-b last:border-0 dark:border-surface-800", // Row separators
 				"hover:bg-surface-100 dark:hover:bg-surface-800", // Clear hover
-				"even:bg-surface-50/50 dark:even:bg-surface-900/50", // Subtle Zebra
+				"even:bg-surface-100 dark:even:bg-surface-800/50", // High Contrast Zebra
 				className,
 			)}
 			{...props}

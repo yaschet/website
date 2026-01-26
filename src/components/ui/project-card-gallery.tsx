@@ -91,8 +91,8 @@ export function ProjectCardGallery({
 			<div className="p-6">
 				{/* Header Row */}
 				<div className="mb-3 flex items-start justify-between gap-4">
-					<div className="flex items-start gap-3">
-						<span className="mt-[0.2em] font-mono text-surface-500 text-xs dark:text-surface-400">
+					<div className="flex items-baseline gap-3">
+						<span className="font-mono text-surface-500 text-xs dark:text-surface-400">
 							{index}
 						</span>
 						<h3 className="font-medium text-lg text-surface-900 leading-tight dark:text-surface-50">
