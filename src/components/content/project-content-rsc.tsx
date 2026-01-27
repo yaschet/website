@@ -11,9 +11,10 @@ import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
 import { ImageGallery } from "@/src/components/ui/image-gallery";
-import { ScrollReveal } from "@/src/components/ui/reveal";
+import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 import { formatDate } from "@/src/lib/format-date";
+import { SiteHeader } from "../layout/site-header";
 
 interface ProjectContentProps {
 	project: Project;
@@ -32,13 +33,21 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 
 	return (
 		<SwissGridProvider>
-			<div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
-				<main className="relative z-10 flex min-h-screen flex-col pt-32">
+			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+				<main
+					className="relative z-10 flex flex-1 flex-col"
+					style={{ overflowAnchor: "none" }}
+				>
+					{/* Nav Row */}
+					<Reveal phase={1} className="w-full">
+						<SiteHeader />
+					</Reveal>
+
 					{/* Header */}
 					<SwissGridSection id="project-header" className="w-full">
-						<ScrollReveal phase={1} className="w-full">
+						<Reveal phase={1} className="w-full">
 							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 sm:px-8">
+								<div className="mx-auto max-w-3xl px-6 pt-16 sm:px-8">
 									{/* Back Link */}
 									<Link
 										href="/projects"
@@ -190,7 +199,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									)}
 								</div>
 							</section>
-						</ScrollReveal>
+						</Reveal>
 					</SwissGridSection>
 
 					{/* Content - Server Rendered MDX */}
@@ -248,10 +257,9 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 
 					{/* Reading Bracket - Client Component */}
 					<ReadingBracket />
-
-					{/* Footer */}
-					<SiteFooter />
 				</main>
+				<SiteFooter />
+				<SwissGridSection id="nav-spacer" className="h-29.5 w-full" />
 			</div>
 		</SwissGridProvider>
 	);
