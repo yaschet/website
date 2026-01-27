@@ -40,7 +40,7 @@ export default function AboutPage() {
 											<Image
 												src={avatarImage}
 												alt="Yassine Chettouch"
-												className="object-cover grayscale transition-all duration-500 hover:grayscale-0"
+												className="object-cover"
 												placeholder="blur"
 												fill
 												sizes="56px"
@@ -117,7 +117,7 @@ export default function AboutPage() {
 											<p>
 												I pivoted to{" "}
 												<strong className="font-medium text-surface-900 dark:text-surface-100">
-													Systems Engineering
+													Backend and Systems Engineering
 												</strong>
 												. I don&apos;t just build interfaces; I architect
 												full-stack engines. From database ledgers to AI
@@ -133,7 +133,7 @@ export default function AboutPage() {
 												</strong>
 												. I solve expensive business problems using whatever
 												stack is required—shipping production-grade software
-												in weeks, not months.
+												in short cycles.
 											</p>
 										</ScrollReveal>
 									</div>
