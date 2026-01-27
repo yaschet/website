@@ -9,6 +9,7 @@
 
 import Image from "next/image";
 import type { ComponentPropsWithoutRef } from "react";
+import { highlight } from "sugar-high";
 import { CodeBlockWrapper } from "@/src/components/mdx/code-block-wrapper";
 import { MediaCompare } from "@/src/components/mdx/media-compare";
 import { MediaGallery } from "@/src/components/mdx/media-gallery";
@@ -27,7 +28,15 @@ import { cn } from "@/src/lib/index";
  */
 export function H1({ className, ...props }: ComponentPropsWithoutRef<"h1">) {
 	return (
-		<h1 className={cn("mt-0 mb-6 text-heading-xl", "text-foreground", className)} {...props} />
+		<h1
+			className={cn(
+				"mt-0 mb-6 text-heading-xl",
+				"text-foreground",
+				"-ml-[0.3em]", // Optical alignment
+				className,
+			)}
+			{...props}
+		/>
 	);
 }
 
@@ -41,6 +50,7 @@ export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 				"mt-16 mb-6 first:mt-0",
 				"font-bold text-2xl tracking-tight",
 				"text-foreground",
+				"-ml-[0.3em]", // Optical alignment
 				className,
 			)}
 			{...props}
@@ -58,6 +68,7 @@ export function H3({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
 				"mt-12 mb-4 first:mt-0",
 				"font-bold text-xl tracking-tight",
 				"text-foreground",
+				"-ml-[0.3em]", // Optical alignment
 				className,
 			)}
 			{...props}
@@ -145,7 +156,7 @@ export function UL({ className, ...props }: ComponentPropsWithoutRef<"ul">) {
 	return (
 		<ul
 			className={cn(
-				"mb-6 ml-6 list-disc space-y-2",
+				"mb-6 list-outside list-disc space-y-2 pl-6", // pl-6 (24px) brings bullet to ~0px
 				"text-muted-foreground",
 				"marker:text-muted-foreground",
 				className,
@@ -162,7 +173,7 @@ export function OL({ className, ...props }: ComponentPropsWithoutRef<"ol">) {
 	return (
 		<ol
 			className={cn(
-				"mb-6 ml-6 list-decimal space-y-2",
+				"mb-6 list-outside list-decimal space-y-2 pl-8", // pl-8 (32px) brings number to ~0px
 				"text-muted-foreground",
 				"marker:font-mono marker:text-muted-foreground",
 				className,
@@ -227,7 +238,7 @@ export function Code({ className, ...props }: ComponentPropsWithoutRef<"code">) 
 	return (
 		<code
 			className={cn(
-				"relative rounded-none px-[0.3rem] py-[0.15rem] font-medium font-mono text-[0.85em]",
+				"relative rounded-none px-[0.3rem] -py-[0.2rem] font-medium font-mono text-[0.85em] leading-none",
 				"border border-surface-200 dark:border-surface-700",
 				"bg-surface-50 dark:bg-surface-900",
 				"text-surface-900 dark:text-surface-50",
@@ -239,14 +250,45 @@ export function Code({ className, ...props }: ComponentPropsWithoutRef<"code">) 
 	);
 }
 
+import { isValidElement, type ReactElement } from "react";
+import { MermaidDiagram } from "@/src/components/mdx/mermaid-diagram";
+
 /**
  * Code Block (Pre).
  */
 export function Pre({ className, children, ...props }: ComponentPropsWithoutRef<"pre">) {
+	// 1. Mermaid Check
+	if (isValidElement(children)) {
+		const child = children as ReactElement<{ children?: string; className?: string }>;
+		if (child.props?.className?.includes("language-mermaid")) {
+			return <MermaidDiagram code={child.props.children || ""} />;
+		}
+	}
+
+	// 2. Extract raw text from MDX children
+	const extractText = (node: React.ReactNode): string => {
+		if (typeof node === "string") return node;
+		if (typeof node === "number") return node.toString();
+		if (Array.isArray(node)) return node.map(extractText).join("");
+		if (isValidElement(node)) {
+			const element = node as ReactElement<{ children?: React.ReactNode }>;
+			return extractText(element.props.children);
+		}
+		return "";
+	};
+
+	const rawCode = extractText(children);
+
+	// 3. Highlight on the server
+	const highlightedHtml = highlight(rawCode);
+
 	return (
-		<CodeBlockWrapper className={className} {...props}>
-			{children}
-		</CodeBlockWrapper>
+		<CodeBlockWrapper
+			className={className}
+			highlightedHtml={highlightedHtml}
+			rawCode={rawCode}
+			{...props}
+		/>
 	);
 }
 
@@ -267,7 +309,12 @@ export function Table({ className, ...props }: ComponentPropsWithoutRef<"table">
 export function THead({ className, ...props }: ComponentPropsWithoutRef<"thead">) {
 	return (
 		<thead
-			className={cn("border-surface-200 border-b dark:border-surface-800", className)}
+			className={cn(
+				"border-surface-200 border-b dark:border-surface-800",
+				"bg-surface-200/50 dark:bg-surface-800/50", // High Contrast Zebra
+				"transition-colors duration-200 hover:bg-surface-200/75 dark:hover:bg-surface-800/75", // Clear hover
+				className,
+			)}
 			{...props}
 		/>
 	);
@@ -287,8 +334,10 @@ export function TR({ className, ...props }: ComponentPropsWithoutRef<"tr">) {
 	return (
 		<tr
 			className={cn(
-				"group transition-all duration-200 ease-out",
-				"hover:bg-surface-50 dark:hover:bg-surface-900", // Clean high-contrast hover
+				"transition-colors duration-200", // Standard transition
+				"border-surface-200 border-b last:border-0 dark:border-surface-800", // Row separators
+				"hover:bg-surface-100 dark:hover:bg-surface-800", // Clear hover
+				"even:bg-surface-100/25 dark:even:bg-surface-800/50", // High Contrast Zebra
 				className,
 			)}
 			{...props}

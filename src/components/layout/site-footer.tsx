@@ -34,7 +34,7 @@ export function SiteFooter() {
 						{/* Social Links */}
 						<nav className="flex items-center gap-6" aria-label="Social Links">
 							<Link
-								href="https://linkedin.com/in/yaschet"
+								href="https://linkedin.com/in/yassinechettouch"
 								target="_blank"
 								className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
 							>
@@ -48,7 +48,7 @@ export function SiteFooter() {
 								GitHub
 							</Link>
 							<Link
-								href="https://x.com/yaschet"
+								href="https://x.com/yaschett"
 								target="_blank"
 								className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
 							>

@@ -3,6 +3,8 @@ import { allProjects } from "contentlayer2/generated";
 import { compareDesc } from "date-fns";
 import type { Metadata } from "next";
 import Link from "next/link";
+import AssetPhoenix from "@/public/images/placeholders/asset-2.jpg";
+import AssetOnboardFlow from "@/public/images/placeholders/asset-12.jpg";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
@@ -62,19 +64,102 @@ export default function ProjectsPage() {
 									>
 										<div className="space-y-4">
 											<ProjectCardGallery
+												// Add +11 for visual offset if needed, or keep simple index
 												index={String(i + 1).padStart(2, "0")}
 												title={project.title}
 												description={project.description}
 												href={project.url_path}
-												tags={project.tags ?? []}
+												tags={project.tech ?? []}
 												images={project.coverImages}
-												isPrivate={!project.url && !project.github}
+												date={
+													project.date
+														? new Date(project.date).toLocaleDateString(
+																"en-US",
+																{ month: "long", year: "numeric" },
+															)
+														: undefined
+												}
 											/>
 										</div>
 									</ScrollReveal>
 								))}
+
+								{/* Project Phoenix - Locked */}
+								<ScrollReveal
+									phase={2}
+									delay={projects.length * 0.05}
+									className="w-full"
+								>
+									<div className="space-y-4">
+										<ProjectCardGallery
+											index={String(projects.length + 1).padStart(2, "0")}
+											title="Project Phoenix"
+											description="Large-scale data matching engine with AI-driven cleansing, semantic search, and resumable processing pipelines."
+											href="#"
+											tags={[
+												"Meilisearch",
+												"OpenAI",
+												"PostgreSQL",
+												"Data Pipelines",
+											]}
+											images={[AssetPhoenix]}
+											isPrivate
+											challenge="Match thousands of university programs to student profiles with high accuracy."
+											solution="3-phase system using Meilisearch, OpenAI embeddings, and resumable data pipelines."
+											date="June 2025"
+										/>
+									</div>
+								</ScrollReveal>
+
+								{/* Onboard Flow - Locked */}
+								<ScrollReveal
+									phase={2}
+									delay={projects.length * 0.05 + 0.1}
+									className="w-full"
+								>
+									<div className="space-y-4">
+										<ProjectCardGallery
+											index={String(projects.length + 2).padStart(2, "0")}
+											title="Onboard Flow"
+											description="Intelligent customer portal with step-by-step onboarding, document scanning, and dynamic form logic."
+											href="#"
+											tags={["React", "Node.js", "PostgreSQL", "OCR"]}
+											images={[AssetOnboardFlow]}
+											isPrivate
+											challenge="Replace a complex static form with a high-conversion step-by-step experience."
+											solution="Typeform-style portal with OCR scanning and dynamic form logic. Delivered in 6 weeks."
+											date="October 2025"
+										/>
+									</div>
+								</ScrollReveal>
 							</div>
 						</div>
+					</SwissGridSection>
+
+					{/* NDA Disclaimer - Separated into its own grid section */}
+					<SwissGridSection id="projects-nda" className="w-full">
+						<ScrollReveal phase={2} className="w-full">
+							<section className="w-full">
+								<div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-24 text-center sm:px-8">
+									<div className="mb-4 flex items-center justify-center gap-2">
+										<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
+											Confidential Work
+										</p>
+									</div>
+									<p className="max-w-md text-sm text-surface-600 leading-relaxed dark:text-surface-400">
+										Due to strict NDAs and client privacy, most commercial
+										enterprise work cannot be publicly displayed.{" "}
+										<Link
+											href="/contact"
+											className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-4 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
+										>
+											Contact me
+										</Link>{" "}
+										directly to discuss enterprise experience.
+									</p>
+								</div>
+							</section>
+						</ScrollReveal>
 					</SwissGridSection>
 
 					{/* Contact */}

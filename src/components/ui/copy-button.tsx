@@ -1,21 +1,9 @@
-/**
- * CopyButton component.
- *
- * @remarks
- * Client-side component for clipboard interaction.
- *
- * @example
- * ```tsx
- * <CopyButton text="content" />
- * ```
- *
- * @public
- */
-
 "use client";
 
 import { Check, Copy } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
+import { Button } from "@/src/components/ui/button";
+import { Spinner } from "@/src/components/ui/spinner";
 import { cn } from "@/src/lib/index";
 
 interface CopyButtonProps {
@@ -25,32 +13,53 @@ interface CopyButtonProps {
 
 export function CopyButton({ text, className }: CopyButtonProps) {
 	const [copied, setCopied] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	const handleCopy = useCallback(async () => {
-		await navigator.clipboard.writeText(text);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
-	}, [text]);
+		if (loading || copied) return;
+
+		setLoading(true);
+
+		// Artificial delay to provide "Interaction Engineered" feedback
+		// Making the action feel weighted and confirmed.
+		await new Promise((resolve) => setTimeout(resolve, 300));
+
+		try {
+			await navigator.clipboard.writeText(text);
+			setCopied(true);
+			setTimeout(() => {
+				setCopied(false);
+			}, 2000);
+		} catch (_error) {
+			// Silent fail on clipboard errors for production
+		} finally {
+			setLoading(false);
+		}
+	}, [text, loading, copied]);
 
 	return (
-		<button
-			type="button"
+		<Button
+			variant="plain"
+			size="icon-sm"
+			color="default"
 			onClick={handleCopy}
+			disabled={loading}
 			className={cn(
-				"flex size-8 items-center justify-center",
-				"border border-surface-200 bg-surface-50 dark:border-surface-700 dark:bg-surface-800",
-				"opacity-0 transition-all duration-200 group-hover:opacity-100",
-				"hover:border-surface-300 hover:bg-surface-100 dark:hover:border-surface-600 dark:hover:bg-surface-700",
-				"focus:outline-none focus:ring-2 focus:ring-surface-400",
+				"absolute top-2 right-2 z-10",
+				"opacity-0 transition-opacity duration-200 group-hover:opacity-100",
+				"bg-surface-50/80 backdrop-blur dark:bg-surface-800/80",
+				loading && "opacity-100",
 				className,
 			)}
-			aria-label={copied ? "Copied!" : "Copy code"}
+			aria-label={loading ? "Copying..." : copied ? "Copied!" : "Copy code"}
 		>
-			{copied ? (
+			{loading ? (
+				<Spinner size="xs" color="default" className="opacity-70" />
+			) : copied ? (
 				<Check size={14} weight="bold" className="text-success-500" />
 			) : (
-				<Copy size={14} weight="bold" className="text-surface-500 dark:text-surface-400" />
+				<Copy size={14} weight="bold" className="text-muted-foreground" />
 			)}
-		</button>
+		</Button>
 	);
 }

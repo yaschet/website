@@ -11,9 +11,10 @@ import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
 import { ImageGallery } from "@/src/components/ui/image-gallery";
-import { ScrollReveal } from "@/src/components/ui/reveal";
+import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 import { formatDate } from "@/src/lib/format-date";
+import { SiteHeader } from "../layout/site-header";
 
 interface ProjectContentProps {
 	project: Project;
@@ -23,6 +24,7 @@ interface ProjectContentProps {
 type ProjectWithExtras = Project & {
 	readingTime?: number;
 	coverImages?: string[];
+	hideCoverGallery?: boolean;
 };
 
 export function ProjectContentRSC({ project }: ProjectContentProps) {
@@ -31,13 +33,21 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 
 	return (
 		<SwissGridProvider>
-			<div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
-				<main className="relative z-10 flex min-h-screen flex-col pt-32">
+			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+				<main
+					className="relative z-10 flex flex-1 flex-col"
+					style={{ overflowAnchor: "none" }}
+				>
+					{/* Nav Row */}
+					<Reveal phase={1} className="w-full">
+						<SiteHeader />
+					</Reveal>
+
 					{/* Header */}
 					<SwissGridSection id="project-header" className="w-full">
-						<ScrollReveal phase={1} className="w-full">
+						<Reveal phase={1} className="w-full">
 							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 sm:px-8">
+								<div className="mx-auto max-w-3xl px-6 pt-16 sm:px-8">
 									{/* Back Link */}
 									<Link
 										href="/projects"
@@ -48,7 +58,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									</Link>
 
 									{/* Hero Gallery - Client Island */}
-									{galleryImages.length > 0 && (
+									{galleryImages.length > 0 && !projectData.hideCoverGallery && (
 										<div className="mb-8">
 											<ImageGallery
 												images={galleryImages}
@@ -85,23 +95,70 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									</div>
 
 									{/* Description */}
-									<p className="mb-8 max-w-xl text-body-lg text-muted-foreground">
+									<p className="mb-12 max-w-xl text-body-lg text-muted-foreground">
 										{project.description}
 									</p>
 
-									{/* Tech Stack */}
-									{project.tech && project.tech.length > 0 && (
-										<div className="mb-8 flex flex-wrap gap-2">
-											{project.tech.map((tech: string) => (
-												<span
-													key={tech}
-													className="border border-surface-950 bg-transparent px-3 py-1.5 font-mono text-surface-950 text-xs uppercase tracking-wide dark:border-surface-100 dark:text-surface-100"
-												>
-													{tech}
+									{/* Metadata Table (Role, Stack, Status) */}
+									<div className="mb-12 grid grid-cols-1 gap-8 border-surface-200 border-t py-8 sm:grid-cols-2 dark:border-surface-800">
+										{project.role && (
+											<div className="flex flex-col gap-2">
+												<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+													Role
 												</span>
-											))}
-										</div>
-									)}
+												<span className="font-medium text-foreground text-sm">
+													{project.role}
+												</span>
+											</div>
+										)}
+										{project.status && (
+											<div className="flex flex-col gap-2">
+												<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+													Status
+												</span>
+												<span className="font-medium text-foreground text-sm">
+													{project.status}
+												</span>
+											</div>
+										)}
+										{project.stack && project.stack.length > 0 && (
+											<div className="flex flex-col gap-2 sm:col-span-2">
+												<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+													Engine Stack
+												</span>
+												<div className="flex flex-wrap gap-2">
+													{project.stack.map((item: string) => (
+														<span
+															key={item}
+															className="border border-surface-200 bg-surface-50 px-2 py-0.5 font-mono text-[11px] text-surface-600 uppercase tracking-tight dark:border-surface-800 dark:bg-surface-900 dark:text-surface-400"
+														>
+															{item}
+														</span>
+													))}
+												</div>
+											</div>
+										)}
+										{/* Fallback to legacy tech tags if stack is missing */}
+										{!project.stack &&
+											project.tech &&
+											project.tech.length > 0 && (
+												<div className="flex flex-col gap-2 sm:col-span-2">
+													<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+														Technologies
+													</span>
+													<div className="flex flex-wrap gap-2">
+														{project.tech.map((tech: string) => (
+															<span
+																key={tech}
+																className="border border-surface-200 bg-surface-50 px-2 py-0.5 font-mono text-[11px] text-surface-600 uppercase tracking-tight dark:border-surface-800 dark:bg-surface-900 dark:text-surface-400"
+															>
+																{tech}
+															</span>
+														))}
+													</div>
+												</div>
+											)}
+									</div>
 
 									{/* Links */}
 									{(project.url || project.github) && (
@@ -142,7 +199,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									)}
 								</div>
 							</section>
-						</ScrollReveal>
+						</Reveal>
 					</SwissGridSection>
 
 					{/* Content - Server Rendered MDX */}
@@ -200,10 +257,9 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 
 					{/* Reading Bracket - Client Component */}
 					<ReadingBracket />
-
-					{/* Footer */}
-					<SiteFooter />
 				</main>
+				<SiteFooter />
+				<SwissGridSection id="nav-spacer" className="h-29.5 w-full" />
 			</div>
 		</SwissGridProvider>
 	);

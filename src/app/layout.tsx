@@ -27,9 +27,9 @@ const personSchema = {
 	jobTitle: "Senior Product Engineer",
 	url: "https://yaschet.dev",
 	sameAs: [
-		"https://x.com/yaschet",
+		"https://x.com/yaschett",
 		"https://github.com/yaschet",
-		"https://linkedin.com/in/yaschet",
+		"https://linkedin.com/in/yassinechettouch",
 	],
 };
 

@@ -9,6 +9,12 @@ interface ProjectPageProps {
 	}>;
 }
 
+interface ProjectData {
+	stack?: string[];
+	tech?: string[];
+	seoKeywords?: string[];
+}
+
 export function generateStaticParams() {
 	return allProjects.map((project) => ({
 		slug: project.slug,
@@ -25,9 +31,17 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 		};
 	}
 
+	// Extract keywords for SEO/ATS
+	const projectData = project as unknown as ProjectData;
+	const stack = projectData.stack ?? [];
+	const tech = projectData.tech ?? [];
+	const seoKeywords = projectData.seoKeywords ?? [];
+	const keywords = [...new Set([...stack, ...tech, ...seoKeywords])].join(", ");
+
 	return {
 		title: `${project.title} | Yassine Chettouch`,
 		description: project.description,
+		keywords: keywords || undefined,
 	};
 }
 

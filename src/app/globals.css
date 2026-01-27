@@ -1809,3 +1809,65 @@ h4:hover .anchor {
 @utility animate-spin-slow-reverse {
   animation: spin 3s linear infinite reverse;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SYNTAX HIGHLIGHTING (SUGAR HIGH)
+   Lightweight, server-side syntax highlighting tokens.
+   Maps to colorful Design System variants (Achromatic Swiss base + Chromatic Tokens).
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --sh-keyword: var(--warning-color-600);
+  --sh-string: var(--success-color-600);
+  --sh-comment: var(--surface-color-400);
+  --sh-class: var(--accent-color-600);
+  --sh-variable: var(--surface-color-900);
+  --sh-function: var(--accent-color-500);
+  --sh-operator: var(--surface-color-500);
+  --sh-sign: var(--surface-color-400);
+  --sh-property: var(--accent-color-700);
+  --sh-identifier: var(--surface-color-900);
+  --sh-space: transparent;
+}
+
+.dark {
+  --sh-keyword: var(--warning-color-400);
+  --sh-string: var(--success-color-400);
+  --sh-comment: var(--surface-color-500);
+  --sh-class: var(--accent-color-300);
+  --sh-variable: var(--surface-color-100);
+  --sh-function: var(--accent-color-400);
+  --sh-operator: var(--surface-color-400);
+  --sh-sign: var(--surface-color-500);
+  --sh-property: var(--accent-color-300);
+  --sh-identifier: var(--surface-color-100);
+}
+
+.sh__content {
+  display: block;
+}
+
+.sh__token--keyword { font-weight: 600; }
+.sh__token--comment { font-style: italic; }
+
+/* Line numbers/highlighting */
+.line--highlighted {
+  @apply bg-surface-100 dark:bg-surface-800 border-l-2 border-primary-500;
+  width: 100%;
+}
+
+.word--highlighted {
+  @apply bg-surface-200 dark:bg-surface-700 rounded px-1;
+}
+
+[data-rehype-pretty-code-fragment] {
+  @apply relative;
+}
+
+[data-rehype-pretty-code-title] {
+  @apply px-4 py-2 font-mono text-xs font-medium border-b border-surface-200 dark:border-surface-800 bg-surface-50 dark:bg-surface-900 text-surface-600 dark:text-surface-400 rounded-t-lg;
+}
+
+/* Ensure the pre block inherits the correct background if handled by standard block */
+pre {
+    @apply bg-transparent;
+}
