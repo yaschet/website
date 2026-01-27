@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
+import { zodValidator } from "@tanstack/zod-form-adapter";
 import { toast } from "sonner";
 import { submitContactForm } from "@/src/app/actions/contact";
 import { Button } from "@/src/components/ui/button";
@@ -65,6 +66,7 @@ function FormField({
  */
 export function ContactForm() {
 	const form = useForm({
+		validatorAdapter: zodValidator(),
 		defaultValues: {
 			name: "",
 			email: "",
