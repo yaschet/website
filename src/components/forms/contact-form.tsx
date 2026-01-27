@@ -52,7 +52,7 @@ function FormField({
 			/>
 			{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
 				<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
-					{String(field.state.meta.errors[0])}
+					{field.state.meta.errors[0]?.message ?? String(field.state.meta.errors[0])}
 				</p>
 			)}
 		</div>
