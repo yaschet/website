@@ -3,14 +3,8 @@ import { allProjects } from "contentlayer2/generated";
 import { compareDesc } from "date-fns";
 import type { Metadata } from "next";
 import Link from "next/link";
-import Asset1 from "@/public/images/placeholders/asset-1.jpg";
-import Asset2 from "@/public/images/placeholders/asset-2.jpg";
-import Asset3 from "@/public/images/placeholders/asset-3.jpg";
-import Asset4 from "@/public/images/placeholders/asset-4.jpg";
-import Asset5 from "@/public/images/placeholders/asset-5.jpg";
-import Asset6 from "@/public/images/placeholders/asset-6.jpg";
-import Asset7 from "@/public/images/placeholders/asset-7.jpg";
-import Asset8 from "@/public/images/placeholders/asset-8.jpg";
+import AssetPhoenix from "@/public/images/placeholders/asset-2.jpg";
+import AssetOnboardFlow from "@/public/images/placeholders/asset-12.jpg";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
@@ -99,7 +93,7 @@ export default function ProjectsPage() {
 												"PostgreSQL",
 												"Data Pipelines",
 											]}
-											images={[Asset5, Asset6, Asset7, Asset8]}
+											images={[AssetPhoenix]}
 											isPrivate
 											challenge="Match thousands of university programs to student profiles with high accuracy."
 											solution="3-phase system using Meilisearch, OpenAI embeddings, and resumable data pipelines."
@@ -120,7 +114,7 @@ export default function ProjectsPage() {
 											description="Intelligent customer portal with step-by-step onboarding, document scanning, and dynamic form logic."
 											href="#"
 											tags={["React", "Node.js", "PostgreSQL", "OCR"]}
-											images={[Asset1, Asset2, Asset3, Asset4]}
+											images={[AssetOnboardFlow]}
 											isPrivate
 											challenge="Replace a complex static form with a high-conversion step-by-step experience."
 											solution="Typeform-style portal with OCR scanning and dynamic question logic. Delivered in 6 weeks."

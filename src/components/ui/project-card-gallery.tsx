@@ -103,12 +103,12 @@ export function ProjectCardGallery({
 						/>
 						{isPrivate && (
 							<div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-50/10 backdrop-blur-3xl transition-all duration-500 dark:bg-surface-900/40">
-								<div className="flex flex-col items-center gap-3">
+								<div className="flex items-center gap-3 rounded-full border border-surface-200/20 bg-surface-50/10 px-4 py-1.5 backdrop-blur-md dark:border-surface-800/20 dark:bg-surface-900/10">
 									<Lock
-										weight="bold"
-										className="size-5 text-surface-900 opacity-60 dark:text-surface-100"
+										weight="fill"
+										className="size-3 text-surface-900 opacity-60 dark:text-surface-100"
 									/>
-									<span className="font-medium font-mono text-surface-900 text-xs uppercase tracking-[0.25em] opacity-80 dark:text-surface-100">
+									<span className="font-medium font-mono text-[10px] text-surface-900 uppercase tracking-[0.2em] opacity-80 dark:text-surface-100">
 										Coming Soon
 									</span>
 								</div>
@@ -162,23 +162,27 @@ export function ProjectCardGallery({
 						{description}
 					</p>
 
-					{/* Extended Details (Challenge / Solution) */}
+					{/* Extended Details (Challenge / Solution) — Vertical Stack for Editorial Feel */}
 					{(challenge || solution) && (
-						<div className="mb-6 space-y-2 border-surface-200 border-l-2 pl-4 dark:border-surface-700">
+						<div className="mb-6 space-y-4 border-surface-200 border-t pt-4 dark:border-surface-800">
 							{challenge && (
-								<div className="text-sm text-surface-600 dark:text-surface-400">
-									<strong className="block font-medium text-surface-900 dark:text-surface-100">
+								<div className="space-y-1.5">
+									<h4 className="font-medium font-mono text-surface-400 text-xs uppercase tracking-wider">
 										Challenge
-									</strong>
-									{challenge}
+									</h4>
+									<p className="text-sm text-surface-700 leading-relaxed dark:text-surface-300">
+										{challenge}
+									</p>
 								</div>
 							)}
 							{solution && (
-								<div className="text-sm text-surface-600 dark:text-surface-400">
-									<strong className="block font-medium text-surface-900 dark:text-surface-100">
+								<div className="space-y-1.5">
+									<h4 className="font-medium font-mono text-surface-400 text-xs uppercase tracking-wider">
 										Solution
-									</strong>
-									{solution}
+									</h4>
+									<p className="text-sm text-surface-700 leading-relaxed dark:text-surface-300">
+										{solution}
+									</p>
 								</div>
 							)}
 						</div>
