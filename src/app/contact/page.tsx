@@ -108,7 +108,7 @@ export default function ContactPage() {
 													Email
 												</Link>
 												<Link
-													href="https://linkedin.com/in/yaschet"
+													href="https://linkedin.com/in/yassinechettouch"
 													target="_blank"
 													className="text-surface-900 transition-colors hover:text-surface-700 dark:text-surface-100 dark:hover:text-surface-50"
 												>
@@ -122,7 +122,7 @@ export default function ContactPage() {
 													GitHub
 												</Link>
 												<Link
-													href="https://x.com/yaschet"
+													href="https://x.com/yaschett"
 													target="_blank"
 													className="text-surface-900 transition-colors hover:text-surface-700 dark:text-surface-100 dark:hover:text-surface-50"
 												>

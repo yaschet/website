@@ -61,7 +61,7 @@ export function ProfileSection() {
 
 						<div className="flex items-center gap-0.5">
 							<Link
-								href="https://linkedin.com/in/yaschet"
+								href="https://linkedin.com/in/yassinechettouch"
 								target="_blank"
 								aria-label="LinkedIn"
 								className={cn(
@@ -83,7 +83,7 @@ export function ProfileSection() {
 								<GithubLogoIcon className="size-5" weight="regular" />
 							</Link>
 							<Link
-								href="https://x.com/yaschet"
+								href="https://x.com/yaschett"
 								target="_blank"
 								aria-label="X"
 								className={cn(
