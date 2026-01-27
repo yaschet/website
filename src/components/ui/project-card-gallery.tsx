@@ -133,22 +133,22 @@ export function ProjectCardGallery({
 				{/* DATA ZONE — Solid Background, Maximum Legibility */}
 				<div className="p-6">
 					{/* Header Row */}
-					<div className="mb-4 flex flex-col gap-2">
-						{/* Meta Layer: Functional Data */}
-						<div className="flex items-center justify-between border-b border-surface-200 pb-2.5 dark:border-surface-800">
-							<span className="font-mono text-xs text-surface-500 dark:text-surface-400">
+					<div className="mb-6 flex flex-col gap-4">
+						{/* Meta Layer: Functional Data — ZERO BORDERS, PURE SPACE */}
+						<div className="flex items-center justify-between">
+							<span className="!text-xs font-mono text-surface-500 dark:text-surface-400">
 								{index}
 							</span>
 							{date && (
-								<span className="font-mono text-xs text-surface-500 uppercase tracking-wider dark:text-surface-400">
+								<span className="!text-xs font-mono text-surface-500 uppercase tracking-wider dark:text-surface-400">
 									{date}
 								</span>
 							)}
 						</div>
 
-						{/* Identity Layer: Title & Action */}
-						<div className="flex items-start justify-between gap-4">
-							<h3 className="font-medium text-lg leading-tight text-surface-900 dark:text-surface-50">
+						{/* Identity Layer: Title & Action — OPTICALLY CENTERED */}
+						<div className="flex items-center justify-between gap-4">
+							<h3 className="!text-xl font-medium text-surface-900 leading-tight dark:text-surface-50">
 								{title}
 							</h3>
 
@@ -170,29 +170,29 @@ export function ProjectCardGallery({
 					</div>
 
 					{/* Description */}
-					<p className="mb-4 line-clamp-2 text-sm text-surface-600 dark:text-surface-400">
+					<p className="!text-sm mb-4 line-clamp-2 text-surface-600 dark:text-surface-400">
 						{description}
 					</p>
 
 					{/* Extended Details (Challenge / Solution) — Vertical Stack for Editorial Feel */}
 					{(challenge || solution) && (
-						<div className="mb-6 space-y-4 border-surface-200 border-t pt-4 dark:border-surface-800">
+						<div className="mb-6 space-y-4">
 							{challenge && (
 								<div className="space-y-1.5">
-									<h4 className="font-medium font-mono text-surface-400 text-xs uppercase tracking-wider">
+									<h4 className="!text-xs font-medium font-mono text-surface-400 uppercase tracking-wider">
 										Challenge
 									</h4>
-									<p className="text-sm text-surface-700 leading-relaxed dark:text-surface-300">
+									<p className="!text-sm text-surface-700 leading-relaxed dark:text-surface-300">
 										{challenge}
 									</p>
 								</div>
 							)}
 							{solution && (
 								<div className="space-y-1.5">
-									<h4 className="font-medium font-mono text-surface-400 text-xs uppercase tracking-wider">
+									<h4 className="!text-xs font-medium font-mono text-surface-400 uppercase tracking-wider">
 										Solution
 									</h4>
-									<p className="text-sm text-surface-700 leading-relaxed dark:text-surface-300">
+									<p className="!text-sm text-surface-700 leading-relaxed dark:text-surface-300">
 										{solution}
 									</p>
 								</div>
