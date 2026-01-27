@@ -103,28 +103,37 @@ export default function AboutPage() {
 									<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
 										<ScrollReveal phase={2} delay={0.05}>
 											<p>
-												I started as a graphic designer. Logos, book covers,
-												product mockups. Adobe Illustrator was my first real
-												tool. That background stuck with me: I still think
-												in terms of visual hierarchy, spacing, and how
-												something feels before I think about how it works.
+												I started in{" "}
+												<strong className="font-medium text-surface-900 dark:text-surface-100">
+													Graphic Design
+												</strong>
+												, obsessing over visual hierarchy and Swiss
+												precision. In 2021, I realized design wasn&apos;t
+												enough—I wanted the power to build, not just mock
+												up.
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.1}>
 											<p>
-												In 2021, I switched to code. Web development let me
-												build complete products. Not just static designs,
-												but things people could actually use. I've been
-												doing that ever since.
+												I pivoted to{" "}
+												<strong className="font-medium text-surface-900 dark:text-surface-100">
+													Systems Engineering
+												</strong>
+												. I don&apos;t just build interfaces; I architect
+												full-stack engines. From database ledgers to AI
+												pipelines, I bridge the gap between &quot;beautiful
+												UI&quot; and &quot;heavy backend logic.&quot;
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.15}>
 											<p>
-												Today I work directly with founders and CEOs. They
-												give me a problem, I return a working product.
-												Database schemas, APIs, interfaces, deployment.
-												Whether I'm the only engineer or part of a team, I
-												focus on one thing: shipping.
+												Today, I function as a{" "}
+												<strong className="font-medium text-surface-900 dark:text-surface-100">
+													Product Engineer
+												</strong>
+												. I solve expensive business problems using whatever
+												stack is required—shipping production-grade software
+												in weeks, not months.
 											</p>
 										</ScrollReveal>
 									</div>
@@ -147,47 +156,49 @@ export default function AboutPage() {
 										<ScrollReveal phase={2} delay={0.05}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													Craftsmanship
+													Precision
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													I care about the details. Error states, loading
-													feedback, micro-interactions. The things most
-													people skip.
+													I treat code like a contract. If the API fails,
+													the UI is a lie. I build systems that fail
+													gracefully and recover automatically.
 												</p>
 											</div>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.1}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													User Empathy
+													Speed as a Feature
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													I think about how someone will feel when they
-													hit an edge case. Frustration is a design
-													failure.
+													Latency kills trust. I optimize for
+													&quot;perceived performance&quot; using
+													optimistic UI, skeletons, and edge caching. No
+													one likes waiting.
 												</p>
 											</div>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.15}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													Business Focus
+													ROI-First
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													I don't like building features nobody uses. If
-													it doesn't solve a real problem, I'll ask why.
+													I don&apos;t build features for fun. I build to
+													move the needle. If a feature doesn&apos;t
+													reduce churn or increase revenue, I cut it.
 												</p>
 											</div>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.2}>
 											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													Ownership
+													End-to-End Responsibility
 												</h3>
 												<p className="text-sm text-surface-600 dark:text-surface-400">
-													I work best when I understand the bigger
-													picture. Give me context and I'll make better
-													decisions on the details.
+													I don&apos;t say &quot;it works on my
+													machine.&quot; I own the product from the first
+													line of code to the final deployment logs.
 												</p>
 											</div>
 										</ScrollReveal>
@@ -210,10 +221,14 @@ export default function AboutPage() {
 									<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
 										<ScrollReveal phase={2} delay={0.05}>
 											<p>
-												I architect systems that scale. Not just in traffic,
-												but in team velocity and maintenance cost. If a
-												solution creates more problems than it solves, it's
-												not a solution.
+												I architect for{" "}
+												<strong className="font-medium text-surface-900 dark:text-surface-100">
+													Malleability
+												</strong>
+												. Systems change. I use strict typing
+												(TypeScript/Zod) and atomic design principles so
+												that when the business pivots, the code doesn&apos;t
+												break.
 											</p>
 										</ScrollReveal>
 										<ScrollReveal phase={2} delay={0.1}>
