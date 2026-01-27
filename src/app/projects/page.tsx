@@ -64,12 +64,21 @@ export default function ProjectsPage() {
 									>
 										<div className="space-y-4">
 											<ProjectCardGallery
+												// Add +11 for visual offset if needed, or keep simple index
 												index={String(i + 1).padStart(2, "0")}
 												title={project.title}
 												description={project.description}
 												href={project.url_path}
-												tags={project.tags ?? []}
+												tags={project.tech ?? []}
 												images={project.coverImages}
+												date={
+													project.date
+														? new Date(project.date).toLocaleDateString(
+																"en-US",
+																{ month: "long", year: "numeric" },
+															)
+														: undefined
+												}
 											/>
 										</div>
 									</ScrollReveal>
@@ -78,7 +87,7 @@ export default function ProjectsPage() {
 								{/* Project Phoenix - Locked */}
 								<ScrollReveal
 									phase={2}
-									delay={projects.length * 0.05 + 0.05}
+									delay={projects.length * 0.05}
 									className="w-full"
 								>
 									<div className="space-y-4">
@@ -97,6 +106,7 @@ export default function ProjectsPage() {
 											isPrivate
 											challenge="Match thousands of university programs to student profiles with high accuracy."
 											solution="3-phase system using Meilisearch, OpenAI embeddings, and resumable data pipelines."
+											date="June 2025"
 										/>
 									</div>
 								</ScrollReveal>
@@ -117,7 +127,8 @@ export default function ProjectsPage() {
 											images={[AssetOnboardFlow]}
 											isPrivate
 											challenge="Replace a complex static form with a high-conversion step-by-step experience."
-											solution="Typeform-style portal with OCR scanning and dynamic question logic. Delivered in 6 weeks."
+											solution="Typeform-style portal with OCR scanning and dynamic form logic. Delivered in 6 weeks."
+											date="October 2025"
 										/>
 									</div>
 								</ScrollReveal>

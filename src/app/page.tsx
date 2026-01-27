@@ -73,6 +73,7 @@ export default function Home() {
 														href={project.url_path}
 														tags={project.tech ?? []}
 														images={project.coverImages}
+														date="January 2026"
 													/>
 												</div>
 											</ScrollReveal>
@@ -96,6 +97,7 @@ export default function Home() {
 													isPrivate
 													challenge="Match thousands of university programs to student profiles with high accuracy."
 													solution="3-phase system using Meilisearch, OpenAI embeddings, and resumable data pipelines."
+													date="June 2025"
 												/>
 											</div>
 										</ScrollReveal>
@@ -113,6 +115,7 @@ export default function Home() {
 													isPrivate
 													challenge="Replace a complex static form with a high-conversion step-by-step experience."
 													solution="Typeform-style portal with OCR scanning and dynamic form logic. Delivered in 6 weeks."
+													date="October 2025"
 												/>
 											</div>
 										</ScrollReveal>

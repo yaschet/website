@@ -39,6 +39,7 @@ interface ProjectCardGalleryProps {
 	challenge?: string;
 	solution?: string;
 	className?: string;
+	date?: string;
 }
 
 export function ProjectCardGallery({
@@ -52,6 +53,7 @@ export function ProjectCardGallery({
 	challenge,
 	solution,
 	className,
+	date,
 }: ProjectCardGalleryProps) {
 	const galleryImages = images && images.length > 0 ? images : [];
 
@@ -131,29 +133,39 @@ export function ProjectCardGallery({
 				{/* DATA ZONE — Solid Background, Maximum Legibility */}
 				<div className="p-6">
 					{/* Header Row */}
-					<div className="mb-3 flex items-start justify-between gap-4">
-						<div className="flex items-baseline gap-3">
-							<span className="font-mono text-surface-500 text-xs dark:text-surface-400">
+					<div className="mb-4 flex flex-col gap-2">
+						{/* Meta Layer: Functional Data */}
+						<div className="flex items-center justify-between border-b border-surface-200 pb-2.5 dark:border-surface-800">
+							<span className="font-mono text-xs text-surface-500 dark:text-surface-400">
 								{index}
 							</span>
-							<h3 className="font-medium text-lg text-surface-900 leading-tight dark:text-surface-50">
-								{title}
-							</h3>
+							{date && (
+								<span className="font-mono text-xs text-surface-500 uppercase tracking-wider dark:text-surface-400">
+									{date}
+								</span>
+							)}
 						</div>
 
-						{/* Action Icon */}
-						<div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-surface-200 bg-surface-100 transition-all duration-300 group-hover:border-surface-900 group-hover:bg-surface-900 dark:border-surface-700 dark:bg-surface-800 dark:group-hover:border-surface-100 dark:group-hover:bg-surface-100">
-							{isPrivate ? (
-								<Lock
-									weight="bold"
-									className="size-3.5 text-surface-600 transition-colors duration-300 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
-								/>
-							) : (
-								<ArrowUpRight
-									weight="bold"
-									className="size-3.5 text-surface-600 transition-all duration-300 group-hover:translate-x-px group-hover:-translate-y-px group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
-								/>
-							)}
+						{/* Identity Layer: Title & Action */}
+						<div className="flex items-start justify-between gap-4">
+							<h3 className="font-medium text-lg leading-tight text-surface-900 dark:text-surface-50">
+								{title}
+							</h3>
+
+							{/* Action Icon */}
+							<div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-surface-200 bg-surface-100 transition-all duration-300 group-hover:border-surface-900 group-hover:bg-surface-900 dark:border-surface-700 dark:bg-surface-800 dark:group-hover:border-surface-100 dark:group-hover:bg-surface-100">
+								{isPrivate ? (
+									<Lock
+										weight="bold"
+										className="size-3.5 text-surface-600 transition-colors duration-300 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+									/>
+								) : (
+									<ArrowUpRight
+										weight="bold"
+										className="size-3.5 text-surface-600 transition-all duration-300 group-hover:translate-x-px group-hover:-translate-y-px group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+									/>
+								)}
+							</div>
 						</div>
 					</div>
 
