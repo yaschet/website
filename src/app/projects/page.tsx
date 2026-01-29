@@ -15,6 +15,15 @@ import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-g
 export const metadata: Metadata = {
 	title: "Projects | Yassine Chettouch",
 	description: "Web apps, SaaS platforms, and internal tools. From idea to production.",
+	alternates: {
+		canonical: "https://yaschet.dev/projects",
+	},
+	openGraph: {
+		title: "Projects | Yassine Chettouch",
+		description: "Web apps, SaaS platforms, and internal tools. From idea to production.",
+		url: "https://yaschet.dev/projects",
+		type: "website",
+	},
 };
 
 export default function ProjectsPage() {

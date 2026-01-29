@@ -36,12 +36,36 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 	const stack = projectData.stack ?? [];
 	const tech = projectData.tech ?? [];
 	const seoKeywords = projectData.seoKeywords ?? [];
-	const keywords = [...new Set([...stack, ...tech, ...seoKeywords])].join(", ");
+	const keywords = [...new Set([...stack, ...tech, ...seoKeywords])];
+
+	// Resolve the primary image for OG
+	// Contentlayer paths are relative to public, usually start with /
+	const ogImage = project.coverImages?.[0] ?? "/images/og-image.png";
 
 	return {
-		title: `${project.title} | Yassine Chettouch`,
+		title: project.title,
 		description: project.description,
-		keywords: keywords || undefined,
+		keywords: keywords,
+		openGraph: {
+			title: `${project.title} | Yassine Chettouch`,
+			description: project.description,
+			type: "article",
+			url: `https://yaschet.dev/projects/${project.slug}`,
+			images: [
+				{
+					url: ogImage,
+					width: 1200,
+					height: 630,
+					alt: `${project.title} - Case Study`,
+				},
+			],
+		},
+		twitter: {
+			card: "summary_large_image",
+			title: `${project.title} | Yassine Chettouch`,
+			description: project.description,
+			images: [ogImage],
+		},
 	};
 }
 
@@ -53,5 +77,40 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 		notFound();
 	}
 
-	return <ProjectContentRSC project={project} />;
+	const projectData = project as unknown as ProjectData;
+
+	// Construct JSON-LD for TechArticle
+	const jsonLd = {
+		"@context": "https://schema.org",
+		"@type": "TechArticle",
+		headline: project.title,
+		description: project.description,
+		image: project.coverImages?.[0]
+			? `https://yaschet.dev${project.coverImages[0]}`
+			: "https://yaschet.dev/images/og-image.png",
+		datePublished: project.date,
+		dateModified: project.date, // Assuming no separate modified date for now
+		author: {
+			"@type": "Person",
+			name: "Yassine Chettouch",
+			url: "https://yaschet.dev",
+		},
+		publisher: {
+			"@type": "Person",
+			name: "Yassine Chettouch",
+			url: "https://yaschet.dev",
+		},
+		keywords: [...(projectData.tech ?? []), ...(projectData.stack ?? [])].join(", "),
+	};
+
+	return (
+		<>
+			<script
+				type="application/ld+json"
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is trusted
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+			/>
+			<ProjectContentRSC project={project} />
+		</>
+	);
 }
