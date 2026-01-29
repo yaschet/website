@@ -188,6 +188,7 @@ export default async function Image() {
 					>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_HEADLINE,
 								fontWeight: 700,
 								lineHeight: 1.1,
@@ -195,23 +196,23 @@ export default async function Image() {
 								color: OG_COLORS.surface900,
 							}}
 						>
-							Technical Identity.
+							Design-to-systems builder.
 						</div>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_SUBHEAD,
 								color: OG_COLORS.surface800,
 								lineHeight: 1.4,
 								maxWidth: 720,
 							}}
 						>
-							Focusing on backend systems architecture and high-fidelity product
-							engineering.
+							How I think, what I optimize for, and the kinds of problems I choose.
 						</div>
 					</div>
 				</div>
 
-				{/* PROOF ROW (SCOPE) */}
+				{/* PROOF ROW (TRADEOFF) */}
 				<div
 					style={{
 						display: "flex",
@@ -232,7 +233,7 @@ export default async function Image() {
 							letterSpacing: "0.05em",
 						}}
 					>
-						Scope
+						Tradeoffs
 					</div>
 					<div
 						style={{
@@ -242,7 +243,7 @@ export default async function Image() {
 							letterSpacing: "-0.02em",
 						}}
 					>
-						0→1 Delivery / Data matching engines / AI infrastructure
+						Taste + Rigor / Constraints / Tradeoffs
 					</div>
 				</div>
 			</div>

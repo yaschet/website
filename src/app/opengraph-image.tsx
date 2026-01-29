@@ -25,7 +25,7 @@ export default async function Image() {
 
 	return new ImageResponse(
 		<div style={sharedGridStyles}>
-			{/* SIDEBAR */}
+			{/* SIDEBAR (IDENTITY ANCHOR) */}
 			<div
 				style={{
 					display: "flex",
@@ -188,6 +188,7 @@ export default async function Image() {
 					>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_HEADLINE,
 								fontWeight: 700,
 								lineHeight: 1.1,
@@ -195,17 +196,18 @@ export default async function Image() {
 								color: OG_COLORS.surface900,
 							}}
 						>
-							Product Engineering.
+							Build. Ship. Improve.
 						</div>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_SUBHEAD,
 								color: OG_COLORS.surface800,
 								lineHeight: 1.4,
 								maxWidth: 720,
 							}}
 						>
-							End-to-end execution of full-stack engines and visual interfaces.
+							Product engineering across interface, backend, and AI workflows.
 						</div>
 					</div>
 				</div>
@@ -231,7 +233,7 @@ export default async function Image() {
 							letterSpacing: "0.05em",
 						}}
 					>
-						Constraint
+						Proof
 					</div>
 					<div
 						style={{
@@ -241,7 +243,7 @@ export default async function Image() {
 							letterSpacing: "-0.02em",
 						}}
 					>
-						Latency budgets / Resumable pipelines / ACID compliance
+						Latency budgets / Durable systems / Outcomes
 					</div>
 				</div>
 			</div>

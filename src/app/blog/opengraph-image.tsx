@@ -164,7 +164,7 @@ export default async function Image() {
 							letterSpacing: "0.1em",
 						}}
 					>
-						Inidices / Writing
+						Writing
 					</div>
 				</div>
 
@@ -188,6 +188,7 @@ export default async function Image() {
 					>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_HEADLINE,
 								fontWeight: 700,
 								lineHeight: 1.1,
@@ -195,18 +196,18 @@ export default async function Image() {
 								color: OG_COLORS.surface900,
 							}}
 						>
-							Engineering Records.
+							Decisions, written down.
 						</div>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_SUBHEAD,
 								color: OG_COLORS.surface800,
 								lineHeight: 1.4,
 								maxWidth: 720,
 							}}
 						>
-							Documentation of architectural decisions, systems performance, and team
-							governance.
+							Architecture notes, benchmarks, and postmortems from real builds.
 						</div>
 					</div>
 				</div>
@@ -242,7 +243,7 @@ export default async function Image() {
 							letterSpacing: "-0.02em",
 						}}
 					>
-						Decision records / Benchmarks / Postmortems
+						ADRs / Benchmarks / Postmortems
 					</div>
 				</div>
 			</div>

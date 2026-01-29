@@ -21,8 +21,8 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 	const project = allProjects.find((p) => p.slug === slug);
 
 	const title = project?.title ?? "Case Study";
-	const description = project?.description ?? "Product Engineering Artifact";
-	const role = project?.role ?? "Product Engineer";
+	const description = project?.description ?? "Outcome-oriented product engineering artifact.";
+	const role = project?.role ?? "System Architect";
 	const tech = project?.tech ?? [];
 
 	const avatarBuffer = await loadAvatar();
@@ -197,6 +197,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 					>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_HEADLINE,
 								fontWeight: 700,
 								lineHeight: 1.1,
@@ -208,6 +209,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 						</div>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_SUBHEAD,
 								color: OG_COLORS.surface800,
 								lineHeight: 1.4,
@@ -219,7 +221,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 					</div>
 				</div>
 
-				{/* SIMPLIFIED PROOF ROW */}
+				{/* PROOF ROW (EVIDENCE) */}
 				<div
 					style={{
 						display: "flex",
@@ -233,60 +235,25 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 				>
 					<div
 						style={{
-							display: "flex",
-							flexDirection: "column",
-							gap: layout.UNIT * 1,
+							fontSize: layout.FONT_MONO,
+							fontFamily: '"Space Mono"',
+							color: OG_COLORS.surface500,
+							textTransform: "uppercase",
+							letterSpacing: "0.05em",
 						}}
 					>
-						<div
-							style={{
-								fontSize: layout.FONT_MONO,
-								fontFamily: '"Space Mono"',
-								color: OG_COLORS.surface400,
-								textTransform: "uppercase",
-								letterSpacing: "0.05em",
-							}}
-						>
-							Identity
-						</div>
-						<div
-							style={{
-								fontSize: 18,
-								fontWeight: 600,
-								color: OG_COLORS.surface900,
-							}}
-						>
-							{role}
-						</div>
+						Evidence
 					</div>
 					<div
 						style={{
 							display: "flex",
-							flexDirection: "column",
-							alignItems: "flex-end",
-							gap: layout.UNIT * 1,
+							fontSize: 20,
+							fontWeight: 600,
+							color: OG_COLORS.surface900,
+							letterSpacing: "-0.02em",
 						}}
 					>
-						<div
-							style={{
-								fontSize: layout.FONT_MONO,
-								fontFamily: '"Space Mono"',
-								color: OG_COLORS.surface400,
-								textTransform: "uppercase",
-								letterSpacing: "0.05em",
-							}}
-						>
-							Core Stack
-						</div>
-						<div
-							style={{
-								fontSize: 18,
-								fontWeight: 600,
-								color: OG_COLORS.surface900,
-							}}
-						>
-							{tech.slice(0, 3).join(", ")}
-						</div>
+						{role} / {tech.slice(0, 1).join("")}
 					</div>
 				</div>
 			</div>

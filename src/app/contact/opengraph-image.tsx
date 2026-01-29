@@ -188,6 +188,7 @@ export default async function Image() {
 					>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_HEADLINE,
 								fontWeight: 700,
 								lineHeight: 1.1,
@@ -195,23 +196,23 @@ export default async function Image() {
 								color: OG_COLORS.surface900,
 							}}
 						>
-							Direct Channel.
+							Start a conversation.
 						</div>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_SUBHEAD,
 								color: OG_COLORS.surface800,
 								lineHeight: 1.4,
 								maxWidth: 720,
 							}}
 						>
-							Available for product architecture, backend engines, and full-stack
-							leadership.
+							One page with email, links, and what I’m currently building.
 						</div>
 					</div>
 				</div>
 
-				{/* PROOF ROW (CONSTRAINT) */}
+				{/* PROOF ROW (OUTCOME) */}
 				<div
 					style={{
 						display: "flex",
@@ -232,7 +233,7 @@ export default async function Image() {
 							letterSpacing: "0.05em",
 						}}
 					>
-						Process
+						Endpoint
 					</div>
 					<div
 						style={{
@@ -242,7 +243,7 @@ export default async function Image() {
 							letterSpacing: "-0.02em",
 						}}
 					>
-						Weekly cycles / Working demos / Working constraints
+						Email / Social links / Product
 					</div>
 				</div>
 			</div>

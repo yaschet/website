@@ -164,7 +164,7 @@ export default async function Image() {
 							letterSpacing: "0.1em",
 						}}
 					>
-						Indices
+						Archives
 					</div>
 				</div>
 
@@ -188,6 +188,7 @@ export default async function Image() {
 					>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_HEADLINE,
 								fontWeight: 700,
 								lineHeight: 1.1,
@@ -195,18 +196,18 @@ export default async function Image() {
 								color: OG_COLORS.surface900,
 							}}
 						>
-							Project Indices.
+							Built systems.
 						</div>
 						<div
 							style={{
+								display: "flex",
 								fontSize: layout.FONT_SUBHEAD,
 								color: OG_COLORS.surface800,
 								lineHeight: 1.4,
 								maxWidth: 720,
 							}}
 						>
-							A collection of AI pipelines, database ledgers, and reconstruction
-							engines.
+							A browsable set of shipped work and ongoing experiments.
 						</div>
 					</div>
 				</div>
@@ -232,7 +233,7 @@ export default async function Image() {
 							letterSpacing: "0.05em",
 						}}
 					>
-						Artifact
+						Artifacts
 					</div>
 					<div
 						style={{
@@ -242,7 +243,7 @@ export default async function Image() {
 							letterSpacing: "-0.02em",
 						}}
 					>
-						Resumable data matching / Visual document compilers
+						AI Pipelines / Data Systems / UI
 					</div>
 				</div>
 			</div>
