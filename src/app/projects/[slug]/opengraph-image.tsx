@@ -1,6 +1,14 @@
 import { allProjects } from "contentlayer2/generated";
 import { ImageResponse } from "next/og";
-import { loadAvatar, loadOgFonts, OG_COLORS, OG_CONTENT_TYPE, OG_SIZE } from "@/lib/og";
+import {
+	loadAvatar,
+	loadOgFonts,
+	OG_COLORS,
+	OG_CONTENT_TYPE,
+	OG_LAYOUT,
+	OG_SIZE,
+	sharedGridStyles,
+} from "@/lib/og";
 
 // export const runtime = "edge";
 
@@ -12,155 +20,71 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 	const { slug } = await params;
 	const project = allProjects.find((p) => p.slug === slug);
 
-	// Fallback if project is not found
 	const title = project?.title ?? "Case Study";
-	const description = project?.description ?? "Product Engineer Portfolio";
-	const status = project?.status ?? "Production";
+	const description = project?.description ?? "Product Engineering Artifact";
+	const role = project?.role ?? "Product Engineer";
+	const tech = project?.tech ?? [];
 
 	const avatarBuffer = await loadAvatar();
 	const avatarUrl = avatarBuffer
 		? `data:image/jpeg;base64,${avatarBuffer.toString("base64")}`
 		: "";
-	const sidebarWidth = 340;
-	const headerHeight = 100;
+
+	const layout = OG_LAYOUT;
 
 	return new ImageResponse(
-		<div
-			style={{
-				display: "flex",
-				flexDirection: "column",
-				width: "100%",
-				height: "100%",
-				backgroundColor: OG_COLORS.surface50,
-				fontFamily: '"Space Grotesk"',
-				position: "relative",
-			}}
-		>
-			<div style={{ display: "flex", flex: 1, width: "100%", height: "100%" }}>
-				{/* SIDEBAR (DEEP DARK) */}
+		<div style={sharedGridStyles}>
+			{/* SIDEBAR */}
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					width: layout.SIDEBAR_WIDTH,
+					height: "100%",
+					backgroundColor: layout.BG_DARK,
+					borderRight: layout.BORDER_DARK,
+					color: OG_COLORS.surface50,
+					justifyContent: "space-between",
+				}}
+			>
 				<div
 					style={{
 						display: "flex",
 						flexDirection: "column",
-						width: `${sidebarWidth}px`,
-						height: "100%",
-						backgroundColor: OG_COLORS.surface950,
-						borderRight: `1px solid ${OG_COLORS.surface800}`,
-						color: OG_COLORS.surface50,
-						justifyContent: "space-between",
+						padding: layout.PADDING_SM,
+						gap: layout.PADDING_SM,
 					}}
 				>
 					<div
 						style={{
 							display: "flex",
-							flexDirection: "column",
-							padding: "40px",
-							gap: "24px",
+							width: 140,
+							height: 140,
+							borderRadius: 0,
+							overflow: "hidden",
+							border: layout.BORDER_DARK,
+							backgroundColor: OG_COLORS.surface900,
 						}}
 					>
-						<div
-							style={{
-								display: "flex",
-								width: "120px",
-								height: "120px",
-								borderRadius: "0px",
-								overflow: "hidden",
-								border: `1px solid ${OG_COLORS.surface700}`,
-								backgroundColor: OG_COLORS.surface900,
-							}}
-						>
-							{/* biome-ignore lint/performance/noImgElement: required for ImageResponse */}
-							<img
-								src={avatarUrl}
-								width="120"
-								height="120"
-								style={{ objectFit: "cover" }}
-								alt="Avatar"
-							/>
-						</div>
-						<div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-							<div
-								style={{
-									fontSize: 24,
-									fontWeight: 700,
-									color: OG_COLORS.white,
-								}}
-							>
-								Yassine Chettouch
-							</div>
-							<div
-								style={{
-									fontSize: 18,
-									fontFamily: '"Space Mono"',
-									color: OG_COLORS.surface400,
-									textTransform: "uppercase",
-								}}
-							>
-								Product Engineer
-							</div>
-						</div>
+						{/* biome-ignore lint/performance/noImgElement: required for ImageResponse */}
+						<img
+							src={avatarUrl}
+							width="140"
+							height="140"
+							style={{ objectFit: "cover" }}
+							alt="Avatar"
+						/>
 					</div>
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-							padding: "40px",
-							borderTop: `1px solid ${OG_COLORS.surface900}`,
-							gap: "12px",
-						}}
-					>
-						<div
-							style={{
-								fontSize: 16,
-								fontFamily: '"Space Mono"',
-								color: OG_COLORS.surface500,
-								textTransform: "uppercase",
-							}}
-						>
-							Based in
-						</div>
-						<div
-							style={{
-								fontSize: 20,
-								fontWeight: 500,
-								color: OG_COLORS.surface50,
-							}}
-						>
-							Rabat, Morocco
-						</div>
-					</div>
-				</div>
-
-				{/* MAIN AREA */}
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "column",
-						flex: 1,
-						height: "100%",
-						backgroundColor: OG_COLORS.surface50,
-					}}
-				>
-					<div
-						style={{
-							display: "flex",
-							width: "100%",
-							height: `${headerHeight}px`,
-							borderBottom: `1px solid ${OG_COLORS.surface200}`,
-							alignItems: "center",
-							padding: "0 48px",
-							justifyContent: "space-between",
-						}}
-					>
+					<div style={{ display: "flex", flexDirection: "column", gap: layout.UNIT * 2 }}>
 						<div
 							style={{
 								fontSize: 24,
 								fontWeight: 700,
-								letterSpacing: "-0.03em",
-								color: OG_COLORS.surface900,
+								color: OG_COLORS.white,
+								letterSpacing: "-0.02em",
 							}}
 						>
-							yaschet.dev
+							Yassine Chettouch
 						</div>
 						<div
 							style={{
@@ -168,50 +92,200 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								fontFamily: '"Space Mono"',
 								color: OG_COLORS.surface400,
 								textTransform: "uppercase",
+								letterSpacing: "0.08em",
 							}}
 						>
-							Case Study: {status}
+							Product Engineer
 						</div>
 					</div>
+				</div>
 
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						padding: layout.PADDING_SM,
+						gap: layout.UNIT * 3,
+						borderTop: `1px solid ${OG_COLORS.surface900}`,
+					}}
+				>
+					<div
+						style={{
+							fontSize: layout.FONT_MONO,
+							fontFamily: '"Space Mono"',
+							color: OG_COLORS.surface500,
+							textTransform: "uppercase",
+						}}
+					>
+						Location
+					</div>
+					<div
+						style={{
+							fontSize: 20,
+							fontWeight: 500,
+							color: OG_COLORS.surface50,
+						}}
+					>
+						Rabat, Morocco
+					</div>
+				</div>
+			</div>
+
+			{/* MAIN PANEL */}
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					flex: 1,
+					height: "100%",
+					backgroundColor: layout.BG,
+				}}
+			>
+				{/* HEADER ROW */}
+				<div
+					style={{
+						display: "flex",
+						width: "100%",
+						height: layout.HEADER_HEIGHT,
+						borderBottom: layout.BORDER,
+						alignItems: "center",
+						padding: `0 ${layout.PADDING}px`,
+						justifyContent: "space-between",
+					}}
+				>
+					<div
+						style={{
+							fontSize: 28,
+							fontWeight: 700,
+							letterSpacing: "-0.04em",
+							color: OG_COLORS.surface900,
+						}}
+					>
+						yaschet.dev
+					</div>
 					<div
 						style={{
 							display: "flex",
-							flex: 1,
-							flexDirection: "column",
-							padding: "64px 48px",
-							justifyContent: "center",
-							gap: "32px",
+							fontSize: layout.FONT_MONO,
+							fontFamily: '"Space Mono"',
+							color: OG_COLORS.surface400,
+							textTransform: "uppercase",
+							letterSpacing: "0.1em",
 						}}
 					>
-						<div style={{ display: "flex", flexDirection: "column", gap: "0px" }}>
-							<div
-								style={{
-									fontSize: 84,
-									fontWeight: 700,
-									lineHeight: 1.0,
-									letterSpacing: "-0.04em",
-									color: OG_COLORS.surface900,
-									overflow: "hidden",
-									maxHeight: "260px",
-									textOverflow: "ellipsis",
-								}}
-							>
-								{title}.
-							</div>
+						Case Study
+					</div>
+				</div>
+
+				{/* CONTENT AREA */}
+				<div
+					style={{
+						display: "flex",
+						flex: 1,
+						flexDirection: "column",
+						padding: layout.PADDING,
+						justifyContent: "center",
+						gap: layout.PADDING_SM,
+					}}
+				>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: layout.UNIT * 6,
+						}}
+					>
+						<div
+							style={{
+								fontSize: layout.FONT_HEADLINE,
+								fontWeight: 700,
+								lineHeight: 1.1,
+								letterSpacing: "-0.05em",
+								color: OG_COLORS.surface900,
+							}}
+						>
+							{title}
 						</div>
 						<div
 							style={{
-								fontSize: 30,
-								color: OG_COLORS.surface700,
-								fontFamily: '"Space Mono"',
-								maxWidth: "700px",
+								fontSize: layout.FONT_SUBHEAD,
+								color: OG_COLORS.surface800,
 								lineHeight: 1.4,
+								maxWidth: 720,
 							}}
 						>
-							{description.length > 100
-								? `${description.slice(0, 100)}...`
-								: description}
+							{description}
+						</div>
+					</div>
+				</div>
+
+				{/* SIMPLIFIED PROOF ROW */}
+				<div
+					style={{
+						display: "flex",
+						width: "100%",
+						height: layout.FOOTER_HEIGHT,
+						borderTop: layout.BORDER,
+						alignItems: "center",
+						padding: `0 ${layout.PADDING}px`,
+						justifyContent: "space-between",
+					}}
+				>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: layout.UNIT * 1,
+						}}
+					>
+						<div
+							style={{
+								fontSize: layout.FONT_MONO,
+								fontFamily: '"Space Mono"',
+								color: OG_COLORS.surface400,
+								textTransform: "uppercase",
+								letterSpacing: "0.05em",
+							}}
+						>
+							Identity
+						</div>
+						<div
+							style={{
+								fontSize: 18,
+								fontWeight: 600,
+								color: OG_COLORS.surface900,
+							}}
+						>
+							{role}
+						</div>
+					</div>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							alignItems: "flex-end",
+							gap: layout.UNIT * 1,
+						}}
+					>
+						<div
+							style={{
+								fontSize: layout.FONT_MONO,
+								fontFamily: '"Space Mono"',
+								color: OG_COLORS.surface400,
+								textTransform: "uppercase",
+								letterSpacing: "0.05em",
+							}}
+						>
+							Core Stack
+						</div>
+						<div
+							style={{
+								fontSize: 18,
+								fontWeight: 600,
+								color: OG_COLORS.surface900,
+							}}
+						>
+							{tech.slice(0, 3).join(", ")}
 						</div>
 					</div>
 				</div>
