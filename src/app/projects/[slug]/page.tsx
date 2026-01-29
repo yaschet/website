@@ -21,7 +21,12 @@ export function generateStaticParams() {
 	}));
 }
 
-export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
+import type { ResolvingMetadata } from "next";
+
+export async function generateMetadata(
+	{ params }: ProjectPageProps,
+	parent: ResolvingMetadata,
+): Promise<Metadata> {
 	const { slug } = await params;
 	const project = allProjects.find((p) => p.slug === slug);
 
@@ -42,11 +47,19 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 	// Contentlayer paths are relative to public, usually start with /
 	const ogImage = project.coverImages?.[0] ?? "/images/og-image.png";
 
+	// Await parent metadata to safely merge defaults
+	const parentMetadata = await parent;
+	const parentOpenGraph = parentMetadata.openGraph || {};
+
 	return {
 		title: project.title,
 		description: project.description,
 		keywords: keywords,
+		alternates: {
+			canonical: `/projects/${slug}`,
+		},
 		openGraph: {
+			...parentOpenGraph,
 			title: `${project.title} | Yassine Chettouch`,
 			description: project.description,
 			type: "article",
