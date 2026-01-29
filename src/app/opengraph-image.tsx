@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { loadAvatar, loadOgFonts, OG_COLORS, OG_CONTENT_TYPE, OG_SIZE } from "@/lib/og";
 
-// export const runtime = "edge"; // node runtime for fs access
+// export const runtime = "edge";
 export const alt = "Yassine Chettouch - Product Engineer";
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
@@ -12,12 +12,8 @@ export default async function Image() {
 		? `data:image/jpeg;base64,${avatarBuffer.toString("base64")}`
 		: "";
 
-	// Grid configuration
 	const sidebarWidth = 340;
 	const headerHeight = 100;
-	// Main bg is light, sidebar bg is dark. Border color depends on context.
-	// For light main: surface-200. For dark sidebar: surface-800.
-	const mainBorderColor = OG_COLORS.surface200;
 
 	return new ImageResponse(
 		<div
@@ -31,7 +27,6 @@ export default async function Image() {
 				position: "relative",
 			}}
 		>
-			{/* MAIN GRID WRAPPER */}
 			<div
 				style={{
 					display: "flex",
@@ -40,23 +35,19 @@ export default async function Image() {
 					height: "100%",
 				}}
 			>
-				{/* -------------------------------------------------------------
-                        LEFT SIDEBAR (DARK THEME)
-                       ------------------------------------------------------------- */}
+				{/* SIDEBAR (DEEP DARK) */}
 				<div
 					style={{
 						display: "flex",
 						flexDirection: "column",
 						width: `${sidebarWidth}px`,
 						height: "100%",
-						borderRight: `1px solid ${OG_COLORS.surface800}`, // Distinct border for dark mode
-						backgroundColor: OG_COLORS.surface900, // DARK BACKGROUND
-						color: OG_COLORS.surface50, // LIGHT TEXT
+						backgroundColor: OG_COLORS.surface950, // DEEPER
+						borderRight: `1px solid ${OG_COLORS.surface800}`, // SUBTLE DIVIDER
+						color: OG_COLORS.surface50,
 						justifyContent: "space-between",
-						position: "relative",
 					}}
 				>
-					{/* TOP: Avatar + Name */}
 					<div
 						style={{
 							display: "flex",
@@ -65,25 +56,24 @@ export default async function Image() {
 							gap: "24px",
 						}}
 					>
-						{/* Avatar Frame - ZERO RADIUS */}
 						<div
 							style={{
 								display: "flex",
 								width: "120px",
 								height: "120px",
-								borderRadius: "0px", // STRICT ZERO
+								borderRadius: "0px",
 								overflow: "hidden",
-								border: `1px solid ${OG_COLORS.surface600}`, // Softer border on dark
-								backgroundColor: OG_COLORS.surface800,
+								border: `1px solid ${OG_COLORS.surface700}`, // Higher contrast border for avatar
+								backgroundColor: OG_COLORS.surface900,
 							}}
 						>
-							{/* biome-ignore lint/a11y/useAltText: generated image */}
 							{/* biome-ignore lint/performance/noImgElement: required for ImageResponse */}
 							<img
 								src={avatarUrl}
 								width="120"
 								height="120"
 								style={{ objectFit: "cover" }}
+								alt="Avatar"
 							/>
 						</div>
 
@@ -92,7 +82,7 @@ export default async function Image() {
 								style={{
 									fontSize: 24,
 									fontWeight: 700,
-									color: OG_COLORS.surface50, // Light text
+									color: OG_COLORS.white,
 								}}
 							>
 								Yassine Chettouch
@@ -101,7 +91,7 @@ export default async function Image() {
 								style={{
 									fontSize: 18,
 									fontFamily: '"Space Mono"',
-									color: OG_COLORS.surface400, // Muted light text
+									color: OG_COLORS.surface400,
 									textTransform: "uppercase",
 								}}
 							>
@@ -110,13 +100,12 @@ export default async function Image() {
 						</div>
 					</div>
 
-					{/* BOTTOM: Meta */}
 					<div
 						style={{
 							display: "flex",
 							flexDirection: "column",
 							padding: "40px",
-							borderTop: `1px solid ${OG_COLORS.surface800}`, // Dark border
+							borderTop: `1px solid ${OG_COLORS.surface900}`, // Intentional internal layering
 							gap: "12px",
 						}}
 					>
@@ -134,7 +123,7 @@ export default async function Image() {
 							style={{
 								fontSize: 20,
 								fontWeight: 500,
-								color: OG_COLORS.surface50, // Light text
+								color: OG_COLORS.surface50,
 							}}
 						>
 							Rabat, Morocco
@@ -142,26 +131,22 @@ export default async function Image() {
 					</div>
 				</div>
 
-				{/* -------------------------------------------------------------
-                        RIGHT MAIN AREA (LIGHT THEME)
-                       ------------------------------------------------------------- */}
+				{/* MAIN AREA */}
 				<div
 					style={{
 						display: "flex",
 						flexDirection: "column",
 						flex: 1,
 						height: "100%",
-						backgroundColor: OG_COLORS.surface50, // Light BG
-						position: "relative",
+						backgroundColor: OG_COLORS.surface50,
 					}}
 				>
-					{/* TOP ROW: LOGO / URL */}
 					<div
 						style={{
 							display: "flex",
 							width: "100%",
 							height: `${headerHeight}px`,
-							borderBottom: `1px solid ${mainBorderColor}`,
+							borderBottom: `1px solid ${OG_COLORS.surface200}`,
 							alignItems: "center",
 							padding: "0 48px",
 							justifyContent: "space-between",
@@ -189,7 +174,6 @@ export default async function Image() {
 						</div>
 					</div>
 
-					{/* MAIN CONTENT */}
 					<div
 						style={{
 							display: "flex",
@@ -237,10 +221,10 @@ export default async function Image() {
 						</div>
 						<div
 							style={{
-								fontSize: 30, // Reduced from 32
-								color: OG_COLORS.surface500,
+								fontSize: 30,
+								color: OG_COLORS.surface700,
 								fontFamily: '"Space Mono"',
-								maxWidth: "680px", // Increased width for better flow
+								maxWidth: "680px",
 								lineHeight: 1.4,
 							}}
 						>
@@ -250,8 +234,6 @@ export default async function Image() {
 					</div>
 				</div>
 			</div>
-
-			{/* NO DECORATIVE ELEMENTS */}
 		</div>,
 		{
 			...size,

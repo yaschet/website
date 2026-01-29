@@ -21,6 +21,7 @@ export const OG_COLORS = {
 	surface400: "#a1a1aa",
 	surface500: "#71717a",
 	surface600: "#52525b",
+	surface700: "#3f3f46", // Required for contrast
 	surface800: "#27272a",
 	surface900: "#18181b", // Text Primary
 	surface950: "#09090b",

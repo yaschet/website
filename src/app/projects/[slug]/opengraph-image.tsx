@@ -23,7 +23,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 		: "";
 	const sidebarWidth = 340;
 	const headerHeight = 100;
-	const mainBorderColor = OG_COLORS.surface200;
 
 	return new ImageResponse(
 		<div
@@ -38,15 +37,15 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 			}}
 		>
 			<div style={{ display: "flex", flex: 1, width: "100%", height: "100%" }}>
-				{/* LEFT SIDEBAR (DARK) */}
+				{/* SIDEBAR (DEEP DARK) */}
 				<div
 					style={{
 						display: "flex",
 						flexDirection: "column",
 						width: `${sidebarWidth}px`,
 						height: "100%",
+						backgroundColor: OG_COLORS.surface950,
 						borderRight: `1px solid ${OG_COLORS.surface800}`,
-						backgroundColor: OG_COLORS.surface900,
 						color: OG_COLORS.surface50,
 						justifyContent: "space-between",
 					}}
@@ -66,17 +65,17 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								height: "120px",
 								borderRadius: "0px",
 								overflow: "hidden",
-								border: `1px solid ${OG_COLORS.surface600}`,
-								backgroundColor: OG_COLORS.surface800,
+								border: `1px solid ${OG_COLORS.surface700}`,
+								backgroundColor: OG_COLORS.surface900,
 							}}
 						>
-							{/* biome-ignore lint/a11y/useAltText: generated image */}
 							{/* biome-ignore lint/performance/noImgElement: required for ImageResponse */}
 							<img
 								src={avatarUrl}
 								width="120"
 								height="120"
 								style={{ objectFit: "cover" }}
+								alt="Avatar"
 							/>
 						</div>
 						<div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -84,7 +83,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								style={{
 									fontSize: 24,
 									fontWeight: 700,
-									color: OG_COLORS.surface50,
+									color: OG_COLORS.white,
 								}}
 							>
 								Yassine Chettouch
@@ -106,7 +105,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 							display: "flex",
 							flexDirection: "column",
 							padding: "40px",
-							borderTop: `1px solid ${OG_COLORS.surface800}`,
+							borderTop: `1px solid ${OG_COLORS.surface900}`,
 							gap: "12px",
 						}}
 					>
@@ -132,7 +131,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 					</div>
 				</div>
 
-				{/* RIGHT MAIN AREA (LIGHT) */}
+				{/* MAIN AREA */}
 				<div
 					style={{
 						display: "flex",
@@ -147,7 +146,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 							display: "flex",
 							width: "100%",
 							height: `${headerHeight}px`,
-							borderBottom: `1px solid ${mainBorderColor}`,
+							borderBottom: `1px solid ${OG_COLORS.surface200}`,
 							alignItems: "center",
 							padding: "0 48px",
 							justifyContent: "space-between",
@@ -188,23 +187,23 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 						<div style={{ display: "flex", flexDirection: "column", gap: "0px" }}>
 							<div
 								style={{
-									fontSize: 84, // Slightly smaller for potentially long titles
+									fontSize: 84,
 									fontWeight: 700,
 									lineHeight: 1.0,
 									letterSpacing: "-0.04em",
 									color: OG_COLORS.surface900,
 									overflow: "hidden",
-									maxHeight: "260px", // clamp
+									maxHeight: "260px",
 									textOverflow: "ellipsis",
 								}}
 							>
-								{title}
+								{title}.
 							</div>
 						</div>
 						<div
 							style={{
 								fontSize: 30,
-								color: OG_COLORS.surface500,
+								color: OG_COLORS.surface700,
 								fontFamily: '"Space Mono"',
 								maxWidth: "700px",
 								lineHeight: 1.4,
