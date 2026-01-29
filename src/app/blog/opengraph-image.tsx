@@ -13,7 +13,7 @@ export default async function Image() {
 		: "";
 	const sidebarWidth = 340;
 	const headerHeight = 100;
-	const borderColor = OG_COLORS.surface200;
+	const mainBorderColor = OG_COLORS.surface200;
 
 	return new ImageResponse(
 		<div
@@ -28,15 +28,16 @@ export default async function Image() {
 			}}
 		>
 			<div style={{ display: "flex", flex: 1, width: "100%", height: "100%" }}>
-				{/* LEFT SIDEBAR */}
+				{/* LEFT SIDEBAR (DARK) */}
 				<div
 					style={{
 						display: "flex",
 						flexDirection: "column",
 						width: `${sidebarWidth}px`,
 						height: "100%",
-						borderRight: `1px solid ${borderColor}`,
-						backgroundColor: OG_COLORS.surface50,
+						borderRight: `1px solid ${OG_COLORS.surface800}`,
+						backgroundColor: OG_COLORS.surface900,
+						color: OG_COLORS.surface50,
 						justifyContent: "space-between",
 					}}
 				>
@@ -55,8 +56,8 @@ export default async function Image() {
 								height: "120px",
 								borderRadius: "0px",
 								overflow: "hidden",
-								border: `1px solid ${OG_COLORS.surface200}`,
-								backgroundColor: OG_COLORS.surface100,
+								border: `1px solid ${OG_COLORS.surface600}`,
+								backgroundColor: OG_COLORS.surface800,
 							}}
 						>
 							{/* biome-ignore lint/a11y/useAltText: generated image */}
@@ -73,7 +74,7 @@ export default async function Image() {
 								style={{
 									fontSize: 24,
 									fontWeight: 700,
-									color: OG_COLORS.surface900,
+									color: OG_COLORS.surface50,
 								}}
 							>
 								Yassine Chettouch
@@ -82,7 +83,7 @@ export default async function Image() {
 								style={{
 									fontSize: 18,
 									fontFamily: '"Space Mono"',
-									color: OG_COLORS.surface500,
+									color: OG_COLORS.surface400,
 									textTransform: "uppercase",
 								}}
 							>
@@ -95,7 +96,7 @@ export default async function Image() {
 							display: "flex",
 							flexDirection: "column",
 							padding: "40px",
-							borderTop: `1px solid ${borderColor}`,
+							borderTop: `1px solid ${OG_COLORS.surface800}`,
 							gap: "12px",
 						}}
 					>
@@ -103,7 +104,7 @@ export default async function Image() {
 							style={{
 								fontSize: 16,
 								fontFamily: '"Space Mono"',
-								color: OG_COLORS.surface400,
+								color: OG_COLORS.surface500,
 								textTransform: "uppercase",
 							}}
 						>
@@ -113,7 +114,7 @@ export default async function Image() {
 							style={{
 								fontSize: 20,
 								fontWeight: 500,
-								color: OG_COLORS.surface900,
+								color: OG_COLORS.surface50,
 							}}
 						>
 							Rabat, Morocco
@@ -121,13 +122,14 @@ export default async function Image() {
 					</div>
 				</div>
 
-				{/* RIGHT MAIN AREA */}
+				{/* RIGHT MAIN AREA (LIGHT) */}
 				<div
 					style={{
 						display: "flex",
 						flexDirection: "column",
 						flex: 1,
 						height: "100%",
+						backgroundColor: OG_COLORS.surface50,
 					}}
 				>
 					<div
@@ -135,7 +137,7 @@ export default async function Image() {
 							display: "flex",
 							width: "100%",
 							height: `${headerHeight}px`,
-							borderBottom: `1px solid ${borderColor}`,
+							borderBottom: `1px solid ${mainBorderColor}`,
 							alignItems: "center",
 							padding: "0 48px",
 							justifyContent: "space-between",
@@ -159,7 +161,7 @@ export default async function Image() {
 								textTransform: "uppercase",
 							}}
 						>
-							Journal
+							Blog
 						</div>
 					</div>
 
@@ -183,7 +185,7 @@ export default async function Image() {
 									color: OG_COLORS.surface900,
 								}}
 							>
-								Architecture
+								Notes on
 							</div>
 							<div
 								style={{
@@ -191,22 +193,23 @@ export default async function Image() {
 									fontWeight: 700,
 									lineHeight: 0.95,
 									letterSpacing: "-0.04em",
-									color: OG_COLORS.surface400,
+									color: OG_COLORS.surface900,
 								}}
 							>
-								& design.
+								practice
 							</div>
 						</div>
 						<div
 							style={{
-								fontSize: 32,
+								fontSize: 30,
 								color: OG_COLORS.surface500,
 								fontFamily: '"Space Mono"',
-								maxWidth: "600px",
+								maxWidth: "680px",
 								lineHeight: 1.4,
 							}}
 						>
-							Thoughts on engineering, systems, and craft.
+							Writing for engineers and product teams on architecture decisions,
+							design systems, and maintaining quality under deadlines.
 						</div>
 					</div>
 				</div>
