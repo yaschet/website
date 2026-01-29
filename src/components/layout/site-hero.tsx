@@ -26,9 +26,9 @@ function HeroContent() {
 	return (
 		<div className="mx-auto max-w-3xl px-6 pt-16 pb-24 sm:px-8">
 			<Reveal phase={2}>
-				<h1 className={cn("mb-6 text-heading-xl!", textPrimary)}>
+				<h2 className={cn("mb-6 text-heading-xl!", textPrimary)}>
 					I build products for the web.
-				</h1>
+				</h2>
 			</Reveal>
 			<Reveal phase={2} delay={0.05}>
 				<p className={cn("mb-8 max-w-xl text-body-lg", textSecondary)}>

@@ -73,6 +73,11 @@ export const Project = defineDocumentType(() => ({
 			default: false,
 			required: false,
 		},
+		seoKeywords: {
+			type: "list",
+			of: { type: "string" },
+			required: false,
+		},
 	},
 	computedFields: {
 		slug: {

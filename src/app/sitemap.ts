@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
 	// Base URL for the production site
-	const baseUrl = "https://www.yaschet.dev";
+	const baseUrl = "https://yaschet.dev";
 
 	// 1. Core Pages (Static)
 	const coreRoutes = ["", "/about", "/projects", "/blog", "/contact"].map((route) => ({
