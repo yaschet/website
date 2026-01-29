@@ -207,45 +207,12 @@ export default async function Image() {
 								maxWidth: 720,
 							}}
 						>
-							One page with email, links, and what I’m currently building.
+							Email and links.
 						</div>
 					</div>
 				</div>
 
-				{/* PROOF ROW (OUTCOME) */}
-				<div
-					style={{
-						display: "flex",
-						width: "100%",
-						height: layout.FOOTER_HEIGHT,
-						borderTop: layout.BORDER,
-						alignItems: "center",
-						padding: `0 ${layout.PADDING}px`,
-						justifyContent: "space-between",
-					}}
-				>
-					<div
-						style={{
-							fontSize: layout.FONT_MONO,
-							fontFamily: '"Space Mono"',
-							color: OG_COLORS.surface500,
-							textTransform: "uppercase",
-							letterSpacing: "0.05em",
-						}}
-					>
-						Endpoint
-					</div>
-					<div
-						style={{
-							fontSize: 20,
-							fontWeight: 600,
-							color: OG_COLORS.surface900,
-							letterSpacing: "-0.02em",
-						}}
-					>
-						Email / Social links / Product
-					</div>
-				</div>
+				{/* FOOTER REMOVED FOR CLEAN LOOK */}
 			</div>
 		</div>,
 		{

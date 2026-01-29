@@ -237,13 +237,14 @@ export default async function Image() {
 					</div>
 					<div
 						style={{
+							display: "flex",
 							fontSize: 20,
 							fontWeight: 600,
 							color: OG_COLORS.surface900,
 							letterSpacing: "-0.02em",
 						}}
 					>
-						AI Pipelines / Data Systems / UI
+						Shipped / Ongoing / Experiments
 					</div>
 				</div>
 			</div>

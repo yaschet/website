@@ -237,6 +237,7 @@ export default async function Image() {
 					</div>
 					<div
 						style={{
+							display: "flex",
 							fontSize: 20,
 							fontWeight: 600,
 							color: OG_COLORS.surface900,

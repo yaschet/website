@@ -22,8 +22,11 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 
 	const title = project?.title ?? "Case Study";
 	const description = project?.description ?? "Outcome-oriented product engineering artifact.";
-	const role = project?.role ?? "System Architect";
-	const tech = project?.tech ?? [];
+	const role = project?.role;
+	// Use status as fallback if role isn't distinct enough, or prioritize role.
+	// As per user request: "Lead Product Engineer (End-to-End)" is good.
+	// Fallback to project.status if role is missing.
+	const proof = role ?? project?.status ?? "Case Study";
 
 	const avatarBuffer = await loadAvatar();
 	const avatarUrl = avatarBuffer
@@ -221,7 +224,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 					</div>
 				</div>
 
-				{/* PROOF ROW (EVIDENCE) */}
+				{/* PROOF ROW (MINIMAL EVIDENCE) */}
 				<div
 					style={{
 						display: "flex",
@@ -253,7 +256,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 							letterSpacing: "-0.02em",
 						}}
 					>
-						{role} / {tech.slice(0, 1).join("")}
+						{proof}
 					</div>
 				</div>
 			</div>

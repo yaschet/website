@@ -1,34 +1,33 @@
-# OG Content Audit Spec (MICRO-ABSTRACT)
+# OG Content Audit Spec (FINAL POLISH)
 
-This set follows a strict 3-line panel architecture: Intent + Outcome + Proof. 
-All identity/title data is offloaded to the sidebar.
+This set is the "Adult" version: minimal, timeless, and outcome-oriented.
 
 ## 1. Home OG
 - **Headline**: “Build. Ship. Improve.”
-- **Subhead**: “Product engineering across interface, backend, and AI workflows.”
-- **Proof Row (Constraint)**: `Latency budgets / Durable systems / Measurable outcomes`
+- **Subhead**: “Product engineering for interfaces and systems—measured, shipped, iterated.”
+- **Proof Row**: *None* (Clean footer).
 
 ## 2. About OG
 - **Headline**: “Design-to-systems builder.”
-- **Subhead**: “How I think, what I optimize for, and the kinds of problems I choose.”
-- **Proof Row (Tradeoff)**: `Taste + Rigor / Constraints / Tradeoffs`
+- **Subhead**: “Principles, tradeoffs, and how I ship production systems.”
+- **Proof Row**: *None* (Clean footer).
 
 ## 3. Case Studies (Dynamic)
 - **Headline**: `{project.title}`
 - **Subhead**: `{project.description}` (Outcome-focused)
-- **Proof Row (Evidence)**: `{role} / {domain} / {primary tech}`
+- **Proof Row**: `{project.role}` OR `{project.status}` (No Tech Stack).
 
 ## 4. Writing OG
 - **Headline**: “Decisions, written down.”
 - **Subhead**: “Architecture notes, benchmarks, and postmortems from real builds.”
-- **Proof Row (Artifact)**: `ADRs / Benchmarks / Postmortems`
+- **Proof Row (Optional)**: `ADRs / Benchmarks / Postmortems`
 
 ## 5. Contact OG
 - **Headline**: “Start a conversation.”
-- **Subhead**: “Direct channel for email, social links, and current builds.”
-- **Proof Row (Outcome)**: `Direct Link / Social Sync / Product Discussion`
+- **Subhead**: “Email and links.”
+- **Proof Row**: *None* (Clean footer).
 
 ## 6. Projects List OG
 - **Headline**: “Built systems.”
 - **Subhead**: “A browsable set of shipped work and ongoing experiments.”
-- **Proof Row (Artifact)**: `AI Pipelines / Data Systems / Interface Engines`
+- **Proof Row (Optional)**: `Shipped / Ongoing / Experiments`

@@ -207,45 +207,13 @@ export default async function Image() {
 								maxWidth: 720,
 							}}
 						>
-							Product engineering across interface, backend, and AI workflows.
+							Product engineering for interfaces and systems—measured, shipped,
+							iterated.
 						</div>
 					</div>
 				</div>
 
-				{/* PROOF ROW (CONSTRAINT) */}
-				<div
-					style={{
-						display: "flex",
-						width: "100%",
-						height: layout.FOOTER_HEIGHT,
-						borderTop: layout.BORDER,
-						alignItems: "center",
-						padding: `0 ${layout.PADDING}px`,
-						justifyContent: "space-between",
-					}}
-				>
-					<div
-						style={{
-							fontSize: layout.FONT_MONO,
-							fontFamily: '"Space Mono"',
-							color: OG_COLORS.surface500,
-							textTransform: "uppercase",
-							letterSpacing: "0.05em",
-						}}
-					>
-						Proof
-					</div>
-					<div
-						style={{
-							fontSize: 20,
-							fontWeight: 600,
-							color: OG_COLORS.surface900,
-							letterSpacing: "-0.02em",
-						}}
-					>
-						Latency budgets / Durable systems / Outcomes
-					</div>
-				</div>
+				{/* FOOTER REMOVED FOR CLEAN LOOK */}
 			</div>
 		</div>,
 		{

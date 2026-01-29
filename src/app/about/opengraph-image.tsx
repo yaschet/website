@@ -207,45 +207,12 @@ export default async function Image() {
 								maxWidth: 720,
 							}}
 						>
-							How I think, what I optimize for, and the kinds of problems I choose.
+							Principles, tradeoffs, and how I ship production systems.
 						</div>
 					</div>
 				</div>
 
-				{/* PROOF ROW (TRADEOFF) */}
-				<div
-					style={{
-						display: "flex",
-						width: "100%",
-						height: layout.FOOTER_HEIGHT,
-						borderTop: layout.BORDER,
-						alignItems: "center",
-						padding: `0 ${layout.PADDING}px`,
-						justifyContent: "space-between",
-					}}
-				>
-					<div
-						style={{
-							fontSize: layout.FONT_MONO,
-							fontFamily: '"Space Mono"',
-							color: OG_COLORS.surface500,
-							textTransform: "uppercase",
-							letterSpacing: "0.05em",
-						}}
-					>
-						Tradeoffs
-					</div>
-					<div
-						style={{
-							fontSize: 20,
-							fontWeight: 600,
-							color: OG_COLORS.surface900,
-							letterSpacing: "-0.02em",
-						}}
-					>
-						Taste + Rigor / Constraints / Tradeoffs
-					</div>
-				</div>
+				{/* FOOTER REMOVED FOR CLEAN LOOK */}
 			</div>
 		</div>,
 		{
