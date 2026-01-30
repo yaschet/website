@@ -15,7 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 	// 2. Resume / CV (Static Asset)
 	const resumeRoute = {
-		url: `${baseUrl}/profile.pdf`,
+		url: `${baseUrl}/yassine-chettouch-resume.pdf`,
 		lastModified: new Date(),
 		changeFrequency: "weekly" as const,
 		priority: 1.0, // Maximum priority for "Resume" searches
