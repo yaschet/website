@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 	title: "Projects | Yassine Chettouch",
 	description: "Web apps, SaaS platforms, and internal tools. From idea to production.",
 	alternates: {
-		canonical: "https://yaschet.dev/projects",
+		canonical: "/projects",
 	},
 	openGraph: {
 		title: "Projects | Yassine Chettouch",

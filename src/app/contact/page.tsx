@@ -10,6 +10,9 @@ import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-g
 export const metadata: Metadata = {
 	title: "Contact | Yassine Chettouch",
 	description: "Let's build something serious together.",
+	alternates: {
+		canonical: "/contact",
+	},
 };
 
 export default function ContactPage() {
