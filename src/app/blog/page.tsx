@@ -10,6 +10,9 @@ import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-g
 export const metadata: Metadata = {
 	title: "Blog | Yassine Chettouch",
 	description: "Technical deep-dives and lessons learned from shipping products.",
+	alternates: {
+		canonical: "/blog",
+	},
 };
 
 export default function BlogPage() {

@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { allProjects } from "contentlayer2/generated";
-import type { Metadata } from "next";
+
 import Link from "next/link";
 import AssetPhoenix from "@/public/images/placeholders/asset-2.jpg";
 import AssetOnboardFlow from "@/public/images/placeholders/asset-12.jpg";
@@ -13,12 +13,6 @@ import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
-
-export const metadata: Metadata = {
-	title: "Yassine Chettouch | Product Engineer",
-	description:
-		"Product Engineer. Web apps, SaaS platforms, and internal tools. From design to production.",
-};
 
 export default function Home() {
 	// Identify featured projects for the landing page

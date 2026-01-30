@@ -18,6 +18,9 @@ import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-g
 export const metadata: Metadata = {
 	title: "About | Yassine Chettouch",
 	description: "Product Engineer based in Rabat, Morocco.",
+	alternates: {
+		canonical: "/about",
+	},
 };
 
 export default function AboutPage() {
