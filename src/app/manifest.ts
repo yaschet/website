@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
 	return {
-		name: "Yassine Chettouch | Product Engineer",
+		name: "Yassine Chettouch | Software Engineer",
 		short_name: "Yassine",
 		description:
-			"Portfolio of Yassine Chettouch, a Product Engineer specialized in high-performance web systems.",
+			"Portfolio of Yassine Chettouch, a Software Engineer specialized in high-performance web systems.",
 		start_url: "/",
 		display: "standalone",
 		background_color: "#fafafa", // Zinc-50 (Surface Light)

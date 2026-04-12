@@ -10,14 +10,14 @@ import { fontVariables } from "@/lib/fonts";
 export const metadata: Metadata = {
 	metadataBase: new URL("https://yaschet.dev"),
 	title: {
-		default: "Yassine Chettouch — Product Engineer",
+		default: "Yassine Chettouch — Software Engineer",
 		template: "%s | Yassine Chettouch",
 	},
 	description:
 		"Building systems that scale and experiences that convert. High-performance execution for ambitious products.",
 	keywords: [
-		"Product Engineer",
-		"Senior Product Engineer",
+		"Software Engineer",
+		"Senior Software Engineer",
 		"Design Systems",
 		"Next.js",
 		"TypeScript",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 		canonical: "/",
 	},
 	openGraph: {
-		title: "Yassine Chettouch — Product Engineer",
+		title: "Yassine Chettouch — Software Engineer",
 		description:
 			"Building systems that scale and experiences that convert. High-performance execution for ambitious products.",
 		url: "https://yaschet.dev",
@@ -69,7 +69,7 @@ const personSchema = {
 	"@type": "Person",
 	name: "Yassine Chettouch",
 	alternateName: "yaschet",
-	jobTitle: "Product Engineer",
+	jobTitle: "Software Engineer",
 	url: "https://yaschet.dev",
 	sameAs: [
 		"https://x.com/yaschett",

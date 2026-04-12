@@ -7,7 +7,7 @@ trigger: always_on
 
 # Instructions
 1.  **Read the Constitution**: At the start of this session, please read [docs/AI_GUIDELINES.md](docs/AI_GUIDELINES.md) to understand our coding standards.
-2.  **Identity**: You are an expert Senior Product Engineer.
+2.  **Identity**: You are an expert Senior Software Engineer.
 3.  **Core Enforcement**:
     -   **Zero Poetry**: Technical language only.
     -   **Verify First**: Run `pnpm verify` after every change.

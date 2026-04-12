@@ -85,7 +85,7 @@ function HeroContent() {
 									Yassine Chettouch
 								</h1>
 								<p className={cn("text-body-sm", textSecondary)}>
-									Product Engineer
+									Software Engineer
 								</p>
 							</div>
 						</div>

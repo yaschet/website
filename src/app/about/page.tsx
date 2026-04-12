@@ -16,7 +16,7 @@ import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 
 export const metadata: Metadata = {
 	title: "About | Yassine Chettouch",
-	description: "Product Engineer based in Rabat, Morocco.",
+	description: "Software Engineer based in Rabat, Morocco.",
 	alternates: {
 		canonical: "/about",
 	},
@@ -55,7 +55,7 @@ export default function AboutPage() {
 											Yassine Chettouch
 										</h1>
 										<p className="text-body-sm text-surface-500 dark:text-surface-400">
-											Product Engineer
+											Software Engineer
 										</p>
 									</div>
 								</div>
@@ -129,7 +129,7 @@ export default function AboutPage() {
 										<p>
 											Today, I function as a{" "}
 											<strong className="font-medium text-surface-900 dark:text-surface-100">
-												Product Engineer
+												Software Engineer
 											</strong>
 											. I solve expensive business problems using whatever
 											stack is required—shipping production-grade software in

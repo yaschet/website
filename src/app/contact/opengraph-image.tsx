@@ -86,7 +86,7 @@ export default async function Image() {
 								letterSpacing: "0.08em",
 							}}
 						>
-							Product Engineer
+							Software Engineer
 						</div>
 					</div>
 				</div>
