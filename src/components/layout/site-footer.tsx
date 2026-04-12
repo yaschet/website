@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
 /**
  * SiteFooter component.
@@ -15,8 +14,8 @@ import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 export function SiteFooter() {
 	return (
 		<footer className="relative z-10 w-full bg-transparent text-surface-900 dark:text-surface-50">
-			<SwissGridSection id="footer" className="w-full">
-				<div className="mx-auto max-w-3xl px-6 py-8 sm:px-8">
+			<section id="footer" className="w-full">
+				<div className="mx-auto max-w-3xl py-8">
 					<div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
 						{/* Copyright & Email */}
 						<div className="flex flex-col items-center gap-1 sm:items-start">
@@ -68,7 +67,7 @@ export function SiteFooter() {
 						<span className="ml-2">built by hand, in code</span>
 					</div>
 				</div>
-			</SwissGridSection>
+			</section>
 		</footer>
 	);
 }

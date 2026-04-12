@@ -10,9 +10,8 @@ import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteHero } from "@/src/components/layout/site-hero";
 import { Button } from "@/src/components/ui/button";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
-
 import { ScrollReveal } from "@/src/components/ui/reveal";
-import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
+import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export default function Home() {
 	// Identify featured projects for the landing page
@@ -22,26 +21,27 @@ export default function Home() {
 		.filter((p): p is NonNullable<typeof p> => !!p);
 
 	return (
-		<SwissGridProvider>
-			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
-				<main
-					className="relative z-10 flex flex-1 flex-col"
-					style={{ overflowAnchor: "none" }}
-				>
-					{/* Nav Row */}
-					<SiteHeader />
+		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
+				{/* Nav Row — not boxed */}
+				<SiteHeader />
 
-					{/* Profile Section - Separated from Hero */}
-					<ProfileSection />
+				{/* Box 1: Profile + Hero — two rows, one shared border */}
+				<SwissGridBox className="mt-8">
+					<SwissGridRow>
+						<ProfileSection />
+					</SwissGridRow>
+					<SwissGridRow>
+						<SiteHero />
+					</SwissGridRow>
+				</SwissGridBox>
 
-					{/* Hero — Headline only */}
-					<SiteHero />
-
-					{/* Selected Work — Unified Container */}
-					<SwissGridSection id="work" className="w-full">
+				{/* Box 2: Selected Work */}
+				<SwissGridBox className="mt-12">
+					<SwissGridRow>
 						<ScrollReveal phase={3} className="w-full">
 							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 pt-10 pb-16 sm:px-8">
+								<div className="mx-auto max-w-3xl p-6 sm:p-8">
 									{/* Section Header */}
 									<ScrollReveal phase={3}>
 										<div className="mb-4">
@@ -117,13 +117,15 @@ export default function Home() {
 								</div>
 							</section>
 						</ScrollReveal>
-					</SwissGridSection>
+					</SwissGridRow>
+				</SwissGridBox>
 
-					{/* NDA Disclaimer */}
-					<SwissGridSection id="home-nda" className="w-full">
+				{/* Box 3: NDA Disclaimer + CTA — two rows, one shared border */}
+				<SwissGridBox className="mt-12">
+					<SwissGridRow>
 						<ScrollReveal phase={3} className="w-full">
 							<section className="w-full">
-								<div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-24 text-center sm:px-8">
+								<div className="mx-auto flex max-w-3xl flex-col items-center justify-center p-6 text-center sm:p-8">
 									<div className="mb-4 flex items-center justify-center gap-2">
 										<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
 											Confidential Work
@@ -143,13 +145,12 @@ export default function Home() {
 								</div>
 							</section>
 						</ScrollReveal>
-					</SwissGridSection>
+					</SwissGridRow>
 
-					{/* CTA */}
-					<SwissGridSection id="cta" className="w-full">
+					<SwissGridRow>
 						<ScrollReveal phase={3} className="w-full">
 							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+								<div className="mx-auto max-w-3xl p-6 sm:p-8">
 									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
 										<div>
 											<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
@@ -184,11 +185,15 @@ export default function Home() {
 								</div>
 							</section>
 						</ScrollReveal>
-					</SwissGridSection>
-				</main>
+					</SwissGridRow>
+				</SwissGridBox>
+
+				{/* Footer — not boxed */}
 				<SiteFooter />
-				<SwissGridSection id="nav-spacer" className="h-29.5 w-full" />
-			</div>
-		</SwissGridProvider>
+
+				{/* Bottom nav spacer */}
+				<section id="nav-spacer" className="h-29.5 w-full" />
+			</main>
+		</div>
 	);
 }

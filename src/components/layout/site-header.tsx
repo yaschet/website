@@ -1,7 +1,6 @@
 "use client";
 
 import { LocationBadge, MarqueeBadge, TimeBadge } from "@/src/components/ui/context-badges";
-import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
 /**
  * SiteHeader
@@ -11,9 +10,9 @@ import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
  */
 export function SiteHeader() {
 	return (
-		<SwissGridSection id="header" className="relative z-20 w-full">
+		<section id="header" className="relative z-20 w-full">
 			<div className="h-29.5 w-full" suppressHydrationWarning>
-				<div className="mx-auto flex h-full max-w-3xl items-center justify-between gap-3 px-6 sm:px-8">
+				<div className="mx-auto flex h-full max-w-3xl items-center justify-between gap-3">
 					<LocationBadge className="flex w-40 max-w-full shrink-0" />
 
 					<MarqueeBadge
@@ -31,6 +30,6 @@ export function SiteHeader() {
 					<TimeBadge className="flex w-40 max-w-full shrink-0" />
 				</div>
 			</div>
-		</SwissGridSection>
+		</section>
 	);
 }

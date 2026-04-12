@@ -11,7 +11,6 @@ import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
-import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 import { formatDate } from "@/src/lib/format-date";
 
 interface PostContentProps {
@@ -27,117 +26,112 @@ export function PostContentRSC({ post }: PostContentProps) {
 	const postData = post as PostWithExtras;
 
 	return (
-		<SwissGridProvider>
-			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
-				<main
-					className="relative z-10 flex flex-1 flex-col"
-					style={{ overflowAnchor: "none" }}
-				>
-					{/* Nav Row */}
+		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
+				{/* Nav Row */}
+				<Reveal phase={1} className="w-full">
+					<SiteHeader />
+				</Reveal>
+
+				{/* Header */}
+				<section id="post-header" className="w-full">
 					<Reveal phase={1} className="w-full">
-						<SiteHeader />
+						<section className="w-full">
+							<div className="mx-auto max-w-3xl px-6 pt-16 sm:px-8">
+								{/* Back Link */}
+								<Link
+									href="/blog"
+									className="mb-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-foreground"
+								>
+									<ArrowLeft size={14} weight="bold" />
+									<span>Back to Blog</span>
+								</Link>
+
+								{/* Title */}
+								<h1 className="mb-4 text-foreground text-heading-xl">
+									{post.title}
+								</h1>
+
+								{/* Meta Row (inline) */}
+								<div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+									<time className="font-mono text-muted-foreground text-xs tabular-nums">
+										{formatDate(post.date)}
+									</time>
+									{postData.readingTime && (
+										<span className="flex items-center gap-1.5 font-mono text-muted-foreground text-xs">
+											<Clock size={12} weight="bold" />
+											{postData.readingTime} min read
+										</span>
+									)}
+								</div>
+
+								{/* Description */}
+								<p className="mb-12 max-w-xl text-body-lg text-muted-foreground">
+									{post.description}
+								</p>
+							</div>
+						</section>
 					</Reveal>
+				</section>
 
-					{/* Header */}
-					<SwissGridSection id="post-header" className="w-full">
-						<Reveal phase={1} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 pt-16 sm:px-8">
-									{/* Back Link */}
-									<Link
-										href="/blog"
-										className="mb-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-foreground"
-									>
-										<ArrowLeft size={14} weight="bold" />
-										<span>Back to Blog</span>
-									</Link>
-
-									{/* Title */}
-									<h1 className="mb-4 text-foreground text-heading-xl">
-										{post.title}
-									</h1>
-
-									{/* Meta Row (inline) */}
-									<div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
-										<time className="font-mono text-muted-foreground text-xs tabular-nums">
-											{formatDate(post.date)}
-										</time>
-										{postData.readingTime && (
-											<span className="flex items-center gap-1.5 font-mono text-muted-foreground text-xs">
-												<Clock size={12} weight="bold" />
-												{postData.readingTime} min read
-											</span>
-										)}
-									</div>
-
-									{/* Description */}
-									<p className="mb-12 max-w-xl text-body-lg text-muted-foreground">
-										{post.description}
-									</p>
-								</div>
-							</section>
-						</Reveal>
-					</SwissGridSection>
-
-					{/* Content - Server Rendered MDX */}
-					<SwissGridSection id="post-content" className="w-full">
-						<ScrollReveal phase={2} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<article>
-										<MDXRemote
-											source={post.body.raw}
-											components={mdxComponents}
-											options={{
-												mdxOptions: {
-													remarkPlugins: [remarkGfm],
-													rehypePlugins: [
-														rehypeSlug,
-														[
-															rehypeAutolinkHeadings,
-															{
-																properties: {
-																	className: ["anchor"],
-																},
+				{/* Content - Server Rendered MDX */}
+				<section id="post-content" className="w-full">
+					<ScrollReveal phase={2} className="w-full">
+						<section className="w-full">
+							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+								<article>
+									<MDXRemote
+										source={post.body.raw}
+										components={mdxComponents}
+										options={{
+											mdxOptions: {
+												remarkPlugins: [remarkGfm],
+												rehypePlugins: [
+													rehypeSlug,
+													[
+														rehypeAutolinkHeadings,
+														{
+															properties: {
+																className: ["anchor"],
 															},
-														],
+														},
 													],
-												},
-											}}
-										/>
-									</article>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
+												],
+											},
+										}}
+									/>
+								</article>
+							</div>
+						</section>
+					</ScrollReveal>
+				</section>
 
-					{/* CTA */}
-					<SwissGridSection id="post-cta" className="w-full">
-						<ScrollReveal phase={3} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-										<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-											Have thoughts on this?
-										</h2>
-										<Button asChild size="lg" variant="solid" color="primary">
-											<Link href="/contact">
-												Discusss
-												<ArrowRight className="size-4" weight="bold" />
-											</Link>
-										</Button>
-									</div>
+				{/* CTA */}
+				<section id="post-cta" className="w-full">
+					<ScrollReveal phase={3} className="w-full">
+						<section className="w-full">
+							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+								<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+									<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+										Have thoughts on this?
+									</h2>
+									<Button asChild size="lg" variant="solid" color="primary">
+										<Link href="/contact">
+											Discusss
+											<ArrowRight className="size-4" weight="bold" />
+										</Link>
+									</Button>
 								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
+							</div>
+						</section>
+					</ScrollReveal>
+				</section>
 
-					{/* Reading Bracket */}
-					<ReadingBracket />
-				</main>
-				<SiteFooter />
-				<SwissGridSection id="nav-spacer" className="h-29.5 w-full" />
-			</div>
-		</SwissGridProvider>
+				{/* Reading Bracket */}
+				<ReadingBracket />
+			</main>
+			<SiteFooter />
+			<section id="nav-spacer" className="h-29.5 w-full" />
+		</div>
 	);
 }

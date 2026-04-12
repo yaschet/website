@@ -1871,3 +1871,14 @@ h4:hover .anchor {
 pre {
     @apply bg-transparent;
 }
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANIMATION: SYSTEM BORDERS (Marching Ants)
+   ═══════════════════════════════════════════════════════════════════════════ */
+@keyframes marching-ants {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -16; }
+}
+
+.animate-marching-ants {
+  animation: marching-ants 1s linear infinite;
+}

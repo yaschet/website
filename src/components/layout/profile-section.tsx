@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import avatarImage from "@/public/images/avatar.jpeg";
 import { Avatar, AvatarFallback } from "@/src/components/ui/avatar";
 import { Reveal } from "@/src/components/ui/reveal";
-import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
 export function ProfileSection() {
 	// Standard theme colors since we removed mesh gradient dependency
@@ -19,10 +18,10 @@ export function ProfileSection() {
 	const avatarBg = "bg-surface-100 dark:bg-surface-900";
 
 	return (
-		<SwissGridSection id="profile" className="relative z-10 w-full shrink-0">
+		<section id="profile" className="relative z-10 w-full shrink-0">
 			<Reveal phase={1} className="w-full">
 				<div className="w-full">
-					<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
+					<div className="mx-auto flex h-full max-w-3xl items-center justify-between p-6 sm:p-8">
 						<div className="flex items-center gap-4">
 							<Avatar
 								className={cn(
@@ -97,6 +96,6 @@ export function ProfileSection() {
 					</div>
 				</div>
 			</Reveal>
-		</SwissGridSection>
+		</section>
 	);
 }
