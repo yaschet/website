@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PageContainer } from "@/src/components/layout/containers";
 
 /**
  * SiteFooter component.
@@ -15,10 +16,9 @@ export function SiteFooter() {
 	return (
 		<footer className="relative z-10 w-full bg-transparent text-surface-900 dark:text-surface-50">
 			<section id="footer" className="w-full">
-				<div className="mx-auto max-w-3xl py-8">
-					<div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-						{/* Copyright & Email */}
-						<div className="flex flex-col items-center gap-1 sm:items-start">
+				<PageContainer className="py-6">
+					<div className="flex flex-col gap-3 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
+						<div className="flex flex-col gap-1">
 							<span className="font-medium text-surface-600 text-xs dark:text-surface-300">
 								© 2026 Yassine Chettouch
 							</span>
@@ -30,43 +30,45 @@ export function SiteFooter() {
 							</a>
 						</div>
 
-						{/* Social Links */}
-						<nav className="flex items-center gap-6" aria-label="Social Links">
-							<Link
-								href="https://linkedin.com/in/yassinechettouch"
-								target="_blank"
-								className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
+						<div className="flex flex-col gap-1 sm:items-end">
+							<nav
+								className="flex items-center justify-center gap-6 sm:justify-end"
+								aria-label="Social Links"
 							>
-								LinkedIn
-							</Link>
-							<Link
-								href="https://github.com/yaschet"
+								<Link
+									href="https://linkedin.com/in/yassinechettouch"
+									target="_blank"
+									className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
+								>
+									LinkedIn
+								</Link>
+								<Link
+									href="https://github.com/yaschet"
+									target="_blank"
+									className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
+								>
+									GitHub
+								</Link>
+								<Link
+									href="https://x.com/yaschett"
+									target="_blank"
+									className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
+								>
+									X
+								</Link>
+							</nav>
+
+							<a
+								href="https://github.com/yaschet/website"
 								target="_blank"
-								className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
+								rel="noreferrer"
+								className="font-medium text-surface-500 text-xs transition-colors hover:text-accent-600 dark:text-surface-400 dark:hover:text-accent-400"
 							>
-								GitHub
-							</Link>
-							<Link
-								href="https://x.com/yaschett"
-								target="_blank"
-								className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
-							>
-								X
-							</Link>
-						</nav>
+								Source
+							</a>
+						</div>
 					</div>
-					<div className="mt-3 text-center text-[11px] text-surface-500 sm:text-right dark:text-surface-400">
-						<a
-							href="https://github.com/yaschet/website"
-							target="_blank"
-							rel="noreferrer"
-							className="font-mono uppercase tracking-[0.2em] transition-colors hover:text-accent-600 dark:hover:text-accent-400"
-						>
-							source
-						</a>
-						<span className="ml-2">built by hand, in code</span>
-					</div>
-				</div>
+				</PageContainer>
 			</section>
 		</footer>
 	);

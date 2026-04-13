@@ -1,6 +1,7 @@
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
@@ -24,24 +25,26 @@ export default function BlogPage() {
 				{/* 2. CONTENT CELL */}
 				<section id="blog-content" className="w-full">
 					<Reveal phase={1} className="w-full">
-						<section className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-24 text-center sm:px-8">
-							<p className="mb-4 font-mono text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-								Coming Soon
-							</p>
-							<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
-								Blog
-							</h1>
-							<p className="mb-10 max-w-md text-body-lg text-surface-600 dark:text-surface-400">
-								Technical deep-dives, architecture decisions, and lessons learned
-								from shipping products. Currently in the works.
-							</p>
-							<Button asChild variant="outlined" size="lg" color="primary">
-								<Link href="/">
-									<ArrowLeft className="size-4" weight="bold" />
-									Back to Home
-								</Link>
-							</Button>
-						</section>
+						<PageContainer className="py-24 text-center">
+							<ProseContainer className="mx-auto flex flex-col items-center justify-center">
+								<p className="mb-4 font-mono text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+									Coming Soon
+								</p>
+								<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
+									Blog
+								</h1>
+								<p className="mb-10 text-body-lg text-surface-600 dark:text-surface-400">
+									Technical deep-dives, architecture decisions, and lessons
+									learned from shipping products. Currently in the works.
+								</p>
+								<Button asChild variant="outlined" size="lg" color="primary">
+									<Link href="/">
+										<ArrowLeft className="size-4" weight="bold" />
+										Back to Home
+									</Link>
+								</Button>
+							</ProseContainer>
+						</PageContainer>
 					</Reveal>
 				</section>
 			</main>

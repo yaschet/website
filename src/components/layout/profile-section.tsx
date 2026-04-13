@@ -10,7 +10,6 @@ import { Reveal } from "@/src/components/ui/reveal";
 
 export function ProfileSection() {
 	// Standard theme colors since we removed mesh gradient dependency
-	const textPrimary = "text-surface-900 dark:text-surface-100";
 	const textSecondary = "text-surface-500";
 	const iconColor =
 		"text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-100";
@@ -21,7 +20,7 @@ export function ProfileSection() {
 		<section id="profile" className="relative z-10 w-full shrink-0">
 			<Reveal phase={1} className="w-full">
 				<div className="w-full">
-					<div className="mx-auto flex h-full max-w-3xl items-center justify-between p-6 sm:p-8">
+					<div className="flex h-full items-center justify-between p-6 sm:p-8">
 						<div className="flex items-center gap-4">
 							<Avatar
 								className={cn(
@@ -49,7 +48,7 @@ export function ProfileSection() {
 								</AvatarFallback>
 							</Avatar>
 							<div>
-								<h1 className="font-semibold text-xl text-surface-900 dark:text-surface-100">
+								<h1 className="font-semibold text-surface-900 text-xl dark:text-surface-100">
 									Yassine Chettouch
 								</h1>
 								<p className="text-body-sm text-surface-500 dark:text-surface-400">

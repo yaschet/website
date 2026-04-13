@@ -12,7 +12,7 @@ import { Reveal } from "@/src/components/ui/reveal";
  */
 function HeroContent() {
 	return (
-		<div className="mx-auto max-w-3xl p-6 sm:p-8">
+		<div className="p-6 sm:p-8">
 			<Reveal phase={2}>
 				<h2 className={cn("mb-6 text-heading-xl! text-surface-900 dark:text-surface-100")}>
 					I build products for the web.

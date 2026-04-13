@@ -24,7 +24,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 	const description = project?.description ?? "Outcome-oriented product engineering artifact.";
 	const role = project?.role;
 	// Use status as fallback if role isn't distinct enough, or prioritize role.
-	// As per user request: "Lead Software Engineer (End-to-End)" is good.
+	// As per user request: "Lead Product Engineer (End-to-End)" is good.
 	// Fallback to project.status if role is missing.
 	const proof = role ?? project?.status ?? "Case Study";
 
@@ -98,7 +98,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								letterSpacing: "0.08em",
 							}}
 						>
-							Software Engineer
+							Product Engineer
 						</div>
 					</div>
 				</div>

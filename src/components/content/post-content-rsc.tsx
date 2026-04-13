@@ -5,6 +5,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
@@ -37,39 +38,43 @@ export function PostContentRSC({ post }: PostContentProps) {
 				<section id="post-header" className="w-full">
 					<Reveal phase={1} className="w-full">
 						<section className="w-full">
-							<div className="mx-auto max-w-3xl px-6 pt-16 sm:px-8">
-								{/* Back Link */}
-								<Link
-									href="/blog"
-									className="mb-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-foreground"
-								>
-									<ArrowLeft size={14} weight="bold" />
-									<span>Back to Blog</span>
-								</Link>
+							<PageContainer className="pt-16">
+								<ModuleContainer className="mx-auto">
+									{/* Back Link */}
+									<Link
+										href="/blog"
+										className="mb-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-foreground"
+									>
+										<ArrowLeft size={14} weight="bold" />
+										<span>Back to Blog</span>
+									</Link>
 
-								{/* Title */}
-								<h1 className="mb-4 text-foreground text-heading-xl">
-									{post.title}
-								</h1>
+									{/* Title */}
+									<h1 className="mb-4 text-foreground text-heading-xl">
+										{post.title}
+									</h1>
 
-								{/* Meta Row (inline) */}
-								<div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
-									<time className="font-mono text-muted-foreground text-xs tabular-nums">
-										{formatDate(post.date)}
-									</time>
-									{postData.readingTime && (
-										<span className="flex items-center gap-1.5 font-mono text-muted-foreground text-xs">
-											<Clock size={12} weight="bold" />
-											{postData.readingTime} min read
-										</span>
-									)}
-								</div>
+									{/* Meta Row (inline) */}
+									<div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+										<time className="font-mono text-muted-foreground text-xs tabular-nums">
+											{formatDate(post.date)}
+										</time>
+										{postData.readingTime && (
+											<span className="flex items-center gap-1.5 font-mono text-muted-foreground text-xs">
+												<Clock size={12} weight="bold" />
+												{postData.readingTime} min read
+											</span>
+										)}
+									</div>
 
-								{/* Description */}
-								<p className="mb-12 max-w-xl text-body-lg text-muted-foreground">
-									{post.description}
-								</p>
-							</div>
+									{/* Description */}
+									<ProseContainer>
+										<p className="mb-12 text-body-lg text-muted-foreground">
+											{post.description}
+										</p>
+									</ProseContainer>
+								</ModuleContainer>
+							</PageContainer>
 						</section>
 					</Reveal>
 				</section>
@@ -78,30 +83,32 @@ export function PostContentRSC({ post }: PostContentProps) {
 				<section id="post-content" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-								<article>
-									<MDXRemote
-										source={post.body.raw}
-										components={mdxComponents}
-										options={{
-											mdxOptions: {
-												remarkPlugins: [remarkGfm],
-												rehypePlugins: [
-													rehypeSlug,
-													[
-														rehypeAutolinkHeadings,
-														{
-															properties: {
-																className: ["anchor"],
+							<PageContainer className="py-16">
+								<ModuleContainer className="mx-auto">
+									<article>
+										<MDXRemote
+											source={post.body.raw}
+											components={mdxComponents}
+											options={{
+												mdxOptions: {
+													remarkPlugins: [remarkGfm],
+													rehypePlugins: [
+														rehypeSlug,
+														[
+															rehypeAutolinkHeadings,
+															{
+																properties: {
+																	className: ["anchor"],
+																},
 															},
-														},
+														],
 													],
-												],
-											},
-										}}
-									/>
-								</article>
-							</div>
+												},
+											}}
+										/>
+									</article>
+								</ModuleContainer>
+							</PageContainer>
 						</section>
 					</ScrollReveal>
 				</section>
@@ -110,19 +117,21 @@ export function PostContentRSC({ post }: PostContentProps) {
 				<section id="post-cta" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
-							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-								<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-									<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-										Have thoughts on this?
-									</h2>
-									<Button asChild size="lg" variant="solid" color="primary">
-										<Link href="/contact">
-											Discusss
-											<ArrowRight className="size-4" weight="bold" />
-										</Link>
-									</Button>
-								</div>
-							</div>
+							<PageContainer className="py-16">
+								<ModuleContainer className="mx-auto">
+									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+										<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+											Have thoughts on this?
+										</h2>
+										<Button asChild size="lg" variant="solid" color="primary">
+											<Link href="/contact">
+												Discusss
+												<ArrowRight className="size-4" weight="bold" />
+											</Link>
+										</Button>
+									</div>
+								</ModuleContainer>
+							</PageContainer>
 						</section>
 					</ScrollReveal>
 				</section>

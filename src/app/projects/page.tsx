@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AssetPhoenix from "@/public/images/placeholders/asset-2.jpg";
 import AssetOnboardFlow from "@/public/images/placeholders/asset-12.jpg";
+import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
@@ -38,25 +39,27 @@ export default function ProjectsPage() {
 				<section id="projects-header" className="w-full">
 					<Reveal phase={1} className="w-full">
 						<section className="w-full">
-							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+							<PageContainer className="py-16">
 								<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 									Work
 								</p>
 								<h1 className="mb-4 text-heading-xl text-surface-900 dark:text-surface-100">
 									Selected Projects
 								</h1>
-								<p className="max-w-xl text-body-lg text-surface-600 dark:text-surface-400">
-									Web apps, SaaS platforms, internal tools. Each one built from
-									the first idea to the final deploy.
-								</p>
-							</div>
+								<ProseContainer>
+									<p className="text-body-lg text-surface-600 dark:text-surface-400">
+										Web apps, SaaS platforms, internal tools. Each one built
+										from the first idea to the final deploy.
+									</p>
+								</ProseContainer>
+							</PageContainer>
 						</section>
 					</Reveal>
 				</section>
 
 				{/* Projects Grid */}
 				<section id="projects-list" className="w-full">
-					<div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+					<PageContainer className="py-12">
 						<div className="space-y-10">
 							{projects.map((project, i) => (
 								<ScrollReveal
@@ -136,14 +139,14 @@ export default function ProjectsPage() {
 								</div>
 							</ScrollReveal>
 						</div>
-					</div>
+					</PageContainer>
 				</section>
 
 				{/* NDA Disclaimer - Separated into its own grid section */}
 				<section id="projects-nda" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-24 text-center sm:px-8">
+							<PageContainer className="flex flex-col items-center justify-center py-24 text-center">
 								<div className="mb-4 flex items-center justify-center gap-2">
 									<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
 										Confidential Work
@@ -160,7 +163,7 @@ export default function ProjectsPage() {
 									</Link>{" "}
 									directly to discuss enterprise experience.
 								</p>
-							</div>
+							</PageContainer>
 						</section>
 					</ScrollReveal>
 				</section>
@@ -169,7 +172,7 @@ export default function ProjectsPage() {
 				<section id="projects-contact" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
-							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+							<PageContainer className="py-16">
 								<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
 									<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
 										View engineering philosophy.
@@ -181,7 +184,7 @@ export default function ProjectsPage() {
 										</Link>
 									</Button>
 								</div>
-							</div>
+							</PageContainer>
 						</section>
 					</ScrollReveal>
 				</section>

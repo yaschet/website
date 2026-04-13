@@ -1,5 +1,6 @@
 "use client";
 
+import { PageContainer } from "@/src/components/layout/containers";
 import { LocationBadge, MarqueeBadge, TimeBadge } from "@/src/components/ui/context-badges";
 
 /**
@@ -12,7 +13,7 @@ export function SiteHeader() {
 	return (
 		<section id="header" className="relative z-20 w-full">
 			<div className="h-29.5 w-full" suppressHydrationWarning>
-				<div className="mx-auto flex h-full max-w-3xl items-center justify-between gap-3">
+				<PageContainer className="flex h-full items-center justify-between gap-3">
 					<LocationBadge className="flex w-40 max-w-full shrink-0" />
 
 					<MarqueeBadge
@@ -28,7 +29,7 @@ export function SiteHeader() {
 					/>
 
 					<TimeBadge className="flex w-40 max-w-full shrink-0" />
-				</div>
+				</PageContainer>
 			</div>
 		</section>
 	);

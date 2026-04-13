@@ -41,7 +41,7 @@ function useSwissGridBox() {
 // SwissGridBox
 //
 // Self-contained animated dashed border around any content block.
-// Constrained to max-w-3xl. Multiple SwissGridRows inside receive internal
+// Width is inherited from the page rail. Multiple SwissGridRows inside receive internal
 // horizontal dividers (all rows except the last get a bottom separator).
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -103,7 +103,7 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 
 	return (
 		<SwissGridBoxContext.Provider value={{ registerRow, notify: recalculate }}>
-			<div ref={boxRef} className={cn("relative mx-auto w-full max-w-3xl", className)}>
+			<div ref={boxRef} className={cn("relative w-full", className)}>
 				{/* SVG border overlay — rendered only once dimensions are known */}
 				{w > 0 && h > 0 && (
 					<svg

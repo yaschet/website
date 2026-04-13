@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import avatarImage from "@/public/images/avatar.jpeg";
+import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
@@ -35,7 +36,7 @@ export default function AboutPage() {
 				<section id="profile" className="relative w-full">
 					<Reveal phase={1} className="relative z-10 w-full">
 						<header className="w-full">
-							<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
+							<PageContainer className="flex h-full items-center justify-between py-12">
 								<div className="flex items-center gap-4">
 									<Avatar className="relative size-14 overflow-hidden rounded-(--radius) border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900">
 										<Image
@@ -51,7 +52,7 @@ export default function AboutPage() {
 										</AvatarFallback>
 									</Avatar>
 									<div>
-										<h1 className="font-semibold text-xl text-surface-900 dark:text-surface-100">
+										<h1 className="font-semibold text-surface-900 text-xl dark:text-surface-100">
 											Yassine Chettouch
 										</h1>
 										<p className="text-body-sm text-surface-500 dark:text-surface-400">
@@ -86,7 +87,7 @@ export default function AboutPage() {
 										<XLogoIcon className="size-5" weight="regular" />
 									</Link>
 								</div>
-							</div>
+							</PageContainer>
 						</header>
 					</Reveal>
 				</section>
@@ -95,13 +96,13 @@ export default function AboutPage() {
 				<section id="story" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+							<PageContainer className="py-16">
 								<ScrollReveal phase={2}>
 									<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 										01 · The Short Version
 									</p>
 								</ScrollReveal>
-								<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
+								<ProseContainer className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
 									<ScrollReveal phase={2} delay={0.05}>
 										<p>
 											I started in{" "}
@@ -136,8 +137,8 @@ export default function AboutPage() {
 											short cycles.
 										</p>
 									</ScrollReveal>
-								</div>
-							</div>
+								</ProseContainer>
+							</PageContainer>
 						</section>
 					</ScrollReveal>
 				</section>
@@ -146,7 +147,7 @@ export default function AboutPage() {
 				<section id="how-i-think" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+							<PageContainer className="py-16">
 								<ScrollReveal phase={2}>
 									<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 										02 · How I Think
@@ -202,7 +203,7 @@ export default function AboutPage() {
 										</div>
 									</ScrollReveal>
 								</div>
-							</div>
+							</PageContainer>
 						</section>
 					</ScrollReveal>
 				</section>
@@ -211,13 +212,13 @@ export default function AboutPage() {
 				<section id="how-i-work" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+							<PageContainer className="py-16">
 								<ScrollReveal phase={2}>
 									<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 										03 · Engineering Philosophy
 									</p>
 								</ScrollReveal>
-								<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
+								<ProseContainer className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
 									<ScrollReveal phase={2} delay={0.05}>
 										<p>
 											I architect for{" "}
@@ -245,8 +246,8 @@ export default function AboutPage() {
 											infrastructure investments.
 										</p>
 									</ScrollReveal>
-								</div>
-							</div>
+								</ProseContainer>
+							</PageContainer>
 						</section>
 					</ScrollReveal>
 				</section>
@@ -255,7 +256,7 @@ export default function AboutPage() {
 				<section id="about-contact" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
-							<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
+							<PageContainer className="py-16">
 								<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
 									<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
 										Work with these principles?
@@ -267,7 +268,7 @@ export default function AboutPage() {
 										</Link>
 									</Button>
 								</div>
-							</div>
+							</PageContainer>
 						</section>
 					</ScrollReveal>
 				</section>
