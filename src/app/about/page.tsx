@@ -51,7 +51,7 @@ export default function AboutPage() {
 										</AvatarFallback>
 									</Avatar>
 									<div>
-										<h1 className="font-semibold text-body-lg text-surface-900 dark:text-surface-100">
+										<h1 className="font-semibold text-xl text-surface-900 dark:text-surface-100">
 											Yassine Chettouch
 										</h1>
 										<p className="text-body-sm text-surface-500 dark:text-surface-400">

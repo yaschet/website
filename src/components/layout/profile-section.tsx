@@ -49,10 +49,10 @@ export function ProfileSection() {
 								</AvatarFallback>
 							</Avatar>
 							<div>
-								<h1 className={cn("font-semibold text-body-lg", textPrimary)}>
+								<h1 className="font-semibold text-xl text-surface-900 dark:text-surface-100">
 									Yassine Chettouch
 								</h1>
-								<p className={cn("text-body-sm", textSecondary)}>
+								<p className="text-body-sm text-surface-500 dark:text-surface-400">
 									Software Engineer
 								</p>
 							</div>
