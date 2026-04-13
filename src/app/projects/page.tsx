@@ -11,6 +11,7 @@ import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 export const metadata: Metadata = {
 	title: "Projects | Yassine Chettouch",
 	description: "Web apps, SaaS platforms, and internal tools. From idea to production.",
@@ -146,44 +147,53 @@ export default function ProjectsPage() {
 				<section id="projects-nda" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="flex flex-col items-center justify-center py-24 text-center">
-								<div className="mb-4 flex items-center justify-center gap-2">
-									<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
-										Confidential Work
-									</p>
-								</div>
-								<p className="max-w-md text-sm text-surface-600 leading-relaxed dark:text-surface-400">
-									Due to strict NDAs and client privacy, most commercial
-									enterprise work cannot be publicly displayed.{" "}
-									<Link
-										href="/contact"
-										className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-4 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
-									>
-										Contact me
-									</Link>{" "}
-									directly to discuss enterprise experience.
-								</p>
-							</PageContainer>
-						</section>
-					</ScrollReveal>
-				</section>
-
-				{/* Contact */}
-				<section id="projects-contact" className="w-full">
-					<ScrollReveal phase={3} className="w-full">
-						<section className="w-full">
 							<PageContainer className="py-16">
-								<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-									<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-										View engineering philosophy.
-									</h2>
-									<Button asChild size="lg" variant="solid" color="primary">
-										<Link href="/about">
-											About
-											<ArrowRightIcon className="size-4" weight="bold" />
-										</Link>
-									</Button>
-								</div>
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="flex flex-col items-center justify-center p-6 text-center sm:p-8">
+											<div className="mb-4 flex items-center justify-center gap-2">
+												<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
+													Confidential Work
+												</p>
+											</div>
+											<p className="max-w-md text-sm text-surface-600 leading-relaxed dark:text-surface-400">
+												Due to strict NDAs and client privacy, most
+												commercial enterprise work cannot be publicly
+												displayed.{" "}
+												<Link
+													href="/contact"
+													className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-4 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
+												>
+													Contact me
+												</Link>{" "}
+												directly to discuss enterprise experience.
+											</p>
+										</div>
+									</SwissGridRow>
+									<SwissGridRow>
+										<div className="p-6 sm:p-8">
+											<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+												<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+													View engineering philosophy.
+												</h2>
+												<Button
+													asChild
+													size="lg"
+													variant="solid"
+													color="primary"
+												>
+													<Link href="/about">
+														About
+														<ArrowRightIcon
+															className="size-4"
+															weight="bold"
+														/>
+													</Link>
+												</Button>
+											</div>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
 							</PageContainer>
 						</section>
 					</ScrollReveal>
