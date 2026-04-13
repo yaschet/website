@@ -162,7 +162,7 @@ export function ProjectCardGallery({
 								) : (
 									<ArrowUpRight
 										weight="bold"
-										className="size-3.5 text-surface-600 transition-all duration-300 group-hover:translate-x-px group-hover:-translate-y-px group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+										className="size-3.5 text-surface-600 transition-colors duration-300 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
 									/>
 								)}
 							</div>

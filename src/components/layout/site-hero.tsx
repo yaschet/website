@@ -4,15 +4,12 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/src/components/ui/button";
+import Dither from "@/src/components/ui/dither";
 import { Reveal } from "@/src/components/ui/reveal";
 
-/**
- * Hero content that adapts to the mesh gradient theme.
- * Uses the gradient context to determine text colors.
- */
 function HeroContent() {
 	return (
-		<div className="p-6 sm:p-8">
+		<div className="relative z-10 p-6 sm:p-8">
 			<Reveal phase={2}>
 				<h2 className={cn("mb-6 text-heading-xl! text-surface-900 dark:text-surface-100")}>
 					I build products for the web.
@@ -49,7 +46,11 @@ function HeroContent() {
 
 export function SiteHero() {
 	return (
-		<section id="hero" className="relative w-full overflow-hidden">
+		<section id="hero" className="relative isolate w-full overflow-hidden">
+			<div className="pointer-events-none absolute inset-0">
+				<Dither className="[mask-image:radial-gradient(120%_100%_at_78%_45%,black_0%,black_38%,transparent_78%)]" />
+				<div className="absolute inset-0 bg-linear-to-r from-surface-50 via-surface-50/92 to-transparent dark:from-surface-950 dark:via-surface-950/88 dark:to-transparent" />
+			</div>
 			<HeroContent />
 		</section>
 	);
