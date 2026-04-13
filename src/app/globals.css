@@ -1463,13 +1463,13 @@ html {
   }
 
   body {
-    @apply bg-background font-sans text-foreground antialiased selection:bg-accent-400 selection:text-accent-950;
+    @apply bg-surface-100 font-sans text-foreground antialiased selection:bg-accent-400 selection:text-accent-950 dark:bg-surface-950;
   }
 }
 
 html,
 body {
-  @apply bg-surface selection:bg-accent-600 lining-nums antialiased selection:text-white;
+  @apply lining-nums antialiased selection:bg-accent-600 selection:text-white;
 }
 
 .dark,

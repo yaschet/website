@@ -48,8 +48,17 @@ export function SiteHero() {
 	return (
 		<section id="hero" className="relative isolate w-full overflow-hidden">
 			<div className="pointer-events-none absolute inset-0">
-				<Dither className="[mask-image:radial-gradient(120%_100%_at_78%_45%,black_0%,black_38%,transparent_78%)]" />
-				<div className="absolute inset-0 bg-linear-to-r from-surface-50 via-surface-50/92 to-transparent dark:from-surface-950 dark:via-surface-950/88 dark:to-transparent" />
+				<Dither
+					waveSpeed={0.018}
+					waveFrequency={1.75}
+					waveAmplitude={0.22}
+					colorNum={3}
+					pixelSize={6}
+					mouseRadius={0.58}
+					className="opacity-100 [mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,0.72)_14%,black_30%,black_100%)]"
+				/>
+				<div className="absolute inset-0 bg-linear-to-r from-surface-50 via-42% via-surface-50/86 to-surface-50/34 dark:from-surface-900/88 dark:via-42% dark:via-surface-900/48 dark:to-surface-900/10" />
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_52%,transparent_0%,transparent_52%,rgba(255,255,255,0.42)_100%)] dark:bg-[radial-gradient(circle_at_72%_52%,transparent_0%,transparent_52%,rgba(9,9,11,0.26)_100%)]" />
 			</div>
 			<HeroContent />
 		</section>

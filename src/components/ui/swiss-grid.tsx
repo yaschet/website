@@ -103,7 +103,14 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 
 	return (
 		<SwissGridBoxContext.Provider value={{ registerRow, notify: recalculate }}>
-			<div ref={boxRef} className={cn("relative w-full", className)}>
+			<div
+				ref={boxRef}
+				className={cn(
+					"relative w-full overflow-hidden",
+					"bg-surface-50 transition-colors dark:bg-surface-900/40",
+					className,
+				)}
+			>
 				{/* SVG border overlay — rendered only once dimensions are known */}
 				{w > 0 && h > 0 && (
 					<svg

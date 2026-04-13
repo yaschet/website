@@ -74,21 +74,24 @@ float cnoise(vec2 p) {
 
 float fbm(vec2 p) {
 	float value = 0.0;
-	float amplitude = 1.0;
+	float amplitude = 0.55;
 	float frequency = 1.0;
 
 	for (int i = 0; i < 4; i++) {
-		value += amplitude * abs(cnoise((p * waveFrequency) * frequency));
-		amplitude *= waveAmplitude;
-		frequency *= 1.85;
+		value += amplitude * cnoise((p * waveFrequency) * frequency);
+		amplitude *= mix(0.42, 0.68, clamp(waveAmplitude, 0.0, 1.0));
+		frequency *= 1.75;
 	}
 
 	return value;
 }
 
 float pattern(vec2 p) {
-	vec2 drift = vec2(time * waveSpeed, time * waveSpeed * 0.65);
-	return fbm(p + fbm(p - drift));
+	vec2 drift = vec2(time * waveSpeed, -time * waveSpeed * 0.55);
+	float warpA = fbm(p * 0.9 + drift);
+	float warpB = fbm((p + vec2(3.7, 1.9)) * 0.65 - drift);
+	vec2 warp = vec2(warpA, warpB) * (waveAmplitude * 2.4);
+	return 0.5 + 0.5 * fbm(p + warp);
 }
 
 const float bayerMatrix8x8[64] = float[64](
@@ -117,7 +120,7 @@ void main() {
 	vec2 uv = gl_FragCoord.xy / resolution.xy;
 	vec2 centered = uv - 0.5;
 	centered.x *= resolution.x / resolution.y;
-	centered *= 1.15;
+	centered *= 0.95;
 
 	float field = pattern(centered);
 
@@ -126,11 +129,11 @@ void main() {
 		mouseNDC.x *= resolution.x / resolution.y;
 		float dist = length(centered - mouseNDC);
 		float influence = 1.0 - smoothstep(0.0, mouseRadius, dist);
-		field -= 0.32 * influence;
+		field -= 0.18 * influence;
 	}
 
-	field = smoothstep(0.05, 0.9, field);
-	field = pow(clamp(field, 0.0, 1.0), 1.2);
+	field = smoothstep(0.18, 0.82, field);
+	field = pow(clamp(field, 0.0, 1.0), 1.05);
 
 	vec3 color = waveColor * field;
 	color = applyDither(gl_FragCoord.xy, color);
@@ -293,12 +296,12 @@ export default function Dither({
 		waveSpeed: waveSpeed * (isCompactSurface ? 0.85 : 1),
 		waveFrequency,
 		waveAmplitude: waveAmplitude * compactMultiplier,
-		waveColor: isDark ? [0.0627, 0.7255, 0.5059] : [0.0588, 0.2314, 0.1804],
+		waveColor: isDark ? [0.0627, 0.6039, 0.4235] : [0.1216, 0.1647, 0.1529],
 		colorNum: isCompactSurface ? 2 : colorNum,
 		pixelSize: isCompactSurface ? pixelSize + 1 : pixelSize,
 		enableMouseInteraction: enableMouseInteraction && !isCompactSurface && !shouldReduceMotion,
 		mouseRadius,
-		alphaStrength: isDark ? (isCompactSurface ? 0.24 : 0.3) : 0.12,
+		alphaStrength: isDark ? (isCompactSurface ? 0.26 : 0.34) : 0.09,
 		disableAnimation: disableAnimation || shouldReduceMotion,
 	};
 
