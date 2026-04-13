@@ -28,7 +28,7 @@ export default function AboutPage() {
 
 				{/* Profile */}
 				<section id="profile" className="relative w-full">
-					<PageContainer className="py-12">
+					<PageContainer className="pt-8 pb-12">
 						<SwissGridBox>
 							<SwissGridRow>
 								<ProfileSection />

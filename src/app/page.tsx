@@ -29,7 +29,7 @@ export default function Home() {
 
 				{/* Box 1: Profile + Hero — two rows, one shared border */}
 				<PageContainer>
-					<SwissGridBox className="mt-8">
+					<SwissGridBox className="mt-6">
 						<SwissGridRow>
 							<ProfileSection />
 						</SwissGridRow>

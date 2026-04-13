@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
+import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export default function AppError({
 	error,
@@ -25,29 +26,37 @@ export default function AppError({
 
 			{/* 2. CONTENT CELL */}
 			<section id="error-content" className="relative z-10 w-full">
-				<PageContainer className="py-24 text-center">
-					<ProseContainer className="mx-auto flex flex-col items-center justify-center">
-						{/* Status indicator */}
-						<div className="mb-8 flex justify-center">
-							<div className="flex size-14 items-center justify-center bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-900 dark:text-surface-50">
-								<Warning className="size-6 opacity-80" weight="duotone" />
+				<PageContainer className="pt-8 pb-24 text-center">
+					<SwissGridBox>
+						<SwissGridRow>
+							<div className="p-6 sm:p-8">
+								<ProseContainer className="mx-auto flex flex-col items-center justify-center">
+									<div className="mb-8 flex justify-center">
+										<div className="flex size-14 items-center justify-center bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-900 dark:text-surface-50">
+											<Warning
+												className="size-6 opacity-80"
+												weight="duotone"
+											/>
+										</div>
+									</div>
+
+									<h1 className="mb-3 font-semibold text-heading-md">
+										System Interruption
+									</h1>
+
+									<p className="mb-10 max-w-md text-body-sm text-surface-500 dark:text-surface-400">
+										The system encountered a runtime exception. This incident
+										has been logged.
+									</p>
+
+									<Button onClick={() => reset()} size="lg" variant="solid">
+										<ArrowClockwise className="mr-2 size-4" />
+										Reboot System
+									</Button>
+								</ProseContainer>
 							</div>
-						</div>
-
-						{/* Heading */}
-						<h1 className="mb-3 font-semibold text-heading-md">System Interruption</h1>
-
-						<p className="mb-10 max-w-md text-body-sm text-surface-500 dark:text-surface-400">
-							The system encountered a runtime exception. This incident has been
-							logged.
-						</p>
-
-						{/* Action */}
-						<Button onClick={() => reset()} size="lg" variant="solid">
-							<ArrowClockwise className="mr-2 size-4" />
-							Reboot System
-						</Button>
-					</ProseContainer>
+						</SwissGridRow>
+					</SwissGridBox>
 				</PageContainer>
 			</section>
 

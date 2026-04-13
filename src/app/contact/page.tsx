@@ -29,7 +29,7 @@ export default function ContactPage() {
 				<section id="contact-header" className="relative w-full">
 					<Reveal phase={1} className="relative z-10 w-full">
 						<section className="w-full">
-							<PageContainer className="py-16">
+							<PageContainer className="pt-8 pb-16">
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="p-6 sm:p-8">

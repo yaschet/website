@@ -6,6 +6,7 @@ import { PageContainer, ProseContainer } from "@/src/components/layout/container
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import { Reveal } from "@/src/components/ui/reveal";
+import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export default function NotFound() {
 	return (
@@ -15,40 +16,42 @@ export default function NotFound() {
 
 			{/* 2. CONTENT CELL */}
 			<section id="404-content" className="relative z-10 w-full">
-				<PageContainer className="py-24 text-center">
-					<ProseContainer className="mx-auto flex flex-col items-center justify-center">
-						{/* Badge */}
-						<Reveal phase={1}>
-							<div className="mb-8 inline-flex items-center gap-2 border border-surface-200 bg-surface-50/50 px-3 py-1 font-mono text-surface-500 text-xs uppercase tracking-widest backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/50 dark:text-surface-400">
-								<span className="size-1.5 rounded-full bg-red-500" />
-								<span>Signal Lost</span>
+				<PageContainer className="pt-8 pb-24 text-center">
+					<SwissGridBox>
+						<SwissGridRow>
+							<div className="p-6 sm:p-8">
+								<ProseContainer className="mx-auto flex flex-col items-center justify-center">
+									<Reveal phase={1}>
+										<div className="mb-8 inline-flex items-center gap-2 border border-surface-200 bg-surface-50/50 px-3 py-1 font-mono text-surface-500 text-xs uppercase tracking-widest backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/50 dark:text-surface-400">
+											<span className="size-1.5 rounded-full bg-red-500" />
+											<span>Signal Lost</span>
+										</div>
+									</Reveal>
+
+									<Reveal phase={2} delay={0.1}>
+										<h1 className="mb-4 font-semibold text-heading-lg text-surface-900 dark:text-surface-100">
+											Coordinates Invalid.
+										</h1>
+									</Reveal>
+
+									<Reveal phase={2} delay={0.2}>
+										<p className="mb-10 text-body-md text-surface-500 dark:text-surface-400">
+											The sector you are attempting to access does not exist.
+										</p>
+									</Reveal>
+
+									<Reveal phase={3} delay={0.3}>
+										<Button asChild size="lg" variant="outlined">
+											<Link href="/">
+												<ArrowLeft className="mr-2 size-4" />
+												Return to Base
+											</Link>
+										</Button>
+									</Reveal>
+								</ProseContainer>
 							</div>
-						</Reveal>
-
-						{/* Title */}
-						<Reveal phase={2} delay={0.1}>
-							<h1 className="mb-4 font-semibold text-heading-lg text-surface-900 dark:text-surface-100">
-								Coordinates Invalid.
-							</h1>
-						</Reveal>
-
-						{/* Description */}
-						<Reveal phase={2} delay={0.2}>
-							<p className="mb-10 text-body-md text-surface-500 dark:text-surface-400">
-								The sector you are attempting to access does not exist.
-							</p>
-						</Reveal>
-
-						{/* Action */}
-						<Reveal phase={3} delay={0.3}>
-							<Button asChild size="lg" variant="outlined">
-								<Link href="/">
-									<ArrowLeft className="mr-2 size-4" />
-									Return to Base
-								</Link>
-							</Button>
-						</Reveal>
-					</ProseContainer>
+						</SwissGridRow>
+					</SwissGridBox>
 				</PageContainer>
 			</section>
 

@@ -12,6 +12,7 @@ import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import { formatDate } from "@/src/lib/format-date";
 
 interface PostContentProps {
@@ -38,42 +39,44 @@ export function PostContentRSC({ post }: PostContentProps) {
 				<section id="post-header" className="w-full">
 					<Reveal phase={1} className="w-full">
 						<section className="w-full">
-							<PageContainer className="pt-16">
-								<ModuleContainer className="mx-auto">
-									{/* Back Link */}
-									<Link
-										href="/blog"
-										className="mb-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-foreground"
-									>
-										<ArrowLeft size={14} weight="bold" />
-										<span>Back to Blog</span>
-									</Link>
+							<PageContainer className="pt-8">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="p-6 sm:p-8">
+											<ModuleContainer className="mx-auto">
+												<Link
+													href="/blog"
+													className="mb-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-foreground"
+												>
+													<ArrowLeft size={14} weight="bold" />
+													<span>Back to Blog</span>
+												</Link>
 
-									{/* Title */}
-									<h1 className="mb-4 text-foreground text-heading-xl">
-										{post.title}
-									</h1>
+												<h1 className="mb-4 text-foreground text-heading-xl">
+													{post.title}
+												</h1>
 
-									{/* Meta Row (inline) */}
-									<div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
-										<time className="font-mono text-muted-foreground text-xs tabular-nums">
-											{formatDate(post.date)}
-										</time>
-										{postData.readingTime && (
-											<span className="flex items-center gap-1.5 font-mono text-muted-foreground text-xs">
-												<Clock size={12} weight="bold" />
-												{postData.readingTime} min read
-											</span>
-										)}
-									</div>
+												<div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+													<time className="font-mono text-muted-foreground text-xs tabular-nums">
+														{formatDate(post.date)}
+													</time>
+													{postData.readingTime && (
+														<span className="flex items-center gap-1.5 font-mono text-muted-foreground text-xs">
+															<Clock size={12} weight="bold" />
+															{postData.readingTime} min read
+														</span>
+													)}
+												</div>
 
-									{/* Description */}
-									<ProseContainer>
-										<p className="mb-12 text-body-lg text-muted-foreground">
-											{post.description}
-										</p>
-									</ProseContainer>
-								</ModuleContainer>
+												<ProseContainer>
+													<p className="text-body-lg text-muted-foreground">
+														{post.description}
+													</p>
+												</ProseContainer>
+											</ModuleContainer>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
 							</PageContainer>
 						</section>
 					</Reveal>
@@ -84,30 +87,38 @@ export function PostContentRSC({ post }: PostContentProps) {
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
 							<PageContainer className="py-16">
-								<ModuleContainer className="mx-auto">
-									<article>
-										<MDXRemote
-											source={post.body.raw}
-											components={mdxComponents}
-											options={{
-												mdxOptions: {
-													remarkPlugins: [remarkGfm],
-													rehypePlugins: [
-														rehypeSlug,
-														[
-															rehypeAutolinkHeadings,
-															{
-																properties: {
-																	className: ["anchor"],
-																},
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="p-6 sm:p-8">
+											<ModuleContainer className="mx-auto">
+												<article>
+													<MDXRemote
+														source={post.body.raw}
+														components={mdxComponents}
+														options={{
+															mdxOptions: {
+																remarkPlugins: [remarkGfm],
+																rehypePlugins: [
+																	rehypeSlug,
+																	[
+																		rehypeAutolinkHeadings,
+																		{
+																			properties: {
+																				className: [
+																					"anchor",
+																				],
+																			},
+																		},
+																	],
+																],
 															},
-														],
-													],
-												},
-											}}
-										/>
-									</article>
-								</ModuleContainer>
+														}}
+													/>
+												</article>
+											</ModuleContainer>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
 							</PageContainer>
 						</section>
 					</ScrollReveal>
@@ -118,19 +129,33 @@ export function PostContentRSC({ post }: PostContentProps) {
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
 							<PageContainer className="py-16">
-								<ModuleContainer className="mx-auto">
-									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-										<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-											Have thoughts on this?
-										</h2>
-										<Button asChild size="lg" variant="solid" color="primary">
-											<Link href="/contact">
-												Discusss
-												<ArrowRight className="size-4" weight="bold" />
-											</Link>
-										</Button>
-									</div>
-								</ModuleContainer>
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="p-6 sm:p-8">
+											<ModuleContainer className="mx-auto">
+												<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+													<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+														Have thoughts on this?
+													</h2>
+													<Button
+														asChild
+														size="lg"
+														variant="solid"
+														color="primary"
+													>
+														<Link href="/contact">
+															Discusss
+															<ArrowRight
+																className="size-4"
+																weight="bold"
+															/>
+														</Link>
+													</Button>
+												</div>
+											</ModuleContainer>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
 							</PageContainer>
 						</section>
 					</ScrollReveal>

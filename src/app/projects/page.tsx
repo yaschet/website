@@ -40,19 +40,26 @@ export default function ProjectsPage() {
 				<section id="projects-header" className="w-full">
 					<Reveal phase={1} className="w-full">
 						<section className="w-full">
-							<PageContainer className="py-16">
-								<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-									Work
-								</p>
-								<h1 className="mb-4 text-heading-xl text-surface-900 dark:text-surface-100">
-									Selected Projects
-								</h1>
-								<ProseContainer>
-									<p className="text-body-lg text-surface-600 dark:text-surface-400">
-										Web apps, SaaS platforms, internal tools. Each one built
-										from the first idea to the final deploy.
-									</p>
-								</ProseContainer>
+							<PageContainer className="pt-8 pb-16">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="p-6 sm:p-8">
+											<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+												Work
+											</p>
+											<h1 className="mb-4 text-heading-xl text-surface-900 dark:text-surface-100">
+												Selected Projects
+											</h1>
+											<ProseContainer>
+												<p className="text-body-lg text-surface-600 dark:text-surface-400">
+													Web apps, SaaS platforms, internal tools. Each
+													one built from the first idea to the final
+													deploy.
+												</p>
+											</ProseContainer>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
 							</PageContainer>
 						</section>
 					</Reveal>
@@ -61,85 +68,84 @@ export default function ProjectsPage() {
 				{/* Projects Grid */}
 				<section id="projects-list" className="w-full">
 					<PageContainer className="py-12">
-						<div className="space-y-10">
-							{projects.map((project, i) => (
-								<ScrollReveal
-									key={project._id}
-									phase={2}
-									delay={i * 0.05}
-									className="w-full"
-								>
-									<div className="space-y-4">
-										<ProjectCardGallery
-											// Add +11 for visual offset if needed, or keep simple index
-											index={String(i + 1).padStart(2, "0")}
-											title={project.title}
-											description={project.description}
-											href={project.url_path}
-											tags={project.tech ?? []}
-											images={project.coverImages}
-											date={
-												project.date
-													? new Date(project.date).toLocaleDateString(
-															"en-US",
-															{ month: "long", year: "numeric" },
-														)
-													: undefined
-											}
-										/>
+						<SwissGridBox>
+							<SwissGridRow>
+								<div className="p-6 sm:p-8">
+									<div className="space-y-10">
+										{projects.map((project, i) => (
+											<ScrollReveal
+												key={project._id}
+												phase={2}
+												delay={i * 0.05}
+												className="w-full"
+											>
+												<ProjectCardGallery
+													index={String(i + 1).padStart(2, "0")}
+													title={project.title}
+													description={project.description}
+													href={project.url_path}
+													tags={project.tech ?? []}
+													images={project.coverImages}
+													date={
+														project.date
+															? new Date(
+																	project.date,
+																).toLocaleDateString("en-US", {
+																	month: "long",
+																	year: "numeric",
+																})
+															: undefined
+													}
+												/>
+											</ScrollReveal>
+										))}
+
+										<ScrollReveal
+											phase={2}
+											delay={projects.length * 0.05}
+											className="w-full"
+										>
+											<ProjectCardGallery
+												index={String(projects.length + 1).padStart(2, "0")}
+												title="Project Phoenix"
+												description="Large-scale data matching engine with AI-driven cleansing, semantic search, and resumable processing pipelines."
+												href="#"
+												tags={[
+													"Meilisearch",
+													"OpenAI",
+													"PostgreSQL",
+													"Data Pipelines",
+												]}
+												images={[AssetPhoenix]}
+												isPrivate
+												challenge="Match thousands of university programs to student profiles with high accuracy."
+												solution="3-phase system using Meilisearch, OpenAI embeddings, and resumable data pipelines."
+												date="June 2025"
+											/>
+										</ScrollReveal>
+
+										<ScrollReveal
+											phase={2}
+											delay={projects.length * 0.05 + 0.1}
+											className="w-full"
+										>
+											<ProjectCardGallery
+												index={String(projects.length + 2).padStart(2, "0")}
+												title="Onboard Flow"
+												description="Intelligent customer portal with step-by-step onboarding, document scanning, and dynamic form logic."
+												href="#"
+												tags={["React", "Node.js", "PostgreSQL", "OCR"]}
+												images={[AssetOnboardFlow]}
+												isPrivate
+												challenge="Replace a complex static form with a high-conversion step-by-step experience."
+												solution="Typeform-style portal with OCR scanning and dynamic form logic. Delivered in 6 weeks."
+												date="October 2025"
+											/>
+										</ScrollReveal>
 									</div>
-								</ScrollReveal>
-							))}
-
-							{/* Project Phoenix - Locked */}
-							<ScrollReveal
-								phase={2}
-								delay={projects.length * 0.05}
-								className="w-full"
-							>
-								<div className="space-y-4">
-									<ProjectCardGallery
-										index={String(projects.length + 1).padStart(2, "0")}
-										title="Project Phoenix"
-										description="Large-scale data matching engine with AI-driven cleansing, semantic search, and resumable processing pipelines."
-										href="#"
-										tags={[
-											"Meilisearch",
-											"OpenAI",
-											"PostgreSQL",
-											"Data Pipelines",
-										]}
-										images={[AssetPhoenix]}
-										isPrivate
-										challenge="Match thousands of university programs to student profiles with high accuracy."
-										solution="3-phase system using Meilisearch, OpenAI embeddings, and resumable data pipelines."
-										date="June 2025"
-									/>
 								</div>
-							</ScrollReveal>
-
-							{/* Onboard Flow - Locked */}
-							<ScrollReveal
-								phase={2}
-								delay={projects.length * 0.05 + 0.1}
-								className="w-full"
-							>
-								<div className="space-y-4">
-									<ProjectCardGallery
-										index={String(projects.length + 2).padStart(2, "0")}
-										title="Onboard Flow"
-										description="Intelligent customer portal with step-by-step onboarding, document scanning, and dynamic form logic."
-										href="#"
-										tags={["React", "Node.js", "PostgreSQL", "OCR"]}
-										images={[AssetOnboardFlow]}
-										isPrivate
-										challenge="Replace a complex static form with a high-conversion step-by-step experience."
-										solution="Typeform-style portal with OCR scanning and dynamic form logic. Delivered in 6 weeks."
-										date="October 2025"
-									/>
-								</div>
-							</ScrollReveal>
-						</div>
+							</SwissGridRow>
+						</SwissGridBox>
 					</PageContainer>
 				</section>
 

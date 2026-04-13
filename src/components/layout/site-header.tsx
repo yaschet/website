@@ -12,7 +12,7 @@ import { LocationBadge, MarqueeBadge, TimeBadge } from "@/src/components/ui/cont
 export function SiteHeader() {
 	return (
 		<section id="header" className="relative z-20 w-full">
-			<div className="h-29.5 w-full" suppressHydrationWarning>
+			<div className="h-14 w-full sm:h-16" suppressHydrationWarning>
 				<PageContainer className="flex h-full items-center justify-between gap-3">
 					<LocationBadge className="flex w-40 max-w-full shrink-0" />
 
