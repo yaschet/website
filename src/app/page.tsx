@@ -2,8 +2,6 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { allProjects } from "contentlayer2/generated";
 
 import Link from "next/link";
-import AssetPhoenix from "@/public/images/placeholders/asset-2.jpg";
-import AssetOnboardFlow from "@/public/images/placeholders/asset-12.jpg";
 import { PageContainer } from "@/src/components/layout/containers";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
@@ -16,7 +14,7 @@ import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export default function Home() {
 	// Identify featured projects for the landing page
-	const featuredSlugs = ["verto", "phoenix", "onboard-flow"];
+	const featuredSlugs = ["verto"];
 	const featuredProjects = featuredSlugs
 		.map((slug) => allProjects.find((p) => p.slug === slug))
 		.filter((p): p is NonNullable<typeof p> => !!p);
@@ -67,52 +65,6 @@ export default function Home() {
 													</div>
 												</ScrollReveal>
 											))}
-
-											{/* Project Phoenix - Locked */}
-											<ScrollReveal phase={3} delay={0.2} className="w-full">
-												<div id="project-phoenix">
-													<ProjectCardGallery
-														index={`0${featuredProjects.length + 1}`}
-														title="Project Phoenix"
-														description="Large-scale data matching engine with AI-driven cleansing, semantic search, and resumable processing pipelines."
-														href="#"
-														tags={[
-															"Meilisearch",
-															"OpenAI",
-															"PostgreSQL",
-															"Data Pipelines",
-														]}
-														images={[AssetPhoenix]}
-														isPrivate
-														challenge="Match thousands of university programs to student profiles with high accuracy."
-														solution="3-phase system using Meilisearch, OpenAI embeddings, and resumable data pipelines."
-														date="June 2025"
-													/>
-												</div>
-											</ScrollReveal>
-
-											{/* Onboard Flow - Locked */}
-											<ScrollReveal phase={3} delay={0.25} className="w-full">
-												<div id="project-onboard">
-													<ProjectCardGallery
-														index={`0${featuredProjects.length + 2}`}
-														title="Onboard Flow"
-														description="Intelligent customer portal with step-by-step onboarding, document scanning, and dynamic form logic."
-														href="#"
-														tags={[
-															"React",
-															"Node.js",
-															"PostgreSQL",
-															"OCR",
-														]}
-														images={[AssetOnboardFlow]}
-														isPrivate
-														challenge="Replace a complex static form with a high-conversion step-by-step experience."
-														solution="Typeform-style portal with OCR scanning and dynamic form logic. Delivered in 6 weeks."
-														date="October 2025"
-													/>
-												</div>
-											</ScrollReveal>
 										</div>
 									</div>
 								</section>

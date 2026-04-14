@@ -3,8 +3,6 @@ import { allProjects } from "contentlayer2/generated";
 import { compareDesc } from "date-fns";
 import type { Metadata } from "next";
 import Link from "next/link";
-import AssetPhoenix from "@/public/images/placeholders/asset-2.jpg";
-import AssetOnboardFlow from "@/public/images/placeholders/asset-12.jpg";
 import { PageContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
@@ -88,49 +86,6 @@ export default function CaseStudiesPage() {
 												/>
 											</ScrollReveal>
 										))}
-
-										<ScrollReveal
-											phase={2}
-											delay={projects.length * 0.05}
-											className="w-full"
-										>
-											<ProjectCardGallery
-												index={String(projects.length + 1).padStart(2, "0")}
-												title="Project Phoenix"
-												description="Large-scale data matching engine with AI-driven cleansing, semantic search, and resumable processing pipelines."
-												href="#"
-												tags={[
-													"Meilisearch",
-													"OpenAI",
-													"PostgreSQL",
-													"Data Pipelines",
-												]}
-												images={[AssetPhoenix]}
-												isPrivate
-												challenge="Match thousands of university programs to student profiles with high accuracy."
-												solution="3-phase system using Meilisearch, OpenAI embeddings, and resumable data pipelines."
-												date="June 2025"
-											/>
-										</ScrollReveal>
-
-										<ScrollReveal
-											phase={2}
-											delay={projects.length * 0.05 + 0.1}
-											className="w-full"
-										>
-											<ProjectCardGallery
-												index={String(projects.length + 2).padStart(2, "0")}
-												title="Onboard Flow"
-												description="Intelligent customer portal with step-by-step onboarding, document scanning, and dynamic form logic."
-												href="#"
-												tags={["React", "Node.js", "PostgreSQL", "OCR"]}
-												images={[AssetOnboardFlow]}
-												isPrivate
-												challenge="Replace a complex static form with a high-conversion step-by-step experience."
-												solution="Typeform-style portal with OCR scanning and dynamic form logic. Delivered in 6 weeks."
-												date="October 2025"
-											/>
-										</ScrollReveal>
 									</div>
 								</div>
 							</SwissGridRow>
