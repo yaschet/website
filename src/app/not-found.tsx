@@ -22,20 +22,20 @@ export default function NotFound() {
 							<div className="portfolio-box-pad">
 								<ProseContainer className="mx-auto flex flex-col items-center justify-center">
 									<Reveal phase={1}>
-										<div className="mb-8 inline-flex items-center gap-2 border border-surface-200 bg-surface-50/50 px-3 py-1 font-mono text-surface-500 text-xs uppercase tracking-widest backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/50 dark:text-surface-400">
+										<div className="portfolio-kicker mb-8 inline-flex items-center gap-2 border border-surface-200 bg-surface-50/50 px-3 py-1 text-surface-500 backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/50 dark:text-surface-400">
 											<span className="size-1.5 rounded-full bg-red-500" />
 											<span>Signal Lost</span>
 										</div>
 									</Reveal>
 
 									<Reveal phase={2} delay={0.1}>
-										<h1 className="mb-4 font-semibold text-heading-lg text-surface-900 dark:text-surface-100">
+										<h1 className="portfolio-heading-lg portfolio-capsize-heading-lg mb-4 text-surface-900 dark:text-surface-100">
 											Coordinates Invalid.
 										</h1>
 									</Reveal>
 
 									<Reveal phase={2} delay={0.2}>
-										<p className="mb-10 text-body-md text-surface-500 dark:text-surface-400">
+										<p className="portfolio-body-md mb-10 text-surface-500 dark:text-surface-400">
 											The sector you are attempting to access does not exist.
 										</p>
 									</Reveal>

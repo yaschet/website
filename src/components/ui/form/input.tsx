@@ -60,7 +60,7 @@ const inputVariants = cva(
 			},
 			size: {
 				xs: "h-9 px-3 py-2",
-				sm: "h-11 px-4 py-2.5",
+				sm: "h-10 px-4 py-2",
 				md: "h-12 px-5 py-3",
 				lg: "h-14 px-6 py-4",
 				xl: "h-16 px-8 py-5",
@@ -160,7 +160,7 @@ const getIconSize = (size: InputProps["size"]) => {
 	if (size === "sm") return 16;
 	if (size === "lg") return 20;
 	if (size === "xl" || size === "onboarding") return 24;
-	return 18;
+	return 16;
 };
 
 const EyeOpenIcon = ({ size }: { size: number }) => (

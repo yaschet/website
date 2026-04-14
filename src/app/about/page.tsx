@@ -46,11 +46,11 @@ export default function AboutPage() {
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ScrollReveal phase={2}>
-												<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+												<p className="portfolio-kicker mb-8 text-surface-400 dark:text-surface-500">
 													01 · The Short Version
 												</p>
 											</ScrollReveal>
-											<ProseContainer className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
+											<ProseContainer className="portfolio-prose">
 												<ScrollReveal phase={2} delay={0.05}>
 													<p>
 														I started in{" "}
@@ -105,7 +105,7 @@ export default function AboutPage() {
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ScrollReveal phase={2}>
-												<p className="font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 													02 · How I Think
 												</p>
 											</ScrollReveal>
@@ -119,7 +119,7 @@ export default function AboutPage() {
 														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
 															Precision
 														</h3>
-														<p className="text-sm text-surface-600 dark:text-surface-400">
+														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
 															I treat code like a contract. If the API
 															fails, the UI is a lie. I build systems
 															that fail gracefully and recover
@@ -132,7 +132,7 @@ export default function AboutPage() {
 														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
 															Speed as a Feature
 														</h3>
-														<p className="text-sm text-surface-600 dark:text-surface-400">
+														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
 															Latency kills trust. I optimize for
 															&quot;perceived performance&quot; using
 															optimistic UI, skeletons, and edge
@@ -145,7 +145,7 @@ export default function AboutPage() {
 														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
 															ROI-First
 														</h3>
-														<p className="text-sm text-surface-600 dark:text-surface-400">
+														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
 															I don&apos;t build features for fun. I
 															build to move the needle. If a feature
 															doesn&apos;t reduce churn or increase
@@ -158,7 +158,7 @@ export default function AboutPage() {
 														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
 															End-to-End Responsibility
 														</h3>
-														<p className="text-sm text-surface-600 dark:text-surface-400">
+														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
 															I don&apos;t say &quot;it works on my
 															machine.&quot; I own the product from
 															the first line of code to the final
@@ -184,11 +184,11 @@ export default function AboutPage() {
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ScrollReveal phase={2}>
-												<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+												<p className="portfolio-kicker mb-8 text-surface-400 dark:text-surface-500">
 													03 · Engineering Philosophy
 												</p>
 											</ScrollReveal>
-											<ProseContainer className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
+											<ProseContainer className="portfolio-prose">
 												<ScrollReveal phase={2} delay={0.05}>
 													<p>
 														I architect for{" "}
@@ -237,8 +237,8 @@ export default function AboutPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-												<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+											<div className="portfolio-action-band">
+												<h2 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
 													Work with these principles?
 												</h2>
 												<Button

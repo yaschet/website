@@ -59,7 +59,7 @@ const contentClasses = cn("flex items-center");
 
 const tooltipClasses = cn(
 	"pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 whitespace-nowrap",
-	"px-2 py-1.5 font-bold text-xs",
+	"px-2 py-1 font-bold text-xs",
 	"bg-white dark:bg-surface-900",
 	"text-surface-700 dark:text-surface-300",
 	"border border-surface-200 dark:border-surface-800",

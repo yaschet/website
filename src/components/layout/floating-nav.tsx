@@ -56,7 +56,7 @@ const navItems: NavItem[] = [
 ];
 
 const BUTTON_SIZE = 40;
-const ICON_SIZE = 18;
+const ICON_SIZE = 16;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COMPONENT
@@ -147,7 +147,7 @@ export function FloatingNav() {
 				animate={isEnabled ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
 				transition={springs.responsive}
 				className={cn(
-					"pointer-events-auto relative flex items-center p-1.5",
+					"pointer-events-auto relative flex items-center p-2",
 					// SWISS DESIGN: Solid, High Contrast, No Blur
 					"bg-surface-950 dark:bg-surface-50",
 					"border border-surface-800 dark:border-surface-200",
@@ -242,7 +242,7 @@ export function FloatingNav() {
 											transition={springs.snappy}
 											className={cn(
 												"pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2 whitespace-nowrap",
-												"px-2.5 py-1.5 font-medium text-xs tracking-wide",
+												"px-3 py-2 font-medium text-xs tracking-wide",
 												"bg-surface-950 text-surface-50", // Inverse tooltip
 												"dark:bg-surface-50 dark:text-surface-950",
 												"rounded-none",

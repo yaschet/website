@@ -31,13 +31,13 @@ export default function BlogPage() {
 								<SwissGridRow>
 									<div className="portfolio-box-pad">
 										<ProseContainer className="mx-auto flex flex-col items-center justify-center">
-											<p className="mb-4 font-mono text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
+											<p className="portfolio-kicker mb-4 text-surface-400 dark:text-surface-500">
 												Coming Soon
 											</p>
-											<h1 className="mb-6 text-heading-xl text-surface-900 dark:text-surface-100">
+											<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-6 text-surface-900 dark:text-surface-100">
 												Blog
 											</h1>
-											<p className="mb-10 text-body-lg text-surface-600 dark:text-surface-400">
+											<p className="portfolio-body-lg mb-10 text-surface-600 dark:text-surface-400">
 												Technical deep-dives, architecture decisions, and
 												lessons learned from shipping products. Currently in
 												the works.

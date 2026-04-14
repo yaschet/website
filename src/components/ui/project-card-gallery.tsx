@@ -110,7 +110,7 @@ export function ProjectCardGallery({
 										weight="fill"
 										className="size-3 text-surface-900 opacity-60 dark:text-surface-100"
 									/>
-									<span className="font-medium font-mono text-[10px] text-surface-900 uppercase tracking-[0.2em] opacity-80 dark:text-surface-100">
+									<span className="portfolio-kicker text-surface-900 opacity-80 dark:text-surface-100">
 										Coming Soon
 									</span>
 								</div>
@@ -123,9 +123,7 @@ export function ProjectCardGallery({
 						aria-label="No preview available"
 					>
 						<div className="flex h-full w-full items-center justify-center">
-							<span className="font-mono text-surface-400 text-xs uppercase tracking-wider">
-								No Preview
-							</span>
+							<span className="portfolio-kicker text-surface-400">No Preview</span>
 						</div>
 					</section>
 				)}
@@ -136,11 +134,11 @@ export function ProjectCardGallery({
 					<div className="mb-6 flex flex-col gap-4">
 						{/* Meta Layer: Functional Data — ZERO BORDERS, PURE SPACE */}
 						<div className="flex items-center justify-between">
-							<span className="!text-xs font-mono text-surface-500 dark:text-surface-400">
+							<span className="portfolio-kicker text-surface-500 dark:text-surface-400">
 								{index}
 							</span>
 							{date && (
-								<span className="!text-xs font-mono text-surface-500 uppercase tracking-wider dark:text-surface-400">
+								<span className="portfolio-kicker text-surface-500 dark:text-surface-400">
 									{date}
 								</span>
 							)}
@@ -148,7 +146,7 @@ export function ProjectCardGallery({
 
 						{/* Identity Layer: Title & Action — OPTICALLY CENTERED */}
 						<div className="flex items-center justify-between gap-4">
-							<h3 className="!text-xl font-medium text-surface-900 leading-tight dark:text-surface-50">
+							<h3 className="portfolio-heading-sm portfolio-capsize-heading-sm text-surface-900 dark:text-surface-50">
 								{title}
 							</h3>
 
@@ -157,12 +155,12 @@ export function ProjectCardGallery({
 								{isPrivate ? (
 									<Lock
 										weight="bold"
-										className="size-3.5 text-surface-600 transition-colors duration-300 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+										className="size-4 text-surface-600 transition-colors duration-300 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
 									/>
 								) : (
 									<ArrowUpRight
 										weight="bold"
-										className="size-3.5 text-surface-600 transition-colors duration-300 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+										className="size-4 text-surface-600 transition-colors duration-300 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
 									/>
 								)}
 							</div>
@@ -170,7 +168,7 @@ export function ProjectCardGallery({
 					</div>
 
 					{/* Description */}
-					<p className="!text-sm mb-4 line-clamp-2 text-surface-600 dark:text-surface-400">
+					<p className="portfolio-body-sm mb-4 line-clamp-2 text-surface-600 dark:text-surface-400">
 						{description}
 					</p>
 
@@ -179,20 +177,16 @@ export function ProjectCardGallery({
 						<div className="mb-6 space-y-4">
 							{challenge && (
 								<div className="space-y-2">
-									<h4 className="!text-xs font-medium font-mono text-surface-400 uppercase tracking-wider">
-										Challenge
-									</h4>
-									<p className="!text-sm text-surface-700 leading-relaxed dark:text-surface-300">
+									<h4 className="portfolio-kicker text-surface-400">Challenge</h4>
+									<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
 										{challenge}
 									</p>
 								</div>
 							)}
 							{solution && (
 								<div className="space-y-2">
-									<h4 className="!text-xs font-medium font-mono text-surface-400 uppercase tracking-wider">
-										Solution
-									</h4>
-									<p className="!text-sm text-surface-700 leading-relaxed dark:text-surface-300">
+									<h4 className="portfolio-kicker text-surface-400">Solution</h4>
+									<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
 										{solution}
 									</p>
 								</div>
@@ -203,10 +197,7 @@ export function ProjectCardGallery({
 					{/* Tags — Hard Edge (0 radius) */}
 					<div className="flex flex-wrap gap-2">
 						{tags.map((tag) => (
-							<span
-								key={`${index}-tag-${tag}`}
-								className="inline-block border border-surface-200 bg-surface-50 px-2 py-1 font-mono text-[10px] text-surface-700 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-900 dark:text-surface-300"
-							>
+							<span key={`${index}-tag-${tag}`} className="portfolio-chip">
 								{tag}
 							</span>
 						))}

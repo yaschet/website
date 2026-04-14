@@ -30,10 +30,10 @@ function FormField({
 	const Comp = isTextArea ? Textarea : Input;
 
 	return (
-		<div className="group space-y-2.5">
+		<div className="group space-y-3">
 			<Label
 				htmlFor={field.name}
-				className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
+				className="portfolio-kicker block text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
 			>
 				{label}
 			</Label>
@@ -51,7 +51,7 @@ function FormField({
 				hasError={field.state.meta.isTouched && !!field.state.meta.errors.length}
 			/>
 			{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-				<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
+				<p className="portfolio-caption font-medium text-destructive">
 					{field.state.meta.errors[0]?.message ?? String(field.state.meta.errors[0])}
 				</p>
 			)}

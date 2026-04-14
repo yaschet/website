@@ -51,7 +51,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 											<ModuleContainer className="mx-auto">
 												<Link
 													href="/projects"
-													className="mb-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-foreground"
+													className="portfolio-kicker mb-8 inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
 												>
 													<ArrowLeft size={14} weight="bold" />
 													<span>Back to Projects</span>
@@ -77,29 +77,29 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 														</div>
 													)}
 
-												<h1 className="mb-4 text-foreground text-heading-xl">
+												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-4 text-foreground">
 													{project.title}
 												</h1>
 
-												<div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+												<div className="portfolio-inline-meta mb-6">
 													<time className="font-mono text-muted-foreground text-xs tabular-nums">
 														{formatDate(project.date)}
 													</time>
 													{projectData.readingTime && (
-														<span className="flex items-center gap-1.5 font-mono text-muted-foreground text-xs">
+														<span className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
 															<Clock size={12} weight="bold" />
 															{projectData.readingTime} min read
 														</span>
 													)}
 													{project.featured && (
-														<span className="border border-primary px-2 py-0.5 font-mono text-[10px] text-primary uppercase tracking-wider">
+														<span className="portfolio-chip border-primary text-primary">
 															Featured
 														</span>
 													)}
 												</div>
 
 												<ProseContainer>
-													<p className="mb-12 text-body-lg text-muted-foreground">
+													<p className="portfolio-body-lg mb-12 text-muted-foreground">
 														{project.description}
 													</p>
 												</ProseContainer>
@@ -135,7 +135,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 																	(item: string) => (
 																		<span
 																			key={item}
-																			className="border border-surface-200 bg-surface-50 px-2 py-0.5 font-mono text-[11px] text-surface-600 uppercase tracking-tight dark:border-surface-800 dark:bg-surface-900 dark:text-surface-400"
+																			className="portfolio-chip"
 																		>
 																			{item}
 																		</span>
@@ -156,7 +156,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 																		(tech: string) => (
 																			<span
 																				key={tech}
-																				className="border border-surface-200 bg-surface-50 px-2 py-0.5 font-mono text-[11px] text-surface-600 uppercase tracking-tight dark:border-surface-800 dark:bg-surface-900 dark:text-surface-400"
+																				className="portfolio-chip"
 																			>
 																				{tech}
 																			</span>
@@ -263,8 +263,8 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ModuleContainer className="mx-auto">
-												<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-													<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+												<div className="portfolio-action-band">
+													<h2 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
 														Building something similar?
 													</h2>
 													<Button

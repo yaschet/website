@@ -6,6 +6,7 @@ import { FloatingNav } from "@components/layout/floating-nav";
 import RootProvider from "@components/providers/root-provider";
 
 import { fontVariables } from "@/lib/fonts";
+import { PortfolioTypeStyles } from "@/src/components/layout/portfolio-type-styles";
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://yaschet.dev"),
@@ -86,6 +87,7 @@ export default function RootLayout({
 	return (
 		<html suppressHydrationWarning lang="en" className={fontVariables}>
 			<head>
+				<PortfolioTypeStyles />
 				<Script
 					id="person-schema"
 					type="application/ld+json"

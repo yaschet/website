@@ -90,13 +90,13 @@ const buttonVariants = cva(
 				destructive: "",
 			},
 			size: {
-				xs: "h-7 gap-1.5 px-2.5 text-xs",
-				sm: "h-[var(--portfolio-control-sm)] gap-1.5 px-3 text-xs",
+				xs: "h-7 gap-1 px-2 text-xs",
+				sm: "h-[var(--portfolio-control-sm)] gap-2 px-3 text-xs",
 				md: "h-[var(--portfolio-control-md)] gap-2 px-4 text-sm",
 				lg: "h-[var(--portfolio-control-lg)] gap-2 px-5 text-sm",
-				xl: "h-14 gap-2.5 px-6 text-base",
+				xl: "h-[var(--portfolio-control-xl)] gap-2 px-6 text-base",
 				icon: "size-10 p-2",
-				"icon-sm": "size-8 p-1.5",
+				"icon-sm": "size-8 p-2",
 				"icon-lg": "size-12 p-3",
 			},
 			shape: {

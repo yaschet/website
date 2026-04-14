@@ -1379,25 +1379,30 @@
   --text-display-xl--font-weight: 500;
 
   --text-heading-xl: 3rem;
-  --text-heading-xl--line-height: var(--leading-heading);
+  --text-heading-xl--line-height: 3rem;
   --text-heading-xl--letter-spacing: var(--tracking-tighter);
   --text-heading-xl--font-weight: 500;
 
   --text-heading-lg: 2.25rem;
-  --text-heading-lg--line-height: var(--leading-heading);
+  --text-heading-lg--line-height: 2.5rem;
   --text-heading-lg--letter-spacing: var(--tracking-tight);
   --text-heading-lg--font-weight: 500;
 
+  --text-heading-sm: 1.75rem;
+  --text-heading-sm--line-height: 2rem;
+  --text-heading-sm--letter-spacing: var(--tracking-snug);
+  --text-heading-sm--font-weight: 500;
+
   --text-body-lg: 1.125rem;
-  --text-body-lg--line-height: var(--leading-body);
+  --text-body-lg--line-height: 1.75rem;
   --text-body-lg--letter-spacing: var(--tracking-normal);
 
   --text-body-md: 1.0625rem;
-  --text-body-md--line-height: var(--leading-body);
+  --text-body-md--line-height: 1.75rem;
   --text-body-md--letter-spacing: var(--tracking-normal);
 
   --text-body-sm: 0.9375rem;
-  --text-body-sm--line-height: 1.6;
+  --text-body-sm--line-height: 1.5rem;
   --text-body-sm--letter-spacing: 0em;
 
   /* GEOMETRY: Machined Radius System (Precision Tolerances) */
@@ -1428,19 +1433,28 @@
 
 :root {
   --portfolio-rhythm: 0.25rem; /* 4px */
+  --portfolio-space-1: calc(var(--portfolio-rhythm) * 1); /* 4px */
   --portfolio-space-2: calc(var(--portfolio-rhythm) * 2); /* 8px */
   --portfolio-space-3: calc(var(--portfolio-rhythm) * 3); /* 12px */
   --portfolio-space-4: calc(var(--portfolio-rhythm) * 4); /* 16px */
+  --portfolio-space-5: calc(var(--portfolio-rhythm) * 5); /* 20px */
   --portfolio-space-6: calc(var(--portfolio-rhythm) * 6); /* 24px */
   --portfolio-space-8: calc(var(--portfolio-rhythm) * 8); /* 32px */
+  --portfolio-space-10: calc(var(--portfolio-rhythm) * 10); /* 40px */
   --portfolio-space-12: calc(var(--portfolio-rhythm) * 12); /* 48px */
+  --portfolio-space-14: calc(var(--portfolio-rhythm) * 14); /* 56px */
   --portfolio-space-16: calc(var(--portfolio-rhythm) * 16); /* 64px */
   --portfolio-control-sm: calc(var(--portfolio-rhythm) * 8); /* 32px */
   --portfolio-control-md: calc(var(--portfolio-rhythm) * 10); /* 40px */
   --portfolio-control-lg: calc(var(--portfolio-rhythm) * 12); /* 48px */
+  --portfolio-control-xl: calc(var(--portfolio-rhythm) * 14); /* 56px */
   --portfolio-box-pad-mobile: var(--portfolio-space-6);
   --portfolio-box-pad-desktop: var(--portfolio-space-8);
-  --portfolio-nav-clearance: 7.375rem;
+  --portfolio-nav-clearance: calc(var(--portfolio-rhythm) * 28); /* 112px */
+  --portfolio-avatar-size: calc(var(--portfolio-rhythm) * 14); /* 56px */
+  --portfolio-badge-height: calc(var(--portfolio-rhythm) * 7); /* 28px */
+  --portfolio-icon-touch: calc(var(--portfolio-rhythm) * 10); /* 40px */
+  --portfolio-icon-sm: calc(var(--portfolio-rhythm) * 4); /* 16px */
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1448,6 +1462,51 @@
    Component-level overrides and specialized UI abstractions.
    ═══════════════════════════════════════════════════════════════════════════ */
 @layer components {
+  .portfolio-heading-xl {
+    font-size: 3rem;
+    line-height: 3rem;
+    letter-spacing: var(--tracking-tighter);
+    font-weight: 500;
+  }
+
+  .portfolio-heading-lg {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    letter-spacing: var(--tracking-tight);
+    font-weight: 500;
+  }
+
+  .portfolio-heading-sm {
+    font-size: 1.75rem;
+    line-height: 2rem;
+    letter-spacing: var(--tracking-snug);
+    font-weight: 500;
+  }
+
+  .portfolio-body-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    letter-spacing: var(--tracking-normal);
+  }
+
+  .portfolio-body-md {
+    font-size: 1.0625rem;
+    line-height: 1.75rem;
+    letter-spacing: var(--tracking-normal);
+  }
+
+  .portfolio-body-sm {
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+    letter-spacing: 0em;
+  }
+
+  .portfolio-caption {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    letter-spacing: 0em;
+  }
+
   .portfolio-box-pad {
     padding: var(--portfolio-box-pad-mobile);
   }
@@ -1485,6 +1544,74 @@
     gap: var(--portfolio-space-4);
   }
 
+  .portfolio-action-band {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--portfolio-space-6);
+  }
+
+  .portfolio-inline-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--portfolio-space-4);
+    row-gap: var(--portfolio-space-2);
+  }
+
+  .portfolio-kicker {
+    font-family: var(--font-app-mono), ui-monospace, monospace;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .portfolio-prose {
+    color: var(--surface-600);
+    font-size: 1.0625rem;
+    line-height: 1.75rem;
+    letter-spacing: var(--tracking-normal);
+  }
+
+  .portfolio-prose > * + * {
+    margin-top: var(--portfolio-space-6);
+  }
+
+  .dark .portfolio-prose {
+    color: var(--surface-400);
+  }
+
+  .portfolio-chip {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--surface-200);
+    background: var(--surface-50);
+    padding-inline: var(--portfolio-space-2);
+    padding-block: var(--portfolio-space-1);
+    font-family: var(--font-app-mono), ui-monospace, monospace;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--surface-700);
+  }
+
+  .dark .portfolio-chip {
+    border-color: var(--surface-700);
+    background: var(--surface-900);
+    color: var(--surface-300);
+  }
+
+  .portfolio-link-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--portfolio-space-4);
+    row-gap: var(--portfolio-space-2);
+  }
+
   .portfolio-meta-label {
     font-size: 0.75rem;
     font-weight: 500;
@@ -1495,6 +1622,12 @@
   @media (min-width: 40rem) {
     .portfolio-box-pad {
       padding: var(--portfolio-box-pad-desktop);
+    }
+
+    .portfolio-action-band {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
     }
   }
 

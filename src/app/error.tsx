@@ -40,11 +40,11 @@ export default function AppError({
 										</div>
 									</div>
 
-									<h1 className="mb-3 font-semibold text-heading-md">
+									<h1 className="portfolio-heading-lg portfolio-capsize-heading-lg mb-3 text-surface-900 dark:text-surface-100">
 										System Interruption
 									</h1>
 
-									<p className="mb-10 max-w-md text-body-sm text-surface-500 dark:text-surface-400">
+									<p className="portfolio-body-sm mb-10 max-w-md text-surface-500 dark:text-surface-400">
 										The system encountered a runtime exception. This incident
 										has been logged.
 									</p>

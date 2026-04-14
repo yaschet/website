@@ -49,7 +49,7 @@ export default function Home() {
 										{/* Section Header */}
 										<ScrollReveal phase={3}>
 											<div className="mb-4">
-												<h2 className="font-mono text-sm text-surface-500 uppercase tracking-[0.18em] dark:text-surface-300">
+												<h2 className="portfolio-kicker text-surface-500 dark:text-surface-300">
 													Selected Work
 												</h2>
 											</div>
@@ -138,11 +138,11 @@ export default function Home() {
 								<section className="w-full">
 									<div className="portfolio-box-pad flex flex-col items-center justify-center text-center">
 										<div className="mb-4 flex items-center justify-center gap-2">
-											<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
+											<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 												Confidential Work
 											</p>
 										</div>
-										<p className="max-w-md text-sm text-surface-600 leading-relaxed dark:text-surface-400">
+										<p className="portfolio-body-sm max-w-md text-surface-600 dark:text-surface-400">
 											Due to strict NDAs and client privacy, most commercial
 											enterprise work cannot be publicly displayed.{" "}
 											<Link
@@ -162,9 +162,9 @@ export default function Home() {
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
 									<div className="portfolio-box-pad">
-										<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+										<div className="portfolio-action-band">
 											<div>
-												<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+												<h2 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
 													View selected work.
 												</h2>
 											</div>

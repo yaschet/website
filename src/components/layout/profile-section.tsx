@@ -28,6 +28,10 @@ export function ProfileSection() {
 									avatarBorder,
 									avatarBg,
 								)}
+								style={{
+									width: "var(--portfolio-avatar-size)",
+									height: "var(--portfolio-avatar-size)",
+								}}
 							>
 								<Image
 									src={avatarImage}
@@ -51,7 +55,7 @@ export function ProfileSection() {
 								<h1 className="font-semibold text-surface-900 text-xl dark:text-surface-100">
 									Yassine Chettouch
 								</h1>
-								<p className="text-body-sm text-surface-500 dark:text-surface-400">
+								<p className="portfolio-body-sm text-surface-500 dark:text-surface-400">
 									Software Engineer
 								</p>
 							</div>
@@ -63,33 +67,63 @@ export function ProfileSection() {
 								target="_blank"
 								aria-label="LinkedIn"
 								className={cn(
-									"inline-flex size-10 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
+									"inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
 									iconColor,
 								)}
+								style={{
+									width: "var(--portfolio-icon-touch)",
+									height: "var(--portfolio-icon-touch)",
+								}}
 							>
-								<LinkedinLogoIcon className="size-5" weight="regular" />
+								<LinkedinLogoIcon
+									weight="regular"
+									style={{
+										width: "var(--portfolio-icon-sm)",
+										height: "var(--portfolio-icon-sm)",
+									}}
+								/>
 							</Link>
 							<Link
 								href="https://github.com/yaschet"
 								target="_blank"
 								aria-label="GitHub"
 								className={cn(
-									"inline-flex size-10 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
+									"inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
 									iconColor,
 								)}
+								style={{
+									width: "var(--portfolio-icon-touch)",
+									height: "var(--portfolio-icon-touch)",
+								}}
 							>
-								<GithubLogoIcon className="size-5" weight="regular" />
+								<GithubLogoIcon
+									weight="regular"
+									style={{
+										width: "var(--portfolio-icon-sm)",
+										height: "var(--portfolio-icon-sm)",
+									}}
+								/>
 							</Link>
 							<Link
 								href="https://x.com/yaschett"
 								target="_blank"
 								aria-label="X"
 								className={cn(
-									"inline-flex size-10 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
+									"inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
 									iconColor,
 								)}
+								style={{
+									width: "var(--portfolio-icon-touch)",
+									height: "var(--portfolio-icon-touch)",
+								}}
 							>
-								<XLogoIcon className="size-5" weight="regular" />
+								<XLogoIcon
+									weight="regular"
+									style={{
+										width: "var(--portfolio-icon-sm)",
+										height: "var(--portfolio-icon-sm)",
+									}}
+								/>
 							</Link>
 						</div>
 					</div>

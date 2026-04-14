@@ -46,22 +46,22 @@ export function PostContentRSC({ post }: PostContentProps) {
 											<ModuleContainer className="mx-auto">
 												<Link
 													href="/blog"
-													className="mb-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-foreground"
+													className="portfolio-kicker mb-8 inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
 												>
 													<ArrowLeft size={14} weight="bold" />
 													<span>Back to Blog</span>
 												</Link>
 
-												<h1 className="mb-4 text-foreground text-heading-xl">
+												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-4 text-foreground">
 													{post.title}
 												</h1>
 
-												<div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+												<div className="portfolio-inline-meta mb-6">
 													<time className="font-mono text-muted-foreground text-xs tabular-nums">
 														{formatDate(post.date)}
 													</time>
 													{postData.readingTime && (
-														<span className="flex items-center gap-1.5 font-mono text-muted-foreground text-xs">
+														<span className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
 															<Clock size={12} weight="bold" />
 															{postData.readingTime} min read
 														</span>
@@ -69,7 +69,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 												</div>
 
 												<ProseContainer>
-													<p className="text-body-lg text-muted-foreground">
+													<p className="portfolio-body-lg text-muted-foreground">
 														{post.description}
 													</p>
 												</ProseContainer>
@@ -133,8 +133,8 @@ export function PostContentRSC({ post }: PostContentProps) {
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ModuleContainer className="mx-auto">
-												<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-													<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
+												<div className="portfolio-action-band">
+													<h2 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
 														Have thoughts on this?
 													</h2>
 													<Button
@@ -144,7 +144,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 														color="primary"
 													>
 														<Link href="/contact">
-															Discusss
+															Discuss
 															<ArrowRight
 																className="size-4"
 																weight="bold"
