@@ -171,7 +171,7 @@ export default function Home() {
 											<div className="portfolio-control-row">
 												<Button
 													asChild
-													size="lg"
+													size="md"
 													variant="outlined"
 													color="default"
 												>
@@ -179,7 +179,7 @@ export default function Home() {
 												</Button>
 												<Button
 													asChild
-													size="lg"
+													size="md"
 													variant="solid"
 													color="primary"
 												>

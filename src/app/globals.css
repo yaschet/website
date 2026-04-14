@@ -1515,11 +1515,13 @@
   }
 
   .portfolio-section {
-    padding-block: var(--portfolio-space-4);
+    padding-top: 0;
+    padding-bottom: var(--portfolio-space-4);
   }
 
   .portfolio-section-loose {
-    padding-block: var(--portfolio-space-4);
+    padding-top: 0;
+    padding-bottom: var(--portfolio-space-4);
   }
 
   .portfolio-section-top {

@@ -41,15 +41,19 @@ export default function AboutPage() {
 				<section id="story" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="portfolio-section-loose">
+							<PageContainer className="portfolio-section-top">
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ScrollReveal phase={2}>
-												<p className="portfolio-kicker mb-10 text-surface-400 dark:text-surface-500">
+												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 													01 · The Short Version
 												</p>
 											</ScrollReveal>
+										</div>
+									</SwissGridRow>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
 											<ProseContainer className="portfolio-prose">
 												<ScrollReveal phase={2} delay={0.05}>
 													<p>
@@ -100,7 +104,7 @@ export default function AboutPage() {
 				<section id="how-i-think" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="portfolio-section-loose">
+							<PageContainer className="portfolio-section-top">
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
@@ -179,15 +183,19 @@ export default function AboutPage() {
 				<section id="how-i-work" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="portfolio-section-loose">
+							<PageContainer className="portfolio-section-top">
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ScrollReveal phase={2}>
-												<p className="portfolio-kicker mb-10 text-surface-400 dark:text-surface-500">
+												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 													03 · Engineering Philosophy
 												</p>
 											</ScrollReveal>
+										</div>
+									</SwissGridRow>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
 											<ProseContainer className="portfolio-prose">
 												<ScrollReveal phase={2} delay={0.05}>
 													<p>
@@ -233,7 +241,7 @@ export default function AboutPage() {
 				<section id="about-contact" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
-							<PageContainer className="portfolio-section-loose">
+							<PageContainer className="portfolio-section-top">
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
@@ -243,7 +251,7 @@ export default function AboutPage() {
 												</h2>
 												<Button
 													asChild
-													size="lg"
+													size="md"
 													variant="solid"
 													color="primary"
 												>

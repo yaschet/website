@@ -45,7 +45,7 @@ export default function BlogPage() {
 											<Button
 												asChild
 												variant="outlined"
-												size="lg"
+												size="md"
 												color="primary"
 											>
 												<Link href="/">

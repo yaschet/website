@@ -104,7 +104,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 													</p>
 												</ProseContainer>
 
-												<div className="mb-10 grid grid-cols-1 gap-10 border-surface-200 border-t py-10 sm:grid-cols-2 dark:border-surface-800">
+												<div className="grid grid-cols-1 gap-10 border-surface-200 border-t pt-10 sm:grid-cols-2 dark:border-surface-800">
 													{project.role && (
 														<div className="flex flex-col gap-2.5">
 															<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
@@ -269,7 +269,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 													</h2>
 													<Button
 														asChild
-														size="lg"
+														size="md"
 														variant="solid"
 														color="primary"
 													>

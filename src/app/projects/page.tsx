@@ -184,7 +184,7 @@ export default function ProjectsPage() {
 												</h2>
 												<Button
 													asChild
-													size="lg"
+													size="md"
 													variant="solid"
 													color="primary"
 												>

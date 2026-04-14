@@ -139,7 +139,7 @@ export function ContactForm() {
 				{([canSubmit, isSubmitting]) => (
 					<Button
 						type="submit"
-						size="lg"
+						size="md"
 						variant="solid"
 						color="primary"
 						disabled={!canSubmit || isSubmitting}

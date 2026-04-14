@@ -41,7 +41,7 @@ export default function NotFound() {
 									</Reveal>
 
 									<Reveal phase={3} delay={0.3}>
-										<Button asChild size="lg" variant="outlined">
+										<Button asChild size="md" variant="outlined">
 											<Link href="/">
 												<ArrowLeft className="mr-2.5 size-5" />
 												Return to Base

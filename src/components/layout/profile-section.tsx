@@ -12,7 +12,7 @@ export function ProfileSection() {
 	// Standard theme colors since we removed mesh gradient dependency
 	const textSecondary = "text-surface-500";
 	const iconColor =
-		"text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-100";
+		"text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-100 bg-surface-100/50 hover:bg-surface-200/50 dark:bg-surface-800/50 dark:hover:bg-surface-700/50";
 	const avatarBorder = "border-surface-200 dark:border-surface-800";
 	const avatarBg = "bg-surface-100 dark:bg-surface-900";
 

@@ -139,7 +139,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 													</h2>
 													<Button
 														asChild
-														size="lg"
+														size="md"
 														variant="solid"
 														color="primary"
 													>

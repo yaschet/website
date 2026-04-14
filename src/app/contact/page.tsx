@@ -67,7 +67,7 @@ export default function ContactPage() {
 													<div className="pt-2.5">
 														<Button
 															asChild
-															size="lg"
+															size="md"
 															variant="solid"
 															color="accent"
 														>

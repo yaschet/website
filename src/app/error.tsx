@@ -49,7 +49,7 @@ export default function AppError({
 										has been logged.
 									</p>
 
-									<Button onClick={() => reset()} size="lg" variant="solid">
+									<Button onClick={() => reset()} size="md" variant="solid">
 										<ArrowClockwise className="mr-2.5 size-5" />
 										Reboot System
 									</Button>
