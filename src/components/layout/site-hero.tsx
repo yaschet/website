@@ -2,45 +2,37 @@
 
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/src/components/ui/button";
 import { DotGrid } from "@/src/components/ui/dot-grid";
 import { Reveal } from "@/src/components/ui/reveal";
 
-const HERO_BASELINE = 10;
-const HERO_GRID_STEP = HERO_BASELINE * 2;
-const HERO_GRID_MIN_INSET = HERO_GRID_STEP;
-const HERO_CONTENT_INSET = HERO_GRID_STEP * 2;
+const HERO_BASELINE = "var(--portfolio-rhythm)";
+const HERO_GRID_STEP = "var(--portfolio-grid-step)";
+const HERO_GRID_MIN_INSET = "var(--portfolio-space-2)";
+const HERO_CONTENT_INSET = "var(--portfolio-space-4)";
 const HERO_SECTION_ROWS = 28;
-const HERO_SECTION_HEIGHT = HERO_SECTION_ROWS * HERO_BASELINE;
-const HERO_HEAD_LINE = HERO_BASELINE * 6;
-const HERO_BODY_LINE = HERO_BASELINE * 3;
-const HERO_TEXT_WIDTH = HERO_GRID_STEP * 34;
+const HERO_SECTION_HEIGHT = "calc(var(--portfolio-rhythm) * 28)";
+const HERO_HEAD_LINE = "var(--portfolio-space-6)";
+const HERO_BODY_LINE = "var(--portfolio-space-3)";
+const HERO_TEXT_WIDTH = "calc(var(--portfolio-grid-step) * 34)";
 const HERO_BASELINE_ROWS = HERO_SECTION_ROWS;
 const HERO_HEAD_START_ROW = 5;
 const HERO_BODY_START_ROW = 11;
 const HERO_CTA_START_ROW = 21;
-const HERO_CTA_PRIMARY_WIDTH = HERO_GRID_STEP * 7;
-const HERO_CTA_SECONDARY_WIDTH = HERO_GRID_STEP * 4;
+const HERO_CTA_PRIMARY_WIDTH = "calc(var(--portfolio-grid-step) * 7)";
+const HERO_CTA_SECONDARY_WIDTH = "calc(var(--portfolio-grid-step) * 4)";
 const HERO_HEAD_OPTICAL_TRIM = -2;
 const HERO_BODY_OPTICAL_TRIM = -1;
 
 function HeroContent() {
-	const contentStyle = useMemo(
-		() => ({
-			paddingInline: `${HERO_CONTENT_INSET}px`,
-			minHeight: `${HERO_SECTION_HEIGHT}px`,
-		}),
-		[],
-	);
-
 	return (
 		<div
 			className="relative z-10 grid"
 			style={{
-				...contentStyle,
-				gridTemplateRows: `repeat(${HERO_BASELINE_ROWS}, ${HERO_BASELINE}px)`,
+				paddingInline: HERO_CONTENT_INSET,
+				minHeight: HERO_SECTION_HEIGHT,
+				gridTemplateRows: `repeat(${HERO_BASELINE_ROWS}, ${HERO_BASELINE})`,
 			}}
 		>
 			<div style={{ gridRow: `${HERO_HEAD_START_ROW} / span 6` }}>
@@ -82,8 +74,8 @@ function HeroContent() {
 					<div
 						className="grid h-full"
 						style={{
-							columnGap: `${HERO_GRID_STEP}px`,
-							gridTemplateColumns: `${HERO_CTA_PRIMARY_WIDTH}px ${HERO_CTA_SECONDARY_WIDTH}px`,
+							columnGap: HERO_GRID_STEP,
+							gridTemplateColumns: `${HERO_CTA_PRIMARY_WIDTH} ${HERO_CTA_SECONDARY_WIDTH}`,
 						}}
 					>
 						<Button
@@ -121,6 +113,7 @@ function HeroDataPlane() {
 			<DotGrid
 				step={HERO_GRID_STEP}
 				minInset={HERO_GRID_MIN_INSET}
+				origin="inset"
 				radius={1.15}
 				className="text-[rgba(17,94,81,0.24)] dark:text-[rgba(51,255,234,0.54)]"
 			/>
@@ -133,7 +126,7 @@ export function SiteHero() {
 		<section
 			id="hero"
 			className="relative isolate w-full overflow-hidden"
-			style={{ minHeight: `${HERO_SECTION_HEIGHT}px` }}
+			style={{ minHeight: HERO_SECTION_HEIGHT }}
 		>
 			<HeroDataPlane />
 			<HeroContent />
