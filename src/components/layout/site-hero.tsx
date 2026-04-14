@@ -2,7 +2,7 @@
 
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/src/components/ui/button";
 import { DotGrid } from "@/src/components/ui/dot-grid";
@@ -11,30 +11,39 @@ import { Reveal } from "@/src/components/ui/reveal";
 const HERO_BASELINE = 10;
 const HERO_GRID_STEP = HERO_BASELINE * 2;
 const HERO_GRID_MIN_INSET = HERO_GRID_STEP;
-const HERO_VERTICAL_INSET = HERO_GRID_STEP * 2;
-const HERO_STACK_GAP = HERO_GRID_STEP;
+const HERO_CONTENT_INSET = HERO_GRID_STEP * 2;
+const HERO_SECTION_ROWS = 28;
+const HERO_SECTION_HEIGHT = HERO_SECTION_ROWS * HERO_BASELINE;
 const HERO_HEAD_LINE = HERO_BASELINE * 6;
 const HERO_BODY_LINE = HERO_BASELINE * 3;
-const HERO_BUTTON_HEIGHT = HERO_BASELINE * 4;
-const HERO_TEXT_WIDTH = HERO_GRID_STEP * 36;
+const HERO_TEXT_WIDTH = HERO_GRID_STEP * 34;
+const HERO_BASELINE_ROWS = HERO_SECTION_ROWS;
+const HERO_HEAD_START_ROW = 5;
+const HERO_BODY_START_ROW = 11;
+const HERO_CTA_START_ROW = 21;
+const HERO_CTA_PRIMARY_WIDTH = HERO_GRID_STEP * 7;
+const HERO_CTA_SECONDARY_WIDTH = HERO_GRID_STEP * 4;
+const HERO_HEAD_OPTICAL_TRIM = -2;
+const HERO_BODY_OPTICAL_TRIM = -1;
 
-function HeroContent({ insetX }: { insetX: number }) {
+function HeroContent() {
 	const contentStyle = useMemo(
 		() => ({
-			paddingBlock: `${HERO_VERTICAL_INSET}px`,
-			paddingInline: `${insetX}px`,
+			paddingInline: `${HERO_CONTENT_INSET}px`,
+			minHeight: `${HERO_SECTION_HEIGHT}px`,
 		}),
-		[insetX],
+		[],
 	);
 
 	return (
-		<div className="relative z-10" style={contentStyle}>
-			<div
-				className="grid"
-				style={{
-					rowGap: `${HERO_STACK_GAP}px`,
-				}}
-			>
+		<div
+			className="relative z-10 grid"
+			style={{
+				...contentStyle,
+				gridTemplateRows: `repeat(${HERO_BASELINE_ROWS}, ${HERO_BASELINE}px)`,
+			}}
+		>
+			<div style={{ gridRow: `${HERO_HEAD_START_ROW} / span 6` }}>
 				<Reveal phase={2}>
 					<h2
 						className={cn(
@@ -43,11 +52,14 @@ function HeroContent({ insetX }: { insetX: number }) {
 						style={{
 							lineHeight: HERO_HEAD_LINE,
 							margin: 0,
+							transform: `translateY(${HERO_HEAD_OPTICAL_TRIM}px)`,
 						}}
 					>
 						I build products for the web.
 					</h2>
 				</Reveal>
+			</div>
+			<div style={{ gridRow: `${HERO_BODY_START_ROW} / span 6` }}>
 				<Reveal phase={2} delay={0.05}>
 					<p
 						className={cn(
@@ -57,18 +69,21 @@ function HeroContent({ insetX }: { insetX: number }) {
 							lineHeight: HERO_BODY_LINE,
 							margin: 0,
 							maxWidth: HERO_TEXT_WIDTH,
+							transform: `translateY(${HERO_BODY_OPTICAL_TRIM}px)`,
 						}}
 					>
 						Web apps. SaaS platforms. Internal tools. From the first idea to the final
 						deploy. Complex systems that feel effortless.
 					</p>
 				</Reveal>
-				<Reveal phase={2} delay={0.1}>
+			</div>
+			<div style={{ gridRow: `${HERO_CTA_START_ROW} / span 4` }}>
+				<Reveal phase={2} delay={0.1} className="h-full">
 					<div
-						className="flex flex-wrap items-center"
+						className="grid h-full"
 						style={{
 							columnGap: `${HERO_GRID_STEP}px`,
-							rowGap: `${HERO_BASELINE}px`,
+							gridTemplateColumns: `${HERO_CTA_PRIMARY_WIDTH}px ${HERO_CTA_SECONDARY_WIDTH}px`,
 						}}
 					>
 						<Button
@@ -76,8 +91,7 @@ function HeroContent({ insetX }: { insetX: number }) {
 							size="md"
 							variant="solid"
 							color="primary"
-							className="px-5"
-							style={{ height: `${HERO_BUTTON_HEIGHT}px` }}
+							className="h-full w-full justify-center px-0 py-0 leading-none"
 						>
 							<Link href="/projects">
 								Case Studies
@@ -87,10 +101,9 @@ function HeroContent({ insetX }: { insetX: number }) {
 						<Button
 							asChild
 							size="md"
-							variant="outlined"
+							variant="soft"
 							color="default"
-							className="px-5"
-							style={{ height: `${HERO_BUTTON_HEIGHT}px` }}
+							className="h-full w-full justify-center px-0 py-0 leading-none"
 						>
 							<Link href="/contact">Email</Link>
 						</Button>
@@ -101,7 +114,7 @@ function HeroContent({ insetX }: { insetX: number }) {
 	);
 }
 
-function HeroDataPlane({ onMetricsChange }: { onMetricsChange: (offsetX: number) => void }) {
+function HeroDataPlane() {
 	return (
 		<div className="pointer-events-none absolute inset-0" aria-hidden="true">
 			<div className="absolute inset-0 bg-white dark:bg-surface-900" />
@@ -109,7 +122,6 @@ function HeroDataPlane({ onMetricsChange }: { onMetricsChange: (offsetX: number)
 				step={HERO_GRID_STEP}
 				minInset={HERO_GRID_MIN_INSET}
 				radius={1.15}
-				onMetricsChange={({ offsetX }) => onMetricsChange(offsetX + HERO_GRID_STEP)}
 				className="text-[rgba(17,94,81,0.24)] dark:text-[rgba(51,255,234,0.54)]"
 			/>
 		</div>
@@ -117,15 +129,14 @@ function HeroDataPlane({ onMetricsChange }: { onMetricsChange: (offsetX: number)
 }
 
 export function SiteHero() {
-	const [contentInsetX, setContentInsetX] = useState(HERO_GRID_STEP * 2);
-	const handleMetricsChange = useCallback((nextInsetX: number) => {
-		setContentInsetX((current) => (Math.abs(current - nextInsetX) < 1 ? current : nextInsetX));
-	}, []);
-
 	return (
-		<section id="hero" className="relative isolate w-full overflow-hidden">
-			<HeroDataPlane onMetricsChange={handleMetricsChange} />
-			<HeroContent insetX={contentInsetX} />
+		<section
+			id="hero"
+			className="relative isolate w-full overflow-hidden"
+			style={{ minHeight: `${HERO_SECTION_HEIGHT}px` }}
+		>
+			<HeroDataPlane />
+			<HeroContent />
 		</section>
 	);
 }

@@ -3,18 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
-type DotGridMetrics = {
-	offsetX: number;
-	offsetY: number;
-	step: number;
-};
-
 interface DotGridProps {
 	className?: string;
 	step?: number;
 	minInset?: number;
 	radius?: number;
-	onMetricsChange?: (metrics: DotGridMetrics) => void;
 }
 
 function computeGridAxis(size: number, step: number, minInset: number) {
@@ -25,13 +18,7 @@ function computeGridAxis(size: number, step: number, minInset: number) {
 	return { count, offset };
 }
 
-export function DotGrid({
-	className,
-	step = 18,
-	minInset = 12,
-	radius = 1.15,
-	onMetricsChange,
-}: DotGridProps) {
+export function DotGrid({ className, step = 18, minInset = 12, radius = 1.15 }: DotGridProps) {
 	const ref = useRef<HTMLDivElement>(null);
 	const [size, setSize] = useState({ width: 0, height: 0 });
 
@@ -66,15 +53,6 @@ export function DotGrid({
 					return { cx, cy, key: `${cx}-${cy}` };
 				})
 			: [];
-
-	useEffect(() => {
-		if (!columns || !rows || !onMetricsChange) return;
-		onMetricsChange({
-			offsetX: columns.offset,
-			offsetY: rows.offset,
-			step,
-		});
-	}, [columns, onMetricsChange, rows, step]);
 
 	return (
 		<div
