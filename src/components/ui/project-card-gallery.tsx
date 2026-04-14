@@ -105,7 +105,7 @@ export function ProjectCardGallery({
 						/>
 						{isPrivate && (
 							<div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-50/10 backdrop-blur-3xl transition-all duration-500 dark:bg-surface-900/40">
-								<div className="flex items-center gap-3 rounded-full border border-surface-200/20 bg-surface-50/10 px-4 py-1.5 backdrop-blur-md dark:border-surface-800/20 dark:bg-surface-900/10">
+								<div className="flex items-center gap-2 rounded-full border border-surface-200/20 bg-surface-50/10 px-4 py-1 backdrop-blur-md dark:border-surface-800/20 dark:bg-surface-900/10">
 									<Lock
 										weight="fill"
 										className="size-3 text-surface-900 opacity-60 dark:text-surface-100"
@@ -131,7 +131,7 @@ export function ProjectCardGallery({
 				)}
 
 				{/* DATA ZONE — Solid Background, Maximum Legibility */}
-				<div className="p-6">
+				<div className="portfolio-box-pad">
 					{/* Header Row */}
 					<div className="mb-6 flex flex-col gap-4">
 						{/* Meta Layer: Functional Data — ZERO BORDERS, PURE SPACE */}
@@ -178,7 +178,7 @@ export function ProjectCardGallery({
 					{(challenge || solution) && (
 						<div className="mb-6 space-y-4">
 							{challenge && (
-								<div className="space-y-1.5">
+								<div className="space-y-2">
 									<h4 className="!text-xs font-medium font-mono text-surface-400 uppercase tracking-wider">
 										Challenge
 									</h4>
@@ -188,7 +188,7 @@ export function ProjectCardGallery({
 								</div>
 							)}
 							{solution && (
-								<div className="space-y-1.5">
+								<div className="space-y-2">
 									<h4 className="!text-xs font-medium font-mono text-surface-400 uppercase tracking-wider">
 										Solution
 									</h4>
@@ -201,11 +201,11 @@ export function ProjectCardGallery({
 					)}
 
 					{/* Tags — Hard Edge (0 radius) */}
-					<div className="flex flex-wrap gap-1.5">
+					<div className="flex flex-wrap gap-2">
 						{tags.map((tag) => (
 							<span
 								key={`${index}-tag-${tag}`}
-								className="inline-block border border-surface-200 bg-surface-50 px-2 py-0.5 font-mono text-[10px] text-surface-700 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-900 dark:text-surface-300"
+								className="inline-block border border-surface-200 bg-surface-50 px-2 py-1 font-mono text-[10px] text-surface-700 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-900 dark:text-surface-300"
 							>
 								{tag}
 							</span>

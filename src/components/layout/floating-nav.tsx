@@ -27,6 +27,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import type { ComponentType, CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useReveal } from "@/src/components/providers/reveal-provider";
@@ -39,7 +40,11 @@ import { cn, springs } from "@/src/lib/index";
 type NavItem = {
 	name: string;
 	link: string;
-	icon: React.ElementType;
+	icon: ComponentType<{
+		className?: string;
+		style?: CSSProperties;
+		weight?: "regular" | "bold";
+	}>;
 };
 
 const navItems: NavItem[] = [
@@ -136,7 +141,7 @@ export function FloatingNav() {
 	};
 
 	return (
-		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-29.5 items-center justify-center px-6">
+		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-[var(--portfolio-nav-clearance)] items-center justify-center px-6">
 			<motion.nav
 				initial={{ y: 20, opacity: 0 }}
 				animate={isEnabled ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}

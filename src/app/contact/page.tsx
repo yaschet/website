@@ -29,10 +29,10 @@ export default function ContactPage() {
 				<section id="contact-header" className="relative w-full">
 					<Reveal phase={1} className="relative z-10 w-full">
 						<section className="w-full">
-							<PageContainer className="pt-8 pb-16">
+							<PageContainer className="portfolio-section-top-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 												Contact
 											</p>
@@ -52,7 +52,7 @@ export default function ContactPage() {
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr]">
 												<div className="space-y-3">
 													<p className="font-mono text-surface-500 text-xs uppercase tracking-[0.18em] dark:text-surface-400">
@@ -145,10 +145,10 @@ export default function ContactPage() {
 				<section id="form" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="py-12">
+							<PageContainer className="portfolio-section">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<ContactForm />
 										</div>
 									</SwissGridRow>
@@ -159,7 +159,7 @@ export default function ContactPage() {
 				</section>
 			</main>
 			<SiteFooter />
-			<section id="nav-spacer" className="h-29.5 w-full" />
+			<section id="nav-spacer" className="portfolio-nav-spacer w-full" />
 		</div>
 	);
 }

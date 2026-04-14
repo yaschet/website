@@ -20,7 +20,7 @@ export function ProfileSection() {
 		<section id="profile" className="relative z-10 w-full shrink-0">
 			<Reveal phase={1} className="w-full">
 				<div className="w-full">
-					<div className="flex h-full items-center justify-between p-6 sm:p-8">
+					<div className="portfolio-box-pad flex h-full items-center justify-between">
 						<div className="flex items-center gap-4">
 							<Avatar
 								className={cn(
@@ -57,7 +57,7 @@ export function ProfileSection() {
 							</div>
 						</div>
 
-						<div className="flex items-center gap-0.5">
+						<div className="flex items-center gap-1">
 							<Link
 								href="https://linkedin.com/in/yassinechettouch"
 								target="_blank"

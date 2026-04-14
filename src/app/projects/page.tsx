@@ -40,10 +40,10 @@ export default function ProjectsPage() {
 				<section id="projects-header" className="w-full">
 					<Reveal phase={1} className="w-full">
 						<section className="w-full">
-							<PageContainer className="pt-8 pb-16">
+							<PageContainer className="portfolio-section-top-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<p className="mb-2 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 												Work
 											</p>
@@ -67,10 +67,10 @@ export default function ProjectsPage() {
 
 				{/* Projects Grid */}
 				<section id="projects-list" className="w-full">
-					<PageContainer className="py-12">
+					<PageContainer className="portfolio-section">
 						<SwissGridBox>
 							<SwissGridRow>
-								<div className="p-6 sm:p-8">
+								<div className="portfolio-box-pad">
 									<div className="space-y-10">
 										{projects.map((project, i) => (
 											<ScrollReveal
@@ -153,10 +153,10 @@ export default function ProjectsPage() {
 				<section id="projects-nda" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="py-16">
+							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="flex flex-col items-center justify-center p-6 text-center sm:p-8">
+										<div className="portfolio-box-pad flex flex-col items-center justify-center text-center">
 											<div className="mb-4 flex items-center justify-center gap-2">
 												<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
 													Confidential Work
@@ -177,7 +177,7 @@ export default function ProjectsPage() {
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
 												<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
 													View engineering philosophy.
@@ -206,7 +206,7 @@ export default function ProjectsPage() {
 				</section>
 			</main>
 			<SiteFooter />
-			<section id="nav-spacer" className="h-29.5 w-full" />
+			<section id="nav-spacer" className="portfolio-nav-spacer w-full" />
 		</div>
 	);
 }

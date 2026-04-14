@@ -26,10 +26,10 @@ export default function AppError({
 
 			{/* 2. CONTENT CELL */}
 			<section id="error-content" className="relative z-10 w-full">
-				<PageContainer className="pt-8 pb-24 text-center">
+				<PageContainer className="portfolio-section-top-loose text-center">
 					<SwissGridBox>
 						<SwissGridRow>
-							<div className="p-6 sm:p-8">
+							<div className="portfolio-box-pad">
 								<ProseContainer className="mx-auto flex flex-col items-center justify-center">
 									<div className="mb-8 flex justify-center">
 										<div className="flex size-14 items-center justify-center bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-900 dark:text-surface-50">

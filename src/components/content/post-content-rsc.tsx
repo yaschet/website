@@ -39,10 +39,10 @@ export function PostContentRSC({ post }: PostContentProps) {
 				<section id="post-header" className="w-full">
 					<Reveal phase={1} className="w-full">
 						<section className="w-full">
-							<PageContainer className="pt-8">
+							<PageContainer className="portfolio-section-top">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<ModuleContainer className="mx-auto">
 												<Link
 													href="/blog"
@@ -86,10 +86,10 @@ export function PostContentRSC({ post }: PostContentProps) {
 				<section id="post-content" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="py-16">
+							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<ModuleContainer className="mx-auto">
 												<article>
 													<MDXRemote
@@ -128,10 +128,10 @@ export function PostContentRSC({ post }: PostContentProps) {
 				<section id="post-cta" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
-							<PageContainer className="py-16">
+							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<ModuleContainer className="mx-auto">
 												<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
 													<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
@@ -165,7 +165,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 				<ReadingBracket />
 			</main>
 			<SiteFooter />
-			<section id="nav-spacer" className="h-29.5 w-full" />
+			<section id="nav-spacer" className="portfolio-nav-spacer w-full" />
 		</div>
 	);
 }

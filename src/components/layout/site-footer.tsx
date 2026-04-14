@@ -16,7 +16,7 @@ export function SiteFooter() {
 	return (
 		<footer className="relative z-10 w-full bg-transparent text-surface-900 dark:text-surface-50">
 			<section id="footer" className="w-full">
-				<PageContainer className="py-6">
+				<PageContainer className="portfolio-footer-pad">
 					<div className="flex flex-col gap-3 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
 						<div className="flex flex-col gap-1">
 							<span className="font-medium text-surface-600 text-xs dark:text-surface-300">

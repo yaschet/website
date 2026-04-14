@@ -45,7 +45,7 @@ export default function Home() {
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
-									<div className="p-6 sm:p-8">
+									<div className="portfolio-box-pad">
 										{/* Section Header */}
 										<ScrollReveal phase={3}>
 											<div className="mb-4">
@@ -136,7 +136,7 @@ export default function Home() {
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
-									<div className="flex flex-col items-center justify-center p-6 text-center sm:p-8">
+									<div className="portfolio-box-pad flex flex-col items-center justify-center text-center">
 										<div className="mb-4 flex items-center justify-center gap-2">
 											<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
 												Confidential Work
@@ -161,14 +161,14 @@ export default function Home() {
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
-									<div className="p-6 sm:p-8">
+									<div className="portfolio-box-pad">
 										<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
 											<div>
 												<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
 													View selected work.
 												</h2>
 											</div>
-											<div className="flex items-center gap-3">
+											<div className="portfolio-control-row">
 												<Button
 													asChild
 													size="lg"
@@ -204,7 +204,7 @@ export default function Home() {
 				<SiteFooter />
 
 				{/* Bottom nav spacer */}
-				<section id="nav-spacer" className="h-29.5 w-full" />
+				<section id="nav-spacer" className="portfolio-nav-spacer w-full" />
 			</main>
 		</div>
 	);

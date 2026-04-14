@@ -28,7 +28,7 @@ export default function AboutPage() {
 
 				{/* Profile */}
 				<section id="profile" className="relative w-full">
-					<PageContainer className="pt-8 pb-12">
+					<PageContainer className="portfolio-section-top">
 						<SwissGridBox>
 							<SwissGridRow>
 								<ProfileSection />
@@ -41,10 +41,10 @@ export default function AboutPage() {
 				<section id="story" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="py-16">
+							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<ScrollReveal phase={2}>
 												<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 													01 · The Short Version
@@ -100,10 +100,10 @@ export default function AboutPage() {
 				<section id="how-i-think" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="py-16">
+							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<ScrollReveal phase={2}>
 												<p className="font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 													02 · How I Think
@@ -112,7 +112,7 @@ export default function AboutPage() {
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<div className="grid gap-8 sm:grid-cols-2">
 												<ScrollReveal phase={2} delay={0.05}>
 													<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
@@ -179,10 +179,10 @@ export default function AboutPage() {
 				<section id="how-i-work" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="py-16">
+							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<ScrollReveal phase={2}>
 												<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 													03 · Engineering Philosophy
@@ -233,10 +233,10 @@ export default function AboutPage() {
 				<section id="about-contact" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
-							<PageContainer className="py-16">
+							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="p-6 sm:p-8">
+										<div className="portfolio-box-pad">
 											<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
 												<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
 													Work with these principles?
@@ -265,7 +265,7 @@ export default function AboutPage() {
 				</section>
 			</main>
 			<SiteFooter />
-			<section id="nav-spacer" className="h-29.5 w-full" />
+			<section id="nav-spacer" className="portfolio-nav-spacer w-full" />
 		</div>
 	);
 }

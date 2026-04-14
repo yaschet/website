@@ -26,10 +26,10 @@ export default function BlogPage() {
 				{/* 2. CONTENT CELL */}
 				<section id="blog-content" className="w-full">
 					<Reveal phase={1} className="w-full">
-						<PageContainer className="pt-8 pb-24 text-center">
+						<PageContainer className="portfolio-section-top-loose text-center">
 							<SwissGridBox>
 								<SwissGridRow>
-									<div className="p-6 sm:p-8">
+									<div className="portfolio-box-pad">
 										<ProseContainer className="mx-auto flex flex-col items-center justify-center">
 											<p className="mb-4 font-mono text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
 												Coming Soon
@@ -62,7 +62,7 @@ export default function BlogPage() {
 				</section>
 			</main>
 			<SiteFooter />
-			<section id="nav-spacer" className="h-29.5 w-full" />
+			<section id="nav-spacer" className="portfolio-nav-spacer w-full" />
 		</div>
 	);
 }

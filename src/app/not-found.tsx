@@ -16,10 +16,10 @@ export default function NotFound() {
 
 			{/* 2. CONTENT CELL */}
 			<section id="404-content" className="relative z-10 w-full">
-				<PageContainer className="pt-8 pb-24 text-center">
+				<PageContainer className="portfolio-section-top-loose text-center">
 					<SwissGridBox>
 						<SwissGridRow>
-							<div className="p-6 sm:p-8">
+							<div className="portfolio-box-pad">
 								<ProseContainer className="mx-auto flex flex-col items-center justify-center">
 									<Reveal phase={1}>
 										<div className="mb-8 inline-flex items-center gap-2 border border-surface-200 bg-surface-50/50 px-3 py-1 font-mono text-surface-500 text-xs uppercase tracking-widest backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/50 dark:text-surface-400">
