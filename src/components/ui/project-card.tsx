@@ -33,7 +33,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 		<Link
 			href={project.url_path}
 			className={cn(
-				"group relative block border-2 border-surface-200 bg-white transition-all duration-200 hover:border-surface-900 dark:border-surface-800 dark:bg-surface-950 dark:hover:border-surface-100",
+				"group relative block border-2 border-surface-200 bg-surface-100 transition-all duration-200 hover:border-surface-900 dark:border-surface-800 dark:bg-surface-950 dark:hover:border-surface-100",
 				className,
 			)}
 		>
@@ -70,7 +70,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 						{project.tech.slice(0, 4).map((tech: string) => (
 							<span
 								key={tech}
-								className="border border-surface-950 bg-transparent px-2 py-1 font-mono text-[10px] text-surface-800 uppercase tracking-wide dark:border-surface-100 dark:text-surface-200"
+								className="border border-surface-300 bg-surface-50 px-2 py-1 font-mono text-[10px] text-surface-800 uppercase tracking-wide dark:border-surface-800 dark:bg-surface-900 dark:text-surface-200"
 							>
 								{tech}
 							</span>

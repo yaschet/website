@@ -62,7 +62,7 @@ export function ProjectCardGallery({
 			<div
 				className={cn(
 					"group block w-full overflow-hidden rounded-[var(--radius)]",
-					"border border-surface-200 bg-surface-50 dark:border-surface-800 dark:bg-surface-900",
+					"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-950",
 					"transition-shadow duration-300",
 					className,
 				)}
@@ -77,7 +77,7 @@ export function ProjectCardGallery({
 			href={href}
 			className={cn(
 				"group block w-full overflow-hidden rounded-[var(--radius)]",
-				"border border-surface-200 bg-surface-50 dark:border-surface-800 dark:bg-surface-900",
+				"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-950",
 				"transition-shadow duration-300 hover:shadow-lg",
 				className,
 			)}
@@ -153,7 +153,7 @@ export function ProjectCardGallery({
 							</h3>
 
 							{/* Action Icon */}
-							<div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-surface-200 bg-surface-100 transition-all duration-300 group-hover:border-surface-900 group-hover:bg-surface-900 dark:border-surface-700 dark:bg-surface-800 dark:group-hover:border-surface-100 dark:group-hover:bg-surface-100">
+							<div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-surface-200 bg-surface-50 transition-all duration-300 group-hover:border-surface-900 group-hover:bg-surface-900 dark:border-surface-700 dark:bg-surface-900 dark:group-hover:border-surface-100 dark:group-hover:bg-surface-100">
 								{isPrivate ? (
 									<Lock
 										weight="bold"
@@ -205,7 +205,7 @@ export function ProjectCardGallery({
 						{tags.map((tag) => (
 							<span
 								key={`${index}-tag-${tag}`}
-								className="inline-block border border-surface-200 bg-surface-100 px-2 py-0.5 font-mono text-[10px] text-surface-700 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300"
+								className="inline-block border border-surface-200 bg-surface-50 px-2 py-0.5 font-mono text-[10px] text-surface-700 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-900 dark:text-surface-300"
 							>
 								{tag}
 							</span>

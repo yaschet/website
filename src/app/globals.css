@@ -1690,12 +1690,49 @@ h4:hover .anchor {
   }
 }
 
+@keyframes data-plane-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-1.25%, 0.75%, 0) scale(1.02);
+  }
+}
+
+@keyframes data-plane-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1.5%, -0.9%, 0) scale(1.025);
+  }
+}
+
 .animate-float-slow {
   animation: float-slow 20s ease-in-out infinite;
 }
 
 .animate-float-slower {
   animation: float-slower 30s ease-in-out infinite;
+}
+
+.animate-data-plane-drift-a {
+  animation: data-plane-drift-a 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.animate-data-plane-drift-b {
+  animation: data-plane-drift-b 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-data-plane-drift-a,
+  .animate-data-plane-drift-b {
+    animation: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

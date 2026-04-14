@@ -107,7 +107,7 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 				ref={boxRef}
 				className={cn(
 					"relative w-full overflow-hidden",
-					"bg-surface-50 transition-colors dark:bg-surface-900/40",
+					"bg-white transition-colors dark:bg-surface-900/80",
 					className,
 				)}
 			>
