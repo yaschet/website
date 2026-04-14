@@ -33,22 +33,22 @@ interface Palette {
 const TAU = Math.PI * 2;
 const LOOP_DURATION = 16;
 
-const DARK_PALETTE: Palette = {
-	base: [18, 23, 24],
-	baseAlpha: 0.028,
-	dim: [60, 66, 68],
-	soft: [74, 98, 97],
-	core: [74, 206, 196],
-	peak: [214, 235, 233],
+const FALLBACK_DARK_PALETTE: Palette = {
+	base: [228, 228, 231],
+	baseAlpha: 0.024,
+	dim: [113, 113, 122],
+	soft: [30, 64, 175],
+	core: [37, 99, 235],
+	peak: [96, 165, 250],
 };
 
-const LIGHT_PALETTE: Palette = {
-	base: [222, 228, 228],
-	baseAlpha: 0.016,
-	dim: [164, 171, 172],
-	soft: [98, 128, 125],
-	core: [44, 129, 121],
-	peak: [18, 87, 82],
+const FALLBACK_LIGHT_PALETTE: Palette = {
+	base: [63, 63, 70],
+	baseAlpha: 0.014,
+	dim: [113, 113, 122],
+	soft: [30, 64, 175],
+	core: [29, 78, 216],
+	peak: [37, 99, 235],
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -66,6 +66,74 @@ function mixColor(from: RGB, to: RGB, amount: number): RGB {
 		from[1] + (to[1] - from[1]) * amount,
 		from[2] + (to[2] - from[2]) * amount,
 	];
+}
+
+function parseRgbColor(value: string, fallback: RGB): RGB {
+	const match = value.match(/rgba?\(([^)]+)\)/i);
+	if (!match) return fallback;
+
+	const channels = match[1]
+		.split(/[\s,/]+/)
+		.filter(Boolean)
+		.slice(0, 3)
+		.map((channel) => Number.parseFloat(channel));
+
+	if (channels.length !== 3 || channels.some((channel) => Number.isNaN(channel))) {
+		return fallback;
+	}
+
+	return [
+		clamp(Math.round(channels[0]), 0, 255),
+		clamp(Math.round(channels[1]), 0, 255),
+		clamp(Math.round(channels[2]), 0, 255),
+	];
+}
+
+function resolveCssColor(node: HTMLElement, value: string, fallback: RGB): RGB {
+	const probe = document.createElement("div");
+	probe.style.position = "absolute";
+	probe.style.visibility = "hidden";
+	probe.style.pointerEvents = "none";
+	probe.style.color = value;
+
+	node.appendChild(probe);
+	const resolved = getComputedStyle(probe).color;
+	node.removeChild(probe);
+
+	return parseRgbColor(resolved, fallback);
+}
+
+function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
+	const fallback = isDark ? FALLBACK_DARK_PALETTE : FALLBACK_LIGHT_PALETTE;
+
+	return {
+		base: resolveCssColor(
+			node,
+			isDark ? "var(--color-surface-200)" : "var(--color-surface-700)",
+			fallback.base,
+		),
+		baseAlpha: fallback.baseAlpha,
+		dim: resolveCssColor(
+			node,
+			isDark ? "var(--color-surface-500)" : "var(--color-surface-500)",
+			fallback.dim,
+		),
+		soft: resolveCssColor(
+			node,
+			isDark ? "var(--color-accent-900)" : "var(--color-accent-900)",
+			fallback.soft,
+		),
+		core: resolveCssColor(
+			node,
+			isDark ? "var(--color-accent-600)" : "var(--color-accent-700)",
+			fallback.core,
+		),
+		peak: resolveCssColor(
+			node,
+			isDark ? "var(--color-accent-400)" : "var(--color-accent-500)",
+			fallback.peak,
+		),
+	};
 }
 
 function sampleField(normalizedX: number, normalizedY: number, aspect: number, phase: number) {
@@ -130,7 +198,7 @@ function drawDots(
 export function TopographicDotField({
 	className,
 	step = 18,
-	minInset = 12,
+	minInset = step,
 	radius = 2,
 	origin = "center",
 	speed = 1,
@@ -221,8 +289,10 @@ export function TopographicDotField({
 	}, [metrics.height, metrics.minInset, metrics.step, metrics.width, origin]);
 
 	useEffect(() => {
+		const container = containerRef.current;
 		const canvas = canvasRef.current;
-		if (!canvas || metrics.width <= 0 || metrics.height <= 0 || dots.length === 0) return;
+		if (!container || !canvas || metrics.width <= 0 || metrics.height <= 0 || dots.length === 0)
+			return;
 
 		const baseLayer = baseLayerRef.current ?? document.createElement("canvas");
 		baseLayerRef.current = baseLayer;
@@ -235,14 +305,22 @@ export function TopographicDotField({
 		context.setTransform(metrics.dpr, 0, 0, metrics.dpr, 0, 0);
 		context.clearRect(0, 0, metrics.width, metrics.height);
 
-		const palette = isDark ? DARK_PALETTE : LIGHT_PALETTE;
+		const palette = resolvePalette(container, isDark);
 		drawDots(context, dots, radius, palette.base, palette.baseAlpha);
 	}, [dots, isDark, metrics.dpr, metrics.height, metrics.width, radius]);
 
 	useEffect(() => {
+		const container = containerRef.current;
 		const canvas = canvasRef.current;
 		const baseLayer = baseLayerRef.current;
-		if (!canvas || !baseLayer || metrics.width <= 0 || metrics.height <= 0 || dots.length === 0)
+		if (
+			!container ||
+			!canvas ||
+			!baseLayer ||
+			metrics.width <= 0 ||
+			metrics.height <= 0 ||
+			dots.length === 0
+		)
 			return;
 
 		canvas.width = Math.round(metrics.width * metrics.dpr);
@@ -252,6 +330,7 @@ export function TopographicDotField({
 		if (!context) return;
 
 		const aspect = metrics.width / Math.max(metrics.height, 1);
+		const palette = resolvePalette(container, isDark);
 		let frameId = 0;
 		let startTime = 0;
 
@@ -266,7 +345,6 @@ export function TopographicDotField({
 			context.drawImage(baseLayer, 0, 0);
 			context.setTransform(metrics.dpr, 0, 0, metrics.dpr, 0, 0);
 
-			const palette = isDark ? DARK_PALETTE : LIGHT_PALETTE;
 			for (const dot of dots) {
 				const field = sampleField(
 					dot.x / metrics.width,

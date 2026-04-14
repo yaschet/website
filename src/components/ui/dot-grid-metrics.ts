@@ -12,7 +12,8 @@ export function computeGridAxis(
 	const usable = Math.max(size - minInset * 2, step);
 	const count = Math.max(2, Math.floor(usable / step) + 1);
 	const span = (count - 1) * step;
-	const offset = origin === "inset" ? minInset : (size - span) / 2;
+	const slack = usable - span;
+	const offset = origin === "inset" ? minInset + slack / 2 : (size - span) / 2;
 	return { count, offset };
 }
 

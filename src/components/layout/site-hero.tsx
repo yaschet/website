@@ -10,7 +10,7 @@ import { TopographicDotField } from "@/src/components/ui/topographic-dot-field";
 const HERO_BASELINE = "var(--portfolio-rhythm)";
 const HERO_GRID_STEP = "var(--portfolio-grid-step)";
 const HERO_DOT_STEP = "var(--portfolio-rhythm)";
-const HERO_GRID_MIN_INSET = "var(--portfolio-space-2)";
+const HERO_GRID_MIN_INSET = "var(--portfolio-space-1)";
 const HERO_CONTENT_INSET = "var(--portfolio-space-4)";
 const HERO_SECTION_ROWS = 28;
 const HERO_SECTION_HEIGHT = "calc(var(--portfolio-rhythm) * 28)";
