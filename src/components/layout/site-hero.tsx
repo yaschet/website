@@ -4,11 +4,12 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/src/components/ui/button";
-import { DotGrid } from "@/src/components/ui/dot-grid";
 import { Reveal } from "@/src/components/ui/reveal";
+import { TopographicDotField } from "@/src/components/ui/topographic-dot-field";
 
 const HERO_BASELINE = "var(--portfolio-rhythm)";
 const HERO_GRID_STEP = "var(--portfolio-grid-step)";
+const HERO_DOT_STEP = "var(--portfolio-rhythm)";
 const HERO_GRID_MIN_INSET = "var(--portfolio-space-2)";
 const HERO_CONTENT_INSET = "var(--portfolio-space-4)";
 const HERO_SECTION_ROWS = 28;
@@ -110,12 +111,12 @@ function HeroDataPlane() {
 	return (
 		<div className="pointer-events-none absolute inset-0" aria-hidden="true">
 			<div className="absolute inset-0 bg-white dark:bg-surface-900" />
-			<DotGrid
-				step={HERO_GRID_STEP}
+			<TopographicDotField
+				step={HERO_DOT_STEP}
 				minInset={HERO_GRID_MIN_INSET}
 				origin="inset"
-				radius={1.15}
-				className="text-[rgba(17,94,81,0.24)] dark:text-[rgba(51,255,234,0.54)]"
+				radius={2}
+				speed={0.7}
 			/>
 		</div>
 	);
