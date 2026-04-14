@@ -238,7 +238,7 @@ export function FloatingNav() {
 
 								<HoverTooltip
 									visible={currentTab === item.link && hoveredTab === item.link}
-									className="bottom-[calc(100%+10px)] mb-0"
+									className="bottom-[calc(100%+15px)] mb-0"
 								>
 									{item.name}
 								</HoverTooltip>
@@ -318,7 +318,7 @@ export function FloatingNav() {
 					</motion.div>
 					<HoverTooltip
 						visible={hoveredTab === "theme-toggle"}
-						className="bottom-[calc(100%+10px)] mb-0"
+						className="bottom-[calc(100%+15px)] mb-0"
 					>
 						Theme
 					</HoverTooltip>
