@@ -248,8 +248,7 @@ export function FloatingNav() {
 				</ul>
 
 				<div
-					className="absolute inset-y-0 mx-2.5 w-px bg-surface-800 dark:bg-surface-200"
-					style={{ left: "calc(5rem + 0.625rem)" }}
+					className="mx-2 h-[20px] w-px shrink-0 bg-surface-800/30 dark:bg-surface-200/30"
 					aria-hidden="true"
 				/>
 
