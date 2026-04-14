@@ -41,7 +41,7 @@ function HeroContent({ insetX }: { insetX: number }) {
 							"max-w-none text-heading-xl! text-surface-900 dark:text-surface-100",
 						)}
 						style={{
-							lineHeight: `${HERO_HEAD_LINE}px`,
+							lineHeight: HERO_HEAD_LINE,
 							margin: 0,
 						}}
 					>
@@ -54,9 +54,9 @@ function HeroContent({ insetX }: { insetX: number }) {
 							"max-w-none text-body-lg text-surface-900 dark:text-surface-100",
 						)}
 						style={{
-							lineHeight: `${HERO_BODY_LINE}px`,
+							lineHeight: HERO_BODY_LINE,
 							margin: 0,
-							maxWidth: `${HERO_TEXT_WIDTH}px`,
+							maxWidth: HERO_TEXT_WIDTH,
 						}}
 					>
 						Web apps. SaaS platforms. Internal tools. From the first idea to the final
