@@ -18,7 +18,7 @@ export function SiteHeader() {
 				suppressHydrationWarning
 			>
 				<PageContainer className="flex h-full items-center justify-between gap-5">
-					<LocationBadge className="flex w-40 max-w-full shrink-0" />
+					<LocationBadge className="flex w-[var(--portfolio-badge-width)] max-w-full shrink-0" />
 
 					<MarqueeBadge
 						className="hidden flex-1 sm:flex"
@@ -31,7 +31,7 @@ export function SiteHeader() {
 						]}
 					/>
 
-					<TimeBadge className="flex w-40 max-w-full shrink-0" />
+					<TimeBadge className="flex w-[var(--portfolio-badge-width)] max-w-full shrink-0" />
 				</PageContainer>
 			</div>
 		</section>

@@ -5,17 +5,17 @@ const capsizeStyles = [
 	createStyleString("portfolio-capsize-heading-xl", {
 		fontMetrics: spaceGrotesk,
 		fontSize: 48,
-		leading: 50,
+		leading: 56,
 	}),
 	createStyleString("portfolio-capsize-heading-lg", {
 		fontMetrics: spaceGrotesk,
 		fontSize: 36,
-		leading: 40,
+		leading: 44,
 	}),
 	createStyleString("portfolio-capsize-heading-sm", {
 		fontMetrics: spaceGrotesk,
 		fontSize: 28,
-		leading: 30,
+		leading: 36,
 	}),
 ].join("\n");
 
