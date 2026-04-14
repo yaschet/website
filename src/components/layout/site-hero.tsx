@@ -137,7 +137,7 @@ function HeroDataPlane() {
 export function SiteHero() {
 	return (
 		<section id="hero" className="relative isolate w-full overflow-hidden">
-			{/* <HeroDataPlane /> */}
+			<HeroDataPlane />
 			<HeroContent />
 		</section>
 	);
