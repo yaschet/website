@@ -1,7 +1,8 @@
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
+import { PageContainer } from "@/src/components/layout/containers";
+import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
@@ -26,21 +27,22 @@ export default function BlogPage() {
 				{/* 2. CONTENT CELL */}
 				<section id="blog-content" className="w-full">
 					<Reveal phase={1} className="w-full">
-						<PageContainer className="portfolio-section-top-loose text-center">
+						<PageContainer className="portfolio-section-top">
 							<SwissGridBox>
 								<SwissGridRow>
 									<div className="portfolio-box-pad">
-										<ProseContainer className="mx-auto flex flex-col items-center justify-center">
-											<p className="portfolio-kicker mb-5 text-surface-400 dark:text-surface-500">
-												Coming Soon
-											</p>
-											<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-surface-900 dark:text-surface-100">
-												Blog
-											</h1>
-											<p className="portfolio-body-lg mb-10 text-surface-600 dark:text-surface-400">
-												Technical deep-dives, architecture decisions, and
-												lessons learned from shipping products. Currently in
-												the works.
+										<PageIntro
+											eyebrow="Writing"
+											title="Blog"
+											description="Technical deep-dives, architecture decisions, and lessons learned from shipping products."
+										/>
+									</div>
+								</SwissGridRow>
+								<SwissGridRow>
+									<div className="portfolio-box-pad">
+										<div className="portfolio-action-band">
+											<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+												Publishing begins soon.
 											</p>
 											<Button
 												asChild
@@ -53,7 +55,7 @@ export default function BlogPage() {
 													Back to Home
 												</Link>
 											</Button>
-										</ProseContainer>
+										</div>
 									</div>
 								</SwissGridRow>
 							</SwissGridBox>

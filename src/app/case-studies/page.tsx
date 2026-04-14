@@ -4,6 +4,7 @@ import { compareDesc } from "date-fns";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
+import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
@@ -35,30 +36,23 @@ export default function CaseStudiesPage() {
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
 				<SiteHeader />
 
-				<section id="projects-header" className="w-full">
-					<Reveal phase={1} className="w-full">
-						<section className="w-full">
-							<PageContainer className="portfolio-section-top-loose">
-								<SwissGridBox>
-									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100">
-												Case Studies
-											</h1>
-										</div>
-									</SwissGridRow>
-								</SwissGridBox>
-							</PageContainer>
-						</section>
-					</Reveal>
-				</section>
-
 				<section id="projects-list" className="w-full">
-					<PageContainer className="portfolio-section">
+					<PageContainer className="portfolio-section-top">
 						<SwissGridBox>
 							<SwissGridRow>
+								<Reveal phase={1} className="w-full">
+									<div className="portfolio-box-pad">
+										<PageIntro
+											eyebrow="Work"
+											title="Case Studies"
+											description="Selected engineering case studies across product systems, internal tooling, and shipped software."
+										/>
+									</div>
+								</Reveal>
+							</SwissGridRow>
+							<SwissGridRow>
 								<div className="portfolio-box-pad">
-									<div className="space-y-10">
+									<div className="space-y-5">
 										{projects.map((project, i) => (
 											<ScrollReveal
 												key={project._id}

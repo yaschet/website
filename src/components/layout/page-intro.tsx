@@ -1,0 +1,53 @@
+import type { ReactNode } from "react";
+import { ProseContainer } from "@/src/components/layout/containers";
+import { cn } from "@/src/lib/utils";
+
+interface PageIntroProps {
+	eyebrow?: string;
+	title: string;
+	description?: ReactNode;
+	children?: ReactNode;
+	className?: string;
+	align?: "left" | "center";
+}
+
+export function PageIntro({
+	eyebrow,
+	title,
+	description,
+	children,
+	className,
+	align = "left",
+}: PageIntroProps) {
+	const isCentered = align === "center";
+
+	return (
+		<div
+			className={cn(
+				"flex flex-col gap-5",
+				isCentered && "items-center text-center",
+				className,
+			)}
+		>
+			{eyebrow && (
+				<p className="portfolio-kicker text-surface-400 dark:text-surface-500">{eyebrow}</p>
+			)}
+
+			<div className={cn("flex flex-col gap-5", isCentered && "items-center")}>
+				<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100">
+					{title}
+				</h1>
+
+				{description && (
+					<ProseContainer className={cn(isCentered && "mx-auto")}>
+						<p className="portfolio-body-lg text-surface-600 dark:text-surface-400">
+							{description}
+						</p>
+					</ProseContainer>
+				)}
+
+				{children}
+			</div>
+		</div>
+	);
+}

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/src/components/forms/contact-form";
-import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
+import { PageContainer } from "@/src/components/layout/containers";
+import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
@@ -29,26 +30,27 @@ export default function ContactPage() {
 				<section id="contact-header" className="relative w-full">
 					<Reveal phase={1} className="relative z-10 w-full">
 						<section className="w-full">
-							<PageContainer className="portfolio-section-top-loose">
+							<PageContainer className="portfolio-section-top">
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<p className="portfolio-kicker mb-2.5 text-surface-400 dark:text-surface-500">
-												Contact
-											</p>
-											<ProseContainer>
-												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-surface-900 dark:text-surface-100">
-													Get in touch.
-												</h1>
-												<p className="portfolio-body-sm mt-5 text-surface-500 dark:text-surface-400">
+											<PageIntro
+												eyebrow="Contact"
+												title="Get in touch."
+												description="Serious product engineering, systems work, or scoped consulting. Start with email or book a short intro call."
+											>
+												<div className="portfolio-inline-meta">
 													<a
 														href="mailto:hello@yaschet.dev"
-														className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-2 transition-colors hover:text-accent-600 hover:decoration-accent-600 dark:text-surface-100 dark:decoration-surface-700 dark:hover:text-accent-400 dark:hover:decoration-accent-400"
+														className="portfolio-body-sm font-medium text-surface-900 underline decoration-surface-300 underline-offset-2 transition-colors hover:text-accent-600 hover:decoration-accent-600 dark:text-surface-100 dark:decoration-surface-700 dark:hover:text-accent-400 dark:hover:decoration-accent-400"
 													>
 														hello@yaschet.dev
 													</a>
-												</p>
-											</ProseContainer>
+													<span className="portfolio-caption text-surface-500 dark:text-surface-400">
+														Response in 24 to 48 hours
+													</span>
+												</div>
+											</PageIntro>
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>
