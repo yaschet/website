@@ -101,7 +101,9 @@ export function ProfileSection() {
 											}}
 										/>
 									</Link>
-									<HoverTooltip visible={hoveredIcon === label}>{label}</HoverTooltip>
+									<HoverTooltip visible={hoveredIcon === label}>
+										{label}
+									</HoverTooltip>
 								</div>
 							))}
 						</div>
