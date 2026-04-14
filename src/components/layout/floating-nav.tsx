@@ -23,7 +23,7 @@ import {
 	Sun,
 	User,
 } from "@phosphor-icons/react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -31,6 +31,7 @@ import type { ComponentType, CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useReveal } from "@/src/components/providers/reveal-provider";
+import { HoverTooltip } from "@/src/components/ui/hover-tooltip";
 import { cn, springs } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -188,6 +189,8 @@ export function FloatingNav() {
 										height: BUTTON_SIZE,
 									}}
 									onMouseEnter={() => setHoveredTab(item.link)}
+									onFocus={() => setHoveredTab(item.link)}
+									onBlur={() => setHoveredTab(null)}
 									aria-current={isActive ? "page" : undefined}
 								>
 									{/* Animation Container: Handles scale effects independently of Link routing */}
@@ -233,26 +236,12 @@ export function FloatingNav() {
 									</motion.div>
 								</Link>
 
-								<AnimatePresence>
-									{currentTab === item.link && hoveredTab === item.link && (
-										<motion.div
-											initial={{ opacity: 0, y: 8, scale: 0.95 }}
-											animate={{ opacity: 1, y: 0, scale: 1 }}
-											exit={{ opacity: 0, y: 4, scale: 0.98 }}
-											transition={springs.snappy}
-											className={cn(
-												"pointer-events-none absolute bottom-full left-1/2 z-20 mb-2.5 -translate-x-1/2 whitespace-nowrap",
-												"px-5 py-2.5 font-medium text-xs tracking-wide",
-												"bg-surface-950 text-surface-50", // Inverse tooltip
-												"dark:bg-surface-50 dark:text-surface-950",
-												"rounded-none",
-												"shadow-xl",
-											)}
-										>
-											{item.name}
-										</motion.div>
-									)}
-								</AnimatePresence>
+								<HoverTooltip
+									visible={currentTab === item.link && hoveredTab === item.link}
+									className="bottom-[calc(100%+10px)] mb-0"
+								>
+									{item.name}
+								</HoverTooltip>
 							</li>
 						);
 					})}
@@ -267,6 +256,9 @@ export function FloatingNav() {
 				<motion.button
 					ref={themeButtonRef}
 					onMouseEnter={() => setHoveredTab("theme-toggle")}
+					onMouseLeave={() => setHoveredTab(null)}
+					onFocus={() => setHoveredTab("theme-toggle")}
+					onBlur={() => setHoveredTab(null)}
 					onClick={toggleTheme}
 					// INTERACTION: Match Link Physics
 					initial="idle"
@@ -324,6 +316,12 @@ export function FloatingNav() {
 							weight="regular"
 						/>
 					</motion.div>
+					<HoverTooltip
+						visible={hoveredTab === "theme-toggle"}
+						className="bottom-[calc(100%+10px)] mb-0"
+					>
+						Theme
+					</HoverTooltip>
 				</motion.button>
 			</motion.nav>
 		</div>

@@ -3,18 +3,30 @@
 import { GithubLogoIcon, LinkedinLogoIcon, XLogoIcon } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import avatarImage from "@/public/images/avatar.jpeg";
 import { Avatar, AvatarFallback } from "@/src/components/ui/avatar";
+import { HoverTooltip } from "@/src/components/ui/hover-tooltip";
 import { Reveal } from "@/src/components/ui/reveal";
 
 export function ProfileSection() {
+	const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
 	// Standard theme colors since we removed mesh gradient dependency
 	const textSecondary = "text-surface-500";
 	const iconColor =
 		"text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-100 bg-surface-100/50 hover:bg-surface-200/50 dark:bg-surface-800/50 dark:hover:bg-surface-700/50";
 	const avatarBorder = "border-surface-200 dark:border-surface-800";
 	const avatarBg = "bg-surface-100 dark:bg-surface-900";
+	const socialLinks = [
+		{
+			label: "LinkedIn",
+			href: "https://linkedin.com/in/yassinechettouch",
+			Icon: LinkedinLogoIcon,
+		},
+		{ label: "GitHub", href: "https://github.com/yaschet", Icon: GithubLogoIcon },
+		{ label: "X", href: "https://x.com/yaschett", Icon: XLogoIcon },
+	];
 
 	return (
 		<section id="profile" className="relative z-10 w-full shrink-0">
@@ -62,69 +74,36 @@ export function ProfileSection() {
 						</div>
 
 						<div className="flex items-center gap-2.5">
-							<Link
-								href="https://linkedin.com/in/yassinechettouch"
-								target="_blank"
-								aria-label="LinkedIn"
-								className={cn(
-									"inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
-									iconColor,
-								)}
-								style={{
-									width: "var(--portfolio-icon-touch)",
-									height: "var(--portfolio-icon-touch)",
-								}}
-							>
-								<LinkedinLogoIcon
-									weight="regular"
-									style={{
-										width: "var(--portfolio-icon-sm)",
-										height: "var(--portfolio-icon-sm)",
-									}}
-								/>
-							</Link>
-							<Link
-								href="https://github.com/yaschet"
-								target="_blank"
-								aria-label="GitHub"
-								className={cn(
-									"inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
-									iconColor,
-								)}
-								style={{
-									width: "var(--portfolio-icon-touch)",
-									height: "var(--portfolio-icon-touch)",
-								}}
-							>
-								<GithubLogoIcon
-									weight="regular"
-									style={{
-										width: "var(--portfolio-icon-sm)",
-										height: "var(--portfolio-icon-sm)",
-									}}
-								/>
-							</Link>
-							<Link
-								href="https://x.com/yaschett"
-								target="_blank"
-								aria-label="X"
-								className={cn(
-									"inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
-									iconColor,
-								)}
-								style={{
-									width: "var(--portfolio-icon-touch)",
-									height: "var(--portfolio-icon-touch)",
-								}}
-							>
-								<XLogoIcon
-									weight="regular"
-									style={{
-										width: "var(--portfolio-icon-sm)",
-										height: "var(--portfolio-icon-sm)",
-									}}
-								/>
-							</Link>
+							{socialLinks.map(({ label, href, Icon }) => (
+								<div key={label} className="relative">
+									<Link
+										href={href}
+										target="_blank"
+										aria-label={label}
+										onMouseEnter={() => setHoveredIcon(label)}
+										onMouseLeave={() => setHoveredIcon(null)}
+										onFocus={() => setHoveredIcon(label)}
+										onBlur={() => setHoveredIcon(null)}
+										className={cn(
+											"inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
+											iconColor,
+										)}
+										style={{
+											width: "var(--portfolio-icon-touch)",
+											height: "var(--portfolio-icon-touch)",
+										}}
+									>
+										<Icon
+											weight="regular"
+											style={{
+												width: "var(--portfolio-icon-sm)",
+												height: "var(--portfolio-icon-sm)",
+											}}
+										/>
+									</Link>
+									<HoverTooltip visible={hoveredIcon === label}>{label}</HoverTooltip>
+								</div>
+							))}
 						</div>
 					</div>
 				</div>
