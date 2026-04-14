@@ -85,7 +85,7 @@ function HeroContent() {
 							color="primary"
 							className="h-full w-full justify-center px-0 py-0 leading-none"
 						>
-							<Link href="/projects">
+							<Link href="/case-studies">
 								Case Studies
 								<ArrowRightIcon className="size-4" weight="bold" />
 							</Link>

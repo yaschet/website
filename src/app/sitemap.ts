@@ -6,7 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 	const baseUrl = "https://yaschet.dev";
 
 	// 1. Core Pages (Static)
-	const coreRoutes = ["", "/about", "/projects", "/blog", "/contact"].map((route) => ({
+	const coreRoutes = ["", "/about", "/case-studies", "/blog", "/contact"].map((route) => ({
 		url: `${baseUrl}${route}`,
 		lastModified: new Date(),
 		changeFrequency: "monthly" as const,
@@ -23,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 	// 3. Dynamic Projects (from Contentlayer)
 	const projectRoutes = allProjects.map((project) => ({
-		url: `${baseUrl}/projects/${project.slug}`,
+		url: `${baseUrl}/case-studies/${project.slug}`,
 		lastModified: new Date(project.date),
 		changeFrequency: "monthly" as const,
 		priority: 0.9, // Projects are high value

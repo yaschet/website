@@ -50,6 +50,21 @@ const nextConfig: NextConfig = {
 		],
 	},
 
+	async redirects() {
+		return [
+			{
+				source: "/projects",
+				destination: "/case-studies",
+				permanent: true,
+			},
+			{
+				source: "/projects/:slug",
+				destination: "/case-studies/:slug",
+				permanent: true,
+			},
+		];
+	},
+
 	async headers() {
 		return [
 			{

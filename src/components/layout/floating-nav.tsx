@@ -50,7 +50,7 @@ type NavItem = {
 const navItems: NavItem[] = [
 	{ name: "Home", link: "/", icon: House },
 	{ name: "About", link: "/about", icon: User },
-	{ name: "Projects", link: "/projects", icon: Briefcase }, // Rename "Work" -> "Projects" to match URL
+	{ name: "Case Studies", link: "/case-studies", icon: Briefcase },
 	{ name: "Blog", link: "/blog", icon: FileText },
 	{ name: "Contact", link: "/contact", icon: ChatCenteredText },
 ];

@@ -28,9 +28,36 @@ type ProjectWithExtras = Project & {
 	hideCoverGallery?: boolean;
 };
 
+const MDX_SECTION_BREAK = /^\s*(?:---|\*\*\*|___)\s*$/gm;
+
+function splitCaseStudySections(source: string) {
+	return source
+		.split(MDX_SECTION_BREAK)
+		.map((section) => section.trim())
+		.filter(Boolean);
+}
+
 export function ProjectContentRSC({ project }: ProjectContentProps) {
 	const projectData = project as ProjectWithExtras;
 	const galleryImages = projectData.coverImages ?? [];
+	const contentSections = splitCaseStudySections(project.body.raw);
+	// biome-ignore lint/suspicious/noExplicitAny: next-mdx-remote's SerializeOptions typing is too narrow for shared plugin tuples here.
+	const mdxOptions: any = {
+		mdxOptions: {
+			remarkPlugins: [remarkGfm],
+			rehypePlugins: [
+				rehypeSlug,
+				[
+					rehypeAutolinkHeadings,
+					{
+						properties: {
+							className: ["anchor"],
+						},
+					},
+				],
+			],
+		},
+	};
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -40,218 +67,194 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 					<SiteHeader />
 				</Reveal>
 
-				{/* Header */}
-				<section id="project-header" className="w-full">
-					<Reveal phase={1} className="w-full">
-						<section className="w-full">
-							<PageContainer className="portfolio-section-top">
-								<SwissGridBox>
-									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<ModuleContainer className="mx-auto">
-												<Link
-													href="/projects"
-													className="portfolio-kicker mb-10 inline-flex items-center gap-2.5 text-muted-foreground transition-colors hover:text-foreground"
-												>
-													<ArrowLeft size={14} weight="bold" />
-													<span>Back to Projects</span>
-												</Link>
+				{/* Main Case Study Object */}
+				<section id="project-main" className="w-full">
+					<PageContainer className="portfolio-section-top">
+						<SwissGridBox>
+							<SwissGridRow>
+								<Reveal phase={1} className="w-full">
+									<div className="portfolio-box-pad">
+										<ModuleContainer className="mx-auto">
+											<Link
+												href="/case-studies"
+												className="portfolio-kicker mb-10 inline-flex items-center gap-2.5 text-muted-foreground transition-colors hover:text-foreground"
+											>
+												<ArrowLeft size={14} weight="bold" />
+												<span>Back to Case Studies</span>
+											</Link>
 
-												{galleryImages.length > 0 &&
-													!projectData.hideCoverGallery && (
-														<div className="mb-10">
-															<ImageGallery
-																images={galleryImages}
-																altPrefix={project.title}
-																aspectRatio="16/9"
-																showArrows={
-																	galleryImages.length > 1
-																}
-																showProgress={
-																	galleryImages.length > 1
-																}
-																showCounter={
-																	galleryImages.length > 1
-																}
-															/>
-														</div>
-													)}
+											{galleryImages.length > 0 &&
+												!projectData.hideCoverGallery && (
+													<div className="mb-10">
+														<ImageGallery
+															images={galleryImages}
+															altPrefix={project.title}
+															aspectRatio="16/9"
+															showArrows={galleryImages.length > 1}
+															showProgress={galleryImages.length > 1}
+															showCounter={galleryImages.length > 1}
+														/>
+													</div>
+												)}
 
-												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-foreground">
-													{project.title}
-												</h1>
+											<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-foreground">
+												{project.title}
+											</h1>
 
-												<div className="portfolio-inline-meta mb-5">
-													<time className="font-mono text-muted-foreground text-xs tabular-nums">
-														{formatDate(project.date)}
-													</time>
-													{projectData.readingTime && (
-														<span className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
-															<Clock size={12} weight="bold" />
-															{projectData.readingTime} min read
+											<div className="portfolio-inline-meta mb-5">
+												<time className="font-mono text-muted-foreground text-xs tabular-nums">
+													{formatDate(project.date)}
+												</time>
+												{projectData.readingTime && (
+													<span className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
+														<Clock size={12} weight="bold" />
+														{projectData.readingTime} min read
+													</span>
+												)}
+												{project.featured && (
+													<span className="portfolio-chip border-primary text-primary">
+														Featured
+													</span>
+												)}
+											</div>
+
+											<ProseContainer>
+												<p className="portfolio-body-lg text-muted-foreground">
+													{project.description}
+												</p>
+											</ProseContainer>
+										</ModuleContainer>
+									</div>
+								</Reveal>
+							</SwissGridRow>
+							<SwissGridRow>
+								<Reveal phase={2} delay={0.04} className="w-full">
+									<div className="portfolio-box-pad">
+										<ModuleContainer className="mx-auto">
+											<div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
+												{project.role && (
+													<div className="flex flex-col gap-2.5">
+														<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+															Role
 														</span>
-													)}
-													{project.featured && (
-														<span className="portfolio-chip border-primary text-primary">
-															Featured
+														<span className="font-medium text-foreground text-sm">
+															{project.role}
 														</span>
-													)}
-												</div>
-
-												<ProseContainer>
-													<p className="portfolio-body-lg mb-10 text-muted-foreground">
-														{project.description}
-													</p>
-												</ProseContainer>
-
-												<div className="grid grid-cols-1 gap-10 border-surface-200 border-t pt-10 sm:grid-cols-2 dark:border-surface-800">
-													{project.role && (
-														<div className="flex flex-col gap-2.5">
-															<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
-																Role
-															</span>
-															<span className="font-medium text-foreground text-sm">
-																{project.role}
-															</span>
+													</div>
+												)}
+												{project.status && (
+													<div className="flex flex-col gap-2.5">
+														<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+															Status
+														</span>
+														<span className="font-medium text-foreground text-sm">
+															{project.status}
+														</span>
+													</div>
+												)}
+												{project.stack && project.stack.length > 0 && (
+													<div className="flex flex-col gap-2 sm:col-span-2">
+														<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+															Engine Stack
+														</span>
+														<div className="flex flex-wrap gap-2.5">
+															{project.stack.map((item: string) => (
+																<span
+																	key={item}
+																	className="portfolio-chip"
+																>
+																	{item}
+																</span>
+															))}
 														</div>
-													)}
-													{project.status && (
-														<div className="flex flex-col gap-2.5">
+													</div>
+												)}
+												{!project.stack &&
+													project.tech &&
+													project.tech.length > 0 && (
+														<div className="flex flex-col gap-2.5 sm:col-span-2">
 															<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
-																Status
-															</span>
-															<span className="font-medium text-foreground text-sm">
-																{project.status}
-															</span>
-														</div>
-													)}
-													{project.stack && project.stack.length > 0 && (
-														<div className="flex flex-col gap-2 sm:col-span-2">
-															<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
-																Engine Stack
+																Technologies
 															</span>
 															<div className="flex flex-wrap gap-2.5">
-																{project.stack.map(
-																	(item: string) => (
+																{project.tech.map(
+																	(tech: string) => (
 																		<span
-																			key={item}
+																			key={tech}
 																			className="portfolio-chip"
 																		>
-																			{item}
+																			{tech}
 																		</span>
 																	),
 																)}
 															</div>
 														</div>
 													)}
-													{!project.stack &&
-														project.tech &&
-														project.tech.length > 0 && (
-															<div className="flex flex-col gap-2.5 sm:col-span-2">
-																<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
-																	Technologies
-																</span>
-																<div className="flex flex-wrap gap-2.5">
-																	{project.tech.map(
-																		(tech: string) => (
-																			<span
-																				key={tech}
-																				className="portfolio-chip"
-																			>
-																				{tech}
-																			</span>
-																		),
-																	)}
-																</div>
-															</div>
-														)}
+											</div>
+
+											{(project.url || project.github) && (
+												<div className="portfolio-control-row mt-10">
+													{project.url && (
+														<Button
+															asChild
+															size="md"
+															variant="outlined"
+															color="default"
+														>
+															<a
+																href={project.url}
+																target="_blank"
+																rel="noopener noreferrer"
+															>
+																Visit Site
+															</a>
+														</Button>
+													)}
+													{project.github && (
+														<Button
+															asChild
+															size="md"
+															variant="outlined"
+															color="default"
+														>
+															<a
+																href={project.github}
+																target="_blank"
+																rel="noopener noreferrer"
+															>
+																View Code
+															</a>
+														</Button>
+													)}
 												</div>
-
-												{(project.url || project.github) && (
-													<div className="portfolio-control-row">
-														{project.url && (
-															<Button
-																asChild
-																size="md"
-																variant="outlined"
-																color="default"
-															>
-																<a
-																	href={project.url}
-																	target="_blank"
-																	rel="noopener noreferrer"
-																>
-																	Visit Site
-																</a>
-															</Button>
-														)}
-														{project.github && (
-															<Button
-																asChild
-																size="md"
-																variant="outlined"
-																color="default"
-															>
-																<a
-																	href={project.github}
-																	target="_blank"
-																	rel="noopener noreferrer"
-																>
-																	View Code
-																</a>
-															</Button>
-														)}
-													</div>
-												)}
-											</ModuleContainer>
-										</div>
-									</SwissGridRow>
-								</SwissGridBox>
-							</PageContainer>
-						</section>
-					</Reveal>
-				</section>
-
-				{/* Content - Server Rendered MDX */}
-				<section id="project-content" className="w-full">
-					<ScrollReveal phase={2} className="w-full">
-						<section className="w-full">
-							<PageContainer className="portfolio-section-loose">
-								<SwissGridBox>
-									<SwissGridRow>
+											)}
+										</ModuleContainer>
+									</div>
+								</Reveal>
+							</SwissGridRow>
+							{contentSections.map((section, index) => (
+								<SwissGridRow key={`project-section-${index + 1}`}>
+									<ScrollReveal
+										phase={2}
+										delay={Math.min(index * 0.04, 0.24)}
+										className="w-full"
+									>
 										<div className="portfolio-box-pad">
 											<ModuleContainer className="mx-auto">
 												<article>
 													<MDXRemote
-														source={project.body.raw}
+														source={section}
 														components={mdxComponents}
-														options={{
-															mdxOptions: {
-																remarkPlugins: [remarkGfm],
-																rehypePlugins: [
-																	rehypeSlug,
-																	[
-																		rehypeAutolinkHeadings,
-																		{
-																			properties: {
-																				className: [
-																					"anchor",
-																				],
-																			},
-																		},
-																	],
-																],
-															},
-														}}
+														options={mdxOptions}
 													/>
 												</article>
 											</ModuleContainer>
 										</div>
-									</SwissGridRow>
-								</SwissGridBox>
-							</PageContainer>
-						</section>
-					</ScrollReveal>
+									</ScrollReveal>
+								</SwissGridRow>
+							))}
+						</SwissGridBox>
+					</PageContainer>
 				</section>
 
 				{/* CTA - Contextual Inquiry */}

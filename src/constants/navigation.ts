@@ -17,8 +17,8 @@ export const NAVIGATION_SHORTCUTS: Record<
 	projects: {
 		mac: "⌥⇧P",
 		win: "Alt + Shift + P",
-		link: "/projects",
-		description: "Navigate to the projects page.",
+		link: "/case-studies",
+		description: "Navigate to the case studies page.",
 	},
 	contact: {
 		mac: "⌥⇧C",

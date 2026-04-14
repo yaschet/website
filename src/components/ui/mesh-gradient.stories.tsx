@@ -157,7 +157,7 @@ function HeroContent() {
 											: "bg-surface-950 text-surface-50 hover:bg-surface-800",
 									)}
 								>
-									<Link href="/projects">
+									<Link href="/case-studies">
 										Case Studies
 										<ArrowRightIcon className="size-4" weight="bold" />
 									</Link>
@@ -220,7 +220,7 @@ const HeroSectionPreview = () => (
 											<Link href="/contact">Email</Link>
 										</Button>
 										<Button asChild size="lg" variant="solid" color="primary">
-											<Link href="/projects">
+											<Link href="/case-studies">
 												Case Studies
 												<ArrowRightIcon className="size-4" weight="bold" />
 											</Link>

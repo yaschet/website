@@ -174,7 +174,7 @@ export default function Home() {
 													variant="solid"
 													color="primary"
 												>
-													<Link href="/projects">
+													<Link href="/case-studies">
 														Case Studies
 														<ArrowRightIcon
 															className="size-4"

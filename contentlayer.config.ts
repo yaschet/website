@@ -86,7 +86,7 @@ export const Project = defineDocumentType(() => ({
 		},
 		url_path: {
 			type: "string",
-			resolve: (doc) => `/projects/${doc._raw.flattenedPath.split("/").pop()}`,
+			resolve: (doc) => `/case-studies/${doc._raw.flattenedPath.split("/").pop()}`,
 		},
 		readingTime: {
 			type: "number",

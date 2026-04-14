@@ -46,7 +46,7 @@ const mockProject = {
 	description:
 		"A high-performance trading platform built for institutional grade execution. Focusing on latency reduction and geometric clarity.",
 	date: "2024-05-15",
-	url_path: "/projects/verto",
+	url_path: "/case-studies/verto",
 	tech: ["Next.js", "TypeScript", "Tailwind v4", "Framer Motion", "Rust"],
 	featured: true,
 	_id: "verto",
