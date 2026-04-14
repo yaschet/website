@@ -44,10 +44,10 @@ export default function ProjectsPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<p className="portfolio-kicker mb-2 text-surface-400 dark:text-surface-500">
+											<p className="portfolio-kicker mb-2.5 text-surface-400 dark:text-surface-500">
 												Work
 											</p>
-											<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-4 text-surface-900 dark:text-surface-100">
+											<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-surface-900 dark:text-surface-100">
 												Selected Projects
 											</h1>
 											<ProseContainer>
@@ -157,7 +157,7 @@ export default function ProjectsPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad flex flex-col items-center justify-center text-center">
-											<div className="mb-4 flex items-center justify-center gap-2">
+											<div className="mb-5 flex items-center justify-center gap-2.5">
 												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 													Confidential Work
 												</p>

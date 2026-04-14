@@ -28,8 +28,8 @@ import { cn, springs } from "@/src/lib/index";
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Badge height - matches the padding unit for perfect squares */
-const BADGE_HEIGHT = 28; // px
-const INSIGNIA_SIZE = 28; // px - square, fills edge-to-edge
+const BADGE_HEIGHT = 30; // px
+const INSIGNIA_SIZE = 30; // px - square, fills edge-to-edge
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARED STYLES
@@ -59,7 +59,7 @@ const contentClasses = cn("flex items-center");
 
 const tooltipClasses = cn(
 	"pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 whitespace-nowrap",
-	"px-2 py-1 font-bold text-xs",
+	"px-2.5 py-2.5 font-bold text-xs",
 	"bg-white dark:bg-surface-900",
 	"text-surface-700 dark:text-surface-300",
 	"border border-surface-200 dark:border-surface-800",
@@ -100,7 +100,7 @@ export function LocationBadge({ className }: { className?: string }) {
 			</div>
 
 			{/* Content Zone - Balanced padding */}
-			<div className={cn(contentClasses, "min-w-0 flex-1 justify-center px-2")}>
+			<div className={cn(contentClasses, "min-w-0 flex-1 justify-center px-2.5")}>
 				<span className="leading-none">Rabat, Morocco</span>
 			</div>
 
@@ -180,11 +180,17 @@ export function TimeBadge({ className }: { className?: string }) {
 				className={insigniaClasses}
 				style={{ width: INSIGNIA_SIZE, height: INSIGNIA_SIZE }}
 			>
-				<Clock weight="duotone" className="size-4" />
+				<Clock
+					weight="duotone"
+					style={{
+						width: "var(--portfolio-icon-sm)",
+						height: "var(--portfolio-icon-sm)",
+					}}
+				/>
 			</div>
 
 			{/* Content Zone - Balanced padding */}
-			<div className={cn(contentClasses, "min-w-0 flex-1 justify-center px-2")}>
+			<div className={cn(contentClasses, "min-w-0 flex-1 justify-center px-2.5")}>
 				<span className="font-mono text-xs tabular-nums leading-none">{time}</span>
 			</div>
 
@@ -388,7 +394,7 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 	}
 
 	// Swiss Design: Negative Space Separator
-	// MATCH CTA BUTTON SPACING: gap-3 = 12px (0.75rem)
+	// Matches the portfolio's 10px rhythm unit.
 	const Separator = () => (
 		<span className="inline-block w-3 shrink-0 select-none" aria-hidden="true" />
 	);
@@ -409,7 +415,7 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 				targetSpeedRef.current = 1; // Target full speed
 			}}
 		>
-			<div className="relative h-full w-full overflow-hidden px-2">
+			<div className="relative h-full w-full overflow-hidden px-2.5">
 				<div
 					className="absolute inset-y-0 left-0 flex items-center will-change-transform"
 					ref={trackRef}

@@ -29,7 +29,7 @@ export default function Home() {
 
 				{/* Box 1: Profile + Hero — two rows, one shared border */}
 				<PageContainer>
-					<SwissGridBox className="mt-6">
+					<SwissGridBox>
 						<SwissGridRow>
 							<ProfileSection />
 						</SwissGridRow>
@@ -41,14 +41,14 @@ export default function Home() {
 
 				{/* Box 2: Selected Work */}
 				<PageContainer>
-					<SwissGridBox className="mt-12">
+					<SwissGridBox className="mt-10">
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
 									<div className="portfolio-box-pad">
 										{/* Section Header */}
 										<ScrollReveal phase={3}>
-											<div className="mb-4">
+											<div className="mb-5">
 												<h2 className="portfolio-kicker text-surface-500 dark:text-surface-300">
 													Selected Work
 												</h2>
@@ -56,7 +56,7 @@ export default function Home() {
 										</ScrollReveal>
 
 										{/* Projects Grid */}
-										<div className="space-y-6">
+										<div className="space-y-5">
 											{featuredProjects.map((project, i) => (
 												<ScrollReveal
 													key={project._id}
@@ -132,12 +132,12 @@ export default function Home() {
 
 				{/* Box 3: NDA Disclaimer + CTA — two rows, one shared border */}
 				<PageContainer>
-					<SwissGridBox className="mt-12">
+					<SwissGridBox className="mt-10">
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
 									<div className="portfolio-box-pad flex flex-col items-center justify-center text-center">
-										<div className="mb-4 flex items-center justify-center gap-2">
+										<div className="mb-5 flex items-center justify-center gap-2.5">
 											<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 												Confidential Work
 											</p>

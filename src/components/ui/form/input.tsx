@@ -59,12 +59,12 @@ const inputVariants = cva(
 				default: "rounded-none",
 			},
 			size: {
-				xs: "h-9 px-3 py-2",
-				sm: "h-10 px-4 py-2",
-				md: "h-12 px-5 py-3",
-				lg: "h-14 px-6 py-4",
-				xl: "h-16 px-8 py-5",
-				onboarding: "h-20 px-10 text-base",
+				xs: "h-[30px] px-2.5 py-1.5",
+				sm: "h-[40px] px-5 py-2.5",
+				md: "h-[50px] px-5 py-2.5",
+				lg: "h-[60px] px-[30px] py-3",
+				xl: "h-[80px] px-[40px] py-4",
+				onboarding: "h-[100px] px-10 text-base",
 			},
 		},
 		defaultVariants: {
@@ -127,11 +127,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 							"absolute inset-y-0 right-0 flex items-center justify-center text-muted-foreground",
 							"outline-none transition-colors hover:text-foreground focus-visible:text-primary",
 							// Align padding with the input's horizontal padding
-							size === "xs" && "px-3",
-							size === "sm" && "px-4",
+							size === "xs" && "px-2.5",
+							size === "sm" && "px-5",
 							size === "md" && "px-5",
-							size === "lg" && "px-6",
-							size === "xl" && "px-8",
+							size === "lg" && "px-[30px]",
+							size === "xl" && "px-[40px]",
 							size === "onboarding" && "px-10",
 						)}
 						type="button"

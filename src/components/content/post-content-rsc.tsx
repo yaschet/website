@@ -46,17 +46,17 @@ export function PostContentRSC({ post }: PostContentProps) {
 											<ModuleContainer className="mx-auto">
 												<Link
 													href="/blog"
-													className="portfolio-kicker mb-8 inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
+													className="portfolio-kicker mb-10 inline-flex items-center gap-2.5 text-muted-foreground transition-colors hover:text-foreground"
 												>
 													<ArrowLeft size={14} weight="bold" />
 													<span>Back to Blog</span>
 												</Link>
 
-												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-4 text-foreground">
+												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-foreground">
 													{post.title}
 												</h1>
 
-												<div className="portfolio-inline-meta mb-6">
+												<div className="portfolio-inline-meta mb-5">
 													<time className="font-mono text-muted-foreground text-xs tabular-nums">
 														{formatDate(post.date)}
 													</time>

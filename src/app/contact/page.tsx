@@ -33,14 +33,14 @@ export default function ContactPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<p className="portfolio-kicker mb-2 text-surface-400 dark:text-surface-500">
+											<p className="portfolio-kicker mb-2.5 text-surface-400 dark:text-surface-500">
 												Contact
 											</p>
 											<ProseContainer>
-												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-4 text-surface-900 dark:text-surface-100">
+												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-surface-900 dark:text-surface-100">
 													Get in touch.
 												</h1>
-												<p className="portfolio-body-sm mt-6 text-surface-500 dark:text-surface-400">
+												<p className="portfolio-body-sm mt-5 text-surface-500 dark:text-surface-400">
 													<a
 														href="mailto:hello@yaschet.dev"
 														className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-2 transition-colors hover:text-accent-600 hover:decoration-accent-600 dark:text-surface-100 dark:decoration-surface-700 dark:hover:text-accent-400 dark:hover:decoration-accent-400"
@@ -53,8 +53,8 @@ export default function ContactPage() {
 									</SwissGridRow>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr]">
-												<div className="space-y-3">
+											<div className="grid items-start gap-10 md:grid-cols-[1.2fr_0.8fr]">
+												<div className="space-y-2.5">
 													<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
 														Call
 													</p>
@@ -64,7 +64,7 @@ export default function ContactPage() {
 													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
 														Quick scoping or questions.
 													</p>
-													<div className="pt-1">
+													<div className="pt-2.5">
 														<Button
 															asChild
 															size="lg"
@@ -80,12 +80,12 @@ export default function ContactPage() {
 														</Button>
 													</div>
 												</div>
-												<div className="space-y-3">
+												<div className="space-y-2.5">
 													<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
 														Details
 													</p>
-													<dl className="grid gap-2">
-														<div className="grid grid-cols-[96px,1fr] gap-x-4">
+													<dl className="grid gap-2.5">
+														<div className="grid grid-cols-[100px,1fr] gap-x-5">
 															<dt className="portfolio-caption text-surface-500 dark:text-surface-400">
 																Response
 															</dt>
@@ -93,7 +93,7 @@ export default function ContactPage() {
 																24 to 48 hours
 															</dd>
 														</div>
-														<div className="grid grid-cols-[96px,1fr] gap-x-4">
+														<div className="grid grid-cols-[100px,1fr] gap-x-5">
 															<dt className="portfolio-caption text-surface-500 dark:text-surface-400">
 																Timezone
 															</dt>

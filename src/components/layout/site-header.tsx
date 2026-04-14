@@ -12,13 +12,16 @@ import { LocationBadge, MarqueeBadge, TimeBadge } from "@/src/components/ui/cont
 export function SiteHeader() {
 	return (
 		<section id="header" className="relative z-20 w-full">
-			<div className="h-14 w-full sm:h-16" suppressHydrationWarning>
-				<PageContainer className="flex h-full items-center justify-between gap-3">
+			<div
+				className="w-full"
+				style={{ height: "var(--portfolio-header-height)" }}
+				suppressHydrationWarning
+			>
+				<PageContainer className="flex h-full items-center justify-between gap-5">
 					<LocationBadge className="flex w-40 max-w-full shrink-0" />
 
 					<MarqueeBadge
 						className="hidden flex-1 sm:flex"
-						// Swiss Design: Ticker style, uppercase, consistent separator
 						items={[
 							"PRODUCT ENGINEERING",
 							"DESIGN SYSTEMS",

@@ -1432,29 +1432,31 @@
 }
 
 :root {
-  --portfolio-rhythm: 0.25rem; /* 4px */
-  --portfolio-space-1: calc(var(--portfolio-rhythm) * 1); /* 4px */
-  --portfolio-space-2: calc(var(--portfolio-rhythm) * 2); /* 8px */
-  --portfolio-space-3: calc(var(--portfolio-rhythm) * 3); /* 12px */
-  --portfolio-space-4: calc(var(--portfolio-rhythm) * 4); /* 16px */
-  --portfolio-space-5: calc(var(--portfolio-rhythm) * 5); /* 20px */
-  --portfolio-space-6: calc(var(--portfolio-rhythm) * 6); /* 24px */
-  --portfolio-space-8: calc(var(--portfolio-rhythm) * 8); /* 32px */
-  --portfolio-space-10: calc(var(--portfolio-rhythm) * 10); /* 40px */
-  --portfolio-space-12: calc(var(--portfolio-rhythm) * 12); /* 48px */
-  --portfolio-space-14: calc(var(--portfolio-rhythm) * 14); /* 56px */
-  --portfolio-space-16: calc(var(--portfolio-rhythm) * 16); /* 64px */
-  --portfolio-control-sm: calc(var(--portfolio-rhythm) * 8); /* 32px */
-  --portfolio-control-md: calc(var(--portfolio-rhythm) * 10); /* 40px */
-  --portfolio-control-lg: calc(var(--portfolio-rhythm) * 12); /* 48px */
-  --portfolio-control-xl: calc(var(--portfolio-rhythm) * 14); /* 56px */
-  --portfolio-box-pad-mobile: var(--portfolio-space-6);
-  --portfolio-box-pad-desktop: var(--portfolio-space-8);
-  --portfolio-nav-clearance: calc(var(--portfolio-rhythm) * 28); /* 112px */
-  --portfolio-avatar-size: calc(var(--portfolio-rhythm) * 14); /* 56px */
-  --portfolio-badge-height: calc(var(--portfolio-rhythm) * 7); /* 28px */
-  --portfolio-icon-touch: calc(var(--portfolio-rhythm) * 10); /* 40px */
-  --portfolio-icon-sm: calc(var(--portfolio-rhythm) * 4); /* 16px */
+  --portfolio-rhythm: 0.625rem; /* 10px */
+  --portfolio-grid-step: calc(var(--portfolio-rhythm) * 2); /* 20px */
+  --portfolio-space-1: var(--portfolio-rhythm); /* 10px */
+  --portfolio-space-2: var(--portfolio-grid-step); /* 20px */
+  --portfolio-space-3: calc(var(--portfolio-rhythm) * 3); /* 30px */
+  --portfolio-space-4: calc(var(--portfolio-rhythm) * 4); /* 40px */
+  --portfolio-space-5: calc(var(--portfolio-rhythm) * 5); /* 50px */
+  --portfolio-space-6: calc(var(--portfolio-rhythm) * 6); /* 60px */
+  --portfolio-space-8: calc(var(--portfolio-rhythm) * 8); /* 80px */
+  --portfolio-space-10: calc(var(--portfolio-rhythm) * 10); /* 100px */
+  --portfolio-space-12: calc(var(--portfolio-rhythm) * 12); /* 120px */
+  --portfolio-space-14: calc(var(--portfolio-rhythm) * 14); /* 140px */
+  --portfolio-space-16: calc(var(--portfolio-rhythm) * 16); /* 160px */
+  --portfolio-control-sm: calc(var(--portfolio-rhythm) * 3); /* 30px */
+  --portfolio-control-md: calc(var(--portfolio-rhythm) * 4); /* 40px */
+  --portfolio-control-lg: calc(var(--portfolio-rhythm) * 5); /* 50px */
+  --portfolio-control-xl: calc(var(--portfolio-rhythm) * 6); /* 60px */
+  --portfolio-box-pad-mobile: var(--portfolio-space-4);
+  --portfolio-box-pad-desktop: var(--portfolio-space-4);
+  --portfolio-nav-clearance: calc(var(--portfolio-rhythm) * 12); /* 120px */
+  --portfolio-avatar-size: calc(var(--portfolio-rhythm) * 6); /* 60px */
+  --portfolio-badge-height: calc(var(--portfolio-rhythm) * 3); /* 30px */
+  --portfolio-icon-touch: calc(var(--portfolio-rhythm) * 4); /* 40px */
+  --portfolio-icon-sm: calc(var(--portfolio-rhythm) * 2); /* 20px */
+  --portfolio-header-height: calc(var(--portfolio-rhythm) * 6); /* 60px */
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1464,7 +1466,7 @@
 @layer components {
   .portfolio-heading-xl {
     font-size: 3rem;
-    line-height: 3rem;
+    line-height: 3.125rem;
     letter-spacing: var(--tracking-tighter);
     font-weight: 500;
   }
@@ -1478,32 +1480,32 @@
 
   .portfolio-heading-sm {
     font-size: 1.75rem;
-    line-height: 2rem;
+    line-height: 1.875rem;
     letter-spacing: var(--tracking-snug);
     font-weight: 500;
   }
 
   .portfolio-body-lg {
     font-size: 1.125rem;
-    line-height: 1.75rem;
+    line-height: 1.875rem;
     letter-spacing: var(--tracking-normal);
   }
 
   .portfolio-body-md {
     font-size: 1.0625rem;
-    line-height: 1.75rem;
+    line-height: 1.875rem;
     letter-spacing: var(--tracking-normal);
   }
 
   .portfolio-body-sm {
     font-size: 0.9375rem;
-    line-height: 1.5rem;
+    line-height: 1.25rem;
     letter-spacing: 0em;
   }
 
   .portfolio-caption {
     font-size: 0.75rem;
-    line-height: 1rem;
+    line-height: var(--portfolio-space-2);
     letter-spacing: 0em;
   }
 
@@ -1512,25 +1514,25 @@
   }
 
   .portfolio-section {
-    padding-block: var(--portfolio-space-12);
+    padding-block: var(--portfolio-space-4);
   }
 
   .portfolio-section-loose {
-    padding-block: var(--portfolio-space-16);
+    padding-block: var(--portfolio-space-6);
   }
 
   .portfolio-section-top {
-    padding-top: var(--portfolio-space-8);
-    padding-bottom: var(--portfolio-space-12);
+    padding-top: var(--portfolio-space-4);
+    padding-bottom: var(--portfolio-space-6);
   }
 
   .portfolio-section-top-loose {
-    padding-top: var(--portfolio-space-8);
-    padding-bottom: var(--portfolio-space-16);
+    padding-top: var(--portfolio-space-4);
+    padding-bottom: var(--portfolio-space-6);
   }
 
   .portfolio-footer-pad {
-    padding-block: var(--portfolio-space-6);
+    padding-block: var(--portfolio-space-2);
   }
 
   .portfolio-nav-spacer {
@@ -1541,28 +1543,28 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--portfolio-space-4);
+    gap: var(--portfolio-space-2);
   }
 
   .portfolio-action-band {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--portfolio-space-6);
+    gap: var(--portfolio-space-2);
   }
 
   .portfolio-inline-meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: var(--portfolio-space-4);
-    row-gap: var(--portfolio-space-2);
+    column-gap: var(--portfolio-space-2);
+    row-gap: var(--portfolio-space-1);
   }
 
   .portfolio-kicker {
     font-family: var(--font-app-mono), ui-monospace, monospace;
     font-size: 0.75rem;
-    line-height: 1rem;
+    line-height: var(--portfolio-space-2);
     font-weight: 500;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -1576,7 +1578,7 @@
   }
 
   .portfolio-prose > * + * {
-    margin-top: var(--portfolio-space-6);
+    margin-top: var(--portfolio-space-3);
   }
 
   .dark .portfolio-prose {
@@ -1608,8 +1610,8 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: var(--portfolio-space-4);
-    row-gap: var(--portfolio-space-2);
+    column-gap: var(--portfolio-space-2);
+    row-gap: var(--portfolio-space-1);
   }
 
   .portfolio-meta-label {

@@ -46,7 +46,7 @@ export default function AboutPage() {
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ScrollReveal phase={2}>
-												<p className="portfolio-kicker mb-8 text-surface-400 dark:text-surface-500">
+												<p className="portfolio-kicker mb-10 text-surface-400 dark:text-surface-500">
 													01 · The Short Version
 												</p>
 											</ScrollReveal>
@@ -113,9 +113,9 @@ export default function AboutPage() {
 									</SwissGridRow>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<div className="grid gap-8 sm:grid-cols-2">
+											<div className="grid gap-10 sm:grid-cols-2">
 												<ScrollReveal phase={2} delay={0.05}>
-													<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
+													<div className="group space-y-2.5 border border-transparent p-5 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
 															Precision
 														</h3>
@@ -128,7 +128,7 @@ export default function AboutPage() {
 													</div>
 												</ScrollReveal>
 												<ScrollReveal phase={2} delay={0.1}>
-													<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
+													<div className="group space-y-2.5 border border-transparent p-5 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
 															Speed as a Feature
 														</h3>
@@ -141,7 +141,7 @@ export default function AboutPage() {
 													</div>
 												</ScrollReveal>
 												<ScrollReveal phase={2} delay={0.15}>
-													<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
+													<div className="group space-y-2.5 border border-transparent p-5 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
 															ROI-First
 														</h3>
@@ -154,7 +154,7 @@ export default function AboutPage() {
 													</div>
 												</ScrollReveal>
 												<ScrollReveal phase={2} delay={0.2}>
-													<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
+													<div className="group space-y-2.5 border border-transparent p-5 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
 														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
 															End-to-End Responsibility
 														</h3>
@@ -184,7 +184,7 @@ export default function AboutPage() {
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ScrollReveal phase={2}>
-												<p className="portfolio-kicker mb-8 text-surface-400 dark:text-surface-500">
+												<p className="portfolio-kicker mb-10 text-surface-400 dark:text-surface-500">
 													03 · Engineering Philosophy
 												</p>
 											</ScrollReveal>

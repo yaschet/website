@@ -39,7 +39,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 					"placeholder:font-mono placeholder:text-xs placeholder:uppercase placeholder:tracking-wider",
 					"placeholder:text-surface-500 dark:placeholder:text-surface-400",
 					// Spacing
-					"px-5 py-4",
+					"px-5 py-5",
 					// Shape
 					"rounded-none ring-offset-background",
 					// Transitions

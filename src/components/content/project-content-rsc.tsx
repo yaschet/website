@@ -51,7 +51,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 											<ModuleContainer className="mx-auto">
 												<Link
 													href="/projects"
-													className="portfolio-kicker mb-8 inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
+													className="portfolio-kicker mb-10 inline-flex items-center gap-2.5 text-muted-foreground transition-colors hover:text-foreground"
 												>
 													<ArrowLeft size={14} weight="bold" />
 													<span>Back to Projects</span>
@@ -59,7 +59,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 
 												{galleryImages.length > 0 &&
 													!projectData.hideCoverGallery && (
-														<div className="mb-8">
+														<div className="mb-10">
 															<ImageGallery
 																images={galleryImages}
 																altPrefix={project.title}
@@ -77,11 +77,11 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 														</div>
 													)}
 
-												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-4 text-foreground">
+												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-foreground">
 													{project.title}
 												</h1>
 
-												<div className="portfolio-inline-meta mb-6">
+												<div className="portfolio-inline-meta mb-5">
 													<time className="font-mono text-muted-foreground text-xs tabular-nums">
 														{formatDate(project.date)}
 													</time>
@@ -99,14 +99,14 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 												</div>
 
 												<ProseContainer>
-													<p className="portfolio-body-lg mb-12 text-muted-foreground">
+													<p className="portfolio-body-lg mb-10 text-muted-foreground">
 														{project.description}
 													</p>
 												</ProseContainer>
 
-												<div className="mb-12 grid grid-cols-1 gap-8 border-surface-200 border-t py-8 sm:grid-cols-2 dark:border-surface-800">
+												<div className="mb-10 grid grid-cols-1 gap-10 border-surface-200 border-t py-10 sm:grid-cols-2 dark:border-surface-800">
 													{project.role && (
-														<div className="flex flex-col gap-2">
+														<div className="flex flex-col gap-2.5">
 															<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 																Role
 															</span>
@@ -116,7 +116,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 														</div>
 													)}
 													{project.status && (
-														<div className="flex flex-col gap-2">
+														<div className="flex flex-col gap-2.5">
 															<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 																Status
 															</span>
@@ -130,7 +130,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 															<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 																Engine Stack
 															</span>
-															<div className="flex flex-wrap gap-2">
+															<div className="flex flex-wrap gap-2.5">
 																{project.stack.map(
 																	(item: string) => (
 																		<span
@@ -147,11 +147,11 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 													{!project.stack &&
 														project.tech &&
 														project.tech.length > 0 && (
-															<div className="flex flex-col gap-2 sm:col-span-2">
+															<div className="flex flex-col gap-2.5 sm:col-span-2">
 																<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 																	Technologies
 																</span>
-																<div className="flex flex-wrap gap-2">
+																<div className="flex flex-wrap gap-2.5">
 																	{project.tech.map(
 																		(tech: string) => (
 																			<span

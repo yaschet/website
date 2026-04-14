@@ -21,10 +21,10 @@ export function ProfileSection() {
 			<Reveal phase={1} className="w-full">
 				<div className="w-full">
 					<div className="portfolio-box-pad flex h-full items-center justify-between">
-						<div className="flex items-center gap-4">
+						<div className="flex items-center gap-5">
 							<Avatar
 								className={cn(
-									"relative size-14 overflow-hidden rounded-(--radius) border",
+									"relative overflow-hidden rounded-(--radius) border",
 									avatarBorder,
 									avatarBg,
 								)}
@@ -39,7 +39,7 @@ export function ProfileSection() {
 									className="object-cover"
 									placeholder="blur"
 									fill
-									sizes="56px"
+									sizes="60px"
 								/>
 								<AvatarFallback
 									className={cn(
@@ -52,7 +52,7 @@ export function ProfileSection() {
 								</AvatarFallback>
 							</Avatar>
 							<div>
-								<h1 className="font-semibold text-surface-900 text-xl dark:text-surface-100">
+								<h1 className="font-semibold text-[20px] text-surface-900 leading-[30px] dark:text-surface-100">
 									Yassine Chettouch
 								</h1>
 								<p className="portfolio-body-sm text-surface-500 dark:text-surface-400">
@@ -61,7 +61,7 @@ export function ProfileSection() {
 							</div>
 						</div>
 
-						<div className="flex items-center gap-1">
+						<div className="flex items-center gap-2.5">
 							<Link
 								href="https://linkedin.com/in/yassinechettouch"
 								target="_blank"

@@ -56,7 +56,7 @@ const navItems: NavItem[] = [
 ];
 
 const BUTTON_SIZE = 40;
-const ICON_SIZE = 16;
+const ICON_SIZE = 20;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COMPONENT
@@ -141,13 +141,13 @@ export function FloatingNav() {
 	};
 
 	return (
-		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-[var(--portfolio-nav-clearance)] items-center justify-center px-6">
+		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-[var(--portfolio-nav-clearance)] items-center justify-center px-5">
 			<motion.nav
 				initial={{ y: 20, opacity: 0 }}
 				animate={isEnabled ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
 				transition={springs.responsive}
 				className={cn(
-					"pointer-events-auto relative flex items-center p-2",
+					"pointer-events-auto relative flex items-center p-2.5",
 					// SWISS DESIGN: Solid, High Contrast, No Blur
 					"bg-surface-950 dark:bg-surface-50",
 					"border border-surface-800 dark:border-surface-200",
@@ -241,8 +241,8 @@ export function FloatingNav() {
 											exit={{ opacity: 0, y: 4, scale: 0.98 }}
 											transition={springs.snappy}
 											className={cn(
-												"pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2 whitespace-nowrap",
-												"px-3 py-2 font-medium text-xs tracking-wide",
+												"pointer-events-none absolute bottom-full left-1/2 z-20 mb-2.5 -translate-x-1/2 whitespace-nowrap",
+												"px-5 py-2.5 font-medium text-xs tracking-wide",
 												"bg-surface-950 text-surface-50", // Inverse tooltip
 												"dark:bg-surface-50 dark:text-surface-950",
 												"rounded-none",
@@ -259,7 +259,7 @@ export function FloatingNav() {
 				</ul>
 
 				<div
-					className="mx-1 h-5 w-px bg-surface-800 dark:bg-surface-200"
+					className="mx-2.5 h-5 w-px bg-surface-800 dark:bg-surface-200"
 					aria-hidden="true"
 				/>
 

@@ -30,7 +30,7 @@ function FormField({
 	const Comp = isTextArea ? Textarea : Input;
 
 	return (
-		<div className="group space-y-3">
+		<div className="group space-y-2.5">
 			<Label
 				htmlFor={field.name}
 				className="portfolio-kicker block text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
@@ -104,7 +104,7 @@ export function ContactForm() {
 			}}
 			className="space-y-10"
 		>
-			<div className="grid gap-8 sm:grid-cols-2">
+			<div className="grid gap-10 sm:grid-cols-2">
 				<form.Field name="name">
 					{(field) => <FormField field={field} label="Name" placeholder="John Doe" />}
 				</form.Field>

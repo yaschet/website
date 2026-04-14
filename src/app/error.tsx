@@ -31,16 +31,16 @@ export default function AppError({
 						<SwissGridRow>
 							<div className="portfolio-box-pad">
 								<ProseContainer className="mx-auto flex flex-col items-center justify-center">
-									<div className="mb-8 flex justify-center">
-										<div className="flex size-14 items-center justify-center bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-900 dark:text-surface-50">
+									<div className="mb-10 flex justify-center">
+										<div className="flex size-[60px] items-center justify-center bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-900 dark:text-surface-50">
 											<Warning
-												className="size-6 opacity-80"
+												className="size-5 opacity-80"
 												weight="duotone"
 											/>
 										</div>
 									</div>
 
-									<h1 className="portfolio-heading-lg portfolio-capsize-heading-lg mb-3 text-surface-900 dark:text-surface-100">
+									<h1 className="portfolio-heading-lg portfolio-capsize-heading-lg mb-5 text-surface-900 dark:text-surface-100">
 										System Interruption
 									</h1>
 
@@ -50,7 +50,7 @@ export default function AppError({
 									</p>
 
 									<Button onClick={() => reset()} size="lg" variant="solid">
-										<ArrowClockwise className="mr-2 size-4" />
+										<ArrowClockwise className="mr-2.5 size-5" />
 										Reboot System
 									</Button>
 								</ProseContainer>

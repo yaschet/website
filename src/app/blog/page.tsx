@@ -31,10 +31,10 @@ export default function BlogPage() {
 								<SwissGridRow>
 									<div className="portfolio-box-pad">
 										<ProseContainer className="mx-auto flex flex-col items-center justify-center">
-											<p className="portfolio-kicker mb-4 text-surface-400 dark:text-surface-500">
+											<p className="portfolio-kicker mb-5 text-surface-400 dark:text-surface-500">
 												Coming Soon
 											</p>
-											<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-6 text-surface-900 dark:text-surface-100">
+											<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-surface-900 dark:text-surface-100">
 												Blog
 											</h1>
 											<p className="portfolio-body-lg mb-10 text-surface-600 dark:text-surface-400">
