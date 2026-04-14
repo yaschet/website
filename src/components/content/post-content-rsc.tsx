@@ -1,10 +1,5 @@
 import { ArrowLeft, ArrowRight, Clock } from "@phosphor-icons/react/dist/ssr";
-import type { Post } from "contentlayer2/generated";
 import Link from "next/link";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
@@ -13,29 +8,21 @@ import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import type { PostEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
 
 interface PostContentProps {
-	post: Post;
+	post: PostEntry;
 }
 
-// Extended type for computed fields if needed
-type PostWithExtras = Post & {
-	readingTime?: number;
-};
-
 export function PostContentRSC({ post }: PostContentProps) {
-	const postData = post as PostWithExtras;
-
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
-				{/* Nav Row */}
 				<Reveal phase={1} className="w-full">
 					<SiteHeader />
 				</Reveal>
 
-				{/* Header */}
 				<section id="post-header" className="w-full">
 					<Reveal phase={1} className="w-full">
 						<section className="w-full">
@@ -60,12 +47,10 @@ export function PostContentRSC({ post }: PostContentProps) {
 													<time className="font-mono text-muted-foreground text-xs tabular-nums">
 														{formatDate(post.date)}
 													</time>
-													{postData.readingTime && (
-														<span className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
-															<Clock size={12} weight="bold" />
-															{postData.readingTime} min read
-														</span>
-													)}
+													<span className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
+														<Clock size={12} weight="bold" />
+														{post.readingTime} min read
+													</span>
 												</div>
 
 												<ProseContainer>
@@ -82,7 +67,6 @@ export function PostContentRSC({ post }: PostContentProps) {
 					</Reveal>
 				</section>
 
-				{/* Content - Server Rendered MDX */}
 				<section id="post-content" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
@@ -92,28 +76,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 										<div className="portfolio-box-pad">
 											<ModuleContainer className="mx-auto">
 												<article>
-													<MDXRemote
-														source={post.body.raw}
-														components={mdxComponents}
-														options={{
-															mdxOptions: {
-																remarkPlugins: [remarkGfm],
-																rehypePlugins: [
-																	rehypeSlug,
-																	[
-																		rehypeAutolinkHeadings,
-																		{
-																			properties: {
-																				className: [
-																					"anchor",
-																				],
-																			},
-																		},
-																	],
-																],
-															},
-														}}
-													/>
+													<post.Content components={mdxComponents} />
 												</article>
 											</ModuleContainer>
 										</div>
@@ -124,7 +87,6 @@ export function PostContentRSC({ post }: PostContentProps) {
 					</ScrollReveal>
 				</section>
 
-				{/* CTA */}
 				<section id="post-cta" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
@@ -161,7 +123,6 @@ export function PostContentRSC({ post }: PostContentProps) {
 					</ScrollReveal>
 				</section>
 
-				{/* Reading Bracket */}
 				<ReadingBracket />
 			</main>
 			<SiteFooter />

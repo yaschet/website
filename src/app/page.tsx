@@ -1,6 +1,4 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
-import { allProjects } from "contentlayer2/generated";
-
 import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
 import { ProfileSection } from "@/src/components/layout/profile-section";
@@ -11,8 +9,10 @@ import { Button } from "@/src/components/ui/button";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import { getAllProjects } from "@/src/content/registry";
 
-export default function Home() {
+export default async function Home() {
+	const allProjects = await getAllProjects();
 	// Identify featured projects for the landing page
 	const featuredSlugs = ["verto"];
 	const featuredProjects = featuredSlugs
@@ -48,7 +48,7 @@ export default function Home() {
 										<div className="space-y-5">
 											{featuredProjects.map((project, i) => (
 												<ScrollReveal
-													key={project._id}
+													key={project.id}
 													phase={3}
 													delay={i * 0.05}
 												>
@@ -57,7 +57,7 @@ export default function Home() {
 															index={`0${i + 1}`}
 															title={project.title}
 															description={project.description}
-															href={project.url_path}
+															href={project.urlPath}
 															tags={project.tech ?? []}
 															images={project.coverImages}
 															date="January 2026"

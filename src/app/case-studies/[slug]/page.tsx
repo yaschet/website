@@ -1,7 +1,7 @@
-import { allProjects } from "contentlayer2/generated";
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { ProjectContentRSC } from "@/src/components/content/project-content-rsc";
+import { getAllProjects, getProjectBySlug } from "@/src/content/registry";
 
 interface ProjectPageProps {
 	params: Promise<{
@@ -15,8 +15,10 @@ interface ProjectData {
 	seoKeywords?: string[];
 }
 
-export function generateStaticParams() {
-	return allProjects.map((project) => ({
+export async function generateStaticParams() {
+	const projects = await getAllProjects();
+
+	return projects.map((project) => ({
 		slug: project.slug,
 	}));
 }
@@ -26,7 +28,7 @@ export async function generateMetadata(
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
 	const { slug } = await params;
-	const project = allProjects.find((p) => p.slug === slug);
+	const project = await getProjectBySlug(slug);
 
 	if (!project) {
 		return {
@@ -76,7 +78,7 @@ export async function generateMetadata(
 
 export default async function CaseStudyPage({ params }: ProjectPageProps) {
 	const { slug } = await params;
-	const project = allProjects.find((p) => p.slug === slug);
+	const project = await getProjectBySlug(slug);
 
 	if (!project) {
 		notFound();

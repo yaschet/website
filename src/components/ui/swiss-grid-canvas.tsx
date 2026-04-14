@@ -20,7 +20,7 @@
  */
 import { useReducedMotion, useSpring } from "framer-motion";
 import {
-	type ElementType,
+	createElement,
 	type ReactNode,
 	useCallback,
 	useEffect,
@@ -1006,7 +1006,7 @@ interface SwissGridSectionProps {
 	/** Additional CSS classes */
 	className?: string;
 	/** HTML tag to render (default: div) */
-	as?: ElementType;
+	as?: keyof HTMLElementTagNameMap;
 }
 
 /**
@@ -1033,11 +1033,15 @@ export function SwissGridSection({
 		};
 	}, [registerSection, unregisterSection]);
 
-	return (
-		// biome-ignore lint/suspicious/noExplicitAny: Ref type mismatch with dynamic tag
-		<Tag ref={ref as any} className={className} data-swiss-section>
-			{children}
-		</Tag>
+	return createElement(
+		Tag,
+		{
+			// biome-ignore lint/suspicious/noExplicitAny: Ref type mismatch with dynamic tag
+			ref: ref as any,
+			className,
+			"data-swiss-section": true,
+		},
+		children,
 	);
 }
 

@@ -1,11 +1,5 @@
 import { ArrowLeft, ArrowRight, Clock } from "@phosphor-icons/react/dist/ssr";
-import type { Project } from "contentlayer2/generated";
 import Link from "next/link";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
@@ -14,60 +8,24 @@ import { Button } from "@/src/components/ui/button";
 import { ImageGallery } from "@/src/components/ui/image-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import type { ProjectEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
 import { SiteHeader } from "../layout/site-header";
 
 interface ProjectContentProps {
-	project: Project;
-}
-
-// Extended type for computed fields
-type ProjectWithExtras = Project & {
-	readingTime?: number;
-	coverImages?: string[];
-	hideCoverGallery?: boolean;
-};
-
-const MDX_SECTION_BREAK = /^\s*(?:---|\*\*\*|___)\s*$/gm;
-
-function splitCaseStudySections(source: string) {
-	return source
-		.split(MDX_SECTION_BREAK)
-		.map((section) => section.trim())
-		.filter(Boolean);
+	project: ProjectEntry;
 }
 
 export function ProjectContentRSC({ project }: ProjectContentProps) {
-	const projectData = project as ProjectWithExtras;
-	const galleryImages = projectData.coverImages ?? [];
-	const contentSections = splitCaseStudySections(project.body.raw);
-	// biome-ignore lint/suspicious/noExplicitAny: next-mdx-remote's SerializeOptions typing is too narrow for shared plugin tuples here.
-	const mdxOptions: any = {
-		mdxOptions: {
-			remarkPlugins: [remarkGfm],
-			rehypePlugins: [
-				rehypeSlug,
-				[
-					rehypeAutolinkHeadings,
-					{
-						properties: {
-							className: ["anchor"],
-						},
-					},
-				],
-			],
-		},
-	};
+	const galleryImages = project.coverImages ?? [];
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
-				{/* Nav Row */}
 				<Reveal phase={1} className="w-full">
 					<SiteHeader />
 				</Reveal>
 
-				{/* Main Case Study Object */}
 				<section id="project-main" className="w-full">
 					<PageContainer className="portfolio-section-top">
 						<SwissGridBox>
@@ -84,7 +42,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 											</Link>
 
 											{galleryImages.length > 0 &&
-												!projectData.hideCoverGallery && (
+												!project.hideCoverGallery && (
 													<div className="mb-10">
 														<ImageGallery
 															images={galleryImages}
@@ -105,12 +63,10 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 												<time className="font-mono text-muted-foreground text-xs tabular-nums">
 													{formatDate(project.date)}
 												</time>
-												{projectData.readingTime && (
-													<span className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
-														<Clock size={12} weight="bold" />
-														{projectData.readingTime} min read
-													</span>
-												)}
+												<span className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
+													<Clock size={12} weight="bold" />
+													{project.readingTime} min read
+												</span>
 												{project.featured && (
 													<span className="portfolio-chip border-primary text-primary">
 														Featured
@@ -158,7 +114,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 															Engine Stack
 														</span>
 														<div className="flex flex-wrap gap-2.5">
-															{project.stack.map((item: string) => (
+															{project.stack.map((item) => (
 																<span
 																	key={item}
 																	className="portfolio-chip"
@@ -177,16 +133,14 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 																Technologies
 															</span>
 															<div className="flex flex-wrap gap-2.5">
-																{project.tech.map(
-																	(tech: string) => (
-																		<span
-																			key={tech}
-																			className="portfolio-chip"
-																		>
-																			{tech}
-																		</span>
-																	),
-																)}
+																{project.tech.map((tech) => (
+																	<span
+																		key={tech}
+																		className="portfolio-chip"
+																	>
+																		{tech}
+																	</span>
+																))}
 															</div>
 														</div>
 													)}
@@ -232,32 +186,21 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									</div>
 								</Reveal>
 							</SwissGridRow>
-							{contentSections.map((section, index) => (
-								<SwissGridRow key={`project-section-${index + 1}`}>
-									<ScrollReveal
-										phase={2}
-										delay={Math.min(index * 0.04, 0.24)}
-										className="w-full"
-									>
-										<div className="portfolio-box-pad">
-											<ModuleContainer className="mx-auto">
-												<article>
-													<MDXRemote
-														source={section}
-														components={mdxComponents}
-														options={mdxOptions}
-													/>
-												</article>
-											</ModuleContainer>
-										</div>
-									</ScrollReveal>
-								</SwissGridRow>
-							))}
+							<SwissGridRow>
+								<ScrollReveal phase={2} className="w-full">
+									<div className="portfolio-box-pad">
+										<ModuleContainer className="mx-auto">
+											<article>
+												<project.Content components={mdxComponents} />
+											</article>
+										</ModuleContainer>
+									</div>
+								</ScrollReveal>
+							</SwissGridRow>
 						</SwissGridBox>
 					</PageContainer>
 				</section>
 
-				{/* CTA - Contextual Inquiry */}
 				<section id="project-cta" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
@@ -294,7 +237,6 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 					</ScrollReveal>
 				</section>
 
-				{/* Reading Bracket - Client Component */}
 				<ReadingBracket />
 			</main>
 			<SiteFooter />

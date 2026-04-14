@@ -1,11 +1,12 @@
----
-title: "Building Type-Safe APIs with tRPC"
-description: "A deep dive into implementing end-to-end type safety in Next.js applications using tRPC, Prisma, and Zod."
-date: 2024-12-01
-tags: ["typescript", "trpc", "nextjs", "api"]
-author: "Yassine Chettouch"
-published: true
----
+export const metadata = {
+	title: "Building Type-Safe APIs with tRPC",
+	description:
+		"A deep dive into implementing end-to-end type safety in Next.js applications using tRPC, Prisma, and Zod.",
+	date: "2024-12-01",
+	tags: ["typescript", "trpc", "nextjs", "api"],
+	author: "Yassine Chettouch",
+	published: true,
+};
 
 ## Introduction
 
@@ -68,5 +69,4 @@ const { data } = trpc.getUser.useQuery({ id: "123" });
 4. **Validation Built-in**: Zod schemas validate at runtime
 
 ## Conclusion
-
 tRPC + Zod + Prisma creates an incredibly productive development experience with bulletproof type safety from database to UI.

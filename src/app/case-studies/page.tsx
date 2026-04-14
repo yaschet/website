@@ -1,6 +1,4 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
-import { allProjects } from "contentlayer2/generated";
-import { compareDesc } from "date-fns";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
@@ -11,6 +9,7 @@ import { Button } from "@/src/components/ui/button";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import { getAllProjects } from "@/src/content/registry";
 
 export const metadata: Metadata = {
 	title: "Case Studies | Yassine Chettouch",
@@ -28,8 +27,8 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function CaseStudiesPage() {
-	const projects = allProjects.sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)));
+export default async function CaseStudiesPage() {
+	const projects = await getAllProjects();
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -55,7 +54,7 @@ export default function CaseStudiesPage() {
 									<div className="space-y-5">
 										{projects.map((project, i) => (
 											<ScrollReveal
-												key={project._id}
+												key={project.id}
 												phase={2}
 												delay={i * 0.05}
 												className="w-full"
@@ -64,7 +63,7 @@ export default function CaseStudiesPage() {
 													index={String(i + 1).padStart(2, "0")}
 													title={project.title}
 													description={project.description}
-													href={project.url_path}
+													href={project.urlPath}
 													tags={project.tech ?? []}
 													images={project.coverImages}
 													date={

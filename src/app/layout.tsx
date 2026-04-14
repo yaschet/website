@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
 
 import { FloatingNav } from "@components/layout/floating-nav";
@@ -101,7 +102,9 @@ export default function RootLayout({
 				suppressHydrationWarning={true}
 			>
 				<RootProvider>
-					<FloatingNav />
+					<Suspense fallback={null}>
+						<FloatingNav />
+					</Suspense>
 					{children}
 				</RootProvider>
 			</body>
