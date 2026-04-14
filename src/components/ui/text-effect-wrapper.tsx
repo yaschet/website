@@ -419,6 +419,18 @@ export function TextEffectWrapper({
 		}),
 	};
 
+	const keyedSegments = React.useMemo(() => {
+		const occurrenceMap = new Map<string, number>();
+		return segments.map((segment) => {
+			const occurrence = occurrenceMap.get(segment) ?? 0;
+			occurrenceMap.set(segment, occurrence + 1);
+			return {
+				key: `${per}-${segment}-${occurrence}`,
+				segment,
+			};
+		});
+	}, [segments, per]);
+
 	// If not triggered, show the text without animation
 	if (!trigger) {
 		const Tag = as as React.ElementType<{
@@ -447,9 +459,9 @@ export function TextEffectWrapper({
 				style={style}
 			>
 				{per !== "line" ? <span className="sr-only">{children}</span> : null}
-				{segments.map((segment, index) => (
+				{keyedSegments.map(({ key, segment }, index) => (
 					<AnimationComponent
-						key={`${per}-${index}-${segment}`}
+						key={key}
 						segment={segment}
 						variants={computedVariants.item}
 						per={per}

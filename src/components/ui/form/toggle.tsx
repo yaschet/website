@@ -70,7 +70,7 @@ function ToggleRoot({
 
 type ToggleHighlightPrimitiveProps = HTMLMotionProps<"div">;
 
-function _ToggleHighlightPrimitive({ style, ...props }: ToggleHighlightPrimitiveProps) {
+function ToggleHighlightPrimitive({ style, ...props }: ToggleHighlightPrimitiveProps) {
 	const { disabled, isPressed } = useTogglePrimitive();
 
 	return (
@@ -94,7 +94,7 @@ function _ToggleHighlightPrimitive({ style, ...props }: ToggleHighlightPrimitive
 
 type ToggleItemPrimitiveProps = HTMLMotionProps<"div">;
 
-function _ToggleItemPrimitive({ style, ...props }: ToggleItemPrimitiveProps) {
+function ToggleItemPrimitive({ style, ...props }: ToggleItemPrimitiveProps) {
 	const { disabled, isPressed } = useTogglePrimitive();
 
 	return (
