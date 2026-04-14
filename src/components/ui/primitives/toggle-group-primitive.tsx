@@ -138,13 +138,13 @@ function ToggleGroupHighlightItem({ children, style, ...props }: ToggleGroupHigh
 
 export {
 	ToggleGroup,
-	ToggleGroupItem,
+	type ToggleGroupContextType,
 	ToggleGroupHighlight,
 	ToggleGroupHighlightItem,
-	useToggleGroup,
-	type ToggleGroupProps,
-	type ToggleGroupItemProps,
-	type ToggleGroupHighlightProps,
 	type ToggleGroupHighlightItemProps,
-	type ToggleGroupContextType,
+	type ToggleGroupHighlightProps,
+	ToggleGroupItem,
+	type ToggleGroupItemProps,
+	type ToggleGroupProps,
+	useToggleGroup,
 };

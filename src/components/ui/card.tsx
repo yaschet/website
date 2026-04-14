@@ -129,4 +129,4 @@ const DefaultCard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
 );
 DefaultCard.displayName = "DefaultCard";
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, DefaultCard };
+export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, DefaultCard };

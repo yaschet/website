@@ -88,4 +88,4 @@ function ToggleGroupItem({ children, className, size, variant, ...props }: Toggl
 	);
 }
 
-export { ToggleGroup, ToggleGroupItem, type ToggleGroupProps, type ToggleGroupItemProps };
+export { ToggleGroup, ToggleGroupItem, type ToggleGroupItemProps, type ToggleGroupProps };

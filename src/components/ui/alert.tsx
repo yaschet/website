@@ -150,4 +150,4 @@ const AlertIcon = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
 );
 AlertIcon.displayName = "AlertIcon";
 
-export { Alert, AlertIcon, AlertTitle, AlertDescription };
+export { Alert, AlertDescription, AlertIcon, AlertTitle };

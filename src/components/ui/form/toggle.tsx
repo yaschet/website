@@ -163,4 +163,4 @@ function Toggle({
 	);
 }
 
-export { Toggle, toggleVariants, type ToggleProps };
+export { Toggle, type ToggleProps, toggleVariants };
