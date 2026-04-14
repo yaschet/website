@@ -15,7 +15,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    CORE VARIABLE SYSTEM
    Achromatic Swiss: Pure grayscale foundation. Color lives in the mesh.
-   Surface: True Black/White (Zero Chroma) | Accent: Sky Blue (Hue 210)
+   Surface: True Black/White (Zero Chroma) | Accent: Sky Color
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
   /* SURFACE: Pure Achromatic (Zero Chroma = True Grayscale) */
@@ -44,18 +44,18 @@
   --primary-color-900: oklch(0.14 0 0);
   --primary-color-950: oklch(0.09 0 0);
 
-  /* ACCENT: Electric Blue (Hue 235 | Linear/Stripe territory) */
-  --accent-color-50: oklch(0.97 0.03 235);
-  --accent-color-100: oklch(0.93 0.06 235);
-  --accent-color-200: oklch(0.87 0.10 235);
-  --accent-color-300: oklch(0.78 0.14 235);
-  --accent-color-400: oklch(0.68 0.16 235);
-  --accent-color-500: oklch(0.58 0.16 235);
-  --accent-color-600: oklch(0.50 0.16 235);
-  --accent-color-700: oklch(0.42 0.14 235);
-  --accent-color-800: oklch(0.32 0.10 235);
-  --accent-color-900: oklch(0.22 0.06 235);
-  --accent-color-950: oklch(0.15 0.04 235);
+  /* ACCENT: Sky Color */
+  --accent-color-50: oklch(95.58% 0.015 257.2);
+  --accent-color-100: oklch(91.11% 0.03 256.01);
+  --accent-color-200: oklch(81.97% 0.063 257.53);
+  --accent-color-300: oklch(73.07% 0.096 257.09);
+  --accent-color-400: oklch(64.33% 0.13 257.04);
+  --accent-color-500: oklch(56.03% 0.163 257.63);
+  --accent-color-600: oklch(47.75% 0.137 257.65);
+  --accent-color-700: oklch(39.1% 0.108 257.7);
+  --accent-color-800: oklch(29.94% 0.078 257.88);
+  --accent-color-900: oklch(20.35% 0.043 256.48);
+  --accent-color-950: oklch(17.08% 0.032 254.37);
 
   /* INFO: Professional Dark Navy (Hue 250) */
   --info-color-50: oklch(0.97 0.01 250);
@@ -819,17 +819,17 @@
     --primary-color-900: var(--zinc-900);
     --primary-color-950: var(--zinc-950);
 
-    --accent-color-50: var(--blue-50);
-    --accent-color-100: var(--blue-100);
-    --accent-color-200: var(--blue-200);
-    --accent-color-300: var(--blue-300);
-    --accent-color-400: var(--blue-400);
-    --accent-color-500: var(--blue-500);
-    --accent-color-600: var(--blue-600);
-    --accent-color-700: var(--blue-700);
-    --accent-color-800: var(--blue-800);
-    --accent-color-900: var(--blue-900);
-    --accent-color-950: var(--blue-950);
+    --accent-color-50: oklch(95.58% 0.015 257.2);
+    --accent-color-100: oklch(91.11% 0.03 256.01);
+    --accent-color-200: oklch(81.97% 0.063 257.53);
+    --accent-color-300: oklch(73.07% 0.096 257.09);
+    --accent-color-400: oklch(64.33% 0.13 257.04);
+    --accent-color-500: oklch(56.03% 0.163 257.63);
+    --accent-color-600: oklch(47.75% 0.137 257.65);
+    --accent-color-700: oklch(39.1% 0.108 257.7);
+    --accent-color-800: oklch(29.94% 0.078 257.88);
+    --accent-color-900: oklch(20.35% 0.043 256.48);
+    --accent-color-950: oklch(17.08% 0.032 254.37);
 
     --info-color-50: var(--blue-50);
     --info-color-100: var(--blue-100);
