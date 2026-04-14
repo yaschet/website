@@ -46,15 +46,20 @@ export default function Home() {
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
 									<div className="portfolio-box-pad">
-										{/* Section Header */}
 										<ScrollReveal phase={3}>
-											<div className="mb-5">
-												<h2 className="portfolio-kicker text-surface-500 dark:text-surface-300">
-													Selected Work
-												</h2>
-											</div>
+											<p className="portfolio-kicker text-surface-500 dark:text-surface-300">
+												Selected Work
+											</p>
 										</ScrollReveal>
+									</div>
+								</section>
+							</ScrollReveal>
+						</SwissGridRow>
 
+						<SwissGridRow>
+							<ScrollReveal phase={3} className="w-full">
+								<section className="w-full">
+									<div className="portfolio-box-pad">
 										{/* Projects Grid */}
 										<div className="space-y-5">
 											{featuredProjects.map((project, i) => (
