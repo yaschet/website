@@ -10,6 +10,16 @@ import {
 	resolveLength,
 } from "./dot-grid-metrics";
 
+/**
+ * Props for TopographicDotField.
+ *
+ * @param className - Optional CSS class applied to the root container.
+ * @param step - Grid step size (CSS length or px number).
+ * @param minInset - Minimum inset from container edges.
+ * @param radius - Dot radius in px.
+ * @param origin - Grid alignment strategy.
+ * @param speed - Animation speed multiplier.
+ */
 interface TopographicDotFieldProps {
 	className?: string;
 	step?: DotGridLength;
@@ -28,7 +38,6 @@ interface Tone {
 
 interface Palette {
 	base: Tone;
-	underlay: Tone[];
 	levels: Tone[];
 }
 
@@ -39,8 +48,8 @@ interface DotPoint {
 	y: number;
 }
 
+/** One pre-baked animation frame: one Path2D per dot brightness level. */
 interface PreparedFrame {
-	underlay: HTMLCanvasElement;
 	paths: Path2D[];
 }
 
@@ -68,6 +77,8 @@ const TAU = Math.PI * 2;
 const LOOP_DURATION = 18;
 const FRAME_COUNT = 72;
 const LEVEL_COUNT = 4;
+/** Frames built per idle chunk to avoid jank during preparation. */
+const CHUNK_SIZE = 8;
 
 const DARK_VOID_CONFIGS: VoidConfig[] = [
 	{
@@ -181,11 +192,6 @@ const LIGHT_VOID_CONFIGS: VoidConfig[] = [
 
 const FALLBACK_DARK_PALETTE: Palette = {
 	base: { color: [228, 228, 231], alpha: 0.018 },
-	underlay: [
-		{ color: [49, 46, 129], alpha: 0.03 },
-		{ color: [71, 88, 153], alpha: 0.055 },
-		{ color: [92, 141, 232], alpha: 0.085 },
-	],
 	levels: [
 		{ color: [113, 113, 122], alpha: 0.088 },
 		{ color: [71, 88, 153], alpha: 0.15 },
@@ -196,11 +202,6 @@ const FALLBACK_DARK_PALETTE: Palette = {
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
 	base: { color: [219, 234, 254], alpha: 0.02 },
-	underlay: [
-		{ color: [191, 219, 254], alpha: 0.028 },
-		{ color: [147, 197, 253], alpha: 0.042 },
-		{ color: [96, 165, 250], alpha: 0.06 },
-	],
 	levels: [
 		{ color: [191, 219, 254], alpha: 0.062 },
 		{ color: [147, 197, 253], alpha: 0.102 },
@@ -284,32 +285,6 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 			),
 			alpha: fallback.base.alpha,
 		},
-		underlay: [
-			{
-				color: resolveCssColor(
-					node,
-					isDark ? "var(--color-accent-800)" : "var(--color-accent-200)",
-					fallback.underlay[0].color,
-				),
-				alpha: fallback.underlay[0].alpha,
-			},
-			{
-				color: resolveCssColor(
-					node,
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-300)",
-					fallback.underlay[1].color,
-				),
-				alpha: fallback.underlay[1].alpha,
-			},
-			{
-				color: resolveCssColor(
-					node,
-					isDark ? "var(--color-accent-600)" : "var(--color-accent-400)",
-					fallback.underlay[2].color,
-				),
-				alpha: fallback.underlay[2].alpha,
-			},
-		],
 		levels: [
 			{
 				color: resolveCssColor(
@@ -351,6 +326,16 @@ function toneToCanvas(color: RGB, alpha: number) {
 	return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
 }
 
+/**
+ * Evaluates the scalar field at normalized coordinates (0–1) for a given animation phase.
+ *
+ * @param normalizedX - Horizontal position in [0, 1].
+ * @param normalizedY - Vertical position in [0, 1].
+ * @param aspect - Width / height of the render area.
+ * @param phase - Animation phase in radians.
+ * @param isDark - Whether the dark theme is active.
+ * @returns Shaped field value in [0, 1].
+ */
 function sampleField(
 	normalizedX: number,
 	normalizedY: number,
@@ -401,10 +386,7 @@ function sampleField(
 		0.09 * Math.sin(TAU * (x * 2.24 - y * 1.76) + phase * 1.42) +
 		0.06 * Math.cos(TAU * (x * 3.08 + y * 2.42) - phase * 1.18);
 
-	value =
-		(isDark ? 0.165 : 0.17) +
-		value * (isDark ? 0.52 : 0.5) +
-		ridge * (isDark ? 1.08 : 0.9);
+	value = (isDark ? 0.165 : 0.17) + value * (isDark ? 0.52 : 0.5) + ridge * (isDark ? 1.08 : 0.9);
 
 	const contourMask = smoothstep(0.18, 0.74, clamp(value, 0, 1));
 	value += turbulence * contourMask * (isDark ? 0.22 : 0.14);
@@ -437,6 +419,13 @@ function sampleField(
 	return shaped;
 }
 
+/**
+ * Maps a scalar field value to a dot brightness level index (0–3), or -1 if below threshold.
+ *
+ * @param field - Field value in [0, 1].
+ * @param isDark - Whether the dark theme is active.
+ * @returns Level index or -1.
+ */
 function getFieldLevel(field: number, isDark: boolean) {
 	const thresholds = isDark ? [0.15, 0.3, 0.52, 0.76] : [0.18, 0.34, 0.5, 0.66];
 
@@ -447,6 +436,14 @@ function getFieldLevel(field: number, isDark: boolean) {
 	return -1;
 }
 
+/**
+ * Draws the static base dot grid (all dots at base alpha) onto a canvas context.
+ *
+ * @param context - Target 2D context.
+ * @param dots - Dot positions.
+ * @param size - Dot square size in px.
+ * @param tone - Color and alpha for the base layer.
+ */
 function drawBaseDots(
 	context: CanvasRenderingContext2D,
 	dots: DotPoint[],
@@ -461,102 +458,102 @@ function drawBaseDots(
 	}
 }
 
-function buildUnderlayFrame(
-	width: number,
-	height: number,
+/**
+ * Builds a single animation frame's Path2D objects (one per brightness level).
+ * No canvas allocation — pure geometry.
+ *
+ * @param dots - All dot positions.
+ * @param radius - Dot square size in px.
+ * @param aspect - Width / height of the render area.
+ * @param phase - Animation phase in radians.
+ * @param isDark - Whether the dark theme is active.
+ * @returns Array of Path2D, one per level.
+ */
+function buildFrame(
+	dots: DotPoint[],
+	radius: number,
 	aspect: number,
 	phase: number,
 	isDark: boolean,
-	tones: Tone[],
-) {
-	const sampleWidth = Math.max(120, Math.round(width * 0.26));
-	const sampleHeight = Math.max(48, Math.round(height * 0.26));
-	const canvas = document.createElement("canvas");
-	canvas.width = sampleWidth;
-	canvas.height = sampleHeight;
+): PreparedFrame {
+	const paths = Array.from({ length: LEVEL_COUNT }, () => new Path2D());
+	const half = radius / 2;
 
-	const context = canvas.getContext("2d", { alpha: true });
-	if (!context) return canvas;
-	context.clearRect(0, 0, sampleWidth, sampleHeight);
+	for (const dot of dots) {
+		const field = sampleField(dot.normalizedX, dot.normalizedY, aspect, phase, isDark);
+		const level = getFieldLevel(field, isDark);
 
-	const thresholds = isDark ? [0.22, 0.4, 0.6] : [0.24, 0.42, 0.58];
-	const image = context.createImageData(sampleWidth, sampleHeight);
+		if (level < 0) continue;
 
-	for (let y = 0; y < sampleHeight; y += 1) {
-		for (let x = 0; x < sampleWidth; x += 1) {
-			const field = sampleField(
-				(x + 0.5) / sampleWidth,
-				(y + 0.5) / sampleHeight,
-				aspect,
-				phase,
-				isDark,
-			);
-			const band =
-				field >= thresholds[2] ? 2 : field >= thresholds[1] ? 1 : field >= thresholds[0] ? 0 : -1;
-			if (band < 0) continue;
-
-			const tone = tones[band];
-			if (!tone) continue;
-
-			const index = (y * sampleWidth + x) * 4;
-			image.data[index] = tone.color[0];
-			image.data[index + 1] = tone.color[1];
-			image.data[index + 2] = tone.color[2];
-			image.data[index + 3] = Math.round(tone.alpha * 255);
-		}
+		paths[level]?.rect(Math.round(dot.x - half), Math.round(dot.y - half), radius, radius);
 	}
 
-	context.putImageData(image, 0, 0);
-
-	return canvas;
+	return { paths };
 }
 
-function buildPreparedFrames(
+/**
+ * Builds all animation frames asynchronously in idle chunks, calling back with each batch.
+ * Returns a cancel function.
+ *
+ * @param dots - All dot positions.
+ * @param radius - Dot square size in px.
+ * @param aspect - Width / height.
+ * @param isDark - Theme flag.
+ * @param frameCount - Total frames to build.
+ * @param onFrame - Called with (frameIndex, frame) as each frame is ready.
+ * @param onDone - Called when all frames are ready.
+ * @returns Cancel function.
+ */
+function buildFramesAsync(
 	dots: DotPoint[],
 	radius: number,
 	aspect: number,
 	isDark: boolean,
 	frameCount: number,
-	width: number,
-	height: number,
-	palette: Palette,
-) {
-	const frames = Array.from({ length: frameCount }, () => ({
-		underlay: document.createElement("canvas"),
-		paths: Array.from({ length: LEVEL_COUNT }, () => new Path2D()),
-	}));
-	const half = radius / 2;
+	onFrame: (index: number, frame: PreparedFrame) => void,
+	onDone: () => void,
+): () => void {
+	let cancelled = false;
+	let frameIndex = 0;
 
-	for (let frameIndex = 0; frameIndex < frameCount; frameIndex += 1) {
-		const phase = (frameIndex / frameCount) * TAU;
-		const frame = frames[frameIndex];
-		frame.underlay = buildUnderlayFrame(
-			width,
-			height,
-			aspect,
-			phase,
-			isDark,
-			palette.underlay,
-		);
+	function processChunk() {
+		if (cancelled) return;
 
-		for (const dot of dots) {
-			const field = sampleField(dot.normalizedX, dot.normalizedY, aspect, phase, isDark);
-			const level = getFieldLevel(field, isDark);
+		const end = Math.min(frameIndex + CHUNK_SIZE, frameCount);
+		while (frameIndex < end) {
+			const phase = (frameIndex / frameCount) * TAU;
+			const frame = buildFrame(dots, radius, aspect, phase, isDark);
+			onFrame(frameIndex, frame);
+			frameIndex += 1;
+		}
 
-			if (level < 0) continue;
-
-			frame.paths[level]?.rect(
-				Math.round(dot.x - half),
-				Math.round(dot.y - half),
-				radius,
-				radius,
-			);
+		if (frameIndex < frameCount) {
+			if (typeof requestIdleCallback !== "undefined") {
+				requestIdleCallback(processChunk, { timeout: 100 });
+			} else {
+				setTimeout(processChunk, 0);
+			}
+		} else {
+			onDone();
 		}
 	}
 
-	return frames;
+	if (typeof requestIdleCallback !== "undefined") {
+		requestIdleCallback(processChunk, { timeout: 100 });
+	} else {
+		setTimeout(processChunk, 0);
+	}
+
+	return () => {
+		cancelled = true;
+	};
 }
 
+/**
+ * Canvas-based topographic dot field animation.
+ * Renders a static base lattice immediately and animates brightness levels
+ * once frames are ready, built asynchronously off the critical path.
+ */
 export function TopographicDotField({
 	className,
 	step = 18,
@@ -579,6 +576,7 @@ export function TopographicDotField({
 		width: 0,
 	});
 
+	// Track dark mode via class mutation.
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 
@@ -596,6 +594,7 @@ export function TopographicDotField({
 		return () => observer.disconnect();
 	}, []);
 
+	// Track container size.
 	useEffect(() => {
 		const container = containerRef.current;
 		if (!container) return;
@@ -634,6 +633,7 @@ export function TopographicDotField({
 		};
 	}, [minInset, step]);
 
+	// Compute dot positions from current metrics.
 	const dots = useMemo<DotPoint[]>(() => {
 		if (metrics.width <= 0 || metrics.height <= 0) return [];
 
@@ -655,6 +655,7 @@ export function TopographicDotField({
 		});
 	}, [metrics.height, metrics.minInset, metrics.step, metrics.width, origin]);
 
+	// Draw static base grid and kick off async frame preparation.
 	useEffect(() => {
 		const container = containerRef.current;
 		if (!container || metrics.width <= 0 || metrics.height <= 0 || dots.length === 0) {
@@ -664,6 +665,8 @@ export function TopographicDotField({
 
 		const palette = resolvePalette(container, isDark);
 		const effectiveRadius = isDark ? radius : radius + 2;
+
+		// Paint the base layer immediately so the lattice is visible before frames are ready.
 		const baseLayer = baseLayerRef.current ?? document.createElement("canvas");
 		baseLayerRef.current = baseLayer;
 		baseLayer.width = Math.round(metrics.width * metrics.dpr);
@@ -677,37 +680,46 @@ export function TopographicDotField({
 		baseContext.clearRect(0, 0, metrics.width, metrics.height);
 		drawBaseDots(baseContext, dots, effectiveRadius, palette.base);
 
+		// Invalidate existing prepared field while new frames build.
+		setPreparedField(null);
+
 		const aspect = metrics.width / Math.max(metrics.height, 1);
 		const frameCount = shouldReduceMotion ? 1 : FRAME_COUNT;
-		const frames = buildPreparedFrames(
+
+		if (shouldReduceMotion) {
+			// Build single static frame synchronously.
+			const phase = 0;
+			const frame = buildFrame(dots, effectiveRadius, aspect, phase, isDark);
+			setPreparedField({ frameCount: 1, frames: [frame], palette });
+			return;
+		}
+
+		// Allocate frame array up front; slots fill in as idle chunks complete.
+		const frames: PreparedFrame[] = new Array(frameCount);
+
+		const cancel = buildFramesAsync(
 			dots,
 			effectiveRadius,
 			aspect,
 			isDark,
 			frameCount,
-			metrics.width,
-			metrics.height,
-			palette,
+			(index, frame) => {
+				frames[index] = frame;
+			},
+			() => {
+				// All frames ready — swap in the complete field.
+				setPreparedField({ frameCount, frames, palette });
+			},
 		);
 
-		setPreparedField({
-			frameCount,
-			frames,
-			palette,
-		});
+		return cancel;
 	}, [dots, isDark, metrics.dpr, metrics.height, metrics.width, radius, shouldReduceMotion]);
 
+	// Render loop: draws base lattice each frame, then animated dot levels on top.
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		const baseLayer = baseLayerRef.current;
-		if (
-			!canvas ||
-			!baseLayer ||
-			!preparedField ||
-			metrics.width <= 0 ||
-			metrics.height <= 0 ||
-			dots.length === 0
-		)
+		if (!canvas || !baseLayer || metrics.width <= 0 || metrics.height <= 0 || dots.length === 0)
 			return;
 
 		canvas.width = Math.round(metrics.width * metrics.dpr);
@@ -720,20 +732,16 @@ export function TopographicDotField({
 		let frameId = 0;
 		let startTime = 0;
 
-			const drawPreparedFrame = (frameIndex: number, opacity: number) => {
-				const frame = preparedField.frames[frameIndex];
-				if (!frame || opacity <= 0) return;
+		const drawAnimatedFrame = (frameIndex: number, opacity: number) => {
+			if (!preparedField) return;
+			const frame = preparedField.frames[frameIndex];
+			if (!frame || opacity <= 0) return;
 
-				context.save();
-				context.setTransform(1, 0, 0, 1, 0, 0);
-				context.globalAlpha = opacity;
-				context.imageSmoothingEnabled = true;
-				context.drawImage(frame.underlay, 0, 0, canvas.width, canvas.height);
-				context.restore();
+			context.setTransform(metrics.dpr, 0, 0, metrics.dpr, 0, 0);
 
-				for (let level = 0; level < preparedField.palette.levels.length; level += 1) {
-					const tone = preparedField.palette.levels[level];
-					const path = frame.paths[level];
+			for (let level = 0; level < preparedField.palette.levels.length; level += 1) {
+				const tone = preparedField.palette.levels[level];
+				const path = frame.paths[level];
 				if (!tone || !path) continue;
 
 				context.fillStyle = toneToCanvas(tone.color, tone.alpha * opacity);
@@ -747,10 +755,14 @@ export function TopographicDotField({
 			context.setTransform(1, 0, 0, 1, 0, 0);
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.drawImage(baseLayer, 0, 0);
-			context.setTransform(metrics.dpr, 0, 0, metrics.dpr, 0, 0);
+
+			if (!preparedField) {
+				frameId = window.requestAnimationFrame(paint);
+				return;
+			}
 
 			if (shouldReduceMotion || preparedField.frameCount === 1) {
-				drawPreparedFrame(0, 1);
+				drawAnimatedFrame(0, 1);
 				return;
 			}
 
@@ -761,13 +773,13 @@ export function TopographicDotField({
 			const nextFrame = (currentFrame + 1) % preparedField.frameCount;
 			const mix = exactFrame - Math.floor(exactFrame);
 
-			drawPreparedFrame(currentFrame, 1 - mix);
-			drawPreparedFrame(nextFrame, mix);
+			drawAnimatedFrame(currentFrame, 1 - mix);
+			drawAnimatedFrame(nextFrame, mix);
 
 			frameId = window.requestAnimationFrame(paint);
 		};
 
-		paint(0);
+		frameId = window.requestAnimationFrame(paint);
 
 		return () => {
 			window.cancelAnimationFrame(frameId);
