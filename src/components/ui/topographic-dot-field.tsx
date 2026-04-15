@@ -1,7 +1,7 @@
 "use client";
 
 import { useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
 	computeGridAxis,
@@ -39,6 +39,15 @@ interface Metrics {
 	width: number;
 }
 
+interface MouseState {
+	currentStrength: number;
+	currentX: number;
+	currentY: number;
+	targetStrength: number;
+	targetX: number;
+	targetY: number;
+}
+
 const FALLBACK_DARK_PALETTE: Palette = {
 	active: [
 		{ color: [0, 127, 79], alpha: 0.22 },
@@ -62,10 +71,10 @@ const FALLBACK_LIGHT_PALETTE: Palette = {
 		{ color: [0, 194, 122], alpha: 0.7 },
 	],
 	underlay: [
-		{ color: [217, 255, 240], alpha: 0.18 },
-		{ color: [174, 248, 214], alpha: 0.28 },
-		{ color: [116, 238, 187], alpha: 0.38 },
-		{ color: [46, 217, 153], alpha: 0.48 },
+		{ color: [217, 255, 240], alpha: 0.08 },
+		{ color: [174, 248, 214], alpha: 0.14 },
+		{ color: [116, 238, 187], alpha: 0.22 },
+		{ color: [46, 217, 153], alpha: 0.32 },
 	],
 };
 
@@ -86,6 +95,8 @@ uniform float uTime;
 uniform float uStep;
 uniform float uDotRadius;
 uniform float uDark;
+uniform vec2  uMouse;
+uniform float uMouseStrength;
 
 uniform vec3  uLC0; uniform float uLA0;
 uniform vec3  uLC1; uniform float uLA1;
@@ -107,6 +118,11 @@ float sm3(float e0, float e1, float v) {
 float gauss2(vec2 p, vec2 c, vec2 r) {
   vec2 d = (p - c) / r;
   return exp(-dot(d, d));
+}
+
+float contourBand(float field, float threshold, float gradient, float width) {
+  float dist = abs(field - threshold) / max(gradient, 0.0001);
+  return 1.0 - smoothstep(0.0, width, dist);
 }
 
 vec4 alphaOver(vec4 top, vec4 bottom) {
@@ -216,12 +232,12 @@ float fieldValue(vec2 uv, float time) {
 }
 
 float contentShield(vec2 uv) {
-  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19));
+  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 1.18;
   float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
   float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
   float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
   float shield = max(max(title, body), max(cta, mobile * 0.66));
-  return sm3(0.08, 0.86, shield);
+  return sm3(0.08, 0.90, shield);
 }
 
 void main() {
@@ -238,7 +254,15 @@ void main() {
 
   float field = fieldValue(uv, uTime);
   float shield = contentShield(uv);
-  field *= mix(1.0, mix(0.82, 0.74, uDark), shield);
+  field *= mix(1.0, mix(0.78, 0.74, uDark), shield);
+
+  float mouseInfluence = gauss2(uv, uMouse, vec2(0.09, 0.09));
+  float mouseSignedLift = mix(1.0, -1.0, uDark);
+  field = clamp(
+    field + mouseInfluence * uMouseStrength * mouseSignedLift * 0.14 * mix(1.0, 0.32, shield),
+    0.0,
+    1.0
+  );
 
   vec2 center = vec2(uStep * 0.5);
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
@@ -254,6 +278,14 @@ void main() {
   float d2 = mix(0.78, 0.63, uDark);
   float d3 = mix(0.89, 0.80, uDark);
 
+  float fieldGradient = length(vec2(dFdx(field), dFdy(field)));
+  float contourWidth = mix(1.05, 0.92, uDark);
+  float contour = 0.0;
+  contour = max(contour, contourBand(field, u0, fieldGradient, contourWidth));
+  contour = max(contour, contourBand(field, u1, fieldGradient, contourWidth));
+  contour = max(contour, contourBand(field, u2, fieldGradient, contourWidth));
+  contour = max(contour, contourBand(field, u3, fieldGradient, contourWidth));
+
   vec4 underlay = vec4(0.0);
   if      (field >= u3) { underlay = vec4(uUC3, uUA3); }
   else if (field >= u2) { underlay = vec4(uUC2, uUA2); }
@@ -268,18 +300,24 @@ void main() {
     else if (field >= d0) { dots = vec4(uLC0, uLA0); }
   }
 
+  vec3 contourRgb = mix(uLC2, uLC3, 0.28);
+  vec4 contourStroke = vec4(contourRgb, contour * mix(0.74, 0.30, uDark));
+
   underlay.a *= mix(1.0, mix(0.20, 0.16, uDark), shield);
   dots.a *= mix(1.0, mix(0.18, 0.34, uDark), shield);
+  contourStroke.a *= mix(1.0, mix(0.22, 0.40, uDark), shield);
 
   if (uDark < 0.5) {
     vec4 lightBase = vec4(1.0);
     float lightMix = underlay.a * 0.62;
     vec4 lightUnderlay = vec4(mix(lightBase.rgb, underlay.rgb, lightMix), 1.0);
-    oColor = alphaOver(dots, lightUnderlay);
+    vec4 contouredLight = alphaOver(contourStroke, lightUnderlay);
+    oColor = alphaOver(dots, contouredLight);
     return;
   }
 
-  oColor = alphaOver(dots, underlay);
+  vec4 contouredUnderlay = alphaOver(contourStroke, underlay);
+  oColor = alphaOver(dots, contouredUnderlay);
 }`;
 
 function compileShader(gl: WebGL2RenderingContext, type: number, source: string) {
@@ -437,6 +475,15 @@ export function TopographicDotField({
 	const programRef = useRef<WebGLProgram | null>(null);
 	const vaoRef = useRef<WebGLVertexArrayObject | null>(null);
 	const uniformRef = useRef<Record<string, WebGLUniformLocation | null>>({});
+	const mouseRef = useRef<MouseState>({
+		currentStrength: 0,
+		currentX: 0.5,
+		currentY: 0.5,
+		targetStrength: 0,
+		targetX: 0.5,
+		targetY: 0.5,
+	});
+	const supportsHoverRef = useRef(false);
 
 	const shouldReduceMotion = useReducedMotion();
 	const [isDark, setIsDark] = useState(false);
@@ -463,6 +510,24 @@ export function TopographicDotField({
 		});
 
 		return () => observer.disconnect();
+	}, []);
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+		const sync = () => {
+			supportsHoverRef.current = mediaQuery.matches;
+			if (!mediaQuery.matches) {
+				mouseRef.current.targetStrength = 0;
+				mouseRef.current.currentStrength = 0;
+			}
+		};
+
+		sync();
+		mediaQuery.addEventListener("change", sync);
+
+		return () => mediaQuery.removeEventListener("change", sync);
 	}, []);
 
 	useEffect(() => {
@@ -558,6 +623,8 @@ export function TopographicDotField({
 				uStep: getUniform("uStep"),
 				uDotRadius: getUniform("uDotRadius"),
 				uDark: getUniform("uDark"),
+				uMouse: getUniform("uMouse"),
+				uMouseStrength: getUniform("uMouseStrength"),
 				uLC0: getUniform("uLC0"),
 				uLA0: getUniform("uLA0"),
 				uLC1: getUniform("uLC1"),
@@ -620,7 +687,7 @@ export function TopographicDotField({
 		const palette = resolvePalette(container, isDark);
 		const columns = computeGridAxis(metrics.width, metrics.step, metrics.minInset, origin);
 		const rows = computeGridAxis(metrics.height, metrics.step, metrics.minInset, origin);
-		const dotRadius = radius * (isDark ? 1 : 2);
+		const dotRadius = radius;
 		const halfDot = dotRadius * metrics.dpr;
 		const gridMinX = (columns.offset - dotRadius) * metrics.dpr;
 		const gridMinY = (rows.offset - dotRadius) * metrics.dpr;
@@ -648,6 +715,8 @@ export function TopographicDotField({
 		gl.uniform1f(uniforms.uStep, metrics.step * metrics.dpr);
 		gl.uniform1f(uniforms.uDotRadius, halfDot);
 		gl.uniform1f(uniforms.uDark, isDark ? 1 : 0);
+		gl.uniform2f(uniforms.uMouse, 0.5, 0.5);
+		gl.uniform1f(uniforms.uMouseStrength, 0);
 
 		setUniform3("uLC0", palette.active[0].color);
 		setUniform1("uLA0", palette.active[0].alpha);
@@ -669,11 +738,27 @@ export function TopographicDotField({
 
 		let frameId = 0;
 		let startTime = 0;
+		let lastFrameTime = 0;
 
 		const render = (now: number) => {
 			if (startTime === 0) startTime = now;
+			if (lastFrameTime === 0) lastFrameTime = now;
+			const deltaSeconds = (now - lastFrameTime) / 1000;
+			lastFrameTime = now;
 			const elapsed = shouldReduceMotion ? 0 : ((now - startTime) / 1000) * speed;
+			const mouse = mouseRef.current;
+			const pointerTau = 0.1;
+			const strengthTau = mouse.targetStrength > mouse.currentStrength ? 0.12 : 0.6;
+			const pointerLerp = 1 - Math.exp(-deltaSeconds / pointerTau);
+			const strengthLerp = 1 - Math.exp(-deltaSeconds / strengthTau);
+
+			mouse.currentX += (mouse.targetX - mouse.currentX) * pointerLerp;
+			mouse.currentY += (mouse.targetY - mouse.currentY) * pointerLerp;
+			mouse.currentStrength += (mouse.targetStrength - mouse.currentStrength) * strengthLerp;
+
 			gl.uniform1f(uniforms.uTime, elapsed);
+			gl.uniform2f(uniforms.uMouse, mouse.currentX, mouse.currentY);
+			gl.uniform1f(uniforms.uMouseStrength, shouldReduceMotion ? 0 : mouse.currentStrength);
 			gl.clear(gl.COLOR_BUFFER_BIT);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -687,17 +772,51 @@ export function TopographicDotField({
 		return () => cancelAnimationFrame(frameId);
 	}, [isDark, metrics, origin, radius, shouldReduceMotion, speed]);
 
+	const updateMouseTarget = (clientX: number, clientY: number) => {
+		const container = containerRef.current;
+		if (!container || !supportsHoverRef.current || shouldReduceMotion) return;
+
+		const rect = container.getBoundingClientRect();
+		if (rect.width <= 0 || rect.height <= 0) return;
+
+		const x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+		const y = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
+		const edgeDistance = Math.min(x, 1 - x, y, 1 - y);
+		const edgeStrength = Math.min(1, Math.max(0, (edgeDistance - 0.06) / 0.18));
+
+		mouseRef.current.targetX = x;
+		mouseRef.current.targetY = y;
+		mouseRef.current.targetStrength = edgeStrength;
+	};
+
+	const handlePointerEnter = (event: ReactPointerEvent<HTMLDivElement>) => {
+		if (event.pointerType === "touch") return;
+		updateMouseTarget(event.clientX, event.clientY);
+	};
+
+	const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+		if (event.pointerType === "touch") return;
+		updateMouseTarget(event.clientX, event.clientY);
+	};
+
+	const handlePointerLeave = () => {
+		mouseRef.current.targetStrength = 0;
+	};
+
 	return (
 		<div
 			ref={containerRef}
 			className={cn(
-				"absolute inset-0 overflow-hidden bg-white transition-colors dark:bg-surface-900/80",
+				"pointer-events-auto absolute inset-0 overflow-hidden bg-white transition-colors dark:bg-surface-900/80",
 				className,
 			)}
+			onPointerEnter={handlePointerEnter}
+			onPointerMove={handlePointerMove}
+			onPointerLeave={handlePointerLeave}
 		>
 			<canvas
 				ref={canvasRef}
-				className="absolute inset-0 h-full w-full bg-white transition-colors dark:bg-surface-900/80"
+				className="pointer-events-none absolute inset-0 h-full w-full bg-white transition-colors dark:bg-surface-900/80"
 			/>
 		</div>
 	);

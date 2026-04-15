@@ -34,7 +34,7 @@ function HeroContent() {
 	return (
 		<>
 			<div
-				className="relative z-10 flex flex-col md:hidden"
+				className="pointer-events-none relative z-10 flex flex-col md:hidden"
 				style={{
 					gap: HERO_STACK_GAP_MOBILE,
 					padding: HERO_CONTENT_INSET_MOBILE,
@@ -66,7 +66,7 @@ function HeroContent() {
 				</div>
 				<Reveal phase={2} delay={0.1}>
 					<div
-						className="flex flex-wrap"
+						className="pointer-events-auto flex flex-wrap"
 						style={{
 							gap: "var(--portfolio-space-1)",
 						}}
@@ -96,7 +96,7 @@ function HeroContent() {
 				</Reveal>
 			</div>
 			<div
-				className="relative z-10 hidden md:grid"
+				className="pointer-events-none relative z-10 hidden md:grid"
 				style={{
 					paddingInline: HERO_CONTENT_INSET,
 					minHeight: HERO_SECTION_HEIGHT,
@@ -140,7 +140,7 @@ function HeroContent() {
 				<div style={{ gridRow: `${HERO_CTA_START_ROW} / span 4` }}>
 					<Reveal phase={2} delay={0.1} className="h-full">
 						<div
-							className="grid h-full"
+							className="pointer-events-auto grid h-full"
 							style={{
 								columnGap: HERO_GRID_STEP,
 								gridTemplateColumns: `${HERO_CTA_PRIMARY_WIDTH} ${HERO_CTA_SECONDARY_WIDTH}`,
@@ -175,10 +175,10 @@ function HeroContent() {
 	);
 }
 
-function HeroDataPlane() {
+function HeroDataPlane({ className }: { className?: string }) {
 	return (
-		<div className="pointer-events-none absolute inset-0" aria-hidden="true">
-			<div className="absolute inset-0 bg-white dark:bg-surface-900" />
+		<div className={cn("absolute inset-0", className)} aria-hidden="true">
+			<div className="pointer-events-none absolute inset-0 bg-white dark:bg-surface-900" />
 			<TopographicDotField
 				step={HERO_DOT_STEP}
 				minInset={HERO_GRID_MIN_INSET}
@@ -199,7 +199,7 @@ export function SiteHero() {
 				["--hero-mobile-min-height" as string]: HERO_SECTION_HEIGHT_MOBILE,
 			}}
 		>
-			<HeroDataPlane />
+			<HeroDataPlane className="opacity-100 dark:opacity-100" />
 			<HeroContent />
 		</section>
 	);
