@@ -27,7 +27,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import type { ComponentType, CSSProperties } from "react";
+import type { ComponentType, CSSProperties, ReactElement, MouseEvent } from "react";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { useReveal } from "@/src/components/providers/reveal-provider";
@@ -102,9 +102,9 @@ export function FloatingNav() {
 			: "Toggle theme";
 
 	/**
-	 * Toggles the theme with a view transition.
+	 * Toggles the theme with a spatial view transition.
 	 */
-	const toggleTheme = async () => {
+	const toggleTheme = async (event: MouseEvent<HTMLButtonElement>) => {
 		const newTheme = resolvedTheme === "dark" ? "light" : "dark";
 
 		if (
@@ -114,6 +114,16 @@ export function FloatingNav() {
 			setTheme(newTheme);
 			return;
 		}
+
+		// Calculate exact click coordinates for purely spatial origin
+		const x = event.clientX;
+		const y = event.clientY;
+
+		// Calculate distance to the furthest corner to ensure complete coverage
+		const endRadius = Math.hypot(
+			Math.max(x, window.innerWidth - x),
+			Math.max(y, window.innerHeight - y)
+		);
 
 		await (
 			document as Document & {
@@ -127,7 +137,10 @@ export function FloatingNav() {
 
 		const animation = document.documentElement.animate(
 			{
-				clipPath: ["inset(100% 0 0 0)", "inset(0 0 0 0)"],
+				clipPath: [
+					`circle(0px at ${x}px ${y}px)`,
+					`circle(${endRadius}px at ${x}px ${y}px)`
+				],
 			},
 			{
 				duration: 550,
