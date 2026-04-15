@@ -21,34 +21,180 @@ interface TopographicDotFieldProps {
 
 type RGB = [number, number, number];
 
+interface Tone {
+	alpha: number;
+	color: RGB;
+}
+
 interface Palette {
-	base: RGB;
-	baseAlpha: number;
-	dim: RGB;
-	soft: RGB;
-	core: RGB;
-	peak: RGB;
+	base: Tone;
+	levels: Tone[];
+}
+
+interface DotPoint {
+	normalizedX: number;
+	normalizedY: number;
+	x: number;
+	y: number;
+}
+
+interface PreparedFrame {
+	paths: Path2D[];
+}
+
+interface PreparedField {
+	frameCount: number;
+	frames: PreparedFrame[];
+	palette: Palette;
+}
+
+interface VoidConfig {
+	baseX: number;
+	baseY: number;
+	coreRadius: number;
+	haloRadius: number;
+	orbitX: number;
+	orbitY: number;
+	outerRadius: number;
+	phase: number;
+	speedX: number;
+	speedY: number;
+	strength: number;
 }
 
 const TAU = Math.PI * 2;
-const LOOP_DURATION = 16;
+const LOOP_DURATION = 18;
+const FRAME_COUNT = 72;
+const LEVEL_COUNT = 4;
+
+const DARK_VOID_CONFIGS: VoidConfig[] = [
+	{
+		baseX: 0.84,
+		baseY: 0.16,
+		coreRadius: 0.076,
+		haloRadius: 0.172,
+		orbitX: 0.048,
+		orbitY: 0.064,
+		outerRadius: 0.34,
+		phase: 0.3,
+		speedX: 1.04,
+		speedY: 0.9,
+		strength: 1.34,
+	},
+	{
+		baseX: 1.03,
+		baseY: 0.69,
+		coreRadius: 0.098,
+		haloRadius: 0.224,
+		orbitX: 0.04,
+		orbitY: 0.056,
+		outerRadius: 0.42,
+		phase: 1.32,
+		speedX: 0.82,
+		speedY: 1.04,
+		strength: 1.48,
+	},
+	{
+		baseX: 0.76,
+		baseY: 1.05,
+		coreRadius: 0.084,
+		haloRadius: 0.188,
+		orbitX: 0.064,
+		orbitY: 0.048,
+		outerRadius: 0.34,
+		phase: 2.38,
+		speedX: 1.14,
+		speedY: 0.86,
+		strength: 1.12,
+	},
+	{
+		baseX: 0.24,
+		baseY: -0.08,
+		coreRadius: 0.054,
+		haloRadius: 0.122,
+		orbitX: 0.03,
+		orbitY: 0.034,
+		outerRadius: 0.23,
+		phase: 3.4,
+		speedX: 0.72,
+		speedY: 0.8,
+		strength: 0.42,
+	},
+];
+
+const LIGHT_VOID_CONFIGS: VoidConfig[] = [
+	{
+		baseX: 0.82,
+		baseY: 0.17,
+		coreRadius: 0.066,
+		haloRadius: 0.148,
+		orbitX: 0.038,
+		orbitY: 0.056,
+		outerRadius: 0.3,
+		phase: 0.44,
+		speedX: 0.94,
+		speedY: 0.84,
+		strength: 0.94,
+	},
+	{
+		baseX: 0.98,
+		baseY: 0.72,
+		coreRadius: 0.088,
+		haloRadius: 0.192,
+		orbitX: 0.034,
+		orbitY: 0.052,
+		outerRadius: 0.34,
+		phase: 1.66,
+		speedX: 0.8,
+		speedY: 0.98,
+		strength: 1.02,
+	},
+	{
+		baseX: 0.72,
+		baseY: 1.04,
+		coreRadius: 0.074,
+		haloRadius: 0.164,
+		orbitX: 0.05,
+		orbitY: 0.042,
+		outerRadius: 0.29,
+		phase: 2.9,
+		speedX: 1.02,
+		speedY: 0.8,
+		strength: 0.74,
+	},
+	{
+		baseX: 0.18,
+		baseY: 0.14,
+		coreRadius: 0.05,
+		haloRadius: 0.108,
+		orbitX: 0.02,
+		orbitY: 0.03,
+		outerRadius: 0.18,
+		phase: 3.6,
+		speedX: 0.7,
+		speedY: 0.76,
+		strength: 0.22,
+	},
+];
 
 const FALLBACK_DARK_PALETTE: Palette = {
-	base: [228, 228, 231],
-	baseAlpha: 0.024,
-	dim: [113, 113, 122],
-	soft: [30, 64, 175],
-	core: [37, 99, 235],
-	peak: [96, 165, 250],
+	base: { color: [228, 228, 231], alpha: 0.02 },
+	levels: [
+		{ color: [113, 113, 122], alpha: 0.085 },
+		{ color: [49, 46, 129], alpha: 0.145 },
+		{ color: [67, 107, 213], alpha: 0.22 },
+		{ color: [147, 197, 253], alpha: 0.31 },
+	],
 };
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
-	base: [63, 63, 70],
-	baseAlpha: 0.014,
-	dim: [113, 113, 122],
-	soft: [30, 64, 175],
-	core: [29, 78, 216],
-	peak: [37, 99, 235],
+	base: { color: [219, 234, 254], alpha: 0.02 },
+	levels: [
+		{ color: [191, 219, 254], alpha: 0.062 },
+		{ color: [147, 197, 253], alpha: 0.102 },
+		{ color: [96, 165, 250], alpha: 0.156 },
+		{ color: [59, 130, 246], alpha: 0.228 },
+	],
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -60,12 +206,23 @@ function smoothstep(edge0: number, edge1: number, value: number) {
 	return normalized * normalized * (3 - 2 * normalized);
 }
 
-function mixColor(from: RGB, to: RGB, amount: number): RGB {
-	return [
-		from[0] + (to[0] - from[0]) * amount,
-		from[1] + (to[1] - from[1]) * amount,
-		from[2] + (to[2] - from[2]) * amount,
-	];
+function gaussian(
+	x: number,
+	y: number,
+	centerX: number,
+	centerY: number,
+	radiusX: number,
+	radiusY: number,
+) {
+	const dx = (x - centerX) / radiusX;
+	const dy = (y - centerY) / radiusY;
+	return Math.exp(-(dx * dx + dy * dy));
+}
+
+function fieldDistance(x: number, y: number, centerX: number, centerY: number, aspect: number) {
+	const dx = (x - centerX) * aspect;
+	const dy = y - centerY;
+	return Math.hypot(dx, dy);
 }
 
 function parseRgbColor(value: string, fallback: RGB): RGB {
@@ -107,92 +264,187 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	const fallback = isDark ? FALLBACK_DARK_PALETTE : FALLBACK_LIGHT_PALETTE;
 
 	return {
-		base: resolveCssColor(
-			node,
-			isDark ? "var(--color-surface-200)" : "var(--color-surface-700)",
-			fallback.base,
-		),
-		baseAlpha: fallback.baseAlpha,
-		dim: resolveCssColor(
-			node,
-			isDark ? "var(--color-surface-500)" : "var(--color-surface-500)",
-			fallback.dim,
-		),
-		soft: resolveCssColor(
-			node,
-			isDark ? "var(--color-accent-900)" : "var(--color-accent-900)",
-			fallback.soft,
-		),
-		core: resolveCssColor(
-			node,
-			isDark ? "var(--color-accent-600)" : "var(--color-accent-700)",
-			fallback.core,
-		),
-		peak: resolveCssColor(
-			node,
-			isDark ? "var(--color-accent-400)" : "var(--color-accent-500)",
-			fallback.peak,
-		),
+		base: {
+			color: resolveCssColor(
+				node,
+				isDark ? "var(--color-surface-200)" : "var(--color-accent-100)",
+				fallback.base.color,
+			),
+			alpha: fallback.base.alpha,
+		},
+		levels: [
+			{
+				color: resolveCssColor(
+					node,
+					isDark ? "var(--color-surface-500)" : "var(--color-accent-200)",
+					fallback.levels[0].color,
+				),
+				alpha: fallback.levels[0].alpha,
+			},
+			{
+				color: resolveCssColor(
+					node,
+					isDark ? "var(--color-accent-800)" : "var(--color-accent-300)",
+					fallback.levels[1].color,
+				),
+				alpha: fallback.levels[1].alpha,
+			},
+			{
+				color: resolveCssColor(
+					node,
+					isDark ? "var(--color-accent-600)" : "var(--color-accent-400)",
+					fallback.levels[2].color,
+				),
+				alpha: fallback.levels[2].alpha,
+			},
+			{
+				color: resolveCssColor(
+					node,
+					isDark ? "var(--color-accent-400)" : "var(--color-accent-500)",
+					fallback.levels[3].color,
+				),
+				alpha: fallback.levels[3].alpha,
+			},
+		],
 	};
 }
 
-function sampleField(normalizedX: number, normalizedY: number, aspect: number, phase: number) {
-	const x = (normalizedX - 0.5) * aspect * 2.2;
-	const y = (normalizedY - 0.5) * 2.4;
-
-	const warpX =
-		Math.sin(y * 2.1 + Math.sin(phase) * 1.2) * 0.38 +
-		Math.cos(x * 1.35 - Math.cos(phase) * 1.1) * 0.24;
-	const warpY =
-		Math.cos(x * 2.4 - Math.sin(phase * 0.9) * 1.1) * 0.32 +
-		Math.sin(y * 1.55 + Math.cos(phase * 0.8) * 1.3) * 0.2;
-
-	const qx = x + warpX;
-	const qy = y + warpY;
-
-	const bandA = Math.sin(qx * 2.5 + Math.cos(phase) * 1.9);
-	const bandB = Math.cos(qy * 2.2 + Math.sin(phase * 0.95) * 1.7);
-	const bandC = Math.sin((qx + qy) * 1.55 - Math.cos(phase * 0.7) * 1.2);
-	const bandD = Math.cos((qx - qy) * 1.9 + Math.sin(phase * 1.25) * 0.95);
-
-	let field = bandA * 0.34 + bandB * 0.29 + bandC * 0.22 + bandD * 0.15;
-	field = field * 0.5 + 0.5;
-	field = smoothstep(0.14, 0.78, field);
-	field = field ** 1.18;
-
-	return Math.floor(field * 6) / 6;
+function toneToCanvas(color: RGB, alpha: number) {
+	return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
 }
 
-function getDotAppearance(field: number, palette: Palette) {
-	if (field < 0.08) return null;
-
-	const dim = smoothstep(0.08, 0.24, field);
-	const soft = smoothstep(0.24, 0.44, field);
-	const core = smoothstep(0.44, 0.72, field);
-	const peak = smoothstep(0.8, 1.0, field);
-
-	let color = palette.dim;
-	color = mixColor(color, palette.soft, soft);
-	color = mixColor(color, palette.core, core);
-	color = mixColor(color, palette.peak, peak);
-
-	const alpha = clamp(dim * 0.09 + soft * 0.12 + core * 0.18 + peak * 0.08, 0, 0.58);
-	return { color, alpha };
-}
-
-function drawDots(
-	context: CanvasRenderingContext2D,
-	dots: { x: number; y: number }[],
-	size: number,
-	color: RGB,
-	alpha: number,
+function sampleField(
+	normalizedX: number,
+	normalizedY: number,
+	aspect: number,
+	phase: number,
+	isDark: boolean,
 ) {
-	context.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+	const configs = isDark ? DARK_VOID_CONFIGS : LIGHT_VOID_CONFIGS;
+	const driftScale = isDark ? 1 : 0.84;
+	const driftX =
+		0.022 *
+		driftScale *
+		(Math.sin(TAU * (normalizedY * 0.84 + normalizedX * 0.24) + phase * 0.84) +
+			0.55 * Math.cos(TAU * (normalizedX * 1.32 - normalizedY * 0.42) - phase * 1.06));
+	const driftY =
+		0.02 *
+		driftScale *
+		(Math.cos(TAU * (normalizedX * 0.78 - normalizedY * 0.18) + phase * 0.72) +
+			0.5 * Math.sin(TAU * (normalizedY * 1.06 + normalizedX * 0.34) - phase * 0.94));
+
+	const x = normalizedX + driftX;
+	const y = normalizedY + driftY;
+
+	let value = 0;
+
+	for (const config of configs) {
+		const centerX =
+			config.baseX + config.orbitX * Math.sin(phase * config.speedX + config.phase);
+		const centerY =
+			config.baseY + config.orbitY * Math.cos(phase * config.speedY + config.phase * 1.17);
+
+		const distance = fieldDistance(x, y, centerX, centerY, aspect);
+		const core =
+			Math.exp(-(distance * distance) / (config.coreRadius * config.coreRadius)) * 1.2;
+		const halo = Math.exp(-(distance * distance) / (config.haloRadius * config.haloRadius));
+		const outer = Math.exp(-(distance * distance) / (config.outerRadius * config.outerRadius));
+		const ring = Math.max(0, halo - core * 0.72) * 1.28;
+		const envelope = outer * 0.34;
+
+		value += (ring + envelope - core * 0.88) * config.strength;
+	}
+
+	const ridge =
+		0.18 * Math.sin(TAU * (x * 0.94 + y * 0.19) + Math.sin(phase * 0.72) * 0.85) +
+		0.15 * Math.cos(TAU * (y * 0.68 - x * 0.26) - Math.cos(phase * 0.88) * 1.05) +
+		0.08 * Math.sin(TAU * ((x + y) * 0.62) + phase * 0.56);
+
+	value =
+		(isDark ? 0.18 : 0.17) +
+		value * (isDark ? 0.52 : 0.5) +
+		ridge * (isDark ? 1 : 0.9);
+
+	const rightBias = smoothstep(0.36, 0.9, normalizedX);
+	const upperRightBloom = gaussian(normalizedX, normalizedY, 0.8, 0.2, 0.23, 0.26);
+	const lowerRightBloom = gaussian(normalizedX, normalizedY, 0.88, 0.78, 0.26, 0.31);
+	const textQuietZone = gaussian(
+		normalizedX,
+		normalizedY,
+		isDark ? 0.27 : 0.28,
+		0.48,
+		isDark ? 0.31 : 0.34,
+		isDark ? 0.38 : 0.44,
+	);
+
+	value *= 0.8 + rightBias * (isDark ? 0.52 : 0.54);
+	value += upperRightBloom * (isDark ? 0.22 : 0.22);
+	value += lowerRightBloom * (isDark ? 0.18 : 0.16);
+	value *= 1 - textQuietZone * (isDark ? 0.68 : 0.78);
+
+	const normalized = clamp(value, 0, 1);
+	const shaped = isDark
+		? smoothstep(0.06, 0.92, normalized)
+		: smoothstep(0.08, 0.68, normalized) ** 0.94;
+	return shaped;
+}
+
+function getFieldLevel(field: number, isDark: boolean) {
+	const thresholds = isDark ? [0.14, 0.3, 0.5, 0.72] : [0.18, 0.34, 0.5, 0.66];
+
+	for (let index = thresholds.length - 1; index >= 0; index -= 1) {
+		if (field >= thresholds[index]) return index;
+	}
+
+	return -1;
+}
+
+function drawBaseDots(
+	context: CanvasRenderingContext2D,
+	dots: DotPoint[],
+	size: number,
+	tone: Tone,
+) {
+	context.fillStyle = toneToCanvas(tone.color, tone.alpha);
 	const half = size / 2;
 
 	for (const dot of dots) {
 		context.fillRect(Math.round(dot.x - half), Math.round(dot.y - half), size, size);
 	}
+}
+
+function buildPreparedFrames(
+	dots: DotPoint[],
+	radius: number,
+	aspect: number,
+	isDark: boolean,
+	frameCount: number,
+) {
+	const frames = Array.from({ length: frameCount }, () => ({
+		paths: Array.from({ length: LEVEL_COUNT }, () => new Path2D()),
+	}));
+	const half = radius / 2;
+
+	for (let frameIndex = 0; frameIndex < frameCount; frameIndex += 1) {
+		const phase = (frameIndex / frameCount) * TAU;
+		const frame = frames[frameIndex];
+
+		for (const dot of dots) {
+			const field = sampleField(dot.normalizedX, dot.normalizedY, aspect, phase, isDark);
+			const level = getFieldLevel(field, isDark);
+
+			if (level < 0) continue;
+
+			frame.paths[level]?.rect(
+				Math.round(dot.x - half),
+				Math.round(dot.y - half),
+				radius,
+				radius,
+			);
+		}
+	}
+
+	return frames;
 }
 
 export function TopographicDotField({
@@ -208,12 +460,13 @@ export function TopographicDotField({
 	const baseLayerRef = useRef<HTMLCanvasElement | null>(null);
 	const shouldReduceMotion = useReducedMotion();
 	const [isDark, setIsDark] = useState(false);
+	const [preparedField, setPreparedField] = useState<PreparedField | null>(null);
 	const [metrics, setMetrics] = useState({
-		width: 0,
-		height: 0,
-		step: typeof step === "number" ? step : 18,
-		minInset: typeof minInset === "number" ? minInset : 12,
 		dpr: 1,
+		height: 0,
+		minInset: typeof minInset === "number" ? minInset : 12,
+		step: typeof step === "number" ? step : 18,
+		width: 0,
 	});
 
 	useEffect(() => {
@@ -239,7 +492,7 @@ export function TopographicDotField({
 
 		const updateMetrics = () => {
 			const rect = container.getBoundingClientRect();
-			const nextDpr = window.devicePixelRatio || 1;
+			const nextDpr = Math.min(window.devicePixelRatio || 1, 2);
 			const nextStep = Math.max(1, resolveLength(container, step, 18));
 			const nextMinInset = Math.max(0, resolveLength(container, minInset, 12));
 
@@ -251,11 +504,11 @@ export function TopographicDotField({
 				current.dpr === nextDpr
 					? current
 					: {
-							width: Math.round(rect.width),
-							height: Math.round(rect.height),
-							step: nextStep,
-							minInset: nextMinInset,
 							dpr: nextDpr,
+							height: Math.round(rect.height),
+							minInset: nextMinInset,
+							step: nextStep,
+							width: Math.round(rect.width),
 						},
 			);
 		};
@@ -271,7 +524,7 @@ export function TopographicDotField({
 		};
 	}, [minInset, step]);
 
-	const dots = useMemo(() => {
+	const dots = useMemo<DotPoint[]>(() => {
 		if (metrics.width <= 0 || metrics.height <= 0) return [];
 
 		const columns = computeGridAxis(metrics.width, metrics.step, metrics.minInset, origin);
@@ -280,43 +533,58 @@ export function TopographicDotField({
 		return Array.from({ length: rows.count * columns.count }, (_, index) => {
 			const row = Math.floor(index / columns.count);
 			const column = index % columns.count;
+			const x = columns.offset + column * metrics.step;
+			const y = rows.offset + row * metrics.step;
 
 			return {
-				x: columns.offset + column * metrics.step,
-				y: rows.offset + row * metrics.step,
+				normalizedX: x / metrics.width,
+				normalizedY: y / metrics.height,
+				x,
+				y,
 			};
 		});
 	}, [metrics.height, metrics.minInset, metrics.step, metrics.width, origin]);
 
 	useEffect(() => {
 		const container = containerRef.current;
-		const canvas = canvasRef.current;
-		if (!container || !canvas || metrics.width <= 0 || metrics.height <= 0 || dots.length === 0)
+		if (!container || metrics.width <= 0 || metrics.height <= 0 || dots.length === 0) {
+			setPreparedField(null);
 			return;
+		}
 
+		const palette = resolvePalette(container, isDark);
+		const effectiveRadius = isDark ? radius : radius + 2;
 		const baseLayer = baseLayerRef.current ?? document.createElement("canvas");
 		baseLayerRef.current = baseLayer;
 		baseLayer.width = Math.round(metrics.width * metrics.dpr);
 		baseLayer.height = Math.round(metrics.height * metrics.dpr);
 
-		const context = baseLayer.getContext("2d", { alpha: true });
-		if (!context) return;
+		const baseContext = baseLayer.getContext("2d", { alpha: true });
+		if (!baseContext) return;
 
-		context.setTransform(metrics.dpr, 0, 0, metrics.dpr, 0, 0);
-		context.clearRect(0, 0, metrics.width, metrics.height);
+		baseContext.imageSmoothingEnabled = false;
+		baseContext.setTransform(metrics.dpr, 0, 0, metrics.dpr, 0, 0);
+		baseContext.clearRect(0, 0, metrics.width, metrics.height);
+		drawBaseDots(baseContext, dots, effectiveRadius, palette.base);
 
-		const palette = resolvePalette(container, isDark);
-		drawDots(context, dots, radius, palette.base, palette.baseAlpha);
-	}, [dots, isDark, metrics.dpr, metrics.height, metrics.width, radius]);
+		const aspect = metrics.width / Math.max(metrics.height, 1);
+		const frameCount = shouldReduceMotion ? 1 : FRAME_COUNT;
+		const frames = buildPreparedFrames(dots, effectiveRadius, aspect, isDark, frameCount);
+
+		setPreparedField({
+			frameCount,
+			frames,
+			palette,
+		});
+	}, [dots, isDark, metrics.dpr, metrics.height, metrics.width, radius, shouldReduceMotion]);
 
 	useEffect(() => {
-		const container = containerRef.current;
 		const canvas = canvasRef.current;
 		const baseLayer = baseLayerRef.current;
 		if (
-			!container ||
 			!canvas ||
 			!baseLayer ||
+			!preparedField ||
 			metrics.width <= 0 ||
 			metrics.height <= 0 ||
 			dots.length === 0
@@ -329,56 +597,61 @@ export function TopographicDotField({
 		const context = canvas.getContext("2d", { alpha: true });
 		if (!context) return;
 
-		const aspect = metrics.width / Math.max(metrics.height, 1);
-		const palette = resolvePalette(container, isDark);
+		context.imageSmoothingEnabled = false;
 		let frameId = 0;
 		let startTime = 0;
 
-		const draw = (now: number) => {
-			if (startTime === 0) startTime = now;
+		const drawPreparedFrame = (frameIndex: number, opacity: number) => {
+			const frame = preparedField.frames[frameIndex];
+			if (!frame || opacity <= 0) return;
 
-			const elapsed = shouldReduceMotion ? 0 : ((now - startTime) / 1000) * speed;
-			const phase = (elapsed / LOOP_DURATION) * TAU;
+			for (let level = 0; level < preparedField.palette.levels.length; level += 1) {
+				const tone = preparedField.palette.levels[level];
+				const path = frame.paths[level];
+				if (!tone || !path) continue;
+
+				context.fillStyle = toneToCanvas(tone.color, tone.alpha * opacity);
+				context.fill(path);
+			}
+		};
+
+		const paint = (now: number) => {
+			if (startTime === 0) startTime = now;
 
 			context.setTransform(1, 0, 0, 1, 0, 0);
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.drawImage(baseLayer, 0, 0);
 			context.setTransform(metrics.dpr, 0, 0, metrics.dpr, 0, 0);
 
-			for (const dot of dots) {
-				const field = sampleField(
-					dot.x / metrics.width,
-					dot.y / metrics.height,
-					aspect,
-					phase,
-				);
-				const appearance = getDotAppearance(field, palette);
-				if (!appearance) continue;
-
-				context.fillStyle = `rgba(${appearance.color[0]}, ${appearance.color[1]}, ${appearance.color[2]}, ${appearance.alpha})`;
-				context.fillRect(
-					Math.round(dot.x - radius / 2),
-					Math.round(dot.y - radius / 2),
-					radius,
-					radius,
-				);
+			if (shouldReduceMotion || preparedField.frameCount === 1) {
+				drawPreparedFrame(0, 1);
+				return;
 			}
 
-			if (!shouldReduceMotion) frameId = window.requestAnimationFrame(draw);
+			const elapsed = ((now - startTime) / 1000) * speed;
+			const loopProgress = (elapsed % LOOP_DURATION) / LOOP_DURATION;
+			const exactFrame = loopProgress * preparedField.frameCount;
+			const currentFrame = Math.floor(exactFrame) % preparedField.frameCount;
+			const nextFrame = (currentFrame + 1) % preparedField.frameCount;
+			const mix = exactFrame - Math.floor(exactFrame);
+
+			drawPreparedFrame(currentFrame, 1 - mix);
+			drawPreparedFrame(nextFrame, mix);
+
+			frameId = window.requestAnimationFrame(paint);
 		};
 
-		draw(0);
+		paint(0);
 
 		return () => {
 			window.cancelAnimationFrame(frameId);
 		};
 	}, [
-		dots,
-		isDark,
+		dots.length,
 		metrics.dpr,
 		metrics.height,
 		metrics.width,
-		radius,
+		preparedField,
 		shouldReduceMotion,
 		speed,
 	]);

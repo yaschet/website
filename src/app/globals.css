@@ -1449,7 +1449,7 @@
   --portfolio-control-md: calc(var(--portfolio-rhythm) * 4); /* 40px */
   --portfolio-control-lg: calc(var(--portfolio-rhythm) * 6); /* 60px */
   --portfolio-control-xl: calc(var(--portfolio-rhythm) * 6); /* 60px */
-  --portfolio-box-pad-mobile: var(--portfolio-space-4);
+  --portfolio-box-pad-mobile: var(--portfolio-space-2);
   --portfolio-box-pad-desktop: var(--portfolio-space-4);
   --portfolio-nav-clearance: calc(var(--portfolio-rhythm) * 12); /* 120px */
   --portfolio-avatar-size: calc(var(--portfolio-rhythm) * 6); /* 60px */

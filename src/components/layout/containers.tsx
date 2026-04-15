@@ -2,7 +2,15 @@ import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "@/src/lib/index";
 
 export function PageContainer({ className, ...props }: ComponentPropsWithoutRef<"div">) {
-	return <div className={cn("mx-auto w-full max-w-5xl px-5 sm:px-10", className)} {...props} />;
+	return (
+		<div
+			className={cn(
+				"mx-auto w-full max-w-5xl px-[var(--portfolio-space-1)] sm:px-[var(--portfolio-space-2)]",
+				className,
+			)}
+			{...props}
+		/>
+	);
 }
 
 export function ModuleContainer({ className, ...props }: ComponentPropsWithoutRef<"div">) {

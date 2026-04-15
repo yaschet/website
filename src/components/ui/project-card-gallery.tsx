@@ -131,9 +131,9 @@ export function ProjectCardGallery({
 				{/* DATA ZONE — Solid Background, Maximum Legibility */}
 				<div className="portfolio-box-pad">
 					{/* Header Row */}
-					<div className="mb-5 flex flex-col gap-5">
+					<div className="mb-5 flex flex-col gap-[var(--portfolio-space-2)]">
 						{/* Meta Layer: Functional Data — ZERO BORDERS, PURE SPACE */}
-						<div className="flex items-center justify-between">
+						<div className="flex items-center justify-between gap-[var(--portfolio-space-2)]">
 							<span className="portfolio-kicker text-surface-500 dark:text-surface-400">
 								{index}
 							</span>
@@ -145,7 +145,7 @@ export function ProjectCardGallery({
 						</div>
 
 						{/* Identity Layer: Title & Action — OPTICALLY CENTERED */}
-						<div className="flex items-center justify-between gap-5">
+						<div className="flex flex-col items-start gap-[var(--portfolio-space-2)] sm:flex-row sm:items-center sm:justify-between">
 							<h3 className="portfolio-heading-sm portfolio-capsize-heading-sm text-surface-900 dark:text-surface-50">
 								{title}
 							</h3>

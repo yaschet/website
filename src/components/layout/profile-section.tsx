@@ -32,18 +32,14 @@ export function ProfileSection() {
 		<section id="profile" className="relative z-10 w-full shrink-0">
 			<Reveal phase={1} className="w-full">
 				<div className="w-full">
-					<div className="portfolio-box-pad flex h-full items-center justify-between">
-						<div className="flex items-center gap-5">
+					<div className="portfolio-box-pad grid grid-cols-[minmax(0,1fr)_auto] items-center gap-[var(--portfolio-space-2)]">
+						<div className="flex min-w-0 items-center gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
 							<Avatar
 								className={cn(
-									"relative overflow-hidden rounded-(--radius) border",
+									"relative h-[var(--portfolio-space-5)] w-[var(--portfolio-space-5)] overflow-hidden rounded-(--radius) border sm:h-[var(--portfolio-avatar-size)] sm:w-[var(--portfolio-avatar-size)]",
 									avatarBorder,
 									avatarBg,
 								)}
-								style={{
-									width: "var(--portfolio-avatar-size)",
-									height: "var(--portfolio-avatar-size)",
-								}}
 							>
 								<Image
 									src={avatarImage}
@@ -63,8 +59,8 @@ export function ProfileSection() {
 									YC
 								</AvatarFallback>
 							</Avatar>
-							<div>
-								<h1 className="font-semibold text-[20px] text-surface-900 leading-[30px] dark:text-surface-100">
+							<div className="min-w-0">
+								<h1 className="truncate font-semibold text-[18px] text-surface-900 leading-[26px] sm:text-[20px] sm:leading-[30px] dark:text-surface-100">
 									Yassine Chettouch
 								</h1>
 								<p className="portfolio-body-sm text-surface-500 dark:text-surface-400">
@@ -73,7 +69,7 @@ export function ProfileSection() {
 							</div>
 						</div>
 
-						<div className="flex items-center gap-2.5">
+						<div className="flex items-center gap-[var(--portfolio-space-1)] justify-self-end">
 							{socialLinks.map(({ label, href, Icon }) => (
 								<div key={label} className="relative">
 									<Link
@@ -85,20 +81,13 @@ export function ProfileSection() {
 										onFocus={() => setHoveredIcon(label)}
 										onBlur={() => setHoveredIcon(null)}
 										className={cn(
-											"inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
+											"inline-flex h-[var(--portfolio-control-sm)] w-[var(--portfolio-control-sm)] items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 sm:h-[var(--portfolio-icon-touch)] sm:w-[var(--portfolio-icon-touch)]",
 											iconColor,
 										)}
-										style={{
-											width: "var(--portfolio-icon-touch)",
-											height: "var(--portfolio-icon-touch)",
-										}}
 									>
 										<Icon
 											weight="regular"
-											style={{
-												width: "var(--portfolio-icon-sm)",
-												height: "var(--portfolio-icon-sm)",
-											}}
+											className="h-[var(--portfolio-icon-sm)] w-[var(--portfolio-icon-sm)]"
 										/>
 									</Link>
 									<HoverTooltip visible={hoveredIcon === label}>

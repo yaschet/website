@@ -17,8 +17,8 @@ export function SiteHeader() {
 				style={{ height: "var(--portfolio-header-height)" }}
 				suppressHydrationWarning
 			>
-				<PageContainer className="flex h-full items-center justify-between gap-5">
-					<LocationBadge className="flex w-[var(--portfolio-badge-width)] max-w-full shrink-0" />
+				<PageContainer className="flex h-full items-center justify-between gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
+					<LocationBadge className="flex min-w-0 max-w-[calc(50%-(var(--portfolio-space-1)/2))] flex-1 sm:w-[var(--portfolio-badge-width)] sm:max-w-full sm:flex-none sm:shrink-0" />
 
 					<MarqueeBadge
 						className="hidden flex-1 sm:flex"
@@ -31,7 +31,7 @@ export function SiteHeader() {
 						]}
 					/>
 
-					<TimeBadge className="flex w-[var(--portfolio-badge-width)] max-w-full shrink-0" />
+					<TimeBadge className="flex min-w-0 max-w-[calc(50%-(var(--portfolio-space-1)/2))] flex-1 sm:w-[var(--portfolio-badge-width)] sm:max-w-full sm:flex-none sm:shrink-0" />
 				</PageContainer>
 			</div>
 		</section>
