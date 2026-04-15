@@ -190,9 +190,11 @@ export function FloatingNav() {
 									<motion.div
 										className="relative flex h-full w-full items-center justify-center"
 										initial="idle"
+										whileHover="hover"
 										whileTap="tap"
 										variants={{
 											idle: { scale: 1 },
+											hover: { scale: 1 },
 											tap: { scale: 0.92 },
 										}}
 										transition={springs.snappy}
@@ -211,7 +213,12 @@ export function FloatingNav() {
 											/>
 										)}
 
-										<motion.div variants={{ tap: { scale: 1 } }}>
+										<motion.div
+											variants={{
+												hover: { scale: 1.05 },
+												tap: { scale: 1 },
+											}}
+										>
 											<Icon
 												className="shrink-0"
 												style={{ width: ICON_SIZE, height: ICON_SIZE }}
@@ -233,7 +240,7 @@ export function FloatingNav() {
 				</ul>
 
 				<div
-					className="mx-2 my-1 w-px shrink-0 self-stretch bg-surface-800/30 dark:bg-surface-200/30"
+					className="mx-2 my-1 w-px shrink-0 self-stretch bg-surface-800 dark:bg-surface-200"
 					aria-hidden="true"
 				/>
 
@@ -244,16 +251,18 @@ export function FloatingNav() {
 					onBlur={() => setIsThemeHovered(false)}
 					onClick={toggleTheme}
 					initial="idle"
+					whileHover="hover"
 					whileTap="tap"
 					variants={{
 						idle: { scale: 1 },
+						hover: { scale: 1 },
 						tap: { scale: 0.92 },
 					}}
 					transition={springs.snappy}
 					className={cn(
 						"relative z-10 flex items-center justify-center rounded-(--radius)",
 						isThemeHovered
-							? "text-surface-50 dark:text-surface-950"
+							? "text-surface-950 dark:text-surface-50" // INVERTED
 							: "text-surface-400 hover:text-surface-50 dark:text-surface-500 dark:hover:text-surface-950",
 						"outline-none transition-colors duration-200",
 					)}
@@ -261,20 +270,28 @@ export function FloatingNav() {
 						width: BUTTON_SIZE,
 						height: BUTTON_SIZE,
 					}}
-					aria-label="Toggle theme"
+					aria-label={
+						resolvedTheme
+							? `Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`
+							: "Toggle theme"
+					}
 				>
 					<motion.div
-						className="absolute inset-0 -z-10 border border-surface-700/70 bg-surface-800 dark:border-surface-300/70 dark:bg-surface-200"
+						className="absolute inset-0 -z-10 bg-surface-50 dark:bg-surface-950"
 						initial={false}
 						animate={{
 							opacity: isThemeHovered ? 1 : 0,
+							scale: isThemeHovered ? 1 : 0.92,
 						}}
 						transition={springs.snappy}
 						style={{ borderRadius: "var(--radius)" }}
 					/>
 					<motion.div
 						className="relative flex h-full w-full items-center justify-center"
-						variants={{ tap: { scale: 1 } }}
+						variants={{
+							hover: { scale: 1.05 },
+							tap: { scale: 1 },
+						}}
 					>
 						<Sun
 							className="rotate-0 scale-100 transition-transform duration-300 dark:-rotate-90 dark:scale-0"
