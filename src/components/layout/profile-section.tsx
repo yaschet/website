@@ -58,7 +58,7 @@ export function ProfileSection() {
 						<div className="flex min-w-0 items-center gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
 							<Avatar
 								className={cn(
-									"group/avatar relative h-[var(--portfolio-space-5)] w-[var(--portfolio-space-5)] overflow-hidden rounded-(--radius) border shadow-[inset_0_0_0_1px_rgba(15,23,42,0.03)] before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:bg-[linear-gradient(180deg,rgba(15,23,42,0.04)_0%,rgba(15,23,42,0.14)_100%)] before:opacity-100 before:transition-opacity before:duration-300 after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:opacity-[0.08] after:mix-blend-multiply after:transition-opacity after:duration-300 hover:after:opacity-[0.02] hover:before:opacity-0 dark:shadow-[inset_0_0_0_1px_rgba(248,250,252,0.03)] dark:after:opacity-[0.06] dark:after:mix-blend-screen dark:hover:after:opacity-[0.02] dark:before:bg-[linear-gradient(180deg,rgba(248,250,252,0.02)_0%,rgba(248,250,252,0.12)_100%)] after:[background-image:radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.16)_1px,transparent_0)] after:[background-size:5px_5px] dark:after:[background-image:radial-gradient(circle_at_1px_1px,rgba(248,250,252,0.14)_1px,transparent_0)]",
+									"group/avatar relative h-[var(--portfolio-space-6)] w-[var(--portfolio-space-6)] overflow-hidden rounded-(--radius) border shadow-[inset_0_0_0_1px_rgba(15,23,42,0.03)] before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:bg-[linear-gradient(180deg,rgba(15,23,42,0.04)_0%,rgba(15,23,42,0.14)_100%)] before:opacity-100 before:transition-opacity before:duration-300 after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:opacity-[0.08] after:mix-blend-multiply after:transition-opacity after:duration-300 hover:after:opacity-[0.02] hover:before:opacity-0 dark:shadow-[inset_0_0_0_1px_rgba(248,250,252,0.03)] dark:after:opacity-[0.06] dark:after:mix-blend-screen dark:hover:after:opacity-[0.02] dark:before:bg-[linear-gradient(180deg,rgba(248,250,252,0.02)_0%,rgba(248,250,252,0.12)_100%)] after:[background-image:radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.16)_1px,transparent_0)] after:[background-size:5px_5px] dark:after:[background-image:radial-gradient(circle_at_1px_1px,rgba(248,250,252,0.14)_1px,transparent_0)]",
 									avatarBorder,
 									avatarBg,
 								)}
@@ -96,7 +96,7 @@ export function ProfileSection() {
 								<h1 className="truncate font-semibold text-[18px] text-surface-900 leading-[26px] sm:text-[20px] sm:leading-[30px] dark:text-surface-100">
 									Yassine Chettouch
 								</h1>
-								<p className="portfolio-body-sm text-surface-500 dark:text-surface-400">
+								<p className="truncate font-medium text-[14px] text-surface-500 leading-[20px] sm:text-[16px] sm:leading-[24px] dark:text-surface-400">
 									Software Engineer
 								</p>
 							</div>
