@@ -102,9 +102,9 @@ export function FloatingNav() {
 			: "Toggle theme";
 
 	/**
-	 * Toggles the theme with a spatial view transition.
+	 * Toggles the theme with an instant, restrained view transition.
 	 */
-	const toggleTheme = async (event: MouseEvent<HTMLButtonElement>) => {
+	const toggleTheme = () => {
 		const newTheme = resolvedTheme === "dark" ? "light" : "dark";
 
 		if (
@@ -115,47 +115,15 @@ export function FloatingNav() {
 			return;
 		}
 
-		// Calculate exact click coordinates for purely spatial origin
-		const x = event.clientX;
-		const y = event.clientY;
-
-		// Calculate distance to the furthest corner to ensure complete coverage
-		const endRadius = Math.hypot(
-			Math.max(x, window.innerWidth - x),
-			Math.max(y, window.innerHeight - y)
-		);
-
-		await (
-			document as Document & {
-				startViewTransition: (cb: () => void) => { ready: Promise<void> };
-			}
+		(
+			document as Document & { startViewTransition: (cb: () => void) => void }
 		).startViewTransition(() => {
 			flushSync(() => {
 				setTheme(newTheme);
+				// Trigger the transition acknowledgment in the topographic field synchronously with DOM swap
+				window.dispatchEvent(new CustomEvent("theme-toggled"));
 			});
-		}).ready;
-
-		const animation = document.documentElement.animate(
-			{
-				clipPath: [
-					`circle(0px at ${x}px ${y}px)`,
-					`circle(${endRadius}px at ${x}px ${y}px)`
-				],
-			},
-			{
-				duration: 550,
-				easing: "cubic-bezier(0.19, 1, 0.22, 1)",
-				pseudoElement: "::view-transition-new(root)",
-			},
-		);
-
-		animation.onfinish = () => {
-			document.documentElement.classList.remove(
-				"transition-bg-light",
-				"transition-bg-dark",
-				"view-transition-active",
-			);
-		};
+		});
 	};
 
 	return (

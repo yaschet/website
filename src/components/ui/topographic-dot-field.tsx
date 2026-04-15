@@ -97,6 +97,7 @@ uniform float uDotRadius;
 uniform float uDark;
 uniform vec2  uMouse;
 uniform float uMouseStrength;
+uniform float uTransitionPulse;
 
 uniform vec3  uLC0; uniform float uLA0;
 uniform vec3  uLC1; uniform float uLA1;
@@ -301,7 +302,7 @@ void main() {
   }
 
   vec3 contourRgb = mix(uLC2, uLC3, 0.28);
-  vec4 contourStroke = vec4(contourRgb, contour * mix(0.74, 0.30, uDark));
+  vec4 contourStroke = vec4(contourRgb, contour * mix(0.74, 0.30, uDark) * uTransitionPulse);
 
   underlay.a *= mix(1.0, mix(0.20, 0.16, uDark), shield);
   dots.a *= mix(1.0, mix(0.18, 0.34, uDark), shield);
@@ -484,6 +485,7 @@ export function TopographicDotField({
 		targetY: 0.5,
 	});
 	const supportsHoverRef = useRef(false);
+	const transitionPulseRef = useRef(1);
 
 	const shouldReduceMotion = useReducedMotion();
 	const [isDark, setIsDark] = useState(false);
@@ -528,6 +530,17 @@ export function TopographicDotField({
 		mediaQuery.addEventListener("change", sync);
 
 		return () => mediaQuery.removeEventListener("change", sync);
+	}, []);
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const handleThemeToggled = () => {
+			transitionPulseRef.current = 1.3;
+		};
+
+		window.addEventListener("theme-toggled", handleThemeToggled);
+		return () => window.removeEventListener("theme-toggled", handleThemeToggled);
 	}, []);
 
 	useEffect(() => {
@@ -625,6 +638,7 @@ export function TopographicDotField({
 				uDark: getUniform("uDark"),
 				uMouse: getUniform("uMouse"),
 				uMouseStrength: getUniform("uMouseStrength"),
+				uTransitionPulse: getUniform("uTransitionPulse"),
 				uLC0: getUniform("uLC0"),
 				uLA0: getUniform("uLA0"),
 				uLC1: getUniform("uLC1"),
@@ -745,6 +759,15 @@ export function TopographicDotField({
 			if (lastFrameTime === 0) lastFrameTime = now;
 			const deltaSeconds = (now - lastFrameTime) / 1000;
 			lastFrameTime = now;
+			
+			// Decay transition pulse smoothly back to 1.0 over ~240ms (1.3 -> 1.0 is 0.3)
+			if (transitionPulseRef.current > 1.0) {
+				transitionPulseRef.current = Math.max(
+					1.0,
+					transitionPulseRef.current - deltaSeconds * (0.3 / 0.24)
+				);
+			}
+
 			const elapsed = shouldReduceMotion ? 0 : ((now - startTime) / 1000) * speed;
 			const mouse = mouseRef.current;
 			const pointerTau = 0.1;
@@ -759,6 +782,7 @@ export function TopographicDotField({
 			gl.uniform1f(uniforms.uTime, elapsed);
 			gl.uniform2f(uniforms.uMouse, mouse.currentX, mouse.currentY);
 			gl.uniform1f(uniforms.uMouseStrength, shouldReduceMotion ? 0 : mouse.currentStrength);
+			gl.uniform1f(uniforms.uTransitionPulse, transitionPulseRef.current);
 			gl.clear(gl.COLOR_BUFFER_BIT);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
