@@ -56,10 +56,10 @@ const FALLBACK_DARK_PALETTE: Palette = {
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
 	active: [
-		{ color: [124, 162, 20], alpha: 0.36 },
-		{ color: [159, 204, 26], alpha: 0.54 },
-		{ color: [197, 248, 42], alpha: 0.74 },
-		{ color: [212, 255, 58], alpha: 0.92 },
+		{ color: [235, 255, 158], alpha: 0.22 },
+		{ color: [222, 255, 103], alpha: 0.34 },
+		{ color: [212, 255, 58], alpha: 0.52 },
+		{ color: [197, 248, 42], alpha: 0.7 },
 	],
 	underlay: [
 		{ color: [245, 255, 209], alpha: 0.18 },
@@ -362,19 +362,31 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	return {
 		active: [
 			{
-				color: resolve("var(--color-accent-700)", fallback.active[0].color),
+				color: resolve(
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-200)",
+					fallback.active[0].color,
+				),
 				alpha: fallback.active[0].alpha,
 			},
 			{
-				color: resolve("var(--color-accent-600)", fallback.active[1].color),
+				color: resolve(
+					isDark ? "var(--color-accent-600)" : "var(--color-accent-300)",
+					fallback.active[1].color,
+				),
 				alpha: fallback.active[1].alpha,
 			},
 			{
-				color: resolve("var(--color-accent-500)", fallback.active[2].color),
+				color: resolve(
+					isDark ? "var(--color-accent-500)" : "var(--color-accent-400)",
+					fallback.active[2].color,
+				),
 				alpha: fallback.active[2].alpha,
 			},
 			{
-				color: resolve("var(--color-accent-400)", fallback.active[3].color),
+				color: resolve(
+					isDark ? "var(--color-accent-400)" : "var(--color-accent-500)",
+					fallback.active[3].color,
+				),
 				alpha: fallback.active[3].alpha,
 			},
 		],
