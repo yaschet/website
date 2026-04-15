@@ -44,18 +44,18 @@
   --primary-color-900: oklch(0.14 0 0);
   --primary-color-950: oklch(0.09 0 0);
 
-  /* ACCENT: Electric Lime */
-  --accent-color-50: #fbffe9;
-  --accent-color-100: #f5ffd1;
-  --accent-color-200: #ebff9e;
-  --accent-color-300: #deff67;
-  --accent-color-400: #d4ff3a;
-  --accent-color-500: #c5f82a;
-  --accent-color-600: #9fcc1a;
-  --accent-color-700: #7ca214;
-  --accent-color-800: #5c770e;
-  --accent-color-900: #3d5109;
-  --accent-color-950: #212b04;
+  /* ACCENT: Electric Emerald */
+  --accent-color-50: #effff8;
+  --accent-color-100: #d9fff0;
+  --accent-color-200: #aef8d6;
+  --accent-color-300: #74eebb;
+  --accent-color-400: #2ed999;
+  --accent-color-500: #00c27a;
+  --accent-color-600: #00a868;
+  --accent-color-700: #007f4f;
+  --accent-color-800: #005b39;
+  --accent-color-900: #003b25;
+  --accent-color-950: #001f14;
 
   /* INFO: Professional Dark Navy (Hue 250) */
   --info-color-50: oklch(0.97 0.01 250);
@@ -819,17 +819,17 @@
     --primary-color-900: var(--zinc-900);
     --primary-color-950: var(--zinc-950);
 
-    --accent-color-50: #fbffe9;
-    --accent-color-100: #f5ffd1;
-    --accent-color-200: #ebff9e;
-    --accent-color-300: #deff67;
-    --accent-color-400: #d4ff3a;
-    --accent-color-500: #c5f82a;
-    --accent-color-600: #9fcc1a;
-    --accent-color-700: #7ca214;
-    --accent-color-800: #5c770e;
-    --accent-color-900: #3d5109;
-    --accent-color-950: #212b04;
+    --accent-color-50: #effff8;
+    --accent-color-100: #d9fff0;
+    --accent-color-200: #aef8d6;
+    --accent-color-300: #74eebb;
+    --accent-color-400: #2ed999;
+    --accent-color-500: #00c27a;
+    --accent-color-600: #00a868;
+    --accent-color-700: #007f4f;
+    --accent-color-800: #005b39;
+    --accent-color-900: #003b25;
+    --accent-color-950: #001f14;
 
     --info-color-50: var(--blue-50);
     --info-color-100: var(--blue-100);

@@ -41,31 +41,31 @@ interface Metrics {
 
 const FALLBACK_DARK_PALETTE: Palette = {
 	active: [
-		{ color: [124, 162, 20], alpha: 0.22 },
-		{ color: [159, 204, 26], alpha: 0.42 },
-		{ color: [197, 248, 42], alpha: 0.68 },
-		{ color: [212, 255, 58], alpha: 0.94 },
+		{ color: [0, 127, 79], alpha: 0.22 },
+		{ color: [0, 168, 104], alpha: 0.42 },
+		{ color: [0, 194, 122], alpha: 0.68 },
+		{ color: [46, 217, 153], alpha: 0.94 },
 	],
 	underlay: [
-		{ color: [33, 43, 4], alpha: 0.08 },
-		{ color: [61, 81, 9], alpha: 0.13 },
-		{ color: [92, 119, 14], alpha: 0.19 },
-		{ color: [124, 162, 20], alpha: 0.27 },
+		{ color: [0, 31, 20], alpha: 0.08 },
+		{ color: [0, 59, 37], alpha: 0.13 },
+		{ color: [0, 91, 57], alpha: 0.19 },
+		{ color: [0, 127, 79], alpha: 0.27 },
 	],
 };
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
 	active: [
-		{ color: [235, 255, 158], alpha: 0.22 },
-		{ color: [222, 255, 103], alpha: 0.34 },
-		{ color: [212, 255, 58], alpha: 0.52 },
-		{ color: [197, 248, 42], alpha: 0.7 },
+		{ color: [174, 248, 214], alpha: 0.22 },
+		{ color: [116, 238, 187], alpha: 0.34 },
+		{ color: [46, 217, 153], alpha: 0.52 },
+		{ color: [0, 194, 122], alpha: 0.7 },
 	],
 	underlay: [
-		{ color: [245, 255, 209], alpha: 0.18 },
-		{ color: [235, 255, 158], alpha: 0.28 },
-		{ color: [222, 255, 103], alpha: 0.38 },
-		{ color: [212, 255, 58], alpha: 0.48 },
+		{ color: [217, 255, 240], alpha: 0.18 },
+		{ color: [174, 248, 214], alpha: 0.28 },
+		{ color: [116, 238, 187], alpha: 0.38 },
+		{ color: [46, 217, 153], alpha: 0.48 },
 	],
 };
 
