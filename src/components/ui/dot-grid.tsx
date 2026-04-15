@@ -98,11 +98,12 @@ export function DotGrid({
 					aria-hidden="true"
 				>
 					{dots.map((dot) => (
-						<circle
+						<rect
 							key={dot.key}
-							cx={dot.cx}
-							cy={dot.cy}
-							r={radius}
+							x={dot.cx - radius}
+							y={dot.cy - radius}
+							width={radius * 2}
+							height={radius * 2}
 							fill="currentColor"
 						/>
 					))}

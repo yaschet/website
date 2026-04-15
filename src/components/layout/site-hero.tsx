@@ -2,10 +2,10 @@
 
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/ui/reveal";
+import { TopographicDotField } from "@/components/ui/topographic-dot-field";
 import { cn } from "@/lib/utils";
-import { Button } from "@/src/components/ui/button";
-import { Reveal } from "@/src/components/ui/reveal";
-import { TopographicDotField } from "@/src/components/ui/topographic-dot-field";
 
 const HERO_BASELINE = "var(--portfolio-rhythm)";
 const HERO_GRID_STEP = "var(--portfolio-grid-step)";
