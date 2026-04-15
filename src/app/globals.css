@@ -44,18 +44,18 @@
   --primary-color-900: oklch(0.14 0 0);
   --primary-color-950: oklch(0.09 0 0);
 
-  /* ACCENT: Sky Color */
-  --accent-color-50: oklch(95.58% 0.015 257.2);
-  --accent-color-100: oklch(91.11% 0.03 256.01);
-  --accent-color-200: oklch(81.97% 0.063 257.53);
-  --accent-color-300: oklch(73.07% 0.096 257.09);
-  --accent-color-400: oklch(64.33% 0.13 257.04);
-  --accent-color-500: oklch(56.03% 0.163 257.63);
-  --accent-color-600: oklch(47.75% 0.137 257.65);
-  --accent-color-700: oklch(39.1% 0.108 257.7);
-  --accent-color-800: oklch(29.94% 0.078 257.88);
-  --accent-color-900: oklch(20.35% 0.043 256.48);
-  --accent-color-950: oklch(17.08% 0.032 254.37);
+  /* ACCENT: Electric Blue */
+  --accent-color-50: oklch(97.1% 0.022 248.8);
+  --accent-color-100: oklch(94.1% 0.05 247.9);
+  --accent-color-200: oklch(88.2% 0.103 246.9);
+  --accent-color-300: oklch(80.9% 0.165 245.9);
+  --accent-color-400: oklch(72.7% 0.221 245.0);
+  --accent-color-500: oklch(64.3% 0.258 244.2);
+  --accent-color-600: oklch(55.8% 0.236 244.1);
+  --accent-color-700: oklch(46.7% 0.194 244.5);
+  --accent-color-800: oklch(36.9% 0.146 245.1);
+  --accent-color-900: oklch(27.0% 0.094 246.0);
+  --accent-color-950: oklch(20.5% 0.067 247.1);
 
   /* INFO: Professional Dark Navy (Hue 250) */
   --info-color-50: oklch(0.97 0.01 250);
@@ -819,17 +819,17 @@
     --primary-color-900: var(--zinc-900);
     --primary-color-950: var(--zinc-950);
 
-    --accent-color-50: oklch(95.58% 0.015 257.2);
-    --accent-color-100: oklch(91.11% 0.03 256.01);
-    --accent-color-200: oklch(81.97% 0.063 257.53);
-    --accent-color-300: oklch(73.07% 0.096 257.09);
-    --accent-color-400: oklch(64.33% 0.13 257.04);
-    --accent-color-500: oklch(56.03% 0.163 257.63);
-    --accent-color-600: oklch(47.75% 0.137 257.65);
-    --accent-color-700: oklch(39.1% 0.108 257.7);
-    --accent-color-800: oklch(29.94% 0.078 257.88);
-    --accent-color-900: oklch(20.35% 0.043 256.48);
-    --accent-color-950: oklch(17.08% 0.032 254.37);
+    --accent-color-50: oklch(97.1% 0.022 248.8);
+    --accent-color-100: oklch(94.1% 0.05 247.9);
+    --accent-color-200: oklch(88.2% 0.103 246.9);
+    --accent-color-300: oklch(80.9% 0.165 245.9);
+    --accent-color-400: oklch(72.7% 0.221 245.0);
+    --accent-color-500: oklch(64.3% 0.258 244.2);
+    --accent-color-600: oklch(55.8% 0.236 244.1);
+    --accent-color-700: oklch(46.7% 0.194 244.5);
+    --accent-color-800: oklch(36.9% 0.146 245.1);
+    --accent-color-900: oklch(27.0% 0.094 246.0);
+    --accent-color-950: oklch(20.5% 0.067 247.1);
 
     --info-color-50: var(--blue-50);
     --info-color-100: var(--blue-100);

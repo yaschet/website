@@ -346,7 +346,7 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		active: [
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-800)" : "var(--color-accent-500)",
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-700)",
 					fallback.active[0].color,
 				),
 				alpha: fallback.active[0].alpha,
@@ -360,14 +360,14 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-400)" : "var(--color-accent-700)",
+					isDark ? "var(--color-accent-500)" : "var(--color-accent-500)",
 					fallback.active[2].color,
 				),
 				alpha: fallback.active[2].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-100)" : "var(--color-accent-800)",
+					isDark ? "var(--color-accent-400)" : "var(--color-accent-400)",
 					fallback.active[3].color,
 				),
 				alpha: fallback.active[3].alpha,
