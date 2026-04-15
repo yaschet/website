@@ -2114,6 +2114,7 @@ h4:hover .anchor {
 pre {
     @apply bg-transparent;
 }
+
 /* ═══════════════════════════════════════════════════════════════════════════
    ANIMATION: SYSTEM BORDERS (Marching Ants)
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -2150,5 +2151,77 @@ pre {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 0ms;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SCROLLBAR — Grid-Coherent & Interactive
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Firefox Fallback */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-300) transparent;
+  }
+
+  .dark * {
+    scrollbar-color: var(--surface-700) transparent;
+  }
+}
+
+/* WebKit / Blink */
+::-webkit-scrollbar {
+  width: 16px; /* Massive invisible hit area to never miss a grab */
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-300);
+  border: 5px solid transparent; /* 16px track - 10px border = 6px visible floating thumb */
+  background-clip: padding-box;
+  border-radius: 0;
+  transition: background 200ms ease;
+  min-height: 48px; /* Crucial A11y: Prevents thumb from becoming an ungrabbable microscopic sliver on long pages */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--surface-400);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--surface-950);
+  background-clip: padding-box;
+}
+
+/* Dark mode bindings */
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--surface-800);
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--surface-600);
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb:active {
+  background: var(--surface-50);
+  background-clip: padding-box;
+}
+
+/* Corner where horizontal and vertical meet */
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::-webkit-scrollbar-thumb {
+    transition: none;
   }
 }

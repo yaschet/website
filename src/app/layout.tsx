@@ -5,9 +5,9 @@ import "./globals.css";
 
 import { FloatingNav } from "@components/layout/floating-nav";
 import RootProvider from "@components/providers/root-provider";
-
 import { fontVariables } from "@/lib/fonts";
 import { PortfolioTypeStyles } from "@/src/components/layout/portfolio-type-styles";
+import { ReadingProgress } from "@/src/components/ui/reading-progress";
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://yaschet.dev"),
@@ -102,6 +102,7 @@ export default function RootLayout({
 				suppressHydrationWarning={true}
 			>
 				<RootProvider>
+					<ReadingProgress />
 					<Suspense fallback={null}>
 						<FloatingNav />
 					</Suspense>
