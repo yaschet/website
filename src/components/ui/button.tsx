@@ -143,10 +143,10 @@ const buttonVariants = cva(
 				variant: "solid",
 				color: "accent",
 				className: [
-					"bg-accent-600 text-accent-50",
+					"bg-accent-600 text-accent-950",
 					"hover:bg-accent-700 focus-visible:bg-accent-700",
 					"active:bg-accent-800",
-					"dark:bg-accent-500 dark:text-white",
+					"dark:bg-accent-500 dark:text-accent-950",
 					"dark:focus-visible:bg-accent-600 dark:hover:bg-accent-600",
 					"dark:active:bg-accent-700",
 

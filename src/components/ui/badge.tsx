@@ -88,7 +88,7 @@ const badgeVariants = cva(
 			{
 				variant: "solid",
 				color: "accent",
-				class: "bg-accent-600 text-white hover:bg-accent-700 dark:bg-accent-500",
+				class: "bg-accent-600 text-accent-950 hover:bg-accent-700 dark:bg-accent-500",
 			},
 			{
 				variant: "solid",

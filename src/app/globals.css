@@ -15,7 +15,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    CORE VARIABLE SYSTEM
    Achromatic Swiss: Pure grayscale foundation. Color lives in the mesh.
-   Surface: True Black/White (Zero Chroma) | Accent: Sky Color
+   Surface: True Black/White (Zero Chroma) | Accent: Electric Lime
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
   /* SURFACE: Pure Achromatic (Zero Chroma = True Grayscale) */
@@ -44,18 +44,18 @@
   --primary-color-900: oklch(0.14 0 0);
   --primary-color-950: oklch(0.09 0 0);
 
-  /* ACCENT: Electric Blue */
-  --accent-color-50: oklch(97.1% 0.022 248.8);
-  --accent-color-100: oklch(94.1% 0.05 247.9);
-  --accent-color-200: oklch(88.2% 0.103 246.9);
-  --accent-color-300: oklch(80.9% 0.165 245.9);
-  --accent-color-400: oklch(72.7% 0.221 245.0);
-  --accent-color-500: oklch(64.3% 0.258 244.2);
-  --accent-color-600: oklch(55.8% 0.236 244.1);
-  --accent-color-700: oklch(46.7% 0.194 244.5);
-  --accent-color-800: oklch(36.9% 0.146 245.1);
-  --accent-color-900: oklch(27.0% 0.094 246.0);
-  --accent-color-950: oklch(20.5% 0.067 247.1);
+  /* ACCENT: Electric Lime */
+  --accent-color-50: #fbffe9;
+  --accent-color-100: #f5ffd1;
+  --accent-color-200: #ebff9e;
+  --accent-color-300: #deff67;
+  --accent-color-400: #d4ff3a;
+  --accent-color-500: #c5f82a;
+  --accent-color-600: #9fcc1a;
+  --accent-color-700: #7ca214;
+  --accent-color-800: #5c770e;
+  --accent-color-900: #3d5109;
+  --accent-color-950: #212b04;
 
   /* INFO: Professional Dark Navy (Hue 250) */
   --info-color-50: oklch(0.97 0.01 250);
@@ -225,7 +225,7 @@
   --secondary-surface-5: var(--surface-color-500);
 
   --accent: var(--accent-color-500);
-  --accent-foreground: var(--accent-color-50);
+  --accent-foreground: var(--surface-color-950);
   --accent-50: var(--accent-color-50);
   --accent-100: var(--accent-color-100);
   --accent-200: var(--accent-color-200);
@@ -237,19 +237,19 @@
   --accent-800: var(--accent-color-800);
   --accent-900: var(--accent-color-900);
   --accent-950: var(--accent-color-950);
-  --accent-foreground-0: var(--accent-50);
-  --accent-foreground-1: var(--accent-50);
-  --accent-foreground-2: var(--accent-100);
-  --accent-foreground-3: var(--accent-200);
-  --accent-foreground-4: var(--accent-300);
-  --accent-foreground-5: var(--accent-400);
-  --accent-surface: var(--accent-500);
-  --accent-surface-0: var(--accent-600);
-  --accent-surface-1: var(--accent-600);
-  --accent-surface-2: var(--accent-700);
-  --accent-surface-3: var(--accent-800);
-  --accent-surface-4: var(--accent-900);
-  --accent-surface-5: var(--accent-950);
+  --accent-foreground-0: var(--surface-color-950);
+  --accent-foreground-1: var(--surface-color-950);
+  --accent-foreground-2: var(--surface-color-900);
+  --accent-foreground-3: var(--surface-color-800);
+  --accent-foreground-4: var(--surface-color-700);
+  --accent-foreground-5: var(--surface-color-600);
+  --accent-surface: var(--accent-color-500);
+  --accent-surface-0: var(--accent-color-600);
+  --accent-surface-1: var(--accent-color-600);
+  --accent-surface-2: var(--accent-color-700);
+  --accent-surface-3: var(--accent-color-800);
+  --accent-surface-4: var(--accent-color-900);
+  --accent-surface-5: var(--accent-color-950);
 
   --info: var(--info-color-500);
   --info-foreground: var(--info-color-50);
@@ -441,16 +441,16 @@
   --secondary-surface-5: var(--secondary-600);
 
   --accent: var(--accent-color-500);
-  --accent-foreground: var(--accent-50);
-  --accent-foreground-0: var(--accent-50);
-  --accent-foreground-1: var(--accent-50);
-  --accent-foreground-2: var(--accent-100);
-  --accent-foreground-3: var(--accent-200);
-  --accent-foreground-4: var(--accent-300);
-  --accent-foreground-5: var(--accent-400);
-  --accent-surface: var(--accent-600);
-  --accent-surface-0: var(--accent-600);
-  --accent-surface-1: var(--accent-600);
+  --accent-foreground: var(--surface-color-950);
+  --accent-foreground-0: var(--surface-color-950);
+  --accent-foreground-1: var(--surface-color-950);
+  --accent-foreground-2: var(--surface-color-900);
+  --accent-foreground-3: var(--surface-color-800);
+  --accent-foreground-4: var(--surface-color-700);
+  --accent-foreground-5: var(--surface-color-600);
+  --accent-surface: var(--accent-color-500);
+  --accent-surface-0: var(--accent-color-600);
+  --accent-surface-1: var(--accent-color-600);
   --accent-surface-2: var(--accent-700);
   --accent-surface-3: var(--accent-800);
   --accent-surface-4: var(--accent-900);
@@ -819,17 +819,17 @@
     --primary-color-900: var(--zinc-900);
     --primary-color-950: var(--zinc-950);
 
-    --accent-color-50: oklch(97.1% 0.022 248.8);
-    --accent-color-100: oklch(94.1% 0.05 247.9);
-    --accent-color-200: oklch(88.2% 0.103 246.9);
-    --accent-color-300: oklch(80.9% 0.165 245.9);
-    --accent-color-400: oklch(72.7% 0.221 245.0);
-    --accent-color-500: oklch(64.3% 0.258 244.2);
-    --accent-color-600: oklch(55.8% 0.236 244.1);
-    --accent-color-700: oklch(46.7% 0.194 244.5);
-    --accent-color-800: oklch(36.9% 0.146 245.1);
-    --accent-color-900: oklch(27.0% 0.094 246.0);
-    --accent-color-950: oklch(20.5% 0.067 247.1);
+    --accent-color-50: #fbffe9;
+    --accent-color-100: #f5ffd1;
+    --accent-color-200: #ebff9e;
+    --accent-color-300: #deff67;
+    --accent-color-400: #d4ff3a;
+    --accent-color-500: #c5f82a;
+    --accent-color-600: #9fcc1a;
+    --accent-color-700: #7ca214;
+    --accent-color-800: #5c770e;
+    --accent-color-900: #3d5109;
+    --accent-color-950: #212b04;
 
     --info-color-50: var(--blue-50);
     --info-color-100: var(--blue-100);
@@ -971,7 +971,7 @@
 
     /* - Accent: */
     --accent: var(--accent-color-500);
-    --accent-foreground: var(--accent-color-50);
+    --accent-foreground: var(--surface-color-950);
     --accent-50: var(--accent-color-50);
     --accent-100: var(--accent-color-100);
     --accent-200: var(--accent-color-200);
@@ -983,20 +983,20 @@
     --accent-800: var(--accent-color-800);
     --accent-900: var(--accent-color-900);
     --accent-950: var(--accent-color-950);
-    --accent-foreground: var(--accent-50);
-    --accent-foreground-0: var(--accent-50);
-    --accent-foreground-1: var(--accent-50);
-    --accent-foreground-2: var(--accent-100);
-    --accent-foreground-3: var(--accent-200);
-    --accent-foreground-4: var(--accent-300);
-    --accent-foreground-5: var(--accent-400);
-    --accent-surface: var(--accent-500);
-    --accent-surface-0: var(--accent-600);
-    --accent-surface-1: var(--accent-600);
-    --accent-surface-2: var(--accent-700);
-    --accent-surface-3: var(--accent-800);
-    --accent-surface-4: var(--accent-900);
-    --accent-surface-5: var(--accent-950);
+    --accent-foreground: var(--surface-color-950);
+    --accent-foreground-0: var(--surface-color-950);
+    --accent-foreground-1: var(--surface-color-950);
+    --accent-foreground-2: var(--surface-color-900);
+    --accent-foreground-3: var(--surface-color-800);
+    --accent-foreground-4: var(--surface-color-700);
+    --accent-foreground-5: var(--surface-color-600);
+    --accent-surface: var(--accent-color-500);
+    --accent-surface-0: var(--accent-color-600);
+    --accent-surface-1: var(--accent-color-600);
+    --accent-surface-2: var(--accent-color-700);
+    --accent-surface-3: var(--accent-color-800);
+    --accent-surface-4: var(--accent-color-900);
+    --accent-surface-5: var(--accent-color-950);
 
     /* - Info: */
     --info: var(--info-color-500);
@@ -1189,16 +1189,16 @@
     --secondary-surface-5: var(--secondary-600);
 
     --accent: var(--accent-color-500);
-    --accent-foreground: var(--accent-50);
-    --accent-foreground-0: var(--accent-50);
-    --accent-foreground-1: var(--accent-50);
-    --accent-foreground-2: var(--accent-100);
-    --accent-foreground-3: var(--accent-200);
-    --accent-foreground-4: var(--accent-300);
-    --accent-foreground-5: var(--accent-400);
-    --accent-surface: var(--accent-600);
-    --accent-surface-0: var(--accent-600);
-    --accent-surface-1: var(--accent-600);
+    --accent-foreground: var(--surface-color-950);
+    --accent-foreground-0: var(--surface-color-950);
+    --accent-foreground-1: var(--surface-color-950);
+    --accent-foreground-2: var(--surface-color-900);
+    --accent-foreground-3: var(--surface-color-800);
+    --accent-foreground-4: var(--surface-color-700);
+    --accent-foreground-5: var(--surface-color-600);
+    --accent-surface: var(--accent-color-500);
+    --accent-surface-0: var(--accent-color-600);
+    --accent-surface-1: var(--accent-color-600);
     --accent-surface-2: var(--accent-700);
     --accent-surface-3: var(--accent-800);
     --accent-surface-4: var(--accent-900);
@@ -1675,7 +1675,7 @@ html {
 
 html,
 body {
-  @apply lining-nums antialiased selection:bg-accent-600 selection:text-white;
+  @apply lining-nums antialiased selection:bg-accent-600 selection:text-accent-950;
 }
 
 .dark,

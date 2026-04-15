@@ -41,31 +41,31 @@ interface Metrics {
 
 const FALLBACK_DARK_PALETTE: Palette = {
 	active: [
-		{ color: [27, 72, 186], alpha: 0.22 },
-		{ color: [44, 112, 255], alpha: 0.42 },
-		{ color: [77, 151, 255], alpha: 0.68 },
-		{ color: [126, 192, 255], alpha: 0.94 },
+		{ color: [124, 162, 20], alpha: 0.22 },
+		{ color: [159, 204, 26], alpha: 0.42 },
+		{ color: [197, 248, 42], alpha: 0.68 },
+		{ color: [212, 255, 58], alpha: 0.94 },
 	],
 	underlay: [
-		{ color: [8, 16, 34], alpha: 0.08 },
-		{ color: [11, 24, 52], alpha: 0.13 },
-		{ color: [17, 39, 86], alpha: 0.19 },
-		{ color: [25, 58, 128], alpha: 0.27 },
+		{ color: [33, 43, 4], alpha: 0.08 },
+		{ color: [61, 81, 9], alpha: 0.13 },
+		{ color: [92, 119, 14], alpha: 0.19 },
+		{ color: [124, 162, 20], alpha: 0.27 },
 	],
 };
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
 	active: [
-		{ color: [26, 89, 222], alpha: 0.3 },
-		{ color: [31, 108, 255], alpha: 0.46 },
-		{ color: [67, 140, 255], alpha: 0.64 },
-		{ color: [108, 172, 255], alpha: 0.82 },
+		{ color: [124, 162, 20], alpha: 0.36 },
+		{ color: [159, 204, 26], alpha: 0.54 },
+		{ color: [197, 248, 42], alpha: 0.74 },
+		{ color: [212, 255, 58], alpha: 0.92 },
 	],
 	underlay: [
-		{ color: [216, 233, 255], alpha: 0.036 },
-		{ color: [185, 214, 255], alpha: 0.072 },
-		{ color: [132, 182, 255], alpha: 0.122 },
-		{ color: [82, 145, 255], alpha: 0.19 },
+		{ color: [245, 255, 209], alpha: 0.18 },
+		{ color: [235, 255, 158], alpha: 0.28 },
+		{ color: [222, 255, 103], alpha: 0.38 },
+		{ color: [212, 255, 58], alpha: 0.48 },
 	],
 };
 
@@ -244,15 +244,15 @@ void main() {
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
   bool inDot = cellDist.x <= uDotRadius && cellDist.y <= uDotRadius;
 
-  float u0 = mix(0.54, 0.10, uDark);
-  float u1 = mix(0.66, 0.18, uDark);
-  float u2 = mix(0.78, 0.30, uDark);
-  float u3 = mix(0.89, 0.46, uDark);
+  float u0 = mix(0.46, 0.10, uDark);
+  float u1 = mix(0.58, 0.18, uDark);
+  float u2 = mix(0.70, 0.30, uDark);
+  float u3 = mix(0.82, 0.46, uDark);
 
-  float d0 = mix(0.64, 0.30, uDark);
-  float d1 = mix(0.76, 0.46, uDark);
-  float d2 = mix(0.87, 0.63, uDark);
-  float d3 = mix(0.95, 0.80, uDark);
+  float d0 = mix(0.50, 0.30, uDark);
+  float d1 = mix(0.64, 0.46, uDark);
+  float d2 = mix(0.78, 0.63, uDark);
+  float d3 = mix(0.89, 0.80, uDark);
 
   vec4 underlay = vec4(0.0);
   if      (field >= u3) { underlay = vec4(uUC3, uUA3); }
@@ -268,8 +268,16 @@ void main() {
     else if (field >= d0) { dots = vec4(uLC0, uLA0); }
   }
 
-  underlay.a *= mix(1.0, mix(0.08, 0.16, uDark), shield);
+  underlay.a *= mix(1.0, mix(0.20, 0.16, uDark), shield);
   dots.a *= mix(1.0, mix(0.18, 0.34, uDark), shield);
+
+  if (uDark < 0.5) {
+    vec4 lightBase = vec4(1.0);
+    float lightMix = underlay.a * 0.62;
+    vec4 lightUnderlay = vec4(mix(lightBase.rgb, underlay.rgb, lightMix), 1.0);
+    oColor = alphaOver(dots, lightUnderlay);
+    return;
+  }
 
   oColor = alphaOver(dots, underlay);
 }`;
@@ -354,59 +362,47 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	return {
 		active: [
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-800)",
-					fallback.active[0].color,
-				),
+				color: resolve("var(--color-accent-700)", fallback.active[0].color),
 				alpha: fallback.active[0].alpha,
 			},
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-600)" : "var(--color-accent-700)",
-					fallback.active[1].color,
-				),
+				color: resolve("var(--color-accent-600)", fallback.active[1].color),
 				alpha: fallback.active[1].alpha,
 			},
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-500)" : "var(--color-accent-600)",
-					fallback.active[2].color,
-				),
+				color: resolve("var(--color-accent-500)", fallback.active[2].color),
 				alpha: fallback.active[2].alpha,
 			},
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-400)" : "var(--color-accent-500)",
-					fallback.active[3].color,
-				),
+				color: resolve("var(--color-accent-400)", fallback.active[3].color),
 				alpha: fallback.active[3].alpha,
 			},
 		],
 		underlay: [
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-950)" : "var(--color-accent-300)",
+					isDark ? "var(--color-accent-950)" : "var(--color-accent-100)",
 					fallback.underlay[0].color,
 				),
 				alpha: fallback.underlay[0].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-900)" : "var(--color-accent-400)",
+					isDark ? "var(--color-accent-900)" : "var(--color-accent-200)",
 					fallback.underlay[1].color,
 				),
 				alpha: fallback.underlay[1].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-800)" : "var(--color-accent-500)",
+					isDark ? "var(--color-accent-800)" : "var(--color-accent-300)",
 					fallback.underlay[2].color,
 				),
 				alpha: fallback.underlay[2].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-600)",
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-400)",
 					fallback.underlay[3].color,
 				),
 				alpha: fallback.underlay[3].alpha,
@@ -612,12 +608,13 @@ export function TopographicDotField({
 		const palette = resolvePalette(container, isDark);
 		const columns = computeGridAxis(metrics.width, metrics.step, metrics.minInset, origin);
 		const rows = computeGridAxis(metrics.height, metrics.step, metrics.minInset, origin);
-		const halfDot = radius * metrics.dpr;
-		const gridMinX = (columns.offset - radius) * metrics.dpr;
-		const gridMinY = (rows.offset - radius) * metrics.dpr;
+		const dotRadius = radius * (isDark ? 1 : 2);
+		const halfDot = dotRadius * metrics.dpr;
+		const gridMinX = (columns.offset - dotRadius) * metrics.dpr;
+		const gridMinY = (rows.offset - dotRadius) * metrics.dpr;
 		const gridMaxX =
-			(columns.offset + (columns.count - 1) * metrics.step + radius) * metrics.dpr;
-		const gridMaxY = (rows.offset + (rows.count - 1) * metrics.step + radius) * metrics.dpr;
+			(columns.offset + (columns.count - 1) * metrics.step + dotRadius) * metrics.dpr;
+		const gridMaxY = (rows.offset + (rows.count - 1) * metrics.step + dotRadius) * metrics.dpr;
 		const toVec3 = (color: RGB) =>
 			new Float32Array([color[0] / 255, color[1] / 255, color[2] / 255]);
 		const setUniform3 = (name: string, color: RGB) => {
@@ -679,8 +676,17 @@ export function TopographicDotField({
 	}, [isDark, metrics, origin, radius, shouldReduceMotion, speed]);
 
 	return (
-		<div ref={containerRef} className={cn("absolute inset-0 overflow-hidden", className)}>
-			<canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+		<div
+			ref={containerRef}
+			className={cn(
+				"absolute inset-0 overflow-hidden bg-white transition-colors dark:bg-surface-900/80",
+				className,
+			)}
+		>
+			<canvas
+				ref={canvasRef}
+				className="absolute inset-0 h-full w-full bg-white transition-colors dark:bg-surface-900/80"
+			/>
 		</div>
 	);
 }
