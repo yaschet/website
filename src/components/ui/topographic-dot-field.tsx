@@ -3,7 +3,6 @@
 import { useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { DotGrid } from "./dot-grid";
 import {
 	computeGridAxis,
 	type DotGridLength,
@@ -48,10 +47,10 @@ const FALLBACK_DARK_PALETTE: Palette = {
 		{ color: [190, 229, 255], alpha: 0.88 },
 	],
 	underlay: [
-		{ color: [11, 18, 34], alpha: 0.1 },
-		{ color: [16, 29, 54], alpha: 0.18 },
-		{ color: [26, 48, 83], alpha: 0.28 },
-		{ color: [39, 77, 128], alpha: 0.38 },
+		{ color: [10, 14, 22], alpha: 0.06 },
+		{ color: [15, 24, 38], alpha: 0.1 },
+		{ color: [21, 37, 60], alpha: 0.15 },
+		{ color: [30, 56, 92], alpha: 0.22 },
 	],
 };
 
@@ -64,9 +63,9 @@ const FALLBACK_LIGHT_PALETTE: Palette = {
 	],
 	underlay: [
 		{ color: [219, 234, 254], alpha: 0.0 },
-		{ color: [191, 219, 254], alpha: 0.02 },
-		{ color: [147, 197, 253], alpha: 0.04 },
-		{ color: [96, 165, 250], alpha: 0.06 },
+		{ color: [191, 219, 254], alpha: 0.028 },
+		{ color: [147, 197, 253], alpha: 0.05 },
+		{ color: [96, 165, 250], alpha: 0.075 },
 	],
 };
 
@@ -108,18 +107,6 @@ float sm3(float e0, float e1, float v) {
 float gauss2(vec2 p, vec2 c, vec2 r) {
   vec2 d = (p - c) / r;
   return exp(-dot(d, d));
-}
-
-vec4 alphaOver(vec4 top, vec4 bottom) {
-  float outAlpha = top.a + bottom.a * (1.0 - top.a);
-  if (outAlpha <= 0.0) {
-    return vec4(0.0);
-  }
-
-  vec3 outColor =
-    (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / outAlpha;
-
-  return vec4(outColor, outAlpha);
 }
 
 vec4 permute(vec4 x){ return mod(((x * 34.0) + 1.0) * x, 289.0); }
@@ -239,31 +226,25 @@ void main() {
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
   bool inDot = cellDist.x <= uDotRadius && cellDist.y <= uDotRadius;
 
-  float d0 = mix(0.66, 0.42, uDark);
-  float d1 = mix(0.76, 0.56, uDark);
-  float d2 = mix(0.86, 0.72, uDark);
-  float d3 = mix(0.93, 0.86, uDark);
-
-  float u0 = mix(0.985, 0.14, uDark);
-  float u1 = mix(0.997, 0.28, uDark);
-  float u2 = mix(1.01, 0.48, uDark);
-  float u3 = mix(1.02, 0.68, uDark);
-
-  vec4 underlay = vec4(0.0);
-  if      (field >= u3) { underlay = vec4(uUC3, uUA3); }
-  else if (field >= u2) { underlay = vec4(uUC2, uUA2); }
-  else if (field >= u1) { underlay = vec4(uUC1, uUA1); }
-  else if (field >= u0) { underlay = vec4(uUC0, uUA0); }
-
-  vec4 dots = vec4(0.0);
-  if (inDot) {
-    if      (field >= d3) { dots = vec4(uLC3, uLA3); }
-    else if (field >= d2) { dots = vec4(uLC2, uLA2); }
-    else if (field >= d1) { dots = vec4(uLC1, uLA1); }
-    else if (field >= d0) { dots = vec4(uLC0, uLA0); }
+  if (!inDot) {
+    oColor = vec4(0.0);
+    return;
   }
 
-  oColor = alphaOver(dots, underlay);
+  float t0 = mix(0.78, 0.08, uDark);
+  float t1 = mix(0.86, 0.16, uDark);
+  float t2 = mix(0.91, 0.30, uDark);
+  float t3 = mix(0.95, 0.46, uDark);
+  float t4 = mix(0.98, 0.63, uDark);
+  float t5 = mix(0.993, 0.80, uDark);
+
+  if      (field >= t5) { oColor = vec4(uLC3, uLA3); }
+  else if (field >= t4) { oColor = vec4(uLC2, uLA2); }
+  else if (field >= t3) { oColor = vec4(uLC1, uLA1); }
+  else if (field >= t2) { oColor = vec4(uLC0, uLA0); }
+  else if (field >= t1) { oColor = vec4(uUC3, uUA3); }
+  else if (field >= t0) { oColor = vec4(uUC1, uUA1); }
+  else                  { oColor = vec4(0.0); }
 }`;
 
 function compileShader(gl: WebGL2RenderingContext, type: number, source: string) {
@@ -672,13 +653,6 @@ export function TopographicDotField({
 
 	return (
 		<div ref={containerRef} className={cn("absolute inset-0 overflow-hidden", className)}>
-			<DotGrid
-				step={step}
-				minInset={minInset}
-				radius={radius}
-				origin={origin}
-				className="text-surface-900/[0.022] dark:text-accent-400/[0.075]"
-			/>
 			<canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
 		</div>
 	);
