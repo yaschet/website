@@ -44,20 +44,6 @@ interface Palette {
 	underlay: Tone[];
 }
 
-interface VoidConfig {
-	baseX: number;
-	baseY: number;
-	coreRadius: number;
-	haloRadius: number;
-	orbitX: number;
-	orbitY: number;
-	outerRadius: number;
-	phase: number;
-	speedX: number;
-	speedY: number;
-	strength: number;
-}
-
 interface Metrics {
 	dpr: number;
 	height: number;
@@ -65,128 +51,6 @@ interface Metrics {
 	step: number;
 	width: number;
 }
-
-// ---------------------------------------------------------------------------
-// Void field configs
-// ---------------------------------------------------------------------------
-
-const DARK_VOID_CONFIGS: VoidConfig[] = [
-	// Top-left wing — primary ring mass
-	{
-		baseX: 0.14,
-		baseY: 0.08,
-		coreRadius: 0.082,
-		haloRadius: 0.2,
-		orbitX: 0.046,
-		orbitY: 0.036,
-		outerRadius: 0.48,
-		phase: 0.0,
-		speedX: 0.84,
-		speedY: 0.74,
-		strength: 1.38,
-	},
-	// Top-right wing — primary ring mass
-	{
-		baseX: 0.86,
-		baseY: 0.08,
-		coreRadius: 0.082,
-		haloRadius: 0.2,
-		orbitX: 0.046,
-		orbitY: 0.036,
-		outerRadius: 0.48,
-		phase: 1.57,
-		speedX: 0.9,
-		speedY: 0.78,
-		strength: 1.38,
-	},
-	// Lower-left accent ring
-	{
-		baseX: 0.06,
-		baseY: 0.74,
-		coreRadius: 0.062,
-		haloRadius: 0.15,
-		orbitX: 0.028,
-		orbitY: 0.038,
-		outerRadius: 0.32,
-		phase: 3.14,
-		speedX: 0.72,
-		speedY: 0.86,
-		strength: 0.96,
-	},
-	// Lower-right accent ring
-	{
-		baseX: 0.94,
-		baseY: 0.74,
-		coreRadius: 0.062,
-		haloRadius: 0.15,
-		orbitX: 0.028,
-		orbitY: 0.038,
-		outerRadius: 0.32,
-		phase: 4.71,
-		speedX: 0.86,
-		speedY: 0.72,
-		strength: 0.96,
-	},
-];
-
-const LIGHT_VOID_CONFIGS: VoidConfig[] = [
-	// Top-left wing — primary ring mass
-	{
-		baseX: 0.14,
-		baseY: 0.08,
-		coreRadius: 0.07,
-		haloRadius: 0.18,
-		orbitX: 0.04,
-		orbitY: 0.032,
-		outerRadius: 0.42,
-		phase: 0.0,
-		speedX: 0.8,
-		speedY: 0.72,
-		strength: 1.04,
-	},
-	// Top-right wing — primary ring mass
-	{
-		baseX: 0.86,
-		baseY: 0.08,
-		coreRadius: 0.07,
-		haloRadius: 0.18,
-		orbitX: 0.04,
-		orbitY: 0.032,
-		outerRadius: 0.42,
-		phase: 1.57,
-		speedX: 0.86,
-		speedY: 0.76,
-		strength: 1.04,
-	},
-	// Lower-left accent ring
-	{
-		baseX: 0.06,
-		baseY: 0.74,
-		coreRadius: 0.052,
-		haloRadius: 0.13,
-		orbitX: 0.028,
-		orbitY: 0.036,
-		outerRadius: 0.26,
-		phase: 3.14,
-		speedX: 0.7,
-		speedY: 0.84,
-		strength: 0.74,
-	},
-	// Lower-right accent ring
-	{
-		baseX: 0.94,
-		baseY: 0.74,
-		coreRadius: 0.052,
-		haloRadius: 0.13,
-		orbitX: 0.028,
-		orbitY: 0.036,
-		outerRadius: 0.26,
-		phase: 4.71,
-		speedX: 0.84,
-		speedY: 0.7,
-		strength: 0.6,
-	},
-];
 
 // ---------------------------------------------------------------------------
 // Fallback palettes (used when CSS vars cannot be resolved)
@@ -279,11 +143,6 @@ uniform vec3  uUC1;  uniform float uUA1;
 uniform vec3  uUC2;  uniform float uUA2;
 uniform vec3  uUC3;  uniform float uUA3;
 
-// --- void field configs (JS selects theme set, passes 4 at a time) ---
-uniform vec4  uVPos[4];    // (baseX, baseY, orbitX, orbitY)
-uniform vec4  uVRad[4];    // (coreRadius, haloRadius, outerRadius, phase)
-uniform vec4  uVSpd[4];    // (speedX, speedY, strength, _)
-
 out vec4 oColor;
 
 const float TAU  = 6.28318530718;
@@ -302,99 +161,116 @@ float gauss2(vec2 p, vec2 c, vec2 r) {
 }
 
 // ---------- scalar field ----------
-// Ring-based scalar field -- restores topographic contour shapes.
-//
-// The ring formula max(0, halo - core * k) creates a peak at
-// haloRadius distance from each void center, not at the center itself.
-// Multiple overlapping rings produce organic interference patterns
-// with complex ridges, valleys and saddle points -- a genuine scalar field.
-// Ridge + turbulence add fine-grain topographic striations.
+// Fractional Brownian Motion (fBM) + 3D Simplex Noise
+// This creates true organic, weather-like topography that flows continuously.
+// Ashima's 3D Simplex Noise algorithm.
 
+vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+
+float snoise(vec3 v){ 
+  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+  const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+
+  // First corner
+  vec3 i  = floor(v + dot(v, C.yyy) );
+  vec3 x0 = v - i + dot(i, C.xxx) ;
+
+  // Other corners
+  vec3 g = step(x0.yzx, x0.xyz);
+  vec3 l = 1.0 - g;
+  vec3 i1 = min( g.xyz, l.zxy );
+  vec3 i2 = max( g.xyz, l.zxy );
+
+  //  x0 = x0 - 0.0 + 0.0 * C 
+  vec3 x1 = x0 - i1 + 1.0 * C.xxx;
+  vec3 x2 = x0 - i2 + 2.0 * C.xxx;
+  vec3 x3 = x0 - 1.0 + 3.0 * C.xxx;
+
+  // Permutations
+  i = mod(i, 289.0 ); 
+  vec4 p = permute( permute( permute( 
+             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+           + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) 
+           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+
+  // Gradients
+  // ( N*N points uniformly over a square, mapped onto an octahedron.)
+  float n_ = 1.0/7.0; // N=7
+  vec3  ns = n_ * D.wyz - D.xzx;
+
+  vec4 j = p - 49.0 * floor(p * ns.z *ns.z);  //  mod(p,N*N)
+
+  vec4 x_ = floor(j * ns.z);
+  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)
+
+  vec4 x = x_ *ns.x + ns.yyyy;
+  vec4 y = y_ *ns.x + ns.yyyy;
+  vec4 h = 1.0 - abs(x) - abs(y);
+
+  vec4 b0 = vec4( x.xy, y.xy );
+  vec4 b1 = vec4( x.zw, y.zw );
+
+  vec4 s0 = floor(b0)*2.0 + 1.0;
+  vec4 s1 = floor(b1)*2.0 + 1.0;
+  vec4 sh = -step(h, vec4(0.0));
+
+  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+
+  vec3 p0 = vec3(a0.xy,h.x);
+  vec3 p1 = vec3(a0.zw,h.y);
+  vec3 p2 = vec3(a1.xy,h.z);
+  vec3 p3 = vec3(a1.zw,h.w);
+
+  //Normalise gradients
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+  p0 *= norm.x;
+  p1 *= norm.y;
+  p2 *= norm.z;
+  p3 *= norm.w;
+
+  // Mix final noise value
+  vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+  m = m * m;
+  return 105.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
+                                dot(p2,x2), dot(p3,x3) ) );
+}
 
 float evalField(vec2 uv, float phase) {
+  // Center coordinates and adjust for aspect ratio
   float aspect = uRes.x / uRes.y;
-  float ds = mix(0.84, 1.0, uDark);
+  vec2 p = uv * 2.0 - 1.0;
+  p.x *= aspect;
 
-  // Domain warp — same coefficients as the original Canvas sampleField.
-  float dX = 0.022 * ds * (
-    sin(TAU * (uv.y * 0.84 + uv.x * 0.24) + phase * 0.84) +
-    0.55 * cos(TAU * (uv.x * 1.32 - uv.y * 0.42) - phase * 1.06)
+  // Fractal Brownian Motion details
+  // Base octave: large slow moving continents
+  float n1 = snoise(vec3(p * 0.8, phase * 0.15));
+  
+  // Second octave: mid-sized details moving contrariwise
+  float n2 = snoise(vec3(p * 1.6 - vec2(phase * 0.1, -phase * 0.1), phase * 0.2));
+  
+  // Third octave: fine intricate topographic ridge lines
+  float n3 = snoise(vec3(p * 3.2 + vec2(-phase * 0.05, phase * 0.1), phase * 0.3));
+
+  // Domain warping: using noise to offset the lookup of the main field
+  // This causes the clouds to "swirl" into each other rather than just shifting.
+  vec2 warp = vec2(
+    snoise(vec3(p * 0.9, phase * 0.1)),
+    snoise(vec3(p * 0.9 + 100.0, phase * 0.1))
   );
-  float dY = 0.02 * ds * (
-    cos(TAU * (uv.x * 0.78 - uv.y * 0.18) + phase * 0.72) +
-    0.5  * sin(TAU * (uv.y * 1.06 + uv.x * 0.34) - phase * 0.94)
-  );
-  vec2 p = uv + vec2(dX, dY);
-  float val = 0.0;
+  
+  // Main highly-warped structure combining everything
+  float fbm = n1 * 0.55 + n2 * 0.30 + n3 * 0.15;
+  float warpedFbm = snoise(vec3(p * 1.2 + warp * 0.8, phase * 0.1));
 
-  // Ring-based void attractors.
-  // Each config contributes a donut-shaped ring of high field values,
-  // with a suppressed core and a wide outer envelope.
-  for (int i = 0; i < 4; i++) {
-    float cx = uVPos[i].x + uVPos[i].z * sin(phase * uVSpd[i].x + uVRad[i].w);
-    float cy = uVPos[i].y + uVPos[i].w * cos(phase * uVSpd[i].y + uVRad[i].w * 1.17);
+  // Map from [-1, 1] noise space to [0, 1] field value
+  float val = (warpedFbm + fbm) * 0.5 + 0.5;
 
-    float ex = (p.x - cx) * aspect;
-    float ey =  p.y - cy;
-    float d2 = ex * ex + ey * ey;
-
-    float cR  = uVRad[i].x;
-    float hR  = uVRad[i].y;
-    float oR  = uVRad[i].z;
-    float str = uVSpd[i].z;
-
-    float core = exp(-d2 / (cR * cR)) * 1.2;
-    float halo = exp(-d2 / (hR * hR));
-    float otr  = exp(-d2 / (oR * oR));
-
-    // Ring: peak at haloRadius distance, void at center.
-    float ring = max(0.0, halo - core * 0.74) * mix(1.28, 1.3, uDark);
-    float env  = otr * mix(0.34, 0.3, uDark);
-
-    val += (ring + env - core * mix(0.88, 1.04, uDark)) * str;
-  }
-
-  // Ridge: organic topographic texture, creates contour-line striations.
-  float ridge =
-    0.18 * sin(TAU * (p.x * 0.94 + p.y * 0.19) + sin(phase * 0.72) * 0.85) +
-    0.15 * cos(TAU * (p.y * 0.68 - p.x * 0.26) - cos(phase * 0.88) * 1.05) +
-    0.08 * sin(TAU * ((p.x + p.y) * 0.62)       + phase * 0.56);
-
-  // Turbulence: fine-grain variation on mid-range field values only.
-  float turb =
-    0.09 * sin(TAU * (p.x * 2.24 - p.y * 1.76) + phase * 1.42) +
-    0.06 * cos(TAU * (p.x * 3.08 + p.y * 2.42) - phase * 1.18);
-
-  // Combine: base offset + ring sum + ridge.
-  val = mix(0.17, 0.165, uDark)
-      + val   * mix(0.50, 0.52, uDark)
-      + ridge * mix(0.90, 1.08, uDark);
-
-  // Turbulence only modulates mid-range values to avoid clipping.
-  val += turb * sm3(0.18, 0.74, clamp(val, 0.0, 1.0)) * mix(0.14, 0.22, uDark);
-
-  // Symmetric corner activation blooms — replace the old right-side directional blooms.
-  float bTL = gauss2(uv, vec2(0.12, 0.14), vec2(0.30, 0.26));
-  float bTR = gauss2(uv, vec2(0.88, 0.14), vec2(0.30, 0.26));
-  float bBL = gauss2(uv, vec2(0.07, 0.82), vec2(0.22, 0.18));
-  float bBR = gauss2(uv, vec2(0.93, 0.82), vec2(0.22, 0.18));
-
-  val += bTL * mix(0.22, 0.20, uDark);
-  val += bTR * mix(0.22, 0.20, uDark);
-  val += bBL * mix(0.13, 0.11, uDark);
-  val += bBR * mix(0.13, 0.11, uDark);
-
-  // Text quiet zone — reduces field where hero copy sits.
-  // Softer suppression than before (0.68 not 0.82) so some animation
-  // remains visible behind text, matching the reference behaviour.
-  float tQ = gauss2(uv, vec2(0.44, 0.46), vec2(0.28, 0.26));
-  val *= 1.0 - tQ * mix(0.68, 0.72, uDark);
-
-  float norm = clamp(val, 0.0, 1.0);
-  float sm0  = mix(0.08, 0.07, uDark);
-  float sm1  = mix(0.68, 0.90, uDark);
-  float ep   = mix(0.94, 1.04, uDark);
-  return pow(max(sm3(sm0, sm1, norm), 0.0001), ep);
+  // Smoothstep to increase contrast so underlays create hard topographical maps
+  float sm0 = mix(0.1, 0.05, uDark);
+  float sm1 = mix(0.7, 0.85, uDark);
+  return pow(clamp(sm3(sm0, sm1, val), 0.0, 1.0), 1.2);
 }
 
 // ---------- main ----------
@@ -430,11 +306,6 @@ void main() {
 
   } else {
     // --- underlay: 3 topographic fill bands between dots ---
-    // Band 0: atmospheric base — broad, barely visible, sets color mood.
-    // Band 1: topographic shapes — clearly visible, the main visual layer.
-    // Band 2+3: inner glow — hot zones at field peaks, brightest fill.
-    // Thresholds start at 0.08 so the fill covers nearly the entire
-    // active field area, not just the bright core.
     float u0 = mix(0.10, 0.08, uDark);  // atmospheric edge
     float u1 = mix(0.28, 0.24, uDark);  // shaped mid-field
     float u2 = mix(0.50, 0.46, uDark);  // bright inner zone
@@ -446,6 +317,13 @@ void main() {
     else if (fv >= u0) { oColor = vec4(uUC0, uUA0); }
     else               { oColor = vec4(0.0); }
   }
+
+  // Soft content dimming for readability.
+  // Applied post-field generation so the actual topographic waves 
+  // gracefully persist through the dimmer portions instead of vanishing into blackness!
+  float dimT = gauss2(uv, vec2(0.38, 0.46), vec2(0.40, 0.35));
+  float dimFactor = mix(0.85, 0.92, uDark); // Don't pitch-black it completely
+  oColor.a *= 1.0 - (dimT * dimFactor);
 }`;
 
 // ---------------------------------------------------------------------------
@@ -770,10 +648,6 @@ export function TopographicDotField({
 				uUA2: g("uUA2"),
 				uUC3: g("uUC3"),
 				uUA3: g("uUA3"),
-				// Array uniforms: index via [0] notation for cross-driver safety.
-				uVPos: g("uVPos[0]"),
-				uVRad: g("uVRad[0]"),
-				uVSpd: g("uVSpd[0]"),
 			};
 
 			gl.enable(gl.BLEND);
@@ -870,21 +744,6 @@ export function TopographicDotField({
 		gl.uniform1f(L("uUA2"), palette.underlay[2].alpha);
 		gl.uniform3fv(L("uUC3"), rgb(palette.underlay[3].color));
 		gl.uniform1f(L("uUA3"), palette.underlay[3].alpha);
-
-		// Void field configs: pack 4 × vec4 into contiguous Float32Arrays.
-		const configs = isDark ? DARK_VOID_CONFIGS : LIGHT_VOID_CONFIGS;
-		const vPos = new Float32Array(16);
-		const vRad = new Float32Array(16);
-		const vSpd = new Float32Array(16);
-		for (let i = 0; i < 4; i++) {
-			const c = configs[i];
-			vPos.set([c.baseX, c.baseY, c.orbitX, c.orbitY], i * 4);
-			vRad.set([c.coreRadius, c.haloRadius, c.outerRadius, c.phase], i * 4);
-			vSpd.set([c.speedX, c.speedY, c.strength, 0], i * 4);
-		}
-		gl.uniform4fv(L("uVPos"), vPos);
-		gl.uniform4fv(L("uVRad"), vRad);
-		gl.uniform4fv(L("uVSpd"), vSpd);
 
 		// Render loop.
 		let frameId = 0;
