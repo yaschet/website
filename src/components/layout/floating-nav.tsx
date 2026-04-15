@@ -120,8 +120,6 @@ export function FloatingNav() {
 		).startViewTransition(() => {
 			flushSync(() => {
 				setTheme(newTheme);
-				// Trigger the transition acknowledgment in the topographic field synchronously with DOM swap
-				window.dispatchEvent(new CustomEvent("theme-toggled"));
 			});
 		});
 	};
