@@ -71,120 +71,120 @@ interface Metrics {
 // ---------------------------------------------------------------------------
 
 const DARK_VOID_CONFIGS: VoidConfig[] = [
-	// Top-left wing — primary mass
+	// Top-left wing — primary ring mass
 	{
 		baseX: 0.14,
 		baseY: 0.08,
-		coreRadius: 0.07,
+		coreRadius: 0.082,
 		haloRadius: 0.2,
-		orbitX: 0.048,
-		orbitY: 0.038,
-		outerRadius: 0.46,
+		orbitX: 0.046,
+		orbitY: 0.036,
+		outerRadius: 0.48,
 		phase: 0.0,
-		speedX: 0.82,
+		speedX: 0.84,
 		speedY: 0.74,
-		strength: 1.72,
+		strength: 1.38,
 	},
-	// Top-right wing — primary mass
+	// Top-right wing — primary ring mass
 	{
 		baseX: 0.86,
 		baseY: 0.08,
-		coreRadius: 0.07,
+		coreRadius: 0.082,
 		haloRadius: 0.2,
-		orbitX: 0.048,
-		orbitY: 0.038,
-		outerRadius: 0.46,
+		orbitX: 0.046,
+		orbitY: 0.036,
+		outerRadius: 0.48,
 		phase: 1.57,
-		speedX: 0.88,
+		speedX: 0.9,
 		speedY: 0.78,
-		strength: 1.72,
+		strength: 1.38,
 	},
-	// Lower-left accent
+	// Lower-left accent ring
 	{
 		baseX: 0.06,
-		baseY: 0.72,
-		coreRadius: 0.055,
+		baseY: 0.74,
+		coreRadius: 0.062,
 		haloRadius: 0.15,
-		orbitX: 0.034,
-		orbitY: 0.044,
+		orbitX: 0.028,
+		orbitY: 0.038,
 		outerRadius: 0.32,
 		phase: 3.14,
 		speedX: 0.72,
 		speedY: 0.86,
-		strength: 0.92,
+		strength: 0.96,
 	},
-	// Lower-right accent
+	// Lower-right accent ring
 	{
 		baseX: 0.94,
-		baseY: 0.72,
-		coreRadius: 0.055,
+		baseY: 0.74,
+		coreRadius: 0.062,
 		haloRadius: 0.15,
-		orbitX: 0.034,
-		orbitY: 0.044,
+		orbitX: 0.028,
+		orbitY: 0.038,
 		outerRadius: 0.32,
 		phase: 4.71,
 		speedX: 0.86,
 		speedY: 0.72,
-		strength: 0.92,
+		strength: 0.96,
 	},
 ];
 
 const LIGHT_VOID_CONFIGS: VoidConfig[] = [
-	// Top-left wing — primary mass
+	// Top-left wing — primary ring mass
 	{
 		baseX: 0.14,
 		baseY: 0.08,
-		coreRadius: 0.065,
+		coreRadius: 0.07,
 		haloRadius: 0.18,
-		orbitX: 0.042,
-		orbitY: 0.034,
-		outerRadius: 0.4,
+		orbitX: 0.04,
+		orbitY: 0.032,
+		outerRadius: 0.42,
 		phase: 0.0,
 		speedX: 0.8,
 		speedY: 0.72,
-		strength: 1.3,
+		strength: 1.04,
 	},
-	// Top-right wing — primary mass
+	// Top-right wing — primary ring mass
 	{
 		baseX: 0.86,
 		baseY: 0.08,
-		coreRadius: 0.065,
+		coreRadius: 0.07,
 		haloRadius: 0.18,
-		orbitX: 0.042,
-		orbitY: 0.034,
-		outerRadius: 0.4,
+		orbitX: 0.04,
+		orbitY: 0.032,
+		outerRadius: 0.42,
 		phase: 1.57,
 		speedX: 0.86,
 		speedY: 0.76,
-		strength: 1.3,
+		strength: 1.04,
 	},
-	// Lower-left accent
+	// Lower-left accent ring
 	{
 		baseX: 0.06,
-		baseY: 0.72,
-		coreRadius: 0.05,
+		baseY: 0.74,
+		coreRadius: 0.052,
 		haloRadius: 0.13,
-		orbitX: 0.03,
-		orbitY: 0.04,
-		outerRadius: 0.28,
+		orbitX: 0.028,
+		orbitY: 0.036,
+		outerRadius: 0.26,
 		phase: 3.14,
 		speedX: 0.7,
 		speedY: 0.84,
-		strength: 0.72,
+		strength: 0.74,
 	},
-	// Lower-right accent
+	// Lower-right accent ring
 	{
 		baseX: 0.94,
-		baseY: 0.72,
-		coreRadius: 0.05,
+		baseY: 0.74,
+		coreRadius: 0.052,
 		haloRadius: 0.13,
-		orbitX: 0.03,
-		orbitY: 0.04,
-		outerRadius: 0.28,
+		orbitX: 0.028,
+		orbitY: 0.036,
+		outerRadius: 0.26,
 		phase: 4.71,
 		speedX: 0.84,
 		speedY: 0.7,
-		strength: 0.72,
+		strength: 0.6,
 	},
 ];
 
@@ -193,37 +193,36 @@ const LIGHT_VOID_CONFIGS: VoidConfig[] = [
 // ---------------------------------------------------------------------------
 
 const FALLBACK_DARK_PALETTE: Palette = {
-	// Base: dim lattice visible across entire hero
-	base: { color: [228, 228, 231], alpha: 0.042 },
+	base: { color: [0, 80, 80], alpha: 0.1 },
 	levels: [
-		{ color: [113, 113, 122], alpha: 0.11 }, // level 0 — edge glow
-		{ color: [71, 88, 153], alpha: 0.24 }, // level 1 — mid brightness
-		{ color: [92, 141, 232], alpha: 0.48 }, // level 2 — bright
-		{ color: [191, 219, 254], alpha: 0.74 }, // level 3 — peak
+		{ color: [0, 160, 160], alpha: 0.2 }, // level 0
+		{ color: [0, 210, 210], alpha: 0.4 }, // level 1
+		{ color: [0, 255, 255], alpha: 0.6 }, // level 2
+		{ color: [160, 255, 255], alpha: 0.9 }, // level 3 — peak
 	],
-	// Underlay: visible topographic fill between dots.
-	// Each band is a flat color region — topographic map style.
+	// 3 topographic underlay bands with dramatic alpha steps
+	// so each layer reads as visually distinct:
 	underlay: [
-		{ color: [42, 40, 108], alpha: 0.09 }, // band 0 — outer edge
-		{ color: [55, 70, 140], alpha: 0.16 }, // band 1 — mid
-		{ color: [71, 118, 210], alpha: 0.24 }, // band 2 — inner
-		{ color: [120, 170, 245], alpha: 0.33 }, // band 3 — core
+		{ color: [0, 40, 40], alpha: 0.12 }, // band 0
+		{ color: [0, 60, 60], alpha: 0.25 }, // band 1
+		{ color: [0, 90, 90], alpha: 0.4 }, // band 2
+		{ color: [0, 120, 120], alpha: 0.55 }, // band 3
 	],
 };
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
-	base: { color: [219, 234, 254], alpha: 0.035 },
+	base: { color: [219, 234, 254], alpha: 0.03 },
 	levels: [
-		{ color: [191, 219, 254], alpha: 0.09 },
-		{ color: [147, 197, 253], alpha: 0.18 },
-		{ color: [96, 165, 250], alpha: 0.34 },
-		{ color: [59, 130, 246], alpha: 0.52 },
+		{ color: [191, 219, 254], alpha: 0.08 },
+		{ color: [147, 197, 253], alpha: 0.17 },
+		{ color: [96, 165, 250], alpha: 0.32 },
+		{ color: [59, 130, 246], alpha: 0.5 },
 	],
 	underlay: [
-		{ color: [219, 234, 254], alpha: 0.04 },
-		{ color: [191, 219, 254], alpha: 0.075 },
-		{ color: [147, 197, 253], alpha: 0.115 },
-		{ color: [96, 165, 250], alpha: 0.16 },
+		{ color: [210, 228, 255], alpha: 0.04 },
+		{ color: [180, 212, 254], alpha: 0.11 },
+		{ color: [140, 190, 253], alpha: 0.2 },
+		{ color: [100, 160, 250], alpha: 0.28 },
 	],
 };
 
@@ -303,23 +302,34 @@ float gauss2(vec2 p, vec2 c, vec2 r) {
 }
 
 // ---------- scalar field ----------
-// Full-stage solid-blob field:
-//   4 symmetric corner masses → organic topographic shapes.
-//   Gentle domain warp. Minimal ridge for texture.
-//   Centered radial quiet zone attenuates field where hero text lives.
+// Ring-based scalar field -- restores topographic contour shapes.
+//
+// The ring formula max(0, halo - core * k) creates a peak at
+// haloRadius distance from each void center, not at the center itself.
+// Multiple overlapping rings produce organic interference patterns
+// with complex ridges, valleys and saddle points -- a genuine scalar field.
+// Ridge + turbulence add fine-grain topographic striations.
+
 
 float evalField(vec2 uv, float phase) {
   float aspect = uRes.x / uRes.y;
+  float ds = mix(0.84, 1.0, uDark);
 
-  // Gentle domain warp — gives the "breathing" organic quality.
-  float dX = 0.016 * sin(TAU * (uv.y * 0.82 + uv.x * 0.28) + phase * 0.52);
-  float dY = 0.012 * cos(TAU * (uv.x * 0.68 - uv.y * 0.22) + phase * 0.44);
+  // Domain warp — same coefficients as the original Canvas sampleField.
+  float dX = 0.022 * ds * (
+    sin(TAU * (uv.y * 0.84 + uv.x * 0.24) + phase * 0.84) +
+    0.55 * cos(TAU * (uv.x * 1.32 - uv.y * 0.42) - phase * 1.06)
+  );
+  float dY = 0.02 * ds * (
+    cos(TAU * (uv.x * 0.78 - uv.y * 0.18) + phase * 0.72) +
+    0.5  * sin(TAU * (uv.y * 1.06 + uv.x * 0.34) - phase * 0.94)
+  );
   vec2 p = uv + vec2(dX, dY);
-
   float val = 0.0;
 
-  // Solid Gaussian blobs — brightest at center, smooth falloff.
-  // No ring/void subtraction: the blobs are solid topographic masses.
+  // Ring-based void attractors.
+  // Each config contributes a donut-shaped ring of high field values,
+  // with a suppressed core and a wide outer envelope.
   for (int i = 0; i < 4; i++) {
     float cx = uVPos[i].x + uVPos[i].z * sin(phase * uVSpd[i].x + uVRad[i].w);
     float cy = uVPos[i].y + uVPos[i].w * cos(phase * uVSpd[i].y + uVRad[i].w * 1.17);
@@ -328,33 +338,63 @@ float evalField(vec2 uv, float phase) {
     float ey =  p.y - cy;
     float d2 = ex * ex + ey * ey;
 
-    float hR  = uVRad[i].y;  // halo radius — defines mid-brightness boundary
-    float oR  = uVRad[i].z;  // outer radius — defines wide falloff
+    float cR  = uVRad[i].x;
+    float hR  = uVRad[i].y;
+    float oR  = uVRad[i].z;
     float str = uVSpd[i].z;
 
-    // Composite: tight halo peak + wide soft envelope.
+    float core = exp(-d2 / (cR * cR)) * 1.2;
     float halo = exp(-d2 / (hR * hR));
     float otr  = exp(-d2 / (oR * oR));
-    val += (halo * 0.68 + otr * 0.32) * str;
+
+    // Ring: peak at haloRadius distance, void at center.
+    float ring = max(0.0, halo - core * 0.74) * mix(1.28, 1.3, uDark);
+    float env  = otr * mix(0.34, 0.3, uDark);
+
+    val += (ring + env - core * mix(0.88, 1.04, uDark)) * str;
   }
 
-  // Topographic ridge — trace of organic texture, kept subtle.
+  // Ridge: organic topographic texture, creates contour-line striations.
   float ridge =
-    0.09 * sin(TAU * (p.x * 1.08 + p.y * 0.34) + phase * 0.42) +
-    0.06 * cos(TAU * (p.y * 0.84 - p.x * 0.26) + phase * 0.36);
+    0.18 * sin(TAU * (p.x * 0.94 + p.y * 0.19) + sin(phase * 0.72) * 0.85) +
+    0.15 * cos(TAU * (p.y * 0.68 - p.x * 0.26) - cos(phase * 0.88) * 1.05) +
+    0.08 * sin(TAU * ((p.x + p.y) * 0.62)       + phase * 0.56);
 
-  // Clamp raw blob sum before mixing ridge in.
-  val = clamp(val, 0.0, 1.4);
-  val = val * 0.90 + ridge * sm3(0.10, 0.90, clamp(val, 0.0, 1.0)) * 0.10;
+  // Turbulence: fine-grain variation on mid-range field values only.
+  float turb =
+    0.09 * sin(TAU * (p.x * 2.24 - p.y * 1.76) + phase * 1.42) +
+    0.06 * cos(TAU * (p.x * 3.08 + p.y * 2.42) - phase * 1.18);
 
-  // Center quiet zone — elliptical attenuation where hero text lives.
-  // Keeps animation active at edges and corners while text stays readable.
-  float center = gauss2(uv, vec2(0.44, 0.46), vec2(0.30, 0.27));
-  val *= 1.0 - center * mix(0.78, 0.82, uDark);
+  // Combine: base offset + ring sum + ridge.
+  val = mix(0.17, 0.165, uDark)
+      + val   * mix(0.50, 0.52, uDark)
+      + ridge * mix(0.90, 1.08, uDark);
+
+  // Turbulence only modulates mid-range values to avoid clipping.
+  val += turb * sm3(0.18, 0.74, clamp(val, 0.0, 1.0)) * mix(0.14, 0.22, uDark);
+
+  // Symmetric corner activation blooms — replace the old right-side directional blooms.
+  float bTL = gauss2(uv, vec2(0.12, 0.14), vec2(0.30, 0.26));
+  float bTR = gauss2(uv, vec2(0.88, 0.14), vec2(0.30, 0.26));
+  float bBL = gauss2(uv, vec2(0.07, 0.82), vec2(0.22, 0.18));
+  float bBR = gauss2(uv, vec2(0.93, 0.82), vec2(0.22, 0.18));
+
+  val += bTL * mix(0.22, 0.20, uDark);
+  val += bTR * mix(0.22, 0.20, uDark);
+  val += bBL * mix(0.13, 0.11, uDark);
+  val += bBR * mix(0.13, 0.11, uDark);
+
+  // Text quiet zone — reduces field where hero copy sits.
+  // Softer suppression than before (0.68 not 0.82) so some animation
+  // remains visible behind text, matching the reference behaviour.
+  float tQ = gauss2(uv, vec2(0.44, 0.46), vec2(0.28, 0.26));
+  val *= 1.0 - tQ * mix(0.68, 0.72, uDark);
 
   float norm = clamp(val, 0.0, 1.0);
-  // Smoothstep shaping: low threshold so even dim areas activate level 0.
-  return pow(max(sm3(0.04, 0.88, norm), 0.0001), mix(0.88, 0.92, uDark));
+  float sm0  = mix(0.08, 0.07, uDark);
+  float sm1  = mix(0.68, 0.90, uDark);
+  float ep   = mix(0.94, 1.04, uDark);
+  return pow(max(sm3(sm0, sm1, norm), 0.0001), ep);
 }
 
 // ---------- main ----------
@@ -364,7 +404,8 @@ void main() {
   vec2 fc = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
   vec2 uv = fc / uRes;
 
-  float phase = mod(uTime, LOOP) / LOOP * TAU;
+  // Infinite, non-looping, faster phase. No mod = no jumps.
+  float phase = uTime * 0.9;
   float fv    = evalField(uv, phase);
 
   // ---------- dot lattice membership ----------
@@ -388,14 +429,16 @@ void main() {
     else               { oColor = vec4(uBCol, uBAlpha); }
 
   } else {
-    // --- underlay: topographic fill between dots ---
-    // 4 discrete bands give a quantized topographic map appearance.
-    // Thresholds start lower (0.12) so the fill covers a broad area
-    // of the field — not just the bright core of the blobs.
-    float u0 = mix(0.14, 0.12, uDark);  // outer edge
-    float u1 = mix(0.32, 0.28, uDark);  // mid
-    float u2 = mix(0.50, 0.46, uDark);  // inner
-    float u3 = mix(0.66, 0.64, uDark);  // core
+    // --- underlay: 3 topographic fill bands between dots ---
+    // Band 0: atmospheric base — broad, barely visible, sets color mood.
+    // Band 1: topographic shapes — clearly visible, the main visual layer.
+    // Band 2+3: inner glow — hot zones at field peaks, brightest fill.
+    // Thresholds start at 0.08 so the fill covers nearly the entire
+    // active field area, not just the bright core.
+    float u0 = mix(0.10, 0.08, uDark);  // atmospheric edge
+    float u1 = mix(0.28, 0.24, uDark);  // shaped mid-field
+    float u2 = mix(0.50, 0.46, uDark);  // bright inner zone
+    float u3 = mix(0.68, 0.64, uDark);  // core peak
 
     if      (fv >= u3) { oColor = vec4(uUC3, uUA3); }
     else if (fv >= u2) { oColor = vec4(uUC2, uUA2); }
@@ -499,7 +542,7 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	return {
 		base: {
 			color: rc(
-				isDark ? "var(--color-surface-200)" : "var(--color-accent-100)",
+				isDark ? "var(--color-accent-300)" : "var(--color-accent-100)",
 				fb.base.color,
 			),
 			alpha: fb.base.alpha,
@@ -507,28 +550,28 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		levels: [
 			{
 				color: rc(
-					isDark ? "var(--color-surface-500)" : "var(--color-accent-200)",
+					isDark ? "var(--color-accent-400)" : "var(--color-accent-200)",
 					fb.levels[0].color,
 				),
 				alpha: fb.levels[0].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-300)",
+					isDark ? "var(--color-accent-500)" : "var(--color-accent-300)",
 					fb.levels[1].color,
 				),
 				alpha: fb.levels[1].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-500)" : "var(--color-accent-400)",
+					isDark ? "var(--color-accent-300)" : "var(--color-accent-400)",
 					fb.levels[2].color,
 				),
 				alpha: fb.levels[2].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-300)" : "var(--color-accent-500)",
+					isDark ? "var(--color-accent-200)" : "var(--color-accent-500)",
 					fb.levels[3].color,
 				),
 				alpha: fb.levels[3].alpha,
@@ -537,28 +580,28 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		underlay: [
 			{
 				color: rc(
-					isDark ? "var(--color-accent-800)" : "var(--color-accent-200)",
+					isDark ? "var(--color-accent-900)" : "var(--color-accent-200)",
 					fb.underlay[0].color,
 				),
 				alpha: fb.underlay[0].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-300)",
+					isDark ? "var(--color-accent-800)" : "var(--color-accent-300)",
 					fb.underlay[1].color,
 				),
 				alpha: fb.underlay[1].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-600)" : "var(--color-accent-400)",
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-400)",
 					fb.underlay[2].color,
 				),
 				alpha: fb.underlay[2].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-400)" : "var(--color-accent-500)",
+					isDark ? "var(--color-accent-600)" : "var(--color-accent-500)",
 					fb.underlay[3].color,
 				),
 				alpha: fb.underlay[3].alpha,
