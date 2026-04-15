@@ -32,7 +32,7 @@ export function ProfileSection() {
 		<section id="profile" className="relative z-10 w-full shrink-0">
 			<Reveal phase={1} className="w-full">
 				<div className="w-full">
-					<div className="portfolio-box-pad grid grid-cols-[minmax(0,1fr)_auto] items-center gap-[var(--portfolio-space-2)]">
+					<div className="portfolio-box-pad grid grid-cols-[minmax(0,1fr)_auto] items-center gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
 						<div className="flex min-w-0 items-center gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
 							<Avatar
 								className={cn(

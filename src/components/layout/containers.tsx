@@ -5,7 +5,7 @@ export function PageContainer({ className, ...props }: ComponentPropsWithoutRef<
 	return (
 		<div
 			className={cn(
-				"mx-auto w-full max-w-5xl px-[var(--portfolio-space-1)] sm:px-[var(--portfolio-space-2)]",
+				"mx-auto w-full max-w-5xl px-[var(--portfolio-box-pad-mobile)] sm:px-[var(--portfolio-space-2)]",
 				className,
 			)}
 			{...props}

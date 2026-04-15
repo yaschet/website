@@ -28,6 +28,7 @@ interface Tone {
 
 interface Palette {
 	base: Tone;
+	underlay: Tone;
 	levels: Tone[];
 }
 
@@ -39,6 +40,7 @@ interface DotPoint {
 }
 
 interface PreparedFrame {
+	underlay: HTMLCanvasElement;
 	paths: Path2D[];
 }
 
@@ -71,36 +73,36 @@ const DARK_VOID_CONFIGS: VoidConfig[] = [
 	{
 		baseX: 0.84,
 		baseY: 0.16,
-		coreRadius: 0.076,
-		haloRadius: 0.172,
-		orbitX: 0.048,
-		orbitY: 0.064,
-		outerRadius: 0.34,
+		coreRadius: 0.078,
+		haloRadius: 0.178,
+		orbitX: 0.05,
+		orbitY: 0.066,
+		outerRadius: 0.35,
 		phase: 0.3,
 		speedX: 1.04,
 		speedY: 0.9,
-		strength: 1.34,
+		strength: 1.36,
 	},
 	{
 		baseX: 1.03,
 		baseY: 0.69,
-		coreRadius: 0.098,
-		haloRadius: 0.224,
-		orbitX: 0.04,
-		orbitY: 0.056,
+		coreRadius: 0.102,
+		haloRadius: 0.23,
+		orbitX: 0.042,
+		orbitY: 0.058,
 		outerRadius: 0.42,
 		phase: 1.32,
 		speedX: 0.82,
 		speedY: 1.04,
-		strength: 1.48,
+		strength: 1.5,
 	},
 	{
 		baseX: 0.76,
-		baseY: 1.05,
-		coreRadius: 0.084,
+		baseY: 1.03,
+		coreRadius: 0.086,
 		haloRadius: 0.188,
-		orbitX: 0.064,
-		orbitY: 0.048,
+		orbitX: 0.066,
+		orbitY: 0.05,
 		outerRadius: 0.34,
 		phase: 2.38,
 		speedX: 1.14,
@@ -108,17 +110,17 @@ const DARK_VOID_CONFIGS: VoidConfig[] = [
 		strength: 1.12,
 	},
 	{
-		baseX: 0.24,
-		baseY: -0.08,
-		coreRadius: 0.054,
-		haloRadius: 0.122,
+		baseX: 0.21,
+		baseY: -0.1,
+		coreRadius: 0.052,
+		haloRadius: 0.116,
 		orbitX: 0.03,
 		orbitY: 0.034,
-		outerRadius: 0.23,
+		outerRadius: 0.2,
 		phase: 3.4,
 		speedX: 0.72,
 		speedY: 0.8,
-		strength: 0.42,
+		strength: 0.26,
 	},
 ];
 
@@ -178,17 +180,19 @@ const LIGHT_VOID_CONFIGS: VoidConfig[] = [
 ];
 
 const FALLBACK_DARK_PALETTE: Palette = {
-	base: { color: [228, 228, 231], alpha: 0.02 },
+	base: { color: [228, 228, 231], alpha: 0.018 },
+	underlay: { color: [71, 88, 153], alpha: 0.13 },
 	levels: [
-		{ color: [113, 113, 122], alpha: 0.085 },
-		{ color: [49, 46, 129], alpha: 0.145 },
-		{ color: [67, 107, 213], alpha: 0.22 },
-		{ color: [147, 197, 253], alpha: 0.31 },
+		{ color: [113, 113, 122], alpha: 0.088 },
+		{ color: [71, 88, 153], alpha: 0.15 },
+		{ color: [92, 141, 232], alpha: 0.24 },
+		{ color: [191, 219, 254], alpha: 0.43 },
 	],
 };
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
 	base: { color: [219, 234, 254], alpha: 0.02 },
+	underlay: { color: [147, 197, 253], alpha: 0.06 },
 	levels: [
 		{ color: [191, 219, 254], alpha: 0.062 },
 		{ color: [147, 197, 253], alpha: 0.102 },
@@ -272,6 +276,14 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 			),
 			alpha: fallback.base.alpha,
 		},
+		underlay: {
+			color: resolveCssColor(
+				node,
+				isDark ? "var(--color-accent-600)" : "var(--color-accent-300)",
+				fallback.underlay.color,
+			),
+			alpha: fallback.underlay.alpha,
+		},
 		levels: [
 			{
 				color: resolveCssColor(
@@ -284,7 +296,7 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 			{
 				color: resolveCssColor(
 					node,
-					isDark ? "var(--color-accent-800)" : "var(--color-accent-300)",
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-300)",
 					fallback.levels[1].color,
 				),
 				alpha: fallback.levels[1].alpha,
@@ -292,7 +304,7 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 			{
 				color: resolveCssColor(
 					node,
-					isDark ? "var(--color-accent-600)" : "var(--color-accent-400)",
+					isDark ? "var(--color-accent-500)" : "var(--color-accent-400)",
 					fallback.levels[2].color,
 				),
 				alpha: fallback.levels[2].alpha,
@@ -300,7 +312,7 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 			{
 				color: resolveCssColor(
 					node,
-					isDark ? "var(--color-accent-400)" : "var(--color-accent-500)",
+					isDark ? "var(--color-accent-300)" : "var(--color-accent-500)",
 					fallback.levels[3].color,
 				),
 				alpha: fallback.levels[3].alpha,
@@ -349,25 +361,33 @@ function sampleField(
 			Math.exp(-(distance * distance) / (config.coreRadius * config.coreRadius)) * 1.2;
 		const halo = Math.exp(-(distance * distance) / (config.haloRadius * config.haloRadius));
 		const outer = Math.exp(-(distance * distance) / (config.outerRadius * config.outerRadius));
-		const ring = Math.max(0, halo - core * 0.72) * 1.28;
-		const envelope = outer * 0.34;
+		const ring = Math.max(0, halo - core * 0.74) * (isDark ? 1.3 : 1.28);
+		const envelope = outer * (isDark ? 0.3 : 0.34);
 
-		value += (ring + envelope - core * 0.88) * config.strength;
+		value += (ring + envelope - core * (isDark ? 1.04 : 0.88)) * config.strength;
 	}
 
 	const ridge =
 		0.18 * Math.sin(TAU * (x * 0.94 + y * 0.19) + Math.sin(phase * 0.72) * 0.85) +
 		0.15 * Math.cos(TAU * (y * 0.68 - x * 0.26) - Math.cos(phase * 0.88) * 1.05) +
 		0.08 * Math.sin(TAU * ((x + y) * 0.62) + phase * 0.56);
+	const turbulence =
+		0.09 * Math.sin(TAU * (x * 2.24 - y * 1.76) + phase * 1.42) +
+		0.06 * Math.cos(TAU * (x * 3.08 + y * 2.42) - phase * 1.18);
 
 	value =
-		(isDark ? 0.18 : 0.17) +
+		(isDark ? 0.165 : 0.17) +
 		value * (isDark ? 0.52 : 0.5) +
-		ridge * (isDark ? 1 : 0.9);
+		ridge * (isDark ? 1.08 : 0.9);
 
-	const rightBias = smoothstep(0.36, 0.9, normalizedX);
+	const contourMask = smoothstep(0.18, 0.74, clamp(value, 0, 1));
+	value += turbulence * contourMask * (isDark ? 0.22 : 0.14);
+
+	const rightBias = smoothstep(0.38, 0.9, normalizedX);
 	const upperRightBloom = gaussian(normalizedX, normalizedY, 0.8, 0.2, 0.23, 0.26);
+	const midRightBloom = gaussian(normalizedX, normalizedY, 0.72, 0.48, 0.2, 0.26);
 	const lowerRightBloom = gaussian(normalizedX, normalizedY, 0.88, 0.78, 0.26, 0.31);
+	const lowerEdgeBloom = gaussian(normalizedX, normalizedY, 0.58, 0.96, 0.34, 0.16);
 	const textQuietZone = gaussian(
 		normalizedX,
 		normalizedY,
@@ -378,19 +398,21 @@ function sampleField(
 	);
 
 	value *= 0.8 + rightBias * (isDark ? 0.52 : 0.54);
-	value += upperRightBloom * (isDark ? 0.22 : 0.22);
-	value += lowerRightBloom * (isDark ? 0.18 : 0.16);
-	value *= 1 - textQuietZone * (isDark ? 0.68 : 0.78);
+	value += upperRightBloom * (isDark ? 0.2 : 0.22);
+	value += midRightBloom * (isDark ? 0.12 : 0.14);
+	value += lowerRightBloom * (isDark ? 0.16 : 0.16);
+	value += lowerEdgeBloom * (isDark ? 0.06 : 0.08);
+	value *= 1 - textQuietZone * (isDark ? 0.74 : 0.78);
 
 	const normalized = clamp(value, 0, 1);
 	const shaped = isDark
-		? smoothstep(0.06, 0.92, normalized)
+		? smoothstep(0.07, 0.9, normalized) ** 1.04
 		: smoothstep(0.08, 0.68, normalized) ** 0.94;
 	return shaped;
 }
 
 function getFieldLevel(field: number, isDark: boolean) {
-	const thresholds = isDark ? [0.14, 0.3, 0.5, 0.72] : [0.18, 0.34, 0.5, 0.66];
+	const thresholds = isDark ? [0.15, 0.3, 0.52, 0.76] : [0.18, 0.34, 0.5, 0.66];
 
 	for (let index = thresholds.length - 1; index >= 0; index -= 1) {
 		if (field >= thresholds[index]) return index;
@@ -413,14 +435,64 @@ function drawBaseDots(
 	}
 }
 
+function buildUnderlayFrame(
+	width: number,
+	height: number,
+	aspect: number,
+	phase: number,
+	isDark: boolean,
+	tone: Tone,
+) {
+	const sampleWidth = Math.max(48, Math.round(width * 0.18));
+	const sampleHeight = Math.max(36, Math.round(height * 0.18));
+	const canvas = document.createElement("canvas");
+	canvas.width = sampleWidth;
+	canvas.height = sampleHeight;
+
+	const context = canvas.getContext("2d", { alpha: true });
+	if (!context) return canvas;
+
+	const image = context.createImageData(sampleWidth, sampleHeight);
+	const [r, g, b] = tone.color;
+
+	for (let y = 0; y < sampleHeight; y += 1) {
+		for (let x = 0; x < sampleWidth; x += 1) {
+			const field = sampleField(
+				(x + 0.5) / sampleWidth,
+				(y + 0.5) / sampleHeight,
+				aspect,
+				phase,
+				isDark,
+			);
+			const mask = isDark
+				? smoothstep(0.12, 0.58, field) ** 1.6
+				: smoothstep(0.18, 0.5, field) ** 1.5;
+			const alpha = clamp(mask * tone.alpha, 0, 1);
+			const index = (y * sampleWidth + x) * 4;
+
+			image.data[index] = r;
+			image.data[index + 1] = g;
+			image.data[index + 2] = b;
+			image.data[index + 3] = Math.round(alpha * 255);
+		}
+	}
+
+	context.putImageData(image, 0, 0);
+	return canvas;
+}
+
 function buildPreparedFrames(
 	dots: DotPoint[],
 	radius: number,
 	aspect: number,
 	isDark: boolean,
 	frameCount: number,
+	width: number,
+	height: number,
+	palette: Palette,
 ) {
 	const frames = Array.from({ length: frameCount }, () => ({
+		underlay: document.createElement("canvas"),
 		paths: Array.from({ length: LEVEL_COUNT }, () => new Path2D()),
 	}));
 	const half = radius / 2;
@@ -428,6 +500,14 @@ function buildPreparedFrames(
 	for (let frameIndex = 0; frameIndex < frameCount; frameIndex += 1) {
 		const phase = (frameIndex / frameCount) * TAU;
 		const frame = frames[frameIndex];
+		frame.underlay = buildUnderlayFrame(
+			width,
+			height,
+			aspect,
+			phase,
+			isDark,
+			palette.underlay,
+		);
 
 		for (const dot of dots) {
 			const field = sampleField(dot.normalizedX, dot.normalizedY, aspect, phase, isDark);
@@ -569,7 +649,16 @@ export function TopographicDotField({
 
 		const aspect = metrics.width / Math.max(metrics.height, 1);
 		const frameCount = shouldReduceMotion ? 1 : FRAME_COUNT;
-		const frames = buildPreparedFrames(dots, effectiveRadius, aspect, isDark, frameCount);
+		const frames = buildPreparedFrames(
+			dots,
+			effectiveRadius,
+			aspect,
+			isDark,
+			frameCount,
+			metrics.width,
+			metrics.height,
+			palette,
+		);
 
 		setPreparedField({
 			frameCount,
@@ -601,13 +690,20 @@ export function TopographicDotField({
 		let frameId = 0;
 		let startTime = 0;
 
-		const drawPreparedFrame = (frameIndex: number, opacity: number) => {
-			const frame = preparedField.frames[frameIndex];
-			if (!frame || opacity <= 0) return;
+			const drawPreparedFrame = (frameIndex: number, opacity: number) => {
+				const frame = preparedField.frames[frameIndex];
+				if (!frame || opacity <= 0) return;
 
-			for (let level = 0; level < preparedField.palette.levels.length; level += 1) {
-				const tone = preparedField.palette.levels[level];
-				const path = frame.paths[level];
+				context.save();
+				context.setTransform(1, 0, 0, 1, 0, 0);
+				context.globalAlpha = opacity;
+				context.imageSmoothingEnabled = true;
+				context.drawImage(frame.underlay, 0, 0, canvas.width, canvas.height);
+				context.restore();
+
+				for (let level = 0; level < preparedField.palette.levels.length; level += 1) {
+					const tone = preparedField.palette.levels[level];
+					const path = frame.paths[level];
 				if (!tone || !path) continue;
 
 				context.fillStyle = toneToCanvas(tone.color, tone.alpha * opacity);

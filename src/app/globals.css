@@ -1553,7 +1553,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--portfolio-space-2);
+    gap: var(--portfolio-space-3);
   }
 
   .portfolio-inline-meta {
@@ -1633,6 +1633,7 @@
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
+      gap: var(--portfolio-space-2);
     }
   }
 

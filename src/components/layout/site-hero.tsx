@@ -12,10 +12,11 @@ const HERO_GRID_STEP = "var(--portfolio-grid-step)";
 const HERO_DOT_STEP = "var(--portfolio-rhythm)";
 const HERO_GRID_MIN_INSET = "var(--portfolio-space-1)";
 const HERO_CONTENT_INSET = "var(--portfolio-space-4)";
-const HERO_CONTENT_INSET_MOBILE = "var(--portfolio-space-2)";
+const HERO_CONTENT_INSET_MOBILE = "var(--portfolio-box-pad-mobile)";
+const HERO_STACK_GAP_MOBILE = "var(--portfolio-space-3)";
 const HERO_SECTION_ROWS = 28;
 const HERO_SECTION_HEIGHT = "calc(var(--portfolio-rhythm) * 28)";
-const HERO_SECTION_HEIGHT_MOBILE = "calc(var(--portfolio-rhythm) * 34)";
+const HERO_SECTION_HEIGHT_MOBILE = "calc(var(--portfolio-rhythm) * 30)";
 const HERO_HEAD_LINE = "var(--portfolio-space-6)";
 const HERO_BODY_LINE = "var(--portfolio-space-3)";
 const HERO_TEXT_WIDTH = "calc(var(--portfolio-grid-step) * 34)";
@@ -32,10 +33,9 @@ function HeroContent() {
 	return (
 		<>
 			<div
-				className="relative z-10 flex flex-col justify-between md:hidden"
+				className="relative z-10 flex flex-col md:hidden"
 				style={{
-					gap: "var(--portfolio-space-5)",
-					minHeight: HERO_SECTION_HEIGHT_MOBILE,
+					gap: HERO_STACK_GAP_MOBILE,
 					padding: HERO_CONTENT_INSET_MOBILE,
 				}}
 			>
@@ -193,7 +193,10 @@ export function SiteHero() {
 	return (
 		<section
 			id="hero"
-			className="relative isolate min-h-[calc(var(--portfolio-rhythm)*34)] w-full overflow-hidden md:min-h-[calc(var(--portfolio-rhythm)*28)]"
+			className="relative isolate min-h-[var(--hero-mobile-min-height)] w-full overflow-hidden md:min-h-[calc(var(--portfolio-rhythm)*28)]"
+			style={{
+				["--hero-mobile-min-height" as string]: HERO_SECTION_HEIGHT_MOBILE,
+			}}
 		>
 			<HeroDataPlane />
 			<HeroContent />
