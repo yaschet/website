@@ -29,7 +29,7 @@ interface Tone {
 
 interface Palette {
 	active: [Tone, Tone, Tone, Tone];
-	underlay: [Tone, Tone, Tone];
+	underlay: [Tone, Tone, Tone, Tone];
 }
 
 interface Metrics {
@@ -51,6 +51,7 @@ const FALLBACK_DARK_PALETTE: Palette = {
 		{ color: [11, 18, 34], alpha: 0.1 },
 		{ color: [16, 29, 54], alpha: 0.18 },
 		{ color: [26, 48, 83], alpha: 0.28 },
+		{ color: [39, 77, 128], alpha: 0.38 },
 	],
 };
 
@@ -65,6 +66,7 @@ const FALLBACK_LIGHT_PALETTE: Palette = {
 		{ color: [219, 234, 254], alpha: 0.0 },
 		{ color: [191, 219, 254], alpha: 0.02 },
 		{ color: [147, 197, 253], alpha: 0.04 },
+		{ color: [96, 165, 250], alpha: 0.06 },
 	],
 };
 
@@ -94,6 +96,7 @@ uniform vec3  uLC3; uniform float uLA3;
 uniform vec3  uUC0; uniform float uUA0;
 uniform vec3  uUC1; uniform float uUA1;
 uniform vec3  uUC2; uniform float uUA2;
+uniform vec3  uUC3; uniform float uUA3;
 
 out vec4 oColor;
 
@@ -105,6 +108,18 @@ float sm3(float e0, float e1, float v) {
 float gauss2(vec2 p, vec2 c, vec2 r) {
   vec2 d = (p - c) / r;
   return exp(-dot(d, d));
+}
+
+vec4 alphaOver(vec4 top, vec4 bottom) {
+  float outAlpha = top.a + bottom.a * (1.0 - top.a);
+  if (outAlpha <= 0.0) {
+    return vec4(0.0);
+  }
+
+  vec3 outColor =
+    (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / outAlpha;
+
+  return vec4(outColor, outAlpha);
 }
 
 vec4 permute(vec4 x){ return mod(((x * 34.0) + 1.0) * x, 289.0); }
@@ -229,24 +244,26 @@ void main() {
   float d2 = mix(0.86, 0.72, uDark);
   float d3 = mix(0.93, 0.86, uDark);
 
-  float u0 = mix(0.985, 0.62, uDark);
-  float u1 = mix(0.997, 0.74, uDark);
-  float u2 = mix(1.01, 0.86, uDark);
+  float u0 = mix(0.985, 0.14, uDark);
+  float u1 = mix(0.997, 0.28, uDark);
+  float u2 = mix(1.01, 0.48, uDark);
+  float u3 = mix(1.02, 0.68, uDark);
 
-  vec4 color = vec4(0.0);
+  vec4 underlay = vec4(0.0);
+  if      (field >= u3) { underlay = vec4(uUC3, uUA3); }
+  else if (field >= u2) { underlay = vec4(uUC2, uUA2); }
+  else if (field >= u1) { underlay = vec4(uUC1, uUA1); }
+  else if (field >= u0) { underlay = vec4(uUC0, uUA0); }
 
-  if      (field >= u2) { color = vec4(uUC2, uUA2); }
-  else if (field >= u1) { color = vec4(uUC1, uUA1); }
-  else if (field >= u0) { color = vec4(uUC0, uUA0); }
-
+  vec4 dots = vec4(0.0);
   if (inDot) {
-    if      (field >= d3) { color = vec4(uLC3, uLA3); }
-    else if (field >= d2) { color = vec4(uLC2, uLA2); }
-    else if (field >= d1) { color = vec4(uLC1, uLA1); }
-    else if (field >= d0) { color = vec4(uLC0, uLA0); }
+    if      (field >= d3) { dots = vec4(uLC3, uLA3); }
+    else if (field >= d2) { dots = vec4(uLC2, uLA2); }
+    else if (field >= d1) { dots = vec4(uLC1, uLA1); }
+    else if (field >= d0) { dots = vec4(uLC0, uLA0); }
   }
 
-  oColor = color;
+  oColor = alphaOver(dots, underlay);
 }`;
 
 function compileShader(gl: WebGL2RenderingContext, type: number, source: string) {
@@ -378,6 +395,13 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 					fallback.underlay[2].color,
 				),
 				alpha: fallback.underlay[2].alpha,
+			},
+			{
+				color: resolve(
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-400)",
+					fallback.underlay[3].color,
+				),
+				alpha: fallback.underlay[3].alpha,
 			},
 		],
 	};
@@ -532,6 +556,8 @@ export function TopographicDotField({
 				uUA1: getUniform("uUA1"),
 				uUC2: getUniform("uUC2"),
 				uUA2: getUniform("uUA2"),
+				uUC3: getUniform("uUC3"),
+				uUA3: getUniform("uUA3"),
 			};
 
 			gl.enable(gl.BLEND);
@@ -621,6 +647,8 @@ export function TopographicDotField({
 		setUniform1("uUA1", palette.underlay[1].alpha);
 		setUniform3("uUC2", palette.underlay[2].color);
 		setUniform1("uUA2", palette.underlay[2].alpha);
+		setUniform3("uUC3", palette.underlay[3].color);
+		setUniform1("uUA3", palette.underlay[3].alpha);
 
 		let frameId = 0;
 		let startTime = 0;
