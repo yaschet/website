@@ -56,16 +56,16 @@ const FALLBACK_DARK_PALETTE: Palette = {
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
 	active: [
-		{ color: [96, 149, 235], alpha: 0.12 },
-		{ color: [73, 124, 224], alpha: 0.2 },
-		{ color: [53, 104, 208], alpha: 0.32 },
-		{ color: [33, 79, 184], alpha: 0.44 },
+		{ color: [73, 124, 224], alpha: 0.18 },
+		{ color: [53, 104, 208], alpha: 0.3 },
+		{ color: [33, 79, 184], alpha: 0.46 },
+		{ color: [24, 60, 146], alpha: 0.64 },
 	],
 	underlay: [
-		{ color: [219, 234, 254], alpha: 0.0 },
-		{ color: [191, 219, 254], alpha: 0.028 },
-		{ color: [147, 197, 253], alpha: 0.05 },
-		{ color: [96, 165, 250], alpha: 0.075 },
+		{ color: [219, 234, 254], alpha: 0.016 },
+		{ color: [191, 219, 254], alpha: 0.038 },
+		{ color: [147, 197, 253], alpha: 0.072 },
+		{ color: [96, 165, 250], alpha: 0.11 },
 	],
 };
 
@@ -107,6 +107,18 @@ float sm3(float e0, float e1, float v) {
 float gauss2(vec2 p, vec2 c, vec2 r) {
   vec2 d = (p - c) / r;
   return exp(-dot(d, d));
+}
+
+vec4 alphaOver(vec4 top, vec4 bottom) {
+  float outAlpha = top.a + bottom.a * (1.0 - top.a);
+  if (outAlpha <= 0.0) {
+    return vec4(0.0);
+  }
+
+  vec3 outColor =
+    (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / outAlpha;
+
+  return vec4(outColor, outAlpha);
 }
 
 vec4 permute(vec4 x){ return mod(((x * 34.0) + 1.0) * x, 289.0); }
@@ -199,11 +211,11 @@ float fieldValue(vec2 uv, float time) {
   float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * 0.05;
   float rightLift = sm3(0.56, 0.96, uv.x) * 0.07;
   float lowerLift = sm3(0.70, 0.98, uv.y) * 0.04;
-  float attenuation = mix(0.06, 0.22, uDark);
+  float attenuation = mix(0.015, 0.055, uDark);
 
   field = clamp(field + topLift + rightLift + lowerLift, 0.0, 1.0);
   field *= 1.0 - calm * attenuation;
-  field *= 1.0 - leftCalm * (attenuation * 0.72);
+  field *= 1.0 - leftCalm * (attenuation * 0.48);
 
   return clamp(field, 0.0, 1.0);
 }
@@ -226,25 +238,31 @@ void main() {
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
   bool inDot = cellDist.x <= uDotRadius && cellDist.y <= uDotRadius;
 
-  if (!inDot) {
-    oColor = vec4(0.0);
-    return;
+  float u0 = mix(0.64, 0.10, uDark);
+  float u1 = mix(0.74, 0.18, uDark);
+  float u2 = mix(0.84, 0.30, uDark);
+  float u3 = mix(0.92, 0.46, uDark);
+
+  float d0 = mix(0.76, 0.30, uDark);
+  float d1 = mix(0.86, 0.46, uDark);
+  float d2 = mix(0.93, 0.63, uDark);
+  float d3 = mix(0.975, 0.80, uDark);
+
+  vec4 underlay = vec4(0.0);
+  if      (field >= u3) { underlay = vec4(uUC3, uUA3); }
+  else if (field >= u2) { underlay = vec4(uUC2, uUA2); }
+  else if (field >= u1) { underlay = vec4(uUC1, uUA1); }
+  else if (field >= u0) { underlay = vec4(uUC0, uUA0); }
+
+  vec4 dots = vec4(0.0);
+  if (inDot) {
+    if      (field >= d3) { dots = vec4(uLC3, uLA3); }
+    else if (field >= d2) { dots = vec4(uLC2, uLA2); }
+    else if (field >= d1) { dots = vec4(uLC1, uLA1); }
+    else if (field >= d0) { dots = vec4(uLC0, uLA0); }
   }
 
-  float t0 = mix(0.78, 0.08, uDark);
-  float t1 = mix(0.86, 0.16, uDark);
-  float t2 = mix(0.91, 0.30, uDark);
-  float t3 = mix(0.95, 0.46, uDark);
-  float t4 = mix(0.98, 0.63, uDark);
-  float t5 = mix(0.993, 0.80, uDark);
-
-  if      (field >= t5) { oColor = vec4(uLC3, uLA3); }
-  else if (field >= t4) { oColor = vec4(uLC2, uLA2); }
-  else if (field >= t3) { oColor = vec4(uLC1, uLA1); }
-  else if (field >= t2) { oColor = vec4(uLC0, uLA0); }
-  else if (field >= t1) { oColor = vec4(uUC3, uUA3); }
-  else if (field >= t0) { oColor = vec4(uUC1, uUA1); }
-  else                  { oColor = vec4(0.0); }
+  oColor = alphaOver(dots, underlay);
 }`;
 
 function compileShader(gl: WebGL2RenderingContext, type: number, source: string) {
@@ -328,28 +346,28 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		active: [
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-800)" : "var(--color-accent-400)",
+					isDark ? "var(--color-accent-800)" : "var(--color-accent-500)",
 					fallback.active[0].color,
 				),
 				alpha: fallback.active[0].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-600)" : "var(--color-accent-500)",
+					isDark ? "var(--color-accent-600)" : "var(--color-accent-600)",
 					fallback.active[1].color,
 				),
 				alpha: fallback.active[1].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-400)" : "var(--color-accent-600)",
+					isDark ? "var(--color-accent-400)" : "var(--color-accent-700)",
 					fallback.active[2].color,
 				),
 				alpha: fallback.active[2].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-100)" : "var(--color-accent-700)",
+					isDark ? "var(--color-accent-100)" : "var(--color-accent-800)",
 					fallback.active[3].color,
 				),
 				alpha: fallback.active[3].alpha,
@@ -358,28 +376,28 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		underlay: [
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-950)" : "var(--color-accent-100)",
+					isDark ? "var(--color-accent-950)" : "var(--color-accent-200)",
 					fallback.underlay[0].color,
 				),
 				alpha: fallback.underlay[0].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-900)" : "var(--color-accent-200)",
+					isDark ? "var(--color-accent-900)" : "var(--color-accent-300)",
 					fallback.underlay[1].color,
 				),
 				alpha: fallback.underlay[1].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-800)" : "var(--color-accent-300)",
+					isDark ? "var(--color-accent-800)" : "var(--color-accent-400)",
 					fallback.underlay[2].color,
 				),
 				alpha: fallback.underlay[2].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-400)",
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-500)",
 					fallback.underlay[3].color,
 				),
 				alpha: fallback.underlay[3].alpha,
