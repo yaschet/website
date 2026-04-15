@@ -41,31 +41,31 @@ interface Metrics {
 
 const FALLBACK_DARK_PALETTE: Palette = {
 	active: [
-		{ color: [33, 71, 116], alpha: 0.14 },
-		{ color: [57, 112, 171], alpha: 0.32 },
-		{ color: [106, 169, 229], alpha: 0.56 },
-		{ color: [190, 229, 255], alpha: 0.88 },
+		{ color: [27, 72, 186], alpha: 0.22 },
+		{ color: [44, 112, 255], alpha: 0.42 },
+		{ color: [77, 151, 255], alpha: 0.68 },
+		{ color: [126, 192, 255], alpha: 0.94 },
 	],
 	underlay: [
-		{ color: [10, 14, 22], alpha: 0.06 },
-		{ color: [15, 24, 38], alpha: 0.1 },
-		{ color: [21, 37, 60], alpha: 0.15 },
-		{ color: [30, 56, 92], alpha: 0.22 },
+		{ color: [8, 16, 34], alpha: 0.08 },
+		{ color: [11, 24, 52], alpha: 0.13 },
+		{ color: [17, 39, 86], alpha: 0.19 },
+		{ color: [25, 58, 128], alpha: 0.27 },
 	],
 };
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
 	active: [
-		{ color: [73, 124, 224], alpha: 0.18 },
-		{ color: [53, 104, 208], alpha: 0.3 },
-		{ color: [33, 79, 184], alpha: 0.46 },
-		{ color: [24, 60, 146], alpha: 0.64 },
+		{ color: [26, 89, 222], alpha: 0.3 },
+		{ color: [31, 108, 255], alpha: 0.46 },
+		{ color: [67, 140, 255], alpha: 0.64 },
+		{ color: [108, 172, 255], alpha: 0.82 },
 	],
 	underlay: [
-		{ color: [219, 234, 254], alpha: 0.016 },
-		{ color: [191, 219, 254], alpha: 0.038 },
-		{ color: [147, 197, 253], alpha: 0.072 },
-		{ color: [96, 165, 250], alpha: 0.11 },
+		{ color: [216, 233, 255], alpha: 0.036 },
+		{ color: [185, 214, 255], alpha: 0.072 },
+		{ color: [132, 182, 255], alpha: 0.122 },
+		{ color: [82, 145, 255], alpha: 0.19 },
 	],
 };
 
@@ -208,14 +208,14 @@ float fieldValue(vec2 uv, float time) {
 
   float calm = gauss2(uv, vec2(0.35, 0.48), vec2(0.26, 0.32));
   float leftCalm = gauss2(uv, vec2(0.18, 0.52), vec2(0.18, 0.24));
-  float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * 0.05;
-  float rightLift = sm3(0.56, 0.96, uv.x) * 0.07;
-  float lowerLift = sm3(0.70, 0.98, uv.y) * 0.04;
-  float attenuation = mix(0.015, 0.055, uDark);
+  float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * 0.04;
+  float rightLift = sm3(0.56, 0.96, uv.x) * 0.06;
+  float lowerLift = sm3(0.70, 0.98, uv.y) * 0.03;
+  float attenuation = mix(0.006, 0.024, uDark);
 
   field = clamp(field + topLift + rightLift + lowerLift, 0.0, 1.0);
   field *= 1.0 - calm * attenuation;
-  field *= 1.0 - leftCalm * (attenuation * 0.48);
+  field *= 1.0 - leftCalm * (attenuation * 0.3);
 
   return clamp(field, 0.0, 1.0);
 }
@@ -238,15 +238,15 @@ void main() {
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
   bool inDot = cellDist.x <= uDotRadius && cellDist.y <= uDotRadius;
 
-  float u0 = mix(0.64, 0.10, uDark);
-  float u1 = mix(0.74, 0.18, uDark);
-  float u2 = mix(0.84, 0.30, uDark);
-  float u3 = mix(0.92, 0.46, uDark);
+  float u0 = mix(0.54, 0.10, uDark);
+  float u1 = mix(0.66, 0.18, uDark);
+  float u2 = mix(0.78, 0.30, uDark);
+  float u3 = mix(0.89, 0.46, uDark);
 
-  float d0 = mix(0.76, 0.30, uDark);
-  float d1 = mix(0.86, 0.46, uDark);
-  float d2 = mix(0.93, 0.63, uDark);
-  float d3 = mix(0.975, 0.80, uDark);
+  float d0 = mix(0.64, 0.30, uDark);
+  float d1 = mix(0.76, 0.46, uDark);
+  float d2 = mix(0.87, 0.63, uDark);
+  float d3 = mix(0.95, 0.80, uDark);
 
   vec4 underlay = vec4(0.0);
   if      (field >= u3) { underlay = vec4(uUC3, uUA3); }
