@@ -206,18 +206,22 @@ float fieldValue(vec2 uv, float time) {
   field = field * 0.5 + 0.5;
   field = sm3(0.16, 0.88, field);
 
-  float calm = gauss2(uv, vec2(0.35, 0.48), vec2(0.26, 0.32));
-  float leftCalm = gauss2(uv, vec2(0.18, 0.52), vec2(0.18, 0.24));
   float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * 0.04;
   float rightLift = sm3(0.56, 0.96, uv.x) * 0.06;
   float lowerLift = sm3(0.70, 0.98, uv.y) * 0.03;
-  float attenuation = mix(0.006, 0.024, uDark);
 
   field = clamp(field + topLift + rightLift + lowerLift, 0.0, 1.0);
-  field *= 1.0 - calm * attenuation;
-  field *= 1.0 - leftCalm * (attenuation * 0.3);
 
   return clamp(field, 0.0, 1.0);
+}
+
+float contentShield(vec2 uv) {
+  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19));
+  float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
+  float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
+  float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
+  float shield = max(max(title, body), max(cta, mobile * 0.66));
+  return sm3(0.08, 0.86, shield);
 }
 
 void main() {
@@ -233,6 +237,8 @@ void main() {
   }
 
   float field = fieldValue(uv, uTime);
+  float shield = contentShield(uv);
+  field *= mix(1.0, mix(0.82, 0.74, uDark), shield);
 
   vec2 center = vec2(uStep * 0.5);
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
@@ -261,6 +267,9 @@ void main() {
     else if (field >= d1) { dots = vec4(uLC1, uLA1); }
     else if (field >= d0) { dots = vec4(uLC0, uLA0); }
   }
+
+  underlay.a *= mix(1.0, mix(0.08, 0.16, uDark), shield);
+  dots.a *= mix(1.0, mix(0.18, 0.34, uDark), shield);
 
   oColor = alphaOver(dots, underlay);
 }`;
