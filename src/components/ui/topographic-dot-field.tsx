@@ -346,28 +346,28 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		active: [
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-700)",
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-800)",
 					fallback.active[0].color,
 				),
 				alpha: fallback.active[0].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-600)" : "var(--color-accent-600)",
+					isDark ? "var(--color-accent-600)" : "var(--color-accent-700)",
 					fallback.active[1].color,
 				),
 				alpha: fallback.active[1].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-500)" : "var(--color-accent-500)",
+					isDark ? "var(--color-accent-500)" : "var(--color-accent-600)",
 					fallback.active[2].color,
 				),
 				alpha: fallback.active[2].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-400)" : "var(--color-accent-400)",
+					isDark ? "var(--color-accent-400)" : "var(--color-accent-500)",
 					fallback.active[3].color,
 				),
 				alpha: fallback.active[3].alpha,
@@ -376,28 +376,28 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		underlay: [
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-950)" : "var(--color-accent-200)",
+					isDark ? "var(--color-accent-950)" : "var(--color-accent-300)",
 					fallback.underlay[0].color,
 				),
 				alpha: fallback.underlay[0].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-900)" : "var(--color-accent-300)",
+					isDark ? "var(--color-accent-900)" : "var(--color-accent-400)",
 					fallback.underlay[1].color,
 				),
 				alpha: fallback.underlay[1].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-800)" : "var(--color-accent-400)",
+					isDark ? "var(--color-accent-800)" : "var(--color-accent-500)",
 					fallback.underlay[2].color,
 				),
 				alpha: fallback.underlay[2].alpha,
 			},
 			{
 				color: resolve(
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-500)",
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-600)",
 					fallback.underlay[3].color,
 				),
 				alpha: fallback.underlay[3].alpha,
