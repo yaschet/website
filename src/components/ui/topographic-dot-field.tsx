@@ -28,7 +28,7 @@ interface Tone {
 
 interface Palette {
 	base: Tone;
-	underlay: Tone;
+	underlay: Tone[];
 	levels: Tone[];
 }
 
@@ -181,7 +181,11 @@ const LIGHT_VOID_CONFIGS: VoidConfig[] = [
 
 const FALLBACK_DARK_PALETTE: Palette = {
 	base: { color: [228, 228, 231], alpha: 0.018 },
-	underlay: { color: [71, 88, 153], alpha: 0.13 },
+	underlay: [
+		{ color: [49, 46, 129], alpha: 0.03 },
+		{ color: [71, 88, 153], alpha: 0.055 },
+		{ color: [92, 141, 232], alpha: 0.085 },
+	],
 	levels: [
 		{ color: [113, 113, 122], alpha: 0.088 },
 		{ color: [71, 88, 153], alpha: 0.15 },
@@ -192,7 +196,11 @@ const FALLBACK_DARK_PALETTE: Palette = {
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
 	base: { color: [219, 234, 254], alpha: 0.02 },
-	underlay: { color: [147, 197, 253], alpha: 0.06 },
+	underlay: [
+		{ color: [191, 219, 254], alpha: 0.028 },
+		{ color: [147, 197, 253], alpha: 0.042 },
+		{ color: [96, 165, 250], alpha: 0.06 },
+	],
 	levels: [
 		{ color: [191, 219, 254], alpha: 0.062 },
 		{ color: [147, 197, 253], alpha: 0.102 },
@@ -276,14 +284,32 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 			),
 			alpha: fallback.base.alpha,
 		},
-		underlay: {
-			color: resolveCssColor(
-				node,
-				isDark ? "var(--color-accent-600)" : "var(--color-accent-300)",
-				fallback.underlay.color,
-			),
-			alpha: fallback.underlay.alpha,
-		},
+		underlay: [
+			{
+				color: resolveCssColor(
+					node,
+					isDark ? "var(--color-accent-800)" : "var(--color-accent-200)",
+					fallback.underlay[0].color,
+				),
+				alpha: fallback.underlay[0].alpha,
+			},
+			{
+				color: resolveCssColor(
+					node,
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-300)",
+					fallback.underlay[1].color,
+				),
+				alpha: fallback.underlay[1].alpha,
+			},
+			{
+				color: resolveCssColor(
+					node,
+					isDark ? "var(--color-accent-600)" : "var(--color-accent-400)",
+					fallback.underlay[2].color,
+				),
+				alpha: fallback.underlay[2].alpha,
+			},
+		],
 		levels: [
 			{
 				color: resolveCssColor(
@@ -441,19 +467,20 @@ function buildUnderlayFrame(
 	aspect: number,
 	phase: number,
 	isDark: boolean,
-	tone: Tone,
+	tones: Tone[],
 ) {
-	const sampleWidth = Math.max(48, Math.round(width * 0.18));
-	const sampleHeight = Math.max(36, Math.round(height * 0.18));
+	const sampleWidth = Math.max(120, Math.round(width * 0.26));
+	const sampleHeight = Math.max(48, Math.round(height * 0.26));
 	const canvas = document.createElement("canvas");
 	canvas.width = sampleWidth;
 	canvas.height = sampleHeight;
 
 	const context = canvas.getContext("2d", { alpha: true });
 	if (!context) return canvas;
+	context.clearRect(0, 0, sampleWidth, sampleHeight);
 
+	const thresholds = isDark ? [0.22, 0.4, 0.6] : [0.24, 0.42, 0.58];
 	const image = context.createImageData(sampleWidth, sampleHeight);
-	const [r, g, b] = tone.color;
 
 	for (let y = 0; y < sampleHeight; y += 1) {
 		for (let x = 0; x < sampleWidth; x += 1) {
@@ -464,20 +491,23 @@ function buildUnderlayFrame(
 				phase,
 				isDark,
 			);
-			const mask = isDark
-				? smoothstep(0.12, 0.58, field) ** 1.6
-				: smoothstep(0.18, 0.5, field) ** 1.5;
-			const alpha = clamp(mask * tone.alpha, 0, 1);
-			const index = (y * sampleWidth + x) * 4;
+			const band =
+				field >= thresholds[2] ? 2 : field >= thresholds[1] ? 1 : field >= thresholds[0] ? 0 : -1;
+			if (band < 0) continue;
 
-			image.data[index] = r;
-			image.data[index + 1] = g;
-			image.data[index + 2] = b;
-			image.data[index + 3] = Math.round(alpha * 255);
+			const tone = tones[band];
+			if (!tone) continue;
+
+			const index = (y * sampleWidth + x) * 4;
+			image.data[index] = tone.color[0];
+			image.data[index + 1] = tone.color[1];
+			image.data[index + 2] = tone.color[2];
+			image.data[index + 3] = Math.round(tone.alpha * 255);
 		}
 	}
 
 	context.putImageData(image, 0, 0);
+
 	return canvas;
 }
 
