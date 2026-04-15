@@ -46,6 +46,8 @@ interface ImageGalleryProps {
 	enableKeyboard?: boolean;
 	/** Additional class names */
 	className?: string;
+	/** Additional class names applied to each rendered image */
+	imageClassName?: string;
 	/** Custom sizes attribute for responsive optimization */
 	sizes?: string;
 	/** Image quality (1-100) */
@@ -85,6 +87,7 @@ export function ImageGallery({
 	showCounter = false,
 	enableKeyboard = true,
 	className,
+	imageClassName,
 	onIndexChange,
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw",
 	quality = 75,
@@ -303,6 +306,7 @@ export function ImageGallery({
 										// Use object-contain when adaptive (show full image)
 										// Use object-cover when fixed (crop to container)
 										hasVaryingRatios ? "object-contain" : "object-cover",
+										imageClassName,
 									)}
 									placeholder={isStatic ? "blur" : "empty"}
 									draggable={false}

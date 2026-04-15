@@ -256,10 +256,10 @@ void main() {
   float shield = contentShield(uv);
   field *= mix(1.0, mix(0.78, 0.74, uDark), shield);
 
-  float mouseInfluence = gauss2(uv, uMouse, vec2(0.09, 0.09));
+  float mouseInfluence = gauss2(uv, uMouse, vec2(0.12, 0.12));
   float mouseSignedLift = mix(1.0, -1.0, uDark);
   field = clamp(
-    field + mouseInfluence * uMouseStrength * mouseSignedLift * 0.14 * mix(1.0, 0.32, shield),
+    field + mouseInfluence * uMouseStrength * mouseSignedLift * 0.24 * mix(1.0, 0.36, shield),
     0.0,
     1.0
   );
@@ -300,12 +300,14 @@ void main() {
     else if (field >= d0) { dots = vec4(uLC0, uLA0); }
   }
 
-  vec3 contourRgb = mix(uLC2, uLC3, 0.28);
+  vec3 contourRgb = mix(uLC2, uLC3, 0.42);
   vec4 contourStroke = vec4(contourRgb, contour * mix(0.74, 0.30, uDark));
 
   underlay.a *= mix(1.0, mix(0.20, 0.16, uDark), shield);
   dots.a *= mix(1.0, mix(0.18, 0.34, uDark), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.40, uDark), shield);
+  dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
+  contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark);
 
   if (uDark < 0.5) {
     vec4 lightBase = vec4(1.0);

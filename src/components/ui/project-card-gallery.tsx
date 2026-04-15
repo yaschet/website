@@ -40,6 +40,7 @@ interface ProjectCardGalleryProps {
 	solution?: string;
 	className?: string;
 	date?: string;
+	imageTreatment?: "default" | "disciplined";
 }
 
 export function ProjectCardGallery({
@@ -54,6 +55,7 @@ export function ProjectCardGallery({
 	solution,
 	className,
 	date,
+	imageTreatment = "default",
 }: ProjectCardGalleryProps) {
 	const galleryImages = images && images.length > 0 ? images : [];
 
@@ -91,7 +93,17 @@ export function ProjectCardGallery({
 			<>
 				{/* IMAGE ZONE — Interactive Gallery */}
 				{galleryImages.length > 0 ? (
-					<div className="relative">
+					<div
+						className={cn(
+							"relative overflow-hidden",
+							imageTreatment === "disciplined" && [
+								"shadow-[inset_0_-1px_0_rgba(15,23,42,0.08)] dark:shadow-[inset_0_-1px_0_rgba(248,250,252,0.08)]",
+								"before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:bg-[linear-gradient(180deg,rgba(15,23,42,0.03)_0%,rgba(15,23,42,0.12)_100%)] before:opacity-100 before:transition-opacity before:duration-300",
+								"after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:opacity-[0.08] after:transition-opacity after:duration-300 after:[background-image:radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.18)_1px,transparent_0)] after:[background-size:6px_6px] after:mix-blend-multiply dark:after:opacity-[0.06] dark:after:[background-image:radial-gradient(circle_at_1px_1px,rgba(248,250,252,0.16)_1px,transparent_0)] dark:after:mix-blend-screen",
+								"group-hover:before:opacity-35 group-hover:after:opacity-[0.02] dark:group-hover:after:opacity-[0.02]",
+							],
+						)}
+					>
 						<ImageGallery
 							images={galleryImages}
 							altPrefix={title}
@@ -99,7 +111,14 @@ export function ProjectCardGallery({
 							showArrows={galleryImages.length > 1 && !isPrivate}
 							showProgress={galleryImages.length > 1 && !isPrivate}
 							showCounter={false}
-							className="border-0 border-surface-200 border-b dark:border-surface-800"
+							className={cn(
+								"border-0 border-surface-200 border-b dark:border-surface-800",
+							)}
+							imageClassName={
+								imageTreatment === "disciplined"
+									? "[filter:grayscale(1)_contrast(1.12)_brightness(.9)_sepia(.03)] transition-[filter] duration-300 group-hover:[filter:grayscale(0)_contrast(1)_brightness(1)_sepia(0)]"
+									: undefined
+							}
 							sizes="(max-width: 768px) 100vw, 768px"
 							quality={75}
 						/>

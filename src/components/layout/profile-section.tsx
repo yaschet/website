@@ -36,7 +36,7 @@ export function ProfileSection() {
 						<div className="flex min-w-0 items-center gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
 							<Avatar
 								className={cn(
-									"relative h-[var(--portfolio-space-5)] w-[var(--portfolio-space-5)] overflow-hidden rounded-(--radius) border sm:h-[var(--portfolio-avatar-size)] sm:w-[var(--portfolio-avatar-size)]",
+									"group/avatar relative h-[var(--portfolio-space-5)] w-[var(--portfolio-space-5)] overflow-hidden rounded-(--radius) border before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:bg-surface-950/8 before:opacity-100 before:transition-opacity before:duration-300 hover:before:opacity-0 dark:before:bg-surface-50/8",
 									avatarBorder,
 									avatarBg,
 								)}
@@ -44,7 +44,7 @@ export function ProfileSection() {
 								<Image
 									src={avatarImage}
 									alt="Yassine Chettouch"
-									className="object-cover"
+									className="scale-[1.01] object-cover brightness-[0.94] contrast-[1.06] grayscale saturate-0 transition-[filter,transform] duration-300 group-hover/avatar:scale-100 group-hover/avatar:brightness-100 group-hover/avatar:contrast-100 group-hover/avatar:grayscale-0 group-hover/avatar:saturate-100"
 									placeholder="blur"
 									fill
 									sizes="60px"

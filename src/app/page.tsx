@@ -61,6 +61,7 @@ export default async function Home() {
 															tags={project.tech ?? []}
 															images={project.coverImages}
 															date="January 2026"
+															imageTreatment="disciplined"
 														/>
 													</div>
 												</ScrollReveal>
