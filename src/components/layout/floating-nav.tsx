@@ -79,6 +79,7 @@ export function FloatingNav() {
 	const { setTheme, resolvedTheme } = useTheme();
 	const activeTab = getActiveTab(pathname);
 
+	const [isMounted, setIsMounted] = useState(false);
 	const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 	const [isThemeHovered, setIsThemeHovered] = useState(false);
 	const [optimisticTab, setOptimisticTab] = useState(activeTab);
@@ -86,11 +87,19 @@ export function FloatingNav() {
 	const { phase } = useReveal();
 
 	useEffect(() => {
+		setIsMounted(true);
+	}, []);
+
+	useEffect(() => {
 		setOptimisticTab(activeTab);
 	}, [activeTab]);
 
 	const isEnabled = phase >= 1;
 	const currentTab = hoveredTab ?? optimisticTab;
+	const themeToggleLabel =
+		isMounted && resolvedTheme
+			? `Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`
+			: "Toggle theme";
 
 	/**
 	 * Toggles the theme with a view transition.
@@ -270,11 +279,7 @@ export function FloatingNav() {
 						width: BUTTON_SIZE,
 						height: BUTTON_SIZE,
 					}}
-					aria-label={
-						resolvedTheme
-							? `Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`
-							: "Toggle theme"
-					}
+					aria-label={themeToggleLabel}
 				>
 					<motion.div
 						className="absolute inset-0 -z-10 bg-surface-50 dark:bg-surface-950"
