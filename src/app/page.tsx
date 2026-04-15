@@ -62,6 +62,7 @@ export default async function Home() {
 															images={project.coverImages}
 															date="January 2026"
 															imageTreatment="disciplined"
+															imageAspectRatio="1.92"
 														/>
 													</div>
 												</ScrollReveal>
@@ -108,7 +109,7 @@ export default async function Home() {
 									<div className="portfolio-box-pad">
 										<div className="portfolio-action-band">
 											<div>
-												<h2 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
+												<h2 className="portfolio-heading-sm portfolio-capsize-heading-sm text-surface-900 dark:text-surface-100">
 													View selected work.
 												</h2>
 											</div>
