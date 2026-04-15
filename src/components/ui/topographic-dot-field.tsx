@@ -57,36 +57,34 @@ interface Metrics {
 // ---------------------------------------------------------------------------
 
 const FALLBACK_DARK_PALETTE: Palette = {
-	base: { color: [0, 80, 80], alpha: 0.1 },
+	base: { color: [20, 35, 60], alpha: 0.1 },
 	levels: [
-		{ color: [0, 160, 160], alpha: 0.2 }, // level 0
-		{ color: [0, 210, 210], alpha: 0.4 }, // level 1
-		{ color: [0, 255, 255], alpha: 0.6 }, // level 2
-		{ color: [160, 255, 255], alpha: 0.9 }, // level 3 — peak
+		{ color: [40, 70, 120], alpha: 0.2 }, // level 0
+		{ color: [80, 140, 200], alpha: 0.4 }, // level 1
+		{ color: [120, 180, 240], alpha: 0.6 }, // level 2
+		{ color: [180, 220, 255], alpha: 0.9 }, // level 3 — peak
 	],
-	// 3 topographic underlay bands with dramatic alpha steps
-	// so each layer reads as visually distinct:
 	underlay: [
-		{ color: [0, 40, 40], alpha: 0.12 }, // band 0
-		{ color: [0, 60, 60], alpha: 0.25 }, // band 1
-		{ color: [0, 90, 90], alpha: 0.4 }, // band 2
-		{ color: [0, 120, 120], alpha: 0.55 }, // band 3
+		{ color: [15, 25, 45], alpha: 0.12 }, // band 0
+		{ color: [25, 50, 90], alpha: 0.25 }, // band 1
+		{ color: [40, 80, 140], alpha: 0.4 }, // band 2
+		{ color: [60, 120, 180], alpha: 0.55 }, // band 3
 	],
 };
 
 const FALLBACK_LIGHT_PALETTE: Palette = {
-	base: { color: [219, 234, 254], alpha: 0.03 },
+	base: { color: [147, 197, 253], alpha: 0.06 },
 	levels: [
-		{ color: [191, 219, 254], alpha: 0.08 },
-		{ color: [147, 197, 253], alpha: 0.17 },
-		{ color: [96, 165, 250], alpha: 0.32 },
-		{ color: [59, 130, 246], alpha: 0.5 },
+		{ color: [96, 165, 250], alpha: 0.14 },
+		{ color: [59, 130, 246], alpha: 0.26 },
+		{ color: [37, 99, 235], alpha: 0.42 },
+		{ color: [29, 78, 216], alpha: 0.6 },
 	],
 	underlay: [
-		{ color: [210, 228, 255], alpha: 0.04 },
-		{ color: [180, 212, 254], alpha: 0.11 },
-		{ color: [140, 190, 253], alpha: 0.2 },
-		{ color: [100, 160, 250], alpha: 0.28 },
+		{ color: [219, 234, 254], alpha: 0.05 },
+		{ color: [191, 219, 254], alpha: 0.11 },
+		{ color: [147, 197, 253], alpha: 0.19 },
+		{ color: [96, 165, 250], alpha: 0.28 },
 	],
 };
 
@@ -260,17 +258,17 @@ float evalField(vec2 uv, float phase) {
     snoise(vec3(p * 0.9 + 100.0, phase * 0.1))
   );
   
-  // Main highly-warped structure combining everything
-  float fbm = n1 * 0.55 + n2 * 0.30 + n3 * 0.15;
-  float warpedFbm = snoise(vec3(p * 1.2 + warp * 0.8, phase * 0.1));
+  // Main structure - reduced warping for cleaner lines
+  float fbm = n1 * 0.65 + n2 * 0.25 + n3 * 0.10;
+  float warpedFbm = snoise(vec3(p * 1.2 + warp * 0.3, phase * 0.1));
 
   // Map from [-1, 1] noise space to [0, 1] field value
-  float val = (warpedFbm + fbm) * 0.5 + 0.5;
+  float val = (warpedFbm * 0.4 + fbm * 0.6) * 0.5 + 0.5;
 
-  // Smoothstep to increase contrast so underlays create hard topographical maps
-  float sm0 = mix(0.1, 0.05, uDark);
-  float sm1 = mix(0.7, 0.85, uDark);
-  return pow(clamp(sm3(sm0, sm1, val), 0.0, 1.0), 1.2);
+    // Smoothstep - much gentler curve for light mode to maintain visibility
+    float sm0 = mix(0.05, 0.05, uDark);
+    float sm1 = mix(0.95, 0.9, uDark);
+    return pow(clamp(sm3(sm0, sm1, val), 0.0, 1.0), mix(0.8, 1.2, uDark));
 }
 
 // ---------- main ----------
@@ -293,10 +291,10 @@ void main() {
 
   if (inDot) {
     // --- dot color: base or brightness level ---
-    float t0 = mix(0.18, 0.15, uDark);
-    float t1 = mix(0.34, 0.30, uDark);
-    float t2 = mix(0.50, 0.52, uDark);
-    float t3 = mix(0.66, 0.76, uDark);
+    float t0 = mix(0.05, 0.15, uDark);
+    float t1 = mix(0.20, 0.30, uDark);
+    float t2 = mix(0.40, 0.52, uDark);
+    float t3 = mix(0.65, 0.76, uDark);
 
     if      (fv >= t3) { oColor = vec4(uLC3, uLA3); }
     else if (fv >= t2) { oColor = vec4(uLC2, uLA2); }
@@ -306,10 +304,10 @@ void main() {
 
   } else {
     // --- underlay: 3 topographic fill bands between dots ---
-    float u0 = mix(0.10, 0.08, uDark);  // atmospheric edge
-    float u1 = mix(0.28, 0.24, uDark);  // shaped mid-field
-    float u2 = mix(0.50, 0.46, uDark);  // bright inner zone
-    float u3 = mix(0.68, 0.64, uDark);  // core peak
+    float u0 = mix(0.02, 0.08, uDark);  // atmospheric edge
+    float u1 = mix(0.15, 0.24, uDark);  // shaped mid-field
+    float u2 = mix(0.35, 0.46, uDark);  // bright inner zone
+    float u3 = mix(0.60, 0.64, uDark);  // core peak
 
     if      (fv >= u3) { oColor = vec4(uUC3, uUA3); }
     else if (fv >= u2) { oColor = vec4(uUC2, uUA2); }
@@ -420,7 +418,7 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	return {
 		base: {
 			color: rc(
-				isDark ? "var(--color-accent-300)" : "var(--color-accent-100)",
+				isDark ? "var(--color-accent-900)" : "var(--color-accent-100)",
 				fb.base.color,
 			),
 			alpha: fb.base.alpha,
@@ -428,28 +426,28 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		levels: [
 			{
 				color: rc(
-					isDark ? "var(--color-accent-400)" : "var(--color-accent-200)",
+					isDark ? "var(--color-accent-800)" : "var(--color-accent-300)",
 					fb.levels[0].color,
 				),
 				alpha: fb.levels[0].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-500)" : "var(--color-accent-300)",
+					isDark ? "var(--color-accent-600)" : "var(--color-accent-400)",
 					fb.levels[1].color,
 				),
 				alpha: fb.levels[1].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-300)" : "var(--color-accent-400)",
+					isDark ? "var(--color-accent-400)" : "var(--color-accent-500)",
 					fb.levels[2].color,
 				),
 				alpha: fb.levels[2].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-200)" : "var(--color-accent-500)",
+					isDark ? "var(--color-accent-200)" : "var(--color-accent-600)",
 					fb.levels[3].color,
 				),
 				alpha: fb.levels[3].alpha,
@@ -458,28 +456,28 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		underlay: [
 			{
 				color: rc(
-					isDark ? "var(--color-accent-900)" : "var(--color-accent-200)",
+					isDark ? "var(--color-accent-950)" : "var(--color-accent-100)",
 					fb.underlay[0].color,
 				),
 				alpha: fb.underlay[0].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-800)" : "var(--color-accent-300)",
+					isDark ? "var(--color-accent-900)" : "var(--color-accent-200)",
 					fb.underlay[1].color,
 				),
 				alpha: fb.underlay[1].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-400)",
+					isDark ? "var(--color-accent-800)" : "var(--color-accent-300)",
 					fb.underlay[2].color,
 				),
 				alpha: fb.underlay[2].alpha,
 			},
 			{
 				color: rc(
-					isDark ? "var(--color-accent-600)" : "var(--color-accent-500)",
+					isDark ? "var(--color-accent-700)" : "var(--color-accent-400)",
 					fb.underlay[3].color,
 				),
 				alpha: fb.underlay[3].alpha,
@@ -505,9 +503,9 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
  */
 export function TopographicDotField({
 	className,
-	step = 18,
+	step = 24,
 	minInset = step,
-	radius = 2,
+	radius = 1.5,
 	origin = "center",
 	speed = 1,
 }: TopographicDotFieldProps) {
@@ -707,7 +705,7 @@ export function TopographicDotField({
 
 		// Grid metrics in physical pixels.
 		const physStep = metrics.step * metrics.dpr;
-		const effectiveRadius = isDark ? radius : radius + 2;
+		const effectiveRadius = isDark ? radius : radius + 1;
 		const dotHalfPhys = (effectiveRadius / 2) * metrics.dpr;
 		gl.uniform1f(L("uStep"), physStep);
 		gl.uniform1f(L("uDotHalf"), dotHalfPhys);
