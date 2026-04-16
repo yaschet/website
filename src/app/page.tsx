@@ -7,6 +7,7 @@ import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteHero } from "@/src/components/layout/site-hero";
 import { Button } from "@/src/components/ui/button";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
@@ -108,7 +109,7 @@ export default async function Home() {
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
 									<div className="portfolio-box-pad">
-										<div className="portfolio-action-band">
+										<InstrumentActionBand>
 											<div>
 												<HeadingReveal
 													as="h2"
@@ -142,7 +143,7 @@ export default async function Home() {
 													</Link>
 												</Button>
 											</div>
-										</div>
+										</InstrumentActionBand>
 									</div>
 								</section>
 							</ScrollReveal>

@@ -5,7 +5,9 @@ import { SiteFooter } from "@/src/components/layout/site-footer";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
+import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { ImageGallery } from "@/src/components/ui/image-gallery";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { ProjectEntry } from "@/src/content/types";
@@ -209,10 +211,14 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ModuleContainer className="mx-auto">
-												<div className="portfolio-action-band">
-													<h2 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
+												<InstrumentActionBand>
+													<HeadingReveal
+														as="h2"
+														phase={3}
+														className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
+													>
 														Building something similar?
-													</h2>
+													</HeadingReveal>
 													<Button
 														asChild
 														size="md"
@@ -227,7 +233,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 															/>
 														</Link>
 													</Button>
-												</div>
+												</InstrumentActionBand>
 											</ModuleContainer>
 										</div>
 									</SwissGridRow>

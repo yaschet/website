@@ -7,6 +7,7 @@ import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
@@ -244,7 +245,7 @@ export default function AboutPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<div className="portfolio-action-band">
+											<InstrumentActionBand>
 												<HeadingReveal
 													as="h2"
 													phase={3}
@@ -266,7 +267,7 @@ export default function AboutPage() {
 														/>
 													</Link>
 												</Button>
-											</div>
+											</InstrumentActionBand>
 										</div>
 									</SwissGridRow>
 								</SwissGridBox>

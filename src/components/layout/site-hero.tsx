@@ -181,11 +181,14 @@ function HeroInstrumentPlane({ className }: { className?: string }) {
 		<div className={cn("absolute inset-0", className)} aria-hidden="true">
 			<div className="pointer-events-none absolute inset-0 bg-white dark:bg-surface-900" />
 			<InstrumentField
+				interactive
 				step={HERO_DOT_STEP}
 				minInset={HERO_GRID_MIN_INSET}
 				origin="inset"
 				radius={HERO_DOT_RADIUS}
 				speed={0.58}
+				surface="hero"
+				variant="terrain"
 			/>
 		</div>
 	);

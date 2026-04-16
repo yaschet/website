@@ -7,6 +7,7 @@ import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
@@ -115,7 +116,7 @@ export default async function CaseStudiesPage() {
 									</SwissGridRow>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<div className="portfolio-action-band">
+											<InstrumentActionBand>
 												<HeadingReveal
 													as="h2"
 													phase={2}
@@ -137,7 +138,7 @@ export default async function CaseStudiesPage() {
 														/>
 													</Link>
 												</Button>
-											</div>
+											</InstrumentActionBand>
 										</div>
 									</SwissGridRow>
 								</SwissGridBox>

@@ -12,13 +12,19 @@ import {
 	resolveLength,
 } from "./dot-grid-metrics";
 
+export type InstrumentFieldVariant = "terrain" | "pulse";
+export type InstrumentSurface = "hero" | "header" | "band";
+
 interface InstrumentFieldProps {
 	className?: string;
+	interactive?: boolean;
 	step?: DotGridLength;
 	minInset?: DotGridLength;
 	radius?: number;
 	origin?: DotGridOrigin;
 	speed?: number;
+	surface?: InstrumentSurface;
+	variant?: InstrumentFieldVariant;
 }
 
 type RGB = [number, number, number];
@@ -97,6 +103,8 @@ uniform float uTime;
 uniform float uStep;
 uniform float uDotRadius;
 uniform float uDark;
+uniform float uVariant;
+uniform float uSurface;
 uniform vec2  uMouse;
 uniform float uMouseStrength;
 
@@ -205,7 +213,7 @@ float snoise(vec3 v){
   );
 }
 
-float fieldValue(vec2 uv, float time) {
+float terrainFieldValue(vec2 uv, float time) {
   float aspect = uRes.x / uRes.y;
   vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
 
@@ -233,7 +241,51 @@ float fieldValue(vec2 uv, float time) {
   return clamp(field, 0.0, 1.0);
 }
 
+float pulseFieldValue(vec2 uv, float time) {
+  float aspect = uRes.x / uRes.y;
+  vec2 center = mix(vec2(0.74, 0.54), vec2(0.78, 0.50), uDark);
+  vec2 p = (uv - center) * vec2(aspect, 1.0);
+  float radius = length(p);
+  float theta = atan(p.y, p.x);
+
+  float rings = 0.5 + 0.5 * sin(radius * 22.0 - time * 1.55);
+  float carrier = 0.5 + 0.5 * sin(radius * 33.0 - time * 2.05 + sin(theta * 3.0) * 0.45);
+  float radial = smoothstep(1.25, 0.08, radius);
+  float sweep = smoothstep(-0.30, 0.88, 0.92 - abs(theta) / 3.14159);
+
+  float field = mix(rings, carrier, 0.42);
+  field = field * radial * sweep + radial * 0.18;
+  field = sm3(0.14, 0.84, field);
+
+  return clamp(field, 0.0, 1.0);
+}
+
+float fieldValue(vec2 uv, float time) {
+  if (uVariant < 0.5) {
+    return terrainFieldValue(uv, time);
+  }
+
+  return pulseFieldValue(uv, time);
+}
+
 float contentShield(vec2 uv) {
+  if (uSurface > 1.5) {
+    float title = gauss2(uv, vec2(0.24, 0.54), vec2(0.26, 0.24)) * 1.14;
+    float cta = gauss2(uv, vec2(0.80, 0.54), vec2(0.18, 0.22)) * 1.22;
+    float mobile = gauss2(uv, vec2(0.32, 0.52), vec2(0.36, 0.34)) * 0.82;
+    float shield = max(max(title, cta), mobile);
+    return sm3(0.08, 0.88, shield);
+  }
+
+  if (uSurface > 0.5) {
+    float title = gauss2(uv, vec2(0.25, 0.28), vec2(0.28, 0.18)) * 1.18;
+    float body = gauss2(uv, vec2(0.28, 0.48), vec2(0.30, 0.24));
+    float meta = gauss2(uv, vec2(0.22, 0.62), vec2(0.18, 0.14));
+    float mobile = gauss2(uv, vec2(0.34, 0.42), vec2(0.36, 0.34)) * 0.70;
+    float shield = max(max(title, body), max(meta, mobile));
+    return sm3(0.08, 0.90, shield);
+  }
+
   float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 1.18;
   float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
   float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
@@ -465,13 +517,31 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	};
 }
 
+function resolveVariantValue(variant: InstrumentFieldVariant) {
+	return variant === "pulse" ? 1 : 0;
+}
+
+function resolveSurfaceValue(surface: InstrumentSurface) {
+	switch (surface) {
+		case "header":
+			return 1;
+		case "band":
+			return 2;
+		default:
+			return 0;
+	}
+}
+
 export function InstrumentField({
 	className,
+	interactive = true,
 	step = 18,
 	minInset = 12,
 	radius = 1.15,
 	origin = "center",
 	speed = 1,
+	surface = "hero",
+	variant = "terrain",
 }: InstrumentFieldProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -644,6 +714,8 @@ export function InstrumentField({
 				uStep: getUniform("uStep"),
 				uDotRadius: getUniform("uDotRadius"),
 				uDark: getUniform("uDark"),
+				uVariant: getUniform("uVariant"),
+				uSurface: getUniform("uSurface"),
 				uMouse: getUniform("uMouse"),
 				uMouseStrength: getUniform("uMouseStrength"),
 				uLC0: getUniform("uLC0"),
@@ -736,6 +808,8 @@ export function InstrumentField({
 		gl.uniform1f(uniforms.uStep, metrics.step * metrics.dpr);
 		gl.uniform1f(uniforms.uDotRadius, halfDot);
 		gl.uniform1f(uniforms.uDark, isDark ? 1 : 0);
+		gl.uniform1f(uniforms.uVariant, resolveVariantValue(variant));
+		gl.uniform1f(uniforms.uSurface, resolveSurfaceValue(surface));
 		gl.uniform2f(uniforms.uMouse, 0.5, 0.5);
 		gl.uniform1f(uniforms.uMouseStrength, 0);
 
@@ -798,11 +872,11 @@ export function InstrumentField({
 		frameId = requestAnimationFrame(render);
 
 		return () => cancelAnimationFrame(frameId);
-	}, [isDark, metrics, origin, radius, shouldFreezeField, speed]);
+	}, [isDark, metrics, origin, radius, shouldFreezeField, speed, surface, variant]);
 
 	const updateMouseTarget = (clientX: number, clientY: number) => {
 		const container = containerRef.current;
-		if (!container || !supportsHoverRef.current || shouldFreezeField) return;
+		if (!container || !interactive || !supportsHoverRef.current || shouldFreezeField) return;
 
 		const rect = container.getBoundingClientRect();
 		if (rect.width <= 0 || rect.height <= 0) return;
@@ -835,7 +909,8 @@ export function InstrumentField({
 		<div
 			ref={containerRef}
 			className={cn(
-				"pointer-events-auto absolute inset-0 overflow-hidden bg-white transition-colors dark:bg-surface-900/80",
+				interactive ? "pointer-events-auto" : "pointer-events-none",
+				"absolute inset-0 overflow-hidden bg-white transition-colors dark:bg-surface-900/80",
 				className,
 			)}
 			onPointerEnter={handlePointerEnter}
