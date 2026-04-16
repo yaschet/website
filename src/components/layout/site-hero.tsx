@@ -14,28 +14,21 @@ import { Reveal } from "@/components/ui/reveal";
 import { InstrumentField } from "@/components/ui/topographic-dot-field";
 import { cn } from "@/lib/utils";
 
-const HERO_BASELINE = "var(--portfolio-rhythm)";
 const HERO_GRID_STEP = "var(--portfolio-grid-step)";
 const HERO_CONTENT_INSET = "var(--portfolio-space-4)";
 const HERO_CONTENT_INSET_MOBILE = "var(--portfolio-box-pad-mobile)";
-const HERO_STACK_GAP_MOBILE = "var(--portfolio-space-3)";
-const HERO_SECTION_ROWS = 36;
-const HERO_SECTION_HEIGHT = "calc(var(--portfolio-rhythm) * 36)";
-const HERO_SECTION_HEIGHT_MOBILE = "calc(var(--portfolio-rhythm) * 32)";
+const HERO_STACK_GAP_MOBILE = "var(--portfolio-space-1)";
+const HERO_SECTION_HEIGHT_MOBILE = "calc(var(--portfolio-rhythm) * 31)";
 const HERO_HEAD_LINE = "var(--portfolio-space-6)";
 const HERO_BODY_LINE = "var(--portfolio-space-3)";
-const HERO_TEXT_WIDTH = "calc(var(--portfolio-grid-step) * 38)";
-const HERO_BASELINE_ROWS = HERO_SECTION_ROWS;
-const HERO_HEAD_START_ROW = 5;
-const HERO_HEAD_SPAN = 12;
-const HERO_BODY_START_ROW = 17;
-const HERO_BODY_SPAN = 9;
-const HERO_CTA_START_ROW = 29;
-const HERO_CTA_SPAN = 4;
+const HERO_CONTENT_GAP = "var(--portfolio-space-2)";
+const HERO_BODY_CTA_GAP = "var(--portfolio-space-1)";
+const HERO_BODY_EMPHASIS_GAP = "var(--portfolio-space-1)";
+const HERO_CTA_HEIGHT = "calc(var(--portfolio-grid-step) * 2.1)";
+const HERO_BOTTOM_EXTRA = "calc(var(--portfolio-grid-step) * 2)";
+const HERO_SECTION_HEIGHT = `calc((${HERO_CONTENT_INSET} * 2) + (${HERO_HEAD_LINE} * 2) + ${HERO_CONTENT_GAP} + (${HERO_BODY_LINE} * 3) + ${HERO_BODY_EMPHASIS_GAP} + ${HERO_BODY_CTA_GAP} + ${HERO_CTA_HEIGHT} - (${HERO_GRID_STEP} * 3) + ${HERO_BOTTOM_EXTRA})`;
 const HERO_CTA_PRIMARY_WIDTH = "calc(var(--portfolio-grid-step) * 7)";
 const HERO_CTA_SECONDARY_WIDTH = "calc(var(--portfolio-grid-step) * 4)";
-const HERO_HEAD_OPTICAL_TRIM = -2;
-const HERO_BODY_OPTICAL_TRIM = -1;
 
 function HeroContent() {
 	return (
@@ -56,20 +49,24 @@ function HeroContent() {
 					<HeadingReveal
 						as="h1"
 						phase={2}
-						className="max-w-[14ch] font-medium text-[clamp(2.25rem,11vw,3rem)] text-surface-900 leading-[0.94] tracking-[var(--tracking-tighter)] dark:text-surface-100"
+						className="max-w-[11ch] text-balance font-medium text-[clamp(2.5rem,12vw,3.2rem)] text-surface-900 leading-[0.92] tracking-[var(--tracking-tighter)] dark:text-surface-100"
 						style={{ margin: 0 }}
 					>
-						Product engineering for complex systems.
+						<span className="block">Complex systems,</span>
+						<span className="block">clean interfaces.</span>
 					</HeadingReveal>
 					<Reveal phase={2} delay={0.05}>
 						<p
-							className="max-w-[36ch] text-[1rem] text-surface-900 leading-7 tracking-[var(--tracking-normal)] dark:text-surface-100"
+							className="max-w-[26ch] text-[1rem] text-surface-900 leading-[1.5] tracking-[var(--tracking-normal)] dark:text-surface-100"
 							style={{ margin: 0 }}
 						>
-							I design and build the infrastructure behind the product - translation
-							pipelines that process thousands of documents, matching engines that
-							navigate complex eligibility rules, and financial systems with
-							double-entry accuracy. The architecture no one sees, until it breaks.
+							<span className="block">I build what most engineers won't —</span>
+							<span className="block">
+								translation pipelines, matching engines, financial ledgers.
+							</span>
+							<span className="block" style={{ paddingTop: HERO_BODY_EMPHASIS_GAP }}>
+								Then make them feel effortless.
+							</span>
 						</p>
 					</Reveal>
 				</div>
@@ -77,7 +74,7 @@ function HeroContent() {
 					<div
 						className="pointer-events-auto flex flex-wrap"
 						style={{
-							gap: "var(--portfolio-space-1)",
+							gap: HERO_BODY_CTA_GAP,
 						}}
 					>
 						<Button
@@ -85,7 +82,7 @@ function HeroContent() {
 							size="md"
 							variant="solid"
 							color="primary"
-							className="min-w-0"
+							className="h-[calc(var(--portfolio-grid-step)*2.1)] min-w-0"
 						>
 							<Link href="/case-studies">
 								Case Studies
@@ -97,7 +94,7 @@ function HeroContent() {
 							size="md"
 							variant="soft"
 							color="default"
-							className="min-w-0"
+							className="h-[calc(var(--portfolio-grid-step)*2.1)] min-w-0"
 						>
 							<Link href="/contact">Email</Link>
 						</Button>
@@ -105,82 +102,85 @@ function HeroContent() {
 				</Reveal>
 			</div>
 			<div
-				className="pointer-events-none relative z-10 hidden md:grid"
+				className="pointer-events-none relative z-10 hidden md:flex md:flex-col"
 				style={{
-					paddingInline: HERO_CONTENT_INSET,
-					minHeight: HERO_SECTION_HEIGHT,
-					gridTemplateRows: `repeat(${HERO_BASELINE_ROWS}, ${HERO_BASELINE})`,
+					gap: HERO_BODY_CTA_GAP,
+					height: "100%",
+					padding: HERO_CONTENT_INSET,
 				}}
 			>
-				<div style={{ gridRow: `${HERO_HEAD_START_ROW} / span ${HERO_HEAD_SPAN}` }}>
+				<div
+					className="flex flex-col"
+					style={{
+						gap: HERO_CONTENT_GAP,
+					}}
+				>
 					<HeadingReveal
 						as="h1"
 						phase={2}
 						className={cn(
-							"max-w-none text-heading-xl! text-surface-900 dark:text-surface-100",
+							"max-w-[calc(var(--portfolio-grid-step)*22)] text-balance text-heading-xl! text-surface-900 dark:text-surface-100",
 						)}
 						style={{
 							lineHeight: HERO_HEAD_LINE,
 							margin: 0,
-							transform: `translateY(${HERO_HEAD_OPTICAL_TRIM}px)`,
 						}}
 					>
-						Product engineering for complex systems.
+						<span className="block">Complex systems,</span>
+						<span className="block">clean interfaces.</span>
 					</HeadingReveal>
-				</div>
-				<div style={{ gridRow: `${HERO_BODY_START_ROW} / span ${HERO_BODY_SPAN}` }}>
 					<Reveal phase={2} delay={0.05}>
 						<p
 							className={cn(
-								"max-w-none text-body-lg text-surface-900 dark:text-surface-100",
+								"max-w-[calc(var(--portfolio-grid-step)*24)] text-body-lg text-surface-900 dark:text-surface-100",
 							)}
 							style={{
 								lineHeight: HERO_BODY_LINE,
 								margin: 0,
-								maxWidth: `min(100%, ${HERO_TEXT_WIDTH})`,
-								transform: `translateY(${HERO_BODY_OPTICAL_TRIM}px)`,
 							}}
 						>
-							I design and build the infrastructure behind the product - translation
-							pipelines that process thousands of documents, matching engines that
-							navigate complex eligibility rules, and financial systems with
-							double-entry accuracy. The architecture no one sees, until it breaks.
+							<span className="block">I build what most engineers won't —</span>
+							<span className="block">
+								translation pipelines, matching engines, financial ledgers.
+							</span>
+							<span className="block" style={{ paddingTop: HERO_BODY_EMPHASIS_GAP }}>
+								Then make them feel effortless.
+							</span>
 						</p>
 					</Reveal>
 				</div>
-				<div style={{ gridRow: `${HERO_CTA_START_ROW} / span ${HERO_CTA_SPAN}` }}>
-					<Reveal phase={2} delay={0.1} className="h-full">
-						<div
-							className="pointer-events-auto grid h-full"
-							style={{
-								columnGap: HERO_GRID_STEP,
-								gridTemplateColumns: `${HERO_CTA_PRIMARY_WIDTH} ${HERO_CTA_SECONDARY_WIDTH}`,
-							}}
+				<Reveal phase={2} delay={0.1}>
+					<div
+						className="pointer-events-auto grid"
+						style={{
+							columnGap: HERO_GRID_STEP,
+							height: HERO_CTA_HEIGHT,
+							gridTemplateColumns: `${HERO_CTA_PRIMARY_WIDTH} ${HERO_CTA_SECONDARY_WIDTH}`,
+						}}
+					>
+						<Button
+							asChild
+							size="xs"
+							variant="solid"
+							color="primary"
+							className="h-full w-full justify-center px-0 py-0 leading-none"
 						>
-							<Button
-								asChild
-								size="md"
-								variant="solid"
-								color="primary"
-								className="h-full w-full justify-center px-0 py-0 leading-none"
-							>
-								<Link href="/case-studies">
-									Case Studies
-									<ArrowRightIcon className="size-4" weight="bold" />
-								</Link>
-							</Button>
-							<Button
-								asChild
-								size="md"
-								variant="soft"
-								color="default"
-								className="h-full w-full justify-center px-0 py-0 leading-none"
-							>
-								<Link href="/contact">Email</Link>
-							</Button>
-						</div>
-					</Reveal>
-				</div>
+							<Link href="/case-studies">
+								Case Studies
+								<ArrowRightIcon className="size-4" weight="bold" />
+							</Link>
+						</Button>
+						<Button
+							asChild
+							size="xs"
+							variant="soft"
+							color="default"
+							className="h-full w-full justify-center px-0 py-0 leading-none"
+						>
+							<Link href="/contact">Email</Link>
+						</Button>
+					</div>
+				</Reveal>
 			</div>
 		</>
 	);
@@ -208,8 +208,9 @@ export function SiteHero() {
 	return (
 		<section
 			id="hero"
-			className="relative isolate min-h-[var(--hero-mobile-min-height)] w-full overflow-hidden md:min-h-[calc(var(--portfolio-rhythm)*36)]"
+			className="relative isolate min-h-[var(--hero-mobile-min-height)] w-full overflow-hidden md:h-[var(--hero-desktop-height)] md:min-h-0"
 			style={{
+				["--hero-desktop-height" as string]: HERO_SECTION_HEIGHT,
 				["--hero-mobile-min-height" as string]: HERO_SECTION_HEIGHT_MOBILE,
 			}}
 		>
