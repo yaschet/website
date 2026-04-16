@@ -1556,6 +1556,46 @@
     gap: var(--portfolio-space-3);
   }
 
+  .portfolio-action-band-shell {
+    --action-band-title-color: var(--surface-color-900);
+    --action-band-body-color: var(--surface-color-600);
+  }
+
+  .dark .portfolio-action-band-shell {
+    --action-band-title-color: var(--surface-color-50);
+    --action-band-body-color: var(--surface-color-400);
+  }
+
+  .portfolio-action-band-shell[data-tone="light"] {
+    --action-band-title-color: var(--surface-color-900);
+    --action-band-body-color: var(--surface-color-600);
+  }
+
+  .dark .portfolio-action-band-shell[data-tone="light"] {
+    --action-band-title-color: var(--surface-color-900);
+    --action-band-body-color: var(--surface-color-600);
+  }
+
+  .portfolio-action-band-shell[data-tone="dark"] {
+    --action-band-title-color: var(--surface-color-50);
+    --action-band-body-color: var(--surface-color-400);
+  }
+
+  .dark .portfolio-action-band-shell[data-tone="dark"] {
+    --action-band-title-color: var(--surface-color-50);
+    --action-band-body-color: var(--surface-color-400);
+  }
+
+  .portfolio-action-band-shell[data-tone="inverted"] {
+    --action-band-title-color: var(--surface-color-50);
+    --action-band-body-color: var(--surface-color-400);
+  }
+
+  .dark .portfolio-action-band-shell[data-tone="inverted"] {
+    --action-band-title-color: var(--surface-color-950);
+    --action-band-body-color: var(--surface-color-600);
+  }
+
   .portfolio-inline-meta {
     display: flex;
     flex-wrap: wrap;
@@ -1664,23 +1704,23 @@ html {
   }
 
   html {
-    @apply scroll-smooth selection:bg-surface-200 selection:text-surface-900;
+    @apply scroll-smooth selection:bg-surface-950 selection:text-surface-50;
     scrollbar-gutter: stable;
   }
 
   body {
-    @apply bg-surface-100 font-sans text-foreground antialiased selection:bg-accent-400 selection:text-accent-950 dark:bg-surface-950;
+    @apply bg-surface-100 font-sans text-foreground antialiased selection:bg-surface-950 selection:text-surface-50 dark:bg-surface-950;
   }
 }
 
 html,
 body {
-  @apply lining-nums antialiased selection:bg-accent-600 selection:text-accent-950;
+  @apply lining-nums antialiased selection:bg-surface-950 selection:text-surface-50;
 }
 
 .dark,
 .dark body {
-  @apply selection:bg-accent-400 selection:text-accent-950;
+  @apply selection:bg-surface-50 selection:text-surface-950;
 }
 
 h1,

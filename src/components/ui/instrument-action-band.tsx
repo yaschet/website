@@ -21,6 +21,7 @@ interface InstrumentActionBandProps {
 	contentClassName?: string;
 	fieldSpeed?: number;
 	fieldVariant?: InstrumentFieldVariant;
+	tone?: InstrumentFieldTone;
 }
 
 export function InstrumentActionBand({
@@ -59,6 +60,7 @@ export function InstrumentActionBand({
 				speed={fieldSpeed}
 				surface="band"
 				variant={fieldVariant}
+				tone={tone}
 			/>
 			<div
 				className={cn(
