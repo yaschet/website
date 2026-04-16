@@ -8,6 +8,7 @@ import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import { InstrumentField } from "@/src/components/ui/topographic-dot-field";
 
 export const metadata: Metadata = {
 	title: "Contact | Yassine Chettouch",
@@ -16,6 +17,21 @@ export const metadata: Metadata = {
 		canonical: "/contact",
 	},
 };
+
+function ContactInstrumentPlane() {
+	return (
+		<div className="absolute inset-0" aria-hidden="true">
+			<InstrumentField
+				className="pointer-events-none opacity-55 dark:opacity-72"
+				step={22}
+				minInset={16}
+				origin="inset"
+				radius={1}
+				speed={0.22}
+			/>
+		</div>
+	);
+}
 
 export default function ContactPage() {
 	return (
@@ -30,138 +46,141 @@ export default function ContactPage() {
 						<section className="w-full">
 							<PageContainer className="portfolio-section-top">
 								<SwissGridBox>
-									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<PageIntro
-												eyebrow="Contact"
-												title="Let’s talk."
-												description="Product engineering, systems work, and focused consulting."
-											>
-												<div className="portfolio-inline-meta">
-													<span className="portfolio-caption text-surface-500 dark:text-surface-400">
-														Response in 24 to 48 hours
-													</span>
-													<span className="portfolio-caption text-surface-500 dark:text-surface-400">
-														Rabat (GMT+1)
-													</span>
-												</div>
-											</PageIntro>
-										</div>
-									</SwissGridRow>
-									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<div className="grid gap-10 md:grid-cols-3">
-												<div className="flex min-h-[180px] flex-col justify-between gap-5">
-													<div className="space-y-2.5">
-														<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
-															Email
-														</p>
-														<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-															hello@yaschet.dev
-														</h2>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															Best for project scope, retainers, or
-															direct inquiries.
-														</p>
+									<ContactInstrumentPlane />
+									<div className="relative z-[1]">
+										<SwissGridRow>
+											<div className="portfolio-box-pad">
+												<PageIntro
+													eyebrow="Contact"
+													title="Let’s talk."
+													description="Product engineering, systems work, and focused consulting."
+												>
+													<div className="portfolio-inline-meta">
+														<span className="portfolio-caption text-surface-500 dark:text-surface-400">
+															Response in 24 to 48 hours
+														</span>
+														<span className="portfolio-caption text-surface-500 dark:text-surface-400">
+															Rabat (GMT+1)
+														</span>
 													</div>
-													<Button
-														asChild
-														size="md"
-														variant="solid"
-														color="primary"
-													>
-														<Link href="mailto:hello@yaschet.dev">
-															Email
-														</Link>
-													</Button>
-												</div>
+												</PageIntro>
+											</div>
+										</SwissGridRow>
+										<SwissGridRow>
+											<div className="portfolio-box-pad">
+												<div className="grid gap-10 md:grid-cols-3">
+													<div className="flex min-h-[180px] flex-col justify-between gap-5">
+														<div className="space-y-2.5">
+															<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
+																Email
+															</p>
+															<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+																hello@yaschet.dev
+															</h2>
+															<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+																Best for project scope, retainers,
+																or direct inquiries.
+															</p>
+														</div>
+														<Button
+															asChild
+															size="md"
+															variant="solid"
+															color="primary"
+														>
+															<Link href="mailto:hello@yaschet.dev">
+																Email
+															</Link>
+														</Button>
+													</div>
 
-												<div className="flex min-h-[180px] flex-col justify-between gap-5">
-													<div className="space-y-2.5">
-														<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
-															Schedule
-														</p>
-														<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-															15-minute intro
-														</h2>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															Quick scoping, timing, or fit before we
-															go deeper.
-														</p>
-													</div>
-													<Button
-														asChild
-														size="md"
-														variant="soft"
-														color="default"
-													>
-														<Link
-															href="https://cal.com/yassinechettouch/15min"
-															target="_blank"
+													<div className="flex min-h-[180px] flex-col justify-between gap-5">
+														<div className="space-y-2.5">
+															<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
+																Schedule
+															</p>
+															<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+																15-minute intro
+															</h2>
+															<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+																Quick scoping, timing, or fit before
+																we go deeper.
+															</p>
+														</div>
+														<Button
+															asChild
+															size="md"
+															variant="soft"
+															color="default"
 														>
-															Book a call
-														</Link>
-													</Button>
-												</div>
+															<Link
+																href="https://cal.com/yassinechettouch/15min"
+																target="_blank"
+															>
+																Book a call
+															</Link>
+														</Button>
+													</div>
 
-												<div className="flex min-h-[180px] flex-col justify-between gap-5">
-													<div className="space-y-2.5">
-														<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
-															Presence
-														</p>
-														<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-															Public profiles
-														</h2>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															Background, recent work, and public
-															activity.
-														</p>
-													</div>
-													<div className="flex flex-wrap gap-2.5">
-														<Button
-															asChild
-															size="md"
-															variant="soft"
-															color="default"
-														>
-															<Link
-																href="https://linkedin.com/in/yassinechettouch"
-																target="_blank"
+													<div className="flex min-h-[180px] flex-col justify-between gap-5">
+														<div className="space-y-2.5">
+															<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
+																Presence
+															</p>
+															<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+																Public profiles
+															</h2>
+															<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+																Background, recent work, and public
+																activity.
+															</p>
+														</div>
+														<div className="flex flex-wrap gap-2.5">
+															<Button
+																asChild
+																size="md"
+																variant="soft"
+																color="default"
 															>
-																LinkedIn
-															</Link>
-														</Button>
-														<Button
-															asChild
-															size="md"
-															variant="soft"
-															color="default"
-														>
-															<Link
-																href="https://github.com/yaschet"
-																target="_blank"
+																<Link
+																	href="https://linkedin.com/in/yassinechettouch"
+																	target="_blank"
+																>
+																	LinkedIn
+																</Link>
+															</Button>
+															<Button
+																asChild
+																size="md"
+																variant="soft"
+																color="default"
 															>
-																GitHub
-															</Link>
-														</Button>
-														<Button
-															asChild
-															size="md"
-															variant="soft"
-															color="default"
-														>
-															<Link
-																href="https://x.com/yaschett"
-																target="_blank"
+																<Link
+																	href="https://github.com/yaschet"
+																	target="_blank"
+																>
+																	GitHub
+																</Link>
+															</Button>
+															<Button
+																asChild
+																size="md"
+																variant="soft"
+																color="default"
 															>
-																X
-															</Link>
-														</Button>
+																<Link
+																	href="https://x.com/yaschett"
+																	target="_blank"
+																>
+																	X
+																</Link>
+															</Button>
+														</div>
 													</div>
 												</div>
 											</div>
-										</div>
-									</SwissGridRow>
+										</SwissGridRow>
+									</div>
 								</SwissGridBox>
 							</PageContainer>
 						</section>

@@ -12,7 +12,7 @@ import {
 	resolveLength,
 } from "./dot-grid-metrics";
 
-interface TopographicDotFieldProps {
+interface InstrumentFieldProps {
 	className?: string;
 	step?: DotGridLength;
 	minInset?: DotGridLength;
@@ -465,14 +465,14 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	};
 }
 
-export function TopographicDotField({
+export function InstrumentField({
 	className,
 	step = 18,
 	minInset = 12,
 	radius = 1.15,
 	origin = "center",
 	speed = 1,
-}: TopographicDotFieldProps) {
+}: InstrumentFieldProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const glRef = useRef<WebGL2RenderingContext | null>(null);
@@ -854,3 +854,5 @@ export function TopographicDotField({
 		</div>
 	);
 }
+
+export { InstrumentField as TopographicDotField };

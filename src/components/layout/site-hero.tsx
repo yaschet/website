@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { HeadingReveal } from "@/components/ui/heading-reveal";
 import { Reveal } from "@/components/ui/reveal";
-import { TopographicDotField } from "@/components/ui/topographic-dot-field";
+import { InstrumentField } from "@/components/ui/topographic-dot-field";
 import { cn } from "@/lib/utils";
 
 const HERO_BASELINE = "var(--portfolio-rhythm)";
@@ -176,11 +176,11 @@ function HeroContent() {
 	);
 }
 
-function HeroDataPlane({ className }: { className?: string }) {
+function HeroInstrumentPlane({ className }: { className?: string }) {
 	return (
 		<div className={cn("absolute inset-0", className)} aria-hidden="true">
 			<div className="pointer-events-none absolute inset-0 bg-white dark:bg-surface-900" />
-			<TopographicDotField
+			<InstrumentField
 				step={HERO_DOT_STEP}
 				minInset={HERO_GRID_MIN_INSET}
 				origin="inset"
@@ -200,7 +200,7 @@ export function SiteHero() {
 				["--hero-mobile-min-height" as string]: HERO_SECTION_HEIGHT_MOBILE,
 			}}
 		>
-			<HeroDataPlane className="opacity-100 dark:opacity-100" />
+			<HeroInstrumentPlane className="opacity-100 dark:opacity-100" />
 			<HeroContent />
 		</section>
 	);
