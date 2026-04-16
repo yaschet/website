@@ -217,30 +217,23 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 											fieldVariant="ray"
 											tone="inverted"
 										>
-											<ModuleContainer className="mx-auto w-full">
-												<h2
-													className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
-												>
-													Building something similar?
-												</h2>
-												<Button
-													asChild
-													size="md"
-													variant="solid"
-													color="default"
-													className={
-														INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS
-													}
-												>
-													<Link href="/contact">
-														Email
-														<ArrowRight
-															className="size-4"
-															weight="bold"
-														/>
-													</Link>
-												</Button>
-											</ModuleContainer>
+											<h2
+												className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
+											>
+												Building something similar?
+											</h2>
+											<Button
+												asChild
+												size="md"
+												variant="solid"
+												color="default"
+												className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
+											>
+												<Link href="/contact">
+													Email
+													<ArrowRight className="size-4" weight="bold" />
+												</Link>
+											</Button>
 										</InstrumentActionBand>
 									</SwissGridRow>
 								</SwissGridBox>

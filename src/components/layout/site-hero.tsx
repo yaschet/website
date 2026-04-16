@@ -19,7 +19,10 @@ const HERO_COPY_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 24)";
 function HeroContent() {
 	return (
 		<div className="portfolio-box-pad portfolio-stack-related relative z-10">
-			<div className="portfolio-stack-tight w-full" style={{ maxWidth: HERO_COPY_MAX_WIDTH }}>
+			<div
+				className="portfolio-stack-related w-full"
+				style={{ maxWidth: HERO_COPY_MAX_WIDTH }}
+			>
 				<HeadingReveal
 					as="h1"
 					phase={2}

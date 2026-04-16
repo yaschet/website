@@ -34,7 +34,7 @@ export function PageIntro({
 				<p className="portfolio-kicker text-surface-400 dark:text-surface-500">{eyebrow}</p>
 			)}
 
-			<div className={cn("portfolio-stack-tight", isCentered && "items-center")}>
+			<div className={cn("portfolio-stack-related", isCentered && "items-center")}>
 				<HeadingReveal
 					as="h1"
 					phase={1}
@@ -51,7 +51,7 @@ export function PageIntro({
 					</ProseContainer>
 				)}
 
-				{children && <div className="pt-[var(--portfolio-space-tight)]">{children}</div>}
+				{children && <div>{children}</div>}
 			</div>
 		</div>
 	);
