@@ -68,8 +68,8 @@ interface AlphaPalette {
 }
 
 const DARK_ALPHA_PALETTE: AlphaPalette = {
-	active: [{ alpha: 0.22 }, { alpha: 0.42 }, { alpha: 0.68 }, { alpha: 0.94 }],
-	underlay: [{ alpha: 0.08 }, { alpha: 0.13 }, { alpha: 0.19 }, { alpha: 0.27 }],
+	active: [{ alpha: 0.16 }, { alpha: 0.28 }, { alpha: 0.44 }, { alpha: 0.64 }],
+	underlay: [{ alpha: 0.18 }, { alpha: 0.26 }, { alpha: 0.36 }, { alpha: 0.48 }],
 };
 
 const LIGHT_ALPHA_PALETTE: AlphaPalette = {
@@ -371,12 +371,12 @@ void main() {
     else if (field >= d0) { dots = vec4(uLC0, uLA0); }
   }
 
-  vec3 contourRgb = mix(uLC2, uLC3, 0.42);
-  vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.30, uDark), 0.0, pulseVariant));
+  vec3 contourRgb = mix(uLC2, uLC3, mix(0.42, 0.58, uDark));
+  vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant));
 
-  underlay.a *= mix(1.0, mix(mix(0.20, 0.16, uDark), mix(0.12, 0.10, uDark), pulseVariant), shield);
-  dots.a *= mix(1.0, mix(mix(0.18, 0.34, uDark), mix(0.14, 0.24, uDark), pulseVariant), shield);
-  contourStroke.a *= mix(1.0, mix(0.22, 0.40, uDark), shield);
+  underlay.a *= mix(1.0, mix(mix(0.20, 0.28, uDark), mix(0.12, 0.18, uDark), pulseVariant), shield);
+  dots.a *= mix(1.0, mix(mix(0.18, 0.24, uDark), mix(0.14, 0.18, uDark), pulseVariant), shield);
+  contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
   dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
   contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark);
 
@@ -619,15 +619,15 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	return {
 		active: [
 			{
-				color: resolveTone(isDark ? 700 : 300),
+				color: resolveTone(isDark ? 600 : 300),
 				alpha: alphaPalette.active[0].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 500 : 400),
+				color: resolveTone(isDark ? 400 : 400),
 				alpha: alphaPalette.active[1].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 300 : 500),
+				color: resolveTone(isDark ? 200 : 500),
 				alpha: alphaPalette.active[2].alpha,
 			},
 			{
@@ -637,19 +637,19 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		],
 		underlay: [
 			{
-				color: resolveTone(isDark ? 950 : 100),
+				color: resolveTone(isDark ? 800 : 100),
 				alpha: alphaPalette.underlay[0].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 900 : 200),
+				color: resolveTone(isDark ? 700 : 200),
 				alpha: alphaPalette.underlay[1].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 800 : 300),
+				color: resolveTone(isDark ? 600 : 300),
 				alpha: alphaPalette.underlay[2].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 700 : 400),
+				color: resolveTone(isDark ? 500 : 400),
 				alpha: alphaPalette.underlay[3].alpha,
 			},
 		],
