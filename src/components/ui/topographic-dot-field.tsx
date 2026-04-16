@@ -243,19 +243,19 @@ float terrainFieldValue(vec2 uv, float time) {
 
 float pulseFieldValue(vec2 uv, float time) {
   float aspect = uRes.x / uRes.y;
-  vec2 center = mix(vec2(0.74, 0.54), vec2(0.78, 0.50), uDark);
+  vec2 center = mix(vec2(0.70, 0.54), vec2(0.76, 0.50), uDark);
   vec2 p = (uv - center) * vec2(aspect, 1.0);
   float radius = length(p);
   float theta = atan(p.y, p.x);
 
-  float rings = 0.5 + 0.5 * sin(radius * 22.0 - time * 1.55);
-  float carrier = 0.5 + 0.5 * sin(radius * 33.0 - time * 2.05 + sin(theta * 3.0) * 0.45);
-  float radial = smoothstep(1.25, 0.08, radius);
-  float sweep = smoothstep(-0.30, 0.88, 0.92 - abs(theta) / 3.14159);
+  float rings = 0.5 + 0.5 * sin(radius * 14.0 - time * 1.10);
+  float carrier = 0.5 + 0.5 * sin(radius * 21.0 - time * 1.45 + sin(theta * 2.0) * 0.35);
+  float radial = smoothstep(1.55, 0.02, radius);
+  float sweep = smoothstep(-0.55, 0.98, 1.08 - abs(theta) / 3.14159);
 
-  float field = mix(rings, carrier, 0.42);
-  field = field * radial * sweep + radial * 0.18;
-  field = sm3(0.14, 0.84, field);
+  float field = mix(rings, carrier, 0.34);
+  field = field * radial * sweep + radial * 0.28;
+  field = sm3(0.10, 0.88, field);
 
   return clamp(field, 0.0, 1.0);
 }
@@ -270,11 +270,11 @@ float fieldValue(vec2 uv, float time) {
 
 float contentShield(vec2 uv) {
   if (uSurface > 1.5) {
-    float title = gauss2(uv, vec2(0.24, 0.54), vec2(0.26, 0.24)) * 1.14;
-    float cta = gauss2(uv, vec2(0.80, 0.54), vec2(0.18, 0.22)) * 1.22;
-    float mobile = gauss2(uv, vec2(0.32, 0.52), vec2(0.36, 0.34)) * 0.82;
+    float title = gauss2(uv, vec2(0.22, 0.54), vec2(0.22, 0.28)) * 0.78;
+    float cta = gauss2(uv, vec2(0.82, 0.54), vec2(0.14, 0.24)) * 0.84;
+    float mobile = gauss2(uv, vec2(0.34, 0.52), vec2(0.34, 0.36)) * 0.42;
     float shield = max(max(title, cta), mobile);
-    return sm3(0.08, 0.88, shield);
+    return sm3(0.16, 0.98, shield) * 0.52;
   }
 
   if (uSurface > 0.5) {
@@ -416,7 +416,77 @@ function clampInt(value: number, min: number, max: number) {
 	return Math.min(max, Math.max(min, value));
 }
 
+function srgbChannelToByte(value: number) {
+	const clamped = Math.min(1, Math.max(0, value));
+	const encoded = clamped <= 0.0031308 ? clamped * 12.92 : 1.055 * clamped ** (1 / 2.4) - 0.055;
+	return clampInt(Math.round(encoded * 255), 0, 255);
+}
+
+function parseHexColor(value: string): RGB | null {
+	const normalized = value.trim().replace(/^#/, "");
+	if (![3, 6].includes(normalized.length)) return null;
+
+	const expanded =
+		normalized.length === 3
+			? normalized
+					.split("")
+					.map((part) => `${part}${part}`)
+					.join("")
+			: normalized;
+
+	const channels = [0, 2, 4].map((index) =>
+		Number.parseInt(expanded.slice(index, index + 2), 16),
+	);
+	if (channels.some((channel) => Number.isNaN(channel))) return null;
+
+	return channels as RGB;
+}
+
+function parseOklchColor(value: string): RGB | null {
+	const match = value.match(/oklch\(([^)]+)\)/i);
+	if (!match) return null;
+
+	const [lightnessRaw, chromaRaw, hueRaw] = match[1]
+		.split(/[\s/]+/)
+		.filter(Boolean)
+		.slice(0, 3);
+
+	if (!lightnessRaw || !chromaRaw || !hueRaw) return null;
+
+	const lightness = lightnessRaw.endsWith("%")
+		? Number.parseFloat(lightnessRaw) / 100
+		: Number.parseFloat(lightnessRaw);
+	const chroma = Number.parseFloat(chromaRaw);
+	const hue = Number.parseFloat(hueRaw);
+
+	if ([lightness, chroma, hue].some((part) => Number.isNaN(part))) return null;
+
+	const hueRadians = (hue * Math.PI) / 180;
+	const a = chroma * Math.cos(hueRadians);
+	const b = chroma * Math.sin(hueRadians);
+
+	const lPrime = lightness + 0.3963377774 * a + 0.2158037573 * b;
+	const mPrime = lightness - 0.1055613458 * a - 0.0638541728 * b;
+	const sPrime = lightness - 0.0894841775 * a - 1.291485548 * b;
+
+	const l = lPrime ** 3;
+	const m = mPrime ** 3;
+	const s = sPrime ** 3;
+
+	const rLinear = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+	const gLinear = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+	const bLinear = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
+
+	return [srgbChannelToByte(rLinear), srgbChannelToByte(gLinear), srgbChannelToByte(bLinear)];
+}
+
 function parseRgb(value: string, fallback: RGB): RGB {
+	const hex = parseHexColor(value);
+	if (hex) return hex;
+
+	const oklch = parseOklchColor(value);
+	if (oklch) return oklch;
+
 	const match = value.match(/rgba?\(([^)]+)\)/i);
 	if (!match) return fallback;
 
@@ -437,7 +507,24 @@ function parseRgb(value: string, fallback: RGB): RGB {
 	];
 }
 
+function readResolvedCustomProperty(node: HTMLElement, css: string) {
+	const match = css.match(/^var\((--[^),\s]+)\)$/);
+	if (!match) return null;
+
+	const property = match[1];
+	const nodeValue = getComputedStyle(node).getPropertyValue(property).trim();
+	if (nodeValue) return nodeValue;
+
+	const rootValue = getComputedStyle(document.documentElement).getPropertyValue(property).trim();
+	return rootValue || null;
+}
+
 function resolveCssColor(node: HTMLElement, css: string, fallback: RGB): RGB {
+	const resolvedCustomProperty = readResolvedCustomProperty(node, css);
+	if (resolvedCustomProperty) {
+		return parseRgb(resolvedCustomProperty, fallback);
+	}
+
 	const probe = document.createElement("div");
 	probe.style.position = "absolute";
 	probe.style.visibility = "hidden";
@@ -563,6 +650,7 @@ export function InstrumentField({
 	const { environment } = useRevealState();
 	const [isDark, setIsDark] = useState(false);
 	const [isCanvasReady, setIsCanvasReady] = useState(false);
+	const [paletteSignature, setPaletteSignature] = useState("");
 	const [metrics, setMetrics] = useState<Metrics>({
 		dpr: 1,
 		height: 0,
@@ -589,18 +677,40 @@ export function InstrumentField({
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 
+		const readPaletteSignature = () => {
+			const root = getComputedStyle(document.documentElement);
+			return [
+				root.getPropertyValue("--color-accent-200").trim(),
+				root.getPropertyValue("--color-accent-300").trim(),
+				root.getPropertyValue("--color-accent-400").trim(),
+				root.getPropertyValue("--color-accent-500").trim(),
+				root.getPropertyValue("--color-accent-600").trim(),
+				root.getPropertyValue("--color-accent-700").trim(),
+				root.getPropertyValue("--color-accent-800").trim(),
+				root.getPropertyValue("--color-accent-900").trim(),
+			].join("|");
+		};
+
 		const syncTheme = () => {
 			setIsDark(document.documentElement.classList.contains("dark"));
+			setPaletteSignature((current) => {
+				const next = readPaletteSignature();
+				return current === next ? current : next;
+			});
 		};
 
 		syncTheme();
 		const observer = new MutationObserver(syncTheme);
 		observer.observe(document.documentElement, {
 			attributes: true,
-			attributeFilter: ["class"],
+			attributeFilter: ["class", "data-theme", "data-accent", "style"],
 		});
+		const palettePoll = window.setInterval(syncTheme, 400);
 
-		return () => observer.disconnect();
+		return () => {
+			observer.disconnect();
+			clearInterval(palettePoll);
+		};
 	}, []);
 
 	useEffect(() => {
@@ -760,6 +870,7 @@ export function InstrumentField({
 	}, []);
 
 	useEffect(() => {
+		void paletteSignature;
 		const container = containerRef.current;
 		const canvas = canvasRef.current;
 		const gl = glRef.current;
@@ -872,7 +983,17 @@ export function InstrumentField({
 		frameId = requestAnimationFrame(render);
 
 		return () => cancelAnimationFrame(frameId);
-	}, [isDark, metrics, origin, radius, shouldFreezeField, speed, surface, variant]);
+	}, [
+		isDark,
+		metrics,
+		origin,
+		paletteSignature,
+		radius,
+		shouldFreezeField,
+		speed,
+		surface,
+		variant,
+	]);
 
 	const updateMouseTarget = (clientX: number, clientY: number) => {
 		const container = containerRef.current;

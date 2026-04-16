@@ -90,11 +90,22 @@ export function RevealProvider({ children }: RevealProviderProps) {
 		if (typeof window === "undefined") return;
 
 		let lastPath = `${window.location.pathname}${window.location.search}`;
+		let pendingFrame: number | null = null;
+		const scheduleRouteKey = () => {
+			if (pendingFrame !== null) {
+				cancelAnimationFrame(pendingFrame);
+			}
+			pendingFrame = window.requestAnimationFrame(() => {
+				pendingFrame = null;
+				setRouteKey((current) => current + 1);
+			});
+		};
+
 		const notifyPathChange = () => {
 			const nextPath = `${window.location.pathname}${window.location.search}`;
 			if (nextPath === lastPath) return;
 			lastPath = nextPath;
-			setRouteKey((current) => current + 1);
+			scheduleRouteKey();
 		};
 
 		const originalPushState = window.history.pushState;
@@ -115,6 +126,9 @@ export function RevealProvider({ children }: RevealProviderProps) {
 		window.addEventListener("popstate", notifyPathChange);
 
 		return () => {
+			if (pendingFrame !== null) {
+				cancelAnimationFrame(pendingFrame);
+			}
 			window.history.pushState = originalPushState;
 			window.history.replaceState = originalReplaceState;
 			window.removeEventListener("popstate", notifyPathChange);
