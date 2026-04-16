@@ -5,9 +5,12 @@ import { SiteFooter } from "@/src/components/layout/site-footer";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
-import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { ImageGallery } from "@/src/components/ui/image-gallery";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
+import {
+	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
+	INVERTED_ACTION_BAND_TITLE_CLASS,
+} from "@/src/components/ui/instrument-action-band-theme";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { ProjectEntry } from "@/src/content/types";
@@ -209,20 +212,25 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<InstrumentActionBand>
+										<InstrumentActionBand
+											fieldSpeed={0.42}
+											fieldVariant="ray"
+											tone="inverted"
+										>
 											<ModuleContainer className="mx-auto w-full">
-												<HeadingReveal
-													as="h2"
-													phase={3}
-													className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
+												<h2
+													className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 												>
 													Building something similar?
-												</HeadingReveal>
+												</h2>
 												<Button
 													asChild
 													size="md"
 													variant="solid"
-													color="primary"
+													color="default"
+													className={
+														INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS
+													}
 												>
 													<Link href="/contact">
 														Email

@@ -6,8 +6,11 @@ import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
+import {
+	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
+	INVERTED_ACTION_BAND_TITLE_CLASS,
+} from "@/src/components/ui/instrument-action-band-theme";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
@@ -244,19 +247,22 @@ export default function AboutPage() {
 							<PageContainer className="portfolio-section-top">
 								<SwissGridBox>
 									<SwissGridRow>
-										<InstrumentActionBand>
-											<HeadingReveal
-												as="h2"
-												phase={3}
-												className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
+										<InstrumentActionBand
+											fieldSpeed={0.42}
+											fieldVariant="ray"
+											tone="inverted"
+										>
+											<h2
+												className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 											>
 												Work with these principles?
-											</HeadingReveal>
+											</h2>
 											<Button
 												asChild
 												size="md"
 												variant="solid"
-												color="primary"
+												color="default"
+												className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
 											>
 												<Link href="/contact">
 													Email

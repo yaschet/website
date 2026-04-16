@@ -7,6 +7,10 @@ import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
+import {
+	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
+	INVERTED_ACTION_BAND_TITLE_CLASS,
+} from "@/src/components/ui/instrument-action-band-theme";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { PostEntry } from "@/src/content/types";
@@ -94,16 +98,25 @@ export function PostContentRSC({ post }: PostContentProps) {
 							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<InstrumentActionBand>
+										<InstrumentActionBand
+											fieldSpeed={0.42}
+											fieldVariant="ray"
+											tone="inverted"
+										>
 											<ModuleContainer className="mx-auto w-full">
-												<h2 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
+												<h2
+													className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
+												>
 													Have thoughts on this?
 												</h2>
 												<Button
 													asChild
 													size="md"
 													variant="solid"
-													color="primary"
+													color="default"
+													className={
+														INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS
+													}
 												>
 													<Link href="/contact">
 														Discuss

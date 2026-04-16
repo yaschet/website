@@ -14,6 +14,7 @@ import {
 
 export type InstrumentFieldVariant = "terrain" | "pulse" | "ray";
 export type InstrumentSurface = "hero" | "header" | "band" | "strip";
+export type InstrumentFieldTone = "auto" | "light" | "dark" | "inverted";
 
 interface InstrumentFieldProps {
 	className?: string;
@@ -25,6 +26,7 @@ interface InstrumentFieldProps {
 	speed?: number;
 	surface?: InstrumentSurface;
 	variant?: InstrumentFieldVariant;
+	tone?: InstrumentFieldTone;
 }
 
 type RGB = [number, number, number];
@@ -693,6 +695,7 @@ export function InstrumentField({
 	speed = 1,
 	surface = "hero",
 	variant = "terrain",
+	tone = "auto",
 }: InstrumentFieldProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -712,7 +715,7 @@ export function InstrumentField({
 
 	const shouldReduceMotion = useReducedMotion();
 	const { environment } = useRevealState();
-	const [isDark, setIsDark] = useState(false);
+	const [documentIsDark, setDocumentIsDark] = useState(false);
 	const [isCanvasReady, setIsCanvasReady] = useState(false);
 	const [paletteSignature, setPaletteSignature] = useState("");
 	const [metrics, setMetrics] = useState<Metrics>({
@@ -778,7 +781,7 @@ export function InstrumentField({
 		};
 
 		const syncTheme = () => {
-			setIsDark(document.documentElement.classList.contains("dark"));
+			setDocumentIsDark(document.documentElement.classList.contains("dark"));
 			setPaletteSignature((current) => {
 				const next = readPaletteSignature();
 				return current === next ? current : next;
@@ -798,6 +801,23 @@ export function InstrumentField({
 			clearInterval(palettePoll);
 		};
 	}, []);
+
+	const isDark =
+		tone === "dark"
+			? true
+			: tone === "light"
+				? false
+				: tone === "inverted"
+					? !documentIsDark
+					: documentIsDark;
+	const backgroundClassName =
+		tone === "inverted"
+			? "bg-surface-950 dark:bg-surface-50"
+			: tone === "dark"
+				? "bg-surface-950"
+				: tone === "light"
+					? "bg-surface-50"
+					: "bg-white dark:bg-surface-900/80";
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -1117,7 +1137,8 @@ export function InstrumentField({
 			ref={containerRef}
 			className={cn(
 				interactive ? "pointer-events-auto" : "pointer-events-none",
-				"absolute inset-0 overflow-hidden bg-white transition-colors dark:bg-surface-900/80",
+				"absolute inset-0 overflow-hidden transition-colors",
+				backgroundClassName,
 				className,
 			)}
 			onPointerEnter={handlePointerEnter}
@@ -1126,7 +1147,10 @@ export function InstrumentField({
 		>
 			<canvas
 				ref={canvasRef}
-				className="pointer-events-none absolute inset-0 h-full w-full bg-white transition-[opacity,background-color] dark:bg-surface-900/80"
+				className={cn(
+					"pointer-events-none absolute inset-0 h-full w-full transition-[opacity,background-color]",
+					backgroundClassName,
+				)}
 				style={{
 					opacity: isCanvasReady ? 1 : 0,
 					transitionDuration: `${tweens.field.duration}s`,

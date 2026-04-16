@@ -6,8 +6,11 @@ import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteHero } from "@/src/components/layout/site-hero";
 import { Button } from "@/src/components/ui/button";
-import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
+import {
+	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
+	INVERTED_ACTION_BAND_TITLE_CLASS,
+} from "@/src/components/ui/instrument-action-band-theme";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
@@ -85,7 +88,7 @@ export default async function Home() {
 								<section className="w-full">
 									<div className="portfolio-box-pad flex flex-col items-center justify-center text-center">
 										<div className="mb-5 flex items-center justify-center gap-2.5">
-											<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+											<p className="portfolio-kicker text-surface-900 dark:text-white">
 												Confidential Work
 											</p>
 										</div>
@@ -113,15 +116,23 @@ export default async function Home() {
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
-									<InstrumentActionBand fieldSpeed={0.42} fieldVariant="ray">
-										<HeadingReveal
-											as="h2"
-											phase={3}
-											className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
+									<InstrumentActionBand
+										fieldSpeed={0.42}
+										fieldVariant="ray"
+										tone="inverted"
+									>
+										<h2
+											className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 										>
 											View selected work.
-										</HeadingReveal>
-										<Button asChild size="md" variant="solid" color="primary">
+										</h2>
+										<Button
+											asChild
+											size="md"
+											variant="solid"
+											color="default"
+											className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
+										>
 											<Link href="/case-studies">
 												Case Studies
 												<ArrowRightIcon className="size-4" weight="bold" />

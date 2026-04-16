@@ -9,7 +9,11 @@ import {
 	INSTRUMENT_GRID_ORIGIN,
 	INSTRUMENT_GRID_STEP,
 } from "./instrument-field-metrics";
-import { InstrumentField, type InstrumentFieldVariant } from "./topographic-dot-field";
+import {
+	InstrumentField,
+	type InstrumentFieldTone,
+	type InstrumentFieldVariant,
+} from "./topographic-dot-field";
 
 interface InstrumentActionBandProps {
 	children: ReactNode;
@@ -25,9 +29,26 @@ export function InstrumentActionBand({
 	contentClassName,
 	fieldSpeed = 0.22,
 	fieldVariant = "pulse",
+	tone = "auto",
 }: InstrumentActionBandProps) {
+	const toneClassName =
+		tone === "inverted"
+			? "bg-surface-950 dark:bg-surface-50"
+			: tone === "dark"
+				? "bg-surface-950"
+				: tone === "light"
+					? "bg-surface-50"
+					: "";
+
 	return (
-		<div className={cn("relative isolate w-full overflow-hidden", className)}>
+		<div
+			className={cn(
+				"portfolio-action-band-shell relative isolate w-full overflow-hidden",
+				toneClassName,
+				className,
+			)}
+			data-tone={tone}
+		>
 			<InstrumentField
 				className="pointer-events-none opacity-100 dark:opacity-100"
 				interactive={false}

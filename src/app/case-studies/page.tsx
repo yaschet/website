@@ -6,8 +6,11 @@ import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
+import {
+	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
+	INVERTED_ACTION_BAND_TITLE_CLASS,
+} from "@/src/components/ui/instrument-action-band-theme";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
@@ -96,7 +99,7 @@ export default async function CaseStudiesPage() {
 									<SwissGridRow>
 										<div className="portfolio-box-pad flex flex-col items-center justify-center text-center">
 											<div className="mb-5 flex items-center justify-center gap-2.5">
-												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+												<p className="portfolio-kicker text-surface-900 dark:text-white">
 													Confidential Work
 												</p>
 											</div>
@@ -115,19 +118,22 @@ export default async function CaseStudiesPage() {
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>
-										<InstrumentActionBand>
-											<HeadingReveal
-												as="h2"
-												phase={2}
-												className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
+										<InstrumentActionBand
+											fieldSpeed={0.42}
+											fieldVariant="ray"
+											tone="inverted"
+										>
+											<h2
+												className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 											>
 												View engineering philosophy.
-											</HeadingReveal>
+											</h2>
 											<Button
 												asChild
 												size="md"
 												variant="solid"
-												color="primary"
+												color="default"
+												className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
 											>
 												<Link href="/about">
 													About
