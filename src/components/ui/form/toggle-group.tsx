@@ -1,20 +1,3 @@
-/**
- * ToggleGroup component.
- *
- * @remarks
- * Built on Radix UI's ToggleGroup primitive.
- *
- * @example
- * ```tsx
- * <ToggleGroup type="multiple">
- *   <ToggleGroupItem value="bold">Bold</ToggleGroupItem>
- *   <ToggleGroupItem value="italic">Italic</ToggleGroupItem>
- * </ToggleGroup>
- * ```
- *
- * @public
- */
-
 import {
 	ToggleGroupItem as ToggleGroupItemPrimitive,
 	type ToggleGroupItemProps as ToggleGroupItemPrimitiveProps,
@@ -35,7 +18,7 @@ function ToggleGroup({ children, className, size, variant, ...props }: ToggleGro
 	return (
 		<ToggleGroupPrimitive
 			className={cn(
-				"group/toggle-group flex w-fit items-center gap-0.5 rounded-xl bg-surface-100 p-0.5 dark:bg-surface-900",
+				"group/toggle-group flex w-fit items-center gap-[calc(var(--portfolio-space-tight)/2)] rounded-xl bg-surface-100 p-[calc(var(--portfolio-space-tight)/2)] dark:bg-surface-900",
 				"data-[variant=outline]:border data-[variant=outline]:border-surface-200 data-[variant=outline]:shadow-xs dark:data-[variant=outline]:border-surface-800",
 				className,
 			)}
@@ -56,26 +39,21 @@ function ToggleGroupItem({ children, className, size, variant, ...props }: Toggl
 	return (
 		<ToggleGroupItemPrimitive
 			className={cn(
-				// Base styles for all toggle group items
-				"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-bold text-sm",
+				"inline-flex items-center justify-center gap-[var(--portfolio-control-gap)] whitespace-nowrap rounded-lg font-medium",
 				"cursor-pointer transition-all duration-200 ease-out",
 				"disabled:pointer-events-none disabled:opacity-50",
 				"focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-0",
-
-				// Inactive state - subtle text
 				"text-surface-600 dark:text-surface-400",
 				"hover:bg-surface-100/50 dark:hover:bg-surface-800/50",
-
-				// Active state - primary colors with proper contrast
 				"data-[state=on]:bg-primary-950 data-[state=on]:text-primary-50",
 				"dark:data-[state=on]:bg-primary-50 dark:data-[state=on]:text-primary-950",
 				"data-[state=on]:hover:bg-primary-900 dark:data-[state=on]:hover:bg-primary-100",
-
-				// Size variants
-				contextSize === "sm" && "h-7 min-w-7 px-2.5",
-				contextSize === "default" && "h-8 min-w-8 px-3",
-				contextSize === "lg" && "h-9 min-w-9 px-4",
-
+				contextSize === "sm" &&
+					"portfolio-chip-label h-[var(--portfolio-control-compact)] min-w-[var(--portfolio-control-compact)] px-[var(--portfolio-control-pad-compact)]",
+				contextSize === "default" &&
+					"portfolio-control-label h-[var(--portfolio-control-default)] min-w-[var(--portfolio-control-default)] px-[var(--portfolio-control-pad-default)]",
+				contextSize === "lg" &&
+					"portfolio-control-label h-[var(--portfolio-control-prominent)] min-w-[var(--portfolio-control-prominent)] px-[var(--portfolio-control-pad-prominent)]",
 				"relative min-w-0 flex-1 shrink-0 border-0 shadow-none focus:z-10 focus-visible:z-10",
 				className,
 			)}

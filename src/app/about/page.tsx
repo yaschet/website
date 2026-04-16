@@ -22,6 +22,29 @@ export const metadata: Metadata = {
 	},
 };
 
+const PRINCIPLES = [
+	{
+		title: "Precision",
+		description:
+			"I treat code like a contract. If the API fails, the UI is a lie. I build systems that fail gracefully and recover automatically.",
+	},
+	{
+		title: "Speed as a Feature",
+		description:
+			'Latency kills trust. I optimize for "perceived performance" using optimistic UI, skeletons, and edge caching. No one likes waiting.',
+	},
+	{
+		title: "ROI-First",
+		description:
+			"I don't build features for fun. I build to move the needle. If a feature doesn't reduce churn or increase revenue, I cut it.",
+	},
+	{
+		title: "End-to-End Responsibility",
+		description:
+			'I don\'t say "it works on my machine." I own the product from the first line of code to the final deployment logs.',
+	},
+] as const;
+
 export default function AboutPage() {
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -120,59 +143,25 @@ export default function AboutPage() {
 									</SwissGridRow>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<div className="grid gap-10 sm:grid-cols-2">
-												<ScrollReveal phase={2} delay={0.05}>
-													<div className="group space-y-2.5 border border-transparent p-5 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
-														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-															Precision
-														</h3>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															I treat code like a contract. If the API
-															fails, the UI is a lie. I build systems
-															that fail gracefully and recover
-															automatically.
-														</p>
-													</div>
-												</ScrollReveal>
-												<ScrollReveal phase={2} delay={0.1}>
-													<div className="group space-y-2.5 border border-transparent p-5 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
-														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-															Speed as a Feature
-														</h3>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															Latency kills trust. I optimize for
-															&quot;perceived performance&quot; using
-															optimistic UI, skeletons, and edge
-															caching. No one likes waiting.
-														</p>
-													</div>
-												</ScrollReveal>
-												<ScrollReveal phase={2} delay={0.15}>
-													<div className="group space-y-2.5 border border-transparent p-5 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
-														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-															ROI-First
-														</h3>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															I don&apos;t build features for fun. I
-															build to move the needle. If a feature
-															doesn&apos;t reduce churn or increase
-															revenue, I cut it.
-														</p>
-													</div>
-												</ScrollReveal>
-												<ScrollReveal phase={2} delay={0.2}>
-													<div className="group space-y-2.5 border border-transparent p-5 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
-														<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-															End-to-End Responsibility
-														</h3>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															I don&apos;t say &quot;it works on my
-															machine.&quot; I own the product from
-															the first line of code to the final
-															deployment logs.
-														</p>
-													</div>
-												</ScrollReveal>
+											<div className="grid gap-[var(--portfolio-space-section)] sm:grid-cols-2">
+												{PRINCIPLES.map((principle, index) => (
+													<ScrollReveal
+														key={principle.title}
+														phase={2}
+														delay={0.05 + index * 0.05}
+													>
+														<div className="portfolio-surface-card">
+															<div className="portfolio-card-copy">
+																<h3 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-50">
+																	{principle.title}
+																</h3>
+																<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+																	{principle.description}
+																</p>
+															</div>
+														</div>
+													</ScrollReveal>
+												))}
 											</div>
 										</div>
 									</SwissGridRow>

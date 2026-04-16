@@ -26,33 +26,21 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 		return (
 			<textarea
 				className={cn(
-					// Base structure
-					"flex min-h-[160px] w-full",
-					// Borders
+					"flex min-h-[calc(var(--portfolio-grid-step)*8)] w-full",
 					"border-2 border-surface-300 dark:border-surface-700",
-					// Backgrounds - white/dark for high contrast
 					"bg-white dark:bg-surface-950",
-					// Typography - monospace, uppercase, wide tracking
-					"font-mono text-xs uppercase tracking-wider",
+					"portfolio-chip-label",
 					"text-surface-900 dark:text-surface-50",
-					// Placeholder styling
-					"placeholder:font-mono placeholder:text-xs placeholder:uppercase placeholder:tracking-wider",
+					"placeholder:font-mono placeholder:text-xs placeholder:uppercase placeholder:tracking-[0.08em]",
 					"placeholder:text-surface-500 dark:placeholder:text-surface-400",
-					// Spacing
-					"px-5 py-5",
-					// Shape
+					"px-[var(--portfolio-control-pad-default)] py-[var(--portfolio-control-pad-default)]",
 					"rounded-none ring-offset-background",
-					// Transitions
 					"transition-all duration-200 ease-out",
-					// Hover states
 					"hover:border-surface-900 hover:bg-white",
 					"dark:hover:border-surface-100 dark:hover:bg-surface-950",
-					// Focus states - bold, no layout shift
 					"focus-visible:border-surface-900 focus-visible:bg-surface-50 focus-visible:outline-none",
 					"dark:focus-visible:border-surface-100 dark:focus-visible:bg-surface-900",
-					// Disabled state
 					"disabled:cursor-not-allowed disabled:opacity-50",
-					// Error state override
 					hasError &&
 						"border-destructive-500 bg-destructive-50 focus-visible:border-destructive-600 dark:border-destructive-500 dark:bg-destructive-950/50",
 					className,

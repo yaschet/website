@@ -35,34 +35,36 @@ export function PostContentRSC({ post }: PostContentProps) {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<ModuleContainer className="mx-auto">
+											<ModuleContainer className="portfolio-stack-group mx-auto">
 												<Link
 													href="/blog"
-													className="portfolio-kicker mb-10 inline-flex items-center gap-2.5 text-muted-foreground transition-colors hover:text-foreground"
+													className="portfolio-back-link portfolio-kicker"
 												>
 													<ArrowLeft size={14} weight="bold" />
 													<span>Back to Blog</span>
 												</Link>
 
-												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-foreground">
-													{post.title}
-												</h1>
+												<div className="portfolio-stack-related">
+													<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl text-foreground">
+														{post.title}
+													</h1>
 
-												<div className="portfolio-inline-meta mb-5">
-													<time className="font-mono text-muted-foreground text-xs tabular-nums">
-														{formatDate(post.date)}
-													</time>
-													<span className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
-														<Clock size={12} weight="bold" />
-														{post.readingTime} min read
-													</span>
+													<div className="portfolio-inline-meta">
+														<time className="portfolio-caption font-mono text-muted-foreground tabular-nums">
+															{formatDate(post.date)}
+														</time>
+														<span className="portfolio-caption flex items-center gap-[var(--portfolio-space-tight)] font-mono text-muted-foreground">
+															<Clock size={12} weight="bold" />
+															{post.readingTime} min read
+														</span>
+													</div>
+
+													<ProseContainer>
+														<p className="portfolio-body-lg text-muted-foreground">
+															{post.description}
+														</p>
+													</ProseContainer>
 												</div>
-
-												<ProseContainer>
-													<p className="portfolio-body-lg text-muted-foreground">
-														{post.description}
-													</p>
-												</ProseContainer>
 											</ModuleContainer>
 										</div>
 									</SwissGridRow>

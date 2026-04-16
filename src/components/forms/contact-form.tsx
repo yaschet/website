@@ -30,7 +30,7 @@ function FormField({
 	const Comp = isTextArea ? Textarea : Input;
 
 	return (
-		<div className="group space-y-2.5">
+		<div className="group portfolio-stack-tight">
 			<Label
 				htmlFor={field.name}
 				className="portfolio-kicker block text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
@@ -47,7 +47,7 @@ function FormField({
 				// biome-ignore lint/suspicious/noExplicitAny: Event type alignment
 				onChange={(e: any) => field.handleChange(e.target.value)}
 				placeholder={placeholder}
-				size={isTextArea ? undefined : "lg"}
+				size={isTextArea ? undefined : "md"}
 				hasError={field.state.meta.isTouched && !!field.state.meta.errors.length}
 			/>
 			{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
@@ -102,9 +102,9 @@ export function ContactForm() {
 				e.stopPropagation();
 				form.handleSubmit();
 			}}
-			className="space-y-10"
+			className="portfolio-stack-section"
 		>
-			<div className="grid gap-10 sm:grid-cols-2">
+			<div className="grid gap-[var(--portfolio-space-section)] sm:grid-cols-2">
 				<form.Field name="name">
 					{(field) => <FormField field={field} label="Name" placeholder="John Doe" />}
 				</form.Field>

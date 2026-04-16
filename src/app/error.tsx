@@ -30,27 +30,27 @@ export default function AppError({
 					<SwissGridBox>
 						<SwissGridRow>
 							<div className="portfolio-box-pad">
-								<ProseContainer className="mx-auto flex flex-col items-center justify-center">
-									<div className="mb-10 flex justify-center">
-										<div className="flex size-[60px] items-center justify-center bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-900 dark:text-surface-50">
+								<ProseContainer className="portfolio-stack-group mx-auto items-center justify-center">
+									<div className="flex justify-center">
+										<div className="flex size-[var(--portfolio-avatar-size)] items-center justify-center bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-900 dark:text-surface-50">
 											<Warning
-												className="size-5 opacity-80"
+												className="size-[var(--portfolio-icon-sm)] opacity-80"
 												weight="duotone"
 											/>
 										</div>
 									</div>
 
-									<h1 className="portfolio-heading-lg portfolio-capsize-heading-lg mb-5 text-surface-900 dark:text-surface-100">
+									<h1 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
 										System Interruption
 									</h1>
 
-									<p className="portfolio-body-sm mb-10 max-w-md text-surface-500 dark:text-surface-400">
+									<p className="portfolio-body-sm max-w-md text-surface-500 dark:text-surface-400">
 										The system encountered a runtime exception. This incident
 										has been logged.
 									</p>
 
 									<Button onClick={() => reset()} size="md" variant="solid">
-										<ArrowClockwise className="mr-2.5 size-5" />
+										<ArrowClockwise weight="bold" />
 										Reboot System
 									</Button>
 								</ProseContainer>

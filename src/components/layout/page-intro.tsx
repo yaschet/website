@@ -25,7 +25,7 @@ export function PageIntro({
 	return (
 		<div
 			className={cn(
-				"flex flex-col gap-5",
+				"portfolio-stack-related",
 				isCentered && "items-center text-center",
 				className,
 			)}
@@ -34,7 +34,7 @@ export function PageIntro({
 				<p className="portfolio-kicker text-surface-400 dark:text-surface-500">{eyebrow}</p>
 			)}
 
-			<div className={cn("flex flex-col gap-5", isCentered && "items-center")}>
+			<div className={cn("portfolio-stack-tight", isCentered && "items-center")}>
 				<HeadingReveal
 					as="h1"
 					phase={1}
@@ -51,7 +51,7 @@ export function PageIntro({
 					</ProseContainer>
 				)}
 
-				{children}
+				{children && <div className="pt-[var(--portfolio-space-tight)]">{children}</div>}
 			</div>
 		</div>
 	);

@@ -6,6 +6,10 @@ import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
+import {
+	INSTRUMENT_GRID_MIN_INSET,
+	INSTRUMENT_GRID_STEP,
+} from "@/src/components/ui/instrument-field-metrics";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import { InstrumentField } from "@/src/components/ui/topographic-dot-field";
@@ -18,14 +22,72 @@ export const metadata: Metadata = {
 	},
 };
 
+const CONTACT_METHODS = [
+	{
+		kicker: "Email",
+		title: "hello@yaschet.dev",
+		description: "Best for project scope, retainers, or direct inquiries.",
+		actions: [
+			{
+				label: "Email",
+				href: "mailto:hello@yaschet.dev",
+				variant: "solid" as const,
+				color: "primary" as const,
+			},
+		],
+	},
+	{
+		kicker: "Schedule",
+		title: "15-minute intro",
+		description: "Quick scoping, timing, or fit before we go deeper.",
+		actions: [
+			{
+				label: "Book a call",
+				href: "https://cal.com/yassinechettouch/15min",
+				variant: "soft" as const,
+				color: "default" as const,
+				target: "_blank" as const,
+			},
+		],
+	},
+	{
+		kicker: "Presence",
+		title: "Public profiles",
+		description: "Background, recent work, and public activity.",
+		actions: [
+			{
+				label: "LinkedIn",
+				href: "https://linkedin.com/in/yassinechettouch",
+				variant: "soft" as const,
+				color: "default" as const,
+				target: "_blank" as const,
+			},
+			{
+				label: "GitHub",
+				href: "https://github.com/yaschet",
+				variant: "soft" as const,
+				color: "default" as const,
+				target: "_blank" as const,
+			},
+			{
+				label: "X",
+				href: "https://x.com/yaschett",
+				variant: "soft" as const,
+				color: "default" as const,
+				target: "_blank" as const,
+			},
+		],
+	},
+] as const;
+
 function ContactInstrumentPlane() {
 	return (
 		<div className="absolute inset-0" aria-hidden="true">
 			<InstrumentField
 				className="pointer-events-none opacity-66 dark:opacity-78"
 				interactive={false}
-				step={18}
-				minInset={12}
+				step={INSTRUMENT_GRID_STEP}
+				minInset={INSTRUMENT_GRID_MIN_INSET}
 				origin="inset"
 				radius={1}
 				speed={0.22}
@@ -72,115 +134,47 @@ export default function ContactPage() {
 									</SwissGridRow>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<div className="grid gap-10 md:grid-cols-3">
-												<div className="flex min-h-[180px] flex-col justify-between gap-5">
-													<div className="space-y-2.5">
-														<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
-															Email
-														</p>
-														<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-															hello@yaschet.dev
-														</h2>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															Best for project scope, retainers, or
-															direct inquiries.
-														</p>
-													</div>
-													<Button
-														asChild
-														size="md"
-														variant="solid"
-														color="primary"
+											<div className="grid gap-[var(--portfolio-space-section)] md:grid-cols-3">
+												{CONTACT_METHODS.map((method) => (
+													<div
+														key={method.kicker}
+														className="portfolio-stack-group min-h-[calc(var(--portfolio-grid-step)*9)] justify-between"
 													>
-														<Link href="mailto:hello@yaschet.dev">
-															Email
-														</Link>
-													</Button>
-												</div>
-
-												<div className="flex min-h-[180px] flex-col justify-between gap-5">
-													<div className="space-y-2.5">
-														<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
-															Schedule
-														</p>
-														<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-															15-minute intro
-														</h2>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															Quick scoping, timing, or fit before we
-															go deeper.
-														</p>
+														<div className="portfolio-card-copy">
+															<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
+																{method.kicker}
+															</p>
+															<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+																{method.title}
+															</h2>
+															<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+																{method.description}
+															</p>
+														</div>
+														<div className="portfolio-control-row">
+															{method.actions.map((action) => (
+																<Button
+																	key={action.label}
+																	asChild
+																	size="md"
+																	variant={action.variant}
+																	color={action.color}
+																>
+																	<Link
+																		href={action.href}
+																		target={
+																			"target" in action
+																				? action.target
+																				: undefined
+																		}
+																	>
+																		{action.label}
+																	</Link>
+																</Button>
+															))}
+														</div>
 													</div>
-													<Button
-														asChild
-														size="md"
-														variant="soft"
-														color="default"
-													>
-														<Link
-															href="https://cal.com/yassinechettouch/15min"
-															target="_blank"
-														>
-															Book a call
-														</Link>
-													</Button>
-												</div>
-
-												<div className="flex min-h-[180px] flex-col justify-between gap-5">
-													<div className="space-y-2.5">
-														<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
-															Presence
-														</p>
-														<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-															Public profiles
-														</h2>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															Background, recent work, and public
-															activity.
-														</p>
-													</div>
-													<div className="flex flex-wrap gap-2.5">
-														<Button
-															asChild
-															size="md"
-															variant="soft"
-															color="default"
-														>
-															<Link
-																href="https://linkedin.com/in/yassinechettouch"
-																target="_blank"
-															>
-																LinkedIn
-															</Link>
-														</Button>
-														<Button
-															asChild
-															size="md"
-															variant="soft"
-															color="default"
-														>
-															<Link
-																href="https://github.com/yaschet"
-																target="_blank"
-															>
-																GitHub
-															</Link>
-														</Button>
-														<Button
-															asChild
-															size="md"
-															variant="soft"
-															color="default"
-														>
-															<Link
-																href="https://x.com/yaschett"
-																target="_blank"
-															>
-																X
-															</Link>
-														</Button>
-													</div>
-												</div>
+												))}
 											</div>
 										</div>
 									</SwissGridRow>

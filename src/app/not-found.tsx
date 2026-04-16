@@ -21,9 +21,9 @@ export default function NotFound() {
 					<SwissGridBox>
 						<SwissGridRow>
 							<div className="portfolio-box-pad">
-								<ProseContainer className="mx-auto flex flex-col items-center justify-center">
+								<ProseContainer className="portfolio-stack-group mx-auto items-center justify-center">
 									<Reveal phase={1}>
-										<div className="portfolio-kicker mb-10 inline-flex items-center gap-2.5 border border-surface-200 bg-surface-50/50 px-5 py-2.5 text-surface-500 backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/50 dark:text-surface-400">
+										<div className="portfolio-chip border-surface-200 bg-surface-50/50 text-surface-500 backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/50 dark:text-surface-400">
 											<span className="size-2.5 rounded-full bg-red-500" />
 											<span>Signal Lost</span>
 										</div>
@@ -33,14 +33,14 @@ export default function NotFound() {
 										<HeadingReveal
 											as="h1"
 											phase={2}
-											className="portfolio-heading-lg portfolio-capsize-heading-lg mb-5 text-surface-900 dark:text-surface-100"
+											className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
 										>
 											Coordinates Invalid.
 										</HeadingReveal>
 									</Reveal>
 
 									<Reveal phase={2} delay={0.2}>
-										<p className="portfolio-body-md mb-10 text-surface-500 dark:text-surface-400">
+										<p className="portfolio-body-md text-surface-500 dark:text-surface-400">
 											The sector you are attempting to access does not exist.
 										</p>
 									</Reveal>
@@ -48,7 +48,7 @@ export default function NotFound() {
 									<Reveal phase={3} delay={0.3}>
 										<Button asChild size="md" variant="outlined">
 											<Link href="/">
-												<ArrowLeft className="mr-2.5 size-5" />
+												<ArrowLeft weight="bold" />
 												Return to Base
 											</Link>
 										</Button>

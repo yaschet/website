@@ -102,7 +102,9 @@ export default function RootLayout({
 				suppressHydrationWarning={true}
 			>
 				<RootProvider>
-					<ReadingProgress />
+					<Suspense fallback={null}>
+						<ReadingProgress />
+					</Suspense>
 					<Suspense fallback={null}>
 						<FloatingNav />
 					</Suspense>

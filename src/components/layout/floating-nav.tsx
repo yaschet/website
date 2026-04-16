@@ -1,17 +1,3 @@
-/**
- * FloatingNav component.
- *
- * @remarks
- * "Interaction Engineered" navigation bar.
- * features:
- * - Unified Physics Object (Whole button squish)
- * - Contiguous Hit Zones (Zero gaps)
- * - Optimistic State
- * - High-Contrast Swiss Design
- *
- * @public
- */
-
 "use client";
 
 import {
@@ -34,10 +20,6 @@ import { useRevealState } from "@/src/components/providers/reveal-provider";
 import { HoverTooltip } from "@/src/components/ui/hover-tooltip";
 import { cn, tweens } from "@/src/lib/index";
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CONFIGURATION
-// ═══════════════════════════════════════════════════════════════════════════
-
 type NavItem = {
 	name: string;
 	link: string;
@@ -56,8 +38,8 @@ const navItems: NavItem[] = [
 	{ name: "Contact", link: "/contact", icon: ChatCenteredText },
 ];
 
-const BUTTON_SIZE = 40;
-const ICON_SIZE = 20;
+const NAV_BUTTON_SIZE = "var(--portfolio-control-default)";
+const NAV_ICON_SIZE = "var(--portfolio-icon-sm)";
 
 function getActiveTab(pathname: string): string {
 	const activeItem = navItems.find((item) =>
@@ -67,13 +49,6 @@ function getActiveTab(pathname: string): string {
 	return activeItem?.link ?? "";
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * FloatingNav - Main navigation.
- */
 export function FloatingNav() {
 	const pathname = usePathname();
 	const { setTheme, resolvedTheme } = useTheme();
@@ -103,9 +78,6 @@ export function FloatingNav() {
 			? `Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`
 			: "Toggle theme";
 
-	/**
-	 * Toggles the theme with an instant, restrained view transition.
-	 */
 	const toggleTheme = () => {
 		const newTheme = resolvedTheme === "dark" ? "light" : "dark";
 
@@ -127,19 +99,16 @@ export function FloatingNav() {
 	};
 
 	return (
-		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-[var(--portfolio-nav-clearance)] items-center justify-center px-5">
+		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-[var(--portfolio-nav-clearance)] items-center justify-center px-[var(--portfolio-page-gutter-mobile)] sm:px-[var(--portfolio-page-gutter-desktop)]">
 			<motion.nav
 				initial={isAutomation ? false : { y: isReduced ? 0 : 20, opacity: 0 }}
 				animate={isEnabled ? { y: 0, opacity: 1 } : { y: isReduced ? 0 : 20, opacity: 0 }}
 				transition={isReduced ? tweens.reduced : tweens.shell}
 				className={cn(
-					"pointer-events-auto relative flex items-center p-2.5",
-					// SWISS DESIGN: Solid, High Contrast, No Blur
+					"pointer-events-auto relative flex items-center p-[var(--portfolio-space-tight)]",
 					"bg-surface-950 dark:bg-surface-50",
 					"border border-surface-800 dark:border-surface-200",
-					// Enforce 0px radius
 					"rounded-(--radius)",
-					// SHADOW: Allowed here for "Floating" context, but kept tight
 					"shadow-sm",
 				)}
 				style={{
@@ -159,18 +128,17 @@ export function FloatingNav() {
 							<li key={item.link} className="relative z-0">
 								<Link
 									href={item.link}
-									onClick={() => setOptimisticTab(item.link)} // Optimistic update
+									onClick={() => setOptimisticTab(item.link)}
 									className={cn(
 										"relative flex items-center justify-center transition-colors duration-200",
 										"rounded-(--radius)",
-										// Invert text color when pill is behind item
 										isVisuallyActive
-											? "text-surface-950 dark:text-surface-50" // High Contrast (Black on White Pill, White on Black Pill)
-											: "text-surface-400 hover:text-surface-50 dark:text-surface-500 dark:hover:text-surface-950", // Muted -> Hover
+											? "text-surface-950 dark:text-surface-50"
+											: "text-surface-400 hover:text-surface-50 dark:text-surface-500 dark:hover:text-surface-950",
 									)}
 									style={{
-										width: BUTTON_SIZE,
-										height: BUTTON_SIZE,
+										width: NAV_BUTTON_SIZE,
+										height: NAV_BUTTON_SIZE,
 									}}
 									onMouseEnter={() => setHoveredTab(item.link)}
 									onFocus={() => setHoveredTab(item.link)}
@@ -211,8 +179,11 @@ export function FloatingNav() {
 										>
 											<Icon
 												className="shrink-0"
-												style={{ width: ICON_SIZE, height: ICON_SIZE }}
-												weight={isActive ? "bold" : "regular"} // Visual state change
+												style={{
+													width: NAV_ICON_SIZE,
+													height: NAV_ICON_SIZE,
+												}}
+												weight={isActive ? "bold" : "regular"}
 											/>
 										</motion.div>
 									</motion.div>
@@ -220,7 +191,7 @@ export function FloatingNav() {
 
 								<HoverTooltip
 									visible={currentTab === item.link && hoveredTab === item.link}
-									className="bottom-[calc(100%+15px)] mb-0"
+									className="bottom-[calc(100%+var(--portfolio-space-related))] mb-0"
 								>
 									{item.name}
 								</HoverTooltip>
@@ -230,7 +201,7 @@ export function FloatingNav() {
 				</ul>
 
 				<div
-					className="mx-2 my-1 w-px shrink-0 self-stretch bg-surface-800 dark:bg-surface-200"
+					className="mx-[var(--portfolio-space-tight)] w-px shrink-0 self-stretch bg-surface-800 dark:bg-surface-200"
 					aria-hidden="true"
 				/>
 
@@ -252,13 +223,13 @@ export function FloatingNav() {
 					className={cn(
 						"relative z-10 flex items-center justify-center rounded-(--radius)",
 						isThemeHovered
-							? "text-surface-950 dark:text-surface-50" // INVERTED
+							? "text-surface-950 dark:text-surface-50"
 							: "text-surface-400 hover:text-surface-50 dark:text-surface-500 dark:hover:text-surface-950",
 						"outline-none transition-colors duration-200",
 					)}
 					style={{
-						width: BUTTON_SIZE,
-						height: BUTTON_SIZE,
+						width: NAV_BUTTON_SIZE,
+						height: NAV_BUTTON_SIZE,
 					}}
 					aria-label={themeToggleLabel}
 				>
@@ -281,18 +252,18 @@ export function FloatingNav() {
 					>
 						<Sun
 							className="rotate-0 scale-100 transition-transform duration-200 dark:-rotate-90 dark:scale-0"
-							style={{ width: ICON_SIZE, height: ICON_SIZE }}
+							style={{ width: NAV_ICON_SIZE, height: NAV_ICON_SIZE }}
 							weight="regular"
 						/>
 						<Moon
 							className="absolute rotate-90 scale-0 transition-transform duration-200 dark:rotate-0 dark:scale-100"
-							style={{ width: ICON_SIZE, height: ICON_SIZE }}
+							style={{ width: NAV_ICON_SIZE, height: NAV_ICON_SIZE }}
 							weight="regular"
 						/>
 					</motion.div>
 					<HoverTooltip
 						visible={isThemeHovered}
-						className="bottom-[calc(100%+15px)] mb-0"
+						className="bottom-[calc(100%+var(--portfolio-space-related))] mb-0"
 					>
 						Theme
 					</HoverTooltip>

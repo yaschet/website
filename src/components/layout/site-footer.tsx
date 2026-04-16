@@ -19,8 +19,8 @@ export function SiteFooter() {
 			<footer className="relative z-10 w-full bg-transparent text-surface-900 dark:text-surface-50">
 				<section id="footer" className="w-full">
 					<PageContainer className="portfolio-footer-pad">
-						<div className="flex flex-col gap-5 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
-							<div className="flex flex-col gap-2.5">
+						<div className="flex flex-col gap-[var(--portfolio-space-related)] text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
+							<div className="portfolio-stack-tight">
 								<span className="portfolio-caption font-medium text-surface-600 dark:text-surface-300">
 									© 2026 Yassine Chettouch
 								</span>
@@ -32,9 +32,9 @@ export function SiteFooter() {
 								</a>
 							</div>
 
-							<div className="flex flex-col gap-2.5 sm:items-end">
+							<div className="portfolio-stack-tight sm:items-end">
 								<nav
-									className="flex items-center justify-center gap-5 sm:justify-end"
+									className="flex items-center justify-center gap-[var(--portfolio-space-related)] sm:justify-end"
 									aria-label="Social Links"
 								>
 									<Link

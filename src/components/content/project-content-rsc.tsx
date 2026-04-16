@@ -37,10 +37,10 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 							<SwissGridRow>
 								<Reveal phase={1} className="w-full">
 									<div className="portfolio-box-pad">
-										<ModuleContainer className="mx-auto">
+										<ModuleContainer className="portfolio-stack-group mx-auto">
 											<Link
 												href="/case-studies"
-												className="portfolio-kicker mb-10 inline-flex items-center gap-2.5 text-muted-foreground transition-colors hover:text-foreground"
+												className="portfolio-back-link portfolio-kicker"
 											>
 												<ArrowLeft size={14} weight="bold" />
 												<span>Back to Case Studies</span>
@@ -48,42 +48,42 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 
 											{galleryImages.length > 0 &&
 												!project.hideCoverGallery && (
-													<div className="mb-10">
-														<ImageGallery
-															images={galleryImages}
-															altPrefix={project.title}
-															aspectRatio="16/9"
-															showArrows={galleryImages.length > 1}
-															showProgress={galleryImages.length > 1}
-															showCounter={galleryImages.length > 1}
-														/>
-													</div>
+													<ImageGallery
+														images={galleryImages}
+														altPrefix={project.title}
+														aspectRatio="16/9"
+														showArrows={galleryImages.length > 1}
+														showProgress={galleryImages.length > 1}
+														showCounter={galleryImages.length > 1}
+													/>
 												)}
 
-											<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl mb-5 text-foreground">
-												{project.title}
-											</h1>
+											<div className="portfolio-stack-related">
+												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl text-foreground">
+													{project.title}
+												</h1>
 
-											<div className="portfolio-inline-meta mb-5">
-												<time className="font-mono text-muted-foreground text-xs tabular-nums">
-													{formatDate(project.date)}
-												</time>
-												<span className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
-													<Clock size={12} weight="bold" />
-													{project.readingTime} min read
-												</span>
-												{project.featured && (
-													<span className="portfolio-chip border-primary text-primary">
-														Featured
+												<div className="portfolio-inline-meta">
+													<time className="portfolio-caption font-mono text-muted-foreground tabular-nums">
+														{formatDate(project.date)}
+													</time>
+													<span className="portfolio-caption flex items-center gap-[var(--portfolio-space-tight)] font-mono text-muted-foreground">
+														<Clock size={12} weight="bold" />
+														{project.readingTime} min read
 													</span>
-												)}
-											</div>
+													{project.featured && (
+														<span className="portfolio-chip border-primary text-primary">
+															Featured
+														</span>
+													)}
+												</div>
 
-											<ProseContainer>
-												<p className="portfolio-body-lg text-muted-foreground">
-													{project.description}
-												</p>
-											</ProseContainer>
+												<ProseContainer>
+													<p className="portfolio-body-lg text-muted-foreground">
+														{project.description}
+													</p>
+												</ProseContainer>
+											</div>
 										</ModuleContainer>
 									</div>
 								</Reveal>
@@ -91,34 +91,34 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 							<SwissGridRow>
 								<Reveal phase={2} delay={0.04} className="w-full">
 									<div className="portfolio-box-pad">
-										<ModuleContainer className="mx-auto">
-											<div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
+										<ModuleContainer className="portfolio-stack-group mx-auto">
+											<div className="grid grid-cols-1 gap-[var(--portfolio-space-group)] sm:grid-cols-2">
 												{project.role && (
-													<div className="flex flex-col gap-2.5">
-														<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+													<div className="portfolio-card-copy">
+														<span className="portfolio-meta-label text-muted-foreground">
 															Role
 														</span>
-														<span className="font-medium text-foreground text-sm">
+														<span className="portfolio-meta-value text-foreground">
 															{project.role}
 														</span>
 													</div>
 												)}
 												{project.status && (
-													<div className="flex flex-col gap-2.5">
-														<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+													<div className="portfolio-card-copy">
+														<span className="portfolio-meta-label text-muted-foreground">
 															Status
 														</span>
-														<span className="font-medium text-foreground text-sm">
+														<span className="portfolio-meta-value text-foreground">
 															{project.status}
 														</span>
 													</div>
 												)}
 												{project.stack && project.stack.length > 0 && (
-													<div className="flex flex-col gap-2 sm:col-span-2">
-														<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+													<div className="portfolio-card-copy sm:col-span-2">
+														<span className="portfolio-meta-label text-muted-foreground">
 															Engine Stack
 														</span>
-														<div className="flex flex-wrap gap-2.5">
+														<div className="flex flex-wrap gap-[var(--portfolio-space-tight)]">
 															{project.stack.map((item) => (
 																<span
 																	key={item}
@@ -133,11 +133,11 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 												{!project.stack &&
 													project.tech &&
 													project.tech.length > 0 && (
-														<div className="flex flex-col gap-2.5 sm:col-span-2">
-															<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+														<div className="portfolio-card-copy sm:col-span-2">
+															<span className="portfolio-meta-label text-muted-foreground">
 																Technologies
 															</span>
-															<div className="flex flex-wrap gap-2.5">
+															<div className="flex flex-wrap gap-[var(--portfolio-space-tight)]">
 																{project.tech.map((tech) => (
 																	<span
 																		key={tech}
@@ -152,7 +152,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 											</div>
 
 											{(project.url || project.github) && (
-												<div className="portfolio-control-row mt-10">
+												<div className="portfolio-control-row">
 													{project.url && (
 														<Button
 															asChild

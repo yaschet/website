@@ -12,7 +12,6 @@ import { Reveal } from "@/src/components/ui/reveal";
 
 export function ProfileSection() {
 	const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
-	// Standard theme colors since we removed mesh gradient dependency
 	const textSecondary = "text-surface-500";
 	const iconColor =
 		"text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-100 bg-surface-100/50 hover:bg-surface-200/50 dark:bg-surface-800/50 dark:hover:bg-surface-700/50";
@@ -36,7 +35,7 @@ export function ProfileSection() {
 						<div className="flex min-w-0 items-center gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
 							<Avatar
 								className={cn(
-									"group/avatar relative h-[var(--portfolio-space-6)] w-[var(--portfolio-space-6)] overflow-hidden rounded-(--radius) border shadow-[inset_0_0_0_1px_rgba(15,23,42,0.03)] dark:shadow-[inset_0_0_0_1px_rgba(248,250,252,0.03)]",
+									"group/avatar relative h-[var(--portfolio-avatar-size)] w-[var(--portfolio-avatar-size)] overflow-hidden rounded-(--radius) border shadow-[inset_0_0_0_1px_rgba(15,23,42,0.03)] dark:shadow-[inset_0_0_0_1px_rgba(248,250,252,0.03)]",
 									avatarBorder,
 									avatarBg,
 								)}
@@ -47,11 +46,11 @@ export function ProfileSection() {
 									className="object-cover transition-transform duration-200 group-hover/avatar:scale-[1.02]"
 									placeholder="blur"
 									fill
-									sizes="60px"
+									sizes="(max-width: 640px) 60px, 60px"
 								/>
 								<AvatarFallback
 									className={cn(
-										"flex h-full w-full items-center justify-center font-medium text-sm",
+										"portfolio-chip-label flex h-full w-full items-center justify-center",
 										avatarBg,
 										textSecondary,
 									)}
@@ -59,11 +58,11 @@ export function ProfileSection() {
 									YC
 								</AvatarFallback>
 							</Avatar>
-							<div className="min-w-0">
-								<h1 className="truncate font-semibold text-[18px] text-surface-900 leading-[26px] sm:text-[20px] sm:leading-[30px] dark:text-surface-100">
+							<div className="portfolio-stack-tight min-w-0">
+								<h1 className="portfolio-masthead-name truncate text-surface-900 dark:text-surface-100">
 									Yassine Chettouch
 								</h1>
-								<p className="truncate font-medium text-[14px] text-surface-500 leading-[20px] sm:text-[16px] sm:leading-[24px] dark:text-surface-400">
+								<p className="portfolio-masthead-role truncate text-surface-500 dark:text-surface-400">
 									Software Engineer
 								</p>
 							</div>

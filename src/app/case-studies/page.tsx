@@ -1,6 +1,7 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-work-callout";
 import { PageContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
@@ -56,7 +57,7 @@ export default async function CaseStudiesPage() {
 							</SwissGridRow>
 							<SwissGridRow>
 								<div className="portfolio-box-pad">
-									<div className="space-y-5">
+									<div className="portfolio-stack-group">
 										{projects.map((project, i) => (
 											<ScrollReveal
 												key={project.id}
@@ -97,25 +98,7 @@ export default async function CaseStudiesPage() {
 							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="portfolio-box-pad flex flex-col items-center justify-center text-center">
-											<div className="mb-5 flex items-center justify-center gap-2.5">
-												<p className="portfolio-kicker text-surface-900 dark:text-white">
-													Confidential Work
-												</p>
-											</div>
-											<p className="portfolio-body-sm max-w-md text-surface-600 dark:text-surface-400">
-												Due to strict NDAs and client privacy, most
-												commercial enterprise work cannot be publicly
-												displayed.{" "}
-												<Link
-													href="/contact"
-													className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-4 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
-												>
-													Contact me
-												</Link>{" "}
-												directly to discuss enterprise experience.
-											</p>
-										</div>
+										<ConfidentialWorkCallout />
 									</SwissGridRow>
 									<SwissGridRow>
 										<InstrumentActionBand

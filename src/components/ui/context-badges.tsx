@@ -1,19 +1,3 @@
-/**
- * Specialized status indicators for location and temporal context.
- *
- * @remarks
- * - Balanced padding and layout.
- * - Animations managed by RevealProvider.
- *
- * @example
- * ```tsx
- * <LocationBadge />
- * <TimeBadge />
- * ```
- *
- * @public
- */
-
 "use client";
 
 import { Clock } from "@phosphor-icons/react";
@@ -24,61 +8,36 @@ import { CountryFlagMA, SquareFlag } from "react-square-flags";
 import { useRevealState } from "@/src/components/providers/reveal-provider";
 import { cn, springs, tweens } from "@/src/lib/index";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CONSTANTS - Swiss Grid Mathematics
-// ─────────────────────────────────────────────────────────────────────────────
+const BADGE_HEIGHT = "var(--portfolio-badge-height)";
+const INSIGNIA_SIZE = "var(--portfolio-status-insignia-size)";
 
-/** Badge height - matches the padding unit for perfect squares */
-const BADGE_HEIGHT = 30; // px
-const INSIGNIA_SIZE = 30; // px - square, fills edge-to-edge
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SHARED STYLES
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** Base badge container - no horizontal padding, that's per-zone */
 const badgeBaseClasses = cn(
 	"group relative flex items-center",
 	"rounded-[var(--radius)]",
 	"border border-surface-200/80 dark:border-surface-800/80",
-	// OPTIMIZATION: Removed blur (Swiss Design: Opacity > Blur)
 	"bg-white/95 dark:bg-surface-950/95",
 	"shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
-	"font-medium text-surface-600 text-xs dark:text-surface-400",
+	"portfolio-badge-label text-surface-600 dark:text-surface-400",
 	"pointer-events-auto cursor-default select-none",
 );
 
-/** Insignia zone - edge-mounted, no padding, clips flag to bounds */
 const insigniaClasses = cn(
 	"flex shrink-0 items-center justify-center overflow-hidden",
 	"rounded-l-[var(--radius)]",
 	"bg-surface-100/50 dark:bg-surface-800/50",
 );
 
-/** Content zone - balanced padding */
 const contentClasses = cn("flex items-center");
 
 const tooltipClasses = cn(
 	"pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 whitespace-nowrap",
-	"px-2.5 py-2.5 font-bold text-xs",
+	"portfolio-badge-label px-[var(--portfolio-space-tight)] py-[var(--portfolio-space-tight)]",
 	"bg-white dark:bg-surface-900",
 	"text-surface-700 dark:text-surface-300",
 	"border border-surface-200 dark:border-surface-800",
 	"rounded-none shadow-md",
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LOCATION BADGE
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * LocationBadge
- *
- * Displays current location as a Swiss status badge.
- *
- * @param props - Optional className for sizing in layout contexts.
- * @returns The location badge element.
- */
 export function LocationBadge({ className }: { className?: string }) {
 	const [isHovered, setIsHovered] = useState(false);
 	const { environment } = useRevealState();
@@ -95,20 +54,22 @@ export function LocationBadge({ className }: { className?: string }) {
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 		>
-			{/* Insignia Zone - Flag bleeds to edge like a banner */}
 			<div
 				className={insigniaClasses}
 				style={{ width: INSIGNIA_SIZE, height: INSIGNIA_SIZE }}
 			>
-				<SquareFlag flag={CountryFlagMA} size={`${INSIGNIA_SIZE}px`} />
+				<SquareFlag flag={CountryFlagMA} size={INSIGNIA_SIZE} />
 			</div>
 
-			{/* Content Zone - Balanced padding */}
-			<div className={cn(contentClasses, "min-w-0 flex-1 justify-center px-2.5")}>
-				<span className="leading-none">Rabat, Morocco</span>
+			<div
+				className={cn(
+					contentClasses,
+					"min-w-0 flex-1 justify-center px-[var(--portfolio-badge-inset)]",
+				)}
+			>
+				<span className="leading-4">Rabat, Morocco</span>
 			</div>
 
-			{/* Tooltip */}
 			<AnimatePresence>
 				{isHovered && (
 					<motion.div
@@ -126,18 +87,6 @@ export function LocationBadge({ className }: { className?: string }) {
 	);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TIME BADGE
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * TimeBadge
- *
- * Displays the current time in UTC+1 as a Swiss status badge.
- *
- * @param props - Optional className for sizing in layout contexts.
- * @returns The time badge element.
- */
 export function TimeBadge({ className }: { className?: string }) {
 	const [time, setTime] = useState<string>("");
 	const [mounted, setMounted] = useState(false);
@@ -164,8 +113,6 @@ export function TimeBadge({ className }: { className?: string }) {
 		return () => clearInterval(interval);
 	}, []);
 
-	// SSR hydration safety — render nothing until mounted
-	// This prevents opacity-0 rendering artifacts on page load
 	if (!mounted) {
 		return null;
 	}
@@ -182,7 +129,6 @@ export function TimeBadge({ className }: { className?: string }) {
 			role="status"
 			aria-label={`Current time ${time}, Timezone UTC+1`}
 		>
-			{/* Insignia Zone - Icon edge-mounted */}
 			<div
 				className={insigniaClasses}
 				style={{ width: INSIGNIA_SIZE, height: INSIGNIA_SIZE }}
@@ -196,12 +142,15 @@ export function TimeBadge({ className }: { className?: string }) {
 				/>
 			</div>
 
-			{/* Content Zone - Balanced padding */}
-			<div className={cn(contentClasses, "min-w-0 flex-1 justify-center px-2.5")}>
-				<span className="font-mono text-xs tabular-nums leading-none">{time}</span>
+			<div
+				className={cn(
+					contentClasses,
+					"min-w-0 flex-1 justify-center px-[var(--portfolio-badge-inset)]",
+				)}
+			>
+				<span className="font-mono text-xs tabular-nums leading-4">{time}</span>
 			</div>
 
-			{/* Tooltip */}
 			<AnimatePresence>
 				{isHovered && (
 					<motion.div

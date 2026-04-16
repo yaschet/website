@@ -119,12 +119,12 @@ export function ProjectCardGallery({
 						/>
 						{isPrivate && (
 							<div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-50/10 backdrop-blur-3xl transition-all duration-200 dark:bg-surface-900/40">
-								<div className="flex items-center gap-2.5 rounded-full border border-surface-200/20 bg-surface-50/10 px-5 py-2.5 backdrop-blur-md dark:border-surface-800/20 dark:bg-surface-900/10">
+								<div className="portfolio-chip border-surface-200/20 bg-surface-50/10 backdrop-blur-md dark:border-surface-800/20 dark:bg-surface-900/10">
 									<Lock
 										weight="fill"
 										className="size-3 text-surface-900 opacity-60 dark:text-surface-100"
 									/>
-									<span className="portfolio-kicker text-surface-900 opacity-80 dark:text-surface-100">
+									<span className="text-surface-900 opacity-80 dark:text-surface-100">
 										Coming Soon
 									</span>
 								</div>
@@ -143,9 +143,8 @@ export function ProjectCardGallery({
 				)}
 
 				{/* DATA ZONE — Solid Background, Maximum Legibility */}
-				<div className="portfolio-box-pad">
-					{/* Header Row */}
-					<div className="mb-5 flex flex-col gap-[var(--portfolio-space-2)]">
+				<div className="portfolio-box-pad portfolio-stack-group">
+					<div className="portfolio-stack-related">
 						{/* Meta Layer: Functional Data — ZERO BORDERS, PURE SPACE */}
 						<div className="flex items-center justify-between gap-[var(--portfolio-space-2)]">
 							<span className="portfolio-kicker text-surface-500 dark:text-surface-400">
@@ -164,33 +163,30 @@ export function ProjectCardGallery({
 								{title}
 							</h3>
 
-							{/* Action Icon */}
-							<div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-surface-200 bg-surface-50 transition-all duration-200 group-hover:border-surface-900 group-hover:bg-surface-900 dark:border-surface-700 dark:bg-surface-900 dark:group-hover:border-surface-100 dark:group-hover:bg-surface-100">
+							<div className="flex size-[var(--portfolio-control-default)] shrink-0 items-center justify-center rounded-full border border-surface-200 bg-surface-50 transition-all duration-200 group-hover:border-surface-900 group-hover:bg-surface-900 dark:border-surface-700 dark:bg-surface-900 dark:group-hover:border-surface-100 dark:group-hover:bg-surface-100">
 								{isPrivate ? (
 									<Lock
 										weight="bold"
-										className="size-4 text-surface-600 transition-colors duration-200 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+										className="size-[var(--portfolio-icon-sm)] text-surface-600 transition-colors duration-200 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
 									/>
 								) : (
 									<ArrowUpRight
 										weight="bold"
-										className="size-4 text-surface-600 transition-colors duration-200 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+										className="size-[var(--portfolio-icon-sm)] text-surface-600 transition-colors duration-200 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
 									/>
 								)}
 							</div>
 						</div>
 					</div>
 
-					{/* Description */}
-					<p className="portfolio-body-sm mb-5 line-clamp-2 text-surface-600 dark:text-surface-400">
+					<p className="portfolio-body-sm line-clamp-2 text-surface-600 dark:text-surface-400">
 						{description}
 					</p>
 
-					{/* Extended Details (Challenge / Solution) — Vertical Stack for Editorial Feel */}
 					{(challenge || solution) && (
-						<div className="mb-5 space-y-5">
+						<div className="portfolio-stack-group">
 							{challenge && (
-								<div className="space-y-2.5">
+								<div className="portfolio-card-copy">
 									<h4 className="portfolio-kicker text-surface-400">Challenge</h4>
 									<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
 										{challenge}
@@ -198,7 +194,7 @@ export function ProjectCardGallery({
 								</div>
 							)}
 							{solution && (
-								<div className="space-y-2.5">
+								<div className="portfolio-card-copy">
 									<h4 className="portfolio-kicker text-surface-400">Solution</h4>
 									<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
 										{solution}
@@ -208,8 +204,7 @@ export function ProjectCardGallery({
 						</div>
 					)}
 
-					{/* Tags — Hard Edge (0 radius) */}
-					<div className="flex flex-wrap gap-2.5">
+					<div className="flex flex-wrap gap-[var(--portfolio-space-tight)]">
 						{tags.map((tag) => (
 							<span key={`${index}-tag-${tag}`} className="portfolio-chip">
 								{tag}

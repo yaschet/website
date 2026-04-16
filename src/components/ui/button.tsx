@@ -1,19 +1,3 @@
-/**
- * Button component with support for multiple variants, sizes, and loading states.
- *
- * @remarks
- * Supports polymorphic rendering via `asChild`, tooltips, and Framer Motion animations.
- *
- * @example
- * ```tsx
- * <Button variant="solid" color="primary" onClick={onClick}>
- *   Action
- * </Button>
- * ```
- *
- * @public
- */
-
 "use client";
 
 import { Slot } from "@radix-ui/react-slot";
@@ -30,16 +14,6 @@ import {
 } from "@/src/components/ui/tooltip";
 import { cn, springs } from "@/src/lib/index";
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ANIMATION CONFIGURATION
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Framer Motion interaction states.
- *
- * 2D physics-based interaction (no shadows, no y-axis elevation).
- * Matches the floating-nav pattern for consistent tactile feedback.
- */
 const interactionStates = {
 	idle: {
 		scale: 1,
@@ -52,24 +26,15 @@ const interactionStates = {
 	},
 } as const;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// VARIANTS
-// ═══════════════════════════════════════════════════════════════════════════
-
 const buttonVariants = cva(
 	[
-		// Base structure
 		"group relative inline-flex items-center justify-center",
-		"select-none whitespace-nowrap font-bold text-sm",
-		// Border radius defined by CSS variable
+		"select-none whitespace-nowrap font-medium",
+		"[&_svg]:size-[var(--portfolio-icon-sm)] [&_svg]:shrink-0",
 		"rounded-[var(--radius)]",
-		// GPU-accelerated transforms
 		"transform-gpu cursor-pointer",
-		// Focus ring (WCAG 2.4.7 compliant)
 		"ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-		// Disabled state
 		"disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-		// Color transitions (NOT transform - Framer handles that)
 		"transition-[color,background-color,border-color] duration-150 ease-out",
 	],
 	{
@@ -90,14 +55,14 @@ const buttonVariants = cva(
 				destructive: "",
 			},
 			size: {
-				xs: "h-[30px] gap-2.5 px-2.5 text-xs",
-				sm: "h-[var(--portfolio-control-sm)] gap-2.5 px-5 text-xs",
-				md: "h-[var(--portfolio-control-md)] gap-2.5 px-5 text-sm",
-				lg: "h-[var(--portfolio-control-lg)] gap-2.5 px-[30px] text-sm",
-				xl: "h-[var(--portfolio-control-xl)] gap-2.5 px-10 text-base",
-				icon: "size-10 p-2.5",
-				"icon-sm": "size-[30px] p-1.5",
-				"icon-lg": "size-[50px] p-2.5",
+				xs: "portfolio-chip-label h-[var(--portfolio-control-compact)] gap-[var(--portfolio-control-gap)] px-[var(--portfolio-control-pad-compact)]",
+				sm: "portfolio-chip-label h-[var(--portfolio-control-compact)] gap-[var(--portfolio-control-gap)] px-[var(--portfolio-control-pad-compact)]",
+				md: "portfolio-control-label h-[var(--portfolio-control-default)] gap-[var(--portfolio-control-gap)] px-[var(--portfolio-control-pad-default)]",
+				lg: "portfolio-control-label h-[var(--portfolio-control-prominent)] gap-[var(--portfolio-control-gap)] px-[var(--portfolio-control-pad-prominent)]",
+				xl: "portfolio-control-label h-[var(--portfolio-control-prominent)] gap-[var(--portfolio-control-gap)] px-[var(--portfolio-control-pad-prominent)]",
+				icon: "size-[var(--portfolio-control-default)] p-0",
+				"icon-sm": "size-[var(--portfolio-control-compact)] p-0",
+				"icon-lg": "size-[var(--portfolio-control-prominent)] p-0",
 			},
 			shape: {
 				default: "rounded-[var(--radius)]",
@@ -110,9 +75,6 @@ const buttonVariants = cva(
 			},
 		},
 		compoundVariants: [
-			// ═══════════════════════════════════════════════════════════════════
-			// SOLID VARIANTS - Strong backgrounds, high contrast
-			// ═══════════════════════════════════════════════════════════════════
 			{
 				variant: "solid",
 				color: "default",
@@ -210,9 +172,6 @@ const buttonVariants = cva(
 				],
 			},
 
-			// ═══════════════════════════════════════════════════════════════════
-			// SOFT VARIANTS - Subtle backgrounds, depth via background color
-			// ═══════════════════════════════════════════════════════════════════
 			{
 				variant: "soft",
 				color: "default",
@@ -312,9 +271,6 @@ const buttonVariants = cva(
 				],
 			},
 
-			// ═══════════════════════════════════════════════════════════════════
-			// OUTLINED VARIANTS - Borders with visible fill on hover
-			// ═══════════════════════════════════════════════════════════════════
 			{
 				variant: "outlined",
 				color: "default",
@@ -414,9 +370,6 @@ const buttonVariants = cva(
 				],
 			},
 
-			// ═══════════════════════════════════════════════════════════════════
-			// PLAIN VARIANTS - Ghost buttons with visible fill on hover
-			// ═══════════════════════════════════════════════════════════════════
 			{
 				variant: "plain",
 				color: "default",
@@ -525,10 +478,6 @@ const buttonVariants = cva(
 	},
 );
 
-// ═══════════════════════════════════════════════════════════════════════════
-// TYPES
-// ═══════════════════════════════════════════════════════════════════════════
-
 export interface ButtonProps
 	extends Omit<HTMLMotionProps<"button">, "color" | "children">,
 		VariantProps<typeof buttonVariants> {
@@ -553,10 +502,6 @@ export interface ButtonProps
 	/** Alignment with the button axis */
 	tooltipAlign?: "start" | "center" | "end";
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
 
 // Motion-enabled Slot for asChild composition (e.g., with Next.js Link)
 const MotionSlot = motion.create(Slot);
