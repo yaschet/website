@@ -59,7 +59,7 @@ export const metadata: Metadata = {
 		},
 	},
 	icons: {
-		icon: "/images/avatar.jpeg",
+		icon: "/images/avatar.png",
 	},
 	appleWebApp: {
 		title: "Yaschet",

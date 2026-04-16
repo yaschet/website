@@ -1424,12 +1424,12 @@
   --text-chip--font-weight: 500;
 
   --text-masthead-name: 1.25rem;
-  --text-masthead-name--line-height: 1.875rem;
+  --text-masthead-name--line-height: 1.5rem;
   --text-masthead-name--letter-spacing: var(--tracking-tight);
   --text-masthead-name--font-weight: 600;
 
-  --text-masthead-role: 1rem;
-  --text-masthead-role--line-height: 1.5rem;
+  --text-masthead-role: 0.9375rem;
+  --text-masthead-role--line-height: 1.25rem;
   --text-masthead-role--letter-spacing: var(--tracking-normal);
   --text-masthead-role--font-weight: 500;
 
@@ -1495,6 +1495,7 @@
   --portfolio-box-pad-desktop: var(--portfolio-space-4);
   --portfolio-nav-clearance: calc(var(--portfolio-rhythm) * 12); /* 120px */
   --portfolio-avatar-size: calc(var(--portfolio-rhythm) * 6); /* 60px */
+  --portfolio-masthead-avatar-size: calc(var(--portfolio-rhythm) * 7); /* 70px */
   --portfolio-badge-height: var(--portfolio-control-compact);
   --portfolio-badge-width: calc(var(--portfolio-grid-step) * 8); /* 160px */
   --portfolio-badge-inset: var(--portfolio-space-tight);

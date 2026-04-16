@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import avatarImage from "@/public/images/avatar.jpeg";
+import avatarImage from "@/public/images/avatar.png";
 import { Avatar, AvatarFallback } from "@/src/components/ui/avatar";
 import { HoverTooltip } from "@/src/components/ui/hover-tooltip";
 import { Reveal } from "@/src/components/ui/reveal";
@@ -35,7 +35,7 @@ export function ProfileSection() {
 						<div className="flex min-w-0 items-center gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
 							<Avatar
 								className={cn(
-									"group/avatar relative h-[var(--portfolio-avatar-size)] w-[var(--portfolio-avatar-size)] overflow-hidden rounded-(--radius) border shadow-[inset_0_0_0_1px_rgba(15,23,42,0.03)] dark:shadow-[inset_0_0_0_1px_rgba(248,250,252,0.03)]",
+									"group/avatar relative h-[var(--portfolio-avatar-size)] w-[var(--portfolio-avatar-size)] overflow-hidden rounded-(--radius) border shadow-[inset_0_0_0_1px_rgba(15,23,42,0.03)] sm:h-[var(--portfolio-masthead-avatar-size)] sm:w-[var(--portfolio-masthead-avatar-size)] dark:shadow-[inset_0_0_0_1px_rgba(248,250,252,0.03)]",
 									avatarBorder,
 									avatarBg,
 								)}
@@ -46,7 +46,7 @@ export function ProfileSection() {
 									className="object-cover transition-transform duration-200 group-hover/avatar:scale-[1.02]"
 									placeholder="blur"
 									fill
-									sizes="(max-width: 640px) 60px, 60px"
+									sizes="(max-width: 640px) 60px, 70px"
 								/>
 								<AvatarFallback
 									className={cn(
@@ -58,7 +58,7 @@ export function ProfileSection() {
 									YC
 								</AvatarFallback>
 							</Avatar>
-							<div className="portfolio-stack-tight min-w-0">
+							<div className="flex min-w-0 flex-col justify-center gap-[calc(var(--portfolio-space-tight)/2)]">
 								<h1 className="portfolio-masthead-name truncate text-surface-900 dark:text-surface-100">
 									Yassine Chettouch
 								</h1>
