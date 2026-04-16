@@ -19,16 +19,19 @@ const HERO_GRID_STEP = "var(--portfolio-grid-step)";
 const HERO_CONTENT_INSET = "var(--portfolio-space-4)";
 const HERO_CONTENT_INSET_MOBILE = "var(--portfolio-box-pad-mobile)";
 const HERO_STACK_GAP_MOBILE = "var(--portfolio-space-3)";
-const HERO_SECTION_ROWS = 28;
-const HERO_SECTION_HEIGHT = "calc(var(--portfolio-rhythm) * 28)";
-const HERO_SECTION_HEIGHT_MOBILE = "calc(var(--portfolio-rhythm) * 30)";
+const HERO_SECTION_ROWS = 36;
+const HERO_SECTION_HEIGHT = "calc(var(--portfolio-rhythm) * 36)";
+const HERO_SECTION_HEIGHT_MOBILE = "calc(var(--portfolio-rhythm) * 32)";
 const HERO_HEAD_LINE = "var(--portfolio-space-6)";
 const HERO_BODY_LINE = "var(--portfolio-space-3)";
-const HERO_TEXT_WIDTH = "calc(var(--portfolio-grid-step) * 34)";
+const HERO_TEXT_WIDTH = "calc(var(--portfolio-grid-step) * 38)";
 const HERO_BASELINE_ROWS = HERO_SECTION_ROWS;
 const HERO_HEAD_START_ROW = 5;
-const HERO_BODY_START_ROW = 11;
-const HERO_CTA_START_ROW = 21;
+const HERO_HEAD_SPAN = 12;
+const HERO_BODY_START_ROW = 17;
+const HERO_BODY_SPAN = 9;
+const HERO_CTA_START_ROW = 29;
+const HERO_CTA_SPAN = 4;
 const HERO_CTA_PRIMARY_WIDTH = "calc(var(--portfolio-grid-step) * 7)";
 const HERO_CTA_SECONDARY_WIDTH = "calc(var(--portfolio-grid-step) * 4)";
 const HERO_HEAD_OPTICAL_TRIM = -2;
@@ -51,20 +54,22 @@ function HeroContent() {
 					}}
 				>
 					<HeadingReveal
-						as="h2"
+						as="h1"
 						phase={2}
-						className="max-w-[12ch] font-medium text-[clamp(2.25rem,11vw,3rem)] text-surface-900 leading-[0.94] tracking-[var(--tracking-tighter)] dark:text-surface-100"
+						className="max-w-[14ch] font-medium text-[clamp(2.25rem,11vw,3rem)] text-surface-900 leading-[0.94] tracking-[var(--tracking-tighter)] dark:text-surface-100"
 						style={{ margin: 0 }}
 					>
-						I build products for the web.
+						Product engineering for complex systems.
 					</HeadingReveal>
 					<Reveal phase={2} delay={0.05}>
 						<p
-							className="max-w-[32ch] text-[1rem] text-surface-900 leading-7 tracking-[var(--tracking-normal)] dark:text-surface-100"
+							className="max-w-[36ch] text-[1rem] text-surface-900 leading-7 tracking-[var(--tracking-normal)] dark:text-surface-100"
 							style={{ margin: 0 }}
 						>
-							Web apps. SaaS platforms. Internal tools. From the first idea to the
-							final deploy. Complex systems that feel effortless.
+							I design and build the infrastructure behind the product - translation
+							pipelines that process thousands of documents, matching engines that
+							navigate complex eligibility rules, and financial systems with
+							double-entry accuracy. The architecture no one sees, until it breaks.
 						</p>
 					</Reveal>
 				</div>
@@ -107,9 +112,9 @@ function HeroContent() {
 					gridTemplateRows: `repeat(${HERO_BASELINE_ROWS}, ${HERO_BASELINE})`,
 				}}
 			>
-				<div style={{ gridRow: `${HERO_HEAD_START_ROW} / span 6` }}>
+				<div style={{ gridRow: `${HERO_HEAD_START_ROW} / span ${HERO_HEAD_SPAN}` }}>
 					<HeadingReveal
-						as="h2"
+						as="h1"
 						phase={2}
 						className={cn(
 							"max-w-none text-heading-xl! text-surface-900 dark:text-surface-100",
@@ -120,10 +125,10 @@ function HeroContent() {
 							transform: `translateY(${HERO_HEAD_OPTICAL_TRIM}px)`,
 						}}
 					>
-						I build products for the web.
+						Product engineering for complex systems.
 					</HeadingReveal>
 				</div>
-				<div style={{ gridRow: `${HERO_BODY_START_ROW} / span 6` }}>
+				<div style={{ gridRow: `${HERO_BODY_START_ROW} / span ${HERO_BODY_SPAN}` }}>
 					<Reveal phase={2} delay={0.05}>
 						<p
 							className={cn(
@@ -136,12 +141,14 @@ function HeroContent() {
 								transform: `translateY(${HERO_BODY_OPTICAL_TRIM}px)`,
 							}}
 						>
-							Web apps. SaaS platforms. Internal tools. From the first idea to the
-							final deploy. Complex systems that feel effortless.
+							I design and build the infrastructure behind the product - translation
+							pipelines that process thousands of documents, matching engines that
+							navigate complex eligibility rules, and financial systems with
+							double-entry accuracy. The architecture no one sees, until it breaks.
 						</p>
 					</Reveal>
 				</div>
-				<div style={{ gridRow: `${HERO_CTA_START_ROW} / span 4` }}>
+				<div style={{ gridRow: `${HERO_CTA_START_ROW} / span ${HERO_CTA_SPAN}` }}>
 					<Reveal phase={2} delay={0.1} className="h-full">
 						<div
 							className="pointer-events-auto grid h-full"
@@ -201,7 +208,7 @@ export function SiteHero() {
 	return (
 		<section
 			id="hero"
-			className="relative isolate min-h-[var(--hero-mobile-min-height)] w-full overflow-hidden md:min-h-[calc(var(--portfolio-rhythm)*28)]"
+			className="relative isolate min-h-[var(--hero-mobile-min-height)] w-full overflow-hidden md:min-h-[calc(var(--portfolio-rhythm)*36)]"
 			style={{
 				["--hero-mobile-min-height" as string]: HERO_SECTION_HEIGHT_MOBILE,
 			}}
