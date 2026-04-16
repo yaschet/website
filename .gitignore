@@ -43,3 +43,8 @@ next-env.d.ts
 
 # contentlayer
 .contentlayer
+
+# temp
+.playwright-report
+.playwright-cli
+    
