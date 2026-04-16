@@ -1,7 +1,6 @@
 "use client";
 
 import { useReducedMotion } from "framer-motion";
-import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
 import { cn } from "@/src/lib/utils";
 
@@ -16,6 +15,7 @@ precision highp float;
 
 uniform vec2 uRes;
 uniform float uTime;
+uniform float uSide;
 
 out vec4 oColor;
 
@@ -39,40 +39,29 @@ float rayFan(vec2 uv, vec2 vanishingPoint, float count, float thickness, float p
   float lineCell = abs(fract((angle / TAU) * count) - 0.5);
   float line = 1.0 - smoothstep(thickness, thickness * 1.9, lineCell);
 
-  float flow = 0.5 + 0.5 * sin(dist * 24.0 - uTime * 1.45 + angle * 5.0 + phase);
-  float focus = exp(-pow((uv.x - 0.5) / 0.045, 2.0));
+  float flow = 0.5 + 0.5 * sin(dist * 34.0 - uTime * 2.25 + angle * 4.0 + phase);
+  float focus = exp(-pow((uv.x - 0.5) / 0.038, 2.0));
 
-  return line * (0.28 + 0.72 * flow) + focus * exp(-dist * 3.4) * 0.30;
+  return line * (0.24 + 0.76 * flow) + focus * exp(-dist * 3.8) * 0.34;
 }
 
 void main() {
   vec2 uv = gl_FragCoord.xy / uRes;
-  uv.y = 1.0 - uv.y;
+  vec2 vanishingPoint = vec2(0.5, mix(-0.08, 1.08, uSide));
+  float energy = rayFan(uv, vanishingPoint, 168.0, 0.024, mix(0.0, 1.3, uSide));
 
-  float topMask = 1.0 - sm3(0.17, 0.39, uv.y);
-  float bottomMask = sm3(0.61, 0.83, uv.y);
-
-  vec2 vanishingPoint = vec2(0.5, 0.5);
-  float top = rayFan(uv, vanishingPoint, 150.0, 0.028, 0.0) * topMask;
-  float bottom = rayFan(uv, vanishingPoint, 150.0, 0.028, 1.2) * bottomMask;
-
-  float centerColumn = exp(-pow((uv.x - 0.5) / 0.05, 2.0));
-  float topBloom = centerColumn * topMask * (0.36 + 0.64 * sin(uTime * 0.55 + uv.y * 10.0));
-  float bottomBloom = centerColumn * bottomMask * (0.34 + 0.66 * sin(uTime * 0.52 + uv.y * 9.0 + 1.2));
-
+  float centerColumn = exp(-pow((uv.x - 0.5) / 0.042, 2.0));
+  float boundaryGlow = centerColumn * exp(-pow((uv.y - mix(0.0, 1.0, uSide)) / 0.20, 2.0));
   float cornerGlow =
-    gauss2(uv, vec2(0.12, 0.12), vec2(0.20, 0.16)) * 0.55 +
-    gauss2(uv, vec2(0.88, 0.12), vec2(0.20, 0.16)) * 0.55 +
-    gauss2(uv, vec2(0.12, 0.88), vec2(0.20, 0.16)) * 0.55 +
-    gauss2(uv, vec2(0.88, 0.88), vec2(0.20, 0.16)) * 0.55;
+    gauss2(uv, vec2(0.10, mix(0.10, 0.90, uSide)), vec2(0.18, 0.20)) * 0.32 +
+    gauss2(uv, vec2(0.90, mix(0.10, 0.90, uSide)), vec2(0.18, 0.20)) * 0.32;
 
-  float energy = clamp(top + bottom, 0.0, 1.0);
-  float bloom = clamp(topBloom + bottomBloom + cornerGlow, 0.0, 1.4);
+  float bloom = clamp(boundaryGlow * (0.62 + 0.38 * sin(uTime * 0.85)) + cornerGlow, 0.0, 1.2);
 
-  vec3 color = vec3(0.02, 0.02, 0.02);
-  color += vec3(0.08, 0.10, 0.10) * energy;
-  color += vec3(0.20, 0.26, 0.27) * bloom * 0.42;
-  color += vec3(0.10, 0.14, 0.15) * energy * bloom * 0.22;
+  vec3 color = vec3(0.012);
+  color += vec3(0.12) * energy;
+  color += vec3(0.30) * bloom * 0.38;
+  color += vec3(0.18) * energy * bloom * 0.14;
 
   oColor = vec4(color, 1.0);
 }`;
@@ -114,10 +103,11 @@ function linkProgram(
 	return program;
 }
 
-function VanishingPointField({ className }: { className?: string }) {
+function VanishingPointField({ className, side }: { className?: string; side: "top" | "bottom" }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const shouldReduceMotion = useReducedMotion();
+	const sideValue = side === "bottom" ? 1 : 0;
 
 	useEffect(() => {
 		const container = containerRef.current;
@@ -153,6 +143,7 @@ function VanishingPointField({ className }: { className?: string }) {
 
 		const resolutionLocation = gl.getUniformLocation(program, "uRes");
 		const timeLocation = gl.getUniformLocation(program, "uTime");
+		const sideLocation = gl.getUniformLocation(program, "uSide");
 
 		const resize = () => {
 			const rect = container.getBoundingClientRect();
@@ -185,6 +176,7 @@ function VanishingPointField({ className }: { className?: string }) {
 			gl.bindVertexArray(vao);
 			gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
 			gl.uniform1f(timeLocation, elapsed);
+			gl.uniform1f(sideLocation, sideValue);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 
 			if (!shouldReduceMotion) {
@@ -206,7 +198,7 @@ function VanishingPointField({ className }: { className?: string }) {
 			gl.deleteShader(vertexShader);
 			gl.deleteShader(fragmentShader);
 		};
-	}, [shouldReduceMotion]);
+	}, [shouldReduceMotion, sideValue]);
 
 	return (
 		<div ref={containerRef} className={cn("absolute inset-0 overflow-hidden", className)}>
@@ -216,32 +208,17 @@ function VanishingPointField({ className }: { className?: string }) {
 }
 
 interface VanishingPointBandProps {
-	children: ReactNode;
 	className?: string;
-	contentClassName?: string;
+	side: "top" | "bottom";
 }
 
-export function VanishingPointBand({
-	children,
-	className,
-	contentClassName,
-}: VanishingPointBandProps) {
+export function VanishingPointStrip({ className, side }: VanishingPointBandProps) {
 	return (
 		<div
-			className={cn(
-				"dark relative isolate w-full overflow-hidden bg-surface-950 text-surface-50",
-				className,
-			)}
+			className={cn("dark relative isolate w-full overflow-hidden bg-surface-950", className)}
 		>
-			<VanishingPointField />
-			<div
-				className={cn(
-					"relative z-10 flex min-h-[22rem] w-full flex-col items-center justify-center px-[var(--portfolio-box-pad-mobile)] py-[var(--portfolio-space-5)] text-center sm:min-h-[24rem] sm:px-[var(--portfolio-box-pad-desktop)]",
-					contentClassName,
-				)}
-			>
-				{children}
-			</div>
+			<VanishingPointField className="[--vp-side:0]" side={side} />
+			<div className="relative z-10 min-h-[7.5rem] w-full sm:min-h-[9.5rem]" />
 		</div>
 	);
 }

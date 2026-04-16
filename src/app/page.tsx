@@ -10,7 +10,7 @@ import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
-import { VanishingPointBand } from "@/src/components/ui/vanishing-point-band";
+import { VanishingPointStrip } from "@/src/components/ui/vanishing-point-band";
 import { getAllProjects } from "@/src/content/registry";
 
 export default async function Home() {
@@ -113,7 +113,14 @@ export default async function Home() {
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
-									<VanishingPointBand>
+									<VanishingPointStrip side="top" />
+								</section>
+							</ScrollReveal>
+						</SwissGridRow>
+						<SwissGridRow>
+							<ScrollReveal phase={3} className="w-full">
+								<section className="w-full">
+									<div className="portfolio-box-pad flex min-h-[15rem] flex-col items-center justify-center bg-surface-950 text-center">
 										<div className="flex w-full max-w-3xl flex-col items-center gap-[var(--portfolio-space-3)]">
 											<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 												Performance
@@ -155,7 +162,14 @@ export default async function Home() {
 												</Button>
 											</div>
 										</div>
-									</VanishingPointBand>
+									</div>
+								</section>
+							</ScrollReveal>
+						</SwissGridRow>
+						<SwissGridRow>
+							<ScrollReveal phase={3} className="w-full">
+								<section className="w-full">
+									<VanishingPointStrip side="bottom" />
 								</section>
 							</ScrollReveal>
 						</SwissGridRow>
