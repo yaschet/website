@@ -318,14 +318,9 @@ float contentShield(vec2 uv) {
 void main() {
   vec2 cssCoord = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
   vec2 uv = cssCoord / uRes;
-
-  if (
-    cssCoord.x < uGridMin.x || cssCoord.x > uGridMax.x ||
-    cssCoord.y < uGridMin.y || cssCoord.y > uGridMax.y
-  ) {
-    oColor = vec4(0.0);
-    return;
-  }
+  bool insideGridBounds =
+    cssCoord.x >= uGridMin.x && cssCoord.x <= uGridMax.x &&
+    cssCoord.y >= uGridMin.y && cssCoord.y <= uGridMax.y;
 
   float field = fieldValue(uv, uTime);
   float shield = contentShield(uv);
@@ -341,7 +336,7 @@ void main() {
 
   vec2 center = vec2(uStep * 0.5);
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
-  bool inDot = cellDist.x <= uDotRadius && cellDist.y <= uDotRadius;
+  bool inDot = insideGridBounds && cellDist.x <= uDotRadius && cellDist.y <= uDotRadius;
 
   float u0 = mix(0.46, 0.10, uDark);
   float u1 = mix(0.58, 0.18, uDark);
