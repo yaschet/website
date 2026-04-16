@@ -7,10 +7,10 @@ import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteHero } from "@/src/components/layout/site-hero";
 import { Button } from "@/src/components/ui/button";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
-import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import { VanishingPointBand } from "@/src/components/ui/vanishing-point-band";
 import { getAllProjects } from "@/src/content/registry";
 
 export default async function Home() {
@@ -77,7 +77,7 @@ export default async function Home() {
 					</SwissGridBox>
 				</PageContainer>
 
-				{/* Box 3: NDA Disclaimer + CTA — two rows, one shared border */}
+				{/* Box 3: NDA Disclaimer */}
 				<PageContainer>
 					<SwissGridBox className="mt-10">
 						<SwissGridRow>
@@ -104,45 +104,58 @@ export default async function Home() {
 								</section>
 							</ScrollReveal>
 						</SwissGridRow>
+					</SwissGridBox>
+				</PageContainer>
 
+				{/* Box 4: Performance Interstitial */}
+				<PageContainer>
+					<SwissGridBox className="dark mt-10 bg-surface-950">
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
-									<InstrumentActionBand>
-										<div>
+									<VanishingPointBand>
+										<div className="flex w-full max-w-3xl flex-col items-center gap-[var(--portfolio-space-3)]">
+											<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+												Performance
+											</p>
 											<HeadingReveal
 												as="h2"
 												phase={3}
-												className="portfolio-heading-sm portfolio-capsize-heading-sm text-surface-900 dark:text-surface-100"
+												className="portfolio-heading-lg portfolio-capsize-heading-lg max-w-[12ch] text-surface-50"
 											>
-												View selected work.
+												Systems that need to move.
 											</HeadingReveal>
+											<p className="portfolio-body-sm max-w-2xl text-surface-400">
+												Product engineering across interfaces, pipelines,
+												and internal tooling where latency, execution, and
+												reliability actually matter.
+											</p>
+											<div className="portfolio-control-row justify-center">
+												<Button
+													asChild
+													size="md"
+													variant="soft"
+													color="default"
+												>
+													<Link href="/contact">Email</Link>
+												</Button>
+												<Button
+													asChild
+													size="md"
+													variant="solid"
+													color="default"
+												>
+													<Link href="/case-studies">
+														Case Studies
+														<ArrowRightIcon
+															className="size-4"
+															weight="bold"
+														/>
+													</Link>
+												</Button>
+											</div>
 										</div>
-										<div className="portfolio-control-row">
-											<Button
-												asChild
-												size="md"
-												variant="outlined"
-												color="default"
-											>
-												<Link href="/contact">Email</Link>
-											</Button>
-											<Button
-												asChild
-												size="md"
-												variant="solid"
-												color="primary"
-											>
-												<Link href="/case-studies">
-													Case Studies
-													<ArrowRightIcon
-														className="size-4"
-														weight="bold"
-													/>
-												</Link>
-											</Button>
-										</div>
-									</InstrumentActionBand>
+									</VanishingPointBand>
 								</section>
 							</ScrollReveal>
 						</SwissGridRow>

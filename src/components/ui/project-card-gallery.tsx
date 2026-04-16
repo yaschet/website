@@ -25,7 +25,6 @@
 import { ArrowUpRight, Lock } from "@phosphor-icons/react/dist/ssr";
 import type { StaticImageData } from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageGallery } from "@/src/components/ui/image-gallery";
 import { cn } from "@/src/lib/index";
 
@@ -61,30 +60,6 @@ export function ProjectCardGallery({
 	imageAspectRatio = "16/9",
 }: ProjectCardGalleryProps) {
 	const galleryImages = images && images.length > 0 ? images : [];
-	const [isDitherFlashing, setIsDitherFlashing] = useState(false);
-	const ditherTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-	const triggerDitherFlash = useCallback(() => {
-		if (imageTreatment !== "disciplined") return;
-
-		if (ditherTimeoutRef.current) {
-			clearTimeout(ditherTimeoutRef.current);
-		}
-
-		setIsDitherFlashing(true);
-		ditherTimeoutRef.current = setTimeout(() => {
-			setIsDitherFlashing(false);
-			ditherTimeoutRef.current = null;
-		}, 150);
-	}, [imageTreatment]);
-
-	useEffect(() => {
-		return () => {
-			if (ditherTimeoutRef.current) {
-				clearTimeout(ditherTimeoutRef.current);
-			}
-		};
-	}, []);
 
 	if (isPrivate) {
 		return (
@@ -110,10 +85,6 @@ export function ProjectCardGallery({
 				"transition-shadow duration-200 hover:shadow-lg",
 				className,
 			)}
-			onMouseEnter={triggerDitherFlash}
-			onMouseLeave={triggerDitherFlash}
-			onFocus={triggerDitherFlash}
-			onBlur={triggerDitherFlash}
 		>
 			{renderContent()}
 		</Link>
@@ -129,9 +100,6 @@ export function ProjectCardGallery({
 							"relative overflow-hidden",
 							imageTreatment === "disciplined" && [
 								"shadow-[inset_0_-1px_0_rgba(15,23,42,0.08)] dark:shadow-[inset_0_-1px_0_rgba(248,250,252,0.08)]",
-								"before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:bg-[linear-gradient(180deg,rgba(15,23,42,0.03)_0%,rgba(15,23,42,0.12)_100%)] before:opacity-100 before:transition-opacity before:duration-200",
-								"after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:opacity-[0.08] after:mix-blend-multiply after:transition-opacity after:duration-200 dark:after:opacity-[0.06] dark:after:mix-blend-screen after:[background-image:radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.18)_1px,transparent_0)] after:[background-size:6px_6px] dark:after:[background-image:radial-gradient(circle_at_1px_1px,rgba(248,250,252,0.16)_1px,transparent_0)]",
-								"group-hover:after:opacity-[0.02] group-hover:before:opacity-35 dark:group-hover:after:opacity-[0.02]",
 							],
 						)}
 					>
@@ -145,23 +113,10 @@ export function ProjectCardGallery({
 							className={cn(
 								"border-0 border-surface-200 border-b dark:border-surface-800",
 							)}
-							imageClassName={
-								imageTreatment === "disciplined"
-									? "[filter:grayscale(1)_contrast(1.12)_brightness(.9)_sepia(.03)] transition-[filter] duration-200 group-hover:[filter:grayscale(0)_contrast(1)_brightness(1)_sepia(0)]"
-									: undefined
-							}
+							imageClassName="transition-transform duration-200 group-hover:scale-[1.01]"
 							sizes="(max-width: 768px) 100vw, 768px"
 							quality={75}
 						/>
-						{imageTreatment === "disciplined" && (
-							<div
-								className={cn(
-									"pointer-events-none absolute inset-0 z-[2] transition-opacity duration-150 ease-out",
-									"mix-blend-multiply [background-image:radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.26)_1px,transparent_0),repeating-linear-gradient(90deg,rgba(15,23,42,0.12)_0_1px,transparent_1px_5px)] [background-size:4px_4px,100%_100%] dark:mix-blend-screen dark:[background-image:radial-gradient(circle_at_1px_1px,rgba(248,250,252,0.22)_1px,transparent_0),repeating-linear-gradient(90deg,rgba(248,250,252,0.1)_0_1px,transparent_1px_5px)]",
-									isDitherFlashing ? "opacity-100" : "opacity-0",
-								)}
-							/>
-						)}
 						{isPrivate && (
 							<div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-50/10 backdrop-blur-3xl transition-all duration-200 dark:bg-surface-900/40">
 								<div className="flex items-center gap-2.5 rounded-full border border-surface-200/20 bg-surface-50/10 px-5 py-2.5 backdrop-blur-md dark:border-surface-800/20 dark:bg-surface-900/10">

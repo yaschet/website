@@ -26,7 +26,7 @@ export function SiteFooter() {
 								</span>
 								<a
 									href="mailto:hello@yaschet.dev"
-									className="portfolio-caption font-medium text-surface-500 transition-colors hover:text-accent-600 dark:text-surface-400 dark:hover:text-accent-400"
+									className="portfolio-caption font-medium text-surface-500 transition-colors hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50"
 								>
 									hello@yaschet.dev
 								</a>
@@ -40,21 +40,21 @@ export function SiteFooter() {
 									<Link
 										href="https://linkedin.com/in/yassinechettouch"
 										target="_blank"
-										className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
+										className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
 									>
 										LinkedIn
 									</Link>
 									<Link
 										href="https://github.com/yaschet"
 										target="_blank"
-										className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
+										className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
 									>
 										GitHub
 									</Link>
 									<Link
 										href="https://x.com/yaschett"
 										target="_blank"
-										className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
+										className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
 									>
 										X
 									</Link>
@@ -64,7 +64,7 @@ export function SiteFooter() {
 									href="https://github.com/yaschet/website"
 									target="_blank"
 									rel="noreferrer"
-									className="portfolio-caption font-medium text-surface-500 transition-colors hover:text-accent-600 dark:text-surface-400 dark:hover:text-accent-400"
+									className="portfolio-caption font-medium text-surface-500 transition-colors hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50"
 								>
 									Source
 								</a>

@@ -231,21 +231,18 @@ float terrainFieldValue(vec2 uv, float time) {
 }
 
 float pulseFieldValue(vec2 uv, float time) {
-  vec2 center = vec2(0.5, 0.5);
-  vec2 pixel = (uv - center) * uRes;
-  float maxRadius = max(length(uRes) * 0.5, 0.0001);
-  vec2 p = pixel / maxRadius;
-  float radius = length(p);
-  float theta = atan(p.y, p.x);
+  vec2 carrierAxis = normalize(vec2(1.0, -0.16));
+  vec2 supportAxis = normalize(vec2(1.0, 0.08));
 
-  float rings = 0.5 + 0.5 * sin(radius * 18.0 - time * 1.00 - theta * 2.6);
-  float carrier = 0.5 + 0.5 * sin(radius * 28.0 - time * 1.28 + sin(theta * 2.0) * 0.20);
-  float radial = smoothstep(1.08, 0.02, radius);
-  float sweep = 0.90 + 0.10 * cos(theta - time * 0.10);
+  float carrier = dot(uv, carrierAxis);
+  float support = dot(uv, supportAxis);
 
-  float field = mix(rings, carrier, 0.40);
-  field = field * radial * sweep + radial * 0.22;
-  field = sm3(0.10, 0.88, field);
+  float primary = sin(carrier * 8.5 - time * 0.88) * 0.5 + 0.5;
+  float secondary = sin(support * 3.8 - time * 0.34 + 0.7) * 0.5 + 0.5;
+
+  float field = mix(primary, secondary, 0.14);
+  field = mix(0.5, field, 0.52);
+  field = sm3(0.24, 0.76, field);
 
   return clamp(field, 0.0, 1.0);
 }
@@ -260,11 +257,13 @@ float fieldValue(vec2 uv, float time) {
 
 float contentShield(vec2 uv) {
   if (uSurface > 1.5) {
-    float title = gauss2(uv, vec2(0.22, 0.54), vec2(0.20, 0.24)) * 0.48;
-    float cta = gauss2(uv, vec2(0.82, 0.54), vec2(0.12, 0.20)) * 0.56;
-    float mobile = gauss2(uv, vec2(0.34, 0.52), vec2(0.28, 0.30)) * 0.26;
-    float shield = max(max(title, cta), mobile);
-    return sm3(0.14, 0.98, shield) * 0.26;
+    float desktopTitle = gauss2(uv, vec2(0.18, 0.54), vec2(0.24, 0.22)) * 1.34;
+    float desktopControls = gauss2(uv, vec2(0.84, 0.54), vec2(0.18, 0.20)) * 1.42;
+    float mobileTitle = gauss2(uv, vec2(0.22, 0.36), vec2(0.28, 0.18)) * 1.18;
+    float mobileControls = gauss2(uv, vec2(0.22, 0.72), vec2(0.24, 0.14)) * 1.18;
+    float mobileBlock = gauss2(uv, vec2(0.30, 0.50), vec2(0.42, 0.38)) * 0.76;
+    float shield = max(max(desktopTitle, desktopControls), max(mobileTitle, max(mobileControls, mobileBlock)));
+    return sm3(0.08, 0.92, shield);
   }
 
   if (uSurface > 0.5) {
@@ -322,6 +321,7 @@ void main() {
   float d2 = mix(0.78, 0.63, uDark);
   float d3 = mix(0.89, 0.80, uDark);
 
+  float pulseVariant = step(0.5, uVariant);
   float fieldGradient = length(vec2(dFdx(field), dFdy(field)));
   float contourWidth = mix(1.05, 0.92, uDark);
   float contour = 0.0;
@@ -345,10 +345,10 @@ void main() {
   }
 
   vec3 contourRgb = mix(uLC2, uLC3, 0.42);
-  vec4 contourStroke = vec4(contourRgb, contour * mix(0.74, 0.30, uDark));
+  vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.30, uDark), 0.0, pulseVariant));
 
-  underlay.a *= mix(1.0, mix(0.20, 0.16, uDark), shield);
-  dots.a *= mix(1.0, mix(0.18, 0.34, uDark), shield);
+  underlay.a *= mix(1.0, mix(mix(0.20, 0.16, uDark), mix(0.12, 0.10, uDark), pulseVariant), shield);
+  dots.a *= mix(1.0, mix(mix(0.18, 0.34, uDark), mix(0.14, 0.24, uDark), pulseVariant), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.40, uDark), shield);
   dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
   contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark);
@@ -571,13 +571,13 @@ function resolveCssColor(node: HTMLElement, css: string, fallback: RGB): RGB {
 	return cssColorToRgb(resolved, fallback);
 }
 
-function resolveAccentTone(node: HTMLElement, tone: number, fallback: RGB) {
+function resolveSurfaceTone(node: HTMLElement, tone: number, fallback: RGB) {
 	return resolveCssColor(
 		node,
-		`var(--accent-color-${tone}, var(--accent-${tone}, var(--color-accent-${tone})))`,
+		`var(--surface-color-${tone}, var(--surface-${tone}, var(--color-surface-${tone})))`,
 		resolveCssColor(
 			node,
-			`var(--accent-${tone}, var(--color-accent-${tone}, var(--accent-color-${tone})))`,
+			`var(--surface-${tone}, var(--color-surface-${tone}, var(--surface-color-${tone})))`,
 			fallback,
 		),
 	);
@@ -586,25 +586,25 @@ function resolveAccentTone(node: HTMLElement, tone: number, fallback: RGB) {
 function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	const alphaPalette = isDark ? DARK_ALPHA_PALETTE : LIGHT_ALPHA_PALETTE;
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
-	const baseAccent = resolveAccentTone(node, 500, neutralFallback);
-	const resolveTone = (tone: number) => resolveAccentTone(node, tone, baseAccent);
+	const baseSurface = resolveSurfaceTone(node, 500, neutralFallback);
+	const resolveTone = (tone: number) => resolveSurfaceTone(node, tone, baseSurface);
 
 	return {
 		active: [
 			{
-				color: resolveTone(isDark ? 700 : 200),
+				color: resolveTone(isDark ? 700 : 300),
 				alpha: alphaPalette.active[0].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 600 : 300),
+				color: resolveTone(isDark ? 500 : 400),
 				alpha: alphaPalette.active[1].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 500 : 400),
+				color: resolveTone(isDark ? 300 : 500),
 				alpha: alphaPalette.active[2].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 400 : 500),
+				color: resolveTone(isDark ? 100 : 600),
 				alpha: alphaPalette.active[3].alpha,
 			},
 		],
@@ -705,36 +705,36 @@ export function InstrumentField({
 		const readPaletteSignature = () => {
 			const root = getComputedStyle(document.documentElement);
 			return [
-				root.getPropertyValue("--accent-color-100").trim() ||
-					root.getPropertyValue("--accent-100").trim() ||
-					root.getPropertyValue("--color-accent-100").trim(),
-				root.getPropertyValue("--accent-color-200").trim() ||
-					root.getPropertyValue("--accent-200").trim() ||
-					root.getPropertyValue("--color-accent-200").trim(),
-				root.getPropertyValue("--accent-color-300").trim() ||
-					root.getPropertyValue("--accent-300").trim() ||
-					root.getPropertyValue("--color-accent-300").trim(),
-				root.getPropertyValue("--accent-color-400").trim() ||
-					root.getPropertyValue("--accent-400").trim() ||
-					root.getPropertyValue("--color-accent-400").trim(),
-				root.getPropertyValue("--accent-color-500").trim() ||
-					root.getPropertyValue("--accent-500").trim() ||
-					root.getPropertyValue("--color-accent-500").trim(),
-				root.getPropertyValue("--accent-color-600").trim() ||
-					root.getPropertyValue("--accent-600").trim() ||
-					root.getPropertyValue("--color-accent-600").trim(),
-				root.getPropertyValue("--accent-color-700").trim() ||
-					root.getPropertyValue("--accent-700").trim() ||
-					root.getPropertyValue("--color-accent-700").trim(),
-				root.getPropertyValue("--accent-color-800").trim() ||
-					root.getPropertyValue("--accent-800").trim() ||
-					root.getPropertyValue("--color-accent-800").trim(),
-				root.getPropertyValue("--accent-color-900").trim() ||
-					root.getPropertyValue("--accent-900").trim() ||
-					root.getPropertyValue("--color-accent-900").trim(),
-				root.getPropertyValue("--accent-color-950").trim() ||
-					root.getPropertyValue("--accent-950").trim() ||
-					root.getPropertyValue("--color-accent-950").trim(),
+				root.getPropertyValue("--surface-color-100").trim() ||
+					root.getPropertyValue("--surface-100").trim() ||
+					root.getPropertyValue("--color-surface-100").trim(),
+				root.getPropertyValue("--surface-color-200").trim() ||
+					root.getPropertyValue("--surface-200").trim() ||
+					root.getPropertyValue("--color-surface-200").trim(),
+				root.getPropertyValue("--surface-color-300").trim() ||
+					root.getPropertyValue("--surface-300").trim() ||
+					root.getPropertyValue("--color-surface-300").trim(),
+				root.getPropertyValue("--surface-color-400").trim() ||
+					root.getPropertyValue("--surface-400").trim() ||
+					root.getPropertyValue("--color-surface-400").trim(),
+				root.getPropertyValue("--surface-color-500").trim() ||
+					root.getPropertyValue("--surface-500").trim() ||
+					root.getPropertyValue("--color-surface-500").trim(),
+				root.getPropertyValue("--surface-color-600").trim() ||
+					root.getPropertyValue("--surface-600").trim() ||
+					root.getPropertyValue("--color-surface-600").trim(),
+				root.getPropertyValue("--surface-color-700").trim() ||
+					root.getPropertyValue("--surface-700").trim() ||
+					root.getPropertyValue("--color-surface-700").trim(),
+				root.getPropertyValue("--surface-color-800").trim() ||
+					root.getPropertyValue("--surface-800").trim() ||
+					root.getPropertyValue("--color-surface-800").trim(),
+				root.getPropertyValue("--surface-color-900").trim() ||
+					root.getPropertyValue("--surface-900").trim() ||
+					root.getPropertyValue("--color-surface-900").trim(),
+				root.getPropertyValue("--surface-color-950").trim() ||
+					root.getPropertyValue("--surface-950").trim() ||
+					root.getPropertyValue("--color-surface-950").trim(),
 			].join("|");
 		};
 
