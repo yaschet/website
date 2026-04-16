@@ -108,43 +108,41 @@ export default async function Home() {
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
-									<div className="portfolio-box-pad">
-										<InstrumentActionBand>
-											<div>
-												<HeadingReveal
-													as="h2"
-													phase={3}
-													className="portfolio-heading-sm portfolio-capsize-heading-sm text-surface-900 dark:text-surface-100"
-												>
-													View selected work.
-												</HeadingReveal>
-											</div>
-											<div className="portfolio-control-row">
-												<Button
-													asChild
-													size="md"
-													variant="outlined"
-													color="default"
-												>
-													<Link href="/contact">Email</Link>
-												</Button>
-												<Button
-													asChild
-													size="md"
-													variant="solid"
-													color="primary"
-												>
-													<Link href="/case-studies">
-														Case Studies
-														<ArrowRightIcon
-															className="size-4"
-															weight="bold"
-														/>
-													</Link>
-												</Button>
-											</div>
-										</InstrumentActionBand>
-									</div>
+									<InstrumentActionBand>
+										<div>
+											<HeadingReveal
+												as="h2"
+												phase={3}
+												className="portfolio-heading-sm portfolio-capsize-heading-sm text-surface-900 dark:text-surface-100"
+											>
+												View selected work.
+											</HeadingReveal>
+										</div>
+										<div className="portfolio-control-row">
+											<Button
+												asChild
+												size="md"
+												variant="outlined"
+												color="default"
+											>
+												<Link href="/contact">Email</Link>
+											</Button>
+											<Button
+												asChild
+												size="md"
+												variant="solid"
+												color="primary"
+											>
+												<Link href="/case-studies">
+													Case Studies
+													<ArrowRightIcon
+														className="size-4"
+														weight="bold"
+													/>
+												</Link>
+											</Button>
+										</div>
+									</InstrumentActionBand>
 								</section>
 							</ScrollReveal>
 						</SwissGridRow>

@@ -6,6 +6,7 @@ import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import { Reveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
@@ -39,24 +40,22 @@ export default function BlogPage() {
 									</div>
 								</SwissGridRow>
 								<SwissGridRow>
-									<div className="portfolio-box-pad">
-										<div className="portfolio-action-band">
-											<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-												Publishing begins soon.
-											</p>
-											<Button
-												asChild
-												variant="outlined"
-												size="md"
-												color="primary"
-											>
-												<Link href="/">
-													<ArrowLeft className="size-4" weight="bold" />
-													Back to Home
-												</Link>
-											</Button>
-										</div>
-									</div>
+									<InstrumentActionBand>
+										<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+											Publishing begins soon.
+										</p>
+										<Button
+											asChild
+											variant="outlined"
+											size="md"
+											color="primary"
+										>
+											<Link href="/">
+												<ArrowLeft className="size-4" weight="bold" />
+												Back to Home
+											</Link>
+										</Button>
+									</InstrumentActionBand>
 								</SwissGridRow>
 							</SwissGridBox>
 						</PageContainer>

@@ -1,42 +1,56 @@
 "use client";
 
-import { motion, useMotionValue, useMotionValueEvent, useScroll } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+function measureScrollProgress() {
+	const root = document.documentElement;
+	const maxScroll = Math.max(root.scrollHeight - window.innerHeight, 0);
+
+	if (maxScroll <= 0) return 0;
+
+	return Math.min(1, Math.max(0, window.scrollY / maxScroll));
+}
+
 export function ReadingProgress() {
 	const pathname = usePathname();
-	const { scrollYProgress } = useScroll();
-	const progress = useMotionValue(0);
-	const [isMounted, setIsMounted] = useState(false);
-
-	useMotionValueEvent(scrollYProgress, "change", (value) => {
-		progress.set(value);
-	});
+	const [progress, setProgress] = useState(0);
 
 	useEffect(() => {
-		setIsMounted(true);
+		if (typeof window === "undefined") return;
+
+		const sync = () => {
+			setProgress(measureScrollProgress());
+		};
+
+		sync();
+		window.addEventListener("scroll", sync, { passive: true });
+		window.addEventListener("resize", sync, { passive: true });
+
+		return () => {
+			window.removeEventListener("scroll", sync);
+			window.removeEventListener("resize", sync);
+		};
 	}, []);
 
 	useEffect(() => {
+		if (typeof window === "undefined") return;
 		if (!pathname) return;
 
-		progress.set(0);
+		setProgress(0);
 		const frameId = window.requestAnimationFrame(() => {
-			progress.set(scrollYProgress.get());
+			setProgress(measureScrollProgress());
 		});
 
 		return () => window.cancelAnimationFrame(frameId);
-	}, [pathname, progress, scrollYProgress]);
+	}, [pathname]);
 
 	return (
-		<motion.div
-			className="fixed top-0 right-0 left-0 z-[100] h-[4px] bg-accent-500 dark:h-[2px]"
-			style={{
-				scaleX: isMounted ? progress : 0,
-				transformOrigin: "0% 50%",
-			}}
-			aria-hidden="true"
-		/>
+		<div aria-hidden="true" className="fixed inset-x-0 top-0 z-[100] h-[4px] dark:h-[2px]">
+			<div
+				className="h-full bg-accent-500 transition-[width] duration-150 ease-out"
+				style={{ width: `${progress * 100}%` }}
+			/>
+		</div>
 	);
 }

@@ -4,18 +4,21 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { HeadingReveal } from "@/components/ui/heading-reveal";
+import {
+	INSTRUMENT_DOT_RADIUS,
+	INSTRUMENT_GRID_MIN_INSET,
+	INSTRUMENT_GRID_ORIGIN,
+	INSTRUMENT_GRID_STEP,
+} from "@/components/ui/instrument-field-metrics";
 import { Reveal } from "@/components/ui/reveal";
 import { InstrumentField } from "@/components/ui/topographic-dot-field";
 import { cn } from "@/lib/utils";
 
 const HERO_BASELINE = "var(--portfolio-rhythm)";
 const HERO_GRID_STEP = "var(--portfolio-grid-step)";
-const HERO_DOT_STEP = "var(--portfolio-rhythm)";
-const HERO_GRID_MIN_INSET = "var(--portfolio-space-1)";
 const HERO_CONTENT_INSET = "var(--portfolio-space-4)";
 const HERO_CONTENT_INSET_MOBILE = "var(--portfolio-box-pad-mobile)";
 const HERO_STACK_GAP_MOBILE = "var(--portfolio-space-3)";
-const HERO_DOT_RADIUS = 1;
 const HERO_SECTION_ROWS = 28;
 const HERO_SECTION_HEIGHT = "calc(var(--portfolio-rhythm) * 28)";
 const HERO_SECTION_HEIGHT_MOBILE = "calc(var(--portfolio-rhythm) * 30)";
@@ -182,10 +185,10 @@ function HeroInstrumentPlane({ className }: { className?: string }) {
 			<div className="pointer-events-none absolute inset-0 bg-white dark:bg-surface-900" />
 			<InstrumentField
 				interactive
-				step={HERO_DOT_STEP}
-				minInset={HERO_GRID_MIN_INSET}
-				origin="inset"
-				radius={HERO_DOT_RADIUS}
+				step={INSTRUMENT_GRID_STEP}
+				minInset={INSTRUMENT_GRID_MIN_INSET}
+				origin={INSTRUMENT_GRID_ORIGIN}
+				radius={INSTRUMENT_DOT_RADIUS}
 				speed={0.58}
 				surface="hero"
 				variant="terrain"

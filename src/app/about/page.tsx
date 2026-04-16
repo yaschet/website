@@ -244,31 +244,29 @@ export default function AboutPage() {
 							<PageContainer className="portfolio-section-top">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<InstrumentActionBand>
-												<HeadingReveal
-													as="h2"
-													phase={3}
-													className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
-												>
-													Work with these principles?
-												</HeadingReveal>
-												<Button
-													asChild
-													size="md"
-													variant="solid"
-													color="primary"
-												>
-													<Link href="/contact">
-														Email
-														<ArrowRightIcon
-															className="size-4"
-															weight="bold"
-														/>
-													</Link>
-												</Button>
-											</InstrumentActionBand>
-										</div>
+										<InstrumentActionBand>
+											<HeadingReveal
+												as="h2"
+												phase={3}
+												className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
+											>
+												Work with these principles?
+											</HeadingReveal>
+											<Button
+												asChild
+												size="md"
+												variant="solid"
+												color="primary"
+											>
+												<Link href="/contact">
+													Email
+													<ArrowRightIcon
+														className="size-4"
+														weight="bold"
+													/>
+												</Link>
+											</Button>
+										</InstrumentActionBand>
 									</SwissGridRow>
 								</SwissGridBox>
 							</PageContainer>

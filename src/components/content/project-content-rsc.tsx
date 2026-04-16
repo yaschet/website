@@ -209,33 +209,31 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<ModuleContainer className="mx-auto">
-												<InstrumentActionBand>
-													<HeadingReveal
-														as="h2"
-														phase={3}
-														className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
-													>
-														Building something similar?
-													</HeadingReveal>
-													<Button
-														asChild
-														size="md"
-														variant="solid"
-														color="primary"
-													>
-														<Link href="/contact">
-															Email
-															<ArrowRight
-																className="size-4"
-																weight="bold"
-															/>
-														</Link>
-													</Button>
-												</InstrumentActionBand>
+										<InstrumentActionBand>
+											<ModuleContainer className="mx-auto w-full">
+												<HeadingReveal
+													as="h2"
+													phase={3}
+													className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
+												>
+													Building something similar?
+												</HeadingReveal>
+												<Button
+													asChild
+													size="md"
+													variant="solid"
+													color="primary"
+												>
+													<Link href="/contact">
+														Email
+														<ArrowRight
+															className="size-4"
+															weight="bold"
+														/>
+													</Link>
+												</Button>
 											</ModuleContainer>
-										</div>
+										</InstrumentActionBand>
 									</SwissGridRow>
 								</SwissGridBox>
 							</PageContainer>

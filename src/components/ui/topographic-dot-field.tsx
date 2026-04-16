@@ -56,34 +56,23 @@ interface MouseState {
 	targetY: number;
 }
 
-const FALLBACK_DARK_PALETTE: Palette = {
-	active: [
-		{ color: [0, 127, 79], alpha: 0.22 },
-		{ color: [0, 168, 104], alpha: 0.42 },
-		{ color: [0, 194, 122], alpha: 0.68 },
-		{ color: [46, 217, 153], alpha: 0.94 },
-	],
-	underlay: [
-		{ color: [0, 31, 20], alpha: 0.08 },
-		{ color: [0, 59, 37], alpha: 0.13 },
-		{ color: [0, 91, 57], alpha: 0.19 },
-		{ color: [0, 127, 79], alpha: 0.27 },
-	],
+interface AlphaTone {
+	alpha: number;
+}
+
+interface AlphaPalette {
+	active: [AlphaTone, AlphaTone, AlphaTone, AlphaTone];
+	underlay: [AlphaTone, AlphaTone, AlphaTone, AlphaTone];
+}
+
+const DARK_ALPHA_PALETTE: AlphaPalette = {
+	active: [{ alpha: 0.22 }, { alpha: 0.42 }, { alpha: 0.68 }, { alpha: 0.94 }],
+	underlay: [{ alpha: 0.08 }, { alpha: 0.13 }, { alpha: 0.19 }, { alpha: 0.27 }],
 };
 
-const FALLBACK_LIGHT_PALETTE: Palette = {
-	active: [
-		{ color: [174, 248, 214], alpha: 0.22 },
-		{ color: [116, 238, 187], alpha: 0.34 },
-		{ color: [46, 217, 153], alpha: 0.52 },
-		{ color: [0, 194, 122], alpha: 0.7 },
-	],
-	underlay: [
-		{ color: [217, 255, 240], alpha: 0.08 },
-		{ color: [174, 248, 214], alpha: 0.14 },
-		{ color: [116, 238, 187], alpha: 0.22 },
-		{ color: [46, 217, 153], alpha: 0.32 },
-	],
+const LIGHT_ALPHA_PALETTE: AlphaPalette = {
+	active: [{ alpha: 0.22 }, { alpha: 0.34 }, { alpha: 0.52 }, { alpha: 0.7 }],
+	underlay: [{ alpha: 0.08 }, { alpha: 0.14 }, { alpha: 0.22 }, { alpha: 0.32 }],
 };
 
 const VERT_SRC = `#version 300 es
@@ -242,19 +231,20 @@ float terrainFieldValue(vec2 uv, float time) {
 }
 
 float pulseFieldValue(vec2 uv, float time) {
-  float aspect = uRes.x / uRes.y;
-  vec2 center = mix(vec2(0.70, 0.54), vec2(0.76, 0.50), uDark);
-  vec2 p = (uv - center) * vec2(aspect, 1.0);
+  vec2 center = vec2(0.5, 0.5);
+  vec2 pixel = (uv - center) * uRes;
+  float maxRadius = max(length(uRes) * 0.5, 0.0001);
+  vec2 p = pixel / maxRadius;
   float radius = length(p);
   float theta = atan(p.y, p.x);
 
-  float rings = 0.5 + 0.5 * sin(radius * 14.0 - time * 1.10);
-  float carrier = 0.5 + 0.5 * sin(radius * 21.0 - time * 1.45 + sin(theta * 2.0) * 0.35);
-  float radial = smoothstep(1.55, 0.02, radius);
-  float sweep = smoothstep(-0.55, 0.98, 1.08 - abs(theta) / 3.14159);
+  float rings = 0.5 + 0.5 * sin(radius * 18.0 - time * 1.00 - theta * 2.6);
+  float carrier = 0.5 + 0.5 * sin(radius * 28.0 - time * 1.28 + sin(theta * 2.0) * 0.20);
+  float radial = smoothstep(1.08, 0.02, radius);
+  float sweep = 0.90 + 0.10 * cos(theta - time * 0.10);
 
-  float field = mix(rings, carrier, 0.34);
-  field = field * radial * sweep + radial * 0.28;
+  float field = mix(rings, carrier, 0.40);
+  field = field * radial * sweep + radial * 0.22;
   field = sm3(0.10, 0.88, field);
 
   return clamp(field, 0.0, 1.0);
@@ -270,11 +260,11 @@ float fieldValue(vec2 uv, float time) {
 
 float contentShield(vec2 uv) {
   if (uSurface > 1.5) {
-    float title = gauss2(uv, vec2(0.22, 0.54), vec2(0.22, 0.28)) * 0.78;
-    float cta = gauss2(uv, vec2(0.82, 0.54), vec2(0.14, 0.24)) * 0.84;
-    float mobile = gauss2(uv, vec2(0.34, 0.52), vec2(0.34, 0.36)) * 0.42;
+    float title = gauss2(uv, vec2(0.22, 0.54), vec2(0.20, 0.24)) * 0.48;
+    float cta = gauss2(uv, vec2(0.82, 0.54), vec2(0.12, 0.20)) * 0.56;
+    float mobile = gauss2(uv, vec2(0.34, 0.52), vec2(0.28, 0.30)) * 0.26;
     float shield = max(max(title, cta), mobile);
-    return sm3(0.16, 0.98, shield) * 0.52;
+    return sm3(0.14, 0.98, shield) * 0.26;
   }
 
   if (uSurface > 0.5) {
@@ -480,7 +470,7 @@ function parseOklchColor(value: string): RGB | null {
 	return [srgbChannelToByte(rLinear), srgbChannelToByte(gLinear), srgbChannelToByte(bLinear)];
 }
 
-function parseRgb(value: string, fallback: RGB): RGB {
+function tryParseColor(value: string): RGB | null {
 	const hex = parseHexColor(value);
 	if (hex) return hex;
 
@@ -488,7 +478,7 @@ function parseRgb(value: string, fallback: RGB): RGB {
 	if (oklch) return oklch;
 
 	const match = value.match(/rgba?\(([^)]+)\)/i);
-	if (!match) return fallback;
+	if (!match) return null;
 
 	const channels = match[1]
 		.split(/[\s,/]+/)
@@ -497,7 +487,7 @@ function parseRgb(value: string, fallback: RGB): RGB {
 		.map((part) => Number.parseFloat(part));
 
 	if (channels.length !== 3 || channels.some((part) => Number.isNaN(part))) {
-		return fallback;
+		return null;
 	}
 
 	return [
@@ -507,22 +497,67 @@ function parseRgb(value: string, fallback: RGB): RGB {
 	];
 }
 
-function readResolvedCustomProperty(node: HTMLElement, css: string) {
-	const match = css.match(/^var\((--[^),\s]+)\)$/);
-	if (!match) return null;
+function cssColorToRgb(value: string, fallback: RGB): RGB {
+	if (typeof document === "undefined") {
+		return tryParseColor(value) ?? fallback;
+	}
 
-	const property = match[1];
-	const nodeValue = getComputedStyle(node).getPropertyValue(property).trim();
-	if (nodeValue) return nodeValue;
+	const canvas = document.createElement("canvas");
+	canvas.width = 1;
+	canvas.height = 1;
+	const context = canvas.getContext("2d", { willReadFrequently: true });
+	if (!context) {
+		return tryParseColor(value) ?? fallback;
+	}
 
-	const rootValue = getComputedStyle(document.documentElement).getPropertyValue(property).trim();
-	return rootValue || null;
+	context.clearRect(0, 0, 1, 1);
+	context.fillStyle = "#010203";
+	context.fillStyle = value;
+	context.fillRect(0, 0, 1, 1);
+	const pixel = context.getImageData(0, 0, 1, 1).data;
+
+	return [pixel[0], pixel[1], pixel[2]];
+}
+
+function readResolvedCustomProperty(
+	node: HTMLElement,
+	css: string,
+	seen = new Set<string>(),
+): string | null {
+	const match = css.match(/^var\(\s*(--[^,\s)]+)\s*(?:,\s*(.+))?\)$/);
+	if (!match) return css.trim() || null;
+
+	const [, property, fallback = ""] = match;
+	if (seen.has(property)) {
+		return fallback ? readResolvedCustomProperty(node, fallback, seen) : null;
+	}
+	seen.add(property);
+
+	const nodeStyles = getComputedStyle(node);
+	const rootStyles = getComputedStyle(document.documentElement);
+	const candidates = [
+		nodeStyles.getPropertyValue(property).trim(),
+		rootStyles.getPropertyValue(property).trim(),
+	].filter(Boolean);
+
+	for (const candidate of candidates) {
+		if (candidate === css) continue;
+		if (candidate.startsWith("var(")) {
+			const resolved: string | null = readResolvedCustomProperty(node, candidate, seen);
+			if (resolved) return resolved;
+			continue;
+		}
+
+		return candidate;
+	}
+
+	return fallback ? readResolvedCustomProperty(node, fallback, seen) : null;
 }
 
 function resolveCssColor(node: HTMLElement, css: string, fallback: RGB): RGB {
 	const resolvedCustomProperty = readResolvedCustomProperty(node, css);
 	if (resolvedCustomProperty) {
-		return parseRgb(resolvedCustomProperty, fallback);
+		return cssColorToRgb(resolvedCustomProperty, fallback);
 	}
 
 	const probe = document.createElement("div");
@@ -533,72 +568,62 @@ function resolveCssColor(node: HTMLElement, css: string, fallback: RGB): RGB {
 	node.appendChild(probe);
 	const resolved = getComputedStyle(probe).color;
 	node.removeChild(probe);
-	return parseRgb(resolved, fallback);
+	return cssColorToRgb(resolved, fallback);
+}
+
+function resolveAccentTone(node: HTMLElement, tone: number, fallback: RGB) {
+	return resolveCssColor(
+		node,
+		`var(--accent-color-${tone}, var(--accent-${tone}, var(--color-accent-${tone})))`,
+		resolveCssColor(
+			node,
+			`var(--accent-${tone}, var(--color-accent-${tone}, var(--accent-color-${tone})))`,
+			fallback,
+		),
+	);
 }
 
 function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
-	const fallback = isDark ? FALLBACK_DARK_PALETTE : FALLBACK_LIGHT_PALETTE;
-	const resolve = (css: string, base: RGB) => resolveCssColor(node, css, base);
+	const alphaPalette = isDark ? DARK_ALPHA_PALETTE : LIGHT_ALPHA_PALETTE;
+	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
+	const baseAccent = resolveAccentTone(node, 500, neutralFallback);
+	const resolveTone = (tone: number) => resolveAccentTone(node, tone, baseAccent);
 
 	return {
 		active: [
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-200)",
-					fallback.active[0].color,
-				),
-				alpha: fallback.active[0].alpha,
+				color: resolveTone(isDark ? 700 : 200),
+				alpha: alphaPalette.active[0].alpha,
 			},
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-600)" : "var(--color-accent-300)",
-					fallback.active[1].color,
-				),
-				alpha: fallback.active[1].alpha,
+				color: resolveTone(isDark ? 600 : 300),
+				alpha: alphaPalette.active[1].alpha,
 			},
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-500)" : "var(--color-accent-400)",
-					fallback.active[2].color,
-				),
-				alpha: fallback.active[2].alpha,
+				color: resolveTone(isDark ? 500 : 400),
+				alpha: alphaPalette.active[2].alpha,
 			},
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-400)" : "var(--color-accent-500)",
-					fallback.active[3].color,
-				),
-				alpha: fallback.active[3].alpha,
+				color: resolveTone(isDark ? 400 : 500),
+				alpha: alphaPalette.active[3].alpha,
 			},
 		],
 		underlay: [
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-950)" : "var(--color-accent-100)",
-					fallback.underlay[0].color,
-				),
-				alpha: fallback.underlay[0].alpha,
+				color: resolveTone(isDark ? 950 : 100),
+				alpha: alphaPalette.underlay[0].alpha,
 			},
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-900)" : "var(--color-accent-200)",
-					fallback.underlay[1].color,
-				),
-				alpha: fallback.underlay[1].alpha,
+				color: resolveTone(isDark ? 900 : 200),
+				alpha: alphaPalette.underlay[1].alpha,
 			},
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-800)" : "var(--color-accent-300)",
-					fallback.underlay[2].color,
-				),
-				alpha: fallback.underlay[2].alpha,
+				color: resolveTone(isDark ? 800 : 300),
+				alpha: alphaPalette.underlay[2].alpha,
 			},
 			{
-				color: resolve(
-					isDark ? "var(--color-accent-700)" : "var(--color-accent-400)",
-					fallback.underlay[3].color,
-				),
-				alpha: fallback.underlay[3].alpha,
+				color: resolveTone(isDark ? 700 : 400),
+				alpha: alphaPalette.underlay[3].alpha,
 			},
 		],
 	};
@@ -680,14 +705,36 @@ export function InstrumentField({
 		const readPaletteSignature = () => {
 			const root = getComputedStyle(document.documentElement);
 			return [
-				root.getPropertyValue("--color-accent-200").trim(),
-				root.getPropertyValue("--color-accent-300").trim(),
-				root.getPropertyValue("--color-accent-400").trim(),
-				root.getPropertyValue("--color-accent-500").trim(),
-				root.getPropertyValue("--color-accent-600").trim(),
-				root.getPropertyValue("--color-accent-700").trim(),
-				root.getPropertyValue("--color-accent-800").trim(),
-				root.getPropertyValue("--color-accent-900").trim(),
+				root.getPropertyValue("--accent-color-100").trim() ||
+					root.getPropertyValue("--accent-100").trim() ||
+					root.getPropertyValue("--color-accent-100").trim(),
+				root.getPropertyValue("--accent-color-200").trim() ||
+					root.getPropertyValue("--accent-200").trim() ||
+					root.getPropertyValue("--color-accent-200").trim(),
+				root.getPropertyValue("--accent-color-300").trim() ||
+					root.getPropertyValue("--accent-300").trim() ||
+					root.getPropertyValue("--color-accent-300").trim(),
+				root.getPropertyValue("--accent-color-400").trim() ||
+					root.getPropertyValue("--accent-400").trim() ||
+					root.getPropertyValue("--color-accent-400").trim(),
+				root.getPropertyValue("--accent-color-500").trim() ||
+					root.getPropertyValue("--accent-500").trim() ||
+					root.getPropertyValue("--color-accent-500").trim(),
+				root.getPropertyValue("--accent-color-600").trim() ||
+					root.getPropertyValue("--accent-600").trim() ||
+					root.getPropertyValue("--color-accent-600").trim(),
+				root.getPropertyValue("--accent-color-700").trim() ||
+					root.getPropertyValue("--accent-700").trim() ||
+					root.getPropertyValue("--color-accent-700").trim(),
+				root.getPropertyValue("--accent-color-800").trim() ||
+					root.getPropertyValue("--accent-800").trim() ||
+					root.getPropertyValue("--color-accent-800").trim(),
+				root.getPropertyValue("--accent-color-900").trim() ||
+					root.getPropertyValue("--accent-900").trim() ||
+					root.getPropertyValue("--color-accent-900").trim(),
+				root.getPropertyValue("--accent-color-950").trim() ||
+					root.getPropertyValue("--accent-950").trim() ||
+					root.getPropertyValue("--color-accent-950").trim(),
 			].join("|");
 		};
 

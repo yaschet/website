@@ -6,6 +6,7 @@ import { SiteHeader } from "@/src/components/layout/site-header";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { PostEntry } from "@/src/content/types";
@@ -93,29 +94,27 @@ export function PostContentRSC({ post }: PostContentProps) {
 							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<ModuleContainer className="mx-auto">
-												<div className="portfolio-action-band">
-													<h2 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
-														Have thoughts on this?
-													</h2>
-													<Button
-														asChild
-														size="md"
-														variant="solid"
-														color="primary"
-													>
-														<Link href="/contact">
-															Discuss
-															<ArrowRight
-																className="size-4"
-																weight="bold"
-															/>
-														</Link>
-													</Button>
-												</div>
+										<InstrumentActionBand>
+											<ModuleContainer className="mx-auto w-full">
+												<h2 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
+													Have thoughts on this?
+												</h2>
+												<Button
+													asChild
+													size="md"
+													variant="solid"
+													color="primary"
+												>
+													<Link href="/contact">
+														Discuss
+														<ArrowRight
+															className="size-4"
+															weight="bold"
+														/>
+													</Link>
+												</Button>
 											</ModuleContainer>
-										</div>
+										</InstrumentActionBand>
 									</SwissGridRow>
 								</SwissGridBox>
 							</PageContainer>

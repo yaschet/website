@@ -819,17 +819,17 @@
     --primary-color-900: var(--zinc-900);
     --primary-color-950: var(--zinc-950);
 
-    --accent-color-50: #effff8;
-    --accent-color-100: #d9fff0;
-    --accent-color-200: #aef8d6;
-    --accent-color-300: #74eebb;
-    --accent-color-400: #2ed999;
-    --accent-color-500: #00c27a;
-    --accent-color-600: #00a868;
-    --accent-color-700: #007f4f;
-    --accent-color-800: #005b39;
-    --accent-color-900: #003b25;
-    --accent-color-950: #001f14;
+        --accent-color-50: #effff8;
+        --accent-color-100: #d9fff0;
+        --accent-color-200: #aef8d6;
+        --accent-color-300: #74eebb;
+        --accent-color-400: #2ed999;
+        --accent-color-500: #00c27a;
+        --accent-color-600: #00a868;
+        --accent-color-700: #007f4f;
+        --accent-color-800: #005b39;
+        --accent-color-900: #003b25;
+        --accent-color-950: #001f14;  
 
     --info-color-50: var(--blue-50);
     --info-color-100: var(--blue-100);

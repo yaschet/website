@@ -115,31 +115,29 @@ export default async function CaseStudiesPage() {
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<InstrumentActionBand>
-												<HeadingReveal
-													as="h2"
-													phase={2}
-													className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
-												>
-													View engineering philosophy.
-												</HeadingReveal>
-												<Button
-													asChild
-													size="md"
-													variant="solid"
-													color="primary"
-												>
-													<Link href="/about">
-														About
-														<ArrowRightIcon
-															className="size-4"
-															weight="bold"
-														/>
-													</Link>
-												</Button>
-											</InstrumentActionBand>
-										</div>
+										<InstrumentActionBand>
+											<HeadingReveal
+												as="h2"
+												phase={2}
+												className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
+											>
+												View engineering philosophy.
+											</HeadingReveal>
+											<Button
+												asChild
+												size="md"
+												variant="solid"
+												color="primary"
+											>
+												<Link href="/about">
+													About
+													<ArrowRightIcon
+														className="size-4"
+														weight="bold"
+													/>
+												</Link>
+											</Button>
+										</InstrumentActionBand>
 									</SwissGridRow>
 								</SwissGridBox>
 							</PageContainer>
