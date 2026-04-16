@@ -12,6 +12,8 @@ import {
 	useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { useRevealState } from "@/src/components/providers/reveal-provider";
+import { ShellReveal } from "@/src/components/ui/reveal";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -49,6 +51,7 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 	const boxRef = useRef<HTMLDivElement>(null);
 	const rowRefs = useRef<Map<string, HTMLElement>>(new Map());
 	const shouldReduceMotion = useReducedMotion();
+	const { phase } = useRevealState();
 
 	const [boxSize, setBoxSize] = useState({ w: 0, h: 0 });
 	const [dividerYs, setDividerYs] = useState<number[]>([]);
@@ -99,50 +102,34 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 	}, [recalculate]);
 
 	const { w, h } = boxSize;
-	const animate = !shouldReduceMotion;
+	const animate = !shouldReduceMotion && phase >= 1;
 
 	return (
 		<SwissGridBoxContext.Provider value={{ registerRow, notify: recalculate }}>
-			<div
-				ref={boxRef}
-				className={cn(
-					"relative w-full overflow-hidden",
-					"bg-white transition-colors dark:bg-surface-900/80",
-					className,
-				)}
-			>
-				{/* SVG border overlay — rendered only once dimensions are known */}
-				{w > 0 && h > 0 && (
-					<svg
-						width={w}
-						height={h}
-						className="pointer-events-none absolute inset-0 z-10"
-						aria-hidden="true"
-					>
-						{/* Outer animated dashed rectangle */}
-						<rect
-							x={0.5}
-							y={0.5}
-							width={w - 1}
-							height={h - 1}
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="1"
-							strokeDasharray={`${DASH} ${GAP}`}
-							className={cn(
-								"text-surface-900/10 dark:text-surface-100/10",
-								animate && "animate-marching-ants",
-							)}
-						/>
-
-						{/* Horizontal dividers between rows */}
-						{dividerYs.map((y) => (
-							<line
-								key={y}
-								x1={0.5}
-								y1={y}
-								x2={w - 0.5}
-								y2={y}
+			<ShellReveal phase={1}>
+				<div
+					ref={boxRef}
+					className={cn(
+						"relative w-full overflow-hidden",
+						"bg-white transition-colors dark:bg-surface-900/80",
+						className,
+					)}
+				>
+					{/* SVG border overlay — rendered only once dimensions are known */}
+					{w > 0 && h > 0 && (
+						<svg
+							width={w}
+							height={h}
+							className="pointer-events-none absolute inset-0 z-10"
+							aria-hidden="true"
+						>
+							{/* Outer animated dashed rectangle */}
+							<rect
+								x={0.5}
+								y={0.5}
+								width={w - 1}
+								height={h - 1}
+								fill="none"
 								stroke="currentColor"
 								strokeWidth="1"
 								strokeDasharray={`${DASH} ${GAP}`}
@@ -151,12 +138,30 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 									animate && "animate-marching-ants",
 								)}
 							/>
-						))}
-					</svg>
-				)}
 
-				{children}
-			</div>
+							{/* Horizontal dividers between rows */}
+							{dividerYs.map((y) => (
+								<line
+									key={y}
+									x1={0.5}
+									y1={y}
+									x2={w - 0.5}
+									y2={y}
+									stroke="currentColor"
+									strokeWidth="1"
+									strokeDasharray={`${DASH} ${GAP}`}
+									className={cn(
+										"text-surface-900/10 dark:text-surface-100/10",
+										animate && "animate-marching-ants",
+									)}
+								/>
+							))}
+						</svg>
+					)}
+
+					{children}
+				</div>
+			</ShellReveal>
 		</SwissGridBoxContext.Provider>
 	);
 }

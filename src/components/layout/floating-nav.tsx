@@ -27,12 +27,12 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import type { ComponentType, CSSProperties, ReactElement, MouseEvent } from "react";
+import type { ComponentType, CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
-import { useReveal } from "@/src/components/providers/reveal-provider";
+import { useRevealState } from "@/src/components/providers/reveal-provider";
 import { HoverTooltip } from "@/src/components/ui/hover-tooltip";
-import { cn, springs } from "@/src/lib/index";
+import { cn, tweens } from "@/src/lib/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -84,7 +84,7 @@ export function FloatingNav() {
 	const [isThemeHovered, setIsThemeHovered] = useState(false);
 	const [optimisticTab, setOptimisticTab] = useState(activeTab);
 
-	const { phase } = useReveal();
+	const { environment, phase } = useRevealState();
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -95,6 +95,8 @@ export function FloatingNav() {
 	}, [activeTab]);
 
 	const isEnabled = phase >= 1;
+	const isReduced = environment === "reduced-motion";
+	const isAutomation = environment === "automation";
 	const currentTab = hoveredTab ?? optimisticTab;
 	const themeToggleLabel =
 		isMounted && resolvedTheme
@@ -127,9 +129,9 @@ export function FloatingNav() {
 	return (
 		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-[var(--portfolio-nav-clearance)] items-center justify-center px-5">
 			<motion.nav
-				initial={{ y: 20, opacity: 0 }}
-				animate={isEnabled ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
-				transition={springs.responsive}
+				initial={isAutomation ? false : { y: isReduced ? 0 : 20, opacity: 0 }}
+				animate={isEnabled ? { y: 0, opacity: 1 } : { y: isReduced ? 0 : 20, opacity: 0 }}
+				transition={isReduced ? tweens.reduced : tweens.shell}
 				className={cn(
 					"pointer-events-auto relative flex items-center p-2.5",
 					// SWISS DESIGN: Solid, High Contrast, No Blur
@@ -185,13 +187,13 @@ export function FloatingNav() {
 											hover: { scale: 1 },
 											tap: { scale: 0.92 },
 										}}
-										transition={springs.snappy}
+										transition={tweens.interaction}
 									>
 										{currentTab === item.link && (
 											<motion.div
 												layoutId="nav-bg"
 												className="absolute inset-0 -z-10 bg-surface-50 dark:bg-surface-950"
-												transition={springs.snappy}
+												transition={tweens.interaction}
 												style={{ borderRadius: "var(--radius)" }}
 												variants={{
 													tap: {
@@ -246,7 +248,7 @@ export function FloatingNav() {
 						hover: { scale: 1 },
 						tap: { scale: 0.92 },
 					}}
-					transition={springs.snappy}
+					transition={tweens.interaction}
 					className={cn(
 						"relative z-10 flex items-center justify-center rounded-(--radius)",
 						isThemeHovered
@@ -267,7 +269,7 @@ export function FloatingNav() {
 							opacity: isThemeHovered ? 1 : 0,
 							scale: isThemeHovered ? 1 : 0.92,
 						}}
-						transition={springs.snappy}
+						transition={tweens.interaction}
 						style={{ borderRadius: "var(--radius)" }}
 					/>
 					<motion.div
@@ -278,12 +280,12 @@ export function FloatingNav() {
 						}}
 					>
 						<Sun
-							className="rotate-0 scale-100 transition-transform duration-300 dark:-rotate-90 dark:scale-0"
+							className="rotate-0 scale-100 transition-transform duration-200 dark:-rotate-90 dark:scale-0"
 							style={{ width: ICON_SIZE, height: ICON_SIZE }}
 							weight="regular"
 						/>
 						<Moon
-							className="absolute rotate-90 scale-0 transition-transform duration-300 dark:rotate-0 dark:scale-100"
+							className="absolute rotate-90 scale-0 transition-transform duration-200 dark:rotate-0 dark:scale-100"
 							style={{ width: ICON_SIZE, height: ICON_SIZE }}
 							weight="regular"
 						/>

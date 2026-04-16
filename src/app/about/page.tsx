@@ -6,7 +6,8 @@ import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { HeadingReveal } from "@/src/components/ui/heading-reveal";
+import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export const metadata: Metadata = {
@@ -22,9 +23,7 @@ export default function AboutPage() {
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col">
 				{/* Nav Row */}
-				<Reveal phase={1} className="w-full">
-					<SiteHeader />
-				</Reveal>
+				<SiteHeader />
 
 				{/* Profile */}
 				<section id="profile" className="relative w-full">
@@ -246,9 +245,13 @@ export default function AboutPage() {
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<div className="portfolio-action-band">
-												<h2 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
+												<HeadingReveal
+													as="h2"
+													phase={3}
+													className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
+												>
 													Work with these principles?
-												</h2>
+												</HeadingReveal>
 												<Button
 													asChild
 													size="md"

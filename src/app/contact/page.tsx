@@ -22,9 +22,7 @@ export default function ContactPage() {
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col">
 				{/* Nav Row */}
-				<Reveal phase={1} className="w-full">
-					<SiteHeader />
-				</Reveal>
+				<SiteHeader />
 
 				{/* Header */}
 				<section id="contact-header" className="relative w-full">

@@ -21,7 +21,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
-import { cn, springs } from "@/src/lib/index";
+import { useRevealState } from "@/src/components/providers/reveal-provider";
+import { cn, springs, tweens } from "@/src/lib/index";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS - Swiss Grid Mathematics
@@ -80,12 +81,15 @@ const tooltipClasses = cn(
  */
 export function LocationBadge({ className }: { className?: string }) {
 	const [isHovered, setIsHovered] = useState(false);
+	const { environment } = useRevealState();
+	const shouldBypass = environment === "automation";
+	const shouldReduce = environment === "reduced-motion";
 
 	return (
 		<motion.div
-			initial={{ opacity: 0 }}
+			initial={shouldBypass ? false : { opacity: 0 }}
 			animate={{ opacity: 1 }}
-			transition={springs.responsive}
+			transition={shouldReduce ? tweens.reduced : springs.responsive}
 			className={cn(badgeBaseClasses, className)}
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
@@ -111,7 +115,7 @@ export function LocationBadge({ className }: { className?: string }) {
 						initial={{ opacity: 0, y: 4, scale: 0.98 }}
 						animate={{ opacity: 1, y: 0, scale: 1 }}
 						exit={{ opacity: 0, y: 4, scale: 0.98 }}
-						transition={{ duration: 0.15, ease: "easeOut" }}
+						transition={tweens.interactionFast}
 						className={tooltipClasses}
 					>
 						Open to Remote
@@ -138,6 +142,9 @@ export function TimeBadge({ className }: { className?: string }) {
 	const [time, setTime] = useState<string>("");
 	const [mounted, setMounted] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
+	const { environment } = useRevealState();
+	const shouldBypass = environment === "automation";
+	const shouldReduce = environment === "reduced-motion";
 
 	useEffect(() => {
 		setMounted(true);
@@ -165,9 +172,9 @@ export function TimeBadge({ className }: { className?: string }) {
 
 	return (
 		<motion.div
-			initial={{ opacity: 0 }}
+			initial={shouldBypass ? false : { opacity: 0 }}
 			animate={{ opacity: 1 }}
-			transition={{ ...springs.responsive, delay: 0.1 }}
+			transition={shouldReduce ? tweens.reduced : { ...springs.responsive, delay: 0.1 }}
 			className={cn(badgeBaseClasses, className)}
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
@@ -201,7 +208,7 @@ export function TimeBadge({ className }: { className?: string }) {
 						initial={{ opacity: 0, y: 4, scale: 0.98 }}
 						animate={{ opacity: 1, y: 0, scale: 1 }}
 						exit={{ opacity: 0, y: 4, scale: 0.98 }}
-						transition={{ duration: 0.15, ease: "easeOut" }}
+						transition={tweens.interactionFast}
 						className={tooltipClasses}
 					>
 						UTC+1
@@ -229,6 +236,9 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 	const containerRef = useRef<HTMLDivElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
 	const animationRef = useRef<Animation | null>(null);
+	const { environment } = useRevealState();
+	const shouldBypass = environment === "automation";
+	const shouldReduce = environment === "reduced-motion";
 
 	// Physics State
 	const speedRef = useRef(0); // Start at 0 for "Boot Sequence" overlap
@@ -401,9 +411,9 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 
 	return (
 		<motion.div
-			initial={{ opacity: 0 }}
+			initial={shouldBypass ? false : { opacity: 0 }}
 			animate={{ opacity: 1 }}
-			transition={{ ...springs.responsive, delay: 0.05 }}
+			transition={shouldReduce ? tweens.reduced : { ...springs.responsive, delay: 0.05 }}
 			className={cn(badgeBaseClasses, "overflow-hidden", className)}
 			style={{ height: BADGE_HEIGHT }}
 			ref={containerRef}

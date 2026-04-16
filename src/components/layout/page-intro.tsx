@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ProseContainer } from "@/src/components/layout/containers";
+import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { cn } from "@/src/lib/utils";
 
 interface PageIntroProps {
@@ -34,9 +35,13 @@ export function PageIntro({
 			)}
 
 			<div className={cn("flex flex-col gap-5", isCentered && "items-center")}>
-				<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100">
+				<HeadingReveal
+					as="h1"
+					phase={1}
+					className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100"
+				>
 					{title}
-				</h1>
+				</HeadingReveal>
 
 				{description && (
 					<ProseContainer className={cn(isCentered && "mx-auto")}>

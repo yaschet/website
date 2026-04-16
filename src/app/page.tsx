@@ -6,6 +6,7 @@ import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteHero } from "@/src/components/layout/site-hero";
 import { Button } from "@/src/components/ui/button";
+import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
@@ -109,9 +110,13 @@ export default async function Home() {
 									<div className="portfolio-box-pad">
 										<div className="portfolio-action-band">
 											<div>
-												<h2 className="portfolio-heading-sm portfolio-capsize-heading-sm text-surface-900 dark:text-surface-100">
+												<HeadingReveal
+													as="h2"
+													phase={3}
+													className="portfolio-heading-sm portfolio-capsize-heading-sm text-surface-900 dark:text-surface-100"
+												>
 													View selected work.
-												</h2>
+												</HeadingReveal>
 											</div>
 											<div className="portfolio-control-row">
 												<Button

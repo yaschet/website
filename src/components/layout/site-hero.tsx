@@ -3,6 +3,7 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { HeadingReveal } from "@/components/ui/heading-reveal";
 import { Reveal } from "@/components/ui/reveal";
 import { TopographicDotField } from "@/components/ui/topographic-dot-field";
 import { cn } from "@/lib/utils";
@@ -46,14 +47,14 @@ function HeroContent() {
 						gap: "var(--portfolio-space-2)",
 					}}
 				>
-					<Reveal phase={2}>
-						<h2
-							className="max-w-[12ch] font-medium text-[clamp(2.25rem,11vw,3rem)] text-surface-900 leading-[0.94] tracking-[var(--tracking-tighter)] dark:text-surface-100"
-							style={{ margin: 0 }}
-						>
-							I build products for the web.
-						</h2>
-					</Reveal>
+					<HeadingReveal
+						as="h2"
+						phase={2}
+						className="max-w-[12ch] font-medium text-[clamp(2.25rem,11vw,3rem)] text-surface-900 leading-[0.94] tracking-[var(--tracking-tighter)] dark:text-surface-100"
+						style={{ margin: 0 }}
+					>
+						I build products for the web.
+					</HeadingReveal>
 					<Reveal phase={2} delay={0.05}>
 						<p
 							className="max-w-[32ch] text-[1rem] text-surface-900 leading-7 tracking-[var(--tracking-normal)] dark:text-surface-100"
@@ -104,20 +105,20 @@ function HeroContent() {
 				}}
 			>
 				<div style={{ gridRow: `${HERO_HEAD_START_ROW} / span 6` }}>
-					<Reveal phase={2}>
-						<h2
-							className={cn(
-								"max-w-none text-heading-xl! text-surface-900 dark:text-surface-100",
-							)}
-							style={{
-								lineHeight: HERO_HEAD_LINE,
-								margin: 0,
-								transform: `translateY(${HERO_HEAD_OPTICAL_TRIM}px)`,
-							}}
-						>
-							I build products for the web.
-						</h2>
-					</Reveal>
+					<HeadingReveal
+						as="h2"
+						phase={2}
+						className={cn(
+							"max-w-none text-heading-xl! text-surface-900 dark:text-surface-100",
+						)}
+						style={{
+							lineHeight: HERO_HEAD_LINE,
+							margin: 0,
+							transform: `translateY(${HERO_HEAD_OPTICAL_TRIM}px)`,
+						}}
+					>
+						I build products for the web.
+					</HeadingReveal>
 				</div>
 				<div style={{ gridRow: `${HERO_BODY_START_ROW} / span 6` }}>
 					<Reveal phase={2} delay={0.05}>

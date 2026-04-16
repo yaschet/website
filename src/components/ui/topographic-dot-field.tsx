@@ -3,6 +3,8 @@
 import { useReducedMotion } from "framer-motion";
 import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useRevealState } from "@/src/components/providers/reveal-provider";
+import { tweens } from "@/src/lib/index";
 import {
 	computeGridAxis,
 	type DotGridLength,
@@ -488,7 +490,9 @@ export function TopographicDotField({
 	const supportsHoverRef = useRef(false);
 
 	const shouldReduceMotion = useReducedMotion();
+	const { environment } = useRevealState();
 	const [isDark, setIsDark] = useState(false);
+	const [isCanvasReady, setIsCanvasReady] = useState(false);
 	const [metrics, setMetrics] = useState<Metrics>({
 		dpr: 1,
 		height: 0,
@@ -496,6 +500,21 @@ export function TopographicDotField({
 		step: typeof step === "number" ? step : 18,
 		width: 0,
 	});
+	const shouldFreezeField = environment !== "normal" || shouldReduceMotion;
+
+	useEffect(() => {
+		let cancelled = false;
+		const fallbackTimer = window.setTimeout(() => {
+			if (!cancelled) {
+				setIsCanvasReady(true);
+			}
+		}, 800);
+
+		return () => {
+			cancelled = true;
+			clearTimeout(fallbackTimer);
+		};
+	}, []);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -739,6 +758,7 @@ export function TopographicDotField({
 		setUniform1("uUA3", palette.underlay[3].alpha);
 
 		let frameId = 0;
+		let hasMarkedReady = false;
 		let startTime = 0;
 		let lastFrameTime = 0;
 
@@ -748,7 +768,7 @@ export function TopographicDotField({
 			const deltaSeconds = (now - lastFrameTime) / 1000;
 			lastFrameTime = now;
 
-			const elapsed = shouldReduceMotion ? 0 : ((now - startTime) / 1000) * speed;
+			const elapsed = shouldFreezeField ? 0 : ((now - startTime) / 1000) * speed;
 			const mouse = mouseRef.current;
 			const pointerTau = 0.1;
 			const strengthTau = mouse.targetStrength > mouse.currentStrength ? 0.12 : 0.6;
@@ -761,11 +781,16 @@ export function TopographicDotField({
 
 			gl.uniform1f(uniforms.uTime, elapsed);
 			gl.uniform2f(uniforms.uMouse, mouse.currentX, mouse.currentY);
-			gl.uniform1f(uniforms.uMouseStrength, shouldReduceMotion ? 0 : mouse.currentStrength);
+			gl.uniform1f(uniforms.uMouseStrength, shouldFreezeField ? 0 : mouse.currentStrength);
 			gl.clear(gl.COLOR_BUFFER_BIT);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-			if (!shouldReduceMotion) {
+			if (!hasMarkedReady) {
+				hasMarkedReady = true;
+				setIsCanvasReady(true);
+			}
+
+			if (!shouldFreezeField) {
 				frameId = requestAnimationFrame(render);
 			}
 		};
@@ -773,11 +798,11 @@ export function TopographicDotField({
 		frameId = requestAnimationFrame(render);
 
 		return () => cancelAnimationFrame(frameId);
-	}, [isDark, metrics, origin, radius, shouldReduceMotion, speed]);
+	}, [isDark, metrics, origin, radius, shouldFreezeField, speed]);
 
 	const updateMouseTarget = (clientX: number, clientY: number) => {
 		const container = containerRef.current;
-		if (!container || !supportsHoverRef.current || shouldReduceMotion) return;
+		if (!container || !supportsHoverRef.current || shouldFreezeField) return;
 
 		const rect = container.getBoundingClientRect();
 		if (rect.width <= 0 || rect.height <= 0) return;
@@ -819,7 +844,12 @@ export function TopographicDotField({
 		>
 			<canvas
 				ref={canvasRef}
-				className="pointer-events-none absolute inset-0 h-full w-full bg-white transition-colors dark:bg-surface-900/80"
+				className="pointer-events-none absolute inset-0 h-full w-full bg-white transition-[opacity,background-color] dark:bg-surface-900/80"
+				style={{
+					opacity: isCanvasReady ? 1 : 0,
+					transitionDuration: `${tweens.field.duration}s`,
+					transitionTimingFunction: `cubic-bezier(${tweens.field.ease.join(",")})`,
+				}}
 			/>
 		</div>
 	);

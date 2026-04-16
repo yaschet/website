@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
+import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { Reveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
@@ -29,9 +30,13 @@ export default function NotFound() {
 									</Reveal>
 
 									<Reveal phase={2} delay={0.1}>
-										<h1 className="portfolio-heading-lg portfolio-capsize-heading-lg mb-5 text-surface-900 dark:text-surface-100">
+										<HeadingReveal
+											as="h1"
+											phase={2}
+											className="portfolio-heading-lg portfolio-capsize-heading-lg mb-5 text-surface-900 dark:text-surface-100"
+										>
 											Coordinates Invalid.
-										</h1>
+										</HeadingReveal>
 									</Reveal>
 
 									<Reveal phase={2} delay={0.2}>

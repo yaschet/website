@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import type { ReactNode } from "react";
-import { cn, springs } from "@/src/lib/index";
+import { cn, tweens } from "@/src/lib/index";
 
 interface HoverTooltipProps {
 	visible: boolean;
@@ -18,7 +18,7 @@ export function HoverTooltip({ visible, children, className }: HoverTooltipProps
 					initial={{ opacity: 0, y: 4, scale: 0.98 }}
 					animate={{ opacity: 1, y: 0, scale: 1 }}
 					exit={{ opacity: 0, y: 2, scale: 0.99 }}
-					transition={springs.snappy}
+					transition={tweens.interactionFast}
 					className={cn(
 						"pointer-events-none absolute bottom-full left-1/2 z-30 mb-1.5 -translate-x-1/2 whitespace-nowrap",
 						"border border-surface-200 bg-white px-2.5 py-1.5",
