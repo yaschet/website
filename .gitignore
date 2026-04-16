@@ -47,4 +47,3 @@ next-env.d.ts
 # temp
 .playwright-report
 .playwright-cli
-    

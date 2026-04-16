@@ -9,18 +9,22 @@ import {
 	INSTRUMENT_GRID_ORIGIN,
 	INSTRUMENT_GRID_STEP,
 } from "./instrument-field-metrics";
-import { InstrumentField } from "./topographic-dot-field";
+import { InstrumentField, type InstrumentFieldVariant } from "./topographic-dot-field";
 
 interface InstrumentActionBandProps {
 	children: ReactNode;
 	className?: string;
 	contentClassName?: string;
+	fieldSpeed?: number;
+	fieldVariant?: InstrumentFieldVariant;
 }
 
 export function InstrumentActionBand({
 	children,
 	className,
 	contentClassName,
+	fieldSpeed = 0.22,
+	fieldVariant = "pulse",
 }: InstrumentActionBandProps) {
 	return (
 		<div className={cn("relative isolate w-full overflow-hidden", className)}>
@@ -31,9 +35,9 @@ export function InstrumentActionBand({
 				minInset={INSTRUMENT_GRID_MIN_INSET}
 				origin={INSTRUMENT_GRID_ORIGIN}
 				radius={INSTRUMENT_DOT_RADIUS}
-				speed={0.22}
+				speed={fieldSpeed}
 				surface="band"
-				variant="pulse"
+				variant={fieldVariant}
 			/>
 			<div
 				className={cn(

@@ -12,8 +12,8 @@ import {
 	resolveLength,
 } from "./dot-grid-metrics";
 
-export type InstrumentFieldVariant = "terrain" | "pulse";
-export type InstrumentSurface = "hero" | "header" | "band";
+export type InstrumentFieldVariant = "terrain" | "pulse" | "ray";
+export type InstrumentSurface = "hero" | "header" | "band" | "strip";
 
 interface InstrumentFieldProps {
 	className?: string;
@@ -247,15 +247,45 @@ float pulseFieldValue(vec2 uv, float time) {
   return clamp(field, 0.0, 1.0);
 }
 
+float rayFieldValue(vec2 uv, float time) {
+  float aspect = uRes.x / max(uRes.y, 1.0);
+  vec2 source = vec2(0.5, 1.08);
+  vec2 rel = (uv - source) * vec2(aspect * 0.28, 1.0);
+
+  float angle = atan(rel.y, rel.x);
+  float dist = length(rel);
+
+  float f1 = sin(angle * 8.0 + dist * 15.0 - time * 1.20) * 0.30;
+  float f2 = sin(angle * 13.0 + dist * 8.0 - time * 0.82 + 0.7) * 0.40;
+  float f3 = sin(angle * 21.0 + dist * 4.0 - time * 1.48 + 1.1) * 0.30;
+
+  float field = (f1 + f2 + f3) * 0.5 + 0.5;
+  float seamLift = exp(-pow((uv.x - 0.5) / 0.05, 2.0)) * exp(-pow((uv.y - 1.0) / 0.16, 2.0));
+  float outwardWindow = 1.0 - sm3(0.88, 1.58, dist);
+
+  field = mix(0.5, field, 0.62);
+  field = mix(0.5, field + seamLift * 0.16, outwardWindow);
+
+  return clamp(field, 0.0, 1.0);
+}
+
 float fieldValue(vec2 uv, float time) {
   if (uVariant < 0.5) {
     return terrainFieldValue(uv, time);
   }
 
-  return pulseFieldValue(uv, time);
+  if (uVariant < 1.5) {
+    return pulseFieldValue(uv, time);
+  }
+
+  return rayFieldValue(uv, time);
 }
 
 float contentShield(vec2 uv) {
+  if (uSurface > 2.5) {
+    return 0.0;
+  }
+
   if (uSurface > 1.5) {
     float desktopTitle = gauss2(uv, vec2(0.18, 0.54), vec2(0.24, 0.22)) * 1.34;
     float desktopControls = gauss2(uv, vec2(0.84, 0.54), vec2(0.18, 0.20)) * 1.42;
@@ -630,7 +660,14 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 }
 
 function resolveVariantValue(variant: InstrumentFieldVariant) {
-	return variant === "pulse" ? 1 : 0;
+	switch (variant) {
+		case "pulse":
+			return 1;
+		case "ray":
+			return 2;
+		default:
+			return 0;
+	}
 }
 
 function resolveSurfaceValue(surface: InstrumentSurface) {
@@ -639,6 +676,8 @@ function resolveSurfaceValue(surface: InstrumentSurface) {
 			return 1;
 		case "band":
 			return 2;
+		case "strip":
+			return 3;
 		default:
 			return 0;
 	}
