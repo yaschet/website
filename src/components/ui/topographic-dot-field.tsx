@@ -1,7 +1,7 @@
 "use client";
 
 import { useReducedMotion } from "framer-motion";
-import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useRevealState } from "@/src/components/providers/reveal-provider";
 import { tweens } from "@/src/lib/index";
@@ -727,6 +727,20 @@ function resolveSurfaceValue(surface: InstrumentSurface) {
 	}
 }
 
+function resolveInteractionHost(container: HTMLDivElement) {
+	let candidate = container.parentElement;
+
+	while (candidate) {
+		const position = window.getComputedStyle(candidate).position;
+		if (position !== "absolute" && position !== "fixed") {
+			return candidate;
+		}
+		candidate = candidate.parentElement;
+	}
+
+	return container.parentElement;
+}
+
 export function InstrumentField({
 	className,
 	interactive = true,
@@ -878,6 +892,77 @@ export function InstrumentField({
 
 		return () => mediaQuery.removeEventListener("change", sync);
 	}, []);
+
+	useEffect(() => {
+		const container = containerRef.current;
+		if (!container || !interactive) {
+			mouseRef.current.targetStrength = 0;
+			return;
+		}
+
+		const host = resolveInteractionHost(container);
+		if (!host) return;
+
+		const clearPointerTarget = () => {
+			mouseRef.current.targetStrength = 0;
+		};
+
+		const updatePointerTarget = (clientX: number, clientY: number, strengthBoost = 0) => {
+			if (!supportsHoverRef.current || shouldFreezeField) return;
+
+			const rect = container.getBoundingClientRect();
+			if (rect.width <= 0 || rect.height <= 0) return;
+
+			const x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+			const y = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
+			const edgeDistance = Math.min(x, 1 - x, y, 1 - y);
+			const edgeStrength = Math.min(1, Math.max(0, (edgeDistance - 0.06) / 0.18));
+
+			mouseRef.current.targetX = x;
+			mouseRef.current.targetY = y;
+			mouseRef.current.targetStrength = Math.min(1, edgeStrength + strengthBoost);
+		};
+
+		const handlePointerEnter = (event: PointerEvent) => {
+			if (event.pointerType === "touch") return;
+			updatePointerTarget(event.clientX, event.clientY);
+		};
+
+		const handlePointerMove = (event: PointerEvent) => {
+			if (event.pointerType === "touch") return;
+			updatePointerTarget(event.clientX, event.clientY);
+		};
+
+		const handlePointerDown = (event: PointerEvent) => {
+			if (event.pointerType === "touch") return;
+			updatePointerTarget(event.clientX, event.clientY, 0.12);
+		};
+
+		const handlePointerUp = (event: PointerEvent) => {
+			if (event.pointerType === "touch") return;
+			updatePointerTarget(event.clientX, event.clientY);
+		};
+
+		const handlePointerLeave = () => {
+			clearPointerTarget();
+		};
+
+		host.addEventListener("pointerenter", handlePointerEnter);
+		host.addEventListener("pointermove", handlePointerMove);
+		host.addEventListener("pointerdown", handlePointerDown);
+		host.addEventListener("pointerup", handlePointerUp);
+		host.addEventListener("pointerleave", handlePointerLeave);
+		host.addEventListener("pointercancel", handlePointerLeave);
+
+		return () => {
+			host.removeEventListener("pointerenter", handlePointerEnter);
+			host.removeEventListener("pointermove", handlePointerMove);
+			host.removeEventListener("pointerdown", handlePointerDown);
+			host.removeEventListener("pointerup", handlePointerUp);
+			host.removeEventListener("pointerleave", handlePointerLeave);
+			host.removeEventListener("pointercancel", handlePointerLeave);
+		};
+	}, [interactive, shouldFreezeField]);
 
 	useEffect(() => {
 		const container = containerRef.current;
@@ -1143,49 +1228,14 @@ export function InstrumentField({
 		variant,
 	]);
 
-	const updateMouseTarget = (clientX: number, clientY: number) => {
-		const container = containerRef.current;
-		if (!container || !interactive || !supportsHoverRef.current || shouldFreezeField) return;
-
-		const rect = container.getBoundingClientRect();
-		if (rect.width <= 0 || rect.height <= 0) return;
-
-		const x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
-		const y = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
-		const edgeDistance = Math.min(x, 1 - x, y, 1 - y);
-		const edgeStrength = Math.min(1, Math.max(0, (edgeDistance - 0.06) / 0.18));
-
-		mouseRef.current.targetX = x;
-		mouseRef.current.targetY = y;
-		mouseRef.current.targetStrength = edgeStrength;
-	};
-
-	const handlePointerEnter = (event: ReactPointerEvent<HTMLDivElement>) => {
-		if (event.pointerType === "touch") return;
-		updateMouseTarget(event.clientX, event.clientY);
-	};
-
-	const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-		if (event.pointerType === "touch") return;
-		updateMouseTarget(event.clientX, event.clientY);
-	};
-
-	const handlePointerLeave = () => {
-		mouseRef.current.targetStrength = 0;
-	};
-
 	return (
 		<div
 			ref={containerRef}
 			className={cn(
-				interactive ? "pointer-events-auto" : "pointer-events-none",
-				"absolute inset-0 overflow-hidden transition-colors",
-				backgroundClassName,
 				className,
+				"pointer-events-none absolute inset-0 overflow-hidden transition-colors",
+				backgroundClassName,
 			)}
-			onPointerEnter={handlePointerEnter}
-			onPointerMove={handlePointerMove}
-			onPointerLeave={handlePointerLeave}
 		>
 			<canvas
 				ref={canvasRef}

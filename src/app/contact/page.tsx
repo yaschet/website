@@ -85,7 +85,7 @@ function ContactInstrumentPlane() {
 		<div className="absolute inset-0" aria-hidden="true">
 			<InstrumentField
 				className="pointer-events-none opacity-66 dark:opacity-78"
-				interactive={false}
+				interactive
 				step={INSTRUMENT_GRID_STEP}
 				minInset={INSTRUMENT_GRID_MIN_INSET}
 				origin="inset"

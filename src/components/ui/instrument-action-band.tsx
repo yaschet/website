@@ -52,7 +52,7 @@ export function InstrumentActionBand({
 		>
 			<InstrumentField
 				className="pointer-events-none opacity-100 dark:opacity-100"
-				interactive={false}
+				interactive
 				step={INSTRUMENT_GRID_STEP}
 				minInset={INSTRUMENT_GRID_MIN_INSET}
 				origin={INSTRUMENT_GRID_ORIGIN}

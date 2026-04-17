@@ -14,7 +14,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { InstrumentField } from "@/components/ui/topographic-dot-field";
 import { cn } from "@/lib/utils";
 
-const HERO_COPY_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 24)";
+const HERO_COPY_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 48)";
 
 function HeroContent() {
 	return (
@@ -25,11 +25,11 @@ function HeroContent() {
 			>
 				<HeadingReveal
 					as="h1"
-					phase={2}
-					className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100"
+					phase={1}
+					className="portfolio-heading-xl portfolio-capsize-heading-xl w-full text-surface-900 dark:text-surface-100"
 					style={{ margin: 0 }}
 				>
-					<span className="block">Complex systems, clean interfaces.</span>
+					Complex systems, clean interfaces.
 				</HeadingReveal>
 				<Reveal phase={2} delay={0.05}>
 					<p
