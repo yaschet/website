@@ -69,7 +69,7 @@ interface AlphaPalette {
 
 const DARK_ALPHA_PALETTE: AlphaPalette = {
 	active: [{ alpha: 0.16 }, { alpha: 0.28 }, { alpha: 0.44 }, { alpha: 0.64 }],
-	underlay: [{ alpha: 0.18 }, { alpha: 0.26 }, { alpha: 0.36 }, { alpha: 0.48 }],
+	underlay: [{ alpha: 0.12 }, { alpha: 0.18 }, { alpha: 0.26 }, { alpha: 0.36 }],
 };
 
 const LIGHT_ALPHA_PALETTE: AlphaPalette = {
@@ -619,15 +619,15 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	return {
 		active: [
 			{
-				color: resolveTone(isDark ? 600 : 300),
+				color: resolveTone(isDark ? 700 : 300),
 				alpha: alphaPalette.active[0].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 400 : 400),
+				color: resolveTone(isDark ? 500 : 400),
 				alpha: alphaPalette.active[1].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 200 : 500),
+				color: resolveTone(isDark ? 300 : 500),
 				alpha: alphaPalette.active[2].alpha,
 			},
 			{
@@ -637,19 +637,19 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		],
 		underlay: [
 			{
-				color: resolveTone(isDark ? 800 : 100),
+				color: resolveTone(isDark ? 950 : 100),
 				alpha: alphaPalette.underlay[0].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 700 : 200),
+				color: resolveTone(isDark ? 900 : 200),
 				alpha: alphaPalette.underlay[1].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 600 : 300),
+				color: resolveTone(isDark ? 800 : 300),
 				alpha: alphaPalette.underlay[2].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 500 : 400),
+				color: resolveTone(isDark ? 700 : 400),
 				alpha: alphaPalette.underlay[3].alpha,
 			},
 		],
