@@ -369,10 +369,11 @@ void main() {
   contour = max(contour, contourBand(field, u3, fieldGradient, contourWidth));
 
   vec4 underlay = vec4(0.0);
-  if      (field >= u3) { underlay = vec4(uUC3, uUA3); }
-  else if (field >= u2) { underlay = vec4(uUC2, uUA2); }
-  else if (field >= u1) { underlay = vec4(uUC1, uUA1); }
-  else if (field >= u0) { underlay = vec4(uUC0, uUA0); }
+  int underlayBand = 0;
+  if      (field >= u3) { underlay = vec4(uUC3, uUA3); underlayBand = 4; }
+  else if (field >= u2) { underlay = vec4(uUC2, uUA2); underlayBand = 3; }
+  else if (field >= u1) { underlay = vec4(uUC1, uUA1); underlayBand = 2; }
+  else if (field >= u0) { underlay = vec4(uUC0, uUA0); underlayBand = 1; }
 
   vec4 dots = vec4(0.0);
   if (inDot) {
