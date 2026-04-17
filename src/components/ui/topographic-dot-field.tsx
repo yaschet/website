@@ -365,10 +365,36 @@ void main() {
 
   vec4 dots = vec4(0.0);
   if (inDot) {
-    if      (field >= d3) { dots = vec4(uLC3, uLA3); }
-    else if (field >= d2) { dots = vec4(uLC2, uLA2); }
-    else if (field >= d1) { dots = vec4(uLC1, uLA1); }
-    else if (field >= d0) { dots = vec4(uLC0, uLA0); }
+    float dot0 = mix(u0 + 0.035, d0, uDark);
+    float dot1 = mix(u1 + 0.030, d1, uDark);
+    float dot2 = mix(u2 + 0.025, d2, uDark);
+    float dot3 = mix(u3 + 0.020, d3, uDark);
+    float dotT01 = sm3(dot0, dot1, field);
+    float dotT12 = sm3(dot1, dot2, field);
+    float dotT23 = sm3(dot2, dot3, field);
+    float dotReveal = sm3(
+      dot0 + mix(0.020, 0.010, uDark),
+      min(0.995, dot3 + mix(0.025, 0.015, uDark)),
+      field
+    );
+    float dotBandWeight = mix(
+      0.58 + 0.42 * sm3(u1 + 0.015, u3 + 0.015, field),
+      1.0,
+      uDark
+    );
+
+    vec3 dotRgb = mix(uLC0, uLC1, dotT01);
+    dotRgb = mix(dotRgb, uLC2, dotT12);
+    dotRgb = mix(dotRgb, uLC3, dotT23);
+
+    float dotAlpha = mix(uLA0, uLA1, dotT01);
+    dotAlpha = mix(dotAlpha, uLA2, dotT12);
+    dotAlpha = mix(dotAlpha, uLA3, dotT23);
+
+    dots = vec4(
+      dotRgb,
+      dotAlpha * dotBandWeight * pow(dotReveal, mix(2.2, 1.35, uDark))
+    );
   }
 
   vec3 contourRgb = mix(uLC2, uLC3, mix(0.42, 0.58, uDark));
