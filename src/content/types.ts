@@ -14,10 +14,12 @@ export const postMetadataSchema = z.object({
 export const projectMetadataSchema = z.object({
 	title: z.string(),
 	description: z.string(),
+	subtitle: z.string().optional(),
 	date: z.string(),
 	tags: z.array(z.string()).default([]),
 	tech: z.array(z.string()).default([]),
 	role: z.string().optional(),
+	domain: z.string().optional(),
 	stack: z.array(z.string()).optional(),
 	status: z.string().optional(),
 	url: z.string().optional(),
@@ -27,6 +29,8 @@ export const projectMetadataSchema = z.object({
 	featured: z.boolean().default(false),
 	hideCoverGallery: z.boolean().default(false),
 	seoKeywords: z.array(z.string()).optional(),
+	sortOrder: z.number().optional(),
+	cardState: z.enum(["public", "coming-soon"]).default("public"),
 });
 
 export type PostMetadata = z.infer<typeof postMetadataSchema>;

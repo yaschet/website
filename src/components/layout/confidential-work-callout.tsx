@@ -13,15 +13,16 @@ export function ConfidentialWorkCallout({ className }: ConfidentialWorkCalloutPr
 					Confidential Work
 				</p>
 				<p className="portfolio-body-sm portfolio-callout-copy text-surface-600 dark:text-surface-400">
-					Due to strict NDAs and client privacy, most commercial enterprise work cannot be
-					publicly displayed.{" "}
+					Production systems in legal translation, international education, customer
+					onboarding, back-office operations tooling, and financial reconciliation. Most
+					under NDA. Selected case studies are anonymized; deeper materials are available{" "}
 					<Link
 						href="/contact"
 						className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-4 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
 					>
-						Contact me
+						on request
 					</Link>{" "}
-					directly to discuss enterprise experience.
+					.
 				</p>
 			</div>
 		</div>

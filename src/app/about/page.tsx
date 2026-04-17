@@ -2,6 +2,7 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
+import { PageIntro } from "@/src/components/layout/page-intro";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
@@ -24,24 +25,24 @@ export const metadata: Metadata = {
 
 const PRINCIPLES = [
 	{
-		title: "Precision",
+		title: "Boring infrastructure over demo architecture.",
 		description:
-			"I treat code like a contract. If the API fails, the UI is a lie. I build systems that fail gracefully and recover automatically.",
+			"I prefer Postgres over five new databases, standard TypeScript over clever abstractions, and proven libraries over the framework launched last week. Novel stacks create debt. Boring stacks ship and survive pivots. If your engineer is excited about the stack more than the problem, that's a warning sign.",
 	},
 	{
-		title: "Speed as a Feature",
+		title: "Verified AI, not vibe coding.",
 		description:
-			'Latency kills trust. I optimize for "perceived performance" using optimistic UI, skeletons, and edge caching. No one likes waiting.',
+			"I use Claude Code, Cursor, and Codex daily to accelerate scaffolding, refactors, tests, and codebase exploration. I do not ship unverified AI output into high-stakes workflows. Every path that touches money, eligibility, or user-visible correctness is validated through tests, evals, and failure-case review before it ships.",
 	},
 	{
-		title: "ROI-First",
+		title: "One owner per decision.",
 		description:
-			"I don't build features for fun. I build to move the needle. If a feature doesn't reduce churn or increase revenue, I cut it.",
+			"I'm at my best when one founder or CTO owns decisions end-to-end. Committee-driven scoping produces committee-quality software. If a project has four stakeholders each able to override architecture, I'm probably not the right engineer.",
 	},
 	{
-		title: "End-to-End Responsibility",
+		title: "End-to-end responsibility.",
 		description:
-			'I don\'t say "it works on my machine." I own the product from the first line of code to the final deployment logs.',
+			'I don\'t say "it works on my machine." I own the product from the first line of code to the final deployment logs. If something breaks in production at 2 AM, I\'m the one reading the stack trace.',
 	},
 ] as const;
 
@@ -61,6 +62,26 @@ export default function AboutPage() {
 							</SwissGridRow>
 						</SwissGridBox>
 					</PageContainer>
+				</section>
+
+				<section id="about-intro" className="w-full">
+					<ScrollReveal phase={1} className="w-full">
+						<section className="w-full">
+							<PageContainer className="portfolio-section-top">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<PageIntro
+												eyebrow="ABOUT"
+												title="How I work."
+												description="Engineering principles and the path that produced them."
+											/>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
+					</ScrollReveal>
 				</section>
 
 				{/* 01 · The Short Version */}
@@ -83,38 +104,34 @@ export default function AboutPage() {
 											<ProseContainer className="portfolio-prose">
 												<ScrollReveal phase={2} delay={0.05}>
 													<p>
-														I started in{" "}
-														<strong className="font-medium text-surface-900 dark:text-surface-100">
-															Graphic Design
-														</strong>
-														, obsessing over visual hierarchy and Swiss
-														precision. In 2021, I realized design
-														wasn&apos;t enough—I wanted the power to
-														build, not just mock up.
+														I started in graphic design. Obsessed with
+														Swiss precision, visual hierarchy, and
+														typographic rhythm.
 													</p>
 												</ScrollReveal>
 												<ScrollReveal phase={2} delay={0.1}>
 													<p>
-														I pivoted to{" "}
-														<strong className="font-medium text-surface-900 dark:text-surface-100">
-															Backend and Systems Engineering
-														</strong>
-														. I don&apos;t just build interfaces; I
-														architect full-stack engines. From database
-														ledgers to AI pipelines, I bridge the gap
-														between &quot;beautiful UI&quot; and
-														&quot;heavy backend logic.&quot;
+														In 2021, I realized design without
+														build-power is just decoration. I pivoted to
+														engineering and never looked back.
 													</p>
 												</ScrollReveal>
 												<ScrollReveal phase={2} delay={0.15}>
 													<p>
-														Today, I function as a{" "}
-														<strong className="font-medium text-surface-900 dark:text-surface-100">
-															Software Engineer
-														</strong>
-														. I solve expensive business problems using
-														whatever stack is required, shipping
-														production-grade software in short cycles.
+														Today, I architect full-stack systems
+														end-to-end. From database ledgers to AI
+														pipelines, I bridge the gap most teams leave
+														open: the layer between beautiful UI and
+														heavy backend logic. That layer is where
+														products either succeed or quietly fail.
+													</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.2}>
+													<p>
+														I solve expensive business problems using
+														whatever stack is required. I ship
+														production software in weekly cycles. I own
+														outcomes, not tickets.
 													</p>
 												</ScrollReveal>
 											</ProseContainer>
@@ -191,33 +208,98 @@ export default function AboutPage() {
 											<ProseContainer className="portfolio-prose">
 												<ScrollReveal phase={2} delay={0.05}>
 													<p>
-														I architect for{" "}
-														<strong className="font-medium text-surface-900 dark:text-surface-100">
-															Malleability
-														</strong>
-														. Systems change. I use strict typing
-														(TypeScript/Zod) and atomic design
-														principles so that when the business pivots,
-														the code doesn&apos;t break.
+														I architect for malleability. Systems
+														change. Business models pivot. I use strict
+														typing (TypeScript + Zod), atomic design
+														principles, and clear module boundaries so
+														that when the business shifts direction, the
+														code adapts instead of breaking. Rigid
+														systems are easy to build and expensive to
+														maintain. Malleable systems are hard to
+														build and cheap to live with.
 													</p>
 												</ScrollReveal>
 												<ScrollReveal phase={2} delay={0.1}>
 													<p>
 														Ship early. Ship often. I work in weekly
-														cycles with working demos. You see
-														architecture decisions in action, not in
-														Figma files. Technical debt gets documented
-														and prioritized, not hidden until
-														deployment.
+														cycles with working demos, not Figma files.
+														You see architecture decisions in motion, in
+														production, not in slides. Technical debt
+														gets documented and prioritized openly, not
+														hidden until deployment, not discovered
+														during the next engineer&apos;s onboarding.
 													</p>
 												</ScrollReveal>
 												<ScrollReveal phase={2} delay={0.15}>
 													<p>
 														I optimize for long-term outcomes. Fast code
 														that nobody can maintain is slow code. Clean
-														abstractions that enable the next engineer
-														to ship faster are infrastructure
-														investments.
+														abstractions that let the next engineer ship
+														faster are infrastructure investments. My
+														job isn&apos;t to write code. It&apos;s to
+														make sure the codebase, six months from now,
+														is still a place your team wants to work in.
+													</p>
+												</ScrollReveal>
+											</ProseContainer>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
+					</ScrollReveal>
+				</section>
+
+				<section id="working-with-ai" className="w-full">
+					<ScrollReveal phase={2} className="w-full">
+						<section className="w-full">
+							<PageContainer className="portfolio-section-top">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ScrollReveal phase={2}>
+												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+													04 · Working with AI
+												</p>
+											</ScrollReveal>
+										</div>
+									</SwissGridRow>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ProseContainer className="portfolio-prose">
+												<ScrollReveal phase={2} delay={0.05}>
+													<p>AI is my compiler, not my architect.</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.1}>
+													<p>
+														I use coding agents (Claude Code, Cursor,
+														Codex) for scaffolding, refactors, test
+														generation, and codebase exploration. They
+														accelerate the parts of the work that deserve
+														acceleration. They do not decide
+														architecture, validate business logic, or own
+														the final quality. Those stay human.
+													</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.15}>
+													<p>
+														Every path that touches money, eligibility,
+														user-visible correctness, or external
+														compliance is verified through tests, evals,
+														and manual boundary review before it ships. I
+														document where AI accelerated a decision and
+														where a human overrode one. That trail makes
+														audits tractable six months later when
+														something goes wrong and the root cause has
+														to be found fast.
+													</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.2}>
+													<p>
+														If the question is &quot;can I ship faster with
+														AI?&quot; yes, substantially. If the question
+														is &quot;will I ship AI output you can&apos;t
+														explain?&quot; no.
 													</p>
 												</ScrollReveal>
 											</ProseContainer>

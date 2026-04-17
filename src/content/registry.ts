@@ -104,6 +104,16 @@ export const getProjectBySlug = cache(async (slug: string): Promise<ProjectEntry
 	};
 });
 
+export const getPublicProjectBySlug = cache(async (slug: string): Promise<ProjectEntry | null> => {
+	const project = await getProjectBySlug(slug);
+
+	if (!project || project.cardState === "coming-soon") {
+		return null;
+	}
+
+	return project;
+});
+
 export const getAllPosts = cache(async (): Promise<PostEntry[]> => {
 	const slugs = await listMdxSlugs(BLOG_DIR);
 	const posts = await Promise.all(slugs.map((slug) => getPostBySlug(slug)));
@@ -119,5 +129,19 @@ export const getAllProjects = cache(async (): Promise<ProjectEntry[]> => {
 
 	return projects
 		.filter((project): project is ProjectEntry => project !== null)
-		.sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)));
+		.sort((a, b) => {
+			const aOrder = a.sortOrder ?? Number.POSITIVE_INFINITY;
+			const bOrder = b.sortOrder ?? Number.POSITIVE_INFINITY;
+
+			if (aOrder !== bOrder) {
+				return aOrder - bOrder;
+			}
+
+			return compareDesc(new Date(a.date), new Date(b.date));
+		});
+});
+
+export const getPublicProjects = cache(async (): Promise<ProjectEntry[]> => {
+	const projects = await getAllProjects();
+	return projects.filter((project) => project.cardState !== "coming-soon");
 });

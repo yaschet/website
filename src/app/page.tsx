@@ -77,11 +77,7 @@ function HomeClosingCta() {
 
 export default async function Home() {
 	const allProjects = await getAllProjects();
-	// Identify featured projects for the landing page
-	const featuredSlugs = ["verto"];
-	const featuredProjects = featuredSlugs
-		.map((slug) => allProjects.find((p) => p.slug === slug))
-		.filter((p): p is NonNullable<typeof p> => !!p);
+	const featuredProjects = allProjects.filter((project) => project.sortOrder !== undefined);
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -124,7 +120,22 @@ export default async function Home() {
 															href={project.urlPath}
 															tags={project.tech ?? []}
 															images={project.coverImages}
-															date="January 2026"
+															isPrivate={
+																project.cardState === "coming-soon"
+															}
+															date={
+																project.date
+																	? new Date(
+																			project.date,
+																		).toLocaleDateString(
+																			"en-US",
+																			{
+																				month: "long",
+																				year: "numeric",
+																			},
+																		)
+																	: undefined
+															}
 															imageTreatment="disciplined"
 															imageAspectRatio="1.92"
 														/>

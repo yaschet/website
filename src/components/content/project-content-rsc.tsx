@@ -80,7 +80,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 
 												<ProseContainer>
 													<p className="portfolio-body-lg text-muted-foreground">
-														{project.description}
+														{project.subtitle ?? project.description}
 													</p>
 												</ProseContainer>
 											</div>
@@ -92,7 +92,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 								<Reveal phase={2} delay={0.04} className="w-full">
 									<div className="portfolio-box-pad">
 										<ModuleContainer className="portfolio-stack-group mx-auto">
-											<div className="grid grid-cols-1 gap-[var(--portfolio-space-group)] sm:grid-cols-2">
+											<div className="grid grid-cols-1 gap-[var(--portfolio-space-group)] sm:grid-cols-3">
 												{project.role && (
 													<div className="portfolio-card-copy">
 														<span className="portfolio-meta-label text-muted-foreground">
@@ -113,8 +113,18 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 														</span>
 													</div>
 												)}
+												{project.domain && (
+													<div className="portfolio-card-copy">
+														<span className="portfolio-meta-label text-muted-foreground">
+															Domain
+														</span>
+														<span className="portfolio-meta-value text-foreground">
+															{project.domain}
+														</span>
+													</div>
+												)}
 												{project.stack && project.stack.length > 0 && (
-													<div className="portfolio-card-copy sm:col-span-2">
+													<div className="portfolio-card-copy sm:col-span-3">
 														<span className="portfolio-meta-label text-muted-foreground">
 															Engine Stack
 														</span>
@@ -133,7 +143,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 												{!project.stack &&
 													project.tech &&
 													project.tech.length > 0 && (
-														<div className="portfolio-card-copy sm:col-span-2">
+														<div className="portfolio-card-copy sm:col-span-3">
 															<span className="portfolio-meta-label text-muted-foreground">
 																Technologies
 															</span>

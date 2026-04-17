@@ -36,13 +36,8 @@ function HeroContent() {
 						className="portfolio-body-lg text-surface-900 dark:text-surface-100"
 						style={{ margin: 0 }}
 					>
-						<span className="block">I build what most engineers won't —</span>
-						<span className="block">
-							translation pipelines, matching engines, financial ledgers.
-						</span>
-						<span className="block pt-[var(--portfolio-space-tight)]">
-							Then make them feel effortless.
-						</span>
+						Translation pipelines. Matching engines. Financial ledgers. Built to hold
+						under pressure, made to feel effortless.
 					</p>
 				</Reveal>
 			</div>

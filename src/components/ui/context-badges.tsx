@@ -30,12 +30,12 @@ const insigniaClasses = cn(
 const contentClasses = cn("flex items-center");
 
 const tooltipClasses = cn(
-	"pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 whitespace-nowrap",
+	"pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2",
 	"portfolio-badge-label px-[var(--portfolio-space-tight)] py-[var(--portfolio-space-tight)]",
 	"bg-white dark:bg-surface-900",
 	"text-surface-700 dark:text-surface-300",
 	"border border-surface-200 dark:border-surface-800",
-	"rounded-none shadow-md",
+	"rounded-none text-center shadow-md",
 );
 
 export function LocationBadge({ className }: { className?: string }) {
@@ -79,7 +79,13 @@ export function LocationBadge({ className }: { className?: string }) {
 						transition={tweens.interactionFast}
 						className={tooltipClasses}
 					>
-						Open to Remote
+						<span className="block whitespace-nowrap">Rabat · GMT+1</span>
+						<span className="block whitespace-nowrap">
+							Full overlap with EU working hours.
+						</span>
+						<span className="block whitespace-nowrap">
+							US East Coast mornings. B2B-ready contracting and payments.
+						</span>
 					</motion.div>
 				)}
 			</AnimatePresence>
@@ -97,16 +103,15 @@ export function TimeBadge({ className }: { className?: string }) {
 
 	useEffect(() => {
 		setMounted(true);
+		const formatter = new Intl.DateTimeFormat("en-GB", {
+			hour: "2-digit",
+			minute: "2-digit",
+			second: "2-digit",
+			hour12: false,
+			timeZone: "Africa/Casablanca",
+		});
 		const updateTime = () => {
-			const now = new Date();
-			setTime(
-				now.toLocaleTimeString("en-US", {
-					hour: "2-digit",
-					minute: "2-digit",
-					hour12: false,
-					timeZone: "Africa/Casablanca",
-				}),
-			);
+			setTime(formatter.format(new Date()));
 		};
 		updateTime();
 		const interval = setInterval(updateTime, 1000);
@@ -127,7 +132,7 @@ export function TimeBadge({ className }: { className?: string }) {
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 			role="status"
-			aria-label={`Current time ${time}, Timezone UTC+1`}
+			aria-label={`Current time ${time}, Timezone Africa/Casablanca UTC+1`}
 		>
 			<div
 				className={insigniaClasses}
@@ -160,7 +165,7 @@ export function TimeBadge({ className }: { className?: string }) {
 						transition={tweens.interactionFast}
 						className={tooltipClasses}
 					>
-						UTC+1
+						Africa/Casablanca · UTC+1
 					</motion.div>
 				)}
 			</AnimatePresence>

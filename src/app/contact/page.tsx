@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/src/components/forms/contact-form";
-import { PageContainer } from "@/src/components/layout/containers";
+import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
@@ -116,7 +116,7 @@ export default function ContactPage() {
 											<ContactInstrumentPlane />
 											<div className="portfolio-box-pad relative z-[1]">
 												<PageIntro
-													eyebrow="Contact"
+													eyebrow="CONTACT"
 													title="Let’s talk."
 													description="Product engineering, systems work, and focused consulting."
 												>
@@ -130,6 +130,43 @@ export default function ContactPage() {
 													</div>
 												</PageIntro>
 											</div>
+										</div>
+									</SwissGridRow>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ProseContainer className="portfolio-prose">
+												<div className="portfolio-card-copy">
+													<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
+														ENGAGEMENT
+													</p>
+													<p className="portfolio-body-lg text-surface-900 dark:text-surface-100">
+														Retainer engagements start at
+														<strong className="font-medium text-surface-900 dark:text-surface-100">
+															{" "}
+															$4,500/month
+														</strong>
+														. Most scoped builds start at $8,000+,
+														depending on integration risk, compliance
+														constraints, and ownership scope.
+													</p>
+												</div>
+												<div className="portfolio-card-copy">
+													<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+														Schedule
+													</h2>
+													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+														Before long-term retainers, I typically run a
+														1–2 week paid diagnostic sprint to scope the
+														actual problem and de-risk both sides.
+													</p>
+													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+														If you need task-by-task coding support, I&apos;m
+														probably not the right fit. If you need
+														senior engineering judgment on a messy product
+														or workflow system, email below.
+													</p>
+												</div>
+											</ProseContainer>
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>

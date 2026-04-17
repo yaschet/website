@@ -51,6 +51,7 @@ const mockProject = {
 	tech: ["Next.js", "TypeScript", "Tailwind v4", "Framer Motion", "Rust"],
 	featured: true,
 	hideCoverGallery: false,
+	cardState: "public" as const,
 	id: "project:verto",
 	slug: "verto",
 	readingTime: 6,

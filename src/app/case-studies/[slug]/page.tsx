@@ -1,7 +1,7 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { ProjectContentRSC } from "@/src/components/content/project-content-rsc";
-import { getAllProjects, getProjectBySlug } from "@/src/content/registry";
+import { getPublicProjectBySlug, getPublicProjects } from "@/src/content/registry";
 
 interface ProjectPageProps {
 	params: Promise<{
@@ -16,7 +16,7 @@ interface ProjectData {
 }
 
 export async function generateStaticParams() {
-	const projects = await getAllProjects();
+	const projects = await getPublicProjects();
 
 	return projects.map((project) => ({
 		slug: project.slug,
@@ -28,7 +28,7 @@ export async function generateMetadata(
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
 	const { slug } = await params;
-	const project = await getProjectBySlug(slug);
+	const project = await getPublicProjectBySlug(slug);
 
 	if (!project) {
 		return {
@@ -78,7 +78,7 @@ export async function generateMetadata(
 
 export default async function CaseStudyPage({ params }: ProjectPageProps) {
 	const { slug } = await params;
-	const project = await getProjectBySlug(slug);
+	const project = await getPublicProjectBySlug(slug);
 
 	if (!project) {
 		notFound();

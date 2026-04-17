@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CaseStudiesPage() {
-	const projects = await getAllProjects();
+	const projects = (await getAllProjects()).filter((project) => project.sortOrder !== undefined);
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -48,9 +48,9 @@ export default async function CaseStudiesPage() {
 								<Reveal phase={1} className="w-full">
 									<div className="portfolio-box-pad">
 										<PageIntro
-											eyebrow="Work"
-											title="Case Studies"
-											description="Selected engineering case studies across product systems, internal tooling, and shipped software."
+											eyebrow="WORK"
+											title="Selected engineering."
+											description="Case studies across product systems, internal tooling, and shipped software."
 										/>
 									</div>
 								</Reveal>
@@ -72,6 +72,7 @@ export default async function CaseStudiesPage() {
 													href={project.urlPath}
 													tags={project.tech ?? []}
 													images={project.coverImages}
+													isPrivate={project.cardState === "coming-soon"}
 													date={
 														project.date
 															? new Date(
