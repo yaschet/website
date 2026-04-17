@@ -14,46 +14,56 @@ import { Reveal } from "@/components/ui/reveal";
 import { InstrumentField } from "@/components/ui/topographic-dot-field";
 import { cn } from "@/lib/utils";
 
-const HERO_COPY_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 48)";
+const HERO_COLUMN_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 44)";
+const HERO_HEADLINE_MAX_WIDTH = "20ch";
+const HERO_BODY_MAX_WIDTH = "42ch";
 
 function HeroContent() {
 	return (
-		<div className="portfolio-box-pad portfolio-stack-related relative z-10">
+		<div className="portfolio-box-pad relative z-10">
 			<div
 				className="portfolio-stack-related w-full"
-				style={{ maxWidth: HERO_COPY_MAX_WIDTH }}
+				style={{ maxWidth: HERO_COLUMN_MAX_WIDTH }}
 			>
 				<HeadingReveal
 					as="h1"
 					phase={1}
-					className="portfolio-heading-xl portfolio-capsize-heading-xl w-full text-surface-900 dark:text-surface-100"
-					style={{ margin: 0 }}
+					className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100"
+					style={{ maxWidth: HERO_HEADLINE_MAX_WIDTH, margin: 0 }}
 				>
-					Complex systems, clean interfaces.
+					<>
+						Complex systems,
+						<br />
+						clean interfaces.
+					</>
 				</HeadingReveal>
 				<Reveal phase={2} delay={0.05}>
 					<p
 						className="portfolio-body-lg text-surface-900 dark:text-surface-100"
-						style={{ margin: 0 }}
+						style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
 					>
-						Translation pipelines. Matching engines. Financial ledgers. Built to hold
-						under pressure, made to feel effortless.
+						Translation pipelines. Matching engines. Financial ledgers.
+						<br className="hidden md:block" />
+						<span className="md:pl-0">
+							{" "}
+							Built to hold under pressure, made to feel effortless.
+						</span>
 					</p>
 				</Reveal>
+				<Reveal phase={2} delay={0.1}>
+					<div className="portfolio-control-row pointer-events-auto">
+						<Button asChild size="md" variant="solid" color="primary">
+							<Link href="/case-studies">
+								Case Studies
+								<ArrowRightIcon className="size-4" weight="bold" />
+							</Link>
+						</Button>
+						<Button asChild size="md" variant="soft" color="default">
+							<Link href="/contact">Email</Link>
+						</Button>
+					</div>
+				</Reveal>
 			</div>
-			<Reveal phase={2} delay={0.1}>
-				<div className="portfolio-control-row pointer-events-auto">
-					<Button asChild size="md" variant="solid" color="primary">
-						<Link href="/case-studies">
-							Case Studies
-							<ArrowRightIcon className="size-4" weight="bold" />
-						</Link>
-					</Button>
-					<Button asChild size="md" variant="soft" color="default">
-						<Link href="/contact">Email</Link>
-					</Button>
-				</div>
-			</Reveal>
 		</div>
 	);
 }
