@@ -315,6 +315,24 @@ float contentShield(vec2 uv) {
   return sm3(0.08, 0.90, shield);
 }
 
+float resolvedField(vec2 uv, float time) {
+  vec2 clampedUv = clamp(uv, vec2(0.0), vec2(1.0));
+  float sampleField = fieldValue(clampedUv, time);
+  float sampleShield = contentShield(clampedUv);
+  float sampleMouseInfluence = gauss2(clampedUv, uMouse, vec2(0.12, 0.12));
+  float mouseSignedLift = mix(1.0, -1.0, uDark);
+
+  sampleField *= mix(1.0, mix(0.78, 0.74, uDark), sampleShield);
+  sampleField = clamp(
+    sampleField +
+      sampleMouseInfluence * uMouseStrength * mouseSignedLift * 0.24 * mix(1.0, 0.36, sampleShield),
+    0.0,
+    1.0
+  );
+
+  return sampleField;
+}
+
 void main() {
   vec2 cssCoord = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
   vec2 uv = cssCoord / uRes;
@@ -322,17 +340,10 @@ void main() {
     cssCoord.x >= uGridMin.x && cssCoord.x <= uGridMax.x &&
     cssCoord.y >= uGridMin.y && cssCoord.y <= uGridMax.y;
 
-  float field = fieldValue(uv, uTime);
+  float field = resolvedField(uv, uTime);
   float shield = contentShield(uv);
-  field *= mix(1.0, mix(0.78, 0.74, uDark), shield);
 
   float mouseInfluence = gauss2(uv, uMouse, vec2(0.12, 0.12));
-  float mouseSignedLift = mix(1.0, -1.0, uDark);
-  field = clamp(
-    field + mouseInfluence * uMouseStrength * mouseSignedLift * 0.24 * mix(1.0, 0.36, shield),
-    0.0,
-    1.0
-  );
 
   vec2 center = vec2(uStep * 0.5);
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
@@ -365,20 +376,28 @@ void main() {
 
   vec4 dots = vec4(0.0);
   if (inDot) {
+    vec2 cellCenter = (floor((cssCoord - uOff) / uStep + 0.5) * uStep + uOff) / uRes;
+    vec2 cellKernel = (vec2(uStep) / uRes) * mix(0.34, 0.12, uDark);
+    float dotField =
+      resolvedField(cellCenter, uTime) * 0.36 +
+      resolvedField(cellCenter + vec2(cellKernel.x, 0.0), uTime) * 0.16 +
+      resolvedField(cellCenter - vec2(cellKernel.x, 0.0), uTime) * 0.16 +
+      resolvedField(cellCenter + vec2(0.0, cellKernel.y), uTime) * 0.16 +
+      resolvedField(cellCenter - vec2(0.0, cellKernel.y), uTime) * 0.16;
     float dot0 = mix(u0 + 0.035, d0, uDark);
     float dot1 = mix(u1 + 0.030, d1, uDark);
     float dot2 = mix(u2 + 0.025, d2, uDark);
     float dot3 = mix(u3 + 0.020, d3, uDark);
-    float dotT01 = sm3(dot0, dot1, field);
-    float dotT12 = sm3(dot1, dot2, field);
-    float dotT23 = sm3(dot2, dot3, field);
+    float dotT01 = sm3(dot0, dot1, dotField);
+    float dotT12 = sm3(dot1, dot2, dotField);
+    float dotT23 = sm3(dot2, dot3, dotField);
     float dotReveal = sm3(
       dot0 + mix(0.020, 0.010, uDark),
       min(0.995, dot3 + mix(0.025, 0.015, uDark)),
-      field
+      dotField
     );
     float dotBandWeight = mix(
-      0.58 + 0.42 * sm3(u1 + 0.015, u3 + 0.015, field),
+      0.58 + 0.42 * sm3(u1 + 0.015, u3 + 0.015, dotField),
       1.0,
       uDark
     );
