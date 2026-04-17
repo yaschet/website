@@ -43,7 +43,7 @@ export function ProfileSection() {
 								<Image
 									src={avatarImage}
 									alt="Yassine Chettouch"
-									className="object-cover transition-transform duration-200 group-hover/avatar:scale-[1.02]"
+									className="object-cover transition-transform duration-300 group-hover/avatar:scale-[1.05]"
 									placeholder="blur"
 									fill
 									sizes="(max-width: 640px) 60px, 70px"

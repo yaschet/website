@@ -1872,17 +1872,29 @@ html {
 
   html {
     @apply scroll-smooth selection:bg-surface-950 selection:text-surface-50;
+    color-scheme: light;
     scrollbar-gutter: stable;
+    --app-background: var(--surface-100);
+    --instrument-field-bg-auto: white;
+    --instrument-field-bg-inverted: var(--surface-950);
   }
 
   body {
-    @apply bg-surface-100 font-sans text-foreground antialiased selection:bg-surface-950 selection:text-surface-50 dark:bg-surface-950;
+    @apply font-sans text-foreground antialiased selection:bg-surface-950 selection:text-surface-50;
+    background-color: var(--app-background);
   }
 }
 
 html,
 body {
   @apply lining-nums antialiased selection:bg-surface-950 selection:text-surface-50;
+}
+
+.dark {
+  color-scheme: dark;
+  --app-background: var(--surface-950);
+  --instrument-field-bg-auto: var(--surface-900);
+  --instrument-field-bg-inverted: var(--surface-50);
 }
 
 .dark,

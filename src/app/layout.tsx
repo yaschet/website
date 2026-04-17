@@ -80,6 +80,26 @@ const personSchema = {
 	],
 };
 
+const THEME_BOOTSTRAP_SCRIPT = `(() => {
+  try {
+    const root = document.documentElement;
+    const storedTheme = localStorage.getItem("theme");
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const resolvedTheme =
+      storedTheme === "light" || storedTheme === "dark"
+        ? storedTheme
+        : systemDark
+          ? "dark"
+          : "light";
+
+    root.classList.toggle("dark", resolvedTheme === "dark");
+    root.dataset.theme = resolvedTheme;
+    root.style.colorScheme = resolvedTheme;
+  } catch {
+    // Fall back to the server-rendered light shell when storage is unavailable.
+  }
+})();`;
+
 export default function RootLayout({
 	children,
 }: Readonly<{
@@ -89,6 +109,9 @@ export default function RootLayout({
 		<html suppressHydrationWarning lang="en" className={fontVariables}>
 			<head>
 				<PortfolioTypeStyles />
+				<Script id="theme-bootstrap" strategy="beforeInteractive">
+					{THEME_BOOTSTRAP_SCRIPT}
+				</Script>
 				<Script
 					id="person-schema"
 					type="application/ld+json"

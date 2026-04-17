@@ -8,8 +8,8 @@ import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
-	INVERTED_ACTION_BAND_BODY_CLASS,
 	INVERTED_ACTION_BAND_OUTLINED_BUTTON_CLASS,
+	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
 import { Reveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
@@ -45,15 +45,15 @@ export default function BlogPage() {
 								</SwissGridRow>
 								<SwissGridRow>
 									<InstrumentActionBand
-										fieldSpeed={0.42}
-										fieldVariant="ray"
+										fieldSpeed={0.58}
+										fieldVariant="terrain"
 										tone="inverted"
 									>
-										<p
-											className={`portfolio-body-sm ${INVERTED_ACTION_BAND_BODY_CLASS}`}
+										<h2
+											className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 										>
 											Publishing begins soon.
-										</p>
+										</h2>
 										<Button
 											asChild
 											variant="outlined"

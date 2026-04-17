@@ -1,7 +1,7 @@
 "use client";
 
 import { useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useRevealState } from "@/src/components/providers/reveal-provider";
 import { tweens } from "@/src/lib/index";
@@ -50,9 +50,11 @@ interface Metrics {
 }
 
 interface MouseState {
+	currentPress: number;
 	currentStrength: number;
 	currentX: number;
 	currentY: number;
+	targetPress: number;
 	targetStrength: number;
 	targetX: number;
 	targetY: number;
@@ -97,6 +99,7 @@ uniform float uDark;
 uniform float uVariant;
 uniform float uSurface;
 uniform vec2  uMouse;
+uniform float uMousePress;
 uniform float uMouseStrength;
 
 uniform vec3  uLC0; uniform float uLA0;
@@ -289,13 +292,13 @@ float contentShield(vec2 uv) {
   }
 
   if (uSurface > 1.5) {
-    float desktopTitle = gauss2(uv, vec2(0.18, 0.54), vec2(0.24, 0.22)) * 1.34;
-    float desktopControls = gauss2(uv, vec2(0.84, 0.54), vec2(0.18, 0.20)) * 1.42;
-    float mobileTitle = gauss2(uv, vec2(0.22, 0.36), vec2(0.28, 0.18)) * 1.18;
-    float mobileControls = gauss2(uv, vec2(0.22, 0.72), vec2(0.24, 0.14)) * 1.18;
-    float mobileBlock = gauss2(uv, vec2(0.30, 0.50), vec2(0.42, 0.38)) * 0.76;
+    float desktopTitle = gauss2(uv, vec2(0.18, 0.54), vec2(0.21, 0.18)) * 1.08;
+    float desktopControls = gauss2(uv, vec2(0.84, 0.54), vec2(0.14, 0.15)) * 1.12;
+    float mobileTitle = gauss2(uv, vec2(0.22, 0.36), vec2(0.24, 0.15)) * 1.02;
+    float mobileControls = gauss2(uv, vec2(0.22, 0.72), vec2(0.18, 0.10)) * 1.02;
+    float mobileBlock = gauss2(uv, vec2(0.30, 0.50), vec2(0.34, 0.28)) * 0.54;
     float shield = max(max(desktopTitle, desktopControls), max(mobileTitle, max(mobileControls, mobileBlock)));
-    return sm3(0.08, 0.92, shield);
+    return sm3(0.10, 0.84, shield);
   }
 
   if (uSurface > 0.5) {
@@ -317,18 +320,29 @@ float contentShield(vec2 uv) {
 
 float resolvedField(vec2 uv, float time) {
   vec2 clampedUv = clamp(uv, vec2(0.0), vec2(1.0));
-  float sampleField = fieldValue(clampedUv, time);
+  vec2 pointerDelta = clampedUv - uMouse;
+  float pointerDist = length(pointerDelta);
+  vec2 pointerDir = pointerDist > 0.0001 ? pointerDelta / pointerDist : vec2(0.0);
+  float pressCore = gauss2(clampedUv, uMouse, mix(vec2(0.050, 0.050), vec2(0.038, 0.038), uDark));
+  float pressRim = exp(-pow((pointerDist - mix(0.094, 0.078, uDark)) / mix(0.030, 0.024, uDark), 2.0));
+  vec2 pressWarp = pointerDir * (pressRim * 0.018 - pressCore * 0.028) * uMousePress;
+  vec2 warpedUv = clamp(clampedUv + pressWarp, vec2(0.0), vec2(1.0));
+  float sampleField = fieldValue(warpedUv, time);
   float sampleShield = contentShield(clampedUv);
-  float sampleMouseInfluence = gauss2(clampedUv, uMouse, vec2(0.12, 0.12));
+  vec2 sampleMouseRadius = mix(vec2(0.12, 0.12), vec2(0.07, 0.07), uMousePress);
+  float sampleMouseInfluence = gauss2(clampedUv, uMouse, sampleMouseRadius);
   float mouseSignedLift = mix(1.0, -1.0, uDark);
+  float mouseDisplacement = uMouseStrength * mix(1.0, 1.75, uMousePress);
+  float pressRelief = (pressRim * mix(0.18, 0.14, uDark) - pressCore * mix(0.26, 0.22, uDark)) * uMousePress;
 
   sampleField *= mix(1.0, mix(0.78, 0.74, uDark), sampleShield);
   sampleField = clamp(
     sampleField +
-      sampleMouseInfluence * uMouseStrength * mouseSignedLift * 0.24 * mix(1.0, 0.36, sampleShield),
+      sampleMouseInfluence * mouseDisplacement * mouseSignedLift * mix(0.24, 0.46, uMousePress) * mix(1.0, 0.36, sampleShield),
     0.0,
     1.0
   );
+  sampleField = clamp(sampleField + pressRelief * mix(1.0, 0.42, sampleShield), 0.0, 1.0);
 
   return sampleField;
 }
@@ -343,7 +357,9 @@ void main() {
   float field = resolvedField(uv, uTime);
   float shield = contentShield(uv);
 
-  float mouseInfluence = gauss2(uv, uMouse, vec2(0.12, 0.12));
+  vec2 mouseRadius = mix(vec2(0.12, 0.12), vec2(0.07, 0.07), uMousePress);
+  float mouseInfluence = gauss2(uv, uMouse, mouseRadius);
+  float mouseCore = gauss2(uv, uMouse, mix(vec2(0.045, 0.045), vec2(0.03, 0.03), uDark));
 
   vec2 center = vec2(uStep * 0.5);
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
@@ -426,6 +442,7 @@ void main() {
   contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
   dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
   contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark);
+  contourStroke.a *= 1.0 + mouseCore * uMousePress * mix(0.18, 0.28, uDark);
 
   if (uDark < 0.5) {
     vec4 lightBase = vec4(1.0);
@@ -727,6 +744,32 @@ function resolveSurfaceValue(surface: InstrumentSurface) {
 	}
 }
 
+function resolveBackgroundPaint(tone: InstrumentFieldTone) {
+	switch (tone) {
+		case "dark":
+			return "var(--surface-950)";
+		case "light":
+			return "var(--surface-50)";
+		case "inverted":
+			return "var(--instrument-field-bg-inverted)";
+		default:
+			return "var(--instrument-field-bg-auto)";
+	}
+}
+
+function resolveBackgroundFallback(tone: InstrumentFieldTone, isDark: boolean): RGB {
+	switch (tone) {
+		case "dark":
+			return [9, 9, 11];
+		case "light":
+			return [250, 250, 250];
+		case "inverted":
+			return isDark ? [250, 250, 250] : [9, 9, 11];
+		default:
+			return isDark ? [24, 24, 27] : [255, 255, 255];
+	}
+}
+
 function resolveInteractionHost(container: HTMLDivElement) {
 	let candidate = container.parentElement;
 
@@ -760,9 +803,11 @@ export function InstrumentField({
 	const vaoRef = useRef<WebGLVertexArrayObject | null>(null);
 	const uniformRef = useRef<Record<string, WebGLUniformLocation | null>>({});
 	const mouseRef = useRef<MouseState>({
+		currentPress: 0,
 		currentStrength: 0,
 		currentX: 0.5,
 		currentY: 0.5,
+		targetPress: 0,
 		targetStrength: 0,
 		targetX: 0.5,
 		targetY: 0.5,
@@ -797,7 +842,7 @@ export function InstrumentField({
 		};
 	}, []);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (typeof window === "undefined") return;
 
 		const readPaletteSignature = () => {
@@ -866,14 +911,7 @@ export function InstrumentField({
 				: tone === "inverted"
 					? !documentIsDark
 					: documentIsDark;
-	const backgroundClassName =
-		tone === "inverted"
-			? "bg-surface-950 dark:bg-surface-50"
-			: tone === "dark"
-				? "bg-surface-950"
-				: tone === "light"
-					? "bg-surface-50"
-					: "bg-white dark:bg-surface-900/80";
+	const backgroundPaint = resolveBackgroundPaint(tone);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -882,6 +920,8 @@ export function InstrumentField({
 		const sync = () => {
 			supportsHoverRef.current = mediaQuery.matches;
 			if (!mediaQuery.matches) {
+				mouseRef.current.targetPress = 0;
+				mouseRef.current.currentPress = 0;
 				mouseRef.current.targetStrength = 0;
 				mouseRef.current.currentStrength = 0;
 			}
@@ -896,14 +936,18 @@ export function InstrumentField({
 	useEffect(() => {
 		const container = containerRef.current;
 		if (!container || !interactive) {
+			mouseRef.current.targetPress = 0;
 			mouseRef.current.targetStrength = 0;
 			return;
 		}
 
 		const host = resolveInteractionHost(container);
 		if (!host) return;
+		let pointerActive = false;
 
 		const clearPointerTarget = () => {
+			pointerActive = false;
+			mouseRef.current.targetPress = 0;
 			mouseRef.current.targetStrength = 0;
 		};
 
@@ -930,16 +974,22 @@ export function InstrumentField({
 
 		const handlePointerMove = (event: PointerEvent) => {
 			if (event.pointerType === "touch") return;
-			updatePointerTarget(event.clientX, event.clientY);
+			updatePointerTarget(event.clientX, event.clientY, pointerActive ? 0.16 : 0);
 		};
 
 		const handlePointerDown = (event: PointerEvent) => {
 			if (event.pointerType === "touch") return;
-			updatePointerTarget(event.clientX, event.clientY, 0.12);
+			pointerActive = true;
+			mouseRef.current.targetPress = 1;
+			mouseRef.current.currentPress = Math.max(mouseRef.current.currentPress, 0.72);
+			mouseRef.current.currentStrength = Math.max(mouseRef.current.currentStrength, 0.56);
+			updatePointerTarget(event.clientX, event.clientY, 0.24);
 		};
 
 		const handlePointerUp = (event: PointerEvent) => {
 			if (event.pointerType === "touch") return;
+			pointerActive = false;
+			mouseRef.current.targetPress = 0;
 			updatePointerTarget(event.clientX, event.clientY);
 		};
 
@@ -1060,6 +1110,7 @@ export function InstrumentField({
 				uVariant: getUniform("uVariant"),
 				uSurface: getUniform("uSurface"),
 				uMouse: getUniform("uMouse"),
+				uMousePress: getUniform("uMousePress"),
 				uMouseStrength: getUniform("uMouseStrength"),
 				uLC0: getUniform("uLC0"),
 				uLA0: getUniform("uLA0"),
@@ -1122,6 +1173,11 @@ export function InstrumentField({
 		gl.viewport(0, 0, physicalWidth, physicalHeight);
 
 		const palette = resolvePalette(container, isDark);
+		const clearColor = resolveCssColor(
+			container,
+			backgroundPaint,
+			resolveBackgroundFallback(tone, isDark),
+		);
 		const columns = computeGridAxis(metrics.width, metrics.step, metrics.minInset, origin);
 		const rows = computeGridAxis(metrics.height, metrics.step, metrics.minInset, origin);
 		const dotRadius = radius;
@@ -1145,6 +1201,7 @@ export function InstrumentField({
 		const activateProgram = gl.useProgram.bind(gl);
 		activateProgram(program);
 		gl.bindVertexArray(vao);
+		gl.clearColor(clearColor[0] / 255, clearColor[1] / 255, clearColor[2] / 255, 1);
 		gl.uniform2f(uniforms.uRes, physicalWidth, physicalHeight);
 		gl.uniform2f(uniforms.uOff, columns.offset * metrics.dpr, rows.offset * metrics.dpr);
 		gl.uniform2f(uniforms.uGridMin, gridMinX, gridMinY);
@@ -1155,6 +1212,7 @@ export function InstrumentField({
 		gl.uniform1f(uniforms.uVariant, resolveVariantValue(variant));
 		gl.uniform1f(uniforms.uSurface, resolveSurfaceValue(surface));
 		gl.uniform2f(uniforms.uMouse, 0.5, 0.5);
+		gl.uniform1f(uniforms.uMousePress, 0);
 		gl.uniform1f(uniforms.uMouseStrength, 0);
 
 		setUniform3("uLC0", palette.active[0].color);
@@ -1190,15 +1248,19 @@ export function InstrumentField({
 			const mouse = mouseRef.current;
 			const pointerTau = 0.1;
 			const strengthTau = mouse.targetStrength > mouse.currentStrength ? 0.12 : 0.6;
+			const pressTau = mouse.targetPress > mouse.currentPress ? 0.045 : 0.12;
 			const pointerLerp = 1 - Math.exp(-deltaSeconds / pointerTau);
 			const strengthLerp = 1 - Math.exp(-deltaSeconds / strengthTau);
+			const pressLerp = 1 - Math.exp(-deltaSeconds / pressTau);
 
 			mouse.currentX += (mouse.targetX - mouse.currentX) * pointerLerp;
 			mouse.currentY += (mouse.targetY - mouse.currentY) * pointerLerp;
 			mouse.currentStrength += (mouse.targetStrength - mouse.currentStrength) * strengthLerp;
+			mouse.currentPress += (mouse.targetPress - mouse.currentPress) * pressLerp;
 
 			gl.uniform1f(uniforms.uTime, elapsed);
 			gl.uniform2f(uniforms.uMouse, mouse.currentX, mouse.currentY);
+			gl.uniform1f(uniforms.uMousePress, shouldFreezeField ? 0 : mouse.currentPress);
 			gl.uniform1f(uniforms.uMouseStrength, shouldFreezeField ? 0 : mouse.currentStrength);
 			gl.clear(gl.COLOR_BUFFER_BIT);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -1217,6 +1279,7 @@ export function InstrumentField({
 
 		return () => cancelAnimationFrame(frameId);
 	}, [
+		backgroundPaint,
 		isDark,
 		metrics,
 		origin,
@@ -1225,6 +1288,7 @@ export function InstrumentField({
 		shouldFreezeField,
 		speed,
 		surface,
+		tone,
 		variant,
 	]);
 
@@ -1233,17 +1297,15 @@ export function InstrumentField({
 			ref={containerRef}
 			className={cn(
 				className,
-				"pointer-events-none absolute inset-0 overflow-hidden transition-colors",
-				backgroundClassName,
+				"pointer-events-none absolute inset-0 overflow-hidden transition-[background-color]",
 			)}
+			style={{ backgroundColor: backgroundPaint }}
 		>
 			<canvas
 				ref={canvasRef}
-				className={cn(
-					"pointer-events-none absolute inset-0 h-full w-full transition-[opacity,background-color]",
-					backgroundClassName,
-				)}
+				className="pointer-events-none absolute inset-0 h-full w-full transition-[opacity,background-color]"
 				style={{
+					backgroundColor: backgroundPaint,
 					opacity: isCanvasReady ? 1 : 0,
 					transitionDuration: `${tweens.field.duration}s`,
 					transitionTimingFunction: `cubic-bezier(${tweens.field.ease.join(",")})`,

@@ -237,8 +237,8 @@ export default function AboutPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<InstrumentActionBand
-											fieldSpeed={0.42}
-											fieldVariant="ray"
+											fieldSpeed={0.58}
+											fieldVariant="terrain"
 											tone="inverted"
 										>
 											<h2

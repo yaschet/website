@@ -66,7 +66,10 @@ function HeroContent() {
 function HeroInstrumentPlane({ className }: { className?: string }) {
 	return (
 		<div className={cn("absolute inset-0", className)} aria-hidden="true">
-			<div className="pointer-events-none absolute inset-0 bg-white dark:bg-surface-900" />
+			<div
+				className="pointer-events-none absolute inset-0"
+				style={{ backgroundColor: "var(--instrument-field-bg-auto)" }}
+			/>
 			<InstrumentField
 				interactive
 				step={INSTRUMENT_GRID_STEP}

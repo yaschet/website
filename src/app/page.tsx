@@ -101,8 +101,8 @@ export default async function Home() {
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
 									<InstrumentActionBand
-										fieldSpeed={0.42}
-										fieldVariant="ray"
+										fieldSpeed={0.58}
+										fieldVariant="terrain"
 										tone="inverted"
 									>
 										<h2
