@@ -384,36 +384,37 @@ void main() {
       resolvedField(cellCenter - vec2(cellKernel.x, 0.0), uTime) * 0.16 +
       resolvedField(cellCenter + vec2(0.0, cellKernel.y), uTime) * 0.16 +
       resolvedField(cellCenter - vec2(0.0, cellKernel.y), uTime) * 0.16;
-    float dot0 = mix(u0 + 0.035, d0, uDark);
-    float dot1 = mix(u1 + 0.030, d1, uDark);
-    float dot2 = mix(u2 + 0.025, d2, uDark);
-    float dot3 = mix(u3 + 0.020, d3, uDark);
-    float dotT01 = sm3(dot0, dot1, dotField);
-    float dotT12 = sm3(dot1, dot2, dotField);
-    float dotT23 = sm3(dot2, dot3, dotField);
-    float dotReveal = sm3(
-      dot0 + mix(0.020, 0.010, uDark),
-      min(0.995, dot3 + mix(0.025, 0.015, uDark)),
-      dotField
-    );
-    float dotBandWeight = mix(
-      0.58 + 0.42 * sm3(u1 + 0.015, u3 + 0.015, dotField),
-      1.0,
-      uDark
-    );
+    if (uDark < 0.5) {
+      dotField = min(dotField, field);
+      if (underlayBand == 3) {
+        float secondReveal = sm3(u2 + 0.028, u3 - 0.012, dotField);
+        dots = vec4(uLC2, uLA2 * 0.14 * pow(secondReveal, 2.4));
+      } else if (underlayBand == 4) {
+        float peakReveal = sm3(u3 + 0.006, min(0.995, u3 + 0.060), dotField);
+        vec3 peakRgb = mix(uLC2, uLC3, peakReveal);
+        float peakAlpha = mix(uLA2, uLA3, peakReveal);
+        dots = vec4(peakRgb, peakAlpha * mix(0.22, 0.44, peakReveal) * pow(peakReveal, 1.8));
+      }
+    } else {
+      float dotT01 = sm3(d0, d1, dotField);
+      float dotT12 = sm3(d1, d2, dotField);
+      float dotT23 = sm3(d2, d3, dotField);
+      float dotReveal = sm3(
+        d0 + 0.010,
+        min(0.995, d3 + 0.015),
+        dotField
+      );
 
-    vec3 dotRgb = mix(uLC0, uLC1, dotT01);
-    dotRgb = mix(dotRgb, uLC2, dotT12);
-    dotRgb = mix(dotRgb, uLC3, dotT23);
+      vec3 dotRgb = mix(uLC0, uLC1, dotT01);
+      dotRgb = mix(dotRgb, uLC2, dotT12);
+      dotRgb = mix(dotRgb, uLC3, dotT23);
 
-    float dotAlpha = mix(uLA0, uLA1, dotT01);
-    dotAlpha = mix(dotAlpha, uLA2, dotT12);
-    dotAlpha = mix(dotAlpha, uLA3, dotT23);
+      float dotAlpha = mix(uLA0, uLA1, dotT01);
+      dotAlpha = mix(dotAlpha, uLA2, dotT12);
+      dotAlpha = mix(dotAlpha, uLA3, dotT23);
 
-    dots = vec4(
-      dotRgb,
-      dotAlpha * dotBandWeight * pow(dotReveal, mix(2.2, 1.35, uDark))
-    );
+      dots = vec4(dotRgb, dotAlpha * pow(dotReveal, 1.35));
+    }
   }
 
   vec3 contourRgb = mix(uLC2, uLC3, mix(0.42, 0.58, uDark));
