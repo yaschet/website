@@ -74,7 +74,7 @@ const DARK_ALPHA_PALETTE: AlphaPalette = {
 
 const LIGHT_ALPHA_PALETTE: AlphaPalette = {
 	active: [{ alpha: 0.26 }, { alpha: 0.4 }, { alpha: 0.6 }, { alpha: 0.78 }],
-	underlay: [{ alpha: 0.1 }, { alpha: 0.17 }, { alpha: 0.2 }, { alpha: 0.25 }],
+	underlay: [{ alpha: 0.02 }, { alpha: 0.14 }, { alpha: 0.2 }, { alpha: 0.25 }],
 };
 
 const VERT_SRC = `#version 300 es
@@ -717,6 +717,8 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
 	const baseSurface = resolveSurfaceTone(node, 500, neutralFallback);
 	const resolveTone = (tone: number) => resolveSurfaceTone(node, tone, baseSurface);
+	const lightBaseUnderlay = resolveCssColor(node, "var(--instrument-field-bg-auto)", [255, 255, 255]);
+	const lightBandOneUnderlay = mixRgb(resolveTone(200), resolveTone(300), 0.18);
 	const lightBandTwoUnderlay = mixRgb(resolveTone(300), resolveTone(400), 0.34);
 	const lightPeakUnderlay = mixRgb(resolveTone(400), resolveTone(500), 0.14);
 	const darkBandTwoUnderlay = mixRgb(resolveTone(900), resolveTone(800), 0.34);
@@ -743,11 +745,11 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 		],
 		underlay: [
 			{
-				color: resolveTone(isDark ? 950 : 200),
+				color: isDark ? resolveTone(950) : lightBaseUnderlay,
 				alpha: alphaPalette.underlay[0].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 900 : 300),
+				color: isDark ? resolveTone(900) : lightBandOneUnderlay,
 				alpha: alphaPalette.underlay[1].alpha,
 			},
 			{
