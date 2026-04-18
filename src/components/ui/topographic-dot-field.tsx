@@ -330,11 +330,13 @@ float resolvedField(vec2 uv, float time) {
   float sampleShield = contentShield(clampedUv);
   float sampleMouseInfluence = gauss2(clampedUv, uMouse, vec2(0.12, 0.12));
   float mouseSignedLift = mix(1.0, -1.0, uDark);
+  float heroSurface = 1.0 - step(0.5, uSurface);
+  float shieldFade = mix(mix(0.78, 0.74, uDark), mix(0.90, 0.86, uDark), heroSurface);
+  float shieldInteraction = mix(1.0, mix(0.36, 0.56, heroSurface), sampleShield);
 
-  sampleField *= mix(1.0, mix(0.78, 0.74, uDark), sampleShield);
+  sampleField *= mix(1.0, shieldFade, sampleShield);
   sampleField = clamp(
-    sampleField +
-      sampleMouseInfluence * uMouseStrength * mouseSignedLift * 0.24 * mix(1.0, 0.36, sampleShield),
+    sampleField + sampleMouseInfluence * uMouseStrength * mouseSignedLift * 0.24 * shieldInteraction,
     0.0,
     1.0
   );
@@ -402,20 +404,24 @@ void main() {
       resolvedField(cellCenter - vec2(0.0, cellKernel.y), uTime) * 0.16;
     if (uDark < 0.5) {
       dotField = min(dotField, field);
-      if (underlayBand == 2) {
-        float firstReveal = sm3(u1 + 0.016, u2 - 0.020, dotField);
-        vec3 firstRgb = mix(uLC1, uLC2, firstReveal * 0.36);
-        float firstAlpha = mix(uLA1, uLA2, firstReveal);
-        dots = vec4(firstRgb, firstAlpha * 0.12 * pow(firstReveal, 2.0));
-      } else if (underlayBand == 3) {
-        float secondReveal = sm3(u2 + 0.028, u3 - 0.012, dotField);
-        dots = vec4(uLC2, uLA2 * 0.14 * pow(secondReveal, 2.4));
-      } else if (underlayBand == 4) {
-        float peakReveal = sm3(u3 + 0.006, min(0.995, u3 + 0.060), dotField);
-        vec3 peakRgb = mix(uLC2, uLC3, peakReveal);
-        float peakAlpha = mix(uLA2, uLA3, peakReveal);
-        dots = vec4(peakRgb, peakAlpha * mix(0.22, 0.44, peakReveal) * pow(peakReveal, 1.8));
-      }
+      float dotT01 = sm3(e0, e1, dotField);
+      float dotT12 = sm3(e1, e2, dotField);
+      float dotT23 = sm3(e2, e3, dotField);
+      float dotReveal = sm3(
+        e0 + 0.006,
+        min(0.995, e3 + 0.012),
+        dotField
+      );
+
+      vec3 dotRgb = mix(uLC0, uLC1, dotT01);
+      dotRgb = mix(dotRgb, uLC2, dotT12);
+      dotRgb = mix(dotRgb, uLC3, dotT23);
+
+      float dotAlpha = mix(0.08, 0.14, dotT01);
+      dotAlpha = mix(dotAlpha, 0.18, dotT12);
+      dotAlpha = mix(dotAlpha, 0.24, dotT23);
+
+      dots = vec4(dotRgb, dotAlpha * pow(dotReveal, 1.28));
     } else {
       float dotT01 = sm3(d0, d1, dotField);
       float dotT12 = sm3(d1, d2, dotField);
@@ -799,7 +805,6 @@ export function InstrumentField({
 	interactive = true,
 	step = 18,
 	minInset = 12,
-	readZones = [],
 	radius = 1.15,
 	origin = "center",
 	speed = 1,
@@ -1109,8 +1114,6 @@ export function InstrumentField({
 				uMouse: getUniform("uMouse"),
 				uMouseStrength: getUniform("uMouseStrength"),
 				uBG: getUniform("uBG"),
-				uReadZones: getUniform("uReadZones[0]"),
-				uReadZoneMeta: getUniform("uReadZoneMeta[0]"),
 				uLC0: getUniform("uLC0"),
 				uLA0: getUniform("uLA0"),
 				uLC1: getUniform("uLC1"),
@@ -1177,19 +1180,6 @@ export function InstrumentField({
 			resolveBackgroundFallback(tone, isDark),
 		);
 		const palette = resolvePalette(container, isDark);
-		const zoneData = new Float32Array(MAX_READ_ZONES * 4);
-		const zoneMeta = new Float32Array(MAX_READ_ZONES * 4);
-		readZones.slice(0, MAX_READ_ZONES).forEach((zone, index) => {
-			const offset = index * 4;
-			zoneData[offset] = zone.centerX;
-			zoneData[offset + 1] = zone.centerY;
-			zoneData[offset + 2] = zone.width;
-			zoneData[offset + 3] = zone.height;
-			zoneMeta[offset] = zone.padX;
-			zoneMeta[offset + 1] = zone.padY;
-			zoneMeta[offset + 2] = zone.feather;
-			zoneMeta[offset + 3] = zone.strength;
-		});
 		const columns = computeGridAxis(metrics.width, metrics.step, metrics.minInset, origin);
 		const rows = computeGridAxis(metrics.height, metrics.step, metrics.minInset, origin);
 		const dotRadius = radius;
@@ -1232,12 +1222,6 @@ export function InstrumentField({
 				clearColor[1] / 255,
 				clearColor[2] / 255,
 			);
-		}
-		if (uniforms.uReadZones) {
-			gl.uniform4fv(uniforms.uReadZones, zoneData);
-		}
-		if (uniforms.uReadZoneMeta) {
-			gl.uniform4fv(uniforms.uReadZoneMeta, zoneMeta);
 		}
 
 		setUniform3("uLC0", palette.active[0].color);
@@ -1311,7 +1295,6 @@ export function InstrumentField({
 		surface,
 		tone,
 		variant,
-		readZones,
 	]);
 
 	return (
