@@ -15,12 +15,23 @@ import {
 export type InstrumentFieldVariant = "terrain" | "pulse" | "ray";
 export type InstrumentSurface = "hero" | "header" | "band" | "strip";
 export type InstrumentFieldTone = "auto" | "light" | "dark" | "inverted";
+export interface InstrumentFieldReadZone {
+	centerX: number;
+	centerY: number;
+	width: number;
+	height: number;
+	padX: number;
+	padY: number;
+	feather: number;
+	strength: number;
+}
 
 interface InstrumentFieldProps {
 	className?: string;
 	interactive?: boolean;
 	step?: DotGridLength;
 	minInset?: DotGridLength;
+	readZones?: InstrumentFieldReadZone[];
 	radius?: number;
 	origin?: DotGridOrigin;
 	speed?: number;
@@ -77,6 +88,8 @@ const LIGHT_ALPHA_PALETTE: AlphaPalette = {
 	underlay: [{ alpha: 0.08 }, { alpha: 0.14 }, { alpha: 0.22 }, { alpha: 0.32 }],
 };
 
+const MAX_READ_ZONES = 4;
+
 const VERT_SRC = `#version 300 es
 in vec2 aPos;
 void main() {
@@ -99,6 +112,8 @@ uniform float uSurface;
 uniform vec2  uMouse;
 uniform float uMouseStrength;
 uniform vec3  uBG;
+uniform vec4  uReadZones[4];
+uniform vec4  uReadZoneMeta[4];
 
 uniform vec3  uLC0; uniform float uLA0;
 uniform vec3  uLC1; uniform float uLA1;
@@ -120,6 +135,11 @@ float sm3(float e0, float e1, float v) {
 float gauss2(vec2 p, vec2 c, vec2 r) {
   vec2 d = (p - c) / r;
   return exp(-dot(d, d));
+}
+
+float sdRoundRect(vec2 p, vec2 halfSize, float radius) {
+  vec2 q = abs(p) - halfSize + vec2(radius);
+  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
 }
 
 float contourBand(float field, float threshold, float gradient, float width) {
@@ -284,6 +304,39 @@ float fieldValue(vec2 uv, float time) {
   return rayFieldValue(uv, time);
 }
 
+float heroReadZoneMask(vec2 uv) {
+  if (uSurface > 0.5) {
+    return 0.0;
+  }
+
+  float mask = 0.0;
+
+  for (int i = 0; i < 4; i += 1) {
+    vec4 zone = uReadZones[i];
+    if (zone.z <= 0.0 || zone.w <= 0.0) {
+      continue;
+    }
+
+    vec4 meta = uReadZoneMeta[i];
+    vec2 halfSize = zone.zw * 0.5 + meta.xy;
+    float radius = clamp(min(halfSize.x, halfSize.y) * 0.14, 0.010, 0.040);
+    float distance = sdRoundRect(uv - zone.xy, halfSize, radius);
+    float localMask = 1.0 - smoothstep(0.0, meta.z, max(distance, 0.0));
+    mask = max(mask, localMask * meta.w);
+  }
+
+  return clamp(mask, 0.0, 1.0);
+}
+
+float heroFallbackShield(vec2 uv) {
+  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 1.18;
+  float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
+  float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
+  float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
+  float shield = max(max(title, body), max(cta, mobile * 0.66));
+  return sm3(0.08, 0.90, shield);
+}
+
 float contentShield(vec2 uv) {
   if (uSurface > 2.5) {
     return 0.0;
@@ -308,12 +361,12 @@ float contentShield(vec2 uv) {
     return sm3(0.08, 0.90, shield);
   }
 
-  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 1.18;
-  float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
-  float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
-  float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
-  float shield = max(max(title, body), max(cta, mobile * 0.66));
-  return sm3(0.08, 0.90, shield);
+  float preciseMask = heroReadZoneMask(uv);
+  if (preciseMask > 0.0) {
+    return preciseMask * 0.68;
+  }
+
+  return heroFallbackShield(uv);
 }
 
 float resolvedField(vec2 uv, float time) {
@@ -343,6 +396,7 @@ void main() {
 
   float field = resolvedField(uv, uTime);
   float shield = contentShield(uv);
+  float readShadow = heroReadZoneMask(uv);
 
   float mouseInfluence = gauss2(uv, uMouse, vec2(0.12, 0.12));
 
@@ -428,9 +482,16 @@ void main() {
   contourRgb = mix(contourRgb, uBG, (1.0 - uDark) * 0.12);
   vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant));
 
+  underlay.rgb = mix(underlay.rgb, uBG, readShadow * 0.84);
+  dots.rgb = mix(dots.rgb, uBG, readShadow * 0.88);
+  contourStroke.rgb = mix(contourStroke.rgb, uBG, readShadow * 0.80);
+
   underlay.a *= mix(1.0, mix(mix(0.20, 0.28, uDark), mix(0.12, 0.18, uDark), pulseVariant), shield);
   dots.a *= mix(1.0, mix(mix(0.18, 0.24, uDark), mix(0.14, 0.18, uDark), pulseVariant), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
+  underlay.a *= mix(1.0, 0.90, readShadow);
+  dots.a *= mix(1.0, 0.84, readShadow);
+  contourStroke.a *= mix(1.0, 0.80, readShadow);
   dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
   contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark);
 
@@ -779,6 +840,7 @@ export function InstrumentField({
 	interactive = true,
 	step = 18,
 	minInset = 12,
+	readZones = [],
 	radius = 1.15,
 	origin = "center",
 	speed = 1,
@@ -1088,6 +1150,8 @@ export function InstrumentField({
 				uMouse: getUniform("uMouse"),
 				uMouseStrength: getUniform("uMouseStrength"),
 				uBG: getUniform("uBG"),
+				uReadZones: getUniform("uReadZones[0]"),
+				uReadZoneMeta: getUniform("uReadZoneMeta[0]"),
 				uLC0: getUniform("uLC0"),
 				uLA0: getUniform("uLA0"),
 				uLC1: getUniform("uLC1"),
@@ -1154,6 +1218,19 @@ export function InstrumentField({
 			resolveBackgroundFallback(tone, isDark),
 		);
 		const palette = resolvePalette(container, isDark);
+		const zoneData = new Float32Array(MAX_READ_ZONES * 4);
+		const zoneMeta = new Float32Array(MAX_READ_ZONES * 4);
+		readZones.slice(0, MAX_READ_ZONES).forEach((zone, index) => {
+			const offset = index * 4;
+			zoneData[offset] = zone.centerX;
+			zoneData[offset + 1] = zone.centerY;
+			zoneData[offset + 2] = zone.width;
+			zoneData[offset + 3] = zone.height;
+			zoneMeta[offset] = zone.padX;
+			zoneMeta[offset + 1] = zone.padY;
+			zoneMeta[offset + 2] = zone.feather;
+			zoneMeta[offset + 3] = zone.strength;
+		});
 		const columns = computeGridAxis(metrics.width, metrics.step, metrics.minInset, origin);
 		const rows = computeGridAxis(metrics.height, metrics.step, metrics.minInset, origin);
 		const dotRadius = radius;
@@ -1196,6 +1273,12 @@ export function InstrumentField({
 				clearColor[1] / 255,
 				clearColor[2] / 255,
 			);
+		}
+		if (uniforms.uReadZones) {
+			gl.uniform4fv(uniforms.uReadZones, zoneData);
+		}
+		if (uniforms.uReadZoneMeta) {
+			gl.uniform4fv(uniforms.uReadZoneMeta, zoneMeta);
 		}
 
 		setUniform3("uLC0", palette.active[0].color);
@@ -1269,6 +1352,7 @@ export function InstrumentField({
 		surface,
 		tone,
 		variant,
+		readZones,
 	]);
 
 	return (
