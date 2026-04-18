@@ -7,6 +7,7 @@ import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import {
+	INSTRUMENT_DOT_RADIUS,
 	INSTRUMENT_GRID_MIN_INSET,
 	INSTRUMENT_GRID_STEP,
 } from "@/src/components/ui/instrument-field-metrics";
@@ -85,13 +86,13 @@ function ContactInstrumentPlane() {
 	return (
 		<div className="absolute inset-0" aria-hidden="true">
 			<InstrumentField
-				className="pointer-events-none opacity-66 dark:opacity-78"
+				className="pointer-events-none opacity-100 dark:opacity-100"
 				interactive
 				step={INSTRUMENT_GRID_STEP}
 				minInset={INSTRUMENT_GRID_MIN_INSET}
 				origin="inset"
-				radius={1}
-				speed={0.22}
+				radius={INSTRUMENT_DOT_RADIUS}
+				speed={0.28}
 				surface="header"
 				variant="terrain"
 			/>

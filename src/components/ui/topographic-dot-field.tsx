@@ -69,12 +69,12 @@ interface AlphaPalette {
 
 const DARK_ALPHA_PALETTE: AlphaPalette = {
 	active: [{ alpha: 0.16 }, { alpha: 0.28 }, { alpha: 0.44 }, { alpha: 0.64 }],
-	underlay: [{ alpha: 0.12 }, { alpha: 0.18 }, { alpha: 0.26 }, { alpha: 0.36 }],
+	underlay: [{ alpha: 0.12 }, { alpha: 0.18 }, { alpha: 0.2 }, { alpha: 0.24 }],
 };
 
 const LIGHT_ALPHA_PALETTE: AlphaPalette = {
 	active: [{ alpha: 0.26 }, { alpha: 0.4 }, { alpha: 0.6 }, { alpha: 0.78 }],
-	underlay: [{ alpha: 0.1 }, { alpha: 0.17 }, { alpha: 0.27 }, { alpha: 0.38 }],
+	underlay: [{ alpha: 0.1 }, { alpha: 0.17 }, { alpha: 0.2 }, { alpha: 0.25 }],
 };
 
 const VERT_SRC = `#version 300 es
@@ -330,9 +330,10 @@ float resolvedField(vec2 uv, float time) {
   float sampleShield = contentShield(clampedUv);
   float sampleMouseInfluence = gauss2(clampedUv, uMouse, vec2(0.12, 0.12));
   float mouseSignedLift = mix(1.0, -1.0, uDark);
-  float heroSurface = 1.0 - step(0.5, uSurface);
-  float shieldFade = mix(mix(0.78, 0.74, uDark), mix(0.90, 0.86, uDark), heroSurface);
-  float shieldInteraction = mix(1.0, mix(0.36, 0.56, heroSurface), sampleShield);
+  float terrainVariant = 1.0 - step(0.5, uVariant);
+  float terrainSurface = (1.0 - step(2.5, uSurface)) * terrainVariant;
+  float shieldFade = mix(mix(0.78, 0.74, uDark), mix(0.90, 0.86, uDark), terrainSurface);
+  float shieldInteraction = mix(1.0, mix(0.36, 0.56, terrainSurface), sampleShield);
 
   sampleField *= mix(1.0, shieldFade, sampleShield);
   sampleField = clamp(
@@ -353,7 +354,8 @@ void main() {
 
   float field = resolvedField(uv, uTime);
   float shield = contentShield(uv);
-  float heroSurface = 1.0 - step(0.5, uSurface);
+  float terrainVariant = 1.0 - step(0.5, uVariant);
+  float terrainSurface = (1.0 - step(2.5, uSurface)) * terrainVariant;
 
   float mouseInfluence = gauss2(uv, uMouse, vec2(0.12, 0.12));
 
@@ -361,10 +363,10 @@ void main() {
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
   bool inDot = insideGridBounds && cellDist.x <= uDotRadius && cellDist.y <= uDotRadius;
 
-  float u0 = mix(mix(0.46, 0.10, uDark), mix(0.42, 0.08, uDark), heroSurface);
-  float u1 = mix(mix(0.58, 0.18, uDark), mix(0.57, 0.18, uDark), heroSurface);
-  float u2 = mix(mix(0.70, 0.30, uDark), mix(0.74, 0.33, uDark), heroSurface);
-  float u3 = mix(mix(0.82, 0.46, uDark), mix(0.88, 0.52, uDark), heroSurface);
+  float u0 = mix(mix(0.46, 0.10, uDark), mix(0.42, 0.08, uDark), terrainSurface);
+  float u1 = mix(mix(0.58, 0.18, uDark), mix(0.57, 0.18, uDark), terrainSurface);
+  float u2 = mix(mix(0.70, 0.30, uDark), mix(0.74, 0.33, uDark), terrainSurface);
+  float u3 = mix(mix(0.82, 0.46, uDark), mix(0.88, 0.52, uDark), terrainSurface);
 
   float d0 = mix(0.50, 0.30, uDark);
   float d1 = mix(0.64, 0.46, uDark);
@@ -373,15 +375,15 @@ void main() {
 
   float pulseVariant = step(0.5, uVariant);
   float fieldGradient = length(vec2(dFdx(field), dFdy(field)));
-  float contourWidth = mix(1.05, 0.92, uDark) * mix(1.0, 0.95, heroSurface);
-  float contour0 = contourBand(field, u0, fieldGradient, contourWidth) * mix(1.0, 0.05, heroSurface);
-  float contour1 = contourBand(field, u1, fieldGradient, contourWidth) * mix(1.0, 0.26, heroSurface);
-  float contour2 = contourBand(field, u2, fieldGradient, contourWidth) * mix(1.0, 0.58, heroSurface);
-  float contour3 = contourBand(field, u3, fieldGradient, contourWidth) * mix(1.0, 0.84, heroSurface);
+  float contourWidth = mix(1.05, 0.92, uDark) * mix(1.0, 0.95, terrainSurface);
+  float contour0 = contourBand(field, u0, fieldGradient, contourWidth) * mix(1.0, 0.05, terrainSurface);
+  float contour1 = contourBand(field, u1, fieldGradient, contourWidth) * mix(1.0, 0.26, terrainSurface);
+  float contour2 = contourBand(field, u2, fieldGradient, contourWidth) * mix(1.0, 0.58, terrainSurface);
+  float contour3 = contourBand(field, u3, fieldGradient, contourWidth) * mix(1.0, 0.84, terrainSurface);
   float contour = max(max(contour0, contour1), max(contour2, contour3));
 
-  float e0 = max(0.0, u0 - mix(0.0, mix(0.030, 0.016, uDark), heroSurface));
-  float e1 = max(e0 + 0.012, u1 - mix(0.0, mix(0.016, 0.008, uDark), heroSurface));
+  float e0 = max(0.0, u0 - mix(0.0, mix(0.030, 0.016, uDark), terrainSurface));
+  float e1 = max(e0 + 0.012, u1 - mix(0.0, mix(0.016, 0.008, uDark), terrainSurface));
   float e2 = u2;
   float e3 = u3;
 
@@ -445,28 +447,34 @@ void main() {
   }
 
   vec3 contourRgb = mix(uLC2, uLC3, mix(0.42, 0.58, uDark));
-  contourRgb = mix(contourRgb, uBG, (1.0 - uDark) * mix(0.12, 0.04, heroSurface));
+  contourRgb = mix(contourRgb, uBG, (1.0 - uDark) * mix(0.12, 0.04, terrainSurface));
   vec4 contourStroke = vec4(
     contourRgb,
-    contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant) * mix(1.0, mix(0.92, 0.72, uDark), heroSurface)
+    contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant) * mix(1.0, mix(0.92, 0.72, uDark), terrainSurface)
   );
 
-  contourStroke.a *= 1.0 - heroSurface;
+  contourStroke.a *= 1.0 - terrainSurface;
 
   underlay.a *= mix(1.0, mix(mix(0.20, 0.28, uDark), mix(0.12, 0.18, uDark), pulseVariant), shield);
   dots.a *= mix(1.0, mix(mix(0.18, 0.24, uDark), mix(0.14, 0.18, uDark), pulseVariant), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
-  underlay.a *= mix(1.0, mix(1.10, 1.08, uDark), heroSurface);
-  vec2 fillAxis = normalize(vec2(0.951, -0.309));
-  float fillT = clamp(0.5 + dot(uv - 0.5, fillAxis) * 0.95, 0.0, 1.0);
-  float fillShade = mix(mix(0.88, 1.06, fillT), mix(0.95, 1.03, fillT), uDark);
-  underlay.rgb = mix(underlay.rgb, clamp(underlay.rgb * fillShade, 0.0, 1.0), heroSurface * 0.92);
+  underlay.a *= mix(1.0, mix(1.08, 1.05, uDark), terrainSurface);
+  vec2 fillAxisA = normalize(vec2(0.951, -0.309));
+  vec2 fillAxisB = normalize(vec2(-0.218, 0.976));
+  float fillA = clamp(0.5 + dot(uv - vec2(0.44, 0.58), fillAxisA) * 0.92, 0.0, 1.0);
+  float fillB = clamp(0.5 + dot(uv - vec2(0.60, 0.40), fillAxisB) * 0.58, 0.0, 1.0);
+  float atmosT = clamp(mix(fillA, fillB, 0.28), 0.0, 1.0);
+  float upperBandWeight = smoothstep(1.5, 3.5, float(underlayBand));
+  vec3 fillLow = mix(uBG, underlay.rgb, mix(0.82, 0.72, uDark));
+  vec3 fillHigh = mix(uBG, underlay.rgb, mix(0.96, 0.88, uDark));
+  vec3 fillColor = mix(fillLow, fillHigh, atmosT);
+  underlay.rgb = mix(underlay.rgb, fillColor, terrainSurface * mix(0.12, 0.44, upperBandWeight));
   dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
-  contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark) * mix(1.0, 0.72, heroSurface);
+  contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark) * mix(1.0, 0.72, terrainSurface);
 
   if (uDark < 0.5) {
     vec4 lightBase = vec4(uBG, 1.0);
-    float lightMix = underlay.a * mix(0.62, 0.72, heroSurface);
+    float lightMix = underlay.a * mix(0.62, 0.72, terrainSurface);
     vec4 lightUnderlay = vec4(mix(lightBase.rgb, underlay.rgb, lightMix), 1.0);
     vec4 contouredLight = alphaOver(contourStroke, lightUnderlay);
     oColor = alphaOver(dots, contouredLight);
@@ -709,7 +717,10 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
 	const baseSurface = resolveSurfaceTone(node, 500, neutralFallback);
 	const resolveTone = (tone: number) => resolveSurfaceTone(node, tone, baseSurface);
-	const lightPeakUnderlay = mixRgb(resolveTone(400), resolveTone(500), 0.62);
+	const lightBandTwoUnderlay = mixRgb(resolveTone(300), resolveTone(400), 0.34);
+	const lightPeakUnderlay = mixRgb(resolveTone(400), resolveTone(500), 0.14);
+	const darkBandTwoUnderlay = mixRgb(resolveTone(900), resolveTone(800), 0.34);
+	const darkPeakUnderlay = mixRgb(resolveTone(800), resolveTone(700), 0.16);
 
 	return {
 		active: [
@@ -740,12 +751,12 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 				alpha: alphaPalette.underlay[1].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 800 : 400),
+				color: isDark ? darkBandTwoUnderlay : lightBandTwoUnderlay,
 				alpha: alphaPalette.underlay[2].alpha,
 			},
 			{
-				color: isDark ? resolveTone(700) : lightPeakUnderlay,
-				alpha: isDark ? alphaPalette.underlay[3].alpha : 0.4,
+				color: isDark ? darkPeakUnderlay : lightPeakUnderlay,
+				alpha: alphaPalette.underlay[3].alpha,
 			},
 		],
 	};

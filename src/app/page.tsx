@@ -20,7 +20,7 @@ import { getListedPublicProjects } from "@/src/content/registry";
 
 function HomeClosingCta() {
 	return (
-		<InstrumentActionBand fieldSpeed={0.58} fieldVariant="terrain" tone="inverted">
+		<InstrumentActionBand fieldSpeed={0.28} fieldVariant="terrain" tone="inverted">
 			<h2
 				className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 			>

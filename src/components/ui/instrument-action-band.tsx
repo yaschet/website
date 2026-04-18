@@ -28,7 +28,7 @@ export function InstrumentActionBand({
 	children,
 	className,
 	contentClassName,
-	fieldSpeed = 0.58,
+	fieldSpeed = 0.28,
 	fieldVariant = "terrain",
 	tone = "auto",
 }: InstrumentActionBandProps) {
@@ -58,7 +58,7 @@ export function InstrumentActionBand({
 				origin={INSTRUMENT_GRID_ORIGIN}
 				radius={INSTRUMENT_DOT_RADIUS}
 				speed={fieldSpeed}
-				surface="hero"
+				surface="band"
 				variant={fieldVariant}
 				tone={tone}
 			/>

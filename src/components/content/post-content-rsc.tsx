@@ -101,7 +101,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 								<SwissGridBox>
 									<SwissGridRow>
 										<InstrumentActionBand
-											fieldSpeed={0.58}
+											fieldSpeed={0.28}
 											fieldVariant="terrain"
 											tone="inverted"
 										>
