@@ -73,8 +73,8 @@ const DARK_ALPHA_PALETTE: AlphaPalette = {
 };
 
 const LIGHT_ALPHA_PALETTE: AlphaPalette = {
-	active: [{ alpha: 0.22 }, { alpha: 0.34 }, { alpha: 0.52 }, { alpha: 0.7 }],
-	underlay: [{ alpha: 0.08 }, { alpha: 0.14 }, { alpha: 0.22 }, { alpha: 0.32 }],
+	active: [{ alpha: 0.26 }, { alpha: 0.4 }, { alpha: 0.6 }, { alpha: 0.78 }],
+	underlay: [{ alpha: 0.1 }, { alpha: 0.17 }, { alpha: 0.27 }, { alpha: 0.38 }],
 };
 
 const VERT_SRC = `#version 300 es
@@ -699,37 +699,37 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	return {
 		active: [
 			{
-				color: resolveTone(isDark ? 700 : 300),
+				color: resolveTone(isDark ? 700 : 400),
 				alpha: alphaPalette.active[0].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 500 : 400),
+				color: resolveTone(isDark ? 500 : 500),
 				alpha: alphaPalette.active[1].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 300 : 500),
+				color: resolveTone(isDark ? 300 : 600),
 				alpha: alphaPalette.active[2].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 100 : 600),
+				color: resolveTone(isDark ? 100 : 700),
 				alpha: alphaPalette.active[3].alpha,
 			},
 		],
 		underlay: [
 			{
-				color: resolveTone(isDark ? 950 : 100),
+				color: resolveTone(isDark ? 950 : 200),
 				alpha: alphaPalette.underlay[0].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 900 : 200),
+				color: resolveTone(isDark ? 900 : 300),
 				alpha: alphaPalette.underlay[1].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 800 : 300),
+				color: resolveTone(isDark ? 800 : 400),
 				alpha: alphaPalette.underlay[2].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 700 : 400),
+				color: resolveTone(isDark ? 700 : 500),
 				alpha: alphaPalette.underlay[3].alpha,
 			},
 		],
