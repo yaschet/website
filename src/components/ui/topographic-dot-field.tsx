@@ -21,6 +21,12 @@ interface InstrumentFieldProps {
 	interactive?: boolean;
 	step?: DotGridLength;
 	minInset?: DotGridLength;
+	readZone?: {
+		centerX: number;
+		centerY: number;
+		width: number;
+		height: number;
+	} | null;
 	radius?: number;
 	origin?: DotGridOrigin;
 	speed?: number;
@@ -102,6 +108,9 @@ uniform vec2  uMouse;
 uniform float uMousePress;
 uniform float uMouseStrength;
 uniform vec3  uBG;
+uniform vec2  uReadCenter;
+uniform vec2  uReadSize;
+uniform float uReadActive;
 
 uniform vec3  uLC0; uniform float uLA0;
 uniform vec3  uLC1; uniform float uLA1;
@@ -123,6 +132,25 @@ float sm3(float e0, float e1, float v) {
 float gauss2(vec2 p, vec2 c, vec2 r) {
   vec2 d = (p - c) / r;
   return exp(-dot(d, d));
+}
+
+float sdRoundRect(vec2 p, vec2 halfSize, float radius) {
+  vec2 q = abs(p) - halfSize + vec2(radius);
+  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
+}
+
+float heroReadZoneMask(vec2 uv) {
+  if (uSurface > 0.5 || uReadActive < 0.5) {
+    return 0.0;
+  }
+
+  vec2 halfSize = max(uReadSize * 0.5, vec2(0.10, 0.10));
+  float radius = clamp(min(halfSize.x, halfSize.y) * 0.18, 0.028, 0.09);
+  float distance = sdRoundRect(uv - uReadCenter, halfSize, radius);
+  float core = 1.0 - smoothstep(-0.020, 0.085, distance);
+  float halo = 1.0 - smoothstep(0.02, 0.24, distance);
+
+  return clamp(mix(halo, core, 0.58), 0.0, 1.0);
 }
 
 float contourBand(float field, float threshold, float gradient, float width) {
@@ -213,36 +241,44 @@ float heroDetailActivity(vec2 uv) {
     return 1.0;
   }
 
+  float readZone = heroReadZoneMask(uv);
   float x = sm3(0.30, 0.90, uv.x);
   float y = sm3(0.48, 0.98, uv.y);
   float lowerRightLift = y * x * 0.14 + y * 0.05;
+  float activity = clamp(mix(0.14, 1.0, x) + lowerRightLift, 0.14, 1.0);
 
-  return clamp(mix(0.14, 1.0, x) + lowerRightLift, 0.14, 1.0);
+  return mix(activity, activity * 0.34, readZone);
 }
 
 float terrainFieldValue(vec2 uv, float time) {
   float aspect = uRes.x / uRes.y;
   vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
   float heroActivity = heroDetailActivity(uv);
+  float readZone = heroReadZoneMask(uv);
+  float readZoneWarp = mix(1.0, 0.22, readZone);
+  float readZoneCoarse = mix(1.0, 0.86, readZone);
+  float readZoneMiddle = mix(1.0, 0.18, readZone);
+  float readZoneDetail = mix(1.0, 0.06, readZone);
+  float readZoneField = mix(1.0, 0.52, readZone);
 
   vec2 warp = vec2(
     snoise(vec3(p * 0.85 + vec2(1.2, -0.8), time * 0.09)),
     snoise(vec3(p * 0.85 + vec2(-3.7, 2.4), time * 0.09))
   );
-  warp *= mix(0.20, 1.0, heroActivity);
+  warp *= mix(0.20, 1.0, heroActivity) * readZoneWarp;
 
   vec2 q = p * 1.05 + warp * 0.28;
 
   float coarse = snoise(vec3(q * 0.85, time * 0.11));
   float middle = snoise(vec3(q * 1.75 + vec2(2.7, -1.6), time * 0.15));
   float detail = snoise(vec3(q * 3.3 + vec2(-4.4, 3.1), time * 0.21));
-  coarse *= mix(0.76, 1.0, heroActivity);
-  middle *= mix(0.24, 1.0, heroActivity);
-  detail *= mix(0.06, 1.0, heroActivity);
+  coarse *= mix(0.76, 1.0, heroActivity) * readZoneCoarse;
+  middle *= mix(0.24, 1.0, heroActivity) * readZoneMiddle;
+  detail *= mix(0.06, 1.0, heroActivity) * readZoneDetail;
 
   float field = coarse * 0.58 + middle * 0.28 + detail * 0.14;
   field = field * 0.5 + 0.5;
-  field = mix(0.5, field, mix(0.60, 1.0, heroActivity));
+  field = mix(0.5, field, mix(0.60, 1.0, heroActivity) * readZoneField);
   field = sm3(0.16, 0.88, field);
 
   float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * 0.04;
@@ -329,6 +365,10 @@ float contentShield(vec2 uv) {
     return sm3(0.08, 0.90, shield);
   }
 
+  if (uReadActive > 0.5) {
+    return heroReadZoneMask(uv) * 0.86;
+  }
+
   float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 0.98;
   float body = gauss2(uv, vec2(0.31, 0.49), vec2(0.34, 0.20)) * 0.84;
   float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.21, 0.12)) * 0.80;
@@ -343,12 +383,14 @@ float heroActivityEnvelope(vec2 uv) {
     return 1.0;
   }
 
+  float readZone = heroReadZoneMask(uv);
   float x = sm3(0.22, 0.86, uv.x);
   float y = sm3(0.34, 0.96, uv.y);
   float rightBias = mix(0.58, 1.0, x);
   float lowerRightLift = y * x * 0.18 + y * 0.08;
+  float envelope = clamp(rightBias + lowerRightLift, 0.58, 1.0);
 
-  return clamp(rightBias + lowerRightLift, 0.58, 1.0);
+  return mix(envelope, envelope * 0.42, readZone);
 }
 
 float resolvedField(vec2 uv, float time) {
@@ -391,6 +433,7 @@ void main() {
 
   float field = resolvedField(uv, uTime);
   float shield = contentShield(uv);
+  float readZone = heroReadZoneMask(uv);
   float heroEnvelope = heroActivityEnvelope(uv);
 
   vec2 mouseRadius = mix(vec2(0.12, 0.12), vec2(0.07, 0.07), uMousePress);
@@ -472,11 +515,11 @@ void main() {
 
   vec3 contourRgb = mix(uLC2, uLC3, mix(0.42, 0.58, uDark));
   vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant));
-  float heroReadZone = uSurface > 0.5 ? 0.0 : clamp(shield * 3.4, 0.0, 0.72);
+  float heroReadTone = uSurface > 0.5 ? 0.0 : max(readZone * 0.72, clamp(shield * 0.82, 0.0, 0.66));
 
-  underlay.rgb = mix(underlay.rgb, uBG, heroReadZone * 0.58);
-  dots.rgb = mix(dots.rgb, uBG, heroReadZone * 0.76);
-  contourStroke.rgb = mix(contourStroke.rgb, uBG, heroReadZone * 0.84);
+  underlay.rgb = mix(underlay.rgb, uBG, heroReadTone * 0.64);
+  dots.rgb = mix(dots.rgb, uBG, heroReadTone * 0.90);
+  contourStroke.rgb = mix(contourStroke.rgb, uBG, heroReadTone * 0.92);
 
   underlay.a *= heroEnvelope;
   dots.a *= heroEnvelope;
@@ -484,6 +527,9 @@ void main() {
   underlay.a *= mix(1.0, mix(mix(0.20, 0.28, uDark), mix(0.12, 0.18, uDark), pulseVariant), shield);
   dots.a *= mix(1.0, mix(mix(0.18, 0.24, uDark), mix(0.14, 0.18, uDark), pulseVariant), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
+  underlay.a *= mix(1.0, 0.72, heroReadTone);
+  dots.a *= mix(1.0, 0.14, heroReadTone);
+  contourStroke.a *= mix(1.0, mix(0.18, 0.28, uDark), heroReadTone);
   dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
   contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark);
   contourStroke.a *= 1.0 + mouseCore * uMousePress * mix(0.18, 0.28, uDark);
