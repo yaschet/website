@@ -15,7 +15,7 @@ import { InstrumentField } from "@/components/ui/topographic-dot-field";
 import { cn } from "@/lib/utils";
 
 const HERO_COLUMN_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 50)";
-const HERO_BODY_MAX_WIDTH = "46ch";
+const HERO_BODY_MAX_WIDTH = "60ch";
 
 function HeroContent() {
 	return (
@@ -30,17 +30,16 @@ function HeroContent() {
 					className="portfolio-heading-xl portfolio-capsize-heading-xl w-fit max-w-full text-surface-900 dark:text-surface-100"
 					style={{ margin: 0 }}
 				>
-					Complex systems, clean interfaces.
+					Operational software, clean interfaces.
 				</HeadingReveal>
 				<Reveal phase={2} delay={0.05}>
 					<p
 						className="portfolio-body-lg text-surface-900 dark:text-surface-100"
 						style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
 					>
-						I build software that small businesses run their operations on. CRMs,
-						billing systems, document automation, AI pipelines that replace manual work.
-						Some of it internal, some of it SaaS. I like when something complicated ends
-						up feeling simple to use.
+						I build the systems growing companies run on: onboarding, billing,
+						internal tooling, document workflows, and AI products. Complex logic
+						underneath. Clear interfaces on top.
 					</p>
 				</Reveal>
 				<Reveal phase={2} delay={0.1}>
