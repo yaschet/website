@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRightIcon, Briefcase } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-work-callout";
 import { PageContainer } from "@/src/components/layout/containers";
@@ -7,77 +7,44 @@ import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteHero } from "@/src/components/layout/site-hero";
 import { Button } from "@/src/components/ui/button";
+import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
-import {
-	ACTION_BAND_MIN_HEIGHT,
-	INSTRUMENT_DOT_RADIUS,
-	INSTRUMENT_GRID_MIN_INSET,
-	INSTRUMENT_GRID_ORIGIN,
-	INSTRUMENT_GRID_STEP,
-} from "@/src/components/ui/instrument-field-metrics";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
-import { InstrumentField } from "@/src/components/ui/topographic-dot-field";
-import { getAllProjects } from "@/src/content/registry";
+import { getListedPublicProjects } from "@/src/content/registry";
 
 function HomeClosingCta() {
 	return (
-		<div
-			className="portfolio-action-band-shell relative isolate w-full overflow-hidden bg-surface-950 dark:bg-surface-50"
-			data-tone="inverted"
-		>
-			<div className="absolute inset-0" aria-hidden="true">
-				<div
-					className="pointer-events-none absolute inset-0"
-					style={{ backgroundColor: "var(--instrument-field-bg-inverted)" }}
-				/>
-				<InstrumentField
-					interactive
-					step={INSTRUMENT_GRID_STEP}
-					minInset={INSTRUMENT_GRID_MIN_INSET}
-					origin={INSTRUMENT_GRID_ORIGIN}
-					radius={INSTRUMENT_DOT_RADIUS}
-					speed={0.58}
-					surface="hero"
-					variant="terrain"
-					tone="inverted"
-				/>
-			</div>
-			<div
-				className="portfolio-action-band relative z-[1] min-h-[var(--portfolio-action-band-min-height)] w-full px-[var(--portfolio-box-pad-mobile)] py-[var(--portfolio-space-3)] sm:px-[var(--portfolio-box-pad-desktop)] sm:py-[var(--portfolio-space-4)]"
-				style={{
-					["--portfolio-action-band-min-height" as string]: ACTION_BAND_MIN_HEIGHT,
-				}}
+		<InstrumentActionBand fieldSpeed={0.58} fieldVariant="terrain" tone="inverted">
+			<h2
+				className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 			>
-				<h2
-					className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
-				>
-					View selected work.
-				</h2>
-				<Button
-					asChild
-					size="md"
-					variant="solid"
-					color="default"
-					className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
-				>
-					<Link href="/case-studies">
-						Case Studies
-						<ArrowRightIcon className="size-4" weight="bold" />
-					</Link>
-				</Button>
-			</div>
-		</div>
+				View selected work.
+			</h2>
+			<Button
+				asChild
+				size="md"
+				variant="solid"
+				color="default"
+				className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
+			>
+				<Link href="/case-studies">
+					Case Studies
+					<ArrowRightIcon className="size-4" weight="bold" />
+				</Link>
+			</Button>
+		</InstrumentActionBand>
 	);
 }
 
 export default async function Home() {
-	const allProjects = await getAllProjects();
-	const featuredProjects = allProjects.filter((project) => project.sortOrder !== undefined);
+	const featuredProjects = await getListedPublicProjects();
+	const hasFeaturedProjects = featuredProjects.length > 0;
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -103,47 +70,61 @@ export default async function Home() {
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
-									<div className="portfolio-box-pad">
-										{/* Projects Grid */}
-										<div className="portfolio-stack-group">
-											{featuredProjects.map((project, i) => (
-												<ScrollReveal
-													key={project.id}
-													phase={3}
-													delay={i * 0.05}
-												>
-													<div id={`project-${i + 1}`}>
-														<ProjectCardGallery
-															index={`0${i + 1}`}
-															title={project.title}
-															description={project.description}
-															href={project.urlPath}
-															tags={project.tech ?? []}
-															images={project.coverImages}
-															isPrivate={
-																project.cardState === "coming-soon"
-															}
-															date={
-																project.date
-																	? new Date(
-																			project.date,
-																		).toLocaleDateString(
-																			"en-US",
-																			{
-																				month: "long",
-																				year: "numeric",
-																			},
-																		)
-																	: undefined
-															}
-															imageTreatment="disciplined"
-															imageAspectRatio="1.92"
-														/>
-													</div>
-												</ScrollReveal>
-											))}
+									{hasFeaturedProjects ? (
+										<div className="portfolio-box-pad">
+											<div className="portfolio-stack-group">
+												{featuredProjects.map((project, i) => (
+													<ScrollReveal
+														key={project.id}
+														phase={3}
+														delay={i * 0.05}
+													>
+														<div id={`project-${i + 1}`}>
+															<ProjectCardGallery
+																index={`0${i + 1}`}
+																title={project.title}
+																description={project.description}
+																href={project.urlPath}
+																tags={project.tech ?? []}
+																images={project.coverImages}
+																isPrivate={
+																	project.cardState ===
+																	"coming-soon"
+																}
+																date={
+																	project.date
+																		? new Date(
+																				project.date,
+																			).toLocaleDateString(
+																				"en-US",
+																				{
+																					month: "long",
+																					year: "numeric",
+																				},
+																			)
+																		: undefined
+																}
+																imageTreatment="disciplined"
+																imageAspectRatio="1.92"
+															/>
+														</div>
+													</ScrollReveal>
+												))}
+											</div>
 										</div>
-									</div>
+									) : (
+										<EditorialEmptyState
+											eyebrow="Selected Work"
+											icon={
+												<Briefcase
+													className="size-[var(--portfolio-icon-sm)] opacity-80"
+													weight="regular"
+												/>
+											}
+											title="No case studies listed right now."
+											description="The public archive is temporarily unlisted."
+										/>
+									)}
 								</section>
 							</ScrollReveal>
 						</SwissGridRow>

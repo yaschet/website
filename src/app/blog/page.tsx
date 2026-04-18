@@ -1,16 +1,10 @@
-import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import { FileText } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
-import { Button } from "@/src/components/ui/button";
-import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
-import {
-	INVERTED_ACTION_BAND_OUTLINED_BUTTON_CLASS,
-	INVERTED_ACTION_BAND_TITLE_CLASS,
-} from "@/src/components/ui/instrument-action-band-theme";
+import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { Reveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
@@ -39,34 +33,23 @@ export default function BlogPage() {
 										<PageIntro
 											eyebrow="Writing"
 											title="Blog"
-											description="Technical deep-dives, architecture decisions, and lessons learned from shipping products."
+											description="Notes on systems, tradeoffs, and shipped work."
 										/>
 									</div>
 								</SwissGridRow>
 								<SwissGridRow>
-									<InstrumentActionBand
-										fieldSpeed={0.58}
-										fieldVariant="terrain"
-										tone="inverted"
-									>
-										<h2
-											className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
-										>
-											Publishing begins soon.
-										</h2>
-										<Button
-											asChild
-											variant="outlined"
-											size="md"
-											color="default"
-											className={INVERTED_ACTION_BAND_OUTLINED_BUTTON_CLASS}
-										>
-											<Link href="/">
-												<ArrowLeft className="size-4" weight="bold" />
-												Back to Home
-											</Link>
-										</Button>
-									</InstrumentActionBand>
+									<Reveal phase={2} className="w-full">
+										<EditorialEmptyState
+											icon={
+												<FileText
+													className="size-[var(--portfolio-icon-sm)] opacity-80"
+													weight="regular"
+												/>
+											}
+											title="No posts yet."
+											description="Nothing is published right now."
+										/>
+									</Reveal>
 								</SwissGridRow>
 							</SwissGridBox>
 						</PageContainer>

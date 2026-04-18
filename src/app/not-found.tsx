@@ -1,12 +1,9 @@
-"use client";
-
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowRight, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
+import { PageContainer } from "@/src/components/layout/containers";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { HeadingReveal } from "@/src/components/ui/heading-reveal";
-import { Reveal } from "@/src/components/ui/reveal";
+import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export default function NotFound() {
@@ -17,44 +14,36 @@ export default function NotFound() {
 
 			{/* 2. CONTENT CELL */}
 			<section id="404-content" className="relative z-10 w-full">
-				<PageContainer className="portfolio-section-top-loose text-center">
+				<PageContainer className="portfolio-section-top-loose">
 					<SwissGridBox>
 						<SwissGridRow>
-							<div className="portfolio-box-pad">
-								<ProseContainer className="portfolio-stack-group mx-auto items-center justify-center">
-									<Reveal phase={1}>
-										<div className="portfolio-chip border-surface-200 bg-surface-50/50 text-surface-500 backdrop-blur-sm dark:border-surface-800 dark:bg-surface-900/50 dark:text-surface-400">
-											<span className="size-2.5 rounded-full bg-red-500" />
-											<span>Signal Lost</span>
-										</div>
-									</Reveal>
-
-									<Reveal phase={2} delay={0.1}>
-										<HeadingReveal
-											as="h1"
-											phase={2}
-											className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100"
-										>
-											Coordinates Invalid.
-										</HeadingReveal>
-									</Reveal>
-
-									<Reveal phase={2} delay={0.2}>
-										<p className="portfolio-body-md text-surface-500 dark:text-surface-400">
-											The sector you are attempting to access does not exist.
-										</p>
-									</Reveal>
-
-									<Reveal phase={3} delay={0.3}>
-										<Button asChild size="md" variant="outlined">
+							<EditorialEmptyState
+								eyebrow="404"
+								icon={
+									<MagnifyingGlass
+										className="size-[var(--portfolio-icon-sm)] opacity-80"
+										weight="regular"
+									/>
+								}
+								title="Page not found."
+								description="This address does not point to a public page."
+								actions={
+									<>
+										<Button asChild size="md" variant="solid">
 											<Link href="/">
 												<ArrowLeft weight="bold" />
-												Return to Base
+												Home
 											</Link>
 										</Button>
-									</Reveal>
-								</ProseContainer>
-							</div>
+										<Button asChild size="md" variant="outlined">
+											<Link href="/case-studies">
+												Case Studies
+												<ArrowRight weight="bold" />
+											</Link>
+										</Button>
+									</>
+								}
+							/>
 						</SwissGridRow>
 					</SwissGridBox>
 				</PageContainer>

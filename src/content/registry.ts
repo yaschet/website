@@ -145,3 +145,8 @@ export const getPublicProjects = cache(async (): Promise<ProjectEntry[]> => {
 	const projects = await getAllProjects();
 	return projects.filter((project) => project.cardState !== "coming-soon");
 });
+
+export const getListedPublicProjects = cache(async (): Promise<ProjectEntry[]> => {
+	const projects = await getPublicProjects();
+	return projects.filter((project) => project.listed);
+});

@@ -30,6 +30,7 @@ export const projectMetadataSchema = z.object({
 	hideCoverGallery: z.boolean().default(false),
 	seoKeywords: z.array(z.string()).optional(),
 	sortOrder: z.number().optional(),
+	listed: z.boolean().default(true),
 	cardState: z.enum(["public", "coming-soon"]).default("public"),
 });
 

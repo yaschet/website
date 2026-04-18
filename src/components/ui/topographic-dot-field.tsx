@@ -248,35 +248,38 @@ float heroDetailActivity(vec2 uv) {
 
   float x = sm3(0.30, 0.90, uv.x);
   float y = sm3(0.48, 0.98, uv.y);
-  float lowerRightLift = y * x * 0.04 + y * 0.015;
+  float lowerRightLift = y * x * 0.02 + y * 0.008;
 
-  return clamp(mix(0.72, 1.0, x) + lowerRightLift, 0.72, 1.0);
+  return clamp(mix(0.9, 1.0, x) + lowerRightLift, 0.9, 1.0);
 }
 
 float terrainFieldValue(vec2 uv, float time) {
   float aspect = uRes.x / uRes.y;
   vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
   float heroActivity = heroDetailActivity(uv);
+  mat2 orient = mat2(0.955, -0.296, 0.296, 0.955);
+  vec2 base = orient * p;
+  vec2 stretched = vec2(base.x * 0.86, base.y * 1.18);
 
   vec2 warp = vec2(
-    snoise(vec3(p * 0.85 + vec2(1.2, -0.8), time * 0.09)),
-    snoise(vec3(p * 0.85 + vec2(-3.7, 2.4), time * 0.09))
+    snoise(vec3(stretched * 0.42 + vec2(1.2, -0.8), time * 0.06)),
+    snoise(vec3(stretched * 0.40 + vec2(-3.7, 2.4), time * 0.06))
   );
-  warp *= mix(0.20, 1.0, heroActivity);
+  warp *= mix(0.14, 0.24, heroActivity);
 
-  vec2 q = p * 1.05 + warp * 0.28;
+  vec2 q = stretched + warp * 0.34;
 
-  float coarse = snoise(vec3(q * 0.85, time * 0.11));
-  float middle = snoise(vec3(q * 1.75 + vec2(2.7, -1.6), time * 0.15));
-  float detail = snoise(vec3(q * 3.3 + vec2(-4.4, 3.1), time * 0.21));
-  coarse *= mix(0.76, 1.0, heroActivity);
-  middle *= mix(0.24, 1.0, heroActivity);
-  detail *= mix(0.06, 1.0, heroActivity);
+  float coarse = snoise(vec3(q * 0.62, time * 0.085));
+  float middle = snoise(vec3(q * 1.16 + vec2(2.7, -1.6), time * 0.11));
+  float ridgeSeed = snoise(vec3(q * 1.74 + vec2(-4.4, 3.1), time * 0.095));
+  float ridge = smoothstep(0.28, 0.92, 1.0 - abs(ridgeSeed));
+  coarse *= mix(0.84, 1.0, heroActivity);
+  middle *= mix(0.56, 0.82, heroActivity);
 
-  float field = coarse * 0.58 + middle * 0.28 + detail * 0.14;
+  float field = coarse * 0.64 + middle * 0.24 + (ridge - 0.5) * 0.22;
   field = field * 0.5 + 0.5;
-  field = mix(0.5, field, mix(0.60, 1.0, heroActivity));
-  field = sm3(0.16, 0.88, field);
+  field = mix(field, sm3(0.18, 0.86, field), 0.42);
+  field = mix(0.5, field, mix(0.72, 1.0, heroActivity));
 
   float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * mix(0.04, 0.025, 1.0 - step(0.5, uSurface));
   float rightLift = sm3(0.56, 0.96, uv.x) * mix(0.06, 0.018, 1.0 - step(0.5, uSurface));
@@ -376,10 +379,10 @@ float heroActivityEnvelope(vec2 uv) {
 
   float x = sm3(0.22, 0.86, uv.x);
   float y = sm3(0.34, 0.96, uv.y);
-  float rightBias = mix(0.88, 1.0, x);
-  float lowerRightLift = y * x * 0.05 + y * 0.02;
+  float rightBias = mix(0.96, 1.0, x);
+  float lowerRightLift = y * x * 0.02 + y * 0.008;
 
-  return clamp(rightBias + lowerRightLift, 0.88, 1.0);
+  return clamp(rightBias + lowerRightLift, 0.96, 1.0);
 }
 
 float resolvedField(vec2 uv, float time) {
@@ -447,13 +450,15 @@ void main() {
   float pulseVariant = step(0.5, uVariant);
   float fieldGradient = length(vec2(dFdx(field), dFdy(field)));
   float contourWidth = mix(1.05, 0.92, uDark) * mix(1.0, 0.94, heroSurface);
-  float contour0 = contourBand(field, u0, fieldGradient, contourWidth) * mix(1.0, 0.22, heroSurface);
-  float contour1 = contourBand(field, u1, fieldGradient, contourWidth) * mix(1.0, 0.44, heroSurface);
-  float contour2 = contourBand(field, u2, fieldGradient, contourWidth) * mix(1.0, 0.68, heroSurface);
-  float contour3 = contourBand(field, u3, fieldGradient, contourWidth) * mix(1.0, 0.9, heroSurface);
+  float contour0 = contourBand(field, u0, fieldGradient, contourWidth) * mix(1.0, 0.54, heroSurface);
+  float contour1 = contourBand(field, u1, fieldGradient, contourWidth) * mix(1.0, 0.72, heroSurface);
+  float contour2 = contourBand(field, u2, fieldGradient, contourWidth) * mix(1.0, 0.86, heroSurface);
+  float contour3 = contourBand(field, u3, fieldGradient, contourWidth) * mix(1.0, 0.96, heroSurface);
   float contour = max(max(contour0, contour1), max(contour2, contour3));
 
-  float underlayFloor = sm3(mix(0.18, 0.08, uDark), u0 + mix(0.06, 0.04, uDark), field);
+  float underlayFloorStart = mix(mix(0.18, 0.08, uDark), mix(0.10, 0.05, uDark), heroSurface);
+  float underlayFloorEnd = mix(u0 + mix(0.06, 0.04, uDark), u0 + mix(-0.02, 0.02, uDark), heroSurface);
+  float underlayFloor = sm3(underlayFloorStart, underlayFloorEnd, field);
   float underlayT01 = sm3(u0, u1, field);
   float underlayT12 = sm3(u1, u2, field);
   float underlayT23 = sm3(u2, u3, field);
@@ -482,14 +487,19 @@ void main() {
       resolvedField(cellCenter - vec2(0.0, cellKernel.y), uTime) * 0.16;
     if (uDark < 0.5) {
       dotField = min(dotField, field);
-      if (underlayBand == 3) {
+      if (underlayBand == 2) {
+        float firstReveal = sm3(u1 + 0.010, u2 - 0.022, dotField);
+        vec3 firstRgb = mix(uLC1, uLC2, firstReveal * 0.42);
+        float firstAlpha = mix(uLA1, uLA2, firstReveal);
+        dots = vec4(firstRgb, firstAlpha * 0.22 * pow(firstReveal, 1.9));
+      } else if (underlayBand == 3) {
         float secondReveal = sm3(u2 + 0.028, u3 - 0.012, dotField);
-        dots = vec4(uLC2, uLA2 * 0.14 * pow(secondReveal, 2.4));
+        dots = vec4(uLC2, uLA2 * 0.24 * pow(secondReveal, 2.2));
       } else if (underlayBand == 4) {
         float peakReveal = sm3(u3 + 0.006, min(0.995, u3 + 0.060), dotField);
         vec3 peakRgb = mix(uLC2, uLC3, peakReveal);
         float peakAlpha = mix(uLA2, uLA3, peakReveal);
-        dots = vec4(peakRgb, peakAlpha * mix(0.22, 0.44, peakReveal) * pow(peakReveal, 1.8));
+        dots = vec4(peakRgb, peakAlpha * mix(0.34, 0.62, peakReveal) * pow(peakReveal, 1.6));
       }
     } else {
       float dotT01 = sm3(d0, d1, dotField);
@@ -516,11 +526,13 @@ void main() {
   vec3 contourRgb = mix(uLC0, uLC1, underlayT01);
   contourRgb = mix(contourRgb, uLC2, underlayT12);
   contourRgb = mix(contourRgb, uLC3, underlayT23);
+  float lightContourSoftening = (1.0 - uDark) * mix(0.0, 0.24, heroSurface);
+  contourRgb = mix(contourRgb, uBG, lightContourSoftening);
   vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant));
   float heroReadTone = uSurface > 0.5 ? 0.0 : readZone * mix(0.16, 0.22, uDark);
 
   underlay.rgb = mix(underlay.rgb, uBG, heroReadTone * 0.28);
-  dots.rgb = mix(dots.rgb, uBG, heroReadTone * 0.44);
+  dots.rgb = mix(dots.rgb, uBG, heroReadTone * mix(0.44, 0.26, heroSurface));
   contourStroke.rgb = mix(contourStroke.rgb, uBG, heroReadTone * 0.58);
 
   underlay.a *= heroEnvelope;
@@ -532,6 +544,7 @@ void main() {
   underlay.a *= mix(1.0, 0.96, heroReadTone);
   dots.a *= mix(1.0, 0.84, heroReadTone);
   contourStroke.a *= mix(1.0, mix(0.90, 0.84, uDark), heroReadTone);
+  dots.a = min(dots.a * mix(1.0, 2.0, heroSurface), 0.96);
   float heroInteraction = mix(1.0, 0.62, heroSurface);
   dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark) * heroInteraction;
   contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark) * heroInteraction;

@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRightIcon, Briefcase } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-work-callout";
@@ -15,7 +15,7 @@ import {
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
-import { getAllProjects } from "@/src/content/registry";
+import { getListedPublicProjects } from "@/src/content/registry";
 
 export const metadata: Metadata = {
 	title: "Case Studies | Yassine Chettouch",
@@ -34,7 +34,8 @@ export const metadata: Metadata = {
 };
 
 export default async function CaseStudiesPage() {
-	const projects = (await getAllProjects()).filter((project) => project.sortOrder !== undefined);
+	const projects = await getListedPublicProjects();
+	const hasProjects = projects.length > 0;
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -48,46 +49,64 @@ export default async function CaseStudiesPage() {
 								<Reveal phase={1} className="w-full">
 									<div className="portfolio-box-pad">
 										<PageIntro
-											eyebrow="WORK"
-											title="Selected engineering."
-											description="Case studies across product systems, internal tooling, and shipped software."
+											eyebrow="Work"
+											title="Case studies."
+											description="Public write-ups of shipped systems work."
 										/>
 									</div>
 								</Reveal>
 							</SwissGridRow>
 							<SwissGridRow>
-								<div className="portfolio-box-pad">
-									<div className="portfolio-stack-group">
-										{projects.map((project, i) => (
-											<ScrollReveal
-												key={project.id}
-												phase={2}
-												delay={i * 0.05}
-												className="w-full"
-											>
-												<ProjectCardGallery
-													index={String(i + 1).padStart(2, "0")}
-													title={project.title}
-													description={project.description}
-													href={project.urlPath}
-													tags={project.tech ?? []}
-													images={project.coverImages}
-													isPrivate={project.cardState === "coming-soon"}
-													date={
-														project.date
-															? new Date(
-																	project.date,
-																).toLocaleDateString("en-US", {
-																	month: "long",
-																	year: "numeric",
-																})
-															: undefined
-													}
-												/>
-											</ScrollReveal>
-										))}
+								{hasProjects ? (
+									<div className="portfolio-box-pad">
+										<div className="portfolio-stack-group">
+											{projects.map((project, i) => (
+												<ScrollReveal
+													key={project.id}
+													phase={2}
+													delay={i * 0.05}
+													className="w-full"
+												>
+													<ProjectCardGallery
+														index={String(i + 1).padStart(2, "0")}
+														title={project.title}
+														description={project.description}
+														href={project.urlPath}
+														tags={project.tech ?? []}
+														images={project.coverImages}
+														isPrivate={
+															project.cardState === "coming-soon"
+														}
+														date={
+															project.date
+																? new Date(
+																		project.date,
+																	).toLocaleDateString("en-US", {
+																		month: "long",
+																		year: "numeric",
+																	})
+																: undefined
+														}
+													/>
+												</ScrollReveal>
+											))}
+										</div>
 									</div>
-								</div>
+								) : (
+									<Reveal phase={2} className="w-full">
+										<EditorialEmptyState
+											eyebrow="Archive"
+											icon={
+												<Briefcase
+													className="size-[var(--portfolio-icon-sm)] opacity-80"
+													weight="regular"
+												/>
+											}
+											title="No case studies listed right now."
+											description="The public archive is temporarily unlisted."
+										/>
+									</Reveal>
+								)}
 							</SwissGridRow>
 						</SwissGridBox>
 					</PageContainer>
@@ -98,9 +117,11 @@ export default async function CaseStudiesPage() {
 						<section className="w-full">
 							<PageContainer className="portfolio-section-loose">
 								<SwissGridBox>
-									<SwissGridRow>
-										<ConfidentialWorkCallout />
-									</SwissGridRow>
+									{hasProjects && (
+										<SwissGridRow>
+											<ConfidentialWorkCallout />
+										</SwissGridRow>
+									)}
 									<SwissGridRow>
 										<InstrumentActionBand
 											fieldSpeed={0.58}

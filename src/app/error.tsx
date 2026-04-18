@@ -1,10 +1,12 @@
 "use client";
 
-import { ArrowClockwise, Warning } from "@phosphor-icons/react";
+import { ArrowClockwise, ArrowRight, Warning } from "@phosphor-icons/react";
+import Link from "next/link";
 import { useEffect } from "react";
-import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
+import { PageContainer } from "@/src/components/layout/containers";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
+import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export default function AppError({
@@ -26,35 +28,35 @@ export default function AppError({
 
 			{/* 2. CONTENT CELL */}
 			<section id="error-content" className="relative z-10 w-full">
-				<PageContainer className="portfolio-section-top-loose text-center">
+				<PageContainer className="portfolio-section-top-loose">
 					<SwissGridBox>
 						<SwissGridRow>
-							<div className="portfolio-box-pad">
-								<ProseContainer className="portfolio-stack-group mx-auto items-center justify-center">
-									<div className="flex justify-center">
-										<div className="flex size-[var(--portfolio-avatar-size)] items-center justify-center bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-900 dark:text-surface-50">
-											<Warning
-												className="size-[var(--portfolio-icon-sm)] opacity-80"
-												weight="duotone"
-											/>
-										</div>
-									</div>
-
-									<h1 className="portfolio-heading-lg portfolio-capsize-heading-lg text-surface-900 dark:text-surface-100">
-										System Interruption
-									</h1>
-
-									<p className="portfolio-body-sm max-w-md text-surface-500 dark:text-surface-400">
-										The system encountered a runtime exception. This incident
-										has been logged.
-									</p>
-
-									<Button onClick={() => reset()} size="md" variant="solid">
-										<ArrowClockwise weight="bold" />
-										Reboot System
-									</Button>
-								</ProseContainer>
-							</div>
+							<EditorialEmptyState
+								eyebrow="Error"
+								icon={
+									<Warning
+										className="size-[var(--portfolio-icon-sm)] opacity-80"
+										weight="duotone"
+									/>
+								}
+								title="Something broke."
+								description="This page did not render properly."
+								actions={
+									<>
+										<Button onClick={() => reset()} size="md" variant="solid">
+											<ArrowClockwise weight="bold" />
+											Try Again
+										</Button>
+										<Button asChild size="md" variant="outlined">
+											<Link href="/">
+												Home
+												<ArrowRight weight="bold" />
+											</Link>
+										</Button>
+									</>
+								}
+								note={error.digest ? `Reference: ${error.digest}` : undefined}
+							/>
 						</SwissGridRow>
 					</SwissGridBox>
 				</PageContainer>
