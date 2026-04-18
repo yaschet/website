@@ -406,24 +406,33 @@ void main() {
       resolvedField(cellCenter - vec2(0.0, cellKernel.y), uTime) * 0.16;
     if (uDark < 0.5) {
       dotField = min(dotField, field);
-      float dotT01 = sm3(e0, e1, dotField);
-      float dotT12 = sm3(e1, e2, dotField);
-      float dotT23 = sm3(e2, e3, dotField);
-      float dotReveal = sm3(
-        e0 + 0.006,
-        min(0.995, e3 + 0.012),
-        dotField
-      );
-
-      vec3 dotRgb = mix(uLC0, uLC1, dotT01);
-      dotRgb = mix(dotRgb, uLC2, dotT12);
-      dotRgb = mix(dotRgb, uLC3, dotT23);
-
-      float dotAlpha = mix(0.08, 0.14, dotT01);
-      dotAlpha = mix(dotAlpha, 0.18, dotT12);
-      dotAlpha = mix(dotAlpha, 0.24, dotT23);
-
-      dots = vec4(dotRgb, dotAlpha * pow(dotReveal, 1.28));
+      float dotStructure = sm3(0.003, 0.016, fieldGradient);
+      if (underlayBand == 2) {
+        float bandEnter = sm3(e1 + 0.002, e2 - 0.060, dotField);
+        float bandExit = 1.0 - sm3(e2 - 0.010, e2 + 0.018, dotField);
+        float bandReveal = pow(max(0.0, bandEnter * bandExit), 1.16);
+        vec3 bandRgb = mix(uLC1, uLC2, 0.38 + bandReveal * 0.24);
+        float bandAlpha = uLA1 * 0.50 * bandReveal * mix(0.72, 1.0, dotStructure);
+        dots = vec4(bandRgb, bandAlpha);
+      } else if (underlayBand == 3) {
+        float bandEnter = sm3(e2 + 0.000, e3 - 0.056, dotField);
+        float bandExit = 1.0 - sm3(e3 - 0.012, e3 + 0.018, dotField);
+        float bandReveal = pow(max(0.0, bandEnter * bandExit), 1.08);
+        vec3 bandRgb = mix(uLC2, uLC3, 0.18 + bandReveal * 0.38);
+        float bandAlpha =
+          mix(uLA1, uLA2, bandReveal) * 0.52 * bandReveal * mix(0.80, 1.0, dotStructure);
+        dots = vec4(bandRgb, bandAlpha);
+      } else if (underlayBand == 4) {
+        float peakReveal = sm3(
+          e3 - 0.012,
+          min(0.995, e3 + 0.088),
+          dotField
+        );
+        float peakAlpha =
+          mix(uLA2, uLA3, peakReveal) * 0.74 * pow(peakReveal, 1.02);
+        vec3 peakRgb = mix(uLC2, uLC3, peakReveal);
+        dots = vec4(peakRgb, peakAlpha * mix(0.90, 1.0, dotStructure));
+      }
     } else {
       float dotT01 = sm3(d0, d1, dotField);
       float dotT12 = sm3(d1, d2, dotField);
