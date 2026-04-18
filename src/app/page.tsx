@@ -66,81 +66,71 @@ export default async function Home() {
 
 				{/* Box 2: Selected Work */}
 				<PageContainer>
-					<SwissGridBox className="mt-10">
-						<SwissGridRow>
-							<ScrollReveal phase={3} className="w-full">
-								<section className="w-full">
-									{hasFeaturedProjects ? (
-										<div className="portfolio-box-pad">
-											<div className="portfolio-stack-group">
-												{featuredProjects.map((project, i) => (
-													<ScrollReveal
-														key={project.id}
-														phase={3}
-														delay={i * 0.05}
-													>
-														<div id={`project-${i + 1}`}>
-															<ProjectCardGallery
-																index={`0${i + 1}`}
-																title={project.title}
-																description={project.description}
-																href={project.urlPath}
-																tags={project.tech ?? []}
-																images={project.coverImages}
-																isPrivate={
-																	project.cardState ===
-																	"coming-soon"
-																}
-																date={
-																	project.date
-																		? new Date(
-																				project.date,
-																			).toLocaleDateString(
-																				"en-US",
-																				{
-																					month: "long",
-																					year: "numeric",
-																				},
-																			)
-																		: undefined
-																}
-																imageTreatment="disciplined"
-																imageAspectRatio="1.92"
-															/>
-														</div>
-													</ScrollReveal>
-												))}
-											</div>
+					<ScrollReveal phase={3} className="w-full">
+						<SwissGridBox className="mt-10">
+							<SwissGridRow>
+								{hasFeaturedProjects ? (
+									<div className="portfolio-box-pad">
+										<div className="portfolio-stack-group">
+											{featuredProjects.map((project, i) => (
+												<ScrollReveal
+													key={project.id}
+													phase={3}
+													delay={i * 0.05}
+												>
+													<div id={`project-${i + 1}`}>
+														<ProjectCardGallery
+															index={`0${i + 1}`}
+															title={project.title}
+															description={project.description}
+															href={project.urlPath}
+															tags={project.tech ?? []}
+															images={project.coverImages}
+															isPrivate={
+																project.cardState === "coming-soon"
+															}
+															date={
+																project.date
+																	? new Date(
+																			project.date,
+																		).toLocaleDateString(
+																			"en-US",
+																			{
+																				month: "long",
+																				year: "numeric",
+																			},
+																		)
+																	: undefined
+															}
+															imageTreatment="disciplined"
+															imageAspectRatio="1.92"
+														/>
+													</div>
+												</ScrollReveal>
+											))}
 										</div>
-									) : (
-										<EditorialEmptyState
-											eyebrow="Selected Work"
-											icon={
-												<Briefcase
-													className="size-[var(--portfolio-icon-sm)] opacity-80"
-													weight="regular"
-												/>
-											}
-											title="No case studies listed."
-											description="The public archive is currently unlisted."
-										/>
-									)}
-								</section>
-							</ScrollReveal>
-						</SwissGridRow>
-				        
-                        {/* Row 2: NDA Disclaimer */}
-						<SwissGridRow>
-							<ScrollReveal phase={3} className="w-full">
-								<section className="w-full">
-									<ConfidentialWorkCallout />
-								</section>
-							</ScrollReveal>
-						</SwissGridRow>
-					</SwissGridBox>
-				</PageContainer>
+									</div>
+								) : (
+									<EditorialEmptyState
+										eyebrow="Selected Work"
+										icon={
+											<Briefcase
+												className="size-[var(--portfolio-icon-sm)] opacity-80"
+												weight="regular"
+											/>
+										}
+										title="No case studies listed."
+										description="The public archive is currently unlisted."
+									/>
+								)}
+							</SwissGridRow>
 
-	
+							<SwissGridRow>
+								<ConfidentialWorkCallout />
+							</SwissGridRow>
+						</SwissGridBox>
+					</ScrollReveal>
+				</PageContainer>
 
 				{/* Box 4: Closing CTA */}
 				<PageContainer>
