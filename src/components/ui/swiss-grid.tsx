@@ -62,15 +62,15 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 
 		const boxRect = box.getBoundingClientRect();
 		setBoxSize({
-			w: Math.round(boxRect.width),
-			h: Math.round(boxRect.height),
+			w: boxRect.width,
+			h: boxRect.height,
 		});
 
 		// Collect the bottom edge of each registered row, relative to box top.
 		const bottoms: number[] = [];
 		rowRefs.current.forEach((el) => {
 			const r = el.getBoundingClientRect();
-			bottoms.push(Math.round(r.bottom - boxRect.top));
+			bottoms.push(r.bottom - boxRect.top);
 		});
 
 		// Sort ascending; drop the last value (= box height = outer border already closes it).
@@ -103,6 +103,20 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 
 	const { w, h } = boxSize;
 	const animate = !shouldReduceMotion && phase >= 1;
+	const horizontalDashStyle = {
+		backgroundImage: `repeating-linear-gradient(to right, currentColor 0 ${DASH}px, transparent ${DASH}px ${DASH + GAP}px)`,
+	};
+	const verticalDashStyle = {
+		backgroundImage: `repeating-linear-gradient(to bottom, currentColor 0 ${DASH}px, transparent ${DASH}px ${DASH + GAP}px)`,
+	};
+	const perimeterClassName = cn(
+		"text-surface-900/10 dark:text-surface-100/10",
+		animate && "animate-ants-x",
+	);
+	const dividerClassName = cn(
+		"text-surface-900/10 dark:text-surface-100/10",
+		animate && "animate-ants-x-subtle",
+	);
 
 	return (
 		<SwissGridBoxContext.Provider value={{ registerRow, notify: recalculate }}>
@@ -115,48 +129,62 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 						className,
 					)}
 				>
-					{/* SVG border overlay — rendered only once dimensions are known */}
 					{w > 0 && h > 0 && (
-						<svg
-							width={w}
-							height={h}
-							className="pointer-events-none absolute inset-0 z-10"
-							aria-hidden="true"
-						>
-							{/* Outer animated dashed rectangle */}
-							<rect
-								x={0.5}
-								y={0.5}
-								width={w - 1}
-								height={h - 1}
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="1"
-								strokeDasharray={`${DASH} ${GAP}`}
+						<>
+							<div
+								aria-hidden="true"
 								className={cn(
-									"text-surface-900/10 dark:text-surface-100/10",
-									animate && "animate-marching-ants",
+									"pointer-events-none absolute inset-x-0 top-0 z-10 h-px",
+									perimeterClassName,
 								)}
+								style={horizontalDashStyle}
+							/>
+							<div
+								aria-hidden="true"
+								className={cn(
+									"pointer-events-none absolute inset-y-0 right-0 z-10 w-px",
+									"text-surface-900/10 dark:text-surface-100/10",
+									animate && "animate-ants-y",
+								)}
+								style={verticalDashStyle}
+							/>
+							<div
+								aria-hidden="true"
+								className={cn(
+									"pointer-events-none absolute inset-x-0 bottom-0 z-10 h-px",
+									"text-surface-900/10 dark:text-surface-100/10",
+									animate && "animate-ants-x-reverse",
+								)}
+								style={horizontalDashStyle}
+							/>
+							<div
+								aria-hidden="true"
+								className={cn(
+									"pointer-events-none absolute inset-y-0 left-0 z-10 w-px",
+									"text-surface-900/10 dark:text-surface-100/10",
+									animate && "animate-ants-y-reverse",
+								)}
+								style={verticalDashStyle}
 							/>
 
-							{/* Horizontal dividers between rows */}
 							{dividerYs.map((y) => (
-								<line
+								<div
 									key={y}
-									x1={0.5}
-									y1={y}
-									x2={w - 0.5}
-									y2={y}
-									stroke="currentColor"
-									strokeWidth="1"
-									strokeDasharray={`${DASH} ${GAP}`}
-									className={cn(
-										"text-surface-900/10 dark:text-surface-100/10",
-										animate && "animate-marching-ants",
-									)}
+									aria-hidden="true"
+									className={dividerClassName}
+									style={{
+										...horizontalDashStyle,
+										position: "absolute",
+										left: 0,
+										right: 0,
+										top: Math.round(y),
+										height: "1px",
+										zIndex: 10,
+										pointerEvents: "none",
+									}}
 								/>
 							))}
-						</svg>
+						</>
 					)}
 
 					{children}

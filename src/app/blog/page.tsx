@@ -1,11 +1,18 @@
-import { FileText } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRightIcon, FileText } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
+import { Button } from "@/src/components/ui/button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
-import { Reveal } from "@/src/components/ui/reveal";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
+import {
+	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
+	INVERTED_ACTION_BAND_TITLE_CLASS,
+} from "@/src/components/ui/instrument-action-band-theme";
+import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export const metadata: Metadata = {
@@ -15,6 +22,30 @@ export const metadata: Metadata = {
 		canonical: "/blog",
 	},
 };
+
+function BlogClosingCta() {
+	return (
+		<InstrumentActionBand fieldSpeed={0.28} fieldVariant="terrain" tone="inverted">
+			<h2
+				className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
+			>
+				See shipped work.
+			</h2>
+			<Button
+				asChild
+				size="md"
+				variant="solid"
+				color="default"
+				className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
+			>
+				<Link href="/case-studies">
+					Case Studies
+					<ArrowRightIcon className="size-4" weight="bold" />
+				</Link>
+			</Button>
+		</InstrumentActionBand>
+	);
+}
 
 export default function BlogPage() {
 	return (
@@ -54,6 +85,18 @@ export default function BlogPage() {
 							</SwissGridBox>
 						</PageContainer>
 					</Reveal>
+				</section>
+
+				<section id="blog-cta" className="w-full">
+					<ScrollReveal phase={2} className="w-full">
+						<PageContainer className="portfolio-section-top">
+							<SwissGridBox>
+								<SwissGridRow>
+									<BlogClosingCta />
+								</SwissGridRow>
+							</SwissGridBox>
+						</PageContainer>
+					</ScrollReveal>
 				</section>
 			</main>
 			<SiteFooter />

@@ -65,52 +65,50 @@ export default async function Home() {
 				</PageContainer>
 
 				{/* Box 2: Selected Work */}
-				<PageContainer>
-					<ScrollReveal phase={3} className="w-full">
-						<SwissGridBox className="mt-10">
-							<SwissGridRow>
-								{hasFeaturedProjects ? (
-									<div className="portfolio-box-pad">
-										<div className="portfolio-stack-group">
-											{featuredProjects.map((project, i) => (
-												<ScrollReveal
-													key={project.id}
-													phase={3}
-													delay={i * 0.05}
-												>
-													<div id={`project-${i + 1}`}>
-														<ProjectCardGallery
-															index={`0${i + 1}`}
-															title={project.title}
-															description={project.description}
-															href={project.urlPath}
-															tags={project.tech ?? []}
-															images={project.coverImages}
-															isPrivate={
-																project.cardState === "coming-soon"
-															}
-															date={
-																project.date
-																	? new Date(
-																			project.date,
-																		).toLocaleDateString(
-																			"en-US",
-																			{
-																				month: "long",
-																				year: "numeric",
-																			},
-																		)
-																	: undefined
-															}
-															imageTreatment="disciplined"
-															imageAspectRatio="1.92"
-														/>
-													</div>
-												</ScrollReveal>
-											))}
-										</div>
+				<PageContainer className="mt-10">
+					<SwissGridBox>
+						<SwissGridRow>
+							{hasFeaturedProjects ? (
+								<div className="portfolio-box-pad">
+									<div className="portfolio-stack-group">
+										{featuredProjects.map((project, i) => (
+											<ScrollReveal
+												key={project.id}
+												phase={3}
+												delay={i * 0.05}
+												className="w-full"
+											>
+												<div id={`project-${i + 1}`}>
+													<ProjectCardGallery
+														index={`0${i + 1}`}
+														title={project.title}
+														description={project.description}
+														href={project.urlPath}
+														tags={project.tech ?? []}
+														images={project.coverImages}
+														isPrivate={
+															project.cardState === "coming-soon"
+														}
+														date={
+															project.date
+																? new Date(
+																		project.date,
+																	).toLocaleDateString("en-US", {
+																		month: "long",
+																		year: "numeric",
+																	})
+																: undefined
+														}
+														imageTreatment="disciplined"
+														imageAspectRatio="1.92"
+													/>
+												</div>
+											</ScrollReveal>
+										))}
 									</div>
-								) : (
+								</div>
+							) : (
+								<ScrollReveal phase={3} className="w-full">
 									<EditorialEmptyState
 										eyebrow="Selected Work"
 										icon={
@@ -122,14 +120,16 @@ export default async function Home() {
 										title="No case studies listed."
 										description="The public archive is currently unlisted."
 									/>
-								)}
-							</SwissGridRow>
+								</ScrollReveal>
+							)}
+						</SwissGridRow>
 
-							<SwissGridRow>
+						<SwissGridRow>
+							<ScrollReveal phase={3} className="w-full">
 								<ConfidentialWorkCallout />
-							</SwissGridRow>
-						</SwissGridBox>
-					</ScrollReveal>
+							</ScrollReveal>
+						</SwissGridRow>
+					</SwissGridBox>
 				</PageContainer>
 
 				{/* Box 4: Closing CTA */}

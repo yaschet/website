@@ -2378,8 +2378,62 @@ pre {
   to { stroke-dashoffset: -16; }
 }
 
+@keyframes marching-ants-subtle {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -12; }
+}
+
 .animate-marching-ants {
-  animation: marching-ants 1s linear infinite;
+  animation: marching-ants 1.7s linear infinite;
+}
+
+.animate-marching-ants-subtle {
+  animation: marching-ants-subtle 2.3s linear infinite;
+}
+
+@keyframes ants-x {
+  from { background-position-x: 0; }
+  to { background-position-x: 16px; }
+}
+
+@keyframes ants-x-reverse {
+  from { background-position-x: 0; }
+  to { background-position-x: -16px; }
+}
+
+@keyframes ants-y {
+  from { background-position-y: 0; }
+  to { background-position-y: -16px; }
+}
+
+@keyframes ants-y-reverse {
+  from { background-position-y: 0; }
+  to { background-position-y: 16px; }
+}
+
+@keyframes ants-x-subtle {
+  from { background-position-x: 0; }
+  to { background-position-x: 12px; }
+}
+
+.animate-ants-x {
+  animation: ants-x 1.7s linear infinite;
+}
+
+.animate-ants-x-reverse {
+  animation: ants-x-reverse 1.7s linear infinite;
+}
+
+.animate-ants-y {
+  animation: ants-y 1.7s linear infinite;
+}
+
+.animate-ants-y-reverse {
+  animation: ants-y-reverse 1.7s linear infinite;
+}
+
+.animate-ants-x-subtle {
+  animation: ants-x-subtle 2.3s linear infinite;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
