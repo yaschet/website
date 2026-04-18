@@ -15,23 +15,12 @@ import {
 export type InstrumentFieldVariant = "terrain" | "pulse" | "ray";
 export type InstrumentSurface = "hero" | "header" | "band" | "strip";
 export type InstrumentFieldTone = "auto" | "light" | "dark" | "inverted";
-export interface InstrumentFieldReadZone {
-	centerX: number;
-	centerY: number;
-	width: number;
-	height: number;
-	padX: number;
-	padY: number;
-	feather: number;
-	strength: number;
-}
 
 interface InstrumentFieldProps {
 	className?: string;
 	interactive?: boolean;
 	step?: DotGridLength;
 	minInset?: DotGridLength;
-	readZones?: InstrumentFieldReadZone[];
 	radius?: number;
 	origin?: DotGridOrigin;
 	speed?: number;
@@ -88,8 +77,6 @@ const LIGHT_ALPHA_PALETTE: AlphaPalette = {
 	underlay: [{ alpha: 0.08 }, { alpha: 0.14 }, { alpha: 0.22 }, { alpha: 0.32 }],
 };
 
-const MAX_READ_ZONES = 4;
-
 const VERT_SRC = `#version 300 es
 in vec2 aPos;
 void main() {
@@ -112,8 +99,6 @@ uniform float uSurface;
 uniform vec2  uMouse;
 uniform float uMouseStrength;
 uniform vec3  uBG;
-uniform vec4  uReadZones[4];
-uniform vec4  uReadZoneMeta[4];
 
 uniform vec3  uLC0; uniform float uLA0;
 uniform vec3  uLC1; uniform float uLA1;
@@ -135,11 +120,6 @@ float sm3(float e0, float e1, float v) {
 float gauss2(vec2 p, vec2 c, vec2 r) {
   vec2 d = (p - c) / r;
   return exp(-dot(d, d));
-}
-
-float sdRoundRect(vec2 p, vec2 halfSize, float radius) {
-  vec2 q = abs(p) - halfSize + vec2(radius);
-  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
 }
 
 float contourBand(float field, float threshold, float gradient, float width) {
@@ -229,18 +209,26 @@ float terrainFieldValue(vec2 uv, float time) {
   float aspect = uRes.x / uRes.y;
   vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
 
+  mat2 orient = mat2(0.951, -0.309, 0.309, 0.951);
+  vec2 base = orient * p;
+  vec2 shaped = vec2(base.x * 0.56 + base.y * 0.18, base.y * 1.42 - base.x * 0.08);
+
   vec2 warp = vec2(
-    snoise(vec3(p * 0.85 + vec2(1.2, -0.8), time * 0.09)),
-    snoise(vec3(p * 0.85 + vec2(-3.7, 2.4), time * 0.09))
+    snoise(vec3(shaped * 0.48 + vec2(1.2, -0.8), time * 0.070)),
+    snoise(vec3(shaped * 0.44 + vec2(-3.7, 2.4), time * 0.070))
   );
 
-  vec2 q = p * 1.05 + warp * 0.22;
+  vec2 q = shaped + vec2(warp.x * 0.11, warp.y * 0.08);
 
-  float coarse = snoise(vec3(q * 0.85, time * 0.11));
-  float middle = snoise(vec3(q * 1.75 + vec2(2.7, -1.6), time * 0.15));
-  float detail = snoise(vec3(q * 3.3 + vec2(-4.4, 3.1), time * 0.21));
+  float coarse = snoise(vec3(q * 0.56, time * 0.086));
+  float middle = snoise(vec3(q * 0.84 + vec2(2.7, -1.6), time * 0.108));
+  vec2 seamQ = vec2(q.x * 1.26 + q.y * 0.32, q.y * 0.68 - q.x * 0.10);
+  float seamSeed = snoise(vec3(seamQ * 0.92 + vec2(-4.4, 3.1), time * 0.094));
+  float seam = smoothstep(0.10, 0.62, 1.0 - abs(seamSeed));
+  float detail = snoise(vec3(q * 1.24 + vec2(1.3, -2.1), time * 0.120));
+  float plane = q.x * 0.36 + q.y * 0.10;
 
-  float field = coarse * 0.60 + middle * 0.26 + detail * 0.10;
+  float field = coarse * 0.60 + middle * 0.08 + (seam - 0.5) * 0.24 + plane * 0.14 + detail * 0.01;
   field = field * 0.5 + 0.5;
   field = sm3(0.16, 0.88, field);
 
@@ -304,39 +292,6 @@ float fieldValue(vec2 uv, float time) {
   return rayFieldValue(uv, time);
 }
 
-float heroReadZoneMask(vec2 uv) {
-  if (uSurface > 0.5) {
-    return 0.0;
-  }
-
-  float mask = 0.0;
-
-  for (int i = 0; i < 4; i += 1) {
-    vec4 zone = uReadZones[i];
-    if (zone.z <= 0.0 || zone.w <= 0.0) {
-      continue;
-    }
-
-    vec4 meta = uReadZoneMeta[i];
-    vec2 halfSize = zone.zw * 0.5 + meta.xy;
-    float radius = clamp(min(halfSize.x, halfSize.y) * 0.14, 0.010, 0.040);
-    float distance = sdRoundRect(uv - zone.xy, halfSize, radius);
-    float localMask = 1.0 - smoothstep(0.0, meta.z, max(distance, 0.0));
-    mask = max(mask, localMask * meta.w);
-  }
-
-  return clamp(mask, 0.0, 1.0);
-}
-
-float heroFallbackShield(vec2 uv) {
-  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 1.18;
-  float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
-  float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
-  float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
-  float shield = max(max(title, body), max(cta, mobile * 0.66));
-  return sm3(0.08, 0.90, shield);
-}
-
 float contentShield(vec2 uv) {
   if (uSurface > 2.5) {
     return 0.0;
@@ -361,12 +316,12 @@ float contentShield(vec2 uv) {
     return sm3(0.08, 0.90, shield);
   }
 
-  float preciseMask = heroReadZoneMask(uv);
-  if (preciseMask > 0.0) {
-    return preciseMask * 0.68;
-  }
-
-  return heroFallbackShield(uv);
+  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 1.18;
+  float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
+  float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
+  float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
+  float shield = max(max(title, body), max(cta, mobile * 0.66));
+  return sm3(0.08, 0.90, shield);
 }
 
 float resolvedField(vec2 uv, float time) {
@@ -396,7 +351,7 @@ void main() {
 
   float field = resolvedField(uv, uTime);
   float shield = contentShield(uv);
-  float readShadow = heroReadZoneMask(uv);
+  float heroSurface = 1.0 - step(0.5, uSurface);
 
   float mouseInfluence = gauss2(uv, uMouse, vec2(0.12, 0.12));
 
@@ -404,10 +359,10 @@ void main() {
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
   bool inDot = insideGridBounds && cellDist.x <= uDotRadius && cellDist.y <= uDotRadius;
 
-  float u0 = mix(0.46, 0.10, uDark);
-  float u1 = mix(0.58, 0.18, uDark);
-  float u2 = mix(0.70, 0.30, uDark);
-  float u3 = mix(0.82, 0.46, uDark);
+  float u0 = mix(mix(0.46, 0.10, uDark), mix(0.42, 0.08, uDark), heroSurface);
+  float u1 = mix(mix(0.58, 0.18, uDark), mix(0.57, 0.18, uDark), heroSurface);
+  float u2 = mix(mix(0.70, 0.30, uDark), mix(0.74, 0.33, uDark), heroSurface);
+  float u3 = mix(mix(0.82, 0.46, uDark), mix(0.88, 0.52, uDark), heroSurface);
 
   float d0 = mix(0.50, 0.30, uDark);
   float d1 = mix(0.64, 0.46, uDark);
@@ -416,19 +371,24 @@ void main() {
 
   float pulseVariant = step(0.5, uVariant);
   float fieldGradient = length(vec2(dFdx(field), dFdy(field)));
-  float contourWidth = mix(1.05, 0.92, uDark);
-  float contour = 0.0;
-  contour = max(contour, contourBand(field, u0, fieldGradient, contourWidth));
-  contour = max(contour, contourBand(field, u1, fieldGradient, contourWidth));
-  contour = max(contour, contourBand(field, u2, fieldGradient, contourWidth));
-  contour = max(contour, contourBand(field, u3, fieldGradient, contourWidth));
+  float contourWidth = mix(1.05, 0.92, uDark) * mix(1.0, 0.95, heroSurface);
+  float contour0 = contourBand(field, u0, fieldGradient, contourWidth) * mix(1.0, 0.05, heroSurface);
+  float contour1 = contourBand(field, u1, fieldGradient, contourWidth) * mix(1.0, 0.26, heroSurface);
+  float contour2 = contourBand(field, u2, fieldGradient, contourWidth) * mix(1.0, 0.58, heroSurface);
+  float contour3 = contourBand(field, u3, fieldGradient, contourWidth) * mix(1.0, 0.84, heroSurface);
+  float contour = max(max(contour0, contour1), max(contour2, contour3));
+
+  float e0 = max(0.0, u0 - mix(0.0, mix(0.030, 0.016, uDark), heroSurface));
+  float e1 = max(e0 + 0.012, u1 - mix(0.0, mix(0.016, 0.008, uDark), heroSurface));
+  float e2 = u2;
+  float e3 = u3;
 
   vec4 underlay = vec4(0.0);
   int underlayBand = 0;
-  if      (field >= u3) { underlay = vec4(uUC3, uUA3); underlayBand = 4; }
-  else if (field >= u2) { underlay = vec4(uUC2, uUA2); underlayBand = 3; }
-  else if (field >= u1) { underlay = vec4(uUC1, uUA1); underlayBand = 2; }
-  else if (field >= u0) { underlay = vec4(uUC0, uUA0); underlayBand = 1; }
+  if      (field >= e3) { underlay = vec4(uUC3, uUA3); underlayBand = 4; }
+  else if (field >= e2) { underlay = vec4(uUC2, uUA2); underlayBand = 3; }
+  else if (field >= e1) { underlay = vec4(uUC1, uUA1); underlayBand = 2; }
+  else if (field >= e0) { underlay = vec4(uUC0, uUA0); underlayBand = 1; }
 
   vec4 dots = vec4(0.0);
   if (inDot) {
@@ -479,25 +439,24 @@ void main() {
   }
 
   vec3 contourRgb = mix(uLC2, uLC3, mix(0.42, 0.58, uDark));
-  contourRgb = mix(contourRgb, uBG, (1.0 - uDark) * 0.12);
-  vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant));
+  contourRgb = mix(contourRgb, uBG, (1.0 - uDark) * mix(0.12, 0.04, heroSurface));
+  vec4 contourStroke = vec4(
+    contourRgb,
+    contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant) * mix(1.0, mix(0.92, 0.72, uDark), heroSurface)
+  );
 
-  underlay.rgb = mix(underlay.rgb, uBG, readShadow * 0.84);
-  dots.rgb = mix(dots.rgb, uBG, readShadow * 0.88);
-  contourStroke.rgb = mix(contourStroke.rgb, uBG, readShadow * 0.80);
+  contourStroke.a *= 1.0 - heroSurface;
 
   underlay.a *= mix(1.0, mix(mix(0.20, 0.28, uDark), mix(0.12, 0.18, uDark), pulseVariant), shield);
   dots.a *= mix(1.0, mix(mix(0.18, 0.24, uDark), mix(0.14, 0.18, uDark), pulseVariant), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
-  underlay.a *= mix(1.0, 0.90, readShadow);
-  dots.a *= mix(1.0, 0.84, readShadow);
-  contourStroke.a *= mix(1.0, 0.80, readShadow);
+  underlay.a *= mix(1.0, mix(1.10, 1.08, uDark), heroSurface);
   dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
-  contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark);
+  contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark) * mix(1.0, 0.72, heroSurface);
 
   if (uDark < 0.5) {
     vec4 lightBase = vec4(uBG, 1.0);
-    float lightMix = underlay.a * 0.62;
+    float lightMix = underlay.a * mix(0.62, 0.72, heroSurface);
     vec4 lightUnderlay = vec4(mix(lightBase.rgb, underlay.rgb, lightMix), 1.0);
     vec4 contouredLight = alphaOver(contourStroke, lightUnderlay);
     oColor = alphaOver(dots, contouredLight);
