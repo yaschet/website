@@ -2,7 +2,6 @@
 
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import { useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { HeadingReveal } from "@/components/ui/heading-reveal";
 import {
@@ -18,18 +17,11 @@ import { cn } from "@/lib/utils";
 const HERO_COLUMN_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 50)";
 const HERO_BODY_MAX_WIDTH = "58ch";
 
-interface HeroReadZone {
-	centerX: number;
-	centerY: number;
-	width: number;
-	height: number;
-}
-
-function HeroContent({ readZoneRef }: { readZoneRef: React.RefObject<HTMLDivElement | null> }) {
+function HeroContent() {
 	return (
 		<div className="portfolio-box-pad relative z-10">
 			<div className="portfolio-stack-related w-full" style={{ maxWidth: HERO_COLUMN_MAX_WIDTH }}>
-				<div ref={readZoneRef} className="portfolio-stack-related">
+				<div className="portfolio-stack-related">
 					<HeadingReveal
 						as="h1"
 						phase={1}
@@ -80,13 +72,7 @@ function HeroContent({ readZoneRef }: { readZoneRef: React.RefObject<HTMLDivElem
 	);
 }
 
-function HeroInstrumentPlane({
-	className,
-	readZone,
-}: {
-	className?: string;
-	readZone: HeroReadZone | null;
-}) {
+function HeroInstrumentPlane({ className }: { className?: string }) {
 	return (
 		<div className={cn("absolute inset-0", className)} aria-hidden="true">
 			<div
@@ -102,64 +88,16 @@ function HeroInstrumentPlane({
 				speed={0.58}
 				surface="hero"
 				variant="terrain"
-				readZone={readZone}
 			/>
 		</div>
 	);
 }
 
 export function SiteHero() {
-	const sectionRef = useRef<HTMLElement | null>(null);
-	const readZoneRef = useRef<HTMLDivElement | null>(null);
-	const [readZone, setReadZone] = useState<HeroReadZone | null>(null);
-
-	useLayoutEffect(() => {
-		const section = sectionRef.current;
-		const content = readZoneRef.current;
-		if (!section || !content) return;
-
-		const updateReadZone = () => {
-			const sectionRect = section.getBoundingClientRect();
-			const contentRect = content.getBoundingClientRect();
-
-			if (sectionRect.width <= 0 || sectionRect.height <= 0) return;
-
-			const padX = Math.min(sectionRect.width * 0.025, 28);
-			const padTop = Math.min(sectionRect.height * 0.04, 24);
-			const padBottom = Math.min(sectionRect.height * 0.012, 8);
-
-			const left = Math.max(0, contentRect.left - sectionRect.left - padX);
-			const top = Math.max(0, contentRect.top - sectionRect.top - padTop);
-			const right = Math.min(sectionRect.width, contentRect.right - sectionRect.left + padX);
-			const bottom = Math.min(
-				sectionRect.height,
-				contentRect.bottom - sectionRect.top + padBottom,
-			);
-
-			setReadZone({
-				centerX: ((left + right) * 0.5) / sectionRect.width,
-				centerY: ((top + bottom) * 0.5) / sectionRect.height,
-				width: (right - left) / sectionRect.width,
-				height: (bottom - top) / sectionRect.height,
-			});
-		};
-
-		const observer = new ResizeObserver(updateReadZone);
-		observer.observe(section);
-		observer.observe(content);
-		updateReadZone();
-		window.addEventListener("resize", updateReadZone, { passive: true });
-
-		return () => {
-			observer.disconnect();
-			window.removeEventListener("resize", updateReadZone);
-		};
-	}, []);
-
 	return (
-		<section ref={sectionRef} id="hero" className="relative isolate w-full overflow-hidden">
-			<HeroInstrumentPlane className="opacity-100 dark:opacity-100" readZone={readZone} />
-			<HeroContent readZoneRef={readZoneRef} />
+		<section id="hero" className="relative isolate w-full overflow-hidden">
+			<HeroInstrumentPlane className="opacity-100 dark:opacity-100" />
+			<HeroContent />
 		</section>
 	);
 }

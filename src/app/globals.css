@@ -1888,7 +1888,7 @@ html {
     color-scheme: light;
     scrollbar-gutter: stable;
     --app-background: var(--surface-100);
-    --instrument-field-bg-auto: var(--surface-50);
+    --instrument-field-bg-auto: #ffffff;
     --instrument-field-bg-inverted: var(--surface-950);
   }
 

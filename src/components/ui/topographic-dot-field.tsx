@@ -144,13 +144,18 @@ float heroReadZoneMask(vec2 uv) {
     return 0.0;
   }
 
-  vec2 halfSize = max(uReadSize * 0.5, vec2(0.10, 0.10));
-  float radius = clamp(min(halfSize.x, halfSize.y) * 0.18, 0.028, 0.09);
-  float distance = sdRoundRect(uv - uReadCenter, halfSize, radius);
-  float core = 1.0 - smoothstep(-0.020, 0.085, distance);
-  float halo = 1.0 - smoothstep(0.02, 0.24, distance);
+  vec2 halfSize = max(uReadSize * 0.5, vec2(0.10, 0.08));
+  float radius = clamp(min(halfSize.x, halfSize.y) * 0.16, 0.022, 0.072);
+  vec2 offset = uv - uReadCenter;
+  float distance = sdRoundRect(offset, halfSize, radius);
+  float core = 1.0 - smoothstep(-0.010, 0.052, distance);
+  float halo = 1.0 - smoothstep(0.008, 0.110, distance);
+  float mask = mix(halo, core, 0.68);
 
-  return clamp(mix(halo, core, 0.58), 0.0, 1.0);
+  float below = sm3(uReadCenter.y + halfSize.y * 0.58, uReadCenter.y + halfSize.y + 0.035, uv.y);
+  float belowAttenuation = mix(1.0, 0.12, below);
+
+  return clamp(mask * belowAttenuation, 0.0, 1.0);
 }
 
 float contourBand(float field, float threshold, float gradient, float width) {
@@ -243,9 +248,9 @@ float heroDetailActivity(vec2 uv) {
 
   float x = sm3(0.30, 0.90, uv.x);
   float y = sm3(0.48, 0.98, uv.y);
-  float lowerRightLift = y * x * 0.14 + y * 0.05;
+  float lowerRightLift = y * x * 0.04 + y * 0.015;
 
-  return clamp(mix(0.14, 1.0, x) + lowerRightLift, 0.14, 1.0);
+  return clamp(mix(0.72, 1.0, x) + lowerRightLift, 0.72, 1.0);
 }
 
 float terrainFieldValue(vec2 uv, float time) {
@@ -273,9 +278,9 @@ float terrainFieldValue(vec2 uv, float time) {
   field = mix(0.5, field, mix(0.60, 1.0, heroActivity));
   field = sm3(0.16, 0.88, field);
 
-  float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * 0.04;
-  float rightLift = sm3(0.56, 0.96, uv.x) * 0.06;
-  float lowerLift = sm3(0.70, 0.98, uv.y) * 0.03;
+  float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * mix(0.04, 0.025, 1.0 - step(0.5, uSurface));
+  float rightLift = sm3(0.56, 0.96, uv.x) * mix(0.06, 0.018, 1.0 - step(0.5, uSurface));
+  float lowerLift = sm3(0.70, 0.98, uv.y) * mix(0.03, 0.012, 1.0 - step(0.5, uSurface));
 
   field = clamp(field + topLift + rightLift + lowerLift, 0.0, 1.0);
 
@@ -361,13 +366,7 @@ float contentShield(vec2 uv) {
     return 0.0;
   }
 
-  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 0.98;
-  float body = gauss2(uv, vec2(0.31, 0.49), vec2(0.34, 0.20)) * 0.84;
-  float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.21, 0.12)) * 0.80;
-  float column = gauss2(uv, vec2(0.28, 0.50), vec2(0.40, 0.32)) * 0.22;
-  float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
-  float shield = max(max(title, body), max(cta, max(column, mobile * 0.56)));
-  return sm3(0.34, 0.98, shield) * 0.22;
+  return 0.0;
 }
 
 float heroActivityEnvelope(vec2 uv) {
@@ -377,10 +376,10 @@ float heroActivityEnvelope(vec2 uv) {
 
   float x = sm3(0.22, 0.86, uv.x);
   float y = sm3(0.34, 0.96, uv.y);
-  float rightBias = mix(0.58, 1.0, x);
-  float lowerRightLift = y * x * 0.18 + y * 0.08;
+  float rightBias = mix(0.88, 1.0, x);
+  float lowerRightLift = y * x * 0.05 + y * 0.02;
 
-  return clamp(rightBias + lowerRightLift, 0.58, 1.0);
+  return clamp(rightBias + lowerRightLift, 0.88, 1.0);
 }
 
 float resolvedField(vec2 uv, float time) {
@@ -448,10 +447,10 @@ void main() {
   float pulseVariant = step(0.5, uVariant);
   float fieldGradient = length(vec2(dFdx(field), dFdy(field)));
   float contourWidth = mix(1.05, 0.92, uDark) * mix(1.0, 0.94, heroSurface);
-  float contour0 = contourBand(field, u0, fieldGradient, contourWidth) * mix(1.0, 0.0, heroSurface);
-  float contour1 = contourBand(field, u1, fieldGradient, contourWidth) * mix(1.0, 0.16, heroSurface);
-  float contour2 = contourBand(field, u2, fieldGradient, contourWidth) * mix(1.0, 0.38, heroSurface);
-  float contour3 = contourBand(field, u3, fieldGradient, contourWidth) * mix(1.0, 0.72, heroSurface);
+  float contour0 = contourBand(field, u0, fieldGradient, contourWidth) * mix(1.0, 0.22, heroSurface);
+  float contour1 = contourBand(field, u1, fieldGradient, contourWidth) * mix(1.0, 0.44, heroSurface);
+  float contour2 = contourBand(field, u2, fieldGradient, contourWidth) * mix(1.0, 0.68, heroSurface);
+  float contour3 = contourBand(field, u3, fieldGradient, contourWidth) * mix(1.0, 0.9, heroSurface);
   float contour = max(max(contour0, contour1), max(contour2, contour3));
 
   float underlayFloor = sm3(mix(0.18, 0.08, uDark), u0 + mix(0.06, 0.04, uDark), field);
@@ -782,7 +781,11 @@ function resolvePalette(node: HTMLElement, isDark: boolean, surface: InstrumentS
 	const alphaPalette = isDark ? DARK_ALPHA_PALETTE : LIGHT_ALPHA_PALETTE;
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
 	const baseSurface = resolveSurfaceTone(node, 500, neutralFallback);
-	const heroBaseSurface = resolveSurfaceTone(node, isDark ? 950 : 50, baseSurface);
+	const heroBaseSurface = resolveCssColor(
+		node,
+		"var(--instrument-field-bg-auto)",
+		isDark ? [9, 9, 11] : [255, 255, 255],
+	);
 	const resolveTone = (tone: number) => resolveSurfaceTone(node, tone, baseSurface);
 	const isHero = surface === "hero";
 	const heroToneShift = 0.3;
@@ -812,47 +815,45 @@ function resolvePalette(node: HTMLElement, isDark: boolean, surface: InstrumentS
 	const activeColors = isHero
 		? isDark
 			? [
-					heroBlendTone(700, 600, 0.18),
-					heroBlendTone(600, 500, 0.24),
-					heroBlendTone(500, 400, 0.28),
-					heroBlendTone(400, 300, 0.22),
+					heroBlendTone(800, 700, 0.22),
+					heroBlendTone(700, 600, 0.24),
+					heroBlendTone(600, 500, 0.22),
+					heroBlendTone(500, 400, 0.16),
 				]
 			: [
-					heroBlendTone(300, 400, 0.24),
-					heroBlendTone(400, 500, 0.28),
-					heroBlendTone(500, 600, 0.24),
-					heroBlendTone(600, 700, 0.18),
+					heroBlendTone(200, 300, 0.34),
+					heroBlendTone(300, 400, 0.30),
+					heroBlendTone(400, 500, 0.24),
+					heroBlendTone(500, 600, 0.16),
 				]
 		: activeTones.map((tone) => refineHeroTone(tone));
 
 	const underlayColors = isHero
 		? isDark
 			? [
-					heroBlendTone(950, 900, 0.28),
-					heroBlendTone(900, 800, 0.36),
-					heroBlendTone(800, 700, 0.42),
-					heroBlendTone(700, 600, 0.30),
+					heroBlendTone(950, 900, 0.20),
+					heroBlendTone(900, 800, 0.24),
+					heroBlendTone(800, 700, 0.28),
+					heroBlendTone(700, 600, 0.22),
 				]
 			: [
-					heroBlendTone(50, 100, 0.42),
-					heroBlendTone(100, 200, 0.42),
-					heroBlendTone(200, 300, 0.50),
-					heroBlendTone(300, 400, 0.42),
+					heroBlendTone(50, 100, 0.18),
+					heroBlendTone(100, 200, 0.24),
+					heroBlendTone(200, 300, 0.28),
+					heroBlendTone(300, 400, 0.22),
 				]
 		: underlayTones.map((tone) => refineHeroTone(tone));
 
 	const activeAlpha = isHero
 		? isDark
-			? [0.12, 0.18, 0.28, 0.4]
-			: [0.16, 0.22, 0.32, 0.44]
+			? [0.08, 0.12, 0.18, 0.26]
+			: [0.08, 0.12, 0.17, 0.24]
 		: alphaPalette.active.map((tone) => tone.alpha);
 
 	const underlayAlpha = isHero
 		? isDark
-			? [0.08, 0.12, 0.17, 0.24]
-			: [0.12, 0.18, 0.24, 0.32]
-			? [0.08, 0.12, 0.17, 0.24]
-			: [0.08, 0.12, 0.17, 0.24]
+			? [0.05, 0.08, 0.12, 0.18]
+			: [0.04, 0.06, 0.09, 0.13]
 		: alphaPalette.underlay.map((tone) => tone.alpha);
 
 	return {
