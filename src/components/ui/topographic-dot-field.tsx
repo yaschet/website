@@ -316,7 +316,20 @@ float contentShield(vec2 uv) {
   float column = gauss2(uv, vec2(0.28, 0.50), vec2(0.40, 0.32)) * 0.22;
   float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
   float shield = max(max(title, body), max(cta, max(column, mobile * 0.56)));
-  return sm3(0.18, 0.94, shield);
+  return sm3(0.34, 0.98, shield) * 0.22;
+}
+
+float heroActivityEnvelope(vec2 uv) {
+  if (uSurface > 0.5) {
+    return 1.0;
+  }
+
+  float x = sm3(0.22, 0.86, uv.x);
+  float y = sm3(0.34, 0.96, uv.y);
+  float rightBias = mix(0.58, 1.0, x);
+  float lowerRightLift = y * x * 0.18 + y * 0.08;
+
+  return clamp(rightBias + lowerRightLift, 0.58, 1.0);
 }
 
 float resolvedField(vec2 uv, float time) {
@@ -330,12 +343,14 @@ float resolvedField(vec2 uv, float time) {
   vec2 warpedUv = clamp(clampedUv + pressWarp, vec2(0.0), vec2(1.0));
   float sampleField = fieldValue(warpedUv, time);
   float sampleShield = contentShield(clampedUv);
+  float sampleEnvelope = heroActivityEnvelope(clampedUv);
   vec2 sampleMouseRadius = mix(vec2(0.12, 0.12), vec2(0.07, 0.07), uMousePress);
   float sampleMouseInfluence = gauss2(clampedUv, uMouse, sampleMouseRadius);
   float mouseSignedLift = mix(1.0, -1.0, uDark);
   float mouseDisplacement = uMouseStrength * mix(1.0, 1.75, uMousePress);
   float pressRelief = (pressRim * mix(0.18, 0.14, uDark) - pressCore * mix(0.26, 0.22, uDark)) * uMousePress;
 
+  sampleField = mix(0.5, sampleField, sampleEnvelope);
   sampleField *= mix(1.0, mix(0.78, 0.74, uDark), sampleShield);
   sampleField = clamp(
     sampleField +
@@ -357,6 +372,7 @@ void main() {
 
   float field = resolvedField(uv, uTime);
   float shield = contentShield(uv);
+  float heroEnvelope = heroActivityEnvelope(uv);
 
   vec2 mouseRadius = mix(vec2(0.12, 0.12), vec2(0.07, 0.07), uMousePress);
   float mouseInfluence = gauss2(uv, uMouse, mouseRadius);
@@ -438,6 +454,9 @@ void main() {
   vec3 contourRgb = mix(uLC2, uLC3, mix(0.42, 0.58, uDark));
   vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant));
 
+  underlay.a *= heroEnvelope;
+  dots.a *= heroEnvelope;
+  contourStroke.a *= mix(0.92, 1.0, heroEnvelope);
   underlay.a *= mix(1.0, mix(mix(0.20, 0.28, uDark), mix(0.12, 0.18, uDark), pulseVariant), shield);
   dots.a *= mix(1.0, mix(mix(0.18, 0.24, uDark), mix(0.14, 0.18, uDark), pulseVariant), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
