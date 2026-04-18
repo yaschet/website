@@ -513,6 +513,16 @@ function clampInt(value: number, min: number, max: number) {
 	return Math.min(max, Math.max(min, value));
 }
 
+function mixRgb(from: RGB, to: RGB, amount: number): RGB {
+	const t = Math.min(1, Math.max(0, amount));
+
+	return [
+		clampInt(Math.round(from[0] + (to[0] - from[0]) * t), 0, 255),
+		clampInt(Math.round(from[1] + (to[1] - from[1]) * t), 0, 255),
+		clampInt(Math.round(from[2] + (to[2] - from[2]) * t), 0, 255),
+	];
+}
+
 function srgbChannelToByte(value: number) {
 	const clamped = Math.min(1, Math.max(0, value));
 	const encoded = clamped <= 0.0031308 ? clamped * 12.92 : 1.055 * clamped ** (1 / 2.4) - 0.055;
@@ -695,6 +705,7 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
 	const baseSurface = resolveSurfaceTone(node, 500, neutralFallback);
 	const resolveTone = (tone: number) => resolveSurfaceTone(node, tone, baseSurface);
+	const lightPeakUnderlay = mixRgb(resolveTone(400), resolveTone(500), 0.62);
 
 	return {
 		active: [
@@ -729,8 +740,8 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 				alpha: alphaPalette.underlay[2].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 700 : 500),
-				alpha: alphaPalette.underlay[3].alpha,
+				color: isDark ? resolveTone(700) : lightPeakUnderlay,
+				alpha: isDark ? alphaPalette.underlay[3].alpha : 0.4,
 			},
 		],
 	};
