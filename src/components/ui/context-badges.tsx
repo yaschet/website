@@ -35,7 +35,7 @@ const tooltipPanelClasses = cn(
 	"max-w-[calc(100vw-(var(--portfolio-page-gutter-mobile)*2))]",
 	"w-max border border-surface-200/90 bg-white/98 px-[var(--portfolio-space-tight)] py-[8px] shadow-md backdrop-blur-sm",
 	"dark:border-surface-800 dark:bg-surface-900/98",
-	"rounded-none font-sans normal-case !text-[12px] !leading-[14px] !tracking-normal",
+	"!text-[12px] !leading-[14px] !tracking-normal rounded-none font-sans normal-case",
 );
 
 const tooltipGridClasses = cn(
@@ -43,11 +43,11 @@ const tooltipGridClasses = cn(
 );
 
 const tooltipLabelClasses = cn(
-	"!m-0 whitespace-nowrap font-mono !text-[12px] !leading-[14px] tracking-[0.08em] uppercase text-surface-500 dark:text-surface-400",
+	"!m-0 !text-[12px] !leading-[14px] whitespace-nowrap font-mono text-surface-500 uppercase tracking-[0.08em] dark:text-surface-400",
 );
 
 const tooltipValueClasses = cn(
-	"!m-0 min-w-0 whitespace-nowrap text-left !text-[12px] !leading-[14px] font-medium tracking-[0.01em] text-surface-800 dark:text-surface-200",
+	"!m-0 !text-[12px] !leading-[14px] min-w-0 whitespace-nowrap text-left font-medium text-surface-800 tracking-[0.01em] dark:text-surface-200",
 );
 
 function getTimeZoneOffsetMinutes(timeZone: string, date: Date) {
@@ -189,8 +189,8 @@ export function LocationBadge({ className }: { className?: string }) {
 					<BadgeTooltip
 						align="start"
 						rows={[
-							{ label: "OVERLAP", value: "EU / UK" },
-							{ label: "WINDOW", value: "US East AM" },
+							{ label: "MODE", value: "Async Worldwide" },
+							{ label: "SYNC", value: "EU / UK / Gulf / US East AM" },
 						]}
 					/>
 				)}

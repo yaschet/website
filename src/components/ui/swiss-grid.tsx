@@ -113,6 +113,10 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 		"text-surface-900/10 dark:text-surface-100/10",
 		animate && "animate-ants-x",
 	);
+	const verticalPerimeterClassName = cn(
+		"text-surface-900/10 dark:text-surface-100/10",
+		animate && "animate-ants-y",
+	);
 	const dividerClassName = cn(
 		"text-surface-900/10 dark:text-surface-100/10",
 		animate && "animate-ants-x-subtle",
@@ -143,8 +147,7 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 								aria-hidden="true"
 								className={cn(
 									"pointer-events-none absolute inset-y-0 right-0 z-10 w-px",
-									"text-surface-900/10 dark:text-surface-100/10",
-									animate && "animate-ants-y",
+									verticalPerimeterClassName,
 								)}
 								style={verticalDashStyle}
 							/>
@@ -152,8 +155,7 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 								aria-hidden="true"
 								className={cn(
 									"pointer-events-none absolute inset-x-0 bottom-0 z-10 h-px",
-									"text-surface-900/10 dark:text-surface-100/10",
-									animate && "animate-ants-x-reverse",
+									perimeterClassName,
 								)}
 								style={horizontalDashStyle}
 							/>
@@ -161,8 +163,7 @@ export function SwissGridBox({ children, className }: { children: ReactNode; cla
 								aria-hidden="true"
 								className={cn(
 									"pointer-events-none absolute inset-y-0 left-0 z-10 w-px",
-									"text-surface-900/10 dark:text-surface-100/10",
-									animate && "animate-ants-y-reverse",
+									verticalPerimeterClassName,
 								)}
 								style={verticalDashStyle}
 							/>

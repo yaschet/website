@@ -132,14 +132,17 @@ export default function ContactPage() {
 													<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
 														ENGAGEMENT
 													</p>
-													<p className="portfolio-body-lg text-surface-900 dark:text-surface-100">
+													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
 														Retainer engagements start at
 														<strong className="font-medium text-surface-900 dark:text-surface-100">
 															{" "}
 															$4,500/month
 														</strong>
-														. Most fixed-scope builds start at $8,000+,
-														depending on integration risk, compliance
+														. Most fixed-scope builds start at{" "}
+														<strong className="font-medium text-surface-900 dark:text-surface-100">
+															$8,000+
+														</strong>
+														, depending on integration risk, compliance
 														needs, and ownership scope.
 													</p>
 												</div>
@@ -152,10 +155,12 @@ export default function ContactPage() {
 														diagnostic or a tightly scoped first build.
 													</p>
 													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-														Based in Rabat (GMT+1), with full overlap
-														across EU and UK hours and good overlap with
-														US East Coast mornings. If the work is
-														messy, operationally important, or hard to
+														Based in Rabat, Morocco, working with
+														clients worldwide. Most collaboration runs
+														async, with strong live overlap across EU,
+														UK, Gulf, and US East mornings when the work
+														needs it. If the work is messy,
+														operationally important, or hard to
 														untangle, email below.
 													</p>
 												</div>
