@@ -21,12 +21,6 @@ interface InstrumentFieldProps {
 	interactive?: boolean;
 	step?: DotGridLength;
 	minInset?: DotGridLength;
-	readZone?: {
-		centerX: number;
-		centerY: number;
-		width: number;
-		height: number;
-	} | null;
 	radius?: number;
 	origin?: DotGridOrigin;
 	speed?: number;
@@ -56,11 +50,9 @@ interface Metrics {
 }
 
 interface MouseState {
-	currentPress: number;
 	currentStrength: number;
 	currentX: number;
 	currentY: number;
-	targetPress: number;
 	targetStrength: number;
 	targetX: number;
 	targetY: number;
@@ -105,12 +97,8 @@ uniform float uDark;
 uniform float uVariant;
 uniform float uSurface;
 uniform vec2  uMouse;
-uniform float uMousePress;
 uniform float uMouseStrength;
 uniform vec3  uBG;
-uniform vec2  uReadCenter;
-uniform vec2  uReadSize;
-uniform float uReadActive;
 
 uniform vec3  uLC0; uniform float uLA0;
 uniform vec3  uLC1; uniform float uLA1;
@@ -132,30 +120,6 @@ float sm3(float e0, float e1, float v) {
 float gauss2(vec2 p, vec2 c, vec2 r) {
   vec2 d = (p - c) / r;
   return exp(-dot(d, d));
-}
-
-float sdRoundRect(vec2 p, vec2 halfSize, float radius) {
-  vec2 q = abs(p) - halfSize + vec2(radius);
-  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
-}
-
-float heroReadZoneMask(vec2 uv) {
-  if (uSurface > 0.5 || uReadActive < 0.5) {
-    return 0.0;
-  }
-
-  vec2 halfSize = max(uReadSize * 0.5, vec2(0.10, 0.08));
-  float radius = clamp(min(halfSize.x, halfSize.y) * 0.16, 0.022, 0.072);
-  vec2 offset = uv - uReadCenter;
-  float distance = sdRoundRect(offset, halfSize, radius);
-  float core = 1.0 - smoothstep(-0.010, 0.052, distance);
-  float halo = 1.0 - smoothstep(0.008, 0.110, distance);
-  float mask = mix(halo, core, 0.68);
-
-  float below = sm3(uReadCenter.y + halfSize.y * 0.58, uReadCenter.y + halfSize.y + 0.035, uv.y);
-  float belowAttenuation = mix(1.0, 0.12, below);
-
-  return clamp(mask * belowAttenuation, 0.0, 1.0);
 }
 
 float contourBand(float field, float threshold, float gradient, float width) {
@@ -241,49 +205,28 @@ float snoise(vec3 v){
   );
 }
 
-float heroDetailActivity(vec2 uv) {
-  if (uSurface > 0.5) {
-    return 1.0;
-  }
-
-  float x = sm3(0.30, 0.90, uv.x);
-  float y = sm3(0.48, 0.98, uv.y);
-  float lowerRightLift = y * x * 0.02 + y * 0.008;
-
-  return clamp(mix(0.9, 1.0, x) + lowerRightLift, 0.9, 1.0);
-}
-
 float terrainFieldValue(vec2 uv, float time) {
   float aspect = uRes.x / uRes.y;
   vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
-  float heroActivity = heroDetailActivity(uv);
-  mat2 orient = mat2(0.955, -0.296, 0.296, 0.955);
-  vec2 base = orient * p;
-  vec2 stretched = vec2(base.x * 0.86, base.y * 1.18);
 
   vec2 warp = vec2(
-    snoise(vec3(stretched * 0.42 + vec2(1.2, -0.8), time * 0.06)),
-    snoise(vec3(stretched * 0.40 + vec2(-3.7, 2.4), time * 0.06))
+    snoise(vec3(p * 0.85 + vec2(1.2, -0.8), time * 0.09)),
+    snoise(vec3(p * 0.85 + vec2(-3.7, 2.4), time * 0.09))
   );
-  warp *= mix(0.14, 0.24, heroActivity);
 
-  vec2 q = stretched + warp * 0.34;
+  vec2 q = p * 1.05 + warp * 0.22;
 
-  float coarse = snoise(vec3(q * 0.62, time * 0.085));
-  float middle = snoise(vec3(q * 1.16 + vec2(2.7, -1.6), time * 0.11));
-  float ridgeSeed = snoise(vec3(q * 1.74 + vec2(-4.4, 3.1), time * 0.095));
-  float ridge = smoothstep(0.28, 0.92, 1.0 - abs(ridgeSeed));
-  coarse *= mix(0.84, 1.0, heroActivity);
-  middle *= mix(0.56, 0.82, heroActivity);
+  float coarse = snoise(vec3(q * 0.85, time * 0.11));
+  float middle = snoise(vec3(q * 1.75 + vec2(2.7, -1.6), time * 0.15));
+  float detail = snoise(vec3(q * 3.3 + vec2(-4.4, 3.1), time * 0.21));
 
-  float field = coarse * 0.64 + middle * 0.24 + (ridge - 0.5) * 0.22;
+  float field = coarse * 0.60 + middle * 0.26 + detail * 0.10;
   field = field * 0.5 + 0.5;
-  field = mix(field, sm3(0.18, 0.86, field), 0.42);
-  field = mix(0.5, field, mix(0.72, 1.0, heroActivity));
+  field = sm3(0.16, 0.88, field);
 
-  float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * mix(0.04, 0.025, 1.0 - step(0.5, uSurface));
-  float rightLift = sm3(0.56, 0.96, uv.x) * mix(0.06, 0.018, 1.0 - step(0.5, uSurface));
-  float lowerLift = sm3(0.70, 0.98, uv.y) * mix(0.03, 0.012, 1.0 - step(0.5, uSurface));
+  float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * 0.04;
+  float rightLift = sm3(0.56, 0.96, uv.x) * 0.06;
+  float lowerLift = sm3(0.70, 0.98, uv.y) * 0.03;
 
   field = clamp(field + topLift + rightLift + lowerLift, 0.0, 1.0);
 
@@ -347,13 +290,13 @@ float contentShield(vec2 uv) {
   }
 
   if (uSurface > 1.5) {
-    float desktopTitle = gauss2(uv, vec2(0.18, 0.54), vec2(0.21, 0.18)) * 1.08;
-    float desktopControls = gauss2(uv, vec2(0.84, 0.54), vec2(0.14, 0.15)) * 1.12;
-    float mobileTitle = gauss2(uv, vec2(0.22, 0.36), vec2(0.24, 0.15)) * 1.02;
-    float mobileControls = gauss2(uv, vec2(0.22, 0.72), vec2(0.18, 0.10)) * 1.02;
-    float mobileBlock = gauss2(uv, vec2(0.30, 0.50), vec2(0.34, 0.28)) * 0.54;
+    float desktopTitle = gauss2(uv, vec2(0.18, 0.54), vec2(0.24, 0.22)) * 1.34;
+    float desktopControls = gauss2(uv, vec2(0.84, 0.54), vec2(0.18, 0.20)) * 1.42;
+    float mobileTitle = gauss2(uv, vec2(0.22, 0.36), vec2(0.28, 0.18)) * 1.18;
+    float mobileControls = gauss2(uv, vec2(0.22, 0.72), vec2(0.24, 0.14)) * 1.18;
+    float mobileBlock = gauss2(uv, vec2(0.30, 0.50), vec2(0.42, 0.38)) * 0.76;
     float shield = max(max(desktopTitle, desktopControls), max(mobileTitle, max(mobileControls, mobileBlock)));
-    return sm3(0.10, 0.84, shield);
+    return sm3(0.08, 0.92, shield);
   }
 
   if (uSurface > 0.5) {
@@ -365,53 +308,28 @@ float contentShield(vec2 uv) {
     return sm3(0.08, 0.90, shield);
   }
 
-  if (uReadActive > 0.5) {
-    return 0.0;
-  }
-
-  return 0.0;
-}
-
-float heroActivityEnvelope(vec2 uv) {
-  if (uSurface > 0.5) {
-    return 1.0;
-  }
-
-  float x = sm3(0.22, 0.86, uv.x);
-  float y = sm3(0.34, 0.96, uv.y);
-  float rightBias = mix(0.96, 1.0, x);
-  float lowerRightLift = y * x * 0.02 + y * 0.008;
-
-  return clamp(rightBias + lowerRightLift, 0.96, 1.0);
+  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 1.18;
+  float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
+  float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
+  float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
+  float shield = max(max(title, body), max(cta, mobile * 0.66));
+  return sm3(0.08, 0.90, shield);
 }
 
 float resolvedField(vec2 uv, float time) {
   vec2 clampedUv = clamp(uv, vec2(0.0), vec2(1.0));
-  vec2 pointerDelta = clampedUv - uMouse;
-  float pointerDist = length(pointerDelta);
-  vec2 pointerDir = pointerDist > 0.0001 ? pointerDelta / pointerDist : vec2(0.0);
-  float pressCore = gauss2(clampedUv, uMouse, mix(vec2(0.050, 0.050), vec2(0.038, 0.038), uDark));
-  float pressRim = exp(-pow((pointerDist - mix(0.094, 0.078, uDark)) / mix(0.030, 0.024, uDark), 2.0));
-  vec2 pressWarp = pointerDir * (pressRim * 0.018 - pressCore * 0.028) * uMousePress;
-  vec2 warpedUv = clamp(clampedUv + pressWarp, vec2(0.0), vec2(1.0));
-  float sampleField = fieldValue(warpedUv, time);
+  float sampleField = fieldValue(clampedUv, time);
   float sampleShield = contentShield(clampedUv);
-  float sampleEnvelope = heroActivityEnvelope(clampedUv);
-  vec2 sampleMouseRadius = mix(vec2(0.12, 0.12), vec2(0.07, 0.07), uMousePress);
-  float sampleMouseInfluence = gauss2(clampedUv, uMouse, sampleMouseRadius);
+  float sampleMouseInfluence = gauss2(clampedUv, uMouse, vec2(0.12, 0.12));
   float mouseSignedLift = mix(1.0, -1.0, uDark);
-  float mouseDisplacement = uMouseStrength * mix(1.0, 1.75, uMousePress);
-  float pressRelief = (pressRim * mix(0.18, 0.14, uDark) - pressCore * mix(0.26, 0.22, uDark)) * uMousePress;
 
-  sampleField = mix(0.5, sampleField, sampleEnvelope);
   sampleField *= mix(1.0, mix(0.78, 0.74, uDark), sampleShield);
   sampleField = clamp(
     sampleField +
-      sampleMouseInfluence * mouseDisplacement * mouseSignedLift * mix(0.24, 0.46, uMousePress) * mix(1.0, 0.36, sampleShield),
+      sampleMouseInfluence * uMouseStrength * mouseSignedLift * 0.24 * mix(1.0, 0.36, sampleShield),
     0.0,
     1.0
   );
-  sampleField = clamp(sampleField + pressRelief * mix(1.0, 0.42, sampleShield), 0.0, 1.0);
 
   return sampleField;
 }
@@ -419,19 +337,14 @@ float resolvedField(vec2 uv, float time) {
 void main() {
   vec2 cssCoord = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
   vec2 uv = cssCoord / uRes;
-  float heroSurface = 1.0 - step(0.5, uSurface);
   bool insideGridBounds =
     cssCoord.x >= uGridMin.x && cssCoord.x <= uGridMax.x &&
     cssCoord.y >= uGridMin.y && cssCoord.y <= uGridMax.y;
 
   float field = resolvedField(uv, uTime);
   float shield = contentShield(uv);
-  float readZone = heroReadZoneMask(uv);
-  float heroEnvelope = heroActivityEnvelope(uv);
 
-  vec2 mouseRadius = mix(vec2(0.12, 0.12), vec2(0.07, 0.07), uMousePress);
-  float mouseInfluence = gauss2(uv, uMouse, mouseRadius);
-  float mouseCore = gauss2(uv, uMouse, mix(vec2(0.045, 0.045), vec2(0.03, 0.03), uDark));
+  float mouseInfluence = gauss2(uv, uMouse, vec2(0.12, 0.12));
 
   vec2 center = vec2(uStep * 0.5);
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
@@ -449,31 +362,19 @@ void main() {
 
   float pulseVariant = step(0.5, uVariant);
   float fieldGradient = length(vec2(dFdx(field), dFdy(field)));
-  float contourWidth = mix(1.05, 0.92, uDark) * mix(1.0, 0.94, heroSurface);
-  float contour0 = contourBand(field, u0, fieldGradient, contourWidth) * mix(1.0, 0.54, heroSurface);
-  float contour1 = contourBand(field, u1, fieldGradient, contourWidth) * mix(1.0, 0.72, heroSurface);
-  float contour2 = contourBand(field, u2, fieldGradient, contourWidth) * mix(1.0, 0.86, heroSurface);
-  float contour3 = contourBand(field, u3, fieldGradient, contourWidth) * mix(1.0, 0.96, heroSurface);
-  float contour = max(max(contour0, contour1), max(contour2, contour3));
+  float contourWidth = mix(1.05, 0.92, uDark);
+  float contour = 0.0;
+  contour = max(contour, contourBand(field, u0, fieldGradient, contourWidth));
+  contour = max(contour, contourBand(field, u1, fieldGradient, contourWidth));
+  contour = max(contour, contourBand(field, u2, fieldGradient, contourWidth));
+  contour = max(contour, contourBand(field, u3, fieldGradient, contourWidth));
 
-  float underlayFloorStart = mix(mix(0.18, 0.08, uDark), mix(0.10, 0.05, uDark), heroSurface);
-  float underlayFloorEnd = mix(u0 + mix(0.06, 0.04, uDark), u0 + mix(-0.02, 0.02, uDark), heroSurface);
-  float underlayFloor = sm3(underlayFloorStart, underlayFloorEnd, field);
-  float underlayT01 = sm3(u0, u1, field);
-  float underlayT12 = sm3(u1, u2, field);
-  float underlayT23 = sm3(u2, u3, field);
-  vec3 underlayRgb = mix(uUC0, uUC1, underlayT01);
-  underlayRgb = mix(underlayRgb, uUC2, underlayT12);
-  underlayRgb = mix(underlayRgb, uUC3, underlayT23);
-  float underlayAlpha = mix(uUA0, uUA1, underlayT01);
-  underlayAlpha = mix(underlayAlpha, uUA2, underlayT12);
-  underlayAlpha = mix(underlayAlpha, uUA3, underlayT23);
-  vec4 underlay = vec4(underlayRgb, underlayAlpha * underlayFloor);
+  vec4 underlay = vec4(0.0);
   int underlayBand = 0;
-  if      (field >= u3) { underlayBand = 4; }
-  else if (field >= u2) { underlayBand = 3; }
-  else if (field >= u1) { underlayBand = 2; }
-  else if (field >= u0 || underlayFloor > 0.0) { underlayBand = 1; }
+  if      (field >= u3) { underlay = vec4(uUC3, uUA3); underlayBand = 4; }
+  else if (field >= u2) { underlay = vec4(uUC2, uUA2); underlayBand = 3; }
+  else if (field >= u1) { underlay = vec4(uUC1, uUA1); underlayBand = 2; }
+  else if (field >= u0) { underlay = vec4(uUC0, uUA0); underlayBand = 1; }
 
   vec4 dots = vec4(0.0);
   if (inDot) {
@@ -488,18 +389,18 @@ void main() {
     if (uDark < 0.5) {
       dotField = min(dotField, field);
       if (underlayBand == 2) {
-        float firstReveal = sm3(u1 + 0.010, u2 - 0.022, dotField);
-        vec3 firstRgb = mix(uLC1, uLC2, firstReveal * 0.42);
+        float firstReveal = sm3(u1 + 0.016, u2 - 0.020, dotField);
+        vec3 firstRgb = mix(uLC1, uLC2, firstReveal * 0.36);
         float firstAlpha = mix(uLA1, uLA2, firstReveal);
-        dots = vec4(firstRgb, firstAlpha * 0.22 * pow(firstReveal, 1.9));
+        dots = vec4(firstRgb, firstAlpha * 0.12 * pow(firstReveal, 2.0));
       } else if (underlayBand == 3) {
         float secondReveal = sm3(u2 + 0.028, u3 - 0.012, dotField);
-        dots = vec4(uLC2, uLA2 * 0.24 * pow(secondReveal, 2.2));
+        dots = vec4(uLC2, uLA2 * 0.14 * pow(secondReveal, 2.4));
       } else if (underlayBand == 4) {
         float peakReveal = sm3(u3 + 0.006, min(0.995, u3 + 0.060), dotField);
         vec3 peakRgb = mix(uLC2, uLC3, peakReveal);
         float peakAlpha = mix(uLA2, uLA3, peakReveal);
-        dots = vec4(peakRgb, peakAlpha * mix(0.34, 0.62, peakReveal) * pow(peakReveal, 1.6));
+        dots = vec4(peakRgb, peakAlpha * mix(0.22, 0.44, peakReveal) * pow(peakReveal, 1.8));
       }
     } else {
       float dotT01 = sm3(d0, d1, dotField);
@@ -523,32 +424,15 @@ void main() {
     }
   }
 
-  vec3 contourRgb = mix(uLC0, uLC1, underlayT01);
-  contourRgb = mix(contourRgb, uLC2, underlayT12);
-  contourRgb = mix(contourRgb, uLC3, underlayT23);
-  float lightContourSoftening = (1.0 - uDark) * mix(0.0, 0.24, heroSurface);
-  contourRgb = mix(contourRgb, uBG, lightContourSoftening);
+  vec3 contourRgb = mix(uLC2, uLC3, mix(0.42, 0.58, uDark));
+  contourRgb = mix(contourRgb, uBG, (1.0 - uDark) * 0.12);
   vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant));
-  float heroReadTone = uSurface > 0.5 ? 0.0 : readZone * mix(0.16, 0.22, uDark);
 
-  underlay.rgb = mix(underlay.rgb, uBG, heroReadTone * 0.28);
-  dots.rgb = mix(dots.rgb, uBG, heroReadTone * mix(0.44, 0.26, heroSurface));
-  contourStroke.rgb = mix(contourStroke.rgb, uBG, heroReadTone * 0.58);
-
-  underlay.a *= heroEnvelope;
-  dots.a *= heroEnvelope;
-  contourStroke.a *= mix(0.92, 1.0, heroEnvelope);
   underlay.a *= mix(1.0, mix(mix(0.20, 0.28, uDark), mix(0.12, 0.18, uDark), pulseVariant), shield);
   dots.a *= mix(1.0, mix(mix(0.18, 0.24, uDark), mix(0.14, 0.18, uDark), pulseVariant), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
-  underlay.a *= mix(1.0, 0.96, heroReadTone);
-  dots.a *= mix(1.0, 0.84, heroReadTone);
-  contourStroke.a *= mix(1.0, mix(0.90, 0.84, uDark), heroReadTone);
-  dots.a = min(dots.a * mix(1.0, 2.0, heroSurface), 0.96);
-  float heroInteraction = mix(1.0, 0.62, heroSurface);
-  dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark) * heroInteraction;
-  contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark) * heroInteraction;
-  contourStroke.a *= 1.0 + mouseCore * uMousePress * mix(0.18, 0.28, uDark) * heroInteraction;
+  dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
+  contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark);
 
   if (uDark < 0.5) {
     vec4 lightBase = vec4(uBG, 1.0);
@@ -601,16 +485,6 @@ function linkProgram(
 
 function clampInt(value: number, min: number, max: number) {
 	return Math.min(max, Math.max(min, value));
-}
-
-function mixRgb(from: RGB, to: RGB, amount: number): RGB {
-	const t = Math.min(1, Math.max(0, amount));
-
-	return [
-		clampInt(Math.round(from[0] + (to[0] - from[0]) * t), 0, 255),
-		clampInt(Math.round(from[1] + (to[1] - from[1]) * t), 0, 255),
-		clampInt(Math.round(from[2] + (to[2] - from[2]) * t), 0, 255),
-	];
 }
 
 function srgbChannelToByte(value: number) {
@@ -790,120 +664,47 @@ function resolveSurfaceTone(node: HTMLElement, tone: number, fallback: RGB) {
 	);
 }
 
-function resolvePalette(node: HTMLElement, isDark: boolean, surface: InstrumentSurface): Palette {
+function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	const alphaPalette = isDark ? DARK_ALPHA_PALETTE : LIGHT_ALPHA_PALETTE;
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
 	const baseSurface = resolveSurfaceTone(node, 500, neutralFallback);
-	const heroBaseSurface = resolveCssColor(
-		node,
-		"var(--instrument-field-bg-auto)",
-		isDark ? [9, 9, 11] : [255, 255, 255],
-	);
 	const resolveTone = (tone: number) => resolveSurfaceTone(node, tone, baseSurface);
-	const isHero = surface === "hero";
-	const heroToneShift = 0.3;
-	const refineHeroTone = (tone: number) => {
-		const color = resolveTone(tone);
-		return isHero ? mixRgb(color, heroBaseSurface, heroToneShift) : color;
-	};
-	const heroBlendTone = (from: number, to: number, amount: number) =>
-		mixRgb(refineHeroTone(from), refineHeroTone(to), amount);
-
-	const activeTones = isHero
-		? isDark
-			? [700, 600, 500, 400]
-			: [300, 400, 500, 600]
-		: isDark
-			? [700, 500, 300, 100]
-			: [300, 400, 500, 600];
-
-	const underlayTones = isHero
-		? isDark
-			? [950, 900, 800, 700]
-			: [50, 100, 200, 300]
-		: isDark
-			? [950, 900, 800, 700]
-			: [100, 200, 300, 400];
-
-	const activeColors = isHero
-		? isDark
-			? [
-					heroBlendTone(800, 700, 0.22),
-					heroBlendTone(700, 600, 0.24),
-					heroBlendTone(600, 500, 0.22),
-					heroBlendTone(500, 400, 0.16),
-				]
-			: [
-					heroBlendTone(200, 300, 0.34),
-					heroBlendTone(300, 400, 0.30),
-					heroBlendTone(400, 500, 0.24),
-					heroBlendTone(500, 600, 0.16),
-				]
-		: activeTones.map((tone) => refineHeroTone(tone));
-
-	const underlayColors = isHero
-		? isDark
-			? [
-					heroBlendTone(950, 900, 0.20),
-					heroBlendTone(900, 800, 0.24),
-					heroBlendTone(800, 700, 0.28),
-					heroBlendTone(700, 600, 0.22),
-				]
-			: [
-					heroBlendTone(50, 100, 0.18),
-					heroBlendTone(100, 200, 0.24),
-					heroBlendTone(200, 300, 0.28),
-					heroBlendTone(300, 400, 0.22),
-				]
-		: underlayTones.map((tone) => refineHeroTone(tone));
-
-	const activeAlpha = isHero
-		? isDark
-			? [0.08, 0.12, 0.18, 0.26]
-			: [0.08, 0.12, 0.17, 0.24]
-		: alphaPalette.active.map((tone) => tone.alpha);
-
-	const underlayAlpha = isHero
-		? isDark
-			? [0.05, 0.08, 0.12, 0.18]
-			: [0.04, 0.06, 0.09, 0.13]
-		: alphaPalette.underlay.map((tone) => tone.alpha);
 
 	return {
 		active: [
 			{
-				color: activeColors[0],
-				alpha: activeAlpha[0],
+				color: resolveTone(isDark ? 700 : 300),
+				alpha: alphaPalette.active[0].alpha,
 			},
 			{
-				color: activeColors[1],
-				alpha: activeAlpha[1],
+				color: resolveTone(isDark ? 500 : 400),
+				alpha: alphaPalette.active[1].alpha,
 			},
 			{
-				color: activeColors[2],
-				alpha: activeAlpha[2],
+				color: resolveTone(isDark ? 300 : 500),
+				alpha: alphaPalette.active[2].alpha,
 			},
 			{
-				color: activeColors[3],
-				alpha: activeAlpha[3],
+				color: resolveTone(isDark ? 100 : 600),
+				alpha: alphaPalette.active[3].alpha,
 			},
 		],
 		underlay: [
 			{
-				color: underlayColors[0],
-				alpha: underlayAlpha[0],
+				color: resolveTone(isDark ? 950 : 100),
+				alpha: alphaPalette.underlay[0].alpha,
 			},
 			{
-				color: underlayColors[1],
-				alpha: underlayAlpha[1],
+				color: resolveTone(isDark ? 900 : 200),
+				alpha: alphaPalette.underlay[1].alpha,
 			},
 			{
-				color: underlayColors[2],
-				alpha: underlayAlpha[2],
+				color: resolveTone(isDark ? 800 : 300),
+				alpha: alphaPalette.underlay[2].alpha,
 			},
 			{
-				color: underlayColors[3],
-				alpha: underlayAlpha[3],
+				color: resolveTone(isDark ? 700 : 400),
+				alpha: alphaPalette.underlay[3].alpha,
 			},
 		],
 	};
@@ -978,7 +779,6 @@ export function InstrumentField({
 	interactive = true,
 	step = 18,
 	minInset = 12,
-	readZone = null,
 	radius = 1.15,
 	origin = "center",
 	speed = 1,
@@ -993,11 +793,9 @@ export function InstrumentField({
 	const vaoRef = useRef<WebGLVertexArrayObject | null>(null);
 	const uniformRef = useRef<Record<string, WebGLUniformLocation | null>>({});
 	const mouseRef = useRef<MouseState>({
-		currentPress: 0,
 		currentStrength: 0,
 		currentX: 0.5,
 		currentY: 0.5,
-		targetPress: 0,
 		targetStrength: 0,
 		targetX: 0.5,
 		targetY: 0.5,
@@ -1110,8 +908,6 @@ export function InstrumentField({
 		const sync = () => {
 			supportsHoverRef.current = mediaQuery.matches;
 			if (!mediaQuery.matches) {
-				mouseRef.current.targetPress = 0;
-				mouseRef.current.currentPress = 0;
 				mouseRef.current.targetStrength = 0;
 				mouseRef.current.currentStrength = 0;
 			}
@@ -1126,18 +922,14 @@ export function InstrumentField({
 	useEffect(() => {
 		const container = containerRef.current;
 		if (!container || !interactive) {
-			mouseRef.current.targetPress = 0;
 			mouseRef.current.targetStrength = 0;
 			return;
 		}
 
 		const host = resolveInteractionHost(container);
 		if (!host) return;
-		let pointerActive = false;
 
 		const clearPointerTarget = () => {
-			pointerActive = false;
-			mouseRef.current.targetPress = 0;
 			mouseRef.current.targetStrength = 0;
 		};
 
@@ -1164,22 +956,16 @@ export function InstrumentField({
 
 		const handlePointerMove = (event: PointerEvent) => {
 			if (event.pointerType === "touch") return;
-			updatePointerTarget(event.clientX, event.clientY, pointerActive ? 0.16 : 0);
+			updatePointerTarget(event.clientX, event.clientY);
 		};
 
 		const handlePointerDown = (event: PointerEvent) => {
 			if (event.pointerType === "touch") return;
-			pointerActive = true;
-			mouseRef.current.targetPress = 1;
-			mouseRef.current.currentPress = Math.max(mouseRef.current.currentPress, 0.72);
-			mouseRef.current.currentStrength = Math.max(mouseRef.current.currentStrength, 0.56);
-			updatePointerTarget(event.clientX, event.clientY, 0.24);
+			updatePointerTarget(event.clientX, event.clientY, 0.12);
 		};
 
 		const handlePointerUp = (event: PointerEvent) => {
 			if (event.pointerType === "touch") return;
-			pointerActive = false;
-			mouseRef.current.targetPress = 0;
 			updatePointerTarget(event.clientX, event.clientY);
 		};
 
@@ -1300,12 +1086,8 @@ export function InstrumentField({
 				uVariant: getUniform("uVariant"),
 				uSurface: getUniform("uSurface"),
 				uMouse: getUniform("uMouse"),
-				uMousePress: getUniform("uMousePress"),
 				uMouseStrength: getUniform("uMouseStrength"),
 				uBG: getUniform("uBG"),
-				uReadCenter: getUniform("uReadCenter"),
-				uReadSize: getUniform("uReadSize"),
-				uReadActive: getUniform("uReadActive"),
 				uLC0: getUniform("uLC0"),
 				uLA0: getUniform("uLA0"),
 				uLC1: getUniform("uLC1"),
@@ -1366,12 +1148,12 @@ export function InstrumentField({
 		canvas.height = physicalHeight;
 		gl.viewport(0, 0, physicalWidth, physicalHeight);
 
-		const palette = resolvePalette(container, isDark, surface);
 		const clearColor = resolveCssColor(
 			container,
 			backgroundPaint,
 			resolveBackgroundFallback(tone, isDark),
 		);
+		const palette = resolvePalette(container, isDark);
 		const columns = computeGridAxis(metrics.width, metrics.step, metrics.minInset, origin);
 		const rows = computeGridAxis(metrics.height, metrics.step, metrics.minInset, origin);
 		const dotRadius = radius;
@@ -1406,17 +1188,7 @@ export function InstrumentField({
 		gl.uniform1f(uniforms.uVariant, resolveVariantValue(variant));
 		gl.uniform1f(uniforms.uSurface, resolveSurfaceValue(surface));
 		gl.uniform2f(uniforms.uMouse, 0.5, 0.5);
-		gl.uniform1f(uniforms.uMousePress, 0);
 		gl.uniform1f(uniforms.uMouseStrength, 0);
-		if (uniforms.uReadCenter) {
-			gl.uniform2f(uniforms.uReadCenter, readZone?.centerX ?? 0.5, readZone?.centerY ?? 0.5);
-		}
-		if (uniforms.uReadSize) {
-			gl.uniform2f(uniforms.uReadSize, readZone?.width ?? 0.0, readZone?.height ?? 0.0);
-		}
-		if (uniforms.uReadActive) {
-			gl.uniform1f(uniforms.uReadActive, readZone ? 1 : 0);
-		}
 		if (uniforms.uBG) {
 			gl.uniform3f(
 				uniforms.uBG,
@@ -1459,19 +1231,15 @@ export function InstrumentField({
 			const mouse = mouseRef.current;
 			const pointerTau = 0.1;
 			const strengthTau = mouse.targetStrength > mouse.currentStrength ? 0.12 : 0.6;
-			const pressTau = mouse.targetPress > mouse.currentPress ? 0.045 : 0.12;
 			const pointerLerp = 1 - Math.exp(-deltaSeconds / pointerTau);
 			const strengthLerp = 1 - Math.exp(-deltaSeconds / strengthTau);
-			const pressLerp = 1 - Math.exp(-deltaSeconds / pressTau);
 
 			mouse.currentX += (mouse.targetX - mouse.currentX) * pointerLerp;
 			mouse.currentY += (mouse.targetY - mouse.currentY) * pointerLerp;
 			mouse.currentStrength += (mouse.targetStrength - mouse.currentStrength) * strengthLerp;
-			mouse.currentPress += (mouse.targetPress - mouse.currentPress) * pressLerp;
 
 			gl.uniform1f(uniforms.uTime, elapsed);
 			gl.uniform2f(uniforms.uMouse, mouse.currentX, mouse.currentY);
-			gl.uniform1f(uniforms.uMousePress, shouldFreezeField ? 0 : mouse.currentPress);
 			gl.uniform1f(uniforms.uMouseStrength, shouldFreezeField ? 0 : mouse.currentStrength);
 			gl.clear(gl.COLOR_BUFFER_BIT);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -1501,7 +1269,6 @@ export function InstrumentField({
 		surface,
 		tone,
 		variant,
-		readZone,
 	]);
 
 	return (

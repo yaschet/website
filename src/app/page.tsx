@@ -128,12 +128,8 @@ export default async function Home() {
 								</section>
 							</ScrollReveal>
 						</SwissGridRow>
-					</SwissGridBox>
-				</PageContainer>
-
-				{/* Box 3: NDA Disclaimer */}
-				<PageContainer>
-					<SwissGridBox className="mt-10">
+				        
+                        {/* Row 2: NDA Disclaimer */}
 						<SwissGridRow>
 							<ScrollReveal phase={3} className="w-full">
 								<section className="w-full">
@@ -143,6 +139,8 @@ export default async function Home() {
 						</SwissGridRow>
 					</SwissGridBox>
 				</PageContainer>
+
+	
 
 				{/* Box 4: Closing CTA */}
 				<PageContainer>

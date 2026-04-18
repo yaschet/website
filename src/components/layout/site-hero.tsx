@@ -85,7 +85,7 @@ function HeroInstrumentPlane({ className }: { className?: string }) {
 				minInset={INSTRUMENT_GRID_MIN_INSET}
 				origin={INSTRUMENT_GRID_ORIGIN}
 				radius={INSTRUMENT_DOT_RADIUS}
-				speed={0.58}
+				speed={0.44}
 				surface="hero"
 				variant="terrain"
 			/>
