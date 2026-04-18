@@ -2,7 +2,7 @@
 
 import { Clock } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
 import { useRevealState } from "@/src/components/providers/reveal-provider";
@@ -10,6 +10,7 @@ import { cn, springs, tweens } from "@/src/lib/index";
 
 const BADGE_HEIGHT = "var(--portfolio-badge-height)";
 const INSIGNIA_SIZE = "var(--portfolio-status-insignia-size)";
+const TARGET_TIME_ZONE = "Africa/Casablanca";
 
 const badgeBaseClasses = cn(
 	"group relative flex items-center",
@@ -29,14 +30,127 @@ const insigniaClasses = cn(
 
 const contentClasses = cn("flex items-center");
 
-const tooltipClasses = cn(
-	"pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2",
-	"portfolio-badge-label px-[var(--portfolio-space-tight)] py-[var(--portfolio-space-tight)]",
-	"bg-white dark:bg-surface-900",
-	"text-surface-700 dark:text-surface-300",
-	"border border-surface-200 dark:border-surface-800",
-	"rounded-none text-center shadow-md",
+const tooltipPanelClasses = cn(
+	"pointer-events-none absolute top-full z-20 mt-2",
+	"max-w-[calc(100vw-(var(--portfolio-page-gutter-mobile)*2))]",
+	"w-max border border-surface-200/90 bg-white/98 px-[var(--portfolio-space-tight)] py-[8px] shadow-md backdrop-blur-sm",
+	"dark:border-surface-800 dark:bg-surface-900/98",
+	"rounded-none font-sans normal-case !text-[12px] !leading-[14px] !tracking-normal",
 );
+
+const tooltipGridClasses = cn(
+	"grid min-w-max grid-cols-[max-content_max-content] items-baseline gap-x-[var(--portfolio-space-tight)] gap-y-[4px]",
+);
+
+const tooltipLabelClasses = cn(
+	"!m-0 whitespace-nowrap font-mono !text-[12px] !leading-[14px] tracking-[0.08em] uppercase text-surface-500 dark:text-surface-400",
+);
+
+const tooltipValueClasses = cn(
+	"!m-0 min-w-0 whitespace-nowrap text-left !text-[12px] !leading-[14px] font-medium tracking-[0.01em] text-surface-800 dark:text-surface-200",
+);
+
+function getTimeZoneOffsetMinutes(timeZone: string, date: Date) {
+	const formatter = new Intl.DateTimeFormat("en-GB", {
+		timeZone,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false,
+	});
+
+	const parts = Object.fromEntries(
+		formatter
+			.formatToParts(date)
+			.filter((part) => part.type !== "literal")
+			.map((part) => [part.type, part.value]),
+	);
+
+	const asUtcTimestamp = Date.UTC(
+		Number(parts.year),
+		Number(parts.month) - 1,
+		Number(parts.day),
+		Number(parts.hour),
+		Number(parts.minute),
+		Number(parts.second),
+	);
+
+	return Math.round((asUtcTimestamp - date.getTime()) / 60000);
+}
+
+function formatUtcOffset(offsetMinutes: number) {
+	if (offsetMinutes === 0) {
+		return "UTC";
+	}
+
+	const sign = offsetMinutes > 0 ? "+" : "-";
+	const absoluteMinutes = Math.abs(offsetMinutes);
+	const hours = Math.floor(absoluteMinutes / 60);
+	const minutes = absoluteMinutes % 60;
+
+	if (minutes === 0) {
+		return `UTC${sign}${hours}`;
+	}
+
+	return `UTC${sign}${hours}:${String(minutes).padStart(2, "0")}`;
+}
+
+function formatDeltaOffset(offsetMinutes: number) {
+	if (offsetMinutes === 0) {
+		return "SAME";
+	}
+
+	const sign = offsetMinutes > 0 ? "+" : "-";
+	const absoluteMinutes = Math.abs(offsetMinutes);
+	const hours = Math.floor(absoluteMinutes / 60);
+	const minutes = absoluteMinutes % 60;
+
+	if (hours === 0) {
+		return `${sign}${minutes}m`;
+	}
+
+	if (minutes === 0) {
+		return `${sign}${hours}h`;
+	}
+
+	return `${sign}${hours}h ${minutes}m`;
+}
+
+function BadgeTooltip({
+	align,
+	rows,
+	className,
+}: {
+	align: "start" | "end";
+	rows: Array<{ label: string; value: string }>;
+	className?: string;
+}) {
+	return (
+		<motion.div
+			initial={{ opacity: 0, y: 4, scale: 0.98 }}
+			animate={{ opacity: 1, y: 0, scale: 1 }}
+			exit={{ opacity: 0, y: 4, scale: 0.98 }}
+			transition={tweens.interactionFast}
+			className={cn(
+				tooltipPanelClasses,
+				align === "start" ? "left-0 origin-top-left" : "right-0 origin-top-right",
+				className,
+			)}
+		>
+			<div className={tooltipGridClasses}>
+				{rows.map((row) => (
+					<Fragment key={row.label}>
+						<div className={tooltipLabelClasses}>{row.label}</div>
+						<div className={tooltipValueClasses}>{row.value}</div>
+					</Fragment>
+				))}
+			</div>
+		</motion.div>
+	);
+}
 
 export function LocationBadge({ className }: { className?: string }) {
 	const [isHovered, setIsHovered] = useState(false);
@@ -72,21 +186,13 @@ export function LocationBadge({ className }: { className?: string }) {
 
 			<AnimatePresence>
 				{isHovered && (
-					<motion.div
-						initial={{ opacity: 0, y: 4, scale: 0.98 }}
-						animate={{ opacity: 1, y: 0, scale: 1 }}
-						exit={{ opacity: 0, y: 4, scale: 0.98 }}
-						transition={tweens.interactionFast}
-						className={tooltipClasses}
-					>
-						<span className="block whitespace-nowrap">Rabat · GMT+1</span>
-						<span className="block whitespace-nowrap">
-							Full overlap with EU working hours.
-						</span>
-						<span className="block whitespace-nowrap">
-							US East Coast mornings. B2B-ready contracting and payments.
-						</span>
-					</motion.div>
+					<BadgeTooltip
+						align="start"
+						rows={[
+							{ label: "OVERLAP", value: "EU / UK" },
+							{ label: "WINDOW", value: "US East AM" },
+						]}
+					/>
 				)}
 			</AnimatePresence>
 		</motion.div>
@@ -95,6 +201,8 @@ export function LocationBadge({ className }: { className?: string }) {
 
 export function TimeBadge({ className }: { className?: string }) {
 	const [time, setTime] = useState<string>("");
+	const [zoneOffset, setZoneOffset] = useState<string>("");
+	const [relativeOffset, setRelativeOffset] = useState<string>("");
 	const [mounted, setMounted] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const { environment } = useRevealState();
@@ -108,10 +216,16 @@ export function TimeBadge({ className }: { className?: string }) {
 			minute: "2-digit",
 			second: "2-digit",
 			hour12: false,
-			timeZone: "Africa/Casablanca",
+			timeZone: TARGET_TIME_ZONE,
 		});
 		const updateTime = () => {
-			setTime(formatter.format(new Date()));
+			const now = new Date();
+			const targetOffsetMinutes = getTimeZoneOffsetMinutes(TARGET_TIME_ZONE, now);
+			const viewerOffsetMinutes = -now.getTimezoneOffset();
+
+			setTime(formatter.format(now));
+			setZoneOffset(formatUtcOffset(targetOffsetMinutes));
+			setRelativeOffset(formatDeltaOffset(targetOffsetMinutes - viewerOffsetMinutes));
 		};
 		updateTime();
 		const interval = setInterval(updateTime, 1000);
@@ -132,7 +246,7 @@ export function TimeBadge({ className }: { className?: string }) {
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 			role="status"
-			aria-label={`Current time ${time}, Timezone Africa/Casablanca UTC+1`}
+			aria-label={`Current time ${time}, Timezone ${TARGET_TIME_ZONE} ${zoneOffset}`}
 		>
 			<div
 				className={insigniaClasses}
@@ -158,15 +272,13 @@ export function TimeBadge({ className }: { className?: string }) {
 
 			<AnimatePresence>
 				{isHovered && (
-					<motion.div
-						initial={{ opacity: 0, y: 4, scale: 0.98 }}
-						animate={{ opacity: 1, y: 0, scale: 1 }}
-						exit={{ opacity: 0, y: 4, scale: 0.98 }}
-						transition={tweens.interactionFast}
-						className={tooltipClasses}
-					>
-						Africa/Casablanca · UTC+1
-					</motion.div>
+					<BadgeTooltip
+						align="end"
+						rows={[
+							{ label: "ZONE", value: zoneOffset },
+							{ label: "YOU", value: relativeOffset },
+						]}
+					/>
 				)}
 			</AnimatePresence>
 		</motion.div>

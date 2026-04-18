@@ -37,9 +37,10 @@ function HeroContent() {
 						className="portfolio-body-lg text-surface-900 dark:text-surface-100"
 						style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
 					>
-						I build the systems growing companies run on: onboarding, billing, internal
-						tooling, document workflows, and AI products. Complex logic underneath.
-						Clear interfaces on top.
+						I build the systems small businesses run on: CRMs, billing systems, document
+						automation, and AI pipelines that replace manual work. Some of it is
+						internal, some of it is SaaS. I like when something complicated ends up
+						feeling simple to use.
 					</p>
 				</Reveal>
 				<Reveal phase={2} delay={0.1}>

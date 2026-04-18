@@ -17,7 +17,7 @@ import { InstrumentField } from "@/src/components/ui/topographic-dot-field";
 export const metadata: Metadata = {
 	title: "Contact | Yassine Chettouch",
 	description:
-		"Internal systems, workflow software, and product surfaces with real operational complexity.",
+		"Internal systems, workflow software, and customer-facing products where clear interfaces sit on top of heavy logic.",
 	alternates: {
 		canonical: "/contact",
 	},
@@ -27,7 +27,7 @@ const CONTACT_METHODS = [
 	{
 		kicker: "Email",
 		title: "hello@yaschet.dev",
-		description: "Best for project scope, retainers, or direct inquiries.",
+		description: "Best for project scope and retainers.",
 		actions: [
 			{
 				label: "Email",
@@ -39,7 +39,7 @@ const CONTACT_METHODS = [
 	},
 	{
 		kicker: "Schedule",
-		title: "15-minute intro",
+		title: "Intro call",
 		description: "Quick fit check before a deeper conversation.",
 		actions: [
 			{
@@ -119,17 +119,8 @@ export default function ContactPage() {
 												<PageIntro
 													eyebrow="CONTACT"
 													title="Let’s talk."
-													description="Internal systems, workflow software, and product surfaces with real operational complexity."
-												>
-													<div className="portfolio-inline-meta">
-														<span className="portfolio-caption text-surface-500 dark:text-surface-400">
-															Response in 24 to 48 hours
-														</span>
-														<span className="portfolio-caption text-surface-500 dark:text-surface-400">
-															Rabat (GMT+1)
-														</span>
-													</div>
-												</PageIntro>
+													description="Internal systems, workflow software, and customer-facing products where clear interfaces sit on top of heavy logic."
+												/>
 											</div>
 										</div>
 									</SwissGridRow>
@@ -146,9 +137,9 @@ export default function ContactPage() {
 															{" "}
 															$4,500/month
 														</strong>
-														. Most scoped builds start at $8,000+,
+														. Most fixed-scope builds start at $8,000+,
 														depending on integration risk, compliance
-														constraints, and ownership scope.
+														needs, and ownership scope.
 													</p>
 												</div>
 												<div className="portfolio-card-copy">
@@ -157,16 +148,14 @@ export default function ContactPage() {
 													</h2>
 													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
 														Most work starts with a short paid
-														diagnostic or a tightly scoped first build,
-														depending on how clear the problem is on day
-														one.
+														diagnostic or a tightly scoped first build.
 													</p>
 													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
 														Based in Rabat (GMT+1), with full overlap
-														across EU and UK hours and workable US East
-														Coast mornings. If you need senior judgment
-														on a messy product, workflow, or internal
-														platform, email below.
+														across EU and UK hours and good overlap with
+														US East Coast mornings. If the work is
+														messy, operationally important, or hard to
+														untangle, email below.
 													</p>
 												</div>
 											</ProseContainer>
