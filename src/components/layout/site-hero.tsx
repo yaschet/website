@@ -15,7 +15,7 @@ import { InstrumentField } from "@/components/ui/topographic-dot-field";
 import { cn } from "@/lib/utils";
 
 const HERO_COLUMN_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 50)";
-const HERO_BODY_MAX_WIDTH = "60ch";
+const HERO_BODY_MAX_WIDTH = "48ch";
 
 function HeroContent() {
 	return (
@@ -30,7 +30,8 @@ function HeroContent() {
 					className="portfolio-heading-xl portfolio-capsize-heading-xl w-fit max-w-full text-surface-900 dark:text-surface-100"
 					style={{ margin: 0 }}
 				>
-					Operational software, clean interfaces.
+					Operational software, <br />
+					clean interfaces.
 				</HeadingReveal>
 				<Reveal phase={2} delay={0.05}>
 					<p
