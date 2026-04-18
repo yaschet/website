@@ -218,14 +218,14 @@ float terrainFieldValue(vec2 uv, float time) {
     snoise(vec3(shaped * 0.44 + vec2(-3.7, 2.4), time * 0.070))
   );
 
-  vec2 q = shaped + vec2(warp.x * 0.11, warp.y * 0.08);
+  vec2 q = shaped * 1.12 + vec2(warp.x * 0.10, warp.y * 0.075);
 
-  float coarse = snoise(vec3(q * 0.56, time * 0.086));
-  float middle = snoise(vec3(q * 0.84 + vec2(2.7, -1.6), time * 0.108));
+  float coarse = snoise(vec3(q * 0.58, time * 0.086));
+  float middle = snoise(vec3(q * 0.90 + vec2(2.7, -1.6), time * 0.108));
   vec2 seamQ = vec2(q.x * 1.26 + q.y * 0.32, q.y * 0.68 - q.x * 0.10);
-  float seamSeed = snoise(vec3(seamQ * 0.92 + vec2(-4.4, 3.1), time * 0.094));
+  float seamSeed = snoise(vec3(seamQ * 0.98 + vec2(-4.4, 3.1), time * 0.094));
   float seam = smoothstep(0.10, 0.62, 1.0 - abs(seamSeed));
-  float detail = snoise(vec3(q * 1.24 + vec2(1.3, -2.1), time * 0.120));
+  float detail = snoise(vec3(q * 1.30 + vec2(1.3, -2.1), time * 0.120));
   float plane = q.x * 0.36 + q.y * 0.10;
 
   float field = coarse * 0.60 + middle * 0.08 + (seam - 0.5) * 0.24 + plane * 0.14 + detail * 0.01;
