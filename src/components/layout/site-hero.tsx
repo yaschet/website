@@ -37,9 +37,9 @@ function HeroContent() {
 						className="portfolio-body-lg text-surface-900 dark:text-surface-100"
 						style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
 					>
-						I build the systems growing companies run on: onboarding, billing,
-						internal tooling, document workflows, and AI products. Complex logic
-						underneath. Clear interfaces on top.
+						I build the systems growing companies run on: onboarding, billing, internal
+						tooling, document workflows, and AI products. Complex logic underneath.
+						Clear interfaces on top.
 					</p>
 				</Reveal>
 				<Reveal phase={2} delay={0.1}>

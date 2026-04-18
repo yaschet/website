@@ -16,7 +16,8 @@ import { InstrumentField } from "@/src/components/ui/topographic-dot-field";
 
 export const metadata: Metadata = {
 	title: "Contact | Yassine Chettouch",
-	description: "Let's build something serious together.",
+	description:
+		"Internal systems, workflow software, and product surfaces with real operational complexity.",
 	alternates: {
 		canonical: "/contact",
 	},
@@ -39,7 +40,7 @@ const CONTACT_METHODS = [
 	{
 		kicker: "Schedule",
 		title: "15-minute intro",
-		description: "Quick scoping, timing, or fit before we go deeper.",
+		description: "Quick fit check before a deeper conversation.",
 		actions: [
 			{
 				label: "Book a call",
@@ -53,7 +54,7 @@ const CONTACT_METHODS = [
 	{
 		kicker: "Presence",
 		title: "Public profiles",
-		description: "Background, recent work, and public activity.",
+		description: "Background, shipped work, and recent activity.",
 		actions: [
 			{
 				label: "LinkedIn",
@@ -118,7 +119,7 @@ export default function ContactPage() {
 												<PageIntro
 													eyebrow="CONTACT"
 													title="Let’s talk."
-													description="Product engineering, systems work, and focused consulting."
+													description="Internal systems, workflow software, and product surfaces with real operational complexity."
 												>
 													<div className="portfolio-inline-meta">
 														<span className="portfolio-caption text-surface-500 dark:text-surface-400">
@@ -152,18 +153,20 @@ export default function ContactPage() {
 												</div>
 												<div className="portfolio-card-copy">
 													<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-														Schedule
+														Process
 													</h2>
 													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-														Before long-term retainers, I typically run a
-														1–2 week paid diagnostic sprint to scope the
-														actual problem and de-risk both sides.
+														Most work starts with a short paid
+														diagnostic or a tightly scoped first build,
+														depending on how clear the problem is on day
+														one.
 													</p>
 													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-														If you need task-by-task coding support, I&apos;m
-														probably not the right fit. If you need
-														senior engineering judgment on a messy product
-														or workflow system, email below.
+														Based in Rabat (GMT+1), with full overlap
+														across EU and UK hours and workable US East
+														Coast mornings. If you need senior judgment
+														on a messy product, workflow, or internal
+														platform, email below.
 													</p>
 												</div>
 											</ProseContainer>
