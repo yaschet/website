@@ -71,7 +71,7 @@ export function SiteFooter() {
 								</div>
 							</div>
 
-							<p className="portfolio-body-sm max-w-[72ch] text-surface-500 dark:text-surface-400">
+							<p className="portfolio-body-xs max-w-[72ch] text-surface-500 dark:text-surface-400">
 								<span className="font-medium text-surface-700 dark:text-surface-300">
 									Colophon.
 								</span>{" "}

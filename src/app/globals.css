@@ -1516,343 +1516,344 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 @layer components {
   .portfolio-heading-xl {
-    font-size: var(--text-heading-xl);
-    line-height: var(--text-heading-xl--line-height);
-    letter-spacing: var(--text-heading-xl--letter-spacing);
-    font-weight: var(--text-heading-xl--font-weight);
+    font-size: var(--text-heading-xl) !important;
+    line-height: var(--text-heading-xl--line-height) !important;
+    letter-spacing: var(--text-heading-xl--letter-spacing) !important;
+    font-weight: var(--text-heading-xl--font-weight) !important;
   }
 
   .portfolio-heading-lg {
-    font-size: var(--text-heading-lg);
-    line-height: var(--text-heading-lg--line-height);
-    letter-spacing: var(--text-heading-lg--letter-spacing);
-    font-weight: var(--text-heading-lg--font-weight);
+    font-size: var(--text-heading-lg) !important;
+    line-height: var(--text-heading-lg--line-height) !important;
+    letter-spacing: var(--text-heading-lg--letter-spacing) !important;
+    font-weight: var(--text-heading-lg--font-weight) !important;
   }
 
   .portfolio-heading-sm {
-    font-size: var(--text-heading-sm);
-    line-height: var(--text-heading-sm--line-height);
-    letter-spacing: var(--text-heading-sm--letter-spacing);
-    font-weight: var(--text-heading-sm--font-weight);
+    font-size: var(--text-heading-sm) !important;
+    line-height: var(--text-heading-sm--line-height) !important;
+    letter-spacing: var(--text-heading-sm--letter-spacing) !important;
+    font-weight: var(--text-heading-sm--font-weight) !important;
   }
 
   .portfolio-body-lg {
-    font-size: var(--text-body-lg);
-    line-height: var(--text-body-lg--line-height);
-    letter-spacing: var(--text-body-lg--letter-spacing);
-    font-weight: var(--text-body-lg--font-weight);
+    font-size: var(--text-body-lg) !important;
+    line-height: var(--text-body-lg--line-height) !important;
+    letter-spacing: var(--text-body-lg--letter-spacing) !important;
+    font-weight: var(--text-body-lg--font-weight) !important;
   }
 
   .portfolio-body-md {
-    font-size: var(--text-body-md);
-    line-height: var(--text-body-md--line-height);
-    letter-spacing: var(--text-body-md--letter-spacing);
-    font-weight: var(--text-body-md--font-weight);
+    font-size: var(--text-body-md) !important;
+    line-height: var(--text-body-md--line-height) !important;
+    letter-spacing: var(--text-body-md--letter-spacing) !important;
+    font-weight: var(--text-body-md--font-weight) !important;
   }
 
   .portfolio-body-sm {
-    font-size: var(--text-body-sm);
-    line-height: var(--text-body-sm--line-height);
-    letter-spacing: var(--text-body-sm--letter-spacing);
-    font-weight: var(--text-body-sm--font-weight);
+    font-size: var(--text-body-sm) !important;
+    line-height: var(--text-body-sm--line-height) !important;
+    letter-spacing: var(--text-body-sm--letter-spacing) !important;
+    font-weight: var(--text-body-sm--font-weight) !important;
   }
 
   .portfolio-body-xs {
-    font-size: var(--text-body-xs);
-    line-height: var(--text-body-xs--line-height);
-    letter-spacing: var(--text-body-xs--letter-spacing);
-    font-weight: var(--text-body-xs--font-weight);
+    font-size: var(--text-body-xs) !important;
+    line-height: var(--text-body-xs--line-height) !important;
+    letter-spacing: var(--text-body-xs--letter-spacing) !important;
+    font-weight: var(--text-body-xs--font-weight) !important;
   }
 
   .portfolio-caption {
-    font-size: var(--text-meta);
-    line-height: var(--text-meta--line-height);
-    letter-spacing: var(--text-meta--letter-spacing);
-    font-weight: var(--text-meta--font-weight);
+    font-size: var(--text-meta) !important;
+    line-height: var(--text-meta--line-height) !important;
+    letter-spacing: var(--text-meta--letter-spacing) !important;
+    font-weight: var(--text-meta--font-weight) !important;
   }
 
   .portfolio-control-label {
-    font-size: var(--text-control);
-    line-height: var(--text-control--line-height);
-    letter-spacing: var(--text-control--letter-spacing);
-    font-weight: var(--text-control--font-weight);
+    font-size: var(--text-control) !important;
+    line-height: var(--text-control--line-height) !important;
+    letter-spacing: var(--text-control--letter-spacing) !important;
+    font-weight: var(--text-control--font-weight) !important;
   }
 
   .portfolio-chip-label,
   .portfolio-meta-label {
     font-family: var(--font-app-mono), ui-monospace, monospace;
-    font-size: var(--text-chip);
-    line-height: var(--text-chip--line-height);
-    letter-spacing: var(--text-chip--letter-spacing);
-    font-weight: var(--text-chip--font-weight);
+    font-size: var(--text-chip) !important;
+    line-height: var(--text-chip--line-height) !important;
+    letter-spacing: var(--text-chip--letter-spacing) !important;
+    font-weight: var(--text-chip--font-weight) !important;
     text-transform: uppercase;
   }
 
   .portfolio-badge-label {
-    font-size: var(--text-chip);
-    line-height: var(--text-chip--line-height);
-    letter-spacing: var(--tracking-wide);
-    font-weight: var(--text-chip--font-weight);
+    font-size: var(--text-chip) !important;
+    line-height: var(--text-chip--line-height) !important;
+    letter-spacing: var(--tracking-wide) !important;
+    font-weight: var(--text-chip--font-weight) !important;
   }
 
   .portfolio-masthead-name {
-    font-size: var(--text-masthead-name);
-    line-height: var(--text-masthead-name--line-height);
-    letter-spacing: var(--text-masthead-name--letter-spacing);
-    font-weight: var(--text-masthead-name--font-weight);
+    font-size: var(--text-masthead-name) !important;
+    line-height: var(--text-masthead-name--line-height) !important;
+    letter-spacing: var(--text-masthead-name--letter-spacing) !important;
+    font-weight: var(--text-masthead-name--font-weight) !important;
   }
 
   .portfolio-masthead-role {
-    font-size: var(--text-masthead-role);
-    line-height: var(--text-masthead-role--line-height);
-    letter-spacing: var(--text-masthead-role--letter-spacing);
-    font-weight: var(--text-masthead-role--font-weight);
+    font-size: var(--text-masthead-role) !important;
+    line-height: var(--text-masthead-role--line-height) !important;
+    letter-spacing: var(--text-masthead-role--letter-spacing) !important;
+    font-weight: var(--text-masthead-role--font-weight) !important;
   }
 
   .portfolio-box-pad {
-    padding: var(--portfolio-box-pad-mobile);
+    padding: var(--portfolio-box-pad-mobile)  !important;
   }
 
   .portfolio-section,
   .portfolio-section-loose,
   .portfolio-section-top,
   .portfolio-section-top-loose {
-    padding-top: 0;
-    padding-bottom: var(--portfolio-space-section);
+    padding-top: 0  !important;
+    padding-bottom: var(--portfolio-space-section) !important;
   }
 
   .portfolio-footer-pad {
-    padding-block: var(--portfolio-space-2);
+    padding-block: var(--portfolio-space-2) !important;
   }
 
   .portfolio-nav-spacer {
-    height: var(--portfolio-nav-clearance);
+    height: var(--portfolio-nav-clearance) !important;
   }
 
   .portfolio-stack-tight {
-    display: flex;
-    flex-direction: column;
-    gap: var(--portfolio-space-tight);
+    display: flex  !important;
+    flex-direction: column !important;
+    gap: var(--portfolio-space-tight) !important;
   }
 
   .portfolio-stack-related {
-    display: flex;
-    flex-direction: column;
-    gap: var(--portfolio-space-related);
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--portfolio-space-related) !important;
   }
 
   .portfolio-stack-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--portfolio-space-group);
+    display: flex  !important;
+    flex-direction: column !important;
+    gap: var(--portfolio-space-group) !important;
   }
 
   .portfolio-stack-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--portfolio-space-section);
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--portfolio-space-section) !important;
   }
 
   .portfolio-stack-major {
-    display: flex;
-    flex-direction: column;
-    gap: var(--portfolio-space-major);
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--portfolio-space-major) !important;
   }
 
   .portfolio-callout {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--portfolio-space-related);
-    text-align: center;
+    display: flex  !important;
+    flex-direction: column !important;
+    align-items: start !important;
+    justify-content: start !important;
+    gap: var(--portfolio-space-related) !important;
+    text-align: start !important;
   }
 
   .portfolio-callout-copy {
-    max-width: 32rem;
+    max-width: 32rem important !important   ;
   }
 
   .portfolio-card-copy {
-    display: flex;
-    flex-direction: column;
-    gap: var(--portfolio-space-tight);
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--portfolio-space-tight) !important;
   }
 
   .portfolio-surface-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--portfolio-space-group);
-    padding: var(--portfolio-space-2);
-    border: 1px solid transparent;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--portfolio-space-group) !important;
+    padding: var(--portfolio-space-2) !important;
+    border: 1px solid transparent !important;
     transition:
       border-color 150ms ease-out,
-      background-color 150ms ease-out;
+      background-color 150ms ease-out !important;
   }
 
   .portfolio-back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--portfolio-space-tight);
-    color: var(--surface-500);
-    transition: color 150ms ease-out;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: var(--portfolio-space-tight) !important;
+    color: var(--surface-500) !important;
+    transition: color 150ms ease-out !important;
   }
 
   .portfolio-back-link:hover {
-    color: var(--surface-900);
+    color: var(--surface-900) !important;
   }
 
   .dark .portfolio-back-link {
-    color: var(--surface-400);
+    color: var(--surface-400) !important;
   }
 
   .dark .portfolio-back-link:hover {
-    color: var(--surface-100);
+    color: var(--surface-100) !important;
   }
 
   .portfolio-surface-card:hover {
-    border-color: var(--surface-200);
-    background-color: color-mix(in oklab, var(--surface-50) 50%, transparent);
+    border-color: var(--surface-200) !important;
+    background-color: color-mix(in oklab, var(--surface-50) 50%, transparent) !important;
   }
 
   .dark .portfolio-surface-card:hover {
-    border-color: var(--surface-800);
-    background-color: color-mix(in oklab, var(--surface-900) 30%, transparent);
+    border-color: var(--surface-800) !important;
+    background-color: color-mix(in oklab, var(--surface-900) 30%, transparent) !important;
   }
 
   .portfolio-control-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--portfolio-space-related);
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: var(--portfolio-space-related) !important;
   }
 
   .portfolio-action-band {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--portfolio-space-related);
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: var(--portfolio-space-related) !important;
   }
 
   .portfolio-action-band-shell {
-    --action-band-title-color: var(--surface-color-900);
-    --action-band-body-color: var(--surface-color-600);
+    --action-band-title-color: var(--surface-color-900) !important;
+    --action-band-body-color: var(--surface-color-600) !important;
   }
 
   .dark .portfolio-action-band-shell {
-    --action-band-title-color: var(--surface-color-50);
-    --action-band-body-color: var(--surface-color-400);
+    --action-band-title-color: var(--surface-color-50) !important;
+    --action-band-body-color: var(--surface-color-400) !important;
   }
 
   .portfolio-action-band-shell[data-tone="light"] {
-    --action-band-title-color: var(--surface-color-900);
-    --action-band-body-color: var(--surface-color-600);
+    --action-band-title-color: var(--surface-color-900) !important;
+    --action-band-body-color: var(--surface-color-600) !important;
   }
 
   .dark .portfolio-action-band-shell[data-tone="light"] {
-    --action-band-title-color: var(--surface-color-900);
-    --action-band-body-color: var(--surface-color-600);
+    --action-band-title-color: var(--surface-color-900) !important;
+    --action-band-body-color: var(--surface-color-600) !important;
   }
 
   .portfolio-action-band-shell[data-tone="dark"] {
-    --action-band-title-color: var(--surface-color-50);
-    --action-band-body-color: var(--surface-color-400);
+    --action-band-title-color: var(--surface-color-50) !important;
+    --action-band-body-color: var(--surface-color-400) !important;
   }
 
   .dark .portfolio-action-band-shell[data-tone="dark"] {
-    --action-band-title-color: var(--surface-color-50);
-    --action-band-body-color: var(--surface-color-400);
+    --action-band-title-color: var(--surface-color-50) !important;
+    --action-band-body-color: var(--surface-color-400) !important;
   }
 
   .portfolio-action-band-shell[data-tone="inverted"] {
-    --action-band-title-color: var(--surface-color-50);
-    --action-band-body-color: var(--surface-color-400);
+    --action-band-title-color: var(--surface-color-50) !important;
+    --action-band-body-color: var(--surface-color-400) !important;
   }
 
   .dark .portfolio-action-band-shell[data-tone="inverted"] {
-    --action-band-title-color: var(--surface-color-950);
-    --action-band-body-color: var(--surface-color-600);
+    --action-band-title-color: var(--surface-color-950) !important;
+    --action-band-body-color: var(--surface-color-600) !important;
   }
 
   .portfolio-inline-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: var(--portfolio-space-2);
-    row-gap: var(--portfolio-space-1);
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    column-gap: var(--portfolio-space-2) !important;
+    row-gap: var(--portfolio-space-1) !important;
   }
 
   .portfolio-kicker {
-    font-family: var(--font-app-mono), ui-monospace, monospace;
-    font-size: var(--text-meta);
-    line-height: var(--text-meta--line-height);
-    font-weight: var(--text-meta--font-weight);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
+    font-family: var(--font-app-mono), ui-monospace, monospace !important;
+    font-size: var(--text-body-sm) !important;
+    line-height: var(--text-body-sm--line-height) !important;
+    font-weight: 600 !important;
+    letter-spacing: var(--tracking-wide) !important;
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase !important;
   }
 
   .portfolio-prose {
-    color: var(--surface-600);
-    font-size: var(--text-body-md);
-    line-height: var(--text-body-md--line-height);
-    letter-spacing: var(--text-body-md--letter-spacing);
-    font-weight: var(--text-body-md--font-weight);
+    color: var(--surface-600) !important;
+    font-size: var(--text-body-md) !important;
+    line-height: var(--text-body-md--line-height) !important;
+    letter-spacing: var(--text-body-md--letter-spacing) !important;
+    font-weight: var(--text-body-md--font-weight) !important;
   }
 
   .portfolio-prose > * + * {
-    margin-top: var(--portfolio-space-group);
+    margin-top: var(--portfolio-space-group) !important;
   }
 
   .dark .portfolio-prose {
-    color: var(--surface-400);
+    color: var(--surface-400) !important;
   }
 
   .portfolio-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: var(--portfolio-control-compact);
-    gap: var(--portfolio-control-gap);
-    border: 1px solid var(--surface-200);
-    background: var(--surface-50);
-    padding-inline: var(--portfolio-control-pad-compact);
-    color: var(--surface-700);
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: var(--portfolio-control-compact) !important;
+    gap: var(--portfolio-control-gap) !important;
+    border: 1px solid var(--surface-200) !important;
+    background: var(--surface-50) !important;
+    padding-inline: var(--portfolio-control-pad-compact) !important;
+    color: var(--surface-700) !important;
   }
 
   .dark .portfolio-chip {
-    border-color: var(--surface-700);
-    background: var(--surface-900);
-    color: var(--surface-300);
+    border-color: var(--surface-700) !important;
+    background: var(--surface-900) !important;
+    color: var(--surface-300) !important;
   }
 
   .portfolio-link-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: var(--portfolio-space-2);
-    row-gap: var(--portfolio-space-1);
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    column-gap: var(--portfolio-space-2) !important;
+    row-gap: var(--portfolio-space-1) !important;
   }
 
   .portfolio-meta-label {
-    letter-spacing: 0.16em;
+    letter-spacing: 0.16em !important;
   }
 
   .portfolio-meta-value {
-    font-size: var(--text-body-sm);
-    line-height: var(--text-body-sm--line-height);
-    letter-spacing: var(--text-body-sm--letter-spacing);
-    font-weight: 500;
+    font-size: var(--text-body-sm) !important;
+    line-height: var(--text-body-sm--line-height) !important;
+    letter-spacing: var(--text-body-sm--letter-spacing) !important;
+    font-weight: 500 !important;
   }
 
   @media (min-width: 40rem) {
     .portfolio-box-pad {
-      padding: var(--portfolio-box-pad-desktop);
+      padding: var(--portfolio-box-pad-desktop) !important;
     }
 
     .portfolio-action-band {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--portfolio-space-2);
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: var(--portfolio-space-2) !important;
     }
   }
 

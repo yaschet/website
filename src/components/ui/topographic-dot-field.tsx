@@ -207,23 +207,41 @@ float snoise(vec3 v){
   );
 }
 
+float heroDetailActivity(vec2 uv) {
+  if (uSurface > 0.5) {
+    return 1.0;
+  }
+
+  float x = sm3(0.30, 0.90, uv.x);
+  float y = sm3(0.48, 0.98, uv.y);
+  float lowerRightLift = y * x * 0.14 + y * 0.05;
+
+  return clamp(mix(0.14, 1.0, x) + lowerRightLift, 0.14, 1.0);
+}
+
 float terrainFieldValue(vec2 uv, float time) {
   float aspect = uRes.x / uRes.y;
   vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
+  float heroActivity = heroDetailActivity(uv);
 
   vec2 warp = vec2(
     snoise(vec3(p * 0.85 + vec2(1.2, -0.8), time * 0.09)),
     snoise(vec3(p * 0.85 + vec2(-3.7, 2.4), time * 0.09))
   );
+  warp *= mix(0.20, 1.0, heroActivity);
 
   vec2 q = p * 1.05 + warp * 0.28;
 
   float coarse = snoise(vec3(q * 0.85, time * 0.11));
   float middle = snoise(vec3(q * 1.75 + vec2(2.7, -1.6), time * 0.15));
   float detail = snoise(vec3(q * 3.3 + vec2(-4.4, 3.1), time * 0.21));
+  coarse *= mix(0.76, 1.0, heroActivity);
+  middle *= mix(0.24, 1.0, heroActivity);
+  detail *= mix(0.06, 1.0, heroActivity);
 
   float field = coarse * 0.58 + middle * 0.28 + detail * 0.14;
   field = field * 0.5 + 0.5;
+  field = mix(0.5, field, mix(0.60, 1.0, heroActivity));
   field = sm3(0.16, 0.88, field);
 
   float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * 0.04;
