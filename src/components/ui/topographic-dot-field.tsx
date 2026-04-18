@@ -457,6 +457,10 @@ void main() {
   dots.a *= mix(1.0, mix(mix(0.18, 0.24, uDark), mix(0.14, 0.18, uDark), pulseVariant), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
   underlay.a *= mix(1.0, mix(1.10, 1.08, uDark), heroSurface);
+  vec2 fillAxis = normalize(vec2(0.951, -0.309));
+  float fillT = clamp(0.5 + dot(uv - 0.5, fillAxis) * 0.95, 0.0, 1.0);
+  float fillShade = mix(mix(0.88, 1.06, fillT), mix(0.95, 1.03, fillT), uDark);
+  underlay.rgb = mix(underlay.rgb, clamp(underlay.rgb * fillShade, 0.0, 1.0), heroSurface * 0.92);
   dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
   contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark) * mix(1.0, 0.72, heroSurface);
 
