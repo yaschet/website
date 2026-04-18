@@ -1662,10 +1662,10 @@
   .portfolio-callout {
     display: flex  !important;
     flex-direction: column !important;
-    align-items: start !important;
-    justify-content: start !important;
+    align-items: center !important;
+    justify-content: center !important;
     gap: var(--portfolio-space-related) !important;
-    text-align: start !important;
+    text-align: center !important;
   }
 
   .portfolio-callout-copy {
@@ -1888,7 +1888,7 @@ html {
     color-scheme: light;
     scrollbar-gutter: stable;
     --app-background: var(--surface-100);
-    --instrument-field-bg-auto: white;
+    --instrument-field-bg-auto: var(--surface-50);
     --instrument-field-bg-inverted: var(--surface-950);
   }
 
@@ -1906,7 +1906,7 @@ body {
 .dark {
   color-scheme: dark;
   --app-background: var(--surface-950);
-  --instrument-field-bg-auto: var(--surface-900);
+  --instrument-field-bg-auto: var(--surface-950);
   --instrument-field-bg-inverted: var(--surface-50);
 }
 

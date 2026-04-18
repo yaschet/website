@@ -9,7 +9,7 @@ export function ConfidentialWorkCallout({ className }: ConfidentialWorkCalloutPr
 	return (
 		<div className={cn("portfolio-box-pad", className)}>
 			<div className="portfolio-callout">
-				<p className="portfolio-kicker bg-surface-950 px-2 py-0.5 text-surface-50 dark:bg-surface-50 dark:text-surface-950">
+				<p className="portfolio-kicker text-surface-600 dark:text-surface-400">
 					Confidential Work
 				</p>
 				<p className="portfolio-body-sm portfolio-callout-copy text-surface-600 dark:text-surface-400">

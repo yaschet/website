@@ -101,6 +101,7 @@ uniform float uSurface;
 uniform vec2  uMouse;
 uniform float uMousePress;
 uniform float uMouseStrength;
+uniform vec3  uBG;
 
 uniform vec3  uLC0; uniform float uLA0;
 uniform vec3  uLC1; uniform float uLA1;
@@ -471,6 +472,11 @@ void main() {
 
   vec3 contourRgb = mix(uLC2, uLC3, mix(0.42, 0.58, uDark));
   vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant));
+  float heroReadZone = uSurface > 0.5 ? 0.0 : clamp(shield * 3.4, 0.0, 0.72);
+
+  underlay.rgb = mix(underlay.rgb, uBG, heroReadZone * 0.58);
+  dots.rgb = mix(dots.rgb, uBG, heroReadZone * 0.76);
+  contourStroke.rgb = mix(contourStroke.rgb, uBG, heroReadZone * 0.84);
 
   underlay.a *= heroEnvelope;
   dots.a *= heroEnvelope;
@@ -483,7 +489,7 @@ void main() {
   contourStroke.a *= 1.0 + mouseCore * uMousePress * mix(0.18, 0.28, uDark);
 
   if (uDark < 0.5) {
-    vec4 lightBase = vec4(1.0);
+    vec4 lightBase = vec4(uBG, 1.0);
     float lightMix = underlay.a * 0.62;
     vec4 lightUnderlay = vec4(mix(lightBase.rgb, underlay.rgb, lightMix), 1.0);
     vec4 contouredLight = alphaOver(contourStroke, lightUnderlay);
@@ -712,46 +718,63 @@ function resolveSurfaceTone(node: HTMLElement, tone: number, fallback: RGB) {
 	);
 }
 
-function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
+function resolvePalette(node: HTMLElement, isDark: boolean, surface: InstrumentSurface): Palette {
 	const alphaPalette = isDark ? DARK_ALPHA_PALETTE : LIGHT_ALPHA_PALETTE;
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
 	const baseSurface = resolveSurfaceTone(node, 500, neutralFallback);
 	const resolveTone = (tone: number) => resolveSurfaceTone(node, tone, baseSurface);
+	const isHero = surface === "hero";
+
+	const activeTones = isHero
+		? isDark
+			? [700, 600, 500, 400]
+			: [300, 400, 500, 600]
+		: isDark
+			? [700, 500, 300, 100]
+			: [300, 400, 500, 600];
+
+	const underlayTones = isHero
+		? isDark
+			? [950, 900, 800, 700]
+			: [50, 100, 200, 300]
+		: isDark
+			? [950, 900, 800, 700]
+			: [100, 200, 300, 400];
 
 	return {
 		active: [
 			{
-				color: resolveTone(isDark ? 700 : 300),
+				color: resolveTone(activeTones[0]),
 				alpha: alphaPalette.active[0].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 500 : 400),
+				color: resolveTone(activeTones[1]),
 				alpha: alphaPalette.active[1].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 300 : 500),
+				color: resolveTone(activeTones[2]),
 				alpha: alphaPalette.active[2].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 100 : 600),
+				color: resolveTone(activeTones[3]),
 				alpha: alphaPalette.active[3].alpha,
 			},
 		],
 		underlay: [
 			{
-				color: resolveTone(isDark ? 950 : 100),
+				color: resolveTone(underlayTones[0]),
 				alpha: alphaPalette.underlay[0].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 900 : 200),
+				color: resolveTone(underlayTones[1]),
 				alpha: alphaPalette.underlay[1].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 800 : 300),
+				color: resolveTone(underlayTones[2]),
 				alpha: alphaPalette.underlay[2].alpha,
 			},
 			{
-				color: resolveTone(isDark ? 700 : 400),
+				color: resolveTone(underlayTones[3]),
 				alpha: alphaPalette.underlay[3].alpha,
 			},
 		],
@@ -1150,6 +1173,7 @@ export function InstrumentField({
 				uMouse: getUniform("uMouse"),
 				uMousePress: getUniform("uMousePress"),
 				uMouseStrength: getUniform("uMouseStrength"),
+				uBG: getUniform("uBG"),
 				uLC0: getUniform("uLC0"),
 				uLA0: getUniform("uLA0"),
 				uLC1: getUniform("uLC1"),
@@ -1210,7 +1234,7 @@ export function InstrumentField({
 		canvas.height = physicalHeight;
 		gl.viewport(0, 0, physicalWidth, physicalHeight);
 
-		const palette = resolvePalette(container, isDark);
+		const palette = resolvePalette(container, isDark, surface);
 		const clearColor = resolveCssColor(
 			container,
 			backgroundPaint,
@@ -1252,6 +1276,14 @@ export function InstrumentField({
 		gl.uniform2f(uniforms.uMouse, 0.5, 0.5);
 		gl.uniform1f(uniforms.uMousePress, 0);
 		gl.uniform1f(uniforms.uMouseStrength, 0);
+		if (uniforms.uBG) {
+			gl.uniform3f(
+				uniforms.uBG,
+				clearColor[0] / 255,
+				clearColor[1] / 255,
+				clearColor[2] / 255,
+			);
+		}
 
 		setUniform3("uLC0", palette.active[0].color);
 		setUniform1("uLA0", palette.active[0].alpha);
