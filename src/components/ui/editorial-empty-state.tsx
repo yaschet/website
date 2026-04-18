@@ -22,12 +22,8 @@ export function EditorialEmptyState({
 }: EditorialEmptyStateProps) {
 	return (
 		<div className={cn("portfolio-box-pad", className)}>
-			<div className="portfolio-stack-group mx-auto max-w-[34rem] items-center justify-center text-center">
-				{icon && (
-					<div className="flex size-[var(--portfolio-avatar-size)] items-center justify-center bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-900 dark:text-surface-50">
-						{icon}
-					</div>
-				)}
+			<div className="portfolio-stack-group mx-auto w-full max-w-[32rem] items-center justify-center text-center">
+				{icon && <div className="portfolio-icon-plate rounded-(--radius)">{icon}</div>}
 
 				{eyebrow && (
 					<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
@@ -47,7 +43,7 @@ export function EditorialEmptyState({
 				{actions && <div className="portfolio-control-row justify-center">{actions}</div>}
 
 				{note && (
-					<p className="portfolio-body-xs text-surface-500 dark:text-surface-500">
+					<p className="portfolio-body-xs max-w-[28rem] text-surface-500 dark:text-surface-500">
 						{note}
 					</p>
 				)}

@@ -7,6 +7,7 @@ import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
+import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
@@ -102,8 +103,8 @@ export default async function CaseStudiesPage() {
 													weight="regular"
 												/>
 											}
-											title="No case studies listed right now."
-											description="The public archive is temporarily unlisted."
+											title="No case studies listed."
+											description="The public archive is currently unlisted."
 										/>
 									</Reveal>
 								)}

@@ -121,8 +121,8 @@ export default async function Home() {
 													weight="regular"
 												/>
 											}
-											title="No case studies listed right now."
-											description="The public archive is temporarily unlisted."
+											title="No case studies listed."
+											description="The public archive is currently unlisted."
 										/>
 									)}
 								</section>

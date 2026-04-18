@@ -46,8 +46,8 @@ export default function BlogPage() {
 													weight="regular"
 												/>
 											}
-											title="No posts yet."
-											description="Nothing is published right now."
+											title="No posts published."
+											description="Writing will appear here when it is ready."
 										/>
 									</Reveal>
 								</SwissGridRow>
