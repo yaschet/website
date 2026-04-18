@@ -16,6 +16,10 @@ import { cn } from "@/lib/utils";
 
 const HERO_COLUMN_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 50)";
 const HERO_BODY_MAX_WIDTH = "58ch";
+const HERO_TEXT_SHIELD_LIGHT =
+	"radial-gradient(ellipse 68% 62% at 16% 34%, color-mix(in oklab, var(--surface-50) 94%, transparent) 0%, color-mix(in oklab, var(--surface-50) 84%, transparent) 34%, transparent 74%), linear-gradient(90deg, color-mix(in oklab, var(--surface-50) 96%, transparent) 0%, color-mix(in oklab, var(--surface-50) 78%, transparent) 20%, transparent 52%)";
+const HERO_TEXT_SHIELD_DARK =
+	"radial-gradient(ellipse 68% 62% at 16% 34%, color-mix(in oklab, var(--surface-950) 92%, transparent) 0%, color-mix(in oklab, var(--surface-950) 82%, transparent) 34%, transparent 74%), linear-gradient(90deg, color-mix(in oklab, var(--surface-950) 94%, transparent) 0%, color-mix(in oklab, var(--surface-950) 76%, transparent) 20%, transparent 52%)";
 
 function HeroContent() {
 	return (
@@ -77,6 +81,14 @@ function HeroInstrumentPlane({ className }: { className?: string }) {
 				speed={0.58}
 				surface="hero"
 				variant="terrain"
+			/>
+			<div
+				className="pointer-events-none absolute inset-0 dark:hidden"
+				style={{ backgroundImage: HERO_TEXT_SHIELD_LIGHT }}
+			/>
+			<div
+				className="pointer-events-none absolute inset-0 hidden dark:block"
+				style={{ backgroundImage: HERO_TEXT_SHIELD_DARK }}
 			/>
 		</div>
 	);
