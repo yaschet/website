@@ -25,33 +25,31 @@ interface HeroReadZone {
 	height: number;
 }
 
-function HeroContent({ contentRef }: { contentRef: React.RefObject<HTMLDivElement | null> }) {
+function HeroContent({ readZoneRef }: { readZoneRef: React.RefObject<HTMLDivElement | null> }) {
 	return (
 		<div className="portfolio-box-pad relative z-10">
-			<div
-				ref={contentRef}
-				className="portfolio-stack-related w-full"
-				style={{ maxWidth: HERO_COLUMN_MAX_WIDTH }}
-			>
-				<HeadingReveal
-					as="h1"
-					phase={1}
-					className="portfolio-heading-xl portfolio-capsize-heading-xl w-fit max-w-full text-surface-800 dark:text-surface-100"
-					style={{ margin: 0 }}
-				>
-					Complex systems, clean interfaces.
-				</HeadingReveal>
-				<Reveal phase={2} delay={0.05}>
-					<p
-						className="portfolio-body-lg text-surface-700 dark:text-surface-300"
-						style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
+			<div className="portfolio-stack-related w-full" style={{ maxWidth: HERO_COLUMN_MAX_WIDTH }}>
+				<div ref={readZoneRef} className="portfolio-stack-related">
+					<HeadingReveal
+						as="h1"
+						phase={1}
+						className="portfolio-heading-xl portfolio-capsize-heading-xl w-fit max-w-full text-surface-800 dark:text-surface-100"
+						style={{ margin: 0 }}
 					>
-						I build CRMs, billing systems, document workflows, and{" "}
-						<span className="whitespace-nowrap">AI pipelines</span> that replace manual
-						work. Internal tools and SaaS for small businesses, made to feel simple to
-						use.
-					</p>
-				</Reveal>
+						Complex systems, clean interfaces.
+					</HeadingReveal>
+					<Reveal phase={2} delay={0.05}>
+						<p
+							className="portfolio-body-lg text-surface-700 dark:text-surface-300"
+							style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
+						>
+							I build CRMs, billing systems, document workflows, and{" "}
+							<span className="whitespace-nowrap">AI pipelines</span> that replace manual
+							work. Internal tools and SaaS for small businesses, made to feel simple to
+							use.
+						</p>
+					</Reveal>
+				</div>
 				<Reveal phase={2} delay={0.1}>
 					<div className="portfolio-control-row pointer-events-auto">
 						<Button
@@ -112,12 +110,12 @@ function HeroInstrumentPlane({
 
 export function SiteHero() {
 	const sectionRef = useRef<HTMLElement | null>(null);
-	const contentRef = useRef<HTMLDivElement | null>(null);
+	const readZoneRef = useRef<HTMLDivElement | null>(null);
 	const [readZone, setReadZone] = useState<HeroReadZone | null>(null);
 
 	useLayoutEffect(() => {
 		const section = sectionRef.current;
-		const content = contentRef.current;
+		const content = readZoneRef.current;
 		if (!section || !content) return;
 
 		const updateReadZone = () => {
@@ -126,15 +124,16 @@ export function SiteHero() {
 
 			if (sectionRect.width <= 0 || sectionRect.height <= 0) return;
 
-			const padX = Math.min(sectionRect.width * 0.04, 48);
-			const padY = Math.min(sectionRect.height * 0.08, 56);
+			const padX = Math.min(sectionRect.width * 0.025, 28);
+			const padTop = Math.min(sectionRect.height * 0.04, 24);
+			const padBottom = Math.min(sectionRect.height * 0.012, 8);
 
 			const left = Math.max(0, contentRect.left - sectionRect.left - padX);
-			const top = Math.max(0, contentRect.top - sectionRect.top - padY);
+			const top = Math.max(0, contentRect.top - sectionRect.top - padTop);
 			const right = Math.min(sectionRect.width, contentRect.right - sectionRect.left + padX);
 			const bottom = Math.min(
 				sectionRect.height,
-				contentRect.bottom - sectionRect.top + padY,
+				contentRect.bottom - sectionRect.top + padBottom,
 			);
 
 			setReadZone({
@@ -160,7 +159,7 @@ export function SiteHero() {
 	return (
 		<section ref={sectionRef} id="hero" className="relative isolate w-full overflow-hidden">
 			<HeroInstrumentPlane className="opacity-100 dark:opacity-100" readZone={readZone} />
-			<HeroContent contentRef={contentRef} />
+			<HeroContent readZoneRef={readZoneRef} />
 		</section>
 	);
 }

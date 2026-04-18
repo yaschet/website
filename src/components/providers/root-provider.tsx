@@ -10,6 +10,7 @@ import { useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Toaster } from "@/src/components/ui/sonner";
 import { NAVIGATION_SHORTCUTS } from "@/src/constants/navigation";
+import { DevAgentation } from "./dev-agentation";
 import { RevealProvider } from "./reveal-provider";
 import { WebVitals } from "./web-vitals";
 
@@ -77,6 +78,7 @@ export default function RootProvider({ children }: Readonly<{ children: React.Re
 						position="top-right"
 						richColors={false}
 					/>
+					<DevAgentation />
 				</RevealProvider>
 			</ThemeProvider>
 		</QueryClientProvider>

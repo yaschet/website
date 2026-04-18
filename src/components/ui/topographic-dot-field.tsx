@@ -241,44 +241,36 @@ float heroDetailActivity(vec2 uv) {
     return 1.0;
   }
 
-  float readZone = heroReadZoneMask(uv);
   float x = sm3(0.30, 0.90, uv.x);
   float y = sm3(0.48, 0.98, uv.y);
   float lowerRightLift = y * x * 0.14 + y * 0.05;
-  float activity = clamp(mix(0.14, 1.0, x) + lowerRightLift, 0.14, 1.0);
 
-  return mix(activity, activity * 0.34, readZone);
+  return clamp(mix(0.14, 1.0, x) + lowerRightLift, 0.14, 1.0);
 }
 
 float terrainFieldValue(vec2 uv, float time) {
   float aspect = uRes.x / uRes.y;
   vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
   float heroActivity = heroDetailActivity(uv);
-  float readZone = heroReadZoneMask(uv);
-  float readZoneWarp = mix(1.0, 0.22, readZone);
-  float readZoneCoarse = mix(1.0, 0.86, readZone);
-  float readZoneMiddle = mix(1.0, 0.18, readZone);
-  float readZoneDetail = mix(1.0, 0.06, readZone);
-  float readZoneField = mix(1.0, 0.52, readZone);
 
   vec2 warp = vec2(
     snoise(vec3(p * 0.85 + vec2(1.2, -0.8), time * 0.09)),
     snoise(vec3(p * 0.85 + vec2(-3.7, 2.4), time * 0.09))
   );
-  warp *= mix(0.20, 1.0, heroActivity) * readZoneWarp;
+  warp *= mix(0.20, 1.0, heroActivity);
 
   vec2 q = p * 1.05 + warp * 0.28;
 
   float coarse = snoise(vec3(q * 0.85, time * 0.11));
   float middle = snoise(vec3(q * 1.75 + vec2(2.7, -1.6), time * 0.15));
   float detail = snoise(vec3(q * 3.3 + vec2(-4.4, 3.1), time * 0.21));
-  coarse *= mix(0.76, 1.0, heroActivity) * readZoneCoarse;
-  middle *= mix(0.24, 1.0, heroActivity) * readZoneMiddle;
-  detail *= mix(0.06, 1.0, heroActivity) * readZoneDetail;
+  coarse *= mix(0.76, 1.0, heroActivity);
+  middle *= mix(0.24, 1.0, heroActivity);
+  detail *= mix(0.06, 1.0, heroActivity);
 
   float field = coarse * 0.58 + middle * 0.28 + detail * 0.14;
   field = field * 0.5 + 0.5;
-  field = mix(0.5, field, mix(0.60, 1.0, heroActivity) * readZoneField);
+  field = mix(0.5, field, mix(0.60, 1.0, heroActivity));
   field = sm3(0.16, 0.88, field);
 
   float topLift = (1.0 - sm3(0.04, 0.30, uv.y)) * 0.04;
@@ -366,7 +358,7 @@ float contentShield(vec2 uv) {
   }
 
   if (uReadActive > 0.5) {
-    return heroReadZoneMask(uv) * 0.86;
+    return 0.0;
   }
 
   float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 0.98;
@@ -383,14 +375,12 @@ float heroActivityEnvelope(vec2 uv) {
     return 1.0;
   }
 
-  float readZone = heroReadZoneMask(uv);
   float x = sm3(0.22, 0.86, uv.x);
   float y = sm3(0.34, 0.96, uv.y);
   float rightBias = mix(0.58, 1.0, x);
   float lowerRightLift = y * x * 0.18 + y * 0.08;
-  float envelope = clamp(rightBias + lowerRightLift, 0.58, 1.0);
 
-  return mix(envelope, envelope * 0.42, readZone);
+  return clamp(rightBias + lowerRightLift, 0.58, 1.0);
 }
 
 float resolvedField(vec2 uv, float time) {
@@ -427,6 +417,7 @@ float resolvedField(vec2 uv, float time) {
 void main() {
   vec2 cssCoord = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
   vec2 uv = cssCoord / uRes;
+  float heroSurface = 1.0 - step(0.5, uSurface);
   bool insideGridBounds =
     cssCoord.x >= uGridMin.x && cssCoord.x <= uGridMax.x &&
     cssCoord.y >= uGridMin.y && cssCoord.y <= uGridMax.y;
@@ -456,19 +447,29 @@ void main() {
 
   float pulseVariant = step(0.5, uVariant);
   float fieldGradient = length(vec2(dFdx(field), dFdy(field)));
-  float contourWidth = mix(1.05, 0.92, uDark);
-  float contour = 0.0;
-  contour = max(contour, contourBand(field, u0, fieldGradient, contourWidth));
-  contour = max(contour, contourBand(field, u1, fieldGradient, contourWidth));
-  contour = max(contour, contourBand(field, u2, fieldGradient, contourWidth));
-  contour = max(contour, contourBand(field, u3, fieldGradient, contourWidth));
+  float contourWidth = mix(1.05, 0.92, uDark) * mix(1.0, 0.94, heroSurface);
+  float contour0 = contourBand(field, u0, fieldGradient, contourWidth) * mix(1.0, 0.0, heroSurface);
+  float contour1 = contourBand(field, u1, fieldGradient, contourWidth) * mix(1.0, 0.16, heroSurface);
+  float contour2 = contourBand(field, u2, fieldGradient, contourWidth) * mix(1.0, 0.38, heroSurface);
+  float contour3 = contourBand(field, u3, fieldGradient, contourWidth) * mix(1.0, 0.72, heroSurface);
+  float contour = max(max(contour0, contour1), max(contour2, contour3));
 
-  vec4 underlay = vec4(0.0);
+  float underlayFloor = sm3(mix(0.18, 0.08, uDark), u0 + mix(0.06, 0.04, uDark), field);
+  float underlayT01 = sm3(u0, u1, field);
+  float underlayT12 = sm3(u1, u2, field);
+  float underlayT23 = sm3(u2, u3, field);
+  vec3 underlayRgb = mix(uUC0, uUC1, underlayT01);
+  underlayRgb = mix(underlayRgb, uUC2, underlayT12);
+  underlayRgb = mix(underlayRgb, uUC3, underlayT23);
+  float underlayAlpha = mix(uUA0, uUA1, underlayT01);
+  underlayAlpha = mix(underlayAlpha, uUA2, underlayT12);
+  underlayAlpha = mix(underlayAlpha, uUA3, underlayT23);
+  vec4 underlay = vec4(underlayRgb, underlayAlpha * underlayFloor);
   int underlayBand = 0;
-  if      (field >= u3) { underlay = vec4(uUC3, uUA3); underlayBand = 4; }
-  else if (field >= u2) { underlay = vec4(uUC2, uUA2); underlayBand = 3; }
-  else if (field >= u1) { underlay = vec4(uUC1, uUA1); underlayBand = 2; }
-  else if (field >= u0) { underlay = vec4(uUC0, uUA0); underlayBand = 1; }
+  if      (field >= u3) { underlayBand = 4; }
+  else if (field >= u2) { underlayBand = 3; }
+  else if (field >= u1) { underlayBand = 2; }
+  else if (field >= u0 || underlayFloor > 0.0) { underlayBand = 1; }
 
   vec4 dots = vec4(0.0);
   if (inDot) {
@@ -513,13 +514,15 @@ void main() {
     }
   }
 
-  vec3 contourRgb = mix(uLC2, uLC3, mix(0.42, 0.58, uDark));
+  vec3 contourRgb = mix(uLC0, uLC1, underlayT01);
+  contourRgb = mix(contourRgb, uLC2, underlayT12);
+  contourRgb = mix(contourRgb, uLC3, underlayT23);
   vec4 contourStroke = vec4(contourRgb, contour * mix(mix(0.74, 0.48, uDark), 0.0, pulseVariant));
-  float heroReadTone = uSurface > 0.5 ? 0.0 : max(readZone * 0.72, clamp(shield * 0.82, 0.0, 0.66));
+  float heroReadTone = uSurface > 0.5 ? 0.0 : readZone * mix(0.16, 0.22, uDark);
 
-  underlay.rgb = mix(underlay.rgb, uBG, heroReadTone * 0.64);
-  dots.rgb = mix(dots.rgb, uBG, heroReadTone * 0.90);
-  contourStroke.rgb = mix(contourStroke.rgb, uBG, heroReadTone * 0.92);
+  underlay.rgb = mix(underlay.rgb, uBG, heroReadTone * 0.28);
+  dots.rgb = mix(dots.rgb, uBG, heroReadTone * 0.44);
+  contourStroke.rgb = mix(contourStroke.rgb, uBG, heroReadTone * 0.58);
 
   underlay.a *= heroEnvelope;
   dots.a *= heroEnvelope;
@@ -527,12 +530,13 @@ void main() {
   underlay.a *= mix(1.0, mix(mix(0.20, 0.28, uDark), mix(0.12, 0.18, uDark), pulseVariant), shield);
   dots.a *= mix(1.0, mix(mix(0.18, 0.24, uDark), mix(0.14, 0.18, uDark), pulseVariant), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
-  underlay.a *= mix(1.0, 0.72, heroReadTone);
-  dots.a *= mix(1.0, 0.14, heroReadTone);
-  contourStroke.a *= mix(1.0, mix(0.18, 0.28, uDark), heroReadTone);
-  dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
-  contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark);
-  contourStroke.a *= 1.0 + mouseCore * uMousePress * mix(0.18, 0.28, uDark);
+  underlay.a *= mix(1.0, 0.96, heroReadTone);
+  dots.a *= mix(1.0, 0.84, heroReadTone);
+  contourStroke.a *= mix(1.0, mix(0.90, 0.84, uDark), heroReadTone);
+  float heroInteraction = mix(1.0, 0.62, heroSurface);
+  dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark) * heroInteraction;
+  contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark) * heroInteraction;
+  contourStroke.a *= 1.0 + mouseCore * uMousePress * mix(0.18, 0.28, uDark) * heroInteraction;
 
   if (uDark < 0.5) {
     vec4 lightBase = vec4(uBG, 1.0);
@@ -585,6 +589,16 @@ function linkProgram(
 
 function clampInt(value: number, min: number, max: number) {
 	return Math.min(max, Math.max(min, value));
+}
+
+function mixRgb(from: RGB, to: RGB, amount: number): RGB {
+	const t = Math.min(1, Math.max(0, amount));
+
+	return [
+		clampInt(Math.round(from[0] + (to[0] - from[0]) * t), 0, 255),
+		clampInt(Math.round(from[1] + (to[1] - from[1]) * t), 0, 255),
+		clampInt(Math.round(from[2] + (to[2] - from[2]) * t), 0, 255),
+	];
 }
 
 function srgbChannelToByte(value: number) {
@@ -768,8 +782,16 @@ function resolvePalette(node: HTMLElement, isDark: boolean, surface: InstrumentS
 	const alphaPalette = isDark ? DARK_ALPHA_PALETTE : LIGHT_ALPHA_PALETTE;
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
 	const baseSurface = resolveSurfaceTone(node, 500, neutralFallback);
+	const heroBaseSurface = resolveSurfaceTone(node, isDark ? 950 : 50, baseSurface);
 	const resolveTone = (tone: number) => resolveSurfaceTone(node, tone, baseSurface);
 	const isHero = surface === "hero";
+	const heroToneShift = 0.3;
+	const refineHeroTone = (tone: number) => {
+		const color = resolveTone(tone);
+		return isHero ? mixRgb(color, heroBaseSurface, heroToneShift) : color;
+	};
+	const heroBlendTone = (from: number, to: number, amount: number) =>
+		mixRgb(refineHeroTone(from), refineHeroTone(to), amount);
 
 	const activeTones = isHero
 		? isDark
@@ -787,41 +809,87 @@ function resolvePalette(node: HTMLElement, isDark: boolean, surface: InstrumentS
 			? [950, 900, 800, 700]
 			: [100, 200, 300, 400];
 
+	const activeColors = isHero
+		? isDark
+			? [
+					heroBlendTone(700, 600, 0.18),
+					heroBlendTone(600, 500, 0.24),
+					heroBlendTone(500, 400, 0.28),
+					heroBlendTone(400, 300, 0.22),
+				]
+			: [
+					heroBlendTone(300, 400, 0.24),
+					heroBlendTone(400, 500, 0.28),
+					heroBlendTone(500, 600, 0.24),
+					heroBlendTone(600, 700, 0.18),
+				]
+		: activeTones.map((tone) => refineHeroTone(tone));
+
+	const underlayColors = isHero
+		? isDark
+			? [
+					heroBlendTone(950, 900, 0.28),
+					heroBlendTone(900, 800, 0.36),
+					heroBlendTone(800, 700, 0.42),
+					heroBlendTone(700, 600, 0.30),
+				]
+			: [
+					heroBlendTone(50, 100, 0.42),
+					heroBlendTone(100, 200, 0.42),
+					heroBlendTone(200, 300, 0.50),
+					heroBlendTone(300, 400, 0.42),
+				]
+		: underlayTones.map((tone) => refineHeroTone(tone));
+
+	const activeAlpha = isHero
+		? isDark
+			? [0.12, 0.18, 0.28, 0.4]
+			: [0.16, 0.22, 0.32, 0.44]
+		: alphaPalette.active.map((tone) => tone.alpha);
+
+	const underlayAlpha = isHero
+		? isDark
+			? [0.08, 0.12, 0.17, 0.24]
+			: [0.12, 0.18, 0.24, 0.32]
+			? [0.08, 0.12, 0.17, 0.24]
+			: [0.08, 0.12, 0.17, 0.24]
+		: alphaPalette.underlay.map((tone) => tone.alpha);
+
 	return {
 		active: [
 			{
-				color: resolveTone(activeTones[0]),
-				alpha: alphaPalette.active[0].alpha,
+				color: activeColors[0],
+				alpha: activeAlpha[0],
 			},
 			{
-				color: resolveTone(activeTones[1]),
-				alpha: alphaPalette.active[1].alpha,
+				color: activeColors[1],
+				alpha: activeAlpha[1],
 			},
 			{
-				color: resolveTone(activeTones[2]),
-				alpha: alphaPalette.active[2].alpha,
+				color: activeColors[2],
+				alpha: activeAlpha[2],
 			},
 			{
-				color: resolveTone(activeTones[3]),
-				alpha: alphaPalette.active[3].alpha,
+				color: activeColors[3],
+				alpha: activeAlpha[3],
 			},
 		],
 		underlay: [
 			{
-				color: resolveTone(underlayTones[0]),
-				alpha: alphaPalette.underlay[0].alpha,
+				color: underlayColors[0],
+				alpha: underlayAlpha[0],
 			},
 			{
-				color: resolveTone(underlayTones[1]),
-				alpha: alphaPalette.underlay[1].alpha,
+				color: underlayColors[1],
+				alpha: underlayAlpha[1],
 			},
 			{
-				color: resolveTone(underlayTones[2]),
-				alpha: alphaPalette.underlay[2].alpha,
+				color: underlayColors[2],
+				alpha: underlayAlpha[2],
 			},
 			{
-				color: resolveTone(underlayTones[3]),
-				alpha: alphaPalette.underlay[3].alpha,
+				color: underlayColors[3],
+				alpha: underlayAlpha[3],
 			},
 		],
 	};
@@ -896,6 +964,7 @@ export function InstrumentField({
 	interactive = true,
 	step = 18,
 	minInset = 12,
+	readZone = null,
 	radius = 1.15,
 	origin = "center",
 	speed = 1,
@@ -1220,6 +1289,9 @@ export function InstrumentField({
 				uMousePress: getUniform("uMousePress"),
 				uMouseStrength: getUniform("uMouseStrength"),
 				uBG: getUniform("uBG"),
+				uReadCenter: getUniform("uReadCenter"),
+				uReadSize: getUniform("uReadSize"),
+				uReadActive: getUniform("uReadActive"),
 				uLC0: getUniform("uLC0"),
 				uLA0: getUniform("uLA0"),
 				uLC1: getUniform("uLC1"),
@@ -1322,6 +1394,15 @@ export function InstrumentField({
 		gl.uniform2f(uniforms.uMouse, 0.5, 0.5);
 		gl.uniform1f(uniforms.uMousePress, 0);
 		gl.uniform1f(uniforms.uMouseStrength, 0);
+		if (uniforms.uReadCenter) {
+			gl.uniform2f(uniforms.uReadCenter, readZone?.centerX ?? 0.5, readZone?.centerY ?? 0.5);
+		}
+		if (uniforms.uReadSize) {
+			gl.uniform2f(uniforms.uReadSize, readZone?.width ?? 0.0, readZone?.height ?? 0.0);
+		}
+		if (uniforms.uReadActive) {
+			gl.uniform1f(uniforms.uReadActive, readZone ? 1 : 0);
+		}
 		if (uniforms.uBG) {
 			gl.uniform3f(
 				uniforms.uBG,
@@ -1406,6 +1487,7 @@ export function InstrumentField({
 		surface,
 		tone,
 		variant,
+		readZone,
 	]);
 
 	return (
