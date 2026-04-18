@@ -310,12 +310,13 @@ float contentShield(vec2 uv) {
     return sm3(0.08, 0.90, shield);
   }
 
-  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 1.18;
-  float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
-  float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
+  float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 0.98;
+  float body = gauss2(uv, vec2(0.31, 0.49), vec2(0.34, 0.20)) * 0.84;
+  float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.21, 0.12)) * 0.80;
+  float column = gauss2(uv, vec2(0.28, 0.50), vec2(0.40, 0.32)) * 0.22;
   float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
-  float shield = max(max(title, body), max(cta, mobile * 0.66));
-  return sm3(0.08, 0.90, shield);
+  float shield = max(max(title, body), max(cta, max(column, mobile * 0.56)));
+  return sm3(0.18, 0.94, shield);
 }
 
 float resolvedField(vec2 uv, float time) {
