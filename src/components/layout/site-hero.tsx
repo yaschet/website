@@ -14,9 +14,8 @@ import { Reveal } from "@/components/ui/reveal";
 import { InstrumentField } from "@/components/ui/topographic-dot-field";
 import { cn } from "@/lib/utils";
 
-const HERO_COLUMN_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 44)";
-const HERO_HEADLINE_MAX_WIDTH = "20ch";
-const HERO_BODY_MAX_WIDTH = "42ch";
+const HERO_COLUMN_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 50)";
+const HERO_BODY_MAX_WIDTH = "46ch";
 
 function HeroContent() {
 	return (
@@ -28,26 +27,20 @@ function HeroContent() {
 				<HeadingReveal
 					as="h1"
 					phase={1}
-					className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100"
-					style={{ maxWidth: HERO_HEADLINE_MAX_WIDTH, margin: 0 }}
+					className="portfolio-heading-xl portfolio-capsize-heading-xl w-fit max-w-full text-surface-900 dark:text-surface-100"
+					style={{ margin: 0 }}
 				>
-					<>
-						Complex systems,
-						<br />
-						clean interfaces.
-					</>
+					Complex systems, clean interfaces.
 				</HeadingReveal>
 				<Reveal phase={2} delay={0.05}>
 					<p
 						className="portfolio-body-lg text-surface-900 dark:text-surface-100"
 						style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
 					>
-						Translation pipelines. Matching engines. Financial ledgers.
-						<br className="hidden md:block" />
-						<span className="md:pl-0">
-							{" "}
-							Built to hold under pressure, made to feel effortless.
-						</span>
+						I build software that small businesses run their operations on. CRMs,
+						billing systems, document automation, AI pipelines that replace manual work.
+						Some of it internal, some of it SaaS. I like when something complicated ends
+						up feeling simple to use.
 					</p>
 				</Reveal>
 				<Reveal phase={2} delay={0.1}>
