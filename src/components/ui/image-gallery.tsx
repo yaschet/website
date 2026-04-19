@@ -89,10 +89,9 @@ type ResolvedGalleryItem =
 	  };
 
 const GALLERY_CONTROL_CLASS_NAME = cn(
-	"flex h-11 min-w-11 items-center justify-center gap-2 px-3",
-	"border border-surface-700/45 bg-surface-950/68 text-surface-50 backdrop-blur-sm",
-	"transition-[opacity,background-color,border-color,color] duration-200 hover:bg-surface-950/82 hover:text-surface-50",
-	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-950/50 px-3 text-white",
+	"hover:bg-surface-950/60",
+	"focus-visible:outline-none",
 	"disabled:pointer-events-none disabled:opacity-35",
 );
 
@@ -514,7 +513,7 @@ export function ImageGallery({
 											<Play
 												size={18}
 												weight="fill"
-												className="translate-x-px"
+												className="-translate-x-0.5"
 											/>
 											<span className="font-mono text-[10px] uppercase tracking-[0.22em]">
 												{item.duration

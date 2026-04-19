@@ -14,7 +14,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
-import type { ComponentProps, CSSProperties, KeyboardEvent, MouseEvent } from "react";
+import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	DropdownMenu,
@@ -23,9 +23,9 @@ import {
 	DropdownMenuRadioItem,
 	DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
+import type { MuxVideoMetadata } from "@/src/content/types";
 import { cn } from "@/src/lib/index";
 
-type MuxVideoMetadata = ComponentProps<typeof MuxVideo>["metadata"];
 type PortfolioMuxVideoVariant = "gallery" | "lightbox" | "article";
 
 interface PortfolioMuxVideoProps {
@@ -176,7 +176,7 @@ export function PortfolioMuxVideo({
 	const instanceIdRef = useRef(++nextPortfolioMuxVideoId);
 	const playbackCommandIdRef = useRef(0);
 	const desiredPlayingRef = useRef(Boolean(autoPlay));
-	const sourceSyncNonceRef = useRef(0);
+	const lastSourceRepairTimestampRef = useRef(0);
 	const [isPlaying, setIsPlaying] = useState(Boolean(autoPlay));
 	const [isMuted, setIsMuted] = useState(muted);
 	const [volume, setVolume] = useState(1);
@@ -234,7 +234,7 @@ export function PortfolioMuxVideo({
 
 		playbackCommandIdRef.current += 1;
 		desiredPlayingRef.current = false;
-		pauseMuxMediaElement(media, options && !options.unload ? options : undefined);
+		pauseMuxMediaElement(media, options);
 
 		setIsPlaying(false);
 		setOpenMenu(null);
@@ -247,33 +247,47 @@ export function PortfolioMuxVideo({
 			if (!media) return;
 
 			const expectedSrc = resolvedPlaybackSrc;
-			const currentAttrSrc = media.getAttribute("src");
-			const currentAttrPlaybackId = media.getAttribute("playback-id");
-
-			if (currentAttrPlaybackId !== playbackId) {
-				media.setAttribute("playback-id", playbackId);
-			}
-
-			if (currentAttrSrc !== expectedSrc) {
-				media.setAttribute("src", expectedSrc);
-			}
-
-			const currentSource = media.currentSrc || media.src || media.getAttribute("src") || "";
+			const currentSource = media.currentSrc || media.src || "";
 			const sourceLooksMissing =
 				!currentSource ||
 				(!currentSource.includes(playbackId) && currentSource !== expectedSrc);
+			const sourceNeedsRepair = media.src !== expectedSrc || sourceLooksMissing;
 
-			if (
-				options?.forceLoad ||
-				sourceLooksMissing ||
-				media.networkState === HTMLMediaElement.NETWORK_EMPTY
-			) {
-				sourceSyncNonceRef.current += 1;
-				media.load();
+			if (sourceNeedsRepair) {
+				media.src = expectedSrc;
 			}
+
+			const shouldReload =
+				options?.forceLoad ||
+				sourceNeedsRepair ||
+				media.networkState === HTMLMediaElement.NETWORK_EMPTY;
+
+			if (!shouldReload) return;
+
+			const now = Date.now();
+			if (!options?.forceLoad && now - lastSourceRepairTimestampRef.current < 250) {
+				return;
+			}
+
+			lastSourceRepairTimestampRef.current = now;
+			media.load();
 		},
 		[playbackId, resolvedPlaybackSrc],
 	);
+
+	const applyStableMediaConfig = useCallback(() => {
+		const media = mediaRef.current;
+		if (!media) return;
+
+		media.loop = loop;
+		media.muted = muted;
+		media.defaultMuted = muted;
+		media.playsInline = true;
+		media.poster = posterSrc ?? "";
+		media.preload = autoPlay || variant !== "article" ? "auto" : "metadata";
+		media.streamType = "on-demand";
+		media.metadata = metadata ?? {};
+	}, [autoPlay, loop, metadata, muted, posterSrc, variant]);
 
 	const scheduleControlsHide = useCallback(() => {
 		clearControlsTimeout();
@@ -333,6 +347,8 @@ export function PortfolioMuxVideo({
 			const commandId = ++playbackCommandIdRef.current;
 			desiredPlayingRef.current = true;
 			setControlsVisible(true);
+			applyStableMediaConfig();
+			ensureMediaSource({ forceLoad: media.networkState === HTMLMediaElement.NETWORK_EMPTY });
 			pauseOtherDocumentMedia(media);
 
 			try {
@@ -358,7 +374,13 @@ export function PortfolioMuxVideo({
 		}
 
 		stopPlayback();
-	}, [pauseOtherDocumentMedia, stopPlayback, syncFromMedia]);
+	}, [
+		applyStableMediaConfig,
+		ensureMediaSource,
+		pauseOtherDocumentMedia,
+		stopPlayback,
+		syncFromMedia,
+	]);
 
 	const toggleMute = useCallback(() => {
 		const media = mediaRef.current;
@@ -493,6 +515,10 @@ export function PortfolioMuxVideo({
 			}
 		};
 	}, [ensureMediaSource, syncFromMedia]);
+
+	useEffect(() => {
+		applyStableMediaConfig();
+	}, [applyStableMediaConfig]);
 
 	useEffect(() => {
 		ensureMediaSource({ forceLoad: true });
@@ -702,25 +728,17 @@ export function PortfolioMuxVideo({
 			}}
 			onPointerMove={handlePointerActivity}
 		>
-			<MuxVideo
+			<mux-video
 				ref={mediaRef}
 				className="portfolio-mux-video-host block size-full"
 				tabIndex={0}
+				data-playback-id={playbackId}
 				style={
 					{
 						"--media-object-fit": variant === "lightbox" ? "contain" : "cover",
 						"--media-object-position": "center",
-					} as ComponentProps<typeof MuxVideo>["style"]
+					} as CSSProperties
 				}
-				playbackId={playbackId}
-				src={resolvedPlaybackSrc}
-				metadata={metadata}
-				poster={posterSrc}
-				loop={loop}
-				muted={muted}
-				playsInline
-				streamType="on-demand"
-				preload={autoPlay || variant !== "article" ? "auto" : "metadata"}
 			/>
 
 			<div className="pointer-events-none absolute inset-x-4 top-4 z-20 flex justify-end">
