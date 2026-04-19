@@ -1,30 +1,32 @@
 /**
- * ImageGallery - Shared gallery primitive.
+ * ImageGallery - Shared rich media gallery.
  *
  * @remarks
- * Reusable gallery component with "240hz OLED" performance tuning:
- * - Layout Isolation: Uses `contain: content` to prevent reflow propagation
- * - Paint Optimization: Uses `will-change: transform` for slider
- * - Pixel-based Height: Animates explicit pixel height (smoother than % padding)
- * - Smart Windowing: Renders only active image + neighbors (±1)
- * - GPU Acceleration: Opacity/Transform only for controls
+ * Supports image and Mux video tiles, always-visible controls, scroll-snap
+ * navigation, and an optional expanded viewer for detail pages.
  *
  * @public
  */
 
 "use client";
 
-import { CaretLeft, CaretRight } from "@phosphor-icons/react/dist/ssr";
-import { animate, motion, type PanInfo, useMotionValue } from "framer-motion";
+import MuxPlayer from "@mux/mux-player-react";
+import { CaretLeft, CaretRight, Play, X } from "@phosphor-icons/react/dist/ssr";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { GalleryLightbox } from "@/src/components/ui/gallery-lightbox";
+import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
-import { cn, springs } from "@/src/lib/index";
+import type { GalleryMediaSource } from "@/src/lib/gallery-media";
+import { cn } from "@/src/lib/index";
 
 interface ImageGalleryProps {
-	/** Array of image sources (strings or static imports) */
-	images: (string | StaticImageData)[];
+	/** Rich gallery items. Preferred over legacy `images`. */
+	items?: GalleryMediaSource[];
+	/** Legacy array of image sources (strings or static imports). */
+	images?: (string | StaticImageData)[];
 	/** Alt text for each image (optional) */
 	alts?: string[];
 	/** Default alt prefix if alts not provided */
@@ -44,6 +46,8 @@ interface ImageGalleryProps {
 	showCounter?: boolean;
 	/** Enable keyboard navigation */
 	enableKeyboard?: boolean;
+	/** Allow opening the expanded lightbox viewer */
+	expandable?: boolean;
 	/** Additional class names */
 	className?: string;
 	/** Additional class names applied to each rendered image */
@@ -58,9 +62,33 @@ interface ImageGalleryProps {
 	prioritizeFirstImage?: boolean;
 }
 
-/**
- * Parse aspect ratio string to number (e.g., "16/9" → 1.777)
- */
+type ResolvedGalleryItem =
+	| {
+			kind: "image";
+			src: string | StaticImageData;
+			alt: string;
+			caption?: string;
+	  }
+	| {
+			kind: "mux-video";
+			playbackId: string;
+			poster: string | StaticImageData;
+			title?: string;
+			alt: string;
+			caption?: string;
+			duration?: string;
+			metadata?: MuxVideoMetadata;
+	  };
+
+const GALLERY_CONTROL_CLASS_NAME = cn(
+	"flex h-11 min-w-11 items-center justify-center gap-2 px-3",
+	"border border-surface-200/80 bg-white/82 text-surface-900 shadow-[0_6px_18px_rgba(15,23,42,0.1)] backdrop-blur-md",
+	"transition-[opacity,background-color,border-color,color,transform] duration-200 hover:bg-white hover:text-surface-950",
+	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-900/15 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+	"disabled:pointer-events-none disabled:opacity-35",
+	"dark:border-surface-700/80 dark:bg-surface-950/80 dark:text-surface-50 dark:shadow-[0_8px_20px_rgba(0,0,0,0.32)] dark:hover:bg-surface-950",
+);
+
 function parseAspectRatio(ratio: string): number {
 	if (ratio.includes("/")) {
 		const [w, h] = ratio.split("/").map(Number);
@@ -69,18 +97,27 @@ function parseAspectRatio(ratio: string): number {
 	return Number.parseFloat(ratio) || 16 / 9;
 }
 
-/**
- * Extract aspect ratio from StaticImageData or return default
- */
-function getImageAspectRatio(src: string | StaticImageData): number {
-	if (typeof src !== "string" && src.width && src.height) {
-		return src.width / src.height;
+function getResolvedAspectRatio(item: ResolvedGalleryItem): number {
+	const asset = item.kind === "image" ? item.src : item.poster;
+
+	if (typeof asset !== "string" && asset.width && asset.height) {
+		return asset.width / asset.height;
 	}
-	return 16 / 9; // Default fallback
+
+	return 16 / 9;
+}
+
+function getGalleryItemKey(item: ResolvedGalleryItem): string {
+	if (item.kind === "image") {
+		return typeof item.src === "string" ? item.src : item.src.src;
+	}
+
+	return item.playbackId;
 }
 
 export function ImageGallery({
-	images: rawImages,
+	items,
+	images,
 	alts,
 	altPrefix = "Gallery image",
 	aspectRatio = "auto",
@@ -88,6 +125,7 @@ export function ImageGallery({
 	showProgress = true,
 	showCounter = false,
 	enableKeyboard = true,
+	expandable = false,
 	className,
 	imageClassName,
 	onIndexChange,
@@ -95,321 +133,551 @@ export function ImageGallery({
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw",
 	quality = 75,
 }: ImageGalleryProps) {
+	const outerRef = useRef<HTMLElement>(null);
+	const scrollContainerRef = useRef<HTMLDivElement>(null);
+	const scrollFrameRef = useRef<number | null>(null);
+	const activeIndexRef = useRef(0);
+	const shouldReduceMotion = useReducedMotion();
 	const [activeIndex, setActiveIndex] = useState(0);
-	const containerRef = useRef<HTMLDivElement>(null);
-	const hasMultiple = rawImages.length > 1;
-
-	// Track container width for specific pixel calculations
-	// We need this for accurate drag constraints and pixel-perfect height animation
+	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+	const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
+	const [isPointerInside, setIsPointerInside] = useState(false);
 	const [viewportWidth, setViewportWidth] = useState(0);
+	const [canHover, setCanHover] = useState(false);
 
-	// Resolve all images and standardize format
-	const resolvedImages = useMemo(() => {
-		return rawImages.map((rawSrc) => {
-			const src = typeof rawSrc === "string" ? resolveAsset(rawSrc) : rawSrc;
-			return {
-				src,
-				isStatic: typeof src !== "string",
-			};
-		});
-	}, [rawImages]);
+	const galleryItems = useMemo<ResolvedGalleryItem[]>(() => {
+		if (items?.length) {
+			return items.map((item, index) => {
+				if (item.kind === "image") {
+					const src = typeof item.src === "string" ? resolveAsset(item.src) : item.src;
+					return {
+						kind: "image",
+						src,
+						alt: item.alt ?? alts?.[index] ?? `${altPrefix} ${index + 1}`,
+						caption: item.caption,
+					};
+				}
 
-	// Compute aspect ratios for each image
+				const poster =
+					typeof item.poster === "string" ? resolveAsset(item.poster) : item.poster;
+
+				return {
+					kind: "mux-video",
+					playbackId: item.playbackId,
+					poster,
+					title: item.title,
+					alt: item.alt ?? item.title ?? alts?.[index] ?? `${altPrefix} ${index + 1}`,
+					caption: item.caption,
+					duration: item.duration,
+					metadata: item.metadata,
+				};
+			});
+		}
+
+		return (images ?? []).map((rawImage, index) => ({
+			kind: "image" as const,
+			src: typeof rawImage === "string" ? resolveAsset(rawImage) : rawImage,
+			alt: alts?.[index] ?? `${altPrefix} ${index + 1}`,
+		}));
+	}, [alts, altPrefix, images, items]);
+
+	const hasMultiple = galleryItems.length > 1;
+
 	const aspectRatios = useMemo(() => {
 		if (Array.isArray(aspectRatio)) {
-			// Explicit per-image ratios provided
 			return aspectRatio.map(parseAspectRatio);
 		}
 
 		if (aspectRatio === "auto") {
-			// Extract from static imports
-			return rawImages.map(getImageAspectRatio);
+			return galleryItems.map(getResolvedAspectRatio);
 		}
 
-		// Single fixed ratio for all
 		const fixed = parseAspectRatio(aspectRatio);
-		return rawImages.map(() => fixed);
-	}, [rawImages, aspectRatio]);
+		return galleryItems.map(() => fixed);
+	}, [aspectRatio, galleryItems]);
 
-	// Check if we have varying ratios (enables adaptive mode)
 	const hasVaryingRatios = useMemo(() => {
 		const first = aspectRatios[0];
-		// If ANY ratio deviates significantly, we treat it as adaptive
-		return aspectRatios.some((r) => Math.abs(r - first) > 0.01);
+		return aspectRatios.some((ratio) => Math.abs(ratio - first) > 0.01);
 	}, [aspectRatios]);
+	const activeItem = galleryItems[activeIndex];
+	const isActiveVideoPlaying = activeItem?.kind === "mux-video" && playingIndex === activeIndex;
+	const chromeVisible = isFocusedWithin || (canHover && isPointerInside);
 
-	// Animation Values
-	const x = useMotionValue(0);
-	const height = useMotionValue(0); // Pixel height animation
+	const currentHeight =
+		hasVaryingRatios && viewportWidth > 0
+			? viewportWidth / (aspectRatios[activeIndex] ?? 16 / 9)
+			: undefined;
 
-	// Update dimensions securely via ResizeObserver
-	useEffect(() => {
-		if (!containerRef.current) return;
+	const goToIndex = useCallback(
+		(index: number) => {
+			const nextIndex = Math.max(0, Math.min(index, galleryItems.length - 1));
+			const container = scrollContainerRef.current;
+			const width = viewportWidth || container?.clientWidth || 0;
 
-		const observer = new ResizeObserver((entries) => {
-			for (const entry of entries) {
-				const w = entry.contentRect.width;
-				setViewportWidth(w);
+			setActiveIndex(nextIndex);
+
+			if (container && width > 0) {
+				container.scrollTo({
+					left: nextIndex * width,
+					behavior: shouldReduceMotion ? "auto" : "smooth",
+				});
 			}
-		});
+		},
+		[galleryItems.length, shouldReduceMotion, viewportWidth],
+	);
 
-		observer.observe(containerRef.current);
-		return () => observer.disconnect();
-	}, []);
+	const goToNext = useCallback(() => {
+		goToIndex(activeIndex + 1);
+	}, [activeIndex, goToIndex]);
 
-	// Calculate and animate target height (Pixel Perf Power Move)
-	// We animate explicit PIXEL height, which is robust and stops % recalc thrashing
-	useEffect(() => {
-		if (viewportWidth === 0) return;
+	const goToPrev = useCallback(() => {
+		goToIndex(activeIndex - 1);
+	}, [activeIndex, goToIndex]);
 
-		const currentRatio = aspectRatios[activeIndex] || 16 / 9;
-		const targetHeight = viewportWidth / currentRatio;
-
-		if (height.get() === 0) {
-			// Initial set instant to avoid jump
-			height.set(targetHeight);
-		} else {
-			// Animate smoothly on change
-			animate(height, targetHeight, springs.gentle);
-		}
-	}, [viewportWidth, activeIndex, aspectRatios, height]);
-
-	// Slide Animation
-	useEffect(() => {
-		if (viewportWidth === 0) return;
-		const targetX = -activeIndex * viewportWidth;
-		animate(x, targetX, springs.layout);
-	}, [activeIndex, x, viewportWidth]);
-
-	// Notify parent of index change
 	useEffect(() => {
 		onIndexChange?.(activeIndex);
 	}, [activeIndex, onIndexChange]);
 
-	// Navigation functions (memoized to avoid dependency thrashing)
-	const goToNext = useCallback(() => {
-		setActiveIndex((prev) => Math.min(prev + 1, rawImages.length - 1));
-	}, [rawImages.length]);
+	useEffect(() => {
+		activeIndexRef.current = activeIndex;
+	}, [activeIndex]);
 
-	const goToPrev = useCallback(() => {
-		setActiveIndex((prev) => Math.max(prev - 1, 0));
+	useEffect(() => {
+		if (playingIndex !== null && playingIndex !== activeIndex) {
+			setPlayingIndex(null);
+		}
+	}, [activeIndex, playingIndex]);
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+		const syncCanHover = () => setCanHover(mediaQuery.matches);
+		syncCanHover();
+		mediaQuery.addEventListener("change", syncCanHover);
+		return () => mediaQuery.removeEventListener("change", syncCanHover);
 	}, []);
 
-	const goToIndex = useCallback(
-		(index: number) => {
-			setActiveIndex(Math.max(0, Math.min(index, rawImages.length - 1)));
-		},
-		[rawImages.length],
-	);
-
-	// Keyboard navigation
 	useEffect(() => {
-		if (!enableKeyboard) return;
+		if (!outerRef.current) return;
 
-		const handleKeyDown = (e: KeyboardEvent) => {
-			// Only capture if container is focused or hovered
-			if (!containerRef.current?.matches(":hover, :focus-within")) return;
-
-			if (e.key === "ArrowRight") {
-				e.preventDefault();
-				goToNext();
-			} else if (e.key === "ArrowLeft") {
-				e.preventDefault();
-				goToPrev();
+		const observer = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				setViewportWidth(entry.contentRect.width);
 			}
+		});
+
+		observer.observe(outerRef.current);
+		return () => observer.disconnect();
+	}, []);
+
+	useEffect(() => {
+		const container = scrollContainerRef.current;
+		if (!container || viewportWidth === 0) return;
+
+		container.scrollTo({
+			left: activeIndexRef.current * viewportWidth,
+			behavior: "auto",
+		});
+	}, [viewportWidth]);
+
+	useEffect(() => {
+		const container = scrollContainerRef.current;
+		if (!container) return;
+
+		const handleScroll = () => {
+			if (scrollFrameRef.current !== null) {
+				window.cancelAnimationFrame(scrollFrameRef.current);
+			}
+
+			scrollFrameRef.current = window.requestAnimationFrame(() => {
+				const width = container.clientWidth;
+				if (width === 0) return;
+				const nextIndex = Math.round(container.scrollLeft / width);
+				setActiveIndex((prev) => (prev === nextIndex ? prev : nextIndex));
+			});
 		};
 
-		document.addEventListener("keydown", handleKeyDown);
-		return () => document.removeEventListener("keydown", handleKeyDown);
-	}, [enableKeyboard, goToNext, goToPrev]);
+		container.addEventListener("scroll", handleScroll, { passive: true });
+		return () => {
+			container.removeEventListener("scroll", handleScroll);
+			if (scrollFrameRef.current !== null) {
+				window.cancelAnimationFrame(scrollFrameRef.current);
+			}
+		};
+	}, []);
 
-	// Swipe handling
-	const handleDragEnd = useCallback(
-		(_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-			const threshold = viewportWidth * 0.2;
-			const velocity = info.velocity.x;
+	const handleKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			if (!enableKeyboard) return;
 
-			if (info.offset.x < -threshold || velocity < -500) {
+			if (event.key === "ArrowRight") {
+				event.preventDefault();
 				goToNext();
-			} else if (info.offset.x > threshold || velocity > 500) {
+				return;
+			}
+
+			if (event.key === "ArrowLeft") {
+				event.preventDefault();
 				goToPrev();
-			} else {
-				// Snap back if threshold not met
-				const targetX = -activeIndex * viewportWidth;
-				animate(x, targetX, springs.layout);
+				return;
+			}
+
+			if ((event.key === "Enter" || event.key === " ") && expandable) {
+				const currentItem = galleryItems[activeIndex];
+				if (currentItem?.kind === "image") {
+					event.preventDefault();
+					setIsLightboxOpen(true);
+				}
 			}
 		},
-		[activeIndex, goToNext, goToPrev, x, viewportWidth],
+		[activeIndex, enableKeyboard, expandable, galleryItems, goToNext, goToPrev],
 	);
 
-	if (rawImages.length === 0) return null;
+	if (galleryItems.length === 0) return null;
 
 	return (
-		<motion.div
-			ref={containerRef}
-			className={cn(
-				"group relative w-full overflow-hidden bg-surface-100 dark:bg-surface-900",
-				// PERF: Layout Isolation
-				// 'contain-content' ensures internal layout changes don't reflow the page
-				// Note: 'contain: content' acts like overflow: hidden + optimizations
-				"contain-content",
-				className,
-			)}
-			style={{
-				// PERF: Pixel-perfect height animation or fixed aspect fallback
-				// If ratios vary, we animate height. If fixed, we set constant aspect-ratio.
-				height: hasVaryingRatios ? height : undefined,
-				aspectRatio: hasVaryingRatios ? undefined : `${aspectRatios[0]}`,
-				// Fix border radius issues during animation clipping
-				borderRadius: "var(--radius)",
-			}}
-		>
-			{/* Slider Track - GPU Accelerated Layer */}
-			<motion.div
-				className="flex h-full will-change-transform" // PERF: Hint to browser to prioritize compositing
+		<>
+			<section
+				ref={outerRef}
+				className={cn(
+					"relative w-full overflow-hidden bg-surface-100 dark:bg-surface-900",
+					"outline-none focus-visible:ring-2 focus-visible:ring-surface-900/15 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent dark:focus-visible:ring-surface-50/25",
+					className,
+				)}
 				style={{
-					width: `${rawImages.length * 100}%`,
-					x,
+					aspectRatio: hasVaryingRatios ? undefined : `${aspectRatios[0] ?? 16 / 9}`,
+					height: currentHeight,
+					transition: shouldReduceMotion ? undefined : "height 280ms ease",
 				}}
-				drag={hasMultiple ? "x" : false}
-				dragConstraints={{
-					left: -(rawImages.length - 1) * viewportWidth,
-					right: 0,
+				tabIndex={enableKeyboard ? 0 : undefined}
+				aria-roledescription="carousel"
+				aria-label={altPrefix}
+				onFocus={() => setIsFocusedWithin(true)}
+				onBlur={(event) => {
+					if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+						setIsFocusedWithin(false);
+					}
 				}}
-				dragElastic={0.1}
-				onDragEnd={handleDragEnd}
+				onKeyDown={handleKeyDown}
+				onPointerEnter={() => setIsPointerInside(true)}
+				onPointerLeave={() => setIsPointerInside(false)}
 			>
-				{resolvedImages.map(({ src, isStatic }, i) => {
-					// PERF: Smart Windowing
-					// Only render image content if it's Active or Neighbor (±1)
-					// We keep the container `div` for layout stability (flex-1), but empty content.
-					// This drastically reduces DOM nodes and heavy image decoding for long galleries.
-					const shouldRender = Math.abs(activeIndex - i) <= 1;
-
-					const alt = alts?.[i] || `${altPrefix} ${i + 1}`;
-
-					return (
-						<div
-							key={
-								typeof rawImages[i] === "string"
-									? rawImages[i]
-									: (rawImages[i] as StaticImageData).src
-							}
-							className="relative h-full flex-1"
-							aria-hidden={!shouldRender}
-						>
-							{shouldRender ? (
-								<Image
-									src={src}
-									alt={alt}
-									fill
-									sizes={sizes}
-									className={cn(
-										"pointer-events-none select-none",
-										// Use object-contain when adaptive (show full image)
-										// Use object-cover when fixed (crop to container)
-										hasVaryingRatios ? "object-contain" : "object-cover",
-										imageClassName,
-									)}
-									placeholder={isStatic ? "blur" : "empty"}
-									draggable={false}
-									priority={prioritizeFirstImage && i === 0} // Only prioritize above-the-fold galleries.
-									decoding="async"
-									quality={quality}
-								/>
-							) : null}
-						</div>
-					);
-				})}
-			</motion.div>
-
-			{/* CONTROLS LAYER */}
-			{/* Navigation Arrows — Ghost style (minimal, no borders) */}
-			{hasMultiple && showArrows && (
-				<>
-					{/* Left Arrow */}
-					<button
-						type="button"
-						onClick={(e) => {
-							e.preventDefault();
-							e.stopPropagation();
-							goToPrev();
-						}}
-						disabled={activeIndex === 0}
-						aria-label="Previous image"
-						className={cn(
-							"absolute top-1/2 left-4 z-20 -translate-y-1/2",
-							"flex size-8 items-center justify-center",
-							"text-white transition-opacity duration-200",
-							"opacity-0 group-hover:opacity-100",
-							"disabled:pointer-events-none disabled:opacity-0",
-						)}
-					>
-						<CaretLeft size={20} weight="bold" />
-					</button>
-
-					{/* Right Arrow */}
-					<button
-						type="button"
-						onClick={(e) => {
-							e.preventDefault();
-							e.stopPropagation();
-							goToNext();
-						}}
-						disabled={activeIndex === rawImages.length - 1}
-						aria-label="Next image"
-						className={cn(
-							"absolute top-1/2 right-4 z-20 -translate-y-1/2",
-							"flex size-8 items-center justify-center",
-							"text-white transition-opacity duration-200",
-							"opacity-0 group-hover:opacity-100",
-							"disabled:pointer-events-none disabled:opacity-0",
-						)}
-					>
-						<CaretRight size={20} weight="bold" />
-					</button>
-				</>
-			)}
-
-			{/* Scrim — Subtle gradient for control legibility on light images */}
-			{hasMultiple && (showProgress || showCounter) && (
 				<div
-					className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16"
+					ref={scrollContainerRef}
+					className={cn(
+						"flex h-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth",
+						"[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+						hasMultiple && "cursor-grab active:cursor-grabbing",
+					)}
 					style={{
-						background: "linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%)",
+						scrollbarWidth: "none",
 					}}
-					aria-hidden="true"
+				>
+					{galleryItems.map((item, index) => {
+						const isHovered = canHover && hoveredIndex === index;
+						const isPlayingInline = item.kind === "mux-video" && playingIndex === index;
+
+						const stageClassName = cn(
+							"relative h-full overflow-hidden bg-surface-100 dark:bg-surface-950",
+							item.kind === "image" && expandable && "cursor-zoom-in",
+						);
+						const stageContent = (
+							<>
+								<AnimatePresence mode="wait" initial={false}>
+									{isPlayingInline ? (
+										<motion.div
+											key="mux-player"
+											className="absolute inset-0"
+											initial={{ opacity: 0 }}
+											animate={{ opacity: 1 }}
+											exit={{ opacity: 0 }}
+											transition={{
+												duration: shouldReduceMotion ? 0 : 0.18,
+											}}
+										>
+											<MuxPlayer
+												playbackId={item.playbackId}
+												metadata={item.metadata}
+												accentColor="var(--accent)"
+												autoPlay
+												streamType="on-demand"
+												style={{ height: "100%", width: "100%" }}
+											/>
+										</motion.div>
+									) : (
+										<motion.div
+											key="gallery-stage"
+											className="absolute inset-0"
+											initial={{ opacity: 0 }}
+											animate={{ opacity: 1 }}
+											exit={{ opacity: 0 }}
+											transition={{
+												duration: shouldReduceMotion ? 0 : 0.18,
+											}}
+										>
+											<div
+												className={cn(
+													"absolute inset-0 transition-transform duration-[650ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none",
+													isHovered && "scale-[1.03]",
+												)}
+											>
+												{item.kind === "image" ? (
+													<Image
+														src={item.src}
+														alt={item.alt}
+														fill
+														sizes={sizes}
+														className={cn(
+															hasVaryingRatios
+																? "object-contain"
+																: "object-cover",
+															"pointer-events-none select-none",
+															imageClassName,
+														)}
+														placeholder={
+															typeof item.src === "string"
+																? "empty"
+																: "blur"
+														}
+														priority={
+															prioritizeFirstImage && index === 0
+														}
+														decoding="async"
+														draggable={false}
+														quality={quality}
+													/>
+												) : (
+													<Image
+														src={item.poster}
+														alt={item.alt}
+														fill
+														sizes={sizes}
+														className={cn(
+															hasVaryingRatios
+																? "object-contain"
+																: "object-cover",
+															"pointer-events-none select-none",
+															imageClassName,
+														)}
+														placeholder={
+															typeof item.poster === "string"
+																? "empty"
+																: "blur"
+														}
+														priority={
+															prioritizeFirstImage && index === 0
+														}
+														decoding="async"
+														draggable={false}
+														quality={quality}
+													/>
+												)}
+											</div>
+										</motion.div>
+									)}
+								</AnimatePresence>
+
+								{item.kind === "mux-video" && isPlayingInline && (
+									<div className="pointer-events-none absolute inset-x-4 top-4 z-20 flex items-start justify-end">
+										<div className="pointer-events-auto flex items-center gap-2">
+											<button
+												type="button"
+												className={GALLERY_CONTROL_CLASS_NAME}
+												aria-label="Return video tile to poster"
+												onClick={(event) => {
+													event.preventDefault();
+													event.stopPropagation();
+													setPlayingIndex(null);
+												}}
+											>
+												<X size={18} weight="bold" />
+											</button>
+										</div>
+									</div>
+								)}
+
+								{item.kind === "mux-video" && !isPlayingInline && (
+									<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-6">
+										<button
+											type="button"
+											className={cn(
+												GALLERY_CONTROL_CLASS_NAME,
+												"pointer-events-auto min-w-[11.5rem] justify-center px-4",
+											)}
+											onClick={(event) => {
+												event.preventDefault();
+												event.stopPropagation();
+												setActiveIndex(index);
+												setPlayingIndex(index);
+											}}
+											aria-label={
+												item.duration
+													? `Play video, duration ${item.duration}`
+													: "Play video"
+											}
+										>
+											<Play
+												size={18}
+												weight="fill"
+												className="translate-x-px"
+											/>
+											<span className="font-mono text-[10px] uppercase tracking-[0.22em]">
+												{item.duration
+													? `Play · ${item.duration}`
+													: "Play Demo"}
+											</span>
+										</button>
+									</div>
+								)}
+							</>
+						);
+
+						return (
+							<div
+								key={getGalleryItemKey(item)}
+								className="relative h-full min-w-0 shrink-0 basis-full snap-center"
+							>
+								{expandable && !isPlayingInline ? (
+									<button
+										type="button"
+										className={cn(
+											stageClassName,
+											"w-full border-0 p-0 text-left",
+										)}
+										onPointerEnter={() => setHoveredIndex(index)}
+										onPointerLeave={() =>
+											setHoveredIndex((current) =>
+												current === index ? null : current,
+											)
+										}
+										onClick={() => {
+											setActiveIndex(index);
+											setIsLightboxOpen(true);
+										}}
+										aria-label={
+											item.kind === "image"
+												? `Open slide ${index + 1} in expanded viewer`
+												: `Open video slide ${index + 1} in expanded viewer`
+										}
+									>
+										{stageContent}
+									</button>
+								) : (
+									<div
+										className={stageClassName}
+										onPointerEnter={() => setHoveredIndex(index)}
+										onPointerLeave={() =>
+											setHoveredIndex((current) =>
+												current === index ? null : current,
+											)
+										}
+									>
+										{stageContent}
+									</div>
+								)}
+							</div>
+						);
+					})}
+				</div>
+
+				{hasMultiple && showArrows && (
+					<>
+						<button
+							type="button"
+							onClick={(event) => {
+								event.preventDefault();
+								event.stopPropagation();
+								goToPrev();
+							}}
+							disabled={activeIndex === 0}
+							aria-label="Previous slide"
+							className={cn(
+								GALLERY_CONTROL_CLASS_NAME,
+								"pointer-events-none absolute top-1/2 left-4 z-30 -translate-y-1/2 opacity-0 transition-opacity disabled:opacity-0",
+								chromeVisible &&
+									!isActiveVideoPlaying &&
+									"pointer-events-auto opacity-100",
+							)}
+						>
+							<CaretLeft size={18} weight="bold" />
+						</button>
+
+						<button
+							type="button"
+							onClick={(event) => {
+								event.preventDefault();
+								event.stopPropagation();
+								goToNext();
+							}}
+							disabled={activeIndex === galleryItems.length - 1}
+							aria-label="Next slide"
+							className={cn(
+								GALLERY_CONTROL_CLASS_NAME,
+								"pointer-events-none absolute top-1/2 right-4 z-30 -translate-y-1/2 opacity-0 transition-opacity disabled:opacity-0",
+								chromeVisible &&
+									!isActiveVideoPlaying &&
+									"pointer-events-auto opacity-100",
+							)}
+						>
+							<CaretRight size={18} weight="bold" />
+						</button>
+					</>
+				)}
+
+				{hasMultiple && showCounter && !isActiveVideoPlaying && (
+					<div className="pointer-events-none absolute bottom-11 left-4 z-30">
+						<div className={GALLERY_CONTROL_CLASS_NAME}>
+							<span className="font-mono text-[10px] uppercase tabular-nums tracking-[0.22em]">
+								{String(activeIndex + 1).padStart(2, "0")} /{" "}
+								{String(galleryItems.length).padStart(2, "0")}
+							</span>
+						</div>
+					</div>
+				)}
+
+				{hasMultiple && showProgress && !isActiveVideoPlaying && (
+					<div className="absolute inset-x-4 bottom-4 z-30 flex gap-2">
+						{galleryItems.map((item, index) => (
+							<button
+								key={`progress-${getGalleryItemKey(item)}`}
+								type="button"
+								onClick={(event) => {
+									event.preventDefault();
+									event.stopPropagation();
+									goToIndex(index);
+								}}
+								aria-label={`Go to slide ${index + 1}`}
+								className={cn(
+									"h-0.5 flex-1 transition-colors duration-200",
+									index === activeIndex
+										? "bg-surface-900 dark:bg-surface-50"
+										: "bg-surface-900/18 hover:bg-surface-900/36 dark:bg-surface-50/22 dark:hover:bg-surface-50/42",
+								)}
+							/>
+						))}
+					</div>
+				)}
+
+				<div className="sr-only" aria-live="polite">
+					Slide {activeIndex + 1} of {galleryItems.length}
+				</div>
+			</section>
+
+			{expandable && (
+				<GalleryLightbox
+					activeIndex={activeIndex}
+					items={galleryItems}
+					onIndexChange={setActiveIndex}
+					onOpenChange={setIsLightboxOpen}
+					open={isLightboxOpen}
+					quality={quality}
+					sizes="95vw"
 				/>
 			)}
-
-			{/* Progress Indicators — Thin horizontal line segments (Swiss 2026) */}
-			{hasMultiple && showProgress && (
-				<div className="absolute inset-x-4 bottom-4 z-20 flex gap-1">
-					{rawImages.map((src, i) => (
-						<button
-							key={`progress-${typeof src === "string" ? src : src.src}`}
-							type="button"
-							onClick={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-								goToIndex(i);
-							}}
-							aria-label={`Go to image ${i + 1}`}
-							className={cn(
-								"h-0.5 flex-1 transition-opacity duration-300",
-								i === activeIndex ? "bg-white" : "bg-white/40 hover:bg-white/70",
-							)}
-						/>
-					))}
-				</div>
-			)}
-
-			{/* Counter Badge — Minimal, integrated */}
-			{hasMultiple && showCounter && (
-				<div className="absolute top-4 right-4 z-20 font-mono text-[10px] text-white tabular-nums">
-					{activeIndex + 1}/{rawImages.length}
-				</div>
-			)}
-		</motion.div>
+		</>
 	);
 }

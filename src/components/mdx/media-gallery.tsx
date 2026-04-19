@@ -23,9 +23,11 @@
 
 import { useState } from "react";
 import { ImageGallery } from "@/src/components/ui/image-gallery";
+import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 
 interface MediaGalleryProps {
-	images: string[];
+	images?: string[];
+	items?: GalleryMediaSource[];
 	captions?: string[];
 	caption?: string;
 	aspectRatio?: string;
@@ -33,31 +35,36 @@ interface MediaGalleryProps {
 }
 
 export function MediaGallery({
-	images,
+	images = [],
+	items,
 	captions,
 	caption,
 	aspectRatio = "16/9",
 	className,
 }: MediaGalleryProps) {
 	const [activeIndex, setActiveIndex] = useState(0);
+	const itemCount = items?.length ?? images.length;
 
-	if (images.length === 0) return null;
+	if (itemCount === 0) return null;
 
 	// Get current image caption
-	const currentCaption = captions?.[activeIndex] || caption;
+	const currentCaption =
+		captions?.[activeIndex] || (items?.[activeIndex]?.caption ?? undefined) || caption;
 
 	return (
 		<figure className="mb-8">
 			<ImageGallery
+				items={items}
 				images={images}
 				alts={captions}
 				altPrefix="Gallery image"
 				aspectRatio={aspectRatio}
-				showArrows={images.length > 1}
-				showProgress={images.length > 1}
-				showCounter={images.length > 1}
+				showArrows={itemCount > 1}
+				showProgress={itemCount > 1}
+				showCounter={itemCount > 1}
 				onIndexChange={setActiveIndex}
 				className={className}
+				expandable
 				sizes="(max-width: 768px) 100vw, 768px"
 				quality={75}
 			/>
@@ -67,13 +74,6 @@ export function MediaGallery({
 				<figcaption className="mt-3 text-center font-mono text-muted-foreground text-xs">
 					{currentCaption}
 				</figcaption>
-			)}
-
-			{/* Type Label */}
-			{images.length > 1 && (
-				<div className="absolute top-3 left-3 border border-surface-200 bg-white/95 px-2 py-1 font-mono text-[10px] text-surface-900 uppercase tracking-widest opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:border-surface-700 dark:bg-surface-900/95 dark:text-surface-100">
-					Gallery
-				</div>
 			)}
 		</figure>
 	);

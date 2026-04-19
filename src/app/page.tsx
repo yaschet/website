@@ -17,6 +17,7 @@ import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import { getListedPublicProjects } from "@/src/content/registry";
+import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 function HomeClosingCta() {
 	return (
@@ -85,7 +86,7 @@ export default async function Home() {
 														description={project.description}
 														href={project.urlPath}
 														tags={project.tech ?? []}
-														images={project.coverImages}
+														items={getProjectCoverMedia(project)}
 														isPrivate={
 															project.cardState === "coming-soon"
 														}
@@ -100,7 +101,7 @@ export default async function Home() {
 																: undefined
 														}
 														imageTreatment="disciplined"
-														imageAspectRatio="1.92"
+														imageAspectRatio="16/9"
 													/>
 												</div>
 											</ScrollReveal>

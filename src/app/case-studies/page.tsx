@@ -17,6 +17,7 @@ import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import { getListedPublicProjects } from "@/src/content/registry";
+import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 export const metadata: Metadata = {
 	title: "Case Studies | Yassine Chettouch",
@@ -74,7 +75,7 @@ export default async function CaseStudiesPage() {
 														description={project.description}
 														href={project.urlPath}
 														tags={project.tech ?? []}
-														images={project.coverImages}
+														items={getProjectCoverMedia(project)}
 														prioritizeFirstImage={false}
 														isPrivate={
 															project.cardState === "coming-soon"

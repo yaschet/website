@@ -11,6 +11,7 @@ import { cn, springs, tweens } from "@/src/lib/index";
 const BADGE_HEIGHT = "var(--portfolio-badge-height)";
 const INSIGNIA_SIZE = "var(--portfolio-status-insignia-size)";
 const TARGET_TIME_ZONE = "Africa/Casablanca";
+const VIEWER_CONTEXT_ENDPOINT = "/api/viewer-context";
 
 const badgeBaseClasses = cn(
 	"group relative flex items-center",
@@ -81,6 +82,28 @@ function getTimeZoneOffsetMinutes(timeZone: string, date: Date) {
 	return Math.round((asUtcTimestamp - date.getTime()) / 60000);
 }
 
+function isValidTimeZone(timeZone: string | null | undefined): timeZone is string {
+	if (!timeZone) {
+		return false;
+	}
+
+	try {
+		new Intl.DateTimeFormat("en-GB", { timeZone }).format(new Date());
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+function getBrowserTimeZone() {
+	if (typeof window === "undefined") {
+		return null;
+	}
+
+	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	return isValidTimeZone(timeZone) ? timeZone : null;
+}
+
 function formatUtcOffset(offsetMinutes: number) {
 	if (offsetMinutes === 0) {
 		return "UTC";
@@ -118,6 +141,10 @@ function formatDeltaOffset(offsetMinutes: number) {
 
 	return `${sign}${hours}h ${minutes}m`;
 }
+
+type ViewerContextResponse = {
+	timeZone?: string | null;
+};
 
 function BadgeTooltip({
 	align,
@@ -203,6 +230,7 @@ export function TimeBadge({ className }: { className?: string }) {
 	const [time, setTime] = useState<string>("");
 	const [zoneOffset, setZoneOffset] = useState<string>("");
 	const [relativeOffset, setRelativeOffset] = useState<string>("");
+	const [viewerTimeZone, setViewerTimeZone] = useState<string | null>(null);
 	const [mounted, setMounted] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const { environment } = useRevealState();
@@ -211,6 +239,45 @@ export function TimeBadge({ className }: { className?: string }) {
 
 	useEffect(() => {
 		setMounted(true);
+		setViewerTimeZone(getBrowserTimeZone());
+	}, []);
+
+	useEffect(() => {
+		const controller = new AbortController();
+
+		const loadViewerTimeZone = async () => {
+			try {
+				const response = await fetch(VIEWER_CONTEXT_ENDPOINT, {
+					cache: "no-store",
+					signal: controller.signal,
+				});
+
+				if (!response.ok) {
+					return;
+				}
+
+				const data: ViewerContextResponse = await response.json();
+
+				if (isValidTimeZone(data.timeZone)) {
+					setViewerTimeZone(data.timeZone);
+				}
+			} catch (error) {
+				if ((error as Error).name !== "AbortError") {
+					setViewerTimeZone((currentTimeZone) => currentTimeZone ?? getBrowserTimeZone());
+				}
+			}
+		};
+
+		void loadViewerTimeZone();
+
+		return () => controller.abort();
+	}, []);
+
+	useEffect(() => {
+		if (!mounted) {
+			return;
+		}
+
 		const formatter = new Intl.DateTimeFormat("en-GB", {
 			hour: "2-digit",
 			minute: "2-digit",
@@ -218,19 +285,23 @@ export function TimeBadge({ className }: { className?: string }) {
 			hour12: false,
 			timeZone: TARGET_TIME_ZONE,
 		});
+
 		const updateTime = () => {
 			const now = new Date();
 			const targetOffsetMinutes = getTimeZoneOffsetMinutes(TARGET_TIME_ZONE, now);
-			const viewerOffsetMinutes = -now.getTimezoneOffset();
+			const viewerOffsetMinutes = viewerTimeZone
+				? getTimeZoneOffsetMinutes(viewerTimeZone, now)
+				: -now.getTimezoneOffset();
 
 			setTime(formatter.format(now));
 			setZoneOffset(formatUtcOffset(targetOffsetMinutes));
 			setRelativeOffset(formatDeltaOffset(targetOffsetMinutes - viewerOffsetMinutes));
 		};
+
 		updateTime();
 		const interval = setInterval(updateTime, 1000);
 		return () => clearInterval(interval);
-	}, []);
+	}, [mounted, viewerTimeZone]);
 
 	if (!mounted) {
 		return null;

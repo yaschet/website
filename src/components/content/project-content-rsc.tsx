@@ -15,6 +15,7 @@ import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { ProjectEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
+import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 import { SiteHeader } from "../layout/site-header";
 
 interface ProjectContentProps {
@@ -22,7 +23,7 @@ interface ProjectContentProps {
 }
 
 export function ProjectContentRSC({ project }: ProjectContentProps) {
-	const galleryImages = project.coverImages ?? [];
+	const galleryItems = getProjectCoverMedia(project);
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -46,15 +47,16 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 												<span>Back to Case Studies</span>
 											</Link>
 
-											{galleryImages.length > 0 &&
+											{galleryItems.length > 0 &&
 												!project.hideCoverGallery && (
 													<ImageGallery
-														images={galleryImages}
+														items={galleryItems}
 														altPrefix={project.title}
 														aspectRatio="16/9"
-														showArrows={galleryImages.length > 1}
-														showProgress={galleryImages.length > 1}
-														showCounter={galleryImages.length > 1}
+														showArrows={galleryItems.length > 1}
+														showProgress={galleryItems.length > 1}
+														showCounter={galleryItems.length > 1}
+														expandable
 													/>
 												)}
 

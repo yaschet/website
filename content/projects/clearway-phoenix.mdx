@@ -25,6 +25,43 @@ export const metadata = {
 		"/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png",
 		"/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png",
 	],
+	coverMedia: [
+		{
+			kind: "mux-video",
+			playbackId: "jzmky2yBDeGf9P9n6PKf01C2ExZIxog5mGMSwaX9TkY00",
+			poster: "/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png",
+			title: "Program Matching Engine",
+			alt: "Program Matching Engine demo poster showing semantic search and explainable match scoring",
+			caption:
+				"Phase 3 demo: semantic search, explainable match scoring, and the assignment workflow used by advisors.",
+			duration: "1:40",
+			metadata: {
+				video_title:
+					"Program Matching Engine - AI-Powered University Search for Study Abroad Advisors",
+				video_id: "xtTqif1ocZV012eqCH1t28701lO2y00t01NNirLbyIidmJA",
+			},
+		},
+		{
+			kind: "image",
+			src: "/images/clearway-phoenix/phase-1/01-programs-table.png",
+			alt: "Phoenix Phase 1 programs table",
+		},
+		{
+			kind: "image",
+			src: "/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png",
+			alt: "Phoenix Phase 2 ETL archive dashboard hero",
+		},
+		{
+			kind: "image",
+			src: "/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png",
+			alt: "Phoenix explainable match score positive breakdown",
+		},
+		{
+			kind: "image",
+			src: "/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png",
+			alt: "Phoenix assigned programs workflow",
+		},
+	],
 	tech: [
 		"Laravel",
 		"Livewire",
@@ -52,21 +89,6 @@ export const metadata = {
 	status: "Shipped / In Active Use",
 	sortOrder: 1,
 };
-
-## System Demonstration
-
-<Video
-	playbackId="jzmky2yBDeGf9P9n6PKf01C2ExZIxog5mGMSwaX9TkY00"
-	poster="/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png"
-	loop={false}
-	muted={false}
-	caption="Phase 3 demo: semantic search, explainable match scoring, and the assignment workflow used by advisors."
-	metadata={{
-		video_title:
-			"Program Matching Engine - AI-Powered University Search for Study Abroad Advisors",
-		video_id: "xtTqif1ocZV012eqCH1t28701lO2y00t01NNirLbyIidmJA",
-	}}
-/>
 
 Clearway Phoenix started after a simpler V1 matching calculator failed. The original system could only do literal keyword filtering, which meant a student looking for `economy` would miss programs labeled `business` or `finance`. That failure exposed the real problem: the agency was trying to make high-stakes placement decisions from messy spreadsheets, shallow logic, and manual cross-referencing.
 

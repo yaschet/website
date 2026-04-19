@@ -9,7 +9,11 @@
  */
 
 import type { StaticImageData } from "next/image";
-
+import PhoenixPhase1ProgramsTable from "@/public/images/clearway-phoenix/phase-1/01-programs-table.png";
+import PhoenixPhase2ArchiveDashboardHero from "@/public/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png";
+import PhoenixPhase3SemanticSearch from "@/public/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png";
+import PhoenixPhase3MatchScoreBreakdown from "@/public/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png";
+import PhoenixPhase3AssignedProgramsWorkflow from "@/public/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png";
 // Verto Case Study Assets (New)
 import VertoAccount from "@/public/images/verto/account-page.png";
 import VertoBilling from "@/public/images/verto/billing-page.png";
@@ -42,6 +46,16 @@ export const assetMap: Record<string, StaticImageData> = {
 	"/images/verto/transactions-filter-panel.png": VertoTransactions,
 	"/images/verto/translation-details-page.png": VertoTranslationDetails,
 	"/images/verto/translations-page.png": VertoTranslations,
+	// Phoenix Mapping
+	"/images/clearway-phoenix/phase-1/01-programs-table.png": PhoenixPhase1ProgramsTable,
+	"/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png":
+		PhoenixPhase2ArchiveDashboardHero,
+	"/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png":
+		PhoenixPhase3SemanticSearch,
+	"/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png":
+		PhoenixPhase3MatchScoreBreakdown,
+	"/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png":
+		PhoenixPhase3AssignedProgramsWorkflow,
 };
 
 /**

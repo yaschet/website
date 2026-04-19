@@ -2,6 +2,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { ProjectContentRSC } from "@/src/components/content/project-content-rsc";
 import { getPublicProjectBySlug, getPublicProjects } from "@/src/content/registry";
+import { getFirstPresentableMediaAsset, getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 interface ProjectPageProps {
 	params: Promise<{
@@ -41,7 +42,9 @@ export async function generateMetadata(
 	const tech = projectData.tech ?? [];
 	const seoKeywords = projectData.seoKeywords ?? [];
 	const keywords = [...new Set([...stack, ...tech, ...seoKeywords])];
-	const ogImage = project.coverImages?.[0] ?? "/images/og-image.png";
+	const ogImage =
+		getFirstPresentableMediaAsset(getProjectCoverMedia(project), project.coverImages) ??
+		"/images/og-image.png";
 	const parentMetadata = await parent;
 	const parentOpenGraph = parentMetadata.openGraph || {};
 
@@ -91,9 +94,15 @@ export default async function CaseStudyPage({ params }: ProjectPageProps) {
 		"@type": "TechArticle",
 		headline: project.title,
 		description: project.description,
-		image: project.coverImages?.[0]
-			? `https://yaschet.dev${project.coverImages[0]}`
-			: "https://yaschet.dev/images/og-image.png",
+		image: (() => {
+			const asset = getFirstPresentableMediaAsset(
+				getProjectCoverMedia(project),
+				project.coverImages,
+			);
+			return asset
+				? `https://yaschet.dev${asset}`
+				: "https://yaschet.dev/images/og-image.png";
+		})(),
 		datePublished: project.date,
 		dateModified: project.date,
 		author: {
