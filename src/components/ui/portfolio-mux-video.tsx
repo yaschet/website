@@ -1,0 +1,741 @@
+"use client";
+
+import type MuxVideoElement from "@mux/mux-video";
+import MuxVideo from "@mux/mux-video/react";
+import {
+	ArrowsIn,
+	ArrowsOut,
+	Pause,
+	Play,
+	SpeakerHigh,
+	SpeakerLow,
+	SpeakerSimpleSlash,
+	X,
+} from "@phosphor-icons/react/dist/ssr";
+import type { StaticImageData } from "next/image";
+import type { ComponentProps, CSSProperties, KeyboardEvent, MouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu";
+import { cn } from "@/src/lib/index";
+
+type MuxVideoMetadata = ComponentProps<typeof MuxVideo>["metadata"];
+type PortfolioMuxVideoVariant = "gallery" | "lightbox" | "article";
+
+interface PortfolioMuxVideoProps {
+	playbackId: string;
+	poster?: string | StaticImageData;
+	metadata?: MuxVideoMetadata;
+	variant: PortfolioMuxVideoVariant;
+	autoPlay?: boolean;
+	loop?: boolean;
+	muted?: boolean;
+	className?: string;
+	onExit?: () => void;
+}
+
+type QualityOption = {
+	label: string;
+	shortLabel: string;
+	value: string;
+};
+
+const PLAYBACK_RATE_OPTIONS = [
+	{ label: "1x", value: 1 },
+	{ label: "1.25x", value: 1.25 },
+	{ label: "1.5x", value: 1.5 },
+	{ label: "1.75x", value: 1.75 },
+	{ label: "2x", value: 2 },
+] as const;
+
+const PLAYER_BUTTON_CLASS_NAME = cn(
+	"flex h-10 min-w-10 items-center justify-center gap-2 border border-surface-700/45 bg-surface-950/72 px-3 text-surface-50 backdrop-blur-sm",
+	"transition-[background-color,border-color,color,opacity] duration-200 hover:bg-surface-950/88 hover:text-surface-50",
+	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+	"disabled:pointer-events-none disabled:opacity-35",
+);
+
+function formatPlaybackTime(value: number) {
+	if (!Number.isFinite(value) || value <= 0) {
+		return "0:00";
+	}
+
+	const totalSeconds = Math.floor(value);
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const seconds = totalSeconds % 60;
+
+	if (hours > 0) {
+		return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+	}
+
+	return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function formatBitrate(bitrate?: number) {
+	if (!bitrate || bitrate <= 0) {
+		return null;
+	}
+
+	const megabits = bitrate / 1_000_000;
+	return Number.isInteger(megabits) ? `${megabits} Mbps` : `${megabits.toFixed(1)} Mbps`;
+}
+
+function formatQualityOptionLabel(rendition: { bitrate?: number; height?: number; id?: string }) {
+	const resolutionLabel = rendition.height ? `${rendition.height}p` : (rendition.id ?? "Manual");
+	const bitrateLabel = formatBitrate(rendition.bitrate);
+	return bitrateLabel ? `${resolutionLabel} (${bitrateLabel})` : resolutionLabel;
+}
+
+function getPosterSrc(poster?: string | StaticImageData) {
+	if (!poster) return undefined;
+	return typeof poster === "string" ? poster : poster.src;
+}
+
+function getPlaybackRateLabel(value: number) {
+	return PLAYBACK_RATE_OPTIONS.find((option) => option.value === value)?.label ?? `${value}x`;
+}
+
+function getVolumeIcon(isMuted: boolean, volume: number) {
+	if (isMuted || volume <= 0.01) {
+		return SpeakerSimpleSlash;
+	}
+
+	if (volume < 0.5) {
+		return SpeakerLow;
+	}
+
+	return SpeakerHigh;
+}
+
+export function PortfolioMuxVideo({
+	playbackId,
+	poster,
+	metadata,
+	variant,
+	autoPlay = false,
+	loop = false,
+	muted = false,
+	className,
+	onExit,
+}: PortfolioMuxVideoProps) {
+	const mediaRef = useRef<MuxVideoElement | null>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const hideControlsTimeoutRef = useRef<number | null>(null);
+	const [isPlaying, setIsPlaying] = useState(Boolean(autoPlay));
+	const [isMuted, setIsMuted] = useState(muted);
+	const [volume, setVolume] = useState(1);
+	const [duration, setDuration] = useState(0);
+	const [currentTime, setCurrentTime] = useState(0);
+	const [playbackRate, setPlaybackRate] = useState(1);
+	const [controlsVisible, setControlsVisible] = useState(true);
+	const [isPointerInside, setIsPointerInside] = useState(false);
+	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
+	const [openMenu, setOpenMenu] = useState<"quality" | "rate" | null>(null);
+	const [qualityOptions, setQualityOptions] = useState<QualityOption[]>([
+		{ label: "Auto", shortLabel: "Auto", value: "auto" },
+	]);
+	const [qualityValue, setQualityValue] = useState("auto");
+	const [isFullscreen, setIsFullscreen] = useState(false);
+
+	const posterSrc = useMemo(() => getPosterSrc(poster), [poster]);
+	const menuOpen = openMenu !== null;
+	const hasQualityMenu = qualityOptions.length > 2;
+	const playedPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0;
+	const volumePercent = Math.min(Math.max(volume * 100, 0), 100);
+	const rateLabel = getPlaybackRateLabel(playbackRate);
+	const qualityLabel =
+		qualityOptions.find((option) => option.value === qualityValue)?.shortLabel ?? "Auto";
+	const VolumeIcon = getVolumeIcon(isMuted, volume);
+	const controlsInteractiveClassName = controlsVisible
+		? "pointer-events-auto"
+		: "pointer-events-none";
+
+	const clearControlsTimeout = useCallback(() => {
+		if (hideControlsTimeoutRef.current !== null) {
+			window.clearTimeout(hideControlsTimeoutRef.current);
+			hideControlsTimeoutRef.current = null;
+		}
+	}, []);
+
+	const scheduleControlsHide = useCallback(() => {
+		clearControlsTimeout();
+		if (!isPlaying || isPointerInside || isFocusedWithin || menuOpen) {
+			setControlsVisible(true);
+			return;
+		}
+
+		hideControlsTimeoutRef.current = window.setTimeout(() => {
+			setControlsVisible(false);
+		}, 1800);
+	}, [clearControlsTimeout, isFocusedWithin, isPlaying, isPointerInside, menuOpen]);
+
+	const syncFromMedia = useCallback(() => {
+		const media = mediaRef.current;
+		if (!media) return;
+
+		setIsPlaying(!media.paused && !media.ended);
+		setCurrentTime(Number.isFinite(media.currentTime) ? media.currentTime : 0);
+		setDuration(Number.isFinite(media.duration) ? media.duration : 0);
+		setIsMuted(media.muted);
+		setVolume(media.volume ?? 1);
+		setPlaybackRate(media.playbackRate ?? 1);
+
+		const renditionList = media.videoRenditions;
+		const renditions = renditionList ? Array.from(renditionList) : [];
+		const sortedRenditions = [...renditions].sort((left, right) => {
+			const heightDelta = (right.height ?? 0) - (left.height ?? 0);
+			if (heightDelta !== 0) return heightDelta;
+			return (right.bitrate ?? 0) - (left.bitrate ?? 0);
+		});
+
+		const nextOptions = [
+			...sortedRenditions.map((rendition) => ({
+				label: formatQualityOptionLabel(rendition),
+				shortLabel: rendition.height ? `${rendition.height}p` : "Manual",
+				value: String(rendition.id),
+			})),
+			{ label: "Auto", shortLabel: "Auto", value: "auto" },
+		];
+
+		setQualityOptions(nextOptions);
+		setQualityValue(
+			renditionList && renditionList.selectedIndex >= 0
+				? String(renditions[renditionList.selectedIndex]?.id)
+				: "auto",
+		);
+	}, []);
+
+	const togglePlayback = useCallback(async () => {
+		const media = mediaRef.current;
+		if (!media) return;
+
+		if (media.paused || media.ended) {
+			try {
+				await media.play();
+			} catch {
+				setControlsVisible(true);
+			}
+			return;
+		}
+
+		media.pause();
+	}, []);
+
+	const toggleMute = useCallback(() => {
+		const media = mediaRef.current;
+		if (!media) return;
+
+		media.muted = !media.muted;
+		syncFromMedia();
+	}, [syncFromMedia]);
+
+	const handleVolumeChange = useCallback(
+		(nextVolume: number) => {
+			const media = mediaRef.current;
+			if (!media) return;
+
+			media.volume = nextVolume;
+			media.muted = nextVolume <= 0.01;
+			syncFromMedia();
+		},
+		[syncFromMedia],
+	);
+
+	const handleSeek = useCallback((nextTime: number) => {
+		const media = mediaRef.current;
+		if (!media) return;
+
+		media.currentTime = nextTime;
+		setCurrentTime(nextTime);
+	}, []);
+
+	const handlePlaybackRateChange = useCallback((nextRate: string) => {
+		const media = mediaRef.current;
+		if (!media) return;
+
+		const parsedRate = Number(nextRate);
+		media.playbackRate = parsedRate;
+		setPlaybackRate(parsedRate);
+		setOpenMenu(null);
+	}, []);
+
+	const handleQualityChange = useCallback(
+		(nextQuality: string) => {
+			const media = mediaRef.current;
+			if (!media?.videoRenditions) return;
+
+			const renditions = Array.from(media.videoRenditions);
+			if (nextQuality === "auto") {
+				media.videoRenditions.selectedIndex = -1;
+			} else {
+				const renditionIndex = renditions.findIndex(
+					(rendition) => String(rendition.id) === nextQuality,
+				);
+				if (renditionIndex >= 0) {
+					media.videoRenditions.selectedIndex = renditionIndex;
+				}
+			}
+
+			syncFromMedia();
+			setOpenMenu(null);
+		},
+		[syncFromMedia],
+	);
+
+	const toggleFullscreen = useCallback(async () => {
+		const container = containerRef.current;
+		if (!container || typeof document === "undefined") return;
+
+		if (document.fullscreenElement === container) {
+			await document.exitFullscreen().catch(() => undefined);
+			return;
+		}
+
+		await container.requestFullscreen?.().catch(() => undefined);
+	}, []);
+
+	useEffect(() => {
+		const media = mediaRef.current;
+		if (!media) return;
+
+		const handleMediaEvent = () => {
+			syncFromMedia();
+		};
+
+		const eventNames = [
+			"play",
+			"pause",
+			"ended",
+			"timeupdate",
+			"durationchange",
+			"volumechange",
+			"ratechange",
+			"loadedmetadata",
+			"canplay",
+			"progress",
+		] as const;
+
+		for (const eventName of eventNames) {
+			media.addEventListener(eventName, handleMediaEvent);
+		}
+
+		const renditions = media.videoRenditions;
+		if (renditions) {
+			renditions.addEventListener("change", handleMediaEvent);
+			renditions.addEventListener("addrendition", handleMediaEvent);
+			renditions.addEventListener("removerendition", handleMediaEvent);
+		}
+
+		syncFromMedia();
+
+		return () => {
+			for (const eventName of eventNames) {
+				media.removeEventListener(eventName, handleMediaEvent);
+			}
+
+			if (renditions) {
+				renditions.removeEventListener("change", handleMediaEvent);
+				renditions.removeEventListener("addrendition", handleMediaEvent);
+				renditions.removeEventListener("removerendition", handleMediaEvent);
+			}
+		};
+	}, [syncFromMedia]);
+
+	useEffect(() => {
+		if (!autoPlay) return;
+
+		const media = mediaRef.current;
+		if (!media) return;
+
+		const playWhenReady = () => {
+			void media.play().catch(() => undefined);
+		};
+
+		if (media.readyState >= 1) {
+			playWhenReady();
+			return;
+		}
+
+		media.addEventListener("loadedmetadata", playWhenReady, { once: true });
+		return () => media.removeEventListener("loadedmetadata", playWhenReady);
+	}, [autoPlay]);
+
+	useEffect(() => {
+		if (typeof document === "undefined") return;
+
+		const handleFullscreenChange = () => {
+			setIsFullscreen(document.fullscreenElement === containerRef.current);
+		};
+
+		document.addEventListener("fullscreenchange", handleFullscreenChange);
+		return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+	}, []);
+
+	useEffect(() => {
+		if (!isPlaying) {
+			clearControlsTimeout();
+			setControlsVisible(true);
+			return;
+		}
+
+		scheduleControlsHide();
+	}, [clearControlsTimeout, isPlaying, scheduleControlsHide]);
+
+	useEffect(() => {
+		return () => {
+			clearControlsTimeout();
+		};
+	}, [clearControlsTimeout]);
+
+	const handlePointerActivity = useCallback(() => {
+		setControlsVisible(true);
+		scheduleControlsHide();
+	}, [scheduleControlsHide]);
+
+	const handleRootClick = useCallback(
+		(event: MouseEvent<HTMLDivElement>) => {
+			const target = event.target as HTMLElement | null;
+			if (target?.closest("[data-player-interactive]")) {
+				return;
+			}
+
+			void togglePlayback();
+		},
+		[togglePlayback],
+	);
+
+	const handleKeyDown = useCallback(
+		(event: KeyboardEvent<HTMLDivElement>) => {
+			const target = event.target as HTMLElement | null;
+			if (menuOpen) {
+				return;
+			}
+
+			if (target instanceof HTMLInputElement) {
+				return;
+			}
+
+			if (
+				target?.closest("[data-player-interactive]") &&
+				(event.key === " " || event.key === "Enter")
+			) {
+				return;
+			}
+
+			switch (event.key) {
+				case " ":
+				case "k":
+				case "K":
+					event.preventDefault();
+					void togglePlayback();
+					return;
+				case "m":
+				case "M":
+					event.preventDefault();
+					toggleMute();
+					return;
+				case "f":
+				case "F":
+					event.preventDefault();
+					void toggleFullscreen();
+					return;
+				case "ArrowLeft":
+					event.preventDefault();
+					handleSeek(Math.max(0, currentTime - 5));
+					return;
+				case "ArrowRight":
+					event.preventDefault();
+					handleSeek(Math.min(duration || currentTime + 5, currentTime + 5));
+					return;
+				case "Escape":
+					if (onExit) {
+						event.preventDefault();
+						onExit();
+					}
+					return;
+				default:
+					return;
+			}
+		},
+		[
+			currentTime,
+			duration,
+			handleSeek,
+			menuOpen,
+			onExit,
+			toggleFullscreen,
+			toggleMute,
+			togglePlayback,
+		],
+	);
+
+	return (
+		<div
+			ref={containerRef}
+			className={cn(
+				"group relative h-full w-full overflow-hidden bg-surface-950 text-surface-50",
+				"outline-none focus-visible:ring-2 focus-visible:ring-surface-50/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+				className,
+			)}
+			role="application"
+			aria-label="Video player"
+			onClick={handleRootClick}
+			onFocus={() => setIsFocusedWithin(true)}
+			onBlur={(event) => {
+				if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+					setIsFocusedWithin(false);
+				}
+			}}
+			onKeyDown={handleKeyDown}
+			onPointerEnter={() => {
+				setIsPointerInside(true);
+				handlePointerActivity();
+			}}
+			onPointerLeave={() => {
+				setIsPointerInside(false);
+				scheduleControlsHide();
+			}}
+			onPointerMove={handlePointerActivity}
+		>
+			<MuxVideo
+				ref={mediaRef}
+				className="portfolio-mux-video-host block size-full"
+				tabIndex={0}
+				style={
+					{
+						"--media-object-fit": variant === "lightbox" ? "contain" : "cover",
+						"--media-object-position": "center",
+					} as ComponentProps<typeof MuxVideo>["style"]
+				}
+				playbackId={playbackId}
+				metadata={metadata}
+				poster={posterSrc}
+				autoplay={autoPlay || undefined}
+				loop={loop}
+				muted={muted}
+				playsInline
+				streamType="on-demand"
+				preload={autoPlay || variant !== "article" ? "auto" : "metadata"}
+			/>
+
+			{onExit && (
+				<div className="pointer-events-none absolute inset-x-4 top-4 z-20 flex justify-end">
+					<button
+						type="button"
+						className={cn(PLAYER_BUTTON_CLASS_NAME, "pointer-events-auto")}
+						data-player-interactive
+						aria-label="Return video tile to poster"
+						onClick={(event) => {
+							event.preventDefault();
+							event.stopPropagation();
+							onExit();
+						}}
+					>
+						<X size={18} weight="bold" />
+					</button>
+				</div>
+			)}
+
+			<div
+				className={cn(
+					"pointer-events-none absolute inset-x-0 bottom-0 z-20 transition-opacity duration-200",
+					controlsVisible ? "opacity-100" : "opacity-0",
+				)}
+			>
+				<div className="absolute inset-0 bg-gradient-to-t from-surface-950/88 via-surface-950/34 to-transparent" />
+				<div className="relative flex flex-col gap-3 px-4 pt-12 pb-4">
+					<input
+						data-player-interactive
+						type="range"
+						min={0}
+						max={duration || 0}
+						step={0.1}
+						value={duration > 0 ? currentTime : 0}
+						onChange={(event) => handleSeek(Number(event.target.value))}
+						className={cn("portfolio-video-range", controlsInteractiveClassName)}
+						aria-label="Seek video timeline"
+						style={
+							{
+								"--portfolio-video-range-progress": `${playedPercent}%`,
+							} as CSSProperties
+						}
+					/>
+
+					<div className="flex items-center justify-between gap-3">
+						<div
+							className={cn(
+								"flex min-w-0 items-center gap-2",
+								controlsInteractiveClassName,
+							)}
+						>
+							<button
+								type="button"
+								className={PLAYER_BUTTON_CLASS_NAME}
+								data-player-interactive
+								aria-label={isPlaying ? "Pause video" : "Play video"}
+								onClick={(event) => {
+									event.preventDefault();
+									event.stopPropagation();
+									void togglePlayback();
+								}}
+							>
+								{isPlaying ? (
+									<Pause size={18} weight="fill" />
+								) : (
+									<Play size={18} weight="fill" className="translate-x-px" />
+								)}
+							</button>
+
+							<div className="flex items-center gap-2">
+								<button
+									type="button"
+									className={PLAYER_BUTTON_CLASS_NAME}
+									data-player-interactive
+									aria-label={isMuted ? "Unmute video" : "Mute video"}
+									onClick={(event) => {
+										event.preventDefault();
+										event.stopPropagation();
+										toggleMute();
+									}}
+								>
+									<VolumeIcon size={18} weight="fill" />
+								</button>
+
+								<input
+									data-player-interactive
+									type="range"
+									min={0}
+									max={1}
+									step={0.05}
+									value={isMuted ? 0 : volume}
+									onChange={(event) =>
+										handleVolumeChange(Number(event.target.value))
+									}
+									className="portfolio-video-volume hidden w-20 md:block"
+									aria-label="Adjust video volume"
+									style={
+										{
+											"--portfolio-video-range-progress": `${volumePercent}%`,
+										} as CSSProperties
+									}
+								/>
+							</div>
+
+							<div className="pointer-events-auto border border-surface-700/45 bg-surface-950/58 px-3 py-2 font-mono text-[10px] text-surface-50 uppercase tracking-[0.22em] backdrop-blur-sm">
+								{formatPlaybackTime(currentTime)} / {formatPlaybackTime(duration)}
+							</div>
+						</div>
+
+						<div
+							className={cn("flex items-center gap-2", controlsInteractiveClassName)}
+						>
+							{hasQualityMenu && (
+								<DropdownMenu
+									size="sm"
+									open={openMenu === "quality"}
+									onOpenChange={(open) => setOpenMenu(open ? "quality" : null)}
+								>
+									<DropdownMenuTrigger asChild>
+										<button
+											type="button"
+											className={cn(
+												PLAYER_BUTTON_CLASS_NAME,
+												"min-w-[5.25rem] justify-center font-mono text-[10px] uppercase tracking-[0.22em]",
+											)}
+											data-player-interactive
+											aria-label="Select video quality"
+										>
+											{qualityLabel}
+										</button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent
+										align="end"
+										className="min-w-[10rem] border-surface-700/45 bg-surface-950/96 p-1.5 text-surface-50 backdrop-blur-md"
+									>
+										<DropdownMenuRadioGroup
+											value={qualityValue}
+											onValueChange={handleQualityChange}
+										>
+											{qualityOptions.map((option) => (
+												<DropdownMenuRadioItem
+													key={option.value}
+													value={option.value}
+													className="text-surface-100 focus:bg-surface-800 focus:text-white dark:focus:bg-surface-800"
+												>
+													{option.label}
+												</DropdownMenuRadioItem>
+											))}
+										</DropdownMenuRadioGroup>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							)}
+
+							<DropdownMenu
+								size="sm"
+								open={openMenu === "rate"}
+								onOpenChange={(open) => setOpenMenu(open ? "rate" : null)}
+							>
+								<DropdownMenuTrigger asChild>
+									<button
+										type="button"
+										className={cn(
+											PLAYER_BUTTON_CLASS_NAME,
+											"min-w-[4.75rem] justify-center font-mono text-[10px] uppercase tracking-[0.22em]",
+										)}
+										data-player-interactive
+										aria-label="Select playback speed"
+									>
+										{rateLabel}
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent
+									align="end"
+									className="min-w-[9rem] border-surface-700/45 bg-surface-950/96 p-1.5 text-surface-50 backdrop-blur-md"
+								>
+									<DropdownMenuRadioGroup
+										value={String(playbackRate)}
+										onValueChange={handlePlaybackRateChange}
+									>
+										{PLAYBACK_RATE_OPTIONS.map((option) => (
+											<DropdownMenuRadioItem
+												key={option.value}
+												value={String(option.value)}
+												className="text-surface-100 focus:bg-surface-800 focus:text-white dark:focus:bg-surface-800"
+											>
+												{option.label}
+											</DropdownMenuRadioItem>
+										))}
+									</DropdownMenuRadioGroup>
+								</DropdownMenuContent>
+							</DropdownMenu>
+
+							<button
+								type="button"
+								className={PLAYER_BUTTON_CLASS_NAME}
+								data-player-interactive
+								aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+								onClick={(event) => {
+									event.preventDefault();
+									event.stopPropagation();
+									void toggleFullscreen();
+								}}
+							>
+								{isFullscreen ? (
+									<ArrowsIn size={18} weight="bold" />
+								) : (
+									<ArrowsOut size={18} weight="bold" />
+								)}
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}

@@ -1,6 +1,5 @@
 "use client";
 
-import MuxPlayer from "@mux/mux-player-react";
 import {
 	CaretLeft,
 	CaretRight,
@@ -10,6 +9,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import dynamic from "next/dynamic";
 import Image, { type StaticImageData } from "next/image";
 import {
 	forwardRef,
@@ -24,7 +24,14 @@ import {
 } from "react";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
-import { muxPlayerClassName, muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
+
+const PortfolioMuxVideo = dynamic(
+	() =>
+		import("@/src/components/ui/portfolio-mux-video").then(
+			(module) => module.PortfolioMuxVideo,
+		),
+	{ ssr: false },
+);
 
 const LIGHTBOX_CONTROL_CLASS_NAME = cn(
 	"flex h-11 min-w-11 items-center justify-center gap-2 px-3",
@@ -603,17 +610,15 @@ export function GalleryLightbox({
 															/>
 														) : (
 															<div className="relative h-full w-full">
-																<MuxPlayer
+																<PortfolioMuxVideo
 																	playbackId={
 																		currentItem.playbackId
 																	}
+																	poster={currentItem.poster}
 																	metadata={currentItem.metadata}
 																	autoPlay
-																	streamType="on-demand"
-																	className={muxPlayerClassName}
-																	style={
-																		muxPlayerPresentationStyle
-																	}
+																	variant="lightbox"
+																	className="h-full w-full"
 																/>
 															</div>
 														)}

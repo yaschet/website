@@ -10,9 +10,9 @@
 
 "use client";
 
-import MuxPlayer from "@mux/mux-player-react";
-import { CaretLeft, CaretRight, Play, X } from "@phosphor-icons/react/dist/ssr";
+import { CaretLeft, CaretRight, Play } from "@phosphor-icons/react/dist/ssr";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import dynamic from "next/dynamic";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -21,7 +21,14 @@ import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
-import { muxPlayerClassName, muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
+
+const PortfolioMuxVideo = dynamic(
+	() =>
+		import("@/src/components/ui/portfolio-mux-video").then(
+			(module) => module.PortfolioMuxVideo,
+		),
+	{ ssr: false },
+);
 
 interface ImageGalleryProps {
 	/** Rich gallery items. Preferred over legacy `images`. */
@@ -392,7 +399,7 @@ export function ImageGallery({
 								<AnimatePresence mode="wait" initial={false}>
 									{isPlayingInline ? (
 										<motion.div
-											key="mux-player"
+											key="portfolio-mux-video"
 											className="absolute inset-0"
 											initial={{ opacity: 0 }}
 											animate={{ opacity: 1 }}
@@ -401,13 +408,14 @@ export function ImageGallery({
 												duration: shouldReduceMotion ? 0 : 0.18,
 											}}
 										>
-											<MuxPlayer
+											<PortfolioMuxVideo
 												playbackId={item.playbackId}
+												poster={item.poster}
 												metadata={item.metadata}
 												autoPlay
-												streamType="on-demand"
-												className={muxPlayerClassName}
-												style={muxPlayerPresentationStyle}
+												variant="gallery"
+												className="h-full w-full"
+												onExit={() => setPlayingIndex(null)}
 											/>
 										</motion.div>
 									) : (
@@ -482,28 +490,6 @@ export function ImageGallery({
 										</motion.div>
 									)}
 								</AnimatePresence>
-
-								{item.kind === "mux-video" && isPlayingInline && (
-									<div className="pointer-events-none absolute inset-x-4 top-4 z-20 flex items-start justify-end">
-										<div className="pointer-events-auto flex items-center gap-2">
-											<button
-												type="button"
-												className={cn(
-													GALLERY_CONTROL_CLASS_NAME,
-													"opacity-100",
-												)}
-												aria-label="Return video tile to poster"
-												onClick={(event) => {
-													event.preventDefault();
-													event.stopPropagation();
-													setPlayingIndex(null);
-												}}
-											>
-												<X size={18} weight="bold" />
-											</button>
-										</div>
-									</div>
-								)}
 
 								{item.kind === "mux-video" && !isPlayingInline && (
 									<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-6">

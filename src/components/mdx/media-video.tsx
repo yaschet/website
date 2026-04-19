@@ -14,23 +14,32 @@
 
 "use client";
 
-import MuxPlayer from "@mux/mux-player-react";
+import type MuxVideo from "@mux/mux-video/react";
 import { Pause, Play } from "@phosphor-icons/react/dist/ssr";
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import type { ComponentProps } from "react";
 import { useEffect, useRef, useState } from "react";
 import { cn, springs } from "@/src/lib/index";
-import { muxPlayerClassName, muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
 
-type MuxPlayerProps = ComponentProps<typeof MuxPlayer>;
+const PortfolioMuxVideo = dynamic(
+	() =>
+		import("@/src/components/ui/portfolio-mux-video").then(
+			(module) => module.PortfolioMuxVideo,
+		),
+	{ ssr: false },
+);
+
+type MuxVideoProps = ComponentProps<typeof MuxVideo>;
 
 interface MediaVideoProps {
 	/** Direct URL to a video file (mp4). mutually exclusive with playbackId. */
 	src?: string;
-	/** Mux Playback ID. If provided, renders MuxPlayer. mutually exclusive with src. */
+	/** Mux Playback ID. If provided, renders the portfolio Mux player. mutually exclusive with src. */
 	playbackId?: string;
 	/** Mux Data Metadata for analytics. */
-	metadata?: MuxPlayerProps["metadata"];
+	metadata?: MuxVideoProps["metadata"];
 	poster?: string;
 	caption?: string;
 	loop?: boolean;
@@ -51,6 +60,7 @@ export function MediaVideo({
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [hasStarted, setHasStarted] = useState(false);
+	const [userRequestedPlay, setUserRequestedPlay] = useState(false);
 
 	// True Lazy Load: Only inject <source> when near viewport
 	const [shouldLoad, setShouldLoad] = useState(false);
@@ -75,6 +85,8 @@ export function MediaVideo({
 
 	// 1. Mux Mode
 	if (playbackId) {
+		const shouldAutoPlayMux = (loop && muted) || userRequestedPlay;
+
 		return (
 			<figure className="group mb-8" ref={containerRef}>
 				<div
@@ -91,18 +103,51 @@ export function MediaVideo({
 						].join(", "),
 					}}
 				>
+					{poster && (
+						<div className="absolute inset-0">
+							<Image
+								src={poster}
+								alt=""
+								aria-hidden
+								fill
+								sizes="100vw"
+								className="object-cover"
+								decoding="async"
+							/>
+						</div>
+					)}
+
 					{shouldLoad && (
-						<MuxPlayer
+						<PortfolioMuxVideo
 							playbackId={playbackId}
+							poster={poster}
 							metadata={metadata}
 							loop={loop}
 							muted={muted}
-							autoPlay={loop && muted}
-							streamType="on-demand"
-							className={muxPlayerClassName}
-							style={muxPlayerPresentationStyle}
-							placeholder={poster}
+							autoPlay={shouldAutoPlayMux}
+							variant="article"
+							className="absolute inset-0"
 						/>
+					)}
+
+					{!shouldLoad && !shouldAutoPlayMux && (
+						<div className="absolute inset-0 flex items-center justify-center">
+							<button
+								type="button"
+								className={cn(
+									"flex size-14 items-center justify-center rounded-none",
+									"border border-surface-200 bg-white/95 text-surface-900 shadow-lg",
+									"transition-transform duration-200 hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-900/15 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+								)}
+								aria-label="Load and play video"
+								onClick={() => {
+									setUserRequestedPlay(true);
+									setShouldLoad(true);
+								}}
+							>
+								<Play size={24} weight="fill" className="ml-1" />
+							</button>
+						</div>
 					)}
 				</div>
 
