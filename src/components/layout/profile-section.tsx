@@ -30,16 +30,16 @@ export function ProfileSection() {
 							/>
 						</div>
 						<div className="flex min-w-0 flex-col justify-center gap-[calc(var(--portfolio-space-tight)/2)]">
-							<h1 className="portfolio-masthead-name truncate text-surface-900 dark:text-surface-100">
+							<h1 className="portfolio-masthead-name text-balance text-surface-900 dark:text-surface-100">
 								Yassine Chettouch
 							</h1>
-							<p className="portfolio-masthead-role truncate text-surface-500 dark:text-surface-400">
+							<p className="portfolio-masthead-role text-surface-500 dark:text-surface-400">
 								Software Engineer
 							</p>
 						</div>
 					</div>
 
-					<div className="flex items-center gap-[var(--portfolio-space-1)] justify-self-end">
+					<div className="hidden items-center gap-[var(--portfolio-space-1)] justify-self-end sm:flex">
 						{socialLinks.map(({ label, href, Icon }) => (
 							<Link
 								key={label}
