@@ -617,13 +617,13 @@ export function GalleryLightbox({
 														) : (
 															<div className="relative h-full w-full">
 																<PortfolioMuxVideo
-																	key={`lightbox-player-${currentItem.playbackId}-${activeIndex}`}
+																	key={`lightbox-player-${currentItem.playbackId}`}
 																	playbackId={
 																		currentItem.playbackId
 																	}
 																	poster={currentItem.poster}
 																	metadata={currentItem.metadata}
-																	autoPlay
+																	active
 																	variant="lightbox"
 																	className="h-full w-full"
 																/>

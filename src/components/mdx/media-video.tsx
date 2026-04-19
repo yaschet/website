@@ -132,7 +132,7 @@ export function MediaVideo({
 							metadata={metadata}
 							loop={loop}
 							muted={muted}
-							autoPlay={shouldAutoPlayMux}
+							active={shouldAutoPlayMux}
 							variant="article"
 							className="absolute inset-0"
 						/>

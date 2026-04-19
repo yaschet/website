@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -39,11 +39,13 @@ interface PortfolioMuxVideoProps {
 	poster?: string | StaticImageData;
 	metadata?: MuxVideoMetadata;
 	variant: PortfolioMuxVideoVariant;
+	active?: boolean;
 	autoPlay?: boolean;
 	loop?: boolean;
 	muted?: boolean;
 	className?: string;
 	onExit?: () => void;
+	onPlayingChange?: (playing: boolean) => void;
 }
 
 type QualityOption = {
@@ -168,28 +170,30 @@ export function PortfolioMuxVideo({
 	poster,
 	metadata,
 	variant,
+	active,
 	autoPlay = false,
 	loop = false,
 	muted = false,
 	className,
 	onExit,
+	onPlayingChange,
 }: PortfolioMuxVideoProps) {
 	const pathname = usePathname();
 	const mediaRef = useRef<MuxVideoElement | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const hideControlsTimeoutRef = useRef<number | null>(null);
 	const instanceIdRef = useRef(++nextPortfolioMuxVideoId);
+	const lastEmittedPlayingStateRef = useRef<boolean | null>(null);
 	const playbackCommandIdRef = useRef(0);
-	const desiredPlayingRef = useRef(Boolean(autoPlay));
-	const lastSourceRepairTimestampRef = useRef(0);
-	const [isPlaying, setIsPlaying] = useState(Boolean(autoPlay));
+	const isActive = active ?? autoPlay;
+	const desiredPlayingRef = useRef(Boolean(isActive));
+	const [isPlaying, setIsPlaying] = useState(Boolean(isActive));
 	const [isMuted, setIsMuted] = useState(muted);
 	const [volume, setVolume] = useState(1);
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const [controlsVisible, setControlsVisible] = useState(true);
-	const [isPointerInside, setIsPointerInside] = useState(false);
 	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
 	const [openMenu, setOpenMenu] = useState<"quality" | "rate" | null>(null);
 	const [qualityOptions, setQualityOptions] = useState<QualityOption[]>([
@@ -200,10 +204,6 @@ export function PortfolioMuxVideo({
 
 	const posterSrc = useMemo(() => getPosterSrc(poster), [poster]);
 	const resolvedPlaybackSrc = useMemo(() => getMuxStreamSrc(playbackId), [playbackId]);
-	const mediaSessionKey = useMemo(
-		() => `${pathname ?? ""}:${variant}:${playbackId}`,
-		[pathname, playbackId, variant],
-	);
 	const menuOpen = openMenu !== null;
 	const hasQualityMenu = qualityOptions.length > 2;
 	const playedPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0;
@@ -222,22 +222,6 @@ export function PortfolioMuxVideo({
 			hideControlsTimeoutRef.current = null;
 		}
 	}, []);
-
-	const resetPlaybackSessionState = useCallback(() => {
-		playbackCommandIdRef.current += 1;
-		desiredPlayingRef.current = Boolean(autoPlay);
-		lastSourceRepairTimestampRef.current = 0;
-		setIsPlaying(false);
-		setIsMuted(muted);
-		setVolume(1);
-		setDuration(0);
-		setCurrentTime(0);
-		setPlaybackRate(1);
-		setControlsVisible(true);
-		setOpenMenu(null);
-		setQualityOptions([{ label: "Auto", shortLabel: "Auto", value: "auto" }]);
-		setQualityValue("auto");
-	}, [autoPlay, muted]);
 
 	const pauseOtherDocumentMedia = useCallback((except?: MuxVideoElement | null) => {
 		if (typeof document === "undefined") return;
@@ -266,39 +250,20 @@ export function PortfolioMuxVideo({
 		setControlsVisible(true);
 	}, []);
 
-	const ensureMediaSource = useCallback(
-		(options?: { forceLoad?: boolean }) => {
-			const media = mediaRef.current;
-			if (!media) return;
+	const ensureMediaSource = useCallback(() => {
+		const media = mediaRef.current;
+		if (!media) return;
 
-			const expectedSrc = resolvedPlaybackSrc;
-			const currentSource = media.currentSrc || media.src || "";
-			const sourceLooksMissing =
-				!currentSource ||
-				(!currentSource.includes(playbackId) && currentSource !== expectedSrc);
-			const sourceNeedsRepair = media.src !== expectedSrc || sourceLooksMissing;
+		const expectedSrc = resolvedPlaybackSrc;
+		const currentSource = media.currentSrc || media.src || "";
+		const sourceLooksMissing =
+			!currentSource ||
+			(!currentSource.includes(playbackId) && currentSource !== expectedSrc);
 
-			if (sourceNeedsRepair) {
-				media.src = expectedSrc;
-			}
-
-			const shouldReload =
-				options?.forceLoad ||
-				sourceNeedsRepair ||
-				media.networkState === HTMLMediaElement.NETWORK_EMPTY;
-
-			if (!shouldReload) return;
-
-			const now = Date.now();
-			if (!options?.forceLoad && now - lastSourceRepairTimestampRef.current < 250) {
-				return;
-			}
-
-			lastSourceRepairTimestampRef.current = now;
-			media.load();
-		},
-		[playbackId, resolvedPlaybackSrc],
-	);
+		if (media.src !== expectedSrc || sourceLooksMissing) {
+			media.src = expectedSrc;
+		}
+	}, [playbackId, resolvedPlaybackSrc]);
 
 	const applyStableMediaConfig = useCallback(() => {
 		const media = mediaRef.current;
@@ -309,27 +274,28 @@ export function PortfolioMuxVideo({
 		media.defaultMuted = muted;
 		media.playsInline = true;
 		media.poster = posterSrc ?? "";
-		media.preload = autoPlay || variant !== "article" ? "auto" : "metadata";
+		media.preload = isActive || variant !== "article" ? "auto" : "metadata";
 		media.streamType = "on-demand";
 		media.metadata = metadata ?? {};
-	}, [autoPlay, loop, metadata, muted, posterSrc, variant]);
+	}, [isActive, loop, metadata, muted, posterSrc, variant]);
 
 	const scheduleControlsHide = useCallback(() => {
 		clearControlsTimeout();
-		if (!isPlaying || isPointerInside || isFocusedWithin || menuOpen) {
+		if (!isPlaying || isFocusedWithin || menuOpen) {
 			setControlsVisible(true);
 			return;
 		}
 
 		// Instant disappearance on pointer leave for maximum video aspect
 		setControlsVisible(false);
-	}, [clearControlsTimeout, isFocusedWithin, isPlaying, isPointerInside, menuOpen]);
+	}, [clearControlsTimeout, isFocusedWithin, isPlaying, menuOpen]);
 
 	const syncFromMedia = useCallback(() => {
 		const media = mediaRef.current;
 		if (!media) return;
 
-		setIsPlaying(!media.paused && !media.ended);
+		const currentlyPlaying = !media.paused && !media.ended;
+		setIsPlaying(currentlyPlaying);
 		setCurrentTime(Number.isFinite(media.currentTime) ? media.currentTime : 0);
 		setDuration(Number.isFinite(media.duration) ? media.duration : 0);
 		setIsMuted(media.muted);
@@ -359,12 +325,13 @@ export function PortfolioMuxVideo({
 				? String(renditions[renditionList.selectedIndex]?.id)
 				: "auto",
 		);
-	}, []);
-
-	useLayoutEffect(() => {
-		void mediaSessionKey;
-		resetPlaybackSessionState();
-	}, [mediaSessionKey, resetPlaybackSessionState]);
+		const shouldEmitPlayingChange =
+			currentlyPlaying || lastEmittedPlayingStateRef.current === true;
+		if (shouldEmitPlayingChange && lastEmittedPlayingStateRef.current !== currentlyPlaying) {
+			lastEmittedPlayingStateRef.current = currentlyPlaying;
+			onPlayingChange?.(currentlyPlaying);
+		}
+	}, [onPlayingChange]);
 
 	const togglePlayback = useCallback(async () => {
 		const media = mediaRef.current;
@@ -377,7 +344,7 @@ export function PortfolioMuxVideo({
 			desiredPlayingRef.current = true;
 			setControlsVisible(true);
 			applyStableMediaConfig();
-			ensureMediaSource({ forceLoad: media.networkState === HTMLMediaElement.NETWORK_EMPTY });
+			ensureMediaSource();
 			pauseOtherDocumentMedia(media);
 
 			try {
@@ -491,7 +458,6 @@ export function PortfolioMuxVideo({
 	}, []);
 
 	useEffect(() => {
-		void mediaSessionKey;
 		const media = mediaRef.current;
 		if (!media) return;
 
@@ -549,41 +515,35 @@ export function PortfolioMuxVideo({
 				renditions.removeEventListener("removerendition", handleMediaEvent);
 			}
 		};
-	}, [ensureMediaSource, mediaSessionKey, syncFromMedia]);
+	}, [ensureMediaSource, syncFromMedia]);
 
 	useEffect(() => {
-		void mediaSessionKey;
 		applyStableMediaConfig();
-	}, [applyStableMediaConfig, mediaSessionKey]);
+	}, [applyStableMediaConfig]);
 
 	useEffect(() => {
-		void mediaSessionKey;
-		ensureMediaSource({ forceLoad: true });
-	}, [ensureMediaSource, mediaSessionKey]);
+		ensureMediaSource();
+	}, [ensureMediaSource]);
 
 	useEffect(() => {
-		void mediaSessionKey;
-		if (!autoPlay) return;
-
 		const media = mediaRef.current;
 		if (!media) return;
+		desiredPlayingRef.current = isActive;
 
-		desiredPlayingRef.current = true;
-		const playWhenReady = () => {
+		if (isActive) {
 			void togglePlayback();
-		};
-
-		if (media.readyState >= 1) {
-			playWhenReady();
 			return;
 		}
 
-		media.addEventListener("loadedmetadata", playWhenReady, { once: true });
-		return () => media.removeEventListener("loadedmetadata", playWhenReady);
-	}, [autoPlay, mediaSessionKey, togglePlayback]);
+		try {
+			media.pause();
+		} catch {}
+
+		setIsPlaying(false);
+		setControlsVisible(true);
+	}, [isActive, togglePlayback]);
 
 	useEffect(() => {
-		void mediaSessionKey;
 		const media = mediaRef.current;
 		if (!media || typeof window === "undefined") return;
 
@@ -596,7 +556,7 @@ export function PortfolioMuxVideo({
 
 		media.addEventListener("play", announceActivation);
 		return () => media.removeEventListener("play", announceActivation);
-	}, [mediaSessionKey, pathname]);
+	}, [pathname]);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -607,7 +567,14 @@ export function PortfolioMuxVideo({
 				return;
 			}
 
-			stopPlayback();
+			const media = mediaRef.current;
+			if (!media) return;
+			desiredPlayingRef.current = false;
+			try {
+				media.pause();
+			} catch {}
+			setIsPlaying(false);
+			setControlsVisible(true);
 		};
 
 		window.addEventListener(
@@ -619,7 +586,7 @@ export function PortfolioMuxVideo({
 				PORTFOLIO_VIDEO_ACTIVE_EVENT,
 				handleActivePlayerChange as EventListener,
 			);
-	}, [stopPlayback]);
+	}, []);
 
 	useEffect(() => {
 		if (typeof document === "undefined") return;
@@ -712,14 +679,12 @@ export function PortfolioMuxVideo({
 		// Hide controls when window loses focus (switching to another app)
 		const handleWindowBlur = () => {
 			setControlsVisible(false);
-			setIsPointerInside(false);
 		};
 
 		// Hide controls when page becomes hidden (tab switch, minimize)
 		const handleVisibilityChange = () => {
 			if (document.hidden) {
 				setControlsVisible(false);
-				setIsPointerInside(false);
 			}
 		};
 
@@ -834,12 +799,11 @@ export function PortfolioMuxVideo({
 			}}
 			onKeyDown={handleKeyDown}
 			onPointerEnter={() => {
-				setIsPointerInside(true);
 				handlePointerActivity();
 			}}
 			onPointerLeave={() => {
-				setIsPointerInside(false);
-				scheduleControlsHide();
+				clearControlsTimeout();
+				setControlsVisible(false);
 			}}
 			onPointerMove={handlePointerActivity}
 			onTouchStart={(event) => {
@@ -847,6 +811,10 @@ export function PortfolioMuxVideo({
 				if ((event.target as HTMLElement)?.closest("input, button, [role='button']"))
 					return;
 				handlePointerActivity();
+			}}
+			onTouchEnd={() => {
+				clearControlsTimeout();
+				setControlsVisible(false);
 			}}
 			onTouchMove={(event) => {
 				// Allow scrolling in non-fullscreen mode
@@ -856,7 +824,6 @@ export function PortfolioMuxVideo({
 			}}
 		>
 			<mux-video
-				key={mediaSessionKey}
 				ref={mediaRef}
 				className="portfolio-mux-video-host block size-full"
 				tabIndex={0}

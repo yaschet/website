@@ -11,7 +11,7 @@
 "use client";
 
 import { CaretLeft, CaretRight, Play } from "@phosphor-icons/react/dist/ssr";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
@@ -147,7 +147,8 @@ export function ImageGallery({
 	const shouldReduceMotion = useReducedMotion();
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-	const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+	const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+	const [mountedPlaybackIds, setMountedPlaybackIds] = useState<string[]>([]);
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
 	const [isPointerInside, setIsPointerInside] = useState(false);
@@ -214,7 +215,8 @@ export function ImageGallery({
 		return aspectRatios.some((ratio) => Math.abs(ratio - first) > 0.01);
 	}, [aspectRatios]);
 	const activeItem = galleryItems[activeIndex];
-	const isActiveVideoPlaying = activeItem?.kind === "mux-video" && playingIndex === activeIndex;
+	const isActiveVideoPlaying =
+		activeItem?.kind === "mux-video" && activeVideoId === activeItem.playbackId;
 	const chromeVisible = isFocusedWithin || (canHover && isPointerInside);
 
 	const currentHeight =
@@ -261,15 +263,24 @@ export function ImageGallery({
 		activeIndexRef.current = 0;
 		setActiveIndex(0);
 		setHoveredIndex(null);
-		setPlayingIndex(null);
+		setActiveVideoId(null);
+		setMountedPlaybackIds([]);
 		setIsLightboxOpen(false);
 	}, [galleryIdentity]);
 
 	useEffect(() => {
-		if (playingIndex !== null && playingIndex !== activeIndex) {
-			setPlayingIndex(null);
+		if (activeVideoId === null) return;
+		if (activeItem?.kind !== "mux-video" || activeItem.playbackId !== activeVideoId) {
+			setActiveVideoId(null);
 		}
-	}, [activeIndex, playingIndex]);
+	}, [activeItem, activeVideoId]);
+
+	const mountGalleryVideo = useCallback((playbackId: string) => {
+		setMountedPlaybackIds((current) => {
+			const next = [...current.filter((id) => id !== playbackId), playbackId];
+			return next.length <= 3 ? next : next.slice(-3);
+		});
+	}, []);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -399,9 +410,12 @@ export function ImageGallery({
 				>
 					{galleryItems.map((item, index) => {
 						const isHovered = canHover && hoveredIndex === index;
-						const isPlayingInline = item.kind === "mux-video" && playingIndex === index;
-						const isExpandableImage =
-							expandable && item.kind === "image" && !isPlayingInline;
+						const isPlayingInline =
+							item.kind === "mux-video" && activeVideoId === item.playbackId;
+						const hasMountedInlineVideo =
+							item.kind === "mux-video" &&
+							mountedPlaybackIds.includes(item.playbackId);
+						const isExpandableImage = expandable && item.kind === "image";
 
 						const stageClassName = cn(
 							"relative h-full overflow-hidden bg-surface-100 dark:bg-surface-950",
@@ -409,148 +423,156 @@ export function ImageGallery({
 						);
 						const stageContent = (
 							<>
-								<AnimatePresence mode="wait" initial={false}>
-									{isPlayingInline ? (
-										<motion.div
-											key="portfolio-mux-video"
-											className="absolute inset-0"
-											initial={{ opacity: 0 }}
-											animate={{ opacity: 1 }}
-											exit={{ opacity: 0 }}
-											transition={{
-												duration: shouldReduceMotion ? 0 : 0.18,
-											}}
-										>
-											<PortfolioMuxVideo
-												key={`gallery-player-${item.playbackId}`}
-												playbackId={item.playbackId}
-												poster={item.poster}
-												metadata={item.metadata}
-												autoPlay
-												variant="gallery"
-												className="h-full w-full"
-												onExit={() => setPlayingIndex(null)}
-											/>
-										</motion.div>
-									) : (
-										<motion.div
-											key="gallery-stage"
-											className="absolute inset-0"
-											initial={{ opacity: 0 }}
-											animate={{ opacity: 1 }}
-											exit={{ opacity: 0 }}
-											transition={{
-												duration: shouldReduceMotion ? 0 : 0.18,
-											}}
-										>
-											<div
-												className={cn(
-													"absolute inset-0 transform-gpu transition-transform duration-650 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform motion-reduce:transition-none",
-													isHovered && "scale-[1.03]",
-												)}
-											>
-												{item.kind === "image" ? (
-													<Image
-														src={item.src}
-														alt={item.alt}
-														fill
-														sizes={sizes}
-														className={cn(
-															hasVaryingRatios
-																? "object-contain"
-																: "object-cover",
-															"pointer-events-none select-none",
-															imageClassName,
-														)}
-														placeholder={
-															typeof item.src === "string"
-																? "empty"
-																: "blur"
-														}
-														priority={
-															prioritizeFirstImage && index === 0
-														}
-														decoding="async"
-														draggable={false}
-														quality={quality}
-													/>
-												) : (
-													<Image
-														src={item.poster}
-														alt={item.alt}
-														fill
-														sizes={sizes}
-														className={cn(
-															hasVaryingRatios
-																? "object-contain"
-																: "object-cover",
-															"pointer-events-none select-none",
-															imageClassName,
-														)}
-														placeholder={
-															typeof item.poster === "string"
-																? "empty"
-																: "blur"
-														}
-														priority={
-															prioritizeFirstImage && index === 0
-														}
-														decoding="async"
-														draggable={false}
-														quality={quality}
-													/>
-												)}
-											</div>
-										</motion.div>
-									)}
-								</AnimatePresence>
-
-								{item.kind === "mux-video" && !isPlayingInline && (
-									<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-6">
-										<motion.button
-											type="button"
-											initial="idle"
-											whileHover="hover"
-											whileTap="tap"
-											variants={{
-												idle: { scale: 1 },
-												hover: { scale: 1.05 },
-												tap: { scale: 0.92 },
-											}}
-											transition={tweens.interaction}
-											className={cn(
-												"flex h-11 items-center justify-center gap-3 rounded-none bg-surface-950 px-6 text-white",
-												"hover:bg-surface-900",
-												"focus-visible:outline-none",
-												"disabled:pointer-events-none disabled:opacity-35",
-												"pointer-events-auto",
-											)}
-											onClick={(event) => {
-												event.preventDefault();
-												event.stopPropagation();
-												stopAllPortfolioVideos();
-												setActiveIndex(index);
-												setPlayingIndex(index);
-											}}
-											aria-label={
-												item.duration
-													? `Play video, duration ${item.duration}`
-													: "Play video"
+								{item.kind === "mux-video" && hasMountedInlineVideo && (
+									<div
+										className="absolute inset-0 z-0"
+										style={{
+											visibility:
+												activeIndex === index ? "visible" : "hidden",
+											pointerEvents: activeIndex === index ? "auto" : "none",
+										}}
+									>
+										<PortfolioMuxVideo
+											playbackId={item.playbackId}
+											poster={item.poster}
+											metadata={item.metadata}
+											active={isPlayingInline}
+											variant="gallery"
+											className="h-full w-full"
+											onExit={() =>
+												setActiveVideoId((current) =>
+													current === item.playbackId ? null : current,
+												)
 											}
-										>
-											<Play
-												size={22}
-												weight="fill"
-												className="-translate-x-0.5"
-											/>
-											<span className="font-mono font-semibold text-sm uppercase tracking-[0.12em]">
-												{item.duration
-													? `Play · ${item.duration}`
-													: "Play Demo"}
-											</span>
-										</motion.button>
+											onPlayingChange={(playing) => {
+												if (playing) {
+													setActiveVideoId(item.playbackId);
+													return;
+												}
+
+												setActiveVideoId((current) =>
+													current === item.playbackId ? null : current,
+												);
+											}}
+										/>
 									</div>
 								)}
+
+								<motion.div
+									className="absolute inset-0 z-10"
+									animate={{
+										opacity:
+											item.kind === "mux-video" && isPlayingInline ? 0 : 1,
+									}}
+									transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
+									style={{
+										pointerEvents:
+											item.kind === "mux-video" && isPlayingInline
+												? "none"
+												: "auto",
+									}}
+								>
+									<div
+										className={cn(
+											"absolute inset-0 transform-gpu transition-transform duration-650 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform motion-reduce:transition-none",
+											isHovered && "scale-[1.03]",
+										)}
+									>
+										{item.kind === "image" ? (
+											<Image
+												src={item.src}
+												alt={item.alt}
+												fill
+												sizes={sizes}
+												className={cn(
+													hasVaryingRatios
+														? "object-contain"
+														: "object-cover",
+													"pointer-events-none select-none",
+													imageClassName,
+												)}
+												placeholder={
+													typeof item.src === "string" ? "empty" : "blur"
+												}
+												priority={prioritizeFirstImage && index === 0}
+												decoding="async"
+												draggable={false}
+												quality={quality}
+											/>
+										) : (
+											<Image
+												src={item.poster}
+												alt={item.alt}
+												fill
+												sizes={sizes}
+												className={cn(
+													hasVaryingRatios
+														? "object-contain"
+														: "object-cover",
+													"pointer-events-none select-none",
+													imageClassName,
+												)}
+												placeholder={
+													typeof item.poster === "string"
+														? "empty"
+														: "blur"
+												}
+												priority={prioritizeFirstImage && index === 0}
+												decoding="async"
+												draggable={false}
+												quality={quality}
+											/>
+										)}
+									</div>
+
+									{item.kind === "mux-video" && (
+										<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-6">
+											<motion.button
+												type="button"
+												initial="idle"
+												whileHover="hover"
+												whileTap="tap"
+												variants={{
+													idle: { scale: 1 },
+													hover: { scale: 1.05 },
+													tap: { scale: 0.92 },
+												}}
+												transition={tweens.interaction}
+												className={cn(
+													"flex h-11 items-center justify-center gap-3 rounded-none bg-surface-950 px-6 text-white",
+													"hover:bg-surface-900",
+													"focus-visible:outline-none",
+													"disabled:pointer-events-none disabled:opacity-35",
+													"pointer-events-auto",
+												)}
+												onClick={(event) => {
+													event.preventDefault();
+													event.stopPropagation();
+													stopAllPortfolioVideos();
+													mountGalleryVideo(item.playbackId);
+													setActiveIndex(index);
+													setActiveVideoId(item.playbackId);
+												}}
+												aria-label={
+													item.duration
+														? `Play video, duration ${item.duration}`
+														: "Play video"
+												}
+											>
+												<Play
+													size={22}
+													weight="fill"
+													className="-translate-x-0.5"
+												/>
+												<span className="font-mono font-semibold text-sm uppercase tracking-[0.12em]">
+													{item.duration
+														? `Play · ${item.duration}`
+														: "Play Demo"}
+												</span>
+											</motion.button>
+										</div>
+									)}
+								</motion.div>
 							</>
 						);
 
