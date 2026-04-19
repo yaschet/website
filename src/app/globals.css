@@ -1561,10 +1561,10 @@
     background:
       linear-gradient(
         to right,
-        rgb(255 255 255 / 0.98) 0,
-        rgb(255 255 255 / 0.98) var(--portfolio-video-range-progress, 0%),
-        rgb(255 255 255 / 0.14) var(--portfolio-video-range-progress, 0%),
-        rgb(255 255 255 / 0.14) 100%
+        rgb(245 245 245) 0,
+        rgb(245 245 245) var(--portfolio-video-range-progress, 0%),
+        rgb(56 56 56) var(--portfolio-video-range-progress, 0%),
+        rgb(56 56 56) 100%
       );
   }
 
@@ -1576,10 +1576,10 @@
     background:
       linear-gradient(
         to right,
-        rgb(255 255 255 / 0.98) 0,
-        rgb(255 255 255 / 0.98) var(--portfolio-video-range-progress, 0%),
-        rgb(255 255 255 / 0.14) var(--portfolio-video-range-progress, 0%),
-        rgb(255 255 255 / 0.14) 100%
+        rgb(245 245 245) 0,
+        rgb(245 245 245) var(--portfolio-video-range-progress, 0%),
+        rgb(56 56 56) var(--portfolio-video-range-progress, 0%),
+        rgb(56 56 56) 100%
       );
   }
 
@@ -1589,9 +1589,9 @@
     inline-size: 10px;
     block-size: 10px;
     margin-top: -4px;
-    border: 1px solid rgb(15 23 42 / 0.9);
+    border: 1px solid rgb(23 23 23);
     border-radius: 0;
-    background: rgb(255 255 255 / 0.98);
+    background: rgb(252 252 252);
     box-shadow: 0 1px 4px rgb(2 6 23 / 0.35);
   }
 
@@ -1599,9 +1599,9 @@
   .portfolio-video-volume::-moz-range-thumb {
     inline-size: 10px;
     block-size: 10px;
-    border: 1px solid rgb(15 23 42 / 0.9);
+    border: 1px solid rgb(23 23 23);
     border-radius: 0;
-    background: rgb(255 255 255 / 0.98);
+    background: rgb(252 252 252);
     box-shadow: 0 1px 4px rgb(2 6 23 / 0.35);
   }
 
@@ -1610,7 +1610,7 @@
   .portfolio-video-range:focus-visible::-moz-range-thumb,
   .portfolio-video-volume:focus-visible::-moz-range-thumb {
     box-shadow:
-      0 0 0 2px rgb(255 255 255 / 0.16),
+      0 0 0 2px rgb(245 245 245),
       0 1px 4px rgb(2 6 23 / 0.35);
   }
 
