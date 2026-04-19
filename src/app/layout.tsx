@@ -1,13 +1,26 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
 
-import { FloatingNav } from "@components/layout/floating-nav";
 import RootProvider from "@components/providers/root-provider";
 import { fontVariables } from "@/lib/fonts";
 import { PortfolioTypeStyles } from "@/src/components/layout/portfolio-type-styles";
-import { ReadingProgress } from "@/src/components/ui/reading-progress";
+
+const FloatingNav = dynamic(
+	() => import("@/src/components/layout/floating-nav").then((module) => module.FloatingNav),
+	{
+		ssr: false,
+	},
+);
+
+const ReadingProgress = dynamic(
+	() => import("@/src/components/ui/reading-progress").then((module) => module.ReadingProgress),
+	{
+		ssr: false,
+	},
+);
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://yaschet.dev"),

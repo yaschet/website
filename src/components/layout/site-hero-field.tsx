@@ -1,0 +1,32 @@
+"use client";
+
+import {
+	INSTRUMENT_DOT_RADIUS,
+	INSTRUMENT_GRID_MIN_INSET,
+	INSTRUMENT_GRID_ORIGIN,
+	INSTRUMENT_GRID_STEP,
+} from "@/components/ui/instrument-field-metrics";
+import { InstrumentField } from "@/components/ui/topographic-dot-field";
+
+const HERO_FIELD_SPEED = 0.28;
+
+export function SiteHeroField() {
+	return (
+		<div className="absolute inset-0 opacity-100 dark:opacity-100" aria-hidden="true">
+			<div
+				className="pointer-events-none absolute inset-0"
+				style={{ backgroundColor: "var(--instrument-field-bg-auto)" }}
+			/>
+			<InstrumentField
+				interactive
+				step={INSTRUMENT_GRID_STEP}
+				minInset={INSTRUMENT_GRID_MIN_INSET}
+				origin={INSTRUMENT_GRID_ORIGIN}
+				radius={INSTRUMENT_DOT_RADIUS}
+				speed={HERO_FIELD_SPEED}
+				surface="hero"
+				variant="terrain"
+			/>
+		</div>
+	);
+}
