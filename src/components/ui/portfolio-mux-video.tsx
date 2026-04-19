@@ -65,21 +65,21 @@ const PLAYBACK_RATE_OPTIONS = [
 let nextPortfolioMuxVideoId = 0;
 
 const PLAYER_BUTTON_CLASS_NAME = cn(
-	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-800 px-3 text-white",
+	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-900 px-3 text-white",
 	"disabled:pointer-events-none disabled:opacity-35",
 	"focus-visible:outline-none",
-	"hover:bg-surface-700",
+	"hover:bg-surface-800",
 );
 
 const PLAYER_ICON_BUTTON_CLASS_NAME = cn(
-	"flex h-10 w-10 items-center justify-center rounded-none border-none bg-surface-800 text-white",
+	"flex h-10 w-10 items-center justify-center rounded-none border-none bg-surface-900 text-white",
 	"disabled:pointer-events-none disabled:opacity-35",
 	"focus-visible:outline-none",
-	"hover:bg-surface-700",
+	"hover:bg-surface-800",
 );
 
 const PLAYER_TIME_DISPLAY_CLASS_NAME = cn(
-	"pointer-events-auto inline-flex h-10 items-center rounded-none border-none bg-surface-800 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em] hover:bg-surface-700",
+	"pointer-events-auto inline-flex h-10 items-center rounded-none border-none bg-surface-900 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em] hover:bg-surface-800",
 );
 
 function formatPlaybackTime(value: number) {
@@ -893,7 +893,7 @@ export function PortfolioMuxVideo({
 			</motion.div>
 
 			<motion.div
-				className="pointer-events-none absolute inset-x-0 bottom-0 z-20"
+				className="pointer-events-none absolute inset-x-0 bottom-0 z-20 border-white/8 border-t"
 				initial={{ opacity: 1 }}
 				animate={{
 					opacity: controlsVisible ? 1 : 0,
@@ -901,7 +901,7 @@ export function PortfolioMuxVideo({
 				}}
 				transition={tweens.interactionFast}
 			>
-				<div className="absolute inset-0 bg-surface-900" />
+				<div className="absolute inset-0 bg-surface-950" />
 				<div className="relative flex flex-col gap-2 px-4 pt-3 pb-3">
 					<input
 						data-player-interactive
@@ -990,7 +990,10 @@ export function PortfolioMuxVideo({
 						</div>
 
 						<div
-							className={cn("flex items-center gap-2", controlsInteractiveClassName)}
+							className={cn(
+								"flex items-center gap-2 border-white/8 border-l pl-2",
+								controlsInteractiveClassName,
+							)}
 						>
 							{hasQualityMenu && (
 								<DropdownMenu
