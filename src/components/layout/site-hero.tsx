@@ -1,16 +1,9 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
-import dynamic from "next/dynamic";
 import Link from "next/link";
+import { SiteHeroField } from "@/src/components/layout/site-hero-field";
 
 const HERO_COLUMN_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 50)";
 const HERO_BODY_MAX_WIDTH = "58ch";
-
-const SiteHeroField = dynamic(
-	() => import("@/src/components/layout/site-hero-field").then((module) => module.SiteHeroField),
-	{
-		ssr: false,
-	},
-);
 
 export function SiteHero() {
 	return (
