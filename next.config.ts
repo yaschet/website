@@ -10,13 +10,17 @@ const nextConfig: NextConfig = {
 		formats: ["image/avif", "image/webp"],
 		qualities: [25, 50, 75, 100],
 		minimumCacheTTL: 60,
-		// Explicitly match our grid breakpoints (640, 768, 1024, 1280, 1536)
-		deviceSizes: [640, 768, 1024, 1280, 1536, 1920],
+		// Explicitly match our grid breakpoints and include a 2x desktop tier.
+		deviceSizes: [640, 768, 1024, 1280, 1536, 1920, 2048],
 		imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
 		remotePatterns: [
 			{
 				protocol: "https",
 				hostname: "images.unsplash.com",
+			},
+			{
+				protocol: "https",
+				hostname: "image.mux.com",
 			},
 		],
 	},

@@ -151,11 +151,12 @@ const DropdownMenuContent = React.forwardRef<
 	React.ComponentRef<typeof DropdownMenuPrimitive.Content>,
 	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content> & {
 		sideOffset?: number;
+		container?: HTMLElement | null;
 	}
->(({ className, sideOffset = 4, ...props }, ref) => {
+>(({ className, sideOffset = 4, container, ...props }, ref) => {
 	const size = useDropdownMenuSize();
 	return (
-		<DropdownMenuPortal>
+		<DropdownMenuPortal container={container ?? undefined}>
 			<DropdownMenuPrimitive.Content
 				ref={ref}
 				className={cn(dropdownMenuContentVariants({ size }), className)}

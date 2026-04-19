@@ -80,8 +80,8 @@ export function ProjectCardGallery({
 						showCounter={false}
 						expandable={false}
 						className="border-0 border-surface-200 border-b dark:border-surface-800"
-						sizes="(max-width: 768px) 100vw, 768px"
-						quality={75}
+						sizes="(max-width: 768px) 100vw, (max-width: 1400px) calc(100vw - 8rem), 1280px"
+						quality={90}
 					/>
 					{isPrivate && (
 						<div className="absolute inset-0 z-20 flex items-center justify-center bg-surface-50/10 backdrop-blur-3xl transition-all duration-200 dark:bg-surface-900/40">

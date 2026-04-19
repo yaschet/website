@@ -97,6 +97,10 @@ const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
 	"disabled:pointer-events-none disabled:opacity-35",
 );
 
+function getMuxAnimatedPreviewSrc(playbackId: string) {
+	return `https://image.mux.com/${playbackId}/animated.webp?width=640&fps=15&start=0&end=4`;
+}
+
 function parseAspectRatio(ratio: string): number {
 	if (ratio.includes("/")) {
 		const [w, h] = ratio.split("/").map(Number);
@@ -139,15 +143,17 @@ export function MediaGallery({
 	onIndexChange,
 	prioritizeFirstImage = true,
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw",
-	quality = 75,
+	quality = 85,
 }: MediaGalleryProps) {
 	const outerRef = useRef<HTMLElement>(null);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const scrollFrameRef = useRef<number | null>(null);
+	const hoverPreviewTimeoutRef = useRef<number | null>(null);
 	const activeIndexRef = useRef(0);
 	const shouldReduceMotion = useReducedMotion();
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+	const [hoverPreviewPlaybackId, setHoverPreviewPlaybackId] = useState<string | null>(null);
 	const [visibleVideoId, setVisibleVideoId] = useState<string | null>(null);
 	const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -274,6 +280,7 @@ export function MediaGallery({
 		activeIndexRef.current = 0;
 		setActiveIndex(0);
 		setHoveredIndex(null);
+		setHoverPreviewPlaybackId(null);
 		setVisibleVideoId(null);
 		setPlayingVideoId(null);
 		setIsLightboxOpen(false);
@@ -307,6 +314,48 @@ export function MediaGallery({
 
 		observer.observe(outerRef.current);
 		return () => observer.disconnect();
+	}, []);
+
+	const clearHoverPreview = useCallback(() => {
+		if (hoverPreviewTimeoutRef.current !== null) {
+			window.clearTimeout(hoverPreviewTimeoutRef.current);
+			hoverPreviewTimeoutRef.current = null;
+		}
+		setHoverPreviewPlaybackId(null);
+	}, []);
+
+	const armHoverPreview = useCallback(
+		(item: ResolvedGalleryItem, index: number, isViewingInline: boolean) => {
+			setHoveredIndex(index);
+
+			if (
+				typeof window === "undefined" ||
+				!canHover ||
+				item.kind !== "mux-video" ||
+				isViewingInline
+			) {
+				setHoverPreviewPlaybackId(null);
+				return;
+			}
+
+			if (hoverPreviewTimeoutRef.current !== null) {
+				window.clearTimeout(hoverPreviewTimeoutRef.current);
+			}
+
+			hoverPreviewTimeoutRef.current = window.setTimeout(() => {
+				setHoverPreviewPlaybackId(item.playbackId);
+				hoverPreviewTimeoutRef.current = null;
+			}, 200);
+		},
+		[canHover],
+	);
+
+	useEffect(() => {
+		return () => {
+			if (hoverPreviewTimeoutRef.current !== null) {
+				window.clearTimeout(hoverPreviewTimeoutRef.current);
+			}
+		};
 	}, []);
 
 	useEffect(() => {
@@ -399,7 +448,11 @@ export function MediaGallery({
 				}}
 				onKeyDown={handleKeyDown}
 				onPointerEnter={() => setIsPointerInside(true)}
-				onPointerLeave={() => setIsPointerInside(false)}
+				onPointerLeave={() => {
+					setIsPointerInside(false);
+					setHoveredIndex(null);
+					clearHoverPreview();
+				}}
 			>
 				<div
 					ref={scrollContainerRef}
@@ -418,6 +471,10 @@ export function MediaGallery({
 							item.kind === "mux-video" && playingVideoId === item.playbackId;
 						const isViewingInline =
 							item.kind === "mux-video" && visibleVideoId === item.playbackId;
+						const isHoverPreviewActive =
+							item.kind === "mux-video" &&
+							hoverPreviewPlaybackId === item.playbackId &&
+							!isViewingInline;
 						const isExpandableImage = expandable && item.kind === "image";
 
 						const stageClassName = cn(
@@ -541,6 +598,44 @@ export function MediaGallery({
 									</div>
 
 									{item.kind === "mux-video" && (
+										<>
+											<motion.div
+												className="pointer-events-none absolute inset-0 z-10"
+												initial={false}
+												animate={{ opacity: isHoverPreviewActive ? 1 : 0 }}
+												transition={tweens.interaction}
+												aria-hidden={!isHoverPreviewActive}
+											>
+												<Image
+													src={getMuxAnimatedPreviewSrc(item.playbackId)}
+													alt=""
+													fill
+													unoptimized
+													sizes={sizes}
+													className={cn(
+														hasVaryingRatios
+															? "object-contain"
+															: "object-cover",
+														"pointer-events-none select-none",
+														mediaClassName,
+													)}
+													loading="lazy"
+													decoding="async"
+													aria-hidden="true"
+												/>
+											</motion.div>
+											<div
+												className="pointer-events-none absolute inset-0 z-20"
+												style={{
+													background:
+														"radial-gradient(circle at center, rgb(0 0 0 / 0) 36%, rgb(0 0 0 / 0.14) 100%)",
+												}}
+												aria-hidden
+											/>
+										</>
+									)}
+
+									{item.kind === "mux-video" && (
 										<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-6">
 											<motion.button
 												type="button"
@@ -553,10 +648,15 @@ export function MediaGallery({
 													tap: { scale: 0.92 },
 												}}
 												transition={tweens.interaction}
-												className={GALLERY_PLAY_BUTTON_CLASS_NAME}
+												className={cn(
+													GALLERY_PLAY_BUTTON_CLASS_NAME,
+													isHoverPreviewActive &&
+														"border-white/20 bg-surface-950",
+												)}
 												onClick={(event) => {
 													event.preventDefault();
 													event.stopPropagation();
+													clearHoverPreview();
 													stopAllPortfolioVideos();
 													setActiveIndex(index);
 													setVisibleVideoId(item.playbackId);
@@ -615,12 +715,15 @@ export function MediaGallery({
 											stageClassName,
 											"w-full border-0 p-0 text-left",
 										)}
-										onPointerEnter={() => setHoveredIndex(index)}
-										onPointerLeave={() =>
+										onPointerEnter={() =>
+											armHoverPreview(item, index, isViewingInline)
+										}
+										onPointerLeave={() => {
 											setHoveredIndex((current) =>
 												current === index ? null : current,
-											)
-										}
+											);
+											clearHoverPreview();
+										}}
 										onClick={() => {
 											setActiveIndex(index);
 											setIsLightboxOpen(true);
@@ -632,12 +735,15 @@ export function MediaGallery({
 								) : (
 									<div
 										className={stageClassName}
-										onPointerEnter={() => setHoveredIndex(index)}
-										onPointerLeave={() =>
+										onPointerEnter={() =>
+											armHoverPreview(item, index, isViewingInline)
+										}
+										onPointerLeave={() => {
 											setHoveredIndex((current) =>
 												current === index ? null : current,
-											)
-										}
+											);
+											clearHoverPreview();
+										}}
 									>
 										{stageContent}
 									</div>

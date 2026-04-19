@@ -77,7 +77,7 @@ const PLAYBACK_RATE_OPTIONS = [
 let nextPortfolioMuxVideoId = 0;
 
 const PLAYER_BUTTON_CLASS_NAME = cn(
-	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-950 px-3 text-white",
+	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-950 px-3 whitespace-nowrap text-white",
 	"disabled:pointer-events-none disabled:opacity-35",
 	"focus-visible:outline-none",
 	"hover:bg-surface-800",
@@ -91,7 +91,7 @@ const PLAYER_ICON_BUTTON_CLASS_NAME = cn(
 );
 
 const PLAYER_TIME_DISPLAY_CLASS_NAME = cn(
-	"pointer-events-auto inline-flex h-10 cursor-default items-center rounded-none border-none bg-surface-950 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em]",
+	"pointer-events-auto inline-flex h-10 cursor-default items-center rounded-none border-none bg-surface-950 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em] whitespace-nowrap",
 );
 
 function formatPlaybackTime(value: number) {
@@ -264,6 +264,7 @@ export function PortfolioMuxVideo({
 	const mediaRef = useRef<MuxVideoElement | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const hideControlsTimeoutRef = useRef<number | null>(null);
+	const suppressNextRootClickRef = useRef(false);
 	const instanceIdRef = useRef(++nextPortfolioMuxVideoId);
 	const lastEmittedPlayingStateRef = useRef<boolean | null>(null);
 	const playbackCommandIdRef = useRef(0);
@@ -284,6 +285,7 @@ export function PortfolioMuxVideo({
 	]);
 	const [qualityValue, setQualityValue] = useState("auto");
 	const [resolvedQualityLabel, setResolvedQualityLabel] = useState<string | null>(null);
+	const [resolvedQualityChipLabel, setResolvedQualityChipLabel] = useState<string | null>(null);
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [isMediaReady, setIsMediaReady] = useState(false);
 	const [isBuffering, setIsBuffering] = useState(Boolean(isActive));
@@ -294,6 +296,9 @@ export function PortfolioMuxVideo({
 	const [scrubPreviewTime, setScrubPreviewTime] = useState<number | null>(null);
 	const [scrubPreviewRawX, setScrubPreviewRawX] = useState<number | null>(null);
 	const [scrubPreviewTrackWidth, setScrubPreviewTrackWidth] = useState(0);
+	const [canHover, setCanHover] = useState(false);
+	const [isCoarsePointer, setIsCoarsePointer] = useState(false);
+	const [playerWidth, setPlayerWidth] = useState(0);
 	const scrubPreviewX = useMotionValue(0);
 	const scrubPreviewXSpring = useSpring(scrubPreviewX, springs.layout);
 
