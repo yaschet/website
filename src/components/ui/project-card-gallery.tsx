@@ -129,13 +129,15 @@ export function ProjectCardGallery({
 						) : (
 							<Link
 								href={href}
-								className="inline-flex items-center gap-3 text-surface-900 transition-colors hover:text-surface-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-900/15 focus-visible:ring-offset-2 dark:text-surface-50 dark:focus-visible:ring-surface-50/20 dark:hover:text-white"
+								className="block w-full text-surface-900 transition-colors hover:text-surface-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-900/15 focus-visible:ring-offset-2 dark:text-surface-50 dark:focus-visible:ring-surface-50/20 dark:hover:text-white"
 							>
-								<h3 className="portfolio-heading-sm portfolio-capsize-heading-sm">
-									{title}
-								</h3>
-								<span className="mt-0.5 flex h-9 min-w-9 items-center justify-center border border-surface-200 bg-surface-50 text-surface-700 transition-colors duration-200 group-hover:border-surface-300 group-hover:text-surface-900 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-300 dark:group-hover:border-surface-600 dark:group-hover:text-surface-50">
-									<ArrowUpRight weight="bold" className="size-4" />
+								<span className="flex w-full items-center justify-between gap-[var(--portfolio-space-group)]">
+									<h3 className="portfolio-heading-sm portfolio-capsize-heading-sm">
+										{title}
+									</h3>
+									<span className="mt-0.5 flex h-10 min-w-10 items-center justify-center bg-surface-900 text-surface-50 transition-[background-color,color,transform] duration-200 group-hover:bg-surface-800 dark:bg-surface-50 dark:text-surface-950 dark:group-hover:bg-surface-200">
+										<ArrowUpRight weight="bold" className="size-4" />
+									</span>
 								</span>
 							</Link>
 						)}

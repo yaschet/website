@@ -83,11 +83,10 @@ type ResolvedGalleryItem =
 
 const GALLERY_CONTROL_CLASS_NAME = cn(
 	"flex h-11 min-w-11 items-center justify-center gap-2 px-3",
-	"border border-surface-200/80 bg-white/82 text-surface-900 shadow-[0_6px_18px_rgba(15,23,42,0.1)] backdrop-blur-md",
-	"transition-[opacity,background-color,border-color,color,transform] duration-200 hover:bg-white hover:text-surface-950",
-	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-900/15 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+	"border border-surface-700/45 bg-surface-950/68 text-surface-50 backdrop-blur-sm",
+	"transition-[opacity,background-color,border-color,color] duration-200 hover:bg-surface-950/82 hover:text-surface-50",
+	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
 	"disabled:pointer-events-none disabled:opacity-35",
-	"dark:border-surface-700/80 dark:bg-surface-950/80 dark:text-surface-50 dark:shadow-[0_8px_20px_rgba(0,0,0,0.32)] dark:hover:bg-surface-950",
 );
 
 function parseAspectRatio(ratio: string): number {
@@ -206,7 +205,6 @@ export function ImageGallery({
 	const activeItem = galleryItems[activeIndex];
 	const isActiveVideoPlaying = activeItem?.kind === "mux-video" && playingIndex === activeIndex;
 	const chromeVisible = isFocusedWithin || (canHover && isPointerInside);
-	const isPlaybackExitVisible = !canHover || chromeVisible;
 
 	const currentHeight =
 		hasVaryingRatios && viewportWidth > 0
@@ -492,12 +490,9 @@ export function ImageGallery({
 												type="button"
 												className={cn(
 													GALLERY_CONTROL_CLASS_NAME,
-													"pointer-events-none opacity-0 transition-opacity duration-200",
-													isPlaybackExitVisible &&
-														"pointer-events-auto opacity-100",
+													"opacity-100",
 												)}
 												aria-label="Return video tile to poster"
-												tabIndex={isPlaybackExitVisible ? 0 : -1}
 												onClick={(event) => {
 													event.preventDefault();
 													event.stopPropagation();

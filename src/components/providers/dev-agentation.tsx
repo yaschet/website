@@ -6,10 +6,10 @@ const Agentation = dynamic(() => import("agentation").then((module) => module.Ag
 	ssr: false,
 });
 
-const agentationEndpoint = process.env.NEXT_PUBLIC_AGENTATION_ENDPOINT ?? "http://localhost:4747";
+const agentationEndpoint = process.env.NEXT_PUBLIC_AGENTATION_ENDPOINT;
 
 export function DevAgentation() {
-	if (process.env.NODE_ENV !== "development") {
+	if (process.env.NODE_ENV !== "development" || !agentationEndpoint) {
 		return null;
 	}
 
