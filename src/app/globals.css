@@ -1919,6 +1919,10 @@ html {
     @apply font-sans text-foreground antialiased selection:bg-surface-950 selection:text-surface-50;
     background-color: var(--app-background);
   }
+  
+  .portfolio-action-band {
+    @apply selection:bg-surface-50! selection:text-surface-950! dark:selection:bg-surface-950! dark:selection:text-surface-50!;
+  }
 }
 
 html,
