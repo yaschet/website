@@ -1562,16 +1562,23 @@ export function PortfolioMuxVideo({
 						/>
 					</div>
 
-					<div className="flex items-center justify-between gap-3">
+					<div
+						className={cn(
+							"flex items-center justify-between gap-3",
+							isCompactLayout && "gap-2",
+							isUltraCompactLayout && "gap-1.5",
+						)}
+					>
 						<div
 							className={cn(
 								"flex min-w-0 items-center gap-2",
 								controlsInteractiveClassName,
+								isUltraCompactLayout && "gap-1.5",
 							)}
 						>
 							<button
 								type="button"
-								className={PLAYER_ICON_BUTTON_CLASS_NAME}
+								className={iconButtonClassName}
 								data-player-interactive
 								aria-label={isPlaying ? "Pause video" : "Play video"}
 								onClick={(event) => {
@@ -1591,24 +1598,26 @@ export function PortfolioMuxVideo({
 								)}
 							</button>
 
-							<div className="flex items-center gap-2">
-								<button
-									type="button"
-									className={PLAYER_ICON_BUTTON_CLASS_NAME}
-									data-player-interactive
-									aria-label={isMuted ? "Unmute video" : "Mute video"}
-									onClick={(event) => {
-										event.preventDefault();
-										event.stopPropagation();
-										toggleMute();
-									}}
-								>
-									<VolumeIcon size={18} weight="fill" />
-								</button>
+							<button
+								type="button"
+								className={iconButtonClassName}
+								data-player-interactive
+								aria-label={isMuted ? "Unmute video" : "Mute video"}
+								onClick={(event) => {
+									event.preventDefault();
+									event.stopPropagation();
+									toggleMute();
+								}}
+							>
+								<VolumeIcon size={18} weight="fill" />
+							</button>
 
+							{showInlineVolume ? (
 								<div
 									className="hidden items-center border-l pl-2 md:flex"
-									style={{ borderColor: "var(--portfolio-player-hairline)" }}
+									style={{
+										borderColor: "var(--portfolio-player-hairline)",
+									}}
 								>
 									<input
 										data-player-interactive
