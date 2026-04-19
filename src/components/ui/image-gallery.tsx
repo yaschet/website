@@ -23,13 +23,16 @@ import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn, tweens } from "@/src/lib/index";
 import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
 
-const PortfolioMuxVideo = dynamic(
-	() =>
-		import("@/src/components/ui/portfolio-mux-video").then(
-			(module) => module.PortfolioMuxVideo,
-		),
-	{ ssr: false },
-);
+const loadPortfolioMuxVideoModule = () =>
+	import("@/src/components/ui/portfolio-mux-video").then((module) => module.PortfolioMuxVideo);
+
+const PortfolioMuxVideo = dynamic(loadPortfolioMuxVideoModule, { ssr: false });
+
+function warmPortfolioMuxVideoModule() {
+	void loadPortfolioMuxVideoModule();
+}
+
+void loadPortfolioMuxVideoModule();
 
 interface ImageGalleryProps {
 	/** Rich gallery items. Preferred over legacy `images`. */
@@ -147,7 +150,8 @@ export function ImageGallery({
 	const shouldReduceMotion = useReducedMotion();
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-	const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+	const [visibleVideoId, setVisibleVideoId] = useState<string | null>(null);
+	const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 	const [mountedPlaybackIds, setMountedPlaybackIds] = useState<string[]>([]);
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
@@ -215,8 +219,8 @@ export function ImageGallery({
 		return aspectRatios.some((ratio) => Math.abs(ratio - first) > 0.01);
 	}, [aspectRatios]);
 	const activeItem = galleryItems[activeIndex];
-	const isActiveVideoPlaying =
-		activeItem?.kind === "mux-video" && activeVideoId === activeItem.playbackId;
+	const isActiveVideoVisible =
+		activeItem?.kind === "mux-video" && visibleVideoId === activeItem.playbackId;
 	const chromeVisible = isFocusedWithin || (canHover && isPointerInside);
 
 	const currentHeight =
@@ -263,17 +267,24 @@ export function ImageGallery({
 		activeIndexRef.current = 0;
 		setActiveIndex(0);
 		setHoveredIndex(null);
-		setActiveVideoId(null);
+		setVisibleVideoId(null);
+		setPlayingVideoId(null);
 		setMountedPlaybackIds([]);
 		setIsLightboxOpen(false);
 	}, [galleryIdentity]);
 
 	useEffect(() => {
-		if (activeVideoId === null) return;
-		if (activeItem?.kind !== "mux-video" || activeItem.playbackId !== activeVideoId) {
-			setActiveVideoId(null);
+		if (galleryItems.some((item) => item.kind === "mux-video")) {
+			warmPortfolioMuxVideoModule();
 		}
-	}, [activeItem, activeVideoId]);
+	}, [galleryItems]);
+
+	useEffect(() => {
+		if (playingVideoId === null) return;
+		if (activeItem?.kind !== "mux-video" || activeItem.playbackId !== playingVideoId) {
+			setPlayingVideoId(null);
+		}
+	}, [activeItem, playingVideoId]);
 
 	const mountGalleryVideo = useCallback((playbackId: string) => {
 		setMountedPlaybackIds((current) => {
@@ -411,7 +422,9 @@ export function ImageGallery({
 					{galleryItems.map((item, index) => {
 						const isHovered = canHover && hoveredIndex === index;
 						const isPlayingInline =
-							item.kind === "mux-video" && activeVideoId === item.playbackId;
+							item.kind === "mux-video" && playingVideoId === item.playbackId;
+						const isViewingInline =
+							item.kind === "mux-video" && visibleVideoId === item.playbackId;
 						const hasMountedInlineVideo =
 							item.kind === "mux-video" &&
 							mountedPlaybackIds.includes(item.playbackId);
@@ -439,18 +452,22 @@ export function ImageGallery({
 											active={isPlayingInline}
 											variant="gallery"
 											className="h-full w-full"
-											onExit={() =>
-												setActiveVideoId((current) =>
+											onExit={() => {
+												setVisibleVideoId((current) =>
 													current === item.playbackId ? null : current,
-												)
-											}
+												);
+												setPlayingVideoId((current) =>
+													current === item.playbackId ? null : current,
+												);
+											}}
 											onPlayingChange={(playing) => {
 												if (playing) {
-													setActiveVideoId(item.playbackId);
+													setVisibleVideoId(item.playbackId);
+													setPlayingVideoId(item.playbackId);
 													return;
 												}
 
-												setActiveVideoId((current) =>
+												setPlayingVideoId((current) =>
 													current === item.playbackId ? null : current,
 												);
 											}}
@@ -462,12 +479,12 @@ export function ImageGallery({
 									className="absolute inset-0 z-10"
 									animate={{
 										opacity:
-											item.kind === "mux-video" && isPlayingInline ? 0 : 1,
+											item.kind === "mux-video" && isViewingInline ? 0 : 1,
 									}}
 									transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
 									style={{
 										pointerEvents:
-											item.kind === "mux-video" && isPlayingInline
+											item.kind === "mux-video" && isViewingInline
 												? "none"
 												: "auto",
 									}}
@@ -549,10 +566,14 @@ export function ImageGallery({
 													event.preventDefault();
 													event.stopPropagation();
 													stopAllPortfolioVideos();
+													warmPortfolioMuxVideoModule();
 													mountGalleryVideo(item.playbackId);
 													setActiveIndex(index);
-													setActiveVideoId(item.playbackId);
+													setVisibleVideoId(item.playbackId);
+													setPlayingVideoId(item.playbackId);
 												}}
+												onPointerEnter={warmPortfolioMuxVideoModule}
+												onFocus={warmPortfolioMuxVideoModule}
 												aria-label={
 													item.duration
 														? `Play video, duration ${item.duration}`
@@ -644,7 +665,7 @@ export function ImageGallery({
 								GALLERY_CONTROL_CLASS_NAME,
 								"pointer-events-none absolute top-1/2 left-4 z-30 -translate-y-1/2 opacity-0 transition-opacity disabled:opacity-0",
 								chromeVisible &&
-									!isActiveVideoPlaying &&
+									!isActiveVideoVisible &&
 									"pointer-events-auto opacity-100",
 							)}
 						>
@@ -673,7 +694,7 @@ export function ImageGallery({
 								GALLERY_CONTROL_CLASS_NAME,
 								"pointer-events-none absolute top-1/2 right-4 z-30 -translate-y-1/2 opacity-0 transition-opacity disabled:opacity-0",
 								chromeVisible &&
-									!isActiveVideoPlaying &&
+									!isActiveVideoVisible &&
 									"pointer-events-auto opacity-100",
 							)}
 						>
@@ -682,7 +703,7 @@ export function ImageGallery({
 					</>
 				)}
 
-				{hasMultiple && showCounter && !isActiveVideoPlaying && (
+				{hasMultiple && showCounter && !isActiveVideoVisible && (
 					<div className="pointer-events-none absolute bottom-11 left-4 z-30">
 						<div className={GALLERY_CONTROL_CLASS_NAME}>
 							<span className="font-mono text-[10px] uppercase tabular-nums tracking-[0.22em]">
@@ -693,7 +714,7 @@ export function ImageGallery({
 					</div>
 				)}
 
-				{hasMultiple && showProgress && !isActiveVideoPlaying && (
+				{hasMultiple && showProgress && !isActiveVideoVisible && (
 					<div className="absolute inset-x-4 bottom-4 z-30 flex gap-2">
 						{galleryItems.map((item, index) => (
 							<button

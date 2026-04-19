@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -194,6 +194,7 @@ export function PortfolioMuxVideo({
 	const [currentTime, setCurrentTime] = useState(0);
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const [controlsVisible, setControlsVisible] = useState(true);
+	const [isPointerInside, setIsPointerInside] = useState(false);
 	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
 	const [openMenu, setOpenMenu] = useState<"quality" | "rate" | null>(null);
 	const [qualityOptions, setQualityOptions] = useState<QualityOption[]>([
@@ -281,14 +282,14 @@ export function PortfolioMuxVideo({
 
 	const scheduleControlsHide = useCallback(() => {
 		clearControlsTimeout();
-		if (!isPlaying || isFocusedWithin || menuOpen) {
+		if (!isPlaying || isPointerInside || isFocusedWithin || menuOpen) {
 			setControlsVisible(true);
 			return;
 		}
 
 		// Instant disappearance on pointer leave for maximum video aspect
 		setControlsVisible(false);
-	}, [clearControlsTimeout, isFocusedWithin, isPlaying, menuOpen]);
+	}, [clearControlsTimeout, isFocusedWithin, isPlaying, isPointerInside, menuOpen]);
 
 	const syncFromMedia = useCallback(() => {
 		const media = mediaRef.current;
@@ -525,13 +526,30 @@ export function PortfolioMuxVideo({
 		ensureMediaSource();
 	}, [ensureMediaSource]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const media = mediaRef.current;
 		if (!media) return;
 		desiredPlayingRef.current = isActive;
 
 		if (isActive) {
-			void togglePlayback();
+			if (!media.paused && !media.ended) {
+				setControlsVisible(true);
+				return;
+			}
+
+			const commandId = ++playbackCommandIdRef.current;
+			setControlsVisible(true);
+			applyStableMediaConfig();
+			ensureMediaSource();
+			pauseOtherDocumentMedia(media);
+
+			void media.play().catch(() => {
+				if (playbackCommandIdRef.current === commandId) {
+					desiredPlayingRef.current = false;
+					syncFromMedia();
+				}
+				setControlsVisible(true);
+			});
 			return;
 		}
 
@@ -541,7 +559,13 @@ export function PortfolioMuxVideo({
 
 		setIsPlaying(false);
 		setControlsVisible(true);
-	}, [isActive, togglePlayback]);
+	}, [
+		applyStableMediaConfig,
+		ensureMediaSource,
+		isActive,
+		pauseOtherDocumentMedia,
+		syncFromMedia,
+	]);
 
 	useEffect(() => {
 		const media = mediaRef.current;
@@ -799,9 +823,11 @@ export function PortfolioMuxVideo({
 			}}
 			onKeyDown={handleKeyDown}
 			onPointerEnter={() => {
+				setIsPointerInside(true);
 				handlePointerActivity();
 			}}
 			onPointerLeave={() => {
+				setIsPointerInside(false);
 				clearControlsTimeout();
 				setControlsVisible(false);
 			}}
