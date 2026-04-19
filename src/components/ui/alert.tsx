@@ -1,21 +1,3 @@
-/**
- * Alert component.
- *
- * @remarks
- * Displays a callout for user attention.
- *
- * @example
- * ```tsx
- * <Alert variant="destructive">
- *   <AlertIcon><WarningCircle /></AlertIcon>
- *   <AlertTitle>Error</AlertTitle>
- *   <AlertDescription>Description</AlertDescription>
- * </Alert>
- * ```
- *
- * @public
- */
-
 "use client";
 
 import { XIcon } from "@phosphor-icons/react";
@@ -26,12 +8,8 @@ import * as React from "react";
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/index";
 
-// ═══════════════════════════════════════════════════════════════════════════
-// VARIANTS
-// ═══════════════════════════════════════════════════════════════════════════
-
 const alertVariants = cva(
-	"relative flex w-full flex-row flex-wrap items-start justify-start gap-3 overflow-hidden rounded-[var(--radius)] border p-4 text-sm",
+	"portfolio-body-sm relative flex w-full flex-row flex-wrap items-start justify-start gap-[var(--portfolio-space-tight)] overflow-hidden rounded-[var(--radius)] border p-[var(--portfolio-space-related)]",
 	{
 		defaultVariants: {
 			variant: "default",
@@ -52,10 +30,6 @@ const alertVariants = cva(
 	},
 );
 
-// ═══════════════════════════════════════════════════════════════════════════
-// TYPES
-// ═══════════════════════════════════════════════════════════════════════════
-
 export interface AlertProps
 	extends React.HTMLAttributes<HTMLDivElement>,
 		VariantProps<typeof alertVariants> {
@@ -63,10 +37,6 @@ export interface AlertProps
 	withCloseButton?: boolean;
 	show?: boolean;
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
 	(
@@ -86,22 +56,20 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
 						transition={{ duration: 0.2, ease: "easeOut" }}
 						{...(props as MotionProps)}
 					>
-						{/* Content Pipeline */}
 						<div className="flex flex-1 flex-col items-start justify-start gap-1">
 							{children}
 						</div>
 
-						{/* Close Action */}
 						{withCloseButton && (
 							<Button
-								className="mt-0.5 size-6 p-0"
+								className="mt-[2px]"
 								color={variant === "destructive" ? "destructive" : "default"}
-								size="icon"
+								size="icon-sm"
 								type="button"
 								variant="soft"
 								onClick={onClose}
 							>
-								<XIcon className="size-3.5" weight="bold" />
+								<XIcon weight="bold" />
 								<span className="sr-only">Dismiss</span>
 							</Button>
 						)}
@@ -113,41 +81,36 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
 );
 Alert.displayName = "Alert";
 
-/**
- * AlertTitle - Alert heading.
- */
 const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
 	({ className, ...props }, ref) => (
 		<h5
 			ref={ref}
-			className={cn("mb-1 font-medium text-base leading-none tracking-tight", className)}
+			className={cn("portfolio-control-label text-foreground", className)}
 			{...props}
 		/>
 	),
 );
 AlertTitle.displayName = "AlertTitle";
 
-/**
- * AlertDescription - Alert content.
- */
 const AlertDescription = React.forwardRef<
 	HTMLParagraphElement,
 	React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-	<div ref={ref} className={cn("text-pretty text-sm opacity-90", className)} {...props} />
+	<div ref={ref} className={cn("text-pretty text-current/90", className)} {...props} />
 ));
 AlertDescription.displayName = "AlertDescription";
 
-/**
- * AlertIcon - Icon container.
- */
 const AlertIcon = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ children, className, ...props }, ref) => (
-		<div ref={ref} className={cn("mt-0.5 size-4 opacity-90", className)} {...props}>
+		<div
+			ref={ref}
+			className={cn("mt-[2px] size-[var(--portfolio-icon-sm)] opacity-90", className)}
+			{...props}
+		>
 			{children}
 		</div>
 	),
 );
 AlertIcon.displayName = "AlertIcon";
 
-export { Alert, AlertIcon, AlertTitle, AlertDescription };
+export { Alert, AlertDescription, AlertIcon, AlertTitle };

@@ -1,205 +1,284 @@
-/**
- * Specialized status indicators for location and temporal context.
- *
- * @remarks
- * - Balanced padding and layout.
- * - Animations managed by RevealProvider.
- *
- * @example
- * ```tsx
- * <LocationBadge />
- * <TimeBadge />
- * ```
- *
- * @public
- */
-
 "use client";
 
 import { Clock } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
-import { cn, springs } from "@/src/lib/index";
+import { useRevealState } from "@/src/components/providers/reveal-provider";
+import { cn, springs, tweens } from "@/src/lib/index";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CONSTANTS - Swiss Grid Mathematics
-// ─────────────────────────────────────────────────────────────────────────────
+const BADGE_HEIGHT = "var(--portfolio-badge-height)";
+const INSIGNIA_SIZE = "var(--portfolio-status-insignia-size)";
+const TARGET_TIME_ZONE = "Africa/Casablanca";
 
-/** Badge height - matches the padding unit for perfect squares */
-const BADGE_HEIGHT = 28; // px
-const INSIGNIA_SIZE = 28; // px - square, fills edge-to-edge
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SHARED STYLES
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** Base badge container - no horizontal padding, that's per-zone */
 const badgeBaseClasses = cn(
 	"group relative flex items-center",
 	"rounded-[var(--radius)]",
 	"border border-surface-200/80 dark:border-surface-800/80",
-	// OPTIMIZATION: Removed blur (Swiss Design: Opacity > Blur)
 	"bg-white/95 dark:bg-surface-950/95",
 	"shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
-	"font-medium text-surface-600 text-xs dark:text-surface-400",
+	"portfolio-badge-label text-surface-600 dark:text-surface-400",
 	"pointer-events-auto cursor-default select-none",
 );
 
-/** Insignia zone - edge-mounted, no padding, clips flag to bounds */
 const insigniaClasses = cn(
 	"flex shrink-0 items-center justify-center overflow-hidden",
 	"rounded-l-[var(--radius)]",
 	"bg-surface-100/50 dark:bg-surface-800/50",
 );
 
-/** Content zone - balanced padding */
 const contentClasses = cn("flex items-center");
 
-const tooltipClasses = cn(
-	"pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 whitespace-nowrap",
-	"px-2 py-1.5 font-bold text-xs",
-	"bg-white dark:bg-surface-900",
-	"text-surface-700 dark:text-surface-300",
-	"border border-surface-200 dark:border-surface-800",
-	"rounded-none shadow-md",
+const tooltipPanelClasses = cn(
+	"pointer-events-none absolute top-full z-20 mt-2",
+	"max-w-[calc(100vw-(var(--portfolio-page-gutter-mobile)*2))]",
+	"w-max border border-surface-200/90 bg-white/98 px-[var(--portfolio-space-tight)] py-[8px] shadow-md backdrop-blur-sm",
+	"dark:border-surface-800 dark:bg-surface-900/98",
+	"!text-[12px] !leading-[14px] !tracking-normal rounded-none font-sans normal-case",
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LOCATION BADGE
-// ─────────────────────────────────────────────────────────────────────────────
+const tooltipGridClasses = cn(
+	"grid min-w-max grid-cols-[max-content_max-content] items-baseline gap-x-[var(--portfolio-space-tight)] gap-y-[4px]",
+);
 
-/**
- * LocationBadge
- *
- * Displays current location as a Swiss status badge.
- *
- * @param props - Optional className for sizing in layout contexts.
- * @returns The location badge element.
- */
+const tooltipLabelClasses = cn(
+	"!m-0 !text-[12px] !leading-[14px] whitespace-nowrap font-mono text-surface-500 uppercase tracking-[0.08em] dark:text-surface-400",
+);
+
+const tooltipValueClasses = cn(
+	"!m-0 !text-[12px] !leading-[14px] min-w-0 whitespace-nowrap text-left font-medium text-surface-800 tracking-[0.01em] dark:text-surface-200",
+);
+
+function getTimeZoneOffsetMinutes(timeZone: string, date: Date) {
+	const formatter = new Intl.DateTimeFormat("en-GB", {
+		timeZone,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false,
+	});
+
+	const parts = Object.fromEntries(
+		formatter
+			.formatToParts(date)
+			.filter((part) => part.type !== "literal")
+			.map((part) => [part.type, part.value]),
+	);
+
+	const asUtcTimestamp = Date.UTC(
+		Number(parts.year),
+		Number(parts.month) - 1,
+		Number(parts.day),
+		Number(parts.hour),
+		Number(parts.minute),
+		Number(parts.second),
+	);
+
+	return Math.round((asUtcTimestamp - date.getTime()) / 60000);
+}
+
+function formatUtcOffset(offsetMinutes: number) {
+	if (offsetMinutes === 0) {
+		return "UTC";
+	}
+
+	const sign = offsetMinutes > 0 ? "+" : "-";
+	const absoluteMinutes = Math.abs(offsetMinutes);
+	const hours = Math.floor(absoluteMinutes / 60);
+	const minutes = absoluteMinutes % 60;
+
+	if (minutes === 0) {
+		return `UTC${sign}${hours}`;
+	}
+
+	return `UTC${sign}${hours}:${String(minutes).padStart(2, "0")}`;
+}
+
+function formatDeltaOffset(offsetMinutes: number) {
+	if (offsetMinutes === 0) {
+		return "SAME";
+	}
+
+	const sign = offsetMinutes > 0 ? "+" : "-";
+	const absoluteMinutes = Math.abs(offsetMinutes);
+	const hours = Math.floor(absoluteMinutes / 60);
+	const minutes = absoluteMinutes % 60;
+
+	if (hours === 0) {
+		return `${sign}${minutes}m`;
+	}
+
+	if (minutes === 0) {
+		return `${sign}${hours}h`;
+	}
+
+	return `${sign}${hours}h ${minutes}m`;
+}
+
+function BadgeTooltip({
+	align,
+	rows,
+	className,
+}: {
+	align: "start" | "end";
+	rows: Array<{ label: string; value: string }>;
+	className?: string;
+}) {
+	return (
+		<motion.div
+			initial={{ opacity: 0, y: 4, scale: 0.98 }}
+			animate={{ opacity: 1, y: 0, scale: 1 }}
+			exit={{ opacity: 0, y: 4, scale: 0.98 }}
+			transition={tweens.interactionFast}
+			className={cn(
+				tooltipPanelClasses,
+				align === "start" ? "left-0 origin-top-left" : "right-0 origin-top-right",
+				className,
+			)}
+		>
+			<div className={tooltipGridClasses}>
+				{rows.map((row) => (
+					<Fragment key={row.label}>
+						<div className={tooltipLabelClasses}>{row.label}</div>
+						<div className={tooltipValueClasses}>{row.value}</div>
+					</Fragment>
+				))}
+			</div>
+		</motion.div>
+	);
+}
+
 export function LocationBadge({ className }: { className?: string }) {
 	const [isHovered, setIsHovered] = useState(false);
+	const { environment } = useRevealState();
+	const shouldBypass = environment === "automation";
+	const shouldReduce = environment === "reduced-motion";
 
 	return (
 		<motion.div
-			initial={{ opacity: 0 }}
+			initial={shouldBypass ? false : { opacity: 0 }}
 			animate={{ opacity: 1 }}
-			transition={springs.responsive}
+			transition={shouldReduce ? tweens.reduced : springs.responsive}
 			className={cn(badgeBaseClasses, className)}
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 		>
-			{/* Insignia Zone - Flag bleeds to edge like a banner */}
 			<div
 				className={insigniaClasses}
 				style={{ width: INSIGNIA_SIZE, height: INSIGNIA_SIZE }}
 			>
-				<SquareFlag flag={CountryFlagMA} size={`${INSIGNIA_SIZE}px`} />
+				<SquareFlag flag={CountryFlagMA} size={INSIGNIA_SIZE} />
 			</div>
 
-			{/* Content Zone - Balanced padding */}
-			<div className={cn(contentClasses, "min-w-0 flex-1 justify-center px-2")}>
-				<span className="leading-none">Rabat, Morocco</span>
+			<div
+				className={cn(
+					contentClasses,
+					"min-w-0 flex-1 justify-center px-[var(--portfolio-badge-inset)]",
+				)}
+			>
+				<span className="leading-4">Rabat, Morocco</span>
 			</div>
 
-			{/* Tooltip */}
 			<AnimatePresence>
 				{isHovered && (
-					<motion.div
-						initial={{ opacity: 0, y: 4, scale: 0.98 }}
-						animate={{ opacity: 1, y: 0, scale: 1 }}
-						exit={{ opacity: 0, y: 4, scale: 0.98 }}
-						transition={{ duration: 0.15, ease: "easeOut" }}
-						className={tooltipClasses}
-					>
-						Open to Remote
-					</motion.div>
+					<BadgeTooltip
+						align="start"
+						rows={[
+							{ label: "MODE", value: "Async Worldwide" },
+							{ label: "SYNC", value: "EU / UK / Gulf / US East AM" },
+						]}
+					/>
 				)}
 			</AnimatePresence>
 		</motion.div>
 	);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TIME BADGE
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * TimeBadge
- *
- * Displays the current time in UTC+1 as a Swiss status badge.
- *
- * @param props - Optional className for sizing in layout contexts.
- * @returns The time badge element.
- */
 export function TimeBadge({ className }: { className?: string }) {
 	const [time, setTime] = useState<string>("");
+	const [zoneOffset, setZoneOffset] = useState<string>("");
+	const [relativeOffset, setRelativeOffset] = useState<string>("");
 	const [mounted, setMounted] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
+	const { environment } = useRevealState();
+	const shouldBypass = environment === "automation";
+	const shouldReduce = environment === "reduced-motion";
 
 	useEffect(() => {
 		setMounted(true);
+		const formatter = new Intl.DateTimeFormat("en-GB", {
+			hour: "2-digit",
+			minute: "2-digit",
+			second: "2-digit",
+			hour12: false,
+			timeZone: TARGET_TIME_ZONE,
+		});
 		const updateTime = () => {
 			const now = new Date();
-			setTime(
-				now.toLocaleTimeString("en-US", {
-					hour: "2-digit",
-					minute: "2-digit",
-					hour12: false,
-					timeZone: "Africa/Casablanca",
-				}),
-			);
+			const targetOffsetMinutes = getTimeZoneOffsetMinutes(TARGET_TIME_ZONE, now);
+			const viewerOffsetMinutes = -now.getTimezoneOffset();
+
+			setTime(formatter.format(now));
+			setZoneOffset(formatUtcOffset(targetOffsetMinutes));
+			setRelativeOffset(formatDeltaOffset(targetOffsetMinutes - viewerOffsetMinutes));
 		};
 		updateTime();
 		const interval = setInterval(updateTime, 1000);
 		return () => clearInterval(interval);
 	}, []);
 
-	// SSR hydration safety — render nothing until mounted
-	// This prevents opacity-0 rendering artifacts on page load
 	if (!mounted) {
 		return null;
 	}
 
 	return (
 		<motion.div
-			initial={{ opacity: 0 }}
+			initial={shouldBypass ? false : { opacity: 0 }}
 			animate={{ opacity: 1 }}
-			transition={{ ...springs.responsive, delay: 0.1 }}
+			transition={shouldReduce ? tweens.reduced : { ...springs.responsive, delay: 0.1 }}
 			className={cn(badgeBaseClasses, className)}
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 			role="status"
-			aria-label={`Current time ${time}, Timezone UTC+1`}
+			aria-label={`Current time ${time}, Timezone ${TARGET_TIME_ZONE} ${zoneOffset}`}
 		>
-			{/* Insignia Zone - Icon edge-mounted */}
 			<div
 				className={insigniaClasses}
 				style={{ width: INSIGNIA_SIZE, height: INSIGNIA_SIZE }}
 			>
-				<Clock weight="duotone" className="size-4" />
+				<Clock
+					weight="duotone"
+					style={{
+						width: "var(--portfolio-icon-sm)",
+						height: "var(--portfolio-icon-sm)",
+					}}
+				/>
 			</div>
 
-			{/* Content Zone - Balanced padding */}
-			<div className={cn(contentClasses, "min-w-0 flex-1 justify-center px-2")}>
-				<span className="font-mono text-xs tabular-nums leading-none">{time}</span>
+			<div
+				className={cn(
+					contentClasses,
+					"min-w-0 flex-1 justify-center px-[var(--portfolio-badge-inset)]",
+				)}
+			>
+				<span className="font-mono text-xs tabular-nums leading-4">{time}</span>
 			</div>
 
-			{/* Tooltip */}
 			<AnimatePresence>
 				{isHovered && (
-					<motion.div
-						initial={{ opacity: 0, y: 4, scale: 0.98 }}
-						animate={{ opacity: 1, y: 0, scale: 1 }}
-						exit={{ opacity: 0, y: 4, scale: 0.98 }}
-						transition={{ duration: 0.15, ease: "easeOut" }}
-						className={tooltipClasses}
-					>
-						UTC+1
-					</motion.div>
+					<BadgeTooltip
+						align="end"
+						rows={[
+							{ label: "ZONE", value: zoneOffset },
+							{ label: "YOU", value: relativeOffset },
+						]}
+					/>
 				)}
 			</AnimatePresence>
 		</motion.div>
@@ -223,6 +302,9 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 	const containerRef = useRef<HTMLDivElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
 	const animationRef = useRef<Animation | null>(null);
+	const { environment } = useRevealState();
+	const shouldBypass = environment === "automation";
+	const shouldReduce = environment === "reduced-motion";
 
 	// Physics State
 	const speedRef = useRef(0); // Start at 0 for "Boot Sequence" overlap
@@ -388,16 +470,16 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 	}
 
 	// Swiss Design: Negative Space Separator
-	// MATCH CTA BUTTON SPACING: gap-3 = 12px (0.75rem)
+	// Matches the portfolio's 10px rhythm unit.
 	const Separator = () => (
 		<span className="inline-block w-3 shrink-0 select-none" aria-hidden="true" />
 	);
 
 	return (
 		<motion.div
-			initial={{ opacity: 0 }}
+			initial={shouldBypass ? false : { opacity: 0 }}
 			animate={{ opacity: 1 }}
-			transition={{ ...springs.responsive, delay: 0.05 }}
+			transition={shouldReduce ? tweens.reduced : { ...springs.responsive, delay: 0.05 }}
 			className={cn(badgeBaseClasses, "overflow-hidden", className)}
 			style={{ height: BADGE_HEIGHT }}
 			ref={containerRef}
@@ -409,7 +491,7 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 				targetSpeedRef.current = 1; // Target full speed
 			}}
 		>
-			<div className="relative h-full w-full overflow-hidden px-2">
+			<div className="relative h-full w-full overflow-hidden px-2.5">
 				<div
 					className="absolute inset-y-0 left-0 flex items-center will-change-transform"
 					ref={trackRef}

@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
 
 import { FloatingNav } from "@components/layout/floating-nav";
 import RootProvider from "@components/providers/root-provider";
-
 import { fontVariables } from "@/lib/fonts";
+import { PortfolioTypeStyles } from "@/src/components/layout/portfolio-type-styles";
+import { ReadingProgress } from "@/src/components/ui/reading-progress";
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://yaschet.dev"),
 	title: {
-		default: "Yassine Chettouch — Product Engineer",
+		default: "Yassine Chettouch — Software Engineer",
 		template: "%s | Yassine Chettouch",
 	},
 	description:
 		"Building systems that scale and experiences that convert. High-performance execution for ambitious products.",
 	keywords: [
-		"Product Engineer",
-		"Senior Product Engineer",
+		"Software Engineer",
+		"Senior Software Engineer",
 		"Design Systems",
 		"Next.js",
 		"TypeScript",
@@ -37,7 +39,7 @@ export const metadata: Metadata = {
 		canonical: "/",
 	},
 	openGraph: {
-		title: "Yassine Chettouch — Product Engineer",
+		title: "Yassine Chettouch — Software Engineer",
 		description:
 			"Building systems that scale and experiences that convert. High-performance execution for ambitious products.",
 		url: "https://yaschet.dev",
@@ -57,7 +59,7 @@ export const metadata: Metadata = {
 		},
 	},
 	icons: {
-		icon: "/images/avatar.jpeg",
+		icon: "/images/avatar.png",
 	},
 	appleWebApp: {
 		title: "Yaschet",
@@ -69,7 +71,7 @@ const personSchema = {
 	"@type": "Person",
 	name: "Yassine Chettouch",
 	alternateName: "yaschet",
-	jobTitle: "Product Engineer",
+	jobTitle: "Software Engineer",
 	url: "https://yaschet.dev",
 	sameAs: [
 		"https://x.com/yaschett",
@@ -77,6 +79,26 @@ const personSchema = {
 		"https://linkedin.com/in/yassinechettouch",
 	],
 };
+
+const THEME_BOOTSTRAP_SCRIPT = `(() => {
+  try {
+    const root = document.documentElement;
+    const storedTheme = localStorage.getItem("theme");
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const resolvedTheme =
+      storedTheme === "light" || storedTheme === "dark"
+        ? storedTheme
+        : systemDark
+          ? "dark"
+          : "light";
+
+    root.classList.toggle("dark", resolvedTheme === "dark");
+    root.dataset.theme = resolvedTheme;
+    root.style.colorScheme = resolvedTheme;
+  } catch {
+    // Fall back to the server-rendered light shell when storage is unavailable.
+  }
+})();`;
 
 export default function RootLayout({
 	children,
@@ -86,6 +108,10 @@ export default function RootLayout({
 	return (
 		<html suppressHydrationWarning lang="en" className={fontVariables}>
 			<head>
+				<PortfolioTypeStyles />
+				<Script id="theme-bootstrap" strategy="beforeInteractive">
+					{THEME_BOOTSTRAP_SCRIPT}
+				</Script>
 				<Script
 					id="person-schema"
 					type="application/ld+json"
@@ -99,7 +125,12 @@ export default function RootLayout({
 				suppressHydrationWarning={true}
 			>
 				<RootProvider>
-					<FloatingNav />
+					<Suspense fallback={null}>
+						<ReadingProgress />
+					</Suspense>
+					<Suspense fallback={null}>
+						<FloatingNav />
+					</Suspense>
 					{children}
 				</RootProvider>
 			</body>

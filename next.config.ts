@@ -1,9 +1,10 @@
+import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
-import { withContentlayer } from "next-contentlayer2";
 
 const nextConfig: NextConfig = {
 	// Note: middleware.ts is required for advanced routing/headers even if empty
 	reactCompiler: true,
+	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
 
 	images: {
 		formats: ["image/avif", "image/webp"],
@@ -48,6 +49,21 @@ const nextConfig: NextConfig = {
 			"date-fns",
 			"lodash",
 		],
+	},
+
+	async redirects() {
+		return [
+			{
+				source: "/projects",
+				destination: "/case-studies",
+				permanent: true,
+			},
+			{
+				source: "/projects/:slug",
+				destination: "/case-studies/:slug",
+				permanent: true,
+			},
+		];
 	},
 
 	async headers() {
@@ -99,4 +115,21 @@ const withBundleAnalyzer = bundleAnalyzer({
 	enabled: process.env.ANALYZE === "true",
 });
 
-export default withContentlayer(withBundleAnalyzer(nextConfig));
+const withMDX = createMDX({
+	options: {
+		remarkPlugins: ["remark-gfm"],
+		rehypePlugins: [
+			"rehype-slug",
+			[
+				"rehype-autolink-headings",
+				{
+					properties: {
+						className: ["anchor"],
+					},
+				},
+			],
+		],
+	},
+});
+
+export default withMDX(withBundleAnalyzer(nextConfig));

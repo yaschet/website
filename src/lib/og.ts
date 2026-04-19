@@ -75,7 +75,7 @@ export async function loadOgFonts() {
 export async function loadAvatar() {
 	try {
 		// Use file system for local reliability
-		const buffer = await readFile(path.join(cwd(), "public/images/avatar.jpeg"));
+		const buffer = await readFile(path.join(cwd(), "public/images/avatar.png"));
 		return buffer;
 	} catch (e) {
 		// biome-ignore lint/suspicious/noConsole: Expected error logging

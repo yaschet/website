@@ -9,7 +9,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import avatarImage from "@/public/images/avatar.jpeg";
+import avatarImage from "@/public/images/avatar.png";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
@@ -85,7 +85,7 @@ function HeroContent() {
 									Yassine Chettouch
 								</h1>
 								<p className={cn("text-body-sm", textSecondary)}>
-									Product Engineer
+									Software Engineer
 								</p>
 							</div>
 						</div>
@@ -157,7 +157,7 @@ function HeroContent() {
 											: "bg-surface-950 text-surface-50 hover:bg-surface-800",
 									)}
 								>
-									<Link href="/projects">
+									<Link href="/case-studies">
 										Case Studies
 										<ArrowRightIcon className="size-4" weight="bold" />
 									</Link>
@@ -220,7 +220,7 @@ const HeroSectionPreview = () => (
 											<Link href="/contact">Email</Link>
 										</Button>
 										<Button asChild size="lg" variant="solid" color="primary">
-											<Link href="/projects">
+											<Link href="/case-studies">
 												Case Studies
 												<ArrowRightIcon className="size-4" weight="bold" />
 											</Link>

@@ -3,30 +3,39 @@
 import { GithubLogoIcon, LinkedinLogoIcon, XLogoIcon } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-import avatarImage from "@/public/images/avatar.jpeg";
+import avatarImage from "@/public/images/avatar.png";
 import { Avatar, AvatarFallback } from "@/src/components/ui/avatar";
+import { HoverTooltip } from "@/src/components/ui/hover-tooltip";
 import { Reveal } from "@/src/components/ui/reveal";
-import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
 
 export function ProfileSection() {
-	// Standard theme colors since we removed mesh gradient dependency
-	const textPrimary = "text-surface-900 dark:text-surface-100";
+	const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
 	const textSecondary = "text-surface-500";
 	const iconColor =
-		"text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-100";
+		"text-surface-500 hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-100 bg-surface-100/50 hover:bg-surface-200/50 dark:bg-surface-800/50 dark:hover:bg-surface-700/50";
 	const avatarBorder = "border-surface-200 dark:border-surface-800";
 	const avatarBg = "bg-surface-100 dark:bg-surface-900";
+	const socialLinks = [
+		{
+			label: "LinkedIn",
+			href: "https://linkedin.com/in/yassinechettouch",
+			Icon: LinkedinLogoIcon,
+		},
+		{ label: "GitHub", href: "https://github.com/yaschet", Icon: GithubLogoIcon },
+		{ label: "X", href: "https://x.com/yaschett", Icon: XLogoIcon },
+	];
 
 	return (
-		<SwissGridSection id="profile" className="relative z-10 w-full shrink-0">
+		<section id="profile" className="relative z-10 w-full shrink-0">
 			<Reveal phase={1} className="w-full">
 				<div className="w-full">
-					<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
-						<div className="flex items-center gap-4">
+					<div className="portfolio-box-pad grid grid-cols-[minmax(0,1fr)_auto] items-center gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
+						<div className="flex min-w-0 items-center gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
 							<Avatar
 								className={cn(
-									"relative size-14 overflow-hidden rounded-(--radius) border",
+									"group/avatar relative h-[var(--portfolio-avatar-size)] w-[var(--portfolio-avatar-size)] overflow-hidden rounded-(--radius) border shadow-[inset_0_0_0_1px_rgba(15,23,42,0.03)] sm:h-[var(--portfolio-masthead-avatar-size)] sm:w-[var(--portfolio-masthead-avatar-size)] dark:shadow-[inset_0_0_0_1px_rgba(248,250,252,0.03)]",
 									avatarBorder,
 									avatarBg,
 								)}
@@ -34,14 +43,14 @@ export function ProfileSection() {
 								<Image
 									src={avatarImage}
 									alt="Yassine Chettouch"
-									className="object-cover"
+									className="object-cover transition-transform duration-300 group-hover/avatar:scale-[1.05]"
 									placeholder="blur"
 									fill
-									sizes="56px"
+									sizes="(max-width: 640px) 60px, 70px"
 								/>
 								<AvatarFallback
 									className={cn(
-										"flex h-full w-full items-center justify-center font-medium text-sm",
+										"portfolio-chip-label flex h-full w-full items-center justify-center",
 										avatarBg,
 										textSecondary,
 									)}
@@ -49,54 +58,46 @@ export function ProfileSection() {
 									YC
 								</AvatarFallback>
 							</Avatar>
-							<div>
-								<h1 className={cn("font-semibold text-body-lg", textPrimary)}>
+							<div className="flex min-w-0 flex-col justify-center gap-[calc(var(--portfolio-space-tight)/2)]">
+								<h1 className="portfolio-masthead-name truncate text-surface-900 dark:text-surface-100">
 									Yassine Chettouch
 								</h1>
-								<p className={cn("text-body-sm", textSecondary)}>
-									Product Engineer
+								<p className="portfolio-masthead-role truncate text-surface-500 dark:text-surface-400">
+									Software Engineer
 								</p>
 							</div>
 						</div>
 
-						<div className="flex items-center gap-0.5">
-							<Link
-								href="https://linkedin.com/in/yassinechettouch"
-								target="_blank"
-								aria-label="LinkedIn"
-								className={cn(
-									"inline-flex size-10 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
-									iconColor,
-								)}
-							>
-								<LinkedinLogoIcon className="size-5" weight="regular" />
-							</Link>
-							<Link
-								href="https://github.com/yaschet"
-								target="_blank"
-								aria-label="GitHub"
-								className={cn(
-									"inline-flex size-10 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
-									iconColor,
-								)}
-							>
-								<GithubLogoIcon className="size-5" weight="regular" />
-							</Link>
-							<Link
-								href="https://x.com/yaschett"
-								target="_blank"
-								aria-label="X"
-								className={cn(
-									"inline-flex size-10 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2",
-									iconColor,
-								)}
-							>
-								<XLogoIcon className="size-5" weight="regular" />
-							</Link>
+						<div className="flex items-center gap-[var(--portfolio-space-1)] justify-self-end">
+							{socialLinks.map(({ label, href, Icon }) => (
+								<div key={label} className="relative">
+									<Link
+										href={href}
+										target="_blank"
+										aria-label={label}
+										onMouseEnter={() => setHoveredIcon(label)}
+										onMouseLeave={() => setHoveredIcon(null)}
+										onFocus={() => setHoveredIcon(label)}
+										onBlur={() => setHoveredIcon(null)}
+										className={cn(
+											"inline-flex h-[var(--portfolio-control-sm)] w-[var(--portfolio-control-sm)] items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 sm:h-[var(--portfolio-icon-touch)] sm:w-[var(--portfolio-icon-touch)]",
+											iconColor,
+										)}
+									>
+										<Icon
+											weight="regular"
+											className="h-[var(--portfolio-icon-sm)] w-[var(--portfolio-icon-sm)]"
+										/>
+									</Link>
+									<HoverTooltip visible={hoveredIcon === label}>
+										{label}
+									</HoverTooltip>
+								</div>
+							))}
 						</div>
 					</div>
 				</div>
 			</Reveal>
-		</SwissGridSection>
+		</section>
 	);
 }

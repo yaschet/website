@@ -1,22 +1,3 @@
-/**
- * Select component for choosing from a list of items.
- *
- * @remarks
- * Built on Radix UI's Select primitive. Supports variable sizes and keyboard navigation.
- *
- * @example
- * ```tsx
- * <Select defaultValue="option-1">
- *   <SelectTrigger><SelectValue /></SelectTrigger>
- *   <SelectContent>
- *     <SelectItem value="option-1">Option 1</SelectItem>
- *   </SelectContent>
- * </Select>
- * ```
- *
- * @public
- */
-
 "use client";
 
 import { CaretDownIcon, CaretUpDownIcon, CaretUpIcon, CheckIcon } from "@phosphor-icons/react";
@@ -24,10 +5,6 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { cva } from "class-variance-authority";
 import * as React from "react";
 import { cn } from "@/src/lib/index";
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CONTEXT & TYPES
-// ═══════════════════════════════════════════════════════════════════════════
 
 type SelectSize = "xs" | "sm" | "md" | "lg" | "xl";
 
@@ -37,25 +14,21 @@ const SelectContext = React.createContext<{ size: SelectSize }>({
 
 const useSelectSize = () => React.useContext(SelectContext).size;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// VARIANTS
-// ═══════════════════════════════════════════════════════════════════════════
-
 const selectTriggerVariants = cva(
 	[
-		"flex w-full items-center justify-between whitespace-nowrap bg-surface-100 dark:bg-surface-900",
-		"transitions-all border border-border shadow-none ring-offset-background duration-200 placeholder:text-muted",
-		"hover:bg-surface-200 focus:outline-none focus:ring-2 focus:ring-ring dark:hover:bg-surface-800",
+		"flex w-full items-center justify-between whitespace-nowrap border-2 border-surface-300 bg-white text-surface-900 shadow-none ring-offset-background transition-colors duration-200 dark:border-surface-700 dark:bg-surface-950 dark:text-surface-50",
+		"hover:border-surface-900 hover:bg-white focus:outline-none focus:ring-2 focus:ring-ring dark:hover:border-surface-100 dark:hover:bg-surface-950",
 		"disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+		"rounded-none",
 	],
 	{
 		variants: {
 			size: {
-				xs: "h-7 rounded-[var(--radius-xs)] py-1 pr-1.5 pl-2.5 text-xs",
-				sm: "h-8 rounded-[var(--radius-sm)] py-1.5 pr-2 pl-3 text-xs",
-				md: "h-9 rounded-[var(--radius)] py-2 pr-2 pl-4 text-sm",
-				lg: "h-10 rounded-[var(--radius-md)] py-2.5 pr-3 pl-5 text-sm",
-				xl: "h-11 rounded-[var(--radius-lg)] py-3 pr-3 pl-6 text-lg",
+				xs: "portfolio-chip-label h-[var(--portfolio-control-compact)] px-[var(--portfolio-control-pad-compact)]",
+				sm: "portfolio-control-label h-[var(--portfolio-control-default)] px-[var(--portfolio-control-pad-default)]",
+				md: "portfolio-control-label h-[var(--portfolio-control-prominent)] px-[var(--portfolio-control-pad-default)]",
+				lg: "portfolio-control-label h-[var(--portfolio-control-prominent)] px-[var(--portfolio-control-pad-default)]",
+				xl: "portfolio-control-label h-[var(--portfolio-control-prominent)] px-[var(--portfolio-control-pad-default)]",
 			},
 		},
 		defaultVariants: {
@@ -75,11 +48,11 @@ const selectContentVariants = cva(
 	{
 		variants: {
 			size: {
-				xs: "rounded-[var(--radius-sm)]",
-				sm: "rounded-[var(--radius-md)]",
-				md: "rounded-[var(--radius)]", // Default: 0px
-				lg: "rounded-[var(--radius-xl)]",
-				xl: "rounded-[var(--radius-xl)]",
+				xs: "rounded-none",
+				sm: "rounded-none",
+				md: "rounded-none",
+				lg: "rounded-none",
+				xl: "rounded-none",
 			},
 		},
 		defaultVariants: {
@@ -97,11 +70,11 @@ const selectItemVariants = cva(
 	{
 		variants: {
 			size: {
-				xs: "rounded-[var(--radius-xs)] px-2.5 py-1 pr-7 text-xs",
-				sm: "rounded-[var(--radius-sm)] px-3 py-1.5 pr-6 text-xs",
-				md: "rounded-[var(--radius)] px-4 py-2 pr-8 text-sm",
-				lg: "rounded-[var(--radius-md)] px-5 py-2.5 pr-9 text-sm",
-				xl: "rounded-[var(--radius-lg)] px-6 py-3 pr-10 text-lg",
+				xs: "portfolio-chip-label rounded-none px-[var(--portfolio-control-pad-compact)] py-[calc(var(--portfolio-space-tight)/2)] pr-[calc(var(--portfolio-control-pad-compact)+var(--portfolio-icon-sm)+var(--portfolio-space-tight))]",
+				sm: "portfolio-control-label rounded-none px-[var(--portfolio-control-pad-default)] py-[calc(var(--portfolio-space-tight)/2)] pr-[calc(var(--portfolio-control-pad-default)+var(--portfolio-icon-sm)+var(--portfolio-space-tight))]",
+				md: "portfolio-control-label rounded-none px-[var(--portfolio-control-pad-default)] py-[var(--portfolio-space-tight)] pr-[calc(var(--portfolio-control-pad-default)+var(--portfolio-icon-sm)+var(--portfolio-space-tight))]",
+				lg: "portfolio-control-label rounded-none px-[var(--portfolio-control-pad-default)] py-[var(--portfolio-space-tight)] pr-[calc(var(--portfolio-control-pad-default)+var(--portfolio-icon-sm)+var(--portfolio-space-tight))]",
+				xl: "portfolio-control-label rounded-none px-[var(--portfolio-control-pad-default)] py-[var(--portfolio-space-tight)] pr-[calc(var(--portfolio-control-pad-default)+var(--portfolio-icon-sm)+var(--portfolio-space-tight))]",
 			},
 		},
 		defaultVariants: {
@@ -110,16 +83,9 @@ const selectItemVariants = cva(
 	},
 );
 
-// ═══════════════════════════════════════════════════════════════════════════
-// EXPORTS
-// ═══════════════════════════════════════════════════════════════════════════
-
 const SelectGroup = SelectPrimitive.Group;
 const SelectValue = SelectPrimitive.Value;
 
-/**
- * Select - Root component.
- */
 const Select: React.FC<
 	React.ComponentProps<typeof SelectPrimitive.Root> & { size?: SelectSize }
 > = ({ children, size = "md", ...props }) => (
@@ -128,9 +94,6 @@ const Select: React.FC<
 	</SelectContext.Provider>
 );
 
-/**
- * SelectTrigger - The button that toggles the select menu.
- */
 const SelectTrigger = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.Trigger>,
 	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & {
@@ -151,11 +114,10 @@ const SelectTrigger = React.forwardRef<
 				<CaretUpDownIcon
 					className={cn(
 						"opacity-50 transition-transform duration-200",
-						size === "xs" && "size-3",
-						size === "sm" && "size-3.5",
-						size === "md" && "size-4",
-						size === "lg" && "size-4",
-						size === "xl" && "size-5",
+						size === "xs" && "size-[14px]",
+						size === "sm" && "size-4",
+						(size === "md" || size === "lg" || size === "xl") &&
+							"size-[var(--portfolio-icon-sm)]",
 					)}
 					weight="bold"
 				/>
@@ -164,9 +126,6 @@ const SelectTrigger = React.forwardRef<
 	);
 });
 
-/**
- * SelectContent - Container for the selectable options.
- */
 const SelectContent = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.Content>,
 	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> & {
@@ -202,9 +161,6 @@ const SelectContent = React.forwardRef<
 	);
 });
 
-/**
- * SelectItem - An individual option within the select menu.
- */
 const SelectItem = React.forwardRef<
 	React.ComponentRef<typeof SelectPrimitive.Item>,
 	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
@@ -291,13 +247,13 @@ const SelectSeparator = React.forwardRef<
 
 export {
 	Select,
-	SelectGroup,
-	SelectValue,
-	SelectTrigger,
 	SelectContent,
-	SelectLabel,
+	SelectGroup,
 	SelectItem,
-	SelectSeparator,
-	SelectScrollUpButton,
+	SelectLabel,
 	SelectScrollDownButton,
+	SelectScrollUpButton,
+	SelectSeparator,
+	SelectTrigger,
+	SelectValue,
 };

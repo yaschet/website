@@ -30,7 +30,7 @@ export function H1({ className, ...props }: ComponentPropsWithoutRef<"h1">) {
 	return (
 		<h1
 			className={cn(
-				"mt-0 mb-6 text-heading-xl",
+				"mt-0 mb-6 w-full max-w-[68ch] text-heading-xl",
 				"text-foreground",
 				"-ml-[0.3em]", // Optical alignment
 				className,
@@ -47,7 +47,7 @@ export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 	return (
 		<h2
 			className={cn(
-				"mt-16 mb-6 first:mt-0",
+				"mt-16 mb-6 w-full max-w-[68ch] first:mt-0",
 				"font-bold text-2xl tracking-tight",
 				"text-foreground",
 				"-ml-[0.3em]", // Optical alignment
@@ -65,7 +65,7 @@ export function H3({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
 	return (
 		<h3
 			className={cn(
-				"mt-12 mb-4 first:mt-0",
+				"mt-12 mb-4 w-full max-w-[68ch] first:mt-0",
 				"font-bold text-xl tracking-tight",
 				"text-foreground",
 				"-ml-[0.3em]", // Optical alignment
@@ -83,7 +83,7 @@ export function H4({ className, ...props }: ComponentPropsWithoutRef<"h4">) {
 	return (
 		<h4
 			className={cn(
-				"mt-8 mb-3 first:mt-0",
+				"mt-8 mb-3 w-full max-w-[68ch] first:mt-0",
 				"font-bold text-lg",
 				"text-foreground",
 				className,
@@ -98,7 +98,14 @@ export function H4({ className, ...props }: ComponentPropsWithoutRef<"h4">) {
  */
 export function P({ className, ...props }: ComponentPropsWithoutRef<"p">) {
 	return (
-		<p className={cn("mb-6 leading-relaxed", "text-muted-foreground", className)} {...props} />
+		<p
+			className={cn(
+				"mb-6 w-full max-w-[68ch] leading-relaxed",
+				"text-muted-foreground",
+				className,
+			)}
+			{...props}
+		/>
 	);
 }
 
@@ -156,7 +163,7 @@ export function UL({ className, ...props }: ComponentPropsWithoutRef<"ul">) {
 	return (
 		<ul
 			className={cn(
-				"mb-6 list-outside list-disc space-y-2 pl-6", // pl-6 (24px) brings bullet to ~0px
+				"mb-6 w-full max-w-[68ch] list-outside list-disc space-y-2 pl-6", // pl-6 (24px) brings bullet to ~0px
 				"text-muted-foreground",
 				"marker:text-muted-foreground",
 				className,
@@ -173,7 +180,7 @@ export function OL({ className, ...props }: ComponentPropsWithoutRef<"ol">) {
 	return (
 		<ol
 			className={cn(
-				"mb-6 list-outside list-decimal space-y-2 pl-8", // pl-8 (32px) brings number to ~0px
+				"mb-6 w-full max-w-[68ch] list-outside list-decimal space-y-2 pl-8", // pl-8 (32px) brings number to ~0px
 				"text-muted-foreground",
 				"marker:font-mono marker:text-muted-foreground",
 				className,
@@ -197,7 +204,7 @@ export function Blockquote({ className, ...props }: ComponentPropsWithoutRef<"bl
 	return (
 		<blockquote
 			className={cn(
-				"relative mb-8 overflow-hidden rounded-none",
+				"relative mb-8 w-full max-w-[68ch] overflow-hidden rounded-none",
 				"border border-surface-950/15 dark:border-surface-50/15",
 				"bg-white/80 backdrop-blur-lg dark:bg-surface-950/80",
 				"p-6 pl-8",
@@ -218,7 +225,10 @@ export function Blockquote({ className, ...props }: ComponentPropsWithoutRef<"bl
 export function HR({ className, ...props }: ComponentPropsWithoutRef<"hr">) {
 	return (
 		<hr
-			className={cn("my-12 border-surface-200 border-t dark:border-surface-800", className)}
+			className={cn(
+				"my-12 w-full border-surface-200 border-t dark:border-surface-800",
+				className,
+			)}
 			{...props}
 		/>
 	);
@@ -284,7 +294,7 @@ export function Pre({ className, children, ...props }: ComponentPropsWithoutRef<
 
 	return (
 		<CodeBlockWrapper
-			className={className}
+			className={cn("mb-8 w-full", className)}
 			highlightedHtml={highlightedHtml}
 			rawCode={rawCode}
 			{...props}
@@ -297,7 +307,7 @@ export function Pre({ className, children, ...props }: ComponentPropsWithoutRef<
  */
 export function Table({ className, ...props }: ComponentPropsWithoutRef<"table">) {
 	return (
-		<div className="mb-8 overflow-x-auto">
+		<div className="mb-8 w-full overflow-x-auto">
 			<table className={cn("w-full border-collapse text-sm", className)} {...props} />
 		</div>
 	);
@@ -378,7 +388,7 @@ export function Img({ className, alt, src, ...props }: ComponentPropsWithoutRef<
 	const isStatic = typeof resolvedSrc !== "string";
 
 	return (
-		<figure className="mb-8">
+		<figure className="mb-8 w-full">
 			<div className="relative aspect-video w-full border border-surface-200 dark:border-surface-800">
 				<Image
 					src={resolvedSrc}

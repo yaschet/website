@@ -1,39 +1,14 @@
-/**
- * Badge component implementing the "Swiss Design" label primitive.
- *
- * @remarks
- * Features:
- * - 0px Radius ("The Blade") by default (configurable via shape)
- * - High Contrast & Optical Precision
- * - Button-like Physics (Scale/Lift)
- * - Strict Color Semantics (OkLCH)
- *
- * @example
- * ```tsx
- * <Badge variant="solid" color="success">Active</Badge>
- * ```
- */
-
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 import { cn } from "@/src/lib/index";
 
-// ═══════════════════════════════════════════════════════════════════════════
-// VARIANTS
-// ═══════════════════════════════════════════════════════════════════════════
-
 const badgeVariants = cva(
 	[
-		// BASE LAYOUT
-		"inline-flex items-center justify-center gap-1.5",
+		"inline-flex items-center justify-center gap-[var(--portfolio-control-gap)]",
 		"select-none whitespace-nowrap",
-
-		// TYPOGRAPHY (Swiss Mono/Sans Hybrid Feel)
-		"font-bold text-[10px] uppercase leading-none tracking-wider",
-
-		// INTERACTION PHYSICS (Matches Button.tsx)
+		"portfolio-chip-label",
 		"transform-gpu transition-all duration-200 ease-out",
-		"cursor-default", // Default to arrow
+		"cursor-default",
 	],
 	{
 		variants: {
@@ -54,12 +29,12 @@ const badgeVariants = cva(
 				destructive: "",
 			},
 			size: {
-				sm: "px-1.5 py-0.5",
-				md: "px-2.5 py-1",
-				lg: "px-3 py-1.5 text-xs",
+				sm: "min-h-[var(--portfolio-control-compact)] px-[var(--portfolio-control-pad-compact)]",
+				md: "min-h-[var(--portfolio-control-compact)] px-[var(--portfolio-control-pad-compact)]",
+				lg: "min-h-[var(--portfolio-control-default)] px-[var(--portfolio-control-pad-default)]",
 			},
 			shape: {
-				default: "rounded-none", // STRICT SWISS DEFAULT
+				default: "rounded-none",
 				sm: "rounded-sm",
 				md: "rounded-md",
 				full: "rounded-full",
@@ -70,9 +45,6 @@ const badgeVariants = cva(
 			},
 		},
 		compoundVariants: [
-			// ═══════════════════════════════════════════════════════════════════
-			// SOLID VARIANTS (Filled, High Contrast)
-			// ═══════════════════════════════════════════════════════════════════
 			{
 				variant: "solid",
 				color: "default",
@@ -81,14 +53,12 @@ const badgeVariants = cva(
 			{
 				variant: "solid",
 				color: "primary",
-				// CORRECTION: Mapped to Surface-900 (Black) to fix "dirty gray" issue.
-				// Now identical to 'default' - enforcing Monochromatic Swiss standard.
 				class: "bg-surface-900 text-surface-50 hover:bg-surface-800 dark:bg-surface-50 dark:text-surface-900 dark:hover:bg-surface-200",
 			},
 			{
 				variant: "solid",
 				color: "accent",
-				class: "bg-accent-600 text-white hover:bg-accent-700 dark:bg-accent-500",
+				class: "bg-accent-600 text-accent-950 hover:bg-accent-700 dark:bg-accent-500",
 			},
 			{
 				variant: "solid",
@@ -111,9 +81,6 @@ const badgeVariants = cva(
 				class: "bg-destructive-600 text-white hover:bg-destructive-700 dark:bg-destructive-500",
 			},
 
-			// ═══════════════════════════════════════════════════════════════════
-			// SOFT VARIANTS (Tinted BG, Dark Text)
-			// ═══════════════════════════════════════════════════════════════════
 			{
 				variant: "soft",
 				color: "default",
@@ -122,7 +89,6 @@ const badgeVariants = cva(
 			{
 				variant: "soft",
 				color: "primary",
-				// CORRECTION: Mapped to Surface (Light Gray/White) to fix "dirty gray" issue.
 				class: "border-surface-200 bg-surface-100 text-surface-900 hover:border-surface-300 hover:bg-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300",
 			},
 			{
@@ -151,9 +117,6 @@ const badgeVariants = cva(
 				class: "border-destructive-100 bg-destructive-50 text-destructive-700 hover:border-destructive-200 hover:bg-destructive-100 dark:border-destructive-900 dark:bg-destructive-950/50 dark:text-destructive-300",
 			},
 
-			// ═══════════════════════════════════════════════════════════════════
-			// OUTLINED VARIANTS (Border Only, Tint on Hover - NO SOLID FILL)
-			// ═══════════════════════════════════════════════════════════════════
 			{
 				variant: "outlined",
 				color: "default",
@@ -162,7 +125,6 @@ const badgeVariants = cva(
 			{
 				variant: "outlined",
 				color: "primary",
-				// CORRECTION: Mapped to Surface logic
 				class: "border-surface-300 text-surface-700 hover:bg-surface-50 hover:text-surface-900 dark:border-surface-700 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200",
 			},
 			{
@@ -191,9 +153,6 @@ const badgeVariants = cva(
 				class: "border-destructive-200 text-destructive-700 hover:border-destructive-300 hover:bg-destructive-50 dark:border-destructive-800 dark:text-destructive-400 dark:hover:border-destructive-700 dark:hover:bg-destructive-950/50",
 			},
 
-			// ═══════════════════════════════════════════════════════════════════
-			// PLAIN VARIANTS (Text Only, Subtle BG on Hover)
-			// ═══════════════════════════════════════════════════════════════════
 			{
 				variant: "plain",
 				color: "default",
@@ -202,7 +161,6 @@ const badgeVariants = cva(
 			{
 				variant: "plain",
 				color: "primary",
-				// CORRECTION: Mapped to Surface logic
 				class: "text-surface-600 hover:bg-surface-100 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200",
 			},
 			{

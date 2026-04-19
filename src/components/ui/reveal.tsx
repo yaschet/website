@@ -18,9 +18,9 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
-import { useState } from "react";
-import { type RevealPhase, useReveal } from "@/src/components/providers/reveal-provider";
-import { distances, springs, stagger } from "@/src/lib/index";
+import { useEffect, useState } from "react";
+import { type RevealPhase, useRevealState } from "@/src/components/providers/reveal-provider";
+import { distances, springs, stagger, tweens } from "@/src/lib/index";
 
 interface RevealProps {
 	children: ReactNode;
@@ -30,26 +30,35 @@ interface RevealProps {
 }
 
 export function Reveal({ children, delay = 0, className, phase = 1 }: RevealProps) {
-	const { phase: currentPhase } = useReveal();
+	const { phase: currentPhase, environment, entryKey } = useRevealState();
 	const shouldReduceMotion = useReducedMotion();
 
 	// Can only animate if global phase is reached
 	const isEnabled = currentPhase >= phase;
+	const isAutomation = environment === "automation";
+	const isReduced = environment === "reduced-motion" || shouldReduceMotion;
+
+	if (isAutomation) {
+		return <div className={className}>{children}</div>;
+	}
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: shouldReduceMotion ? 0 : distances.small }}
+			key={`reveal-${entryKey}-${phase}-${delay}`}
+			initial={{
+				opacity: 0,
+				y: isReduced ? 0 : distances.small,
+			}}
 			animate={
 				isEnabled
 					? { opacity: 1, y: 0 }
-					: { opacity: 0, y: shouldReduceMotion ? 0 : distances.small }
+					: { opacity: 0, y: isReduced ? 0 : distances.small }
 			}
 			transition={{
-				...springs.responsive,
+				...(isReduced ? tweens.reduced : springs.responsive),
 				delay: delay,
 			}}
 			className={className}
-			style={{}}
 		>
 			{children}
 		</motion.div>
@@ -58,27 +67,42 @@ export function Reveal({ children, delay = 0, className, phase = 1 }: RevealProp
 
 // Special reveal for elements that trigger on scroll AFTER initial load
 export function ScrollReveal({ children, delay = 0, className, phase = 3 }: RevealProps) {
-	const { phase: currentPhase } = useReveal();
+	const { phase: currentPhase, environment, entryKey } = useRevealState();
 	const shouldReduceMotion = useReducedMotion();
 	const [hasEnteredView, setHasEnteredView] = useState(false);
 
+	useEffect(() => {
+		void entryKey;
+		setHasEnteredView(false);
+	}, [entryKey]);
+
 	// Phase gate: start only after phase is reached
 	const isPhaseReached = currentPhase >= phase;
-	const shouldReveal = isPhaseReached && hasEnteredView;
+	const isAutomation = environment === "automation";
+	const isReduced = environment === "reduced-motion" || shouldReduceMotion;
+	const shouldReveal = isAutomation || (isPhaseReached && hasEnteredView);
+
+	if (isAutomation) {
+		return <div className={className}>{children}</div>;
+	}
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: shouldReduceMotion ? 0 : distances.medium }}
+			key={`scroll-reveal-${entryKey}-${phase}-${delay}`}
+			initial={{ opacity: 0, y: isReduced ? 0 : distances.medium }}
 			animate={
 				shouldReveal
 					? { opacity: 1, y: 0 }
-					: { opacity: 0, y: shouldReduceMotion ? 0 : distances.medium }
+					: { opacity: 0, y: isReduced ? 0 : distances.medium }
 			}
 			onViewportEnter={() => setHasEnteredView(true)}
 			viewport={{ once: true, margin: "-50px" }}
-			transition={{ ...springs.gentle, delay }}
+			transition={
+				isReduced
+					? { ...tweens.reduced, delay: 0, duration: 0 }
+					: { ...springs.gentle, delay }
+			}
 			className={className}
-			style={{}}
 		>
 			{children}
 		</motion.div>
@@ -94,11 +118,17 @@ export function RevealStagger({
 	className?: string;
 	phase?: RevealPhase;
 }) {
-	const { phase: currentPhase } = useReveal();
+	const { phase: currentPhase, environment, entryKey } = useRevealState();
 	const isEnabled = currentPhase >= phase;
+	const shouldBypass = environment !== "normal";
+
+	if (shouldBypass) {
+		return <div className={className}>{children}</div>;
+	}
 
 	return (
 		<motion.div
+			key={`reveal-stagger-${entryKey}-${phase}`}
 			initial="hidden"
 			animate={isEnabled ? "visible" : "hidden"}
 			variants={{
@@ -116,20 +146,52 @@ export function RevealStagger({
 }
 
 export function RevealItem({ children, className }: { children: ReactNode; className?: string }) {
+	const { environment } = useRevealState();
 	const shouldReduceMotion = useReducedMotion();
+	const isReduced = environment !== "normal" || shouldReduceMotion;
 
 	return (
 		<motion.div
 			variants={{
-				hidden: { opacity: 0, y: shouldReduceMotion ? 0 : distances.small },
+				hidden: { opacity: 0, y: isReduced ? 0 : distances.small },
 				visible: {
 					opacity: 1,
 					y: 0,
-					transition: springs.responsive,
+					transition: isReduced ? tweens.reduced : springs.responsive,
 				},
 			}}
 			className={className}
-			style={{}}
+		>
+			{children}
+		</motion.div>
+	);
+}
+
+export function ShellReveal({ children, delay = 0, className, phase = 1 }: RevealProps) {
+	const { phase: currentPhase, environment, entryKey } = useRevealState();
+	const shouldReduceMotion = useReducedMotion();
+	const isEnabled = currentPhase >= phase;
+	const isAutomation = environment === "automation";
+	const isReduced = environment === "reduced-motion" || shouldReduceMotion;
+
+	if (isAutomation) {
+		return <div className={className}>{children}</div>;
+	}
+
+	return (
+		<motion.div
+			key={`shell-reveal-${entryKey}-${phase}-${delay}`}
+			initial={{ opacity: 0, y: isReduced ? 0 : distances.micro }}
+			animate={
+				isEnabled
+					? { opacity: 1, y: 0 }
+					: { opacity: 0, y: isReduced ? 0 : distances.micro }
+			}
+			transition={{
+				...(isReduced ? tweens.reduced : tweens.shell),
+				delay,
+			}}
+			className={className}
 		>
 			{children}
 		</motion.div>

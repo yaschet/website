@@ -11,7 +11,7 @@ async function main() {
 	const baseUrl = "http://localhost:3000";
 
 	// 1. Routes to Check
-	const routes = ["/", "/about", "/projects", "/blog", "/contact"];
+	const routes = ["/", "/about", "/case-studies", "/blog", "/contact"];
 
 	// 2. Headless Check (Node.js Fetch)
 	// CAPABILITY: This measures Time to First Byte (TTFB) and network reachability.

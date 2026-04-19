@@ -1,4 +1,3 @@
-import { allProjects } from "contentlayer2/generated";
 import { ImageResponse } from "next/og";
 import {
 	loadAvatar,
@@ -9,6 +8,7 @@ import {
 	OG_SIZE,
 	sharedGridStyles,
 } from "@/lib/og";
+import { getPublicProjectBySlug } from "@/src/content/registry";
 
 // export const runtime = "edge";
 
@@ -18,7 +18,7 @@ export const contentType = OG_CONTENT_TYPE;
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
 	const { slug } = await params;
-	const project = allProjects.find((p) => p.slug === slug);
+	const project = await getPublicProjectBySlug(slug);
 
 	const title = project?.title ?? "Case Study";
 	const description = project?.description ?? "Outcome-oriented product engineering artifact.";

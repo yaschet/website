@@ -19,6 +19,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"incremental": true,
 		"tsBuildInfoFile": "node_modules/.cache/tsconfig.tsbuildinfo",
+		"ignoreDeprecations": "6.0",
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./*", "./src/*"],
@@ -35,9 +36,7 @@
 			"@utils/*": ["./src/utils/*"],
 			"@ui/*": ["./src/components/ui/*"],
 			"@public/*": ["public/*"],
-			"@queries/*": ["./src/queries/*"],
-			"contentlayer/generated": ["./.contentlayer/generated"],
-			"contentlayer2/generated": ["./.contentlayer/generated"]
+			"@queries/*": ["./src/queries/*"]
 		},
 		"plugins": [
 			{
@@ -65,8 +64,7 @@
 		"dist/types/**/*.ts",
 		".storybook/*",
 		".next/types/**/*.ts",
-		".next/dev/types/**/*.ts",
-		".contentlayer/generated"
+		".next/dev/types/**/*.ts"
 	],
 	"exclude": [
 		"./node_modules",

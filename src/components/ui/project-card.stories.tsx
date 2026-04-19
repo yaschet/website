@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { Project } from "contentlayer2/generated";
+import type { ProjectEntry } from "@/src/content/types";
 import { ProjectCard } from "./project-card";
 
 /**
@@ -46,17 +46,22 @@ const mockProject = {
 	description:
 		"A high-performance trading platform built for institutional grade execution. Focusing on latency reduction and geometric clarity.",
 	date: "2024-05-15",
-	url_path: "/projects/verto",
+	tags: ["fintech"],
+	urlPath: "/case-studies/verto",
 	tech: ["Next.js", "TypeScript", "Tailwind v4", "Framer Motion", "Rust"],
 	featured: true,
-	_id: "verto",
-	_type: "Project",
-	body: { code: "" },
+	hideCoverGallery: false,
+	listed: true,
+	cardState: "public" as const,
+	id: "project:verto",
+	slug: "verto",
+	readingTime: 6,
+	Content: () => null,
 };
 
 export const Featured: Story = {
 	args: {
-		project: mockProject as unknown as Project,
+		project: mockProject as ProjectEntry,
 	},
 };
 
@@ -67,6 +72,6 @@ export const Standard: Story = {
 			featured: false,
 			title: "Swiss Grid System",
 			tech: ["Canvas API", "Physics", "React"],
-		} as unknown as Project,
+		} as ProjectEntry,
 	},
 };

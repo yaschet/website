@@ -1,286 +1,342 @@
-import { Avatar, AvatarFallback } from "@components/ui/avatar";
-import {
-	ArrowRightIcon,
-	GithubLogoIcon,
-	LinkedinLogoIcon,
-	XLogoIcon,
-} from "@phosphor-icons/react/dist/ssr";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import avatarImage from "@/public/images/avatar.jpeg";
+import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
+import { PageIntro } from "@/src/components/layout/page-intro";
+import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
-import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
-import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
+import {
+	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
+	INVERTED_ACTION_BAND_TITLE_CLASS,
+} from "@/src/components/ui/instrument-action-band-theme";
+import { ScrollReveal } from "@/src/components/ui/reveal";
+import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export const metadata: Metadata = {
 	title: "About | Yassine Chettouch",
-	description: "Product Engineer based in Rabat, Morocco.",
+	description: "Software Engineer based in Rabat, Morocco.",
 	alternates: {
 		canonical: "/about",
 	},
 };
 
+const PRINCIPLES = [
+	{
+		title: "Boring infrastructure over new toys.",
+		description:
+			"I'd rather use Postgres than five new databases, standard TypeScript than clever abstractions, and proven libraries than whatever launched last week. Novel stacks create debt. Boring stacks ship and keep shipping through pivots.",
+	},
+	{
+		title: "Verified AI, not vibe coding.",
+		description:
+			"I use Claude Code, Cursor, and Codex every day for scaffolding, refactors, tests, and reading new codebases. I don't ship unverified AI output into anything that touches money, eligibility, or user-visible correctness. Those paths get tests, evals, and a manual pass before they go live.",
+	},
+	{
+		title: "One owner per decision.",
+		description:
+			"I work best when one person owns decisions end to end. Committee scoping tends to produce committee software. If a project has four stakeholders who can each override the architecture, I'm probably not the right fit.",
+	},
+	{
+		title: "End to end.",
+		description:
+			'I don\'t hand off at the edge of my tickets. I follow the work from first commit to the deployment logs. If something breaks at 2am, I\'m the one reading the stack trace.',
+	},
+] as const;
+
 export default function AboutPage() {
 	return (
-		<SwissGridProvider>
-			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
-				<main className="relative z-10 flex flex-1 flex-col">
-					{/* Nav Row */}
-					<Reveal phase={1} className="w-full">
-						<SiteHeader />
-					</Reveal>
+		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+			<main className="relative z-10 flex flex-1 flex-col">
+				{/* Nav Row */}
+				<SiteHeader />
 
-					{/* Profile */}
-					<SwissGridSection id="profile" className="relative w-full">
-						<Reveal phase={1} className="relative z-10 w-full">
-							<header className="w-full">
-								<div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6 py-12 sm:px-8">
-									<div className="flex items-center gap-4">
-										<Avatar className="relative size-14 overflow-hidden rounded-(--radius) border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-900">
-											<Image
-												src={avatarImage}
-												alt="Yassine Chettouch"
-												className="object-cover"
-												placeholder="blur"
-												fill
-												sizes="56px"
+				{/* Profile */}
+				<section id="profile" className="relative w-full">
+					<PageContainer className="portfolio-section-top">
+						<SwissGridBox>
+							<SwissGridRow>
+								<ProfileSection />
+							</SwissGridRow>
+						</SwissGridBox>
+					</PageContainer>
+				</section>
+
+				<section id="about-intro" className="w-full">
+					<ScrollReveal phase={1} className="w-full">
+						<section className="w-full">
+							<PageContainer className="portfolio-section-top">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<PageIntro
+												eyebrow="ABOUT"
+												title="How I work."
+												description="Engineering principles and the path that produced them."
 											/>
-											<AvatarFallback className="flex h-full w-full items-center justify-center bg-surface-100 font-medium text-sm text-surface-400 dark:bg-surface-900 dark:text-surface-500">
-												YC
-											</AvatarFallback>
-										</Avatar>
-										<div>
-											<h1 className="font-semibold text-body-lg text-surface-900 dark:text-surface-100">
-												Yassine Chettouch
-											</h1>
-											<p className="text-body-sm text-surface-500 dark:text-surface-400">
-												Product Engineer
-											</p>
 										</div>
-									</div>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
+					</ScrollReveal>
+				</section>
 
-									<div className="flex items-center gap-0.5">
-										<Link
-											href="https://linkedin.com/in/yassinechettouch"
-											target="_blank"
-											aria-label="LinkedIn"
-											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
+				{/* 01 · The Short Version */}
+				<section id="story" className="w-full">
+					<ScrollReveal phase={2} className="w-full">
+						<section className="w-full">
+							<PageContainer className="portfolio-section-top">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ScrollReveal phase={2}>
+												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+													01 · The Short Version
+												</p>
+											</ScrollReveal>
+										</div>
+									</SwissGridRow>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ProseContainer className="portfolio-prose">
+												<ScrollReveal phase={2} delay={0.05}>
+													<p>
+														I started in graphic design, caring mostly
+														about type and visual hierarchy. Around 2021
+														I realized design without code was half the
+														job, so I moved into engineering.
+													</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.1}>
+													<p>
+														Today I build full-stack systems end to end.
+														Frontend, backend, data, AI, payments,
+														deployment. I&apos;m comfortable across the
+														whole surface.
+													</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.15}>
+													<p>
+														I&apos;m most useful when the problem cuts
+														across parts of a product and someone has to
+														hold the whole thing in their head until it
+														works. I&apos;d rather ship a working version
+														in a week than a perfect spec in a month.
+													</p>
+												</ScrollReveal>
+											</ProseContainer>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
+					</ScrollReveal>
+				</section>
+
+				{/* 02 · How I Think */}
+				<section id="how-i-think" className="w-full">
+					<ScrollReveal phase={2} className="w-full">
+						<section className="w-full">
+							<PageContainer className="portfolio-section-top">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ScrollReveal phase={2}>
+												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+													02 · How I Think
+												</p>
+											</ScrollReveal>
+										</div>
+									</SwissGridRow>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<div className="grid gap-[var(--portfolio-space-section)] sm:grid-cols-2">
+												{PRINCIPLES.map((principle, index) => (
+													<ScrollReveal
+														key={principle.title}
+														phase={2}
+														delay={0.05 + index * 0.05}
+													>
+														<div className="portfolio-surface-card">
+															<div className="portfolio-card-copy">
+																<h3 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-50">
+																	{principle.title}
+																</h3>
+																<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+																	{principle.description}
+																</p>
+															</div>
+														</div>
+													</ScrollReveal>
+												))}
+											</div>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
+					</ScrollReveal>
+				</section>
+
+				{/* 03 · How I Work */}
+				<section id="how-i-work" className="w-full">
+					<ScrollReveal phase={2} className="w-full">
+						<section className="w-full">
+							<PageContainer className="portfolio-section-top">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ScrollReveal phase={2}>
+												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+													03 · Engineering Philosophy
+												</p>
+											</ScrollReveal>
+										</div>
+									</SwissGridRow>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ProseContainer className="portfolio-prose">
+												<ScrollReveal phase={2} delay={0.05}>
+													<p>
+														I try to build things that bend when the
+														business changes direction, because the
+														business always does. That means strict
+														typing, clear module boundaries, and not
+														being clever when boring would work. Rigid
+														systems are fast to write and painful to
+														keep. Bendy systems cost more up front and a
+														lot less to live with.
+													</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.1}>
+													<p>
+														I work in short cycles with running demos,
+														not Figma files. Architecture decisions show
+														up in production so we can see whether they
+														hold. Technical debt gets written down out
+														loud, not hidden for the next engineer to
+														find.
+													</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.15}>
+													<p>
+														The job isn&apos;t to ship code. It&apos;s to
+														make sure the codebase six months from now is
+														still somewhere the next engineer wants to
+														work.
+													</p>
+												</ScrollReveal>
+											</ProseContainer>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
+					</ScrollReveal>
+				</section>
+
+				<section id="working-with-ai" className="w-full">
+					<ScrollReveal phase={2} className="w-full">
+						<section className="w-full">
+							<PageContainer className="portfolio-section-top">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ScrollReveal phase={2}>
+												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+													04 · Working with AI
+												</p>
+											</ScrollReveal>
+										</div>
+									</SwissGridRow>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ProseContainer className="portfolio-prose">
+												<ScrollReveal phase={2} delay={0.05}>
+													<p>AI is my compiler, not my architect.</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.1}>
+													<p>
+														I use coding agents for scaffolding,
+														refactors, test generation, and reading new
+														codebases. They&apos;re fast where fast is
+														useful. They don&apos;t pick the
+														architecture, validate business logic, or
+														sign off on quality. Those stay with me.
+													</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.15}>
+													<p>
+														Anything that touches money, eligibility,
+														user-visible correctness, or compliance gets
+														tests, evals, and a manual review before it
+														ships. I keep a trail of where AI helped and
+														where I overrode it. That makes things much
+														easier to debug six months later when
+														something goes sideways and someone needs to
+														find the root cause fast.
+													</p>
+												</ScrollReveal>
+												<ScrollReveal phase={2} delay={0.2}>
+													<p>
+														Yes, I ship faster with AI. No, I don&apos;t
+														ship AI output I can&apos;t explain.
+													</p>
+												</ScrollReveal>
+											</ProseContainer>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
+					</ScrollReveal>
+				</section>
+
+				{/* Contact */}
+				<section id="about-contact" className="w-full">
+					<ScrollReveal phase={3} className="w-full">
+						<section className="w-full">
+							<PageContainer className="portfolio-section-top">
+								<SwissGridBox>
+									<SwissGridRow>
+										<InstrumentActionBand
+											fieldSpeed={0.28}
+											fieldVariant="terrain"
+											tone="inverted"
 										>
-											<LinkedinLogoIcon className="size-5" weight="regular" />
-										</Link>
-										<Link
-											href="https://github.com/yaschet"
-											target="_blank"
-											aria-label="GitHub"
-											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
-										>
-											<GithubLogoIcon className="size-5" weight="regular" />
-										</Link>
-										<Link
-											href="https://x.com/yaschett"
-											target="_blank"
-											aria-label="X"
-											className="inline-flex size-8 items-center justify-center text-surface-500 transition-colors hover:text-surface-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:text-surface-400 dark:hover:text-surface-50"
-										>
-											<XLogoIcon className="size-5" weight="regular" />
-										</Link>
-									</div>
-								</div>
-							</header>
-						</Reveal>
-					</SwissGridSection>
-
-					{/* 01 · The Short Version */}
-					<SwissGridSection id="story" className="w-full">
-						<ScrollReveal phase={2} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<ScrollReveal phase={2}>
-										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											01 · The Short Version
-										</p>
-									</ScrollReveal>
-									<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
-										<ScrollReveal phase={2} delay={0.05}>
-											<p>
-												I started in{" "}
-												<strong className="font-medium text-surface-900 dark:text-surface-100">
-													Graphic Design
-												</strong>
-												, obsessing over visual hierarchy and Swiss
-												precision. In 2021, I realized design wasn&apos;t
-												enough—I wanted the power to build, not just mock
-												up.
-											</p>
-										</ScrollReveal>
-										<ScrollReveal phase={2} delay={0.1}>
-											<p>
-												I pivoted to{" "}
-												<strong className="font-medium text-surface-900 dark:text-surface-100">
-													Backend and Systems Engineering
-												</strong>
-												. I don&apos;t just build interfaces; I architect
-												full-stack engines. From database ledgers to AI
-												pipelines, I bridge the gap between &quot;beautiful
-												UI&quot; and &quot;heavy backend logic.&quot;
-											</p>
-										</ScrollReveal>
-										<ScrollReveal phase={2} delay={0.15}>
-											<p>
-												Today, I function as a{" "}
-												<strong className="font-medium text-surface-900 dark:text-surface-100">
-													Product Engineer
-												</strong>
-												. I solve expensive business problems using whatever
-												stack is required—shipping production-grade software
-												in short cycles.
-											</p>
-										</ScrollReveal>
-									</div>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
-
-					{/* 02 · How I Think */}
-					<SwissGridSection id="how-i-think" className="w-full">
-						<ScrollReveal phase={2} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<ScrollReveal phase={2}>
-										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											02 · How I Think
-										</p>
-									</ScrollReveal>
-									<div className="grid gap-8 sm:grid-cols-2">
-										<ScrollReveal phase={2} delay={0.05}>
-											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
-												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													Precision
-												</h3>
-												<p className="text-sm text-surface-600 dark:text-surface-400">
-													I treat code like a contract. If the API fails,
-													the UI is a lie. I build systems that fail
-													gracefully and recover automatically.
-												</p>
-											</div>
-										</ScrollReveal>
-										<ScrollReveal phase={2} delay={0.1}>
-											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
-												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													Speed as a Feature
-												</h3>
-												<p className="text-sm text-surface-600 dark:text-surface-400">
-													Latency kills trust. I optimize for
-													&quot;perceived performance&quot; using
-													optimistic UI, skeletons, and edge caching. No
-													one likes waiting.
-												</p>
-											</div>
-										</ScrollReveal>
-										<ScrollReveal phase={2} delay={0.15}>
-											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
-												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													ROI-First
-												</h3>
-												<p className="text-sm text-surface-600 dark:text-surface-400">
-													I don&apos;t build features for fun. I build to
-													move the needle. If a feature doesn&apos;t
-													reduce churn or increase revenue, I cut it.
-												</p>
-											</div>
-										</ScrollReveal>
-										<ScrollReveal phase={2} delay={0.2}>
-											<div className="group space-y-2 border border-transparent p-4 transition-all duration-200 hover:border-surface-200 hover:bg-surface-50/50 dark:hover:border-surface-800 dark:hover:bg-surface-900/30">
-												<h3 className="font-medium text-lg text-surface-900 dark:text-surface-50">
-													End-to-End Responsibility
-												</h3>
-												<p className="text-sm text-surface-600 dark:text-surface-400">
-													I don&apos;t say &quot;it works on my
-													machine.&quot; I own the product from the first
-													line of code to the final deployment logs.
-												</p>
-											</div>
-										</ScrollReveal>
-									</div>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
-
-					{/* 03 · How I Work */}
-					<SwissGridSection id="how-i-work" className="w-full">
-						<ScrollReveal phase={2} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<ScrollReveal phase={2}>
-										<p className="mb-8 font-medium text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-											03 · Engineering Philosophy
-										</p>
-									</ScrollReveal>
-									<div className="space-y-6 text-body-md text-surface-600 dark:text-surface-400">
-										<ScrollReveal phase={2} delay={0.05}>
-											<p>
-												I architect for{" "}
-												<strong className="font-medium text-surface-900 dark:text-surface-100">
-													Malleability
-												</strong>
-												. Systems change. I use strict typing
-												(TypeScript/Zod) and atomic design principles so
-												that when the business pivots, the code doesn&apos;t
-												break.
-											</p>
-										</ScrollReveal>
-										<ScrollReveal phase={2} delay={0.1}>
-											<p>
-												Ship early. Ship often. I work in weekly cycles with
-												working demos. You see architecture decisions in
-												action, not in Figma files. Technical debt gets
-												documented and prioritized—not hidden until
-												deployment.
-											</p>
-										</ScrollReveal>
-										<ScrollReveal phase={2} delay={0.15}>
-											<p>
-												I optimize for long-term outcomes. Fast code that
-												nobody can maintain is slow code. Clean abstractions
-												that enable the next engineer to ship faster are
-												infrastructure investments.
-											</p>
-										</ScrollReveal>
-									</div>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
-
-					{/* Contact */}
-					<SwissGridSection id="about-contact" className="w-full">
-						<ScrollReveal phase={3} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-										<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-											Work with these principles?
-										</h2>
-										<Button asChild size="lg" variant="solid" color="primary">
-											<Link href="/contact">
-												Email
-												<ArrowRightIcon className="size-4" weight="bold" />
-											</Link>
-										</Button>
-									</div>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
-				</main>
-				<SiteFooter />
-				<SwissGridSection id="nav-spacer" className="h-29.5 w-full" />
-			</div>
-		</SwissGridProvider>
+											<h2
+												className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
+											>
+												Work with these principles?
+											</h2>
+											<Button
+												asChild
+												size="md"
+												variant="solid"
+												color="default"
+												className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
+											>
+												<Link href="/contact">
+													Email
+													<ArrowRightIcon
+														className="size-4"
+														weight="bold"
+													/>
+												</Link>
+											</Button>
+										</InstrumentActionBand>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
+					</ScrollReveal>
+				</section>
+			</main>
+			<SiteFooter />
+			<section id="nav-spacer" className="portfolio-nav-spacer w-full" />
+		</div>
 	);
 }

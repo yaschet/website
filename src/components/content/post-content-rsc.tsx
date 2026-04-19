@@ -1,143 +1,146 @@
 import { ArrowLeft, ArrowRight, Clock } from "@phosphor-icons/react/dist/ssr";
-import type { Post } from "contentlayer2/generated";
 import Link from "next/link";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
+import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
+import {
+	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
+	INVERTED_ACTION_BAND_TITLE_CLASS,
+} from "@/src/components/ui/instrument-action-band-theme";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
-import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
+import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import type { PostEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
 
 interface PostContentProps {
-	post: Post;
+	post: PostEntry;
 }
 
-// Extended type for computed fields if needed
-type PostWithExtras = Post & {
-	readingTime?: number;
-};
-
 export function PostContentRSC({ post }: PostContentProps) {
-	const postData = post as PostWithExtras;
-
 	return (
-		<SwissGridProvider>
-			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
-				<main
-					className="relative z-10 flex flex-1 flex-col"
-					style={{ overflowAnchor: "none" }}
-				>
-					{/* Nav Row */}
+		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
+				<Reveal phase={1} className="w-full">
+					<SiteHeader />
+				</Reveal>
+
+				<section id="post-header" className="w-full">
 					<Reveal phase={1} className="w-full">
-						<SiteHeader />
+						<section className="w-full">
+							<PageContainer className="portfolio-section-top">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ModuleContainer className="portfolio-stack-group mx-auto">
+												<Link
+													href="/blog"
+													className="portfolio-back-link portfolio-kicker"
+												>
+													<ArrowLeft size={14} weight="bold" />
+													<span>Back to Blog</span>
+												</Link>
+
+												<div className="portfolio-stack-related">
+													<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl text-foreground">
+														{post.title}
+													</h1>
+
+													<div className="portfolio-inline-meta">
+														<time className="portfolio-caption font-mono text-muted-foreground tabular-nums">
+															{formatDate(post.date)}
+														</time>
+														<span className="portfolio-caption flex items-center gap-[var(--portfolio-space-tight)] font-mono text-muted-foreground">
+															<Clock size={12} weight="bold" />
+															{post.readingTime} min read
+														</span>
+													</div>
+
+													<ProseContainer>
+														<p className="portfolio-body-lg text-muted-foreground">
+															{post.description}
+														</p>
+													</ProseContainer>
+												</div>
+											</ModuleContainer>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
 					</Reveal>
+				</section>
 
-					{/* Header */}
-					<SwissGridSection id="post-header" className="w-full">
-						<Reveal phase={1} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 pt-16 sm:px-8">
-									{/* Back Link */}
-									<Link
-										href="/blog"
-										className="mb-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-foreground"
-									>
-										<ArrowLeft size={14} weight="bold" />
-										<span>Back to Blog</span>
-									</Link>
+				<section id="post-content" className="w-full">
+					<ScrollReveal phase={2} className="w-full">
+						<section className="w-full">
+							<PageContainer className="portfolio-section-loose">
+								<SwissGridBox>
+									<SwissGridRow>
+										<div className="portfolio-box-pad">
+											<ModuleContainer className="mx-auto">
+												<article>
+													<post.Content components={mdxComponents} />
+												</article>
+											</ModuleContainer>
+										</div>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
+					</ScrollReveal>
+				</section>
 
-									{/* Title */}
-									<h1 className="mb-4 text-foreground text-heading-xl">
-										{post.title}
-									</h1>
+				<section id="post-cta" className="w-full">
+					<ScrollReveal phase={3} className="w-full">
+						<section className="w-full">
+							<PageContainer className="portfolio-section-loose">
+								<SwissGridBox>
+									<SwissGridRow>
+										<InstrumentActionBand
+											fieldSpeed={0.28}
+											fieldVariant="terrain"
+											tone="inverted"
+										>
+											<ModuleContainer className="mx-auto w-full">
+												<h2
+													className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
+												>
+													Have thoughts on this?
+												</h2>
+												<Button
+													asChild
+													size="md"
+													variant="solid"
+													color="default"
+													className={
+														INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS
+													}
+												>
+													<Link href="/contact">
+														Discuss
+														<ArrowRight
+															className="size-4"
+															weight="bold"
+														/>
+													</Link>
+												</Button>
+											</ModuleContainer>
+										</InstrumentActionBand>
+									</SwissGridRow>
+								</SwissGridBox>
+							</PageContainer>
+						</section>
+					</ScrollReveal>
+				</section>
 
-									{/* Meta Row (inline) */}
-									<div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
-										<time className="font-mono text-muted-foreground text-xs tabular-nums">
-											{formatDate(post.date)}
-										</time>
-										{postData.readingTime && (
-											<span className="flex items-center gap-1.5 font-mono text-muted-foreground text-xs">
-												<Clock size={12} weight="bold" />
-												{postData.readingTime} min read
-											</span>
-										)}
-									</div>
-
-									{/* Description */}
-									<p className="mb-12 max-w-xl text-body-lg text-muted-foreground">
-										{post.description}
-									</p>
-								</div>
-							</section>
-						</Reveal>
-					</SwissGridSection>
-
-					{/* Content - Server Rendered MDX */}
-					<SwissGridSection id="post-content" className="w-full">
-						<ScrollReveal phase={2} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<article>
-										<MDXRemote
-											source={post.body.raw}
-											components={mdxComponents}
-											options={{
-												mdxOptions: {
-													remarkPlugins: [remarkGfm],
-													rehypePlugins: [
-														rehypeSlug,
-														[
-															rehypeAutolinkHeadings,
-															{
-																properties: {
-																	className: ["anchor"],
-																},
-															},
-														],
-													],
-												},
-											}}
-										/>
-									</article>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
-
-					{/* CTA */}
-					<SwissGridSection id="post-cta" className="w-full">
-						<ScrollReveal phase={3} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-										<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-											Have thoughts on this?
-										</h2>
-										<Button asChild size="lg" variant="solid" color="primary">
-											<Link href="/contact">
-												Discusss
-												<ArrowRight className="size-4" weight="bold" />
-											</Link>
-										</Button>
-									</div>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
-
-					{/* Reading Bracket */}
-					<ReadingBracket />
-				</main>
-				<SiteFooter />
-				<SwissGridSection id="nav-spacer" className="h-29.5 w-full" />
-			</div>
-		</SwissGridProvider>
+				<ReadingBracket />
+			</main>
+			<SiteFooter />
+			<section id="nav-spacer" className="portfolio-nav-spacer w-full" />
+		</div>
 	);
 }

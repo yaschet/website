@@ -153,6 +153,50 @@ export const springs = {
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
+// TWEEN / EASING TOKENS
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const easings = {
+	outQuad: [0.25, 0.46, 0.45, 0.94] as const,
+	emphasized: [0.16, 1, 0.3, 1] as const,
+} as const;
+
+export const tweens = {
+	reduced: {
+		duration: 0.12,
+		ease: easings.outQuad,
+	},
+	shell: {
+		duration: 0.34,
+		ease: easings.outQuad,
+	},
+	content: {
+		duration: 0.42,
+		ease: easings.emphasized,
+	},
+	heading: {
+		duration: 0.56,
+		ease: easings.outQuad,
+	},
+	interactionFast: {
+		duration: 0.15,
+		ease: easings.outQuad,
+	},
+	interaction: {
+		duration: 0.2,
+		ease: easings.outQuad,
+	},
+	interactionSlow: {
+		duration: 0.25,
+		ease: easings.outQuad,
+	},
+	field: {
+		duration: 0.4,
+		ease: easings.outQuad,
+	},
+} as const;
+
+// ═══════════════════════════════════════════════════════════════════════════
 // LAYERED BUTTON TRANSITIONS (animations.dev standard)
 // ═══════════════════════════════════════════════════════════════════════════
 

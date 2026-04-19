@@ -1,194 +1,156 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
-import { allProjects } from "contentlayer2/generated";
-
+import { ArrowRightIcon, Briefcase } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import AssetPhoenix from "@/public/images/placeholders/asset-2.jpg";
-import AssetOnboardFlow from "@/public/images/placeholders/asset-12.jpg";
+import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-work-callout";
+import { PageContainer } from "@/src/components/layout/containers";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteHero } from "@/src/components/layout/site-hero";
 import { Button } from "@/src/components/ui/button";
+import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
+import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
+import {
+	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
+	INVERTED_ACTION_BAND_TITLE_CLASS,
+} from "@/src/components/ui/instrument-action-band-theme";
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
-
 import { ScrollReveal } from "@/src/components/ui/reveal";
-import { SwissGridProvider, SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
+import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import { getListedPublicProjects } from "@/src/content/registry";
 
-export default function Home() {
-	// Identify featured projects for the landing page
-	const featuredSlugs = ["verto", "phoenix", "onboard-flow"];
-	const featuredProjects = featuredSlugs
-		.map((slug) => allProjects.find((p) => p.slug === slug))
-		.filter((p): p is NonNullable<typeof p> => !!p);
+function HomeClosingCta() {
+	return (
+		<InstrumentActionBand fieldSpeed={0.28} fieldVariant="terrain" tone="inverted">
+			<h2
+				className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
+			>
+				View selected work.
+			</h2>
+			<Button
+				asChild
+				size="md"
+				variant="solid"
+				color="default"
+				className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
+			>
+				<Link href="/case-studies">
+					Case Studies
+					<ArrowRightIcon className="size-4" weight="bold" />
+				</Link>
+			</Button>
+		</InstrumentActionBand>
+	);
+}
+
+export default async function Home() {
+	const featuredProjects = await getListedPublicProjects();
+	const hasFeaturedProjects = featuredProjects.length > 0;
 
 	return (
-		<SwissGridProvider>
-			<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
-				<main
-					className="relative z-10 flex flex-1 flex-col"
-					style={{ overflowAnchor: "none" }}
-				>
-					{/* Nav Row */}
-					<SiteHeader />
+		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
+				{/* Nav Row — not boxed */}
+				<SiteHeader />
 
-					{/* Profile Section - Separated from Hero */}
-					<ProfileSection />
+				{/* Box 1: Profile + Hero — two rows, one shared border */}
+				<PageContainer>
+					<SwissGridBox>
+						<SwissGridRow>
+							<ProfileSection />
+						</SwissGridRow>
+						<SwissGridRow>
+							<SiteHero />
+						</SwissGridRow>
+					</SwissGridBox>
+				</PageContainer>
 
-					{/* Hero — Headline only */}
-					<SiteHero />
-
-					{/* Selected Work — Unified Container */}
-					<SwissGridSection id="work" className="w-full">
-						<ScrollReveal phase={3} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 pt-10 pb-16 sm:px-8">
-									{/* Section Header */}
-									<ScrollReveal phase={3}>
-										<div className="mb-4">
-											<h2 className="font-mono text-sm text-surface-500 uppercase tracking-[0.18em] dark:text-surface-300">
-												Selected Work
-											</h2>
-										</div>
-									</ScrollReveal>
-
-									{/* Projects Grid */}
-									<div className="space-y-6">
+				{/* Box 2: Selected Work */}
+				<PageContainer className="mt-10">
+					<SwissGridBox>
+						<SwissGridRow>
+							{hasFeaturedProjects ? (
+								<div className="portfolio-box-pad">
+									<div className="portfolio-stack-group">
 										{featuredProjects.map((project, i) => (
 											<ScrollReveal
-												key={project._id}
+												key={project.id}
 												phase={3}
 												delay={i * 0.05}
+												className="w-full"
 											>
 												<div id={`project-${i + 1}`}>
 													<ProjectCardGallery
 														index={`0${i + 1}`}
 														title={project.title}
 														description={project.description}
-														href={project.url_path}
+														href={project.urlPath}
 														tags={project.tech ?? []}
 														images={project.coverImages}
-														date="January 2026"
+														isPrivate={
+															project.cardState === "coming-soon"
+														}
+														date={
+															project.date
+																? new Date(
+																		project.date,
+																	).toLocaleDateString("en-US", {
+																		month: "long",
+																		year: "numeric",
+																	})
+																: undefined
+														}
+														imageTreatment="disciplined"
+														imageAspectRatio="1.92"
 													/>
 												</div>
 											</ScrollReveal>
 										))}
-
-										{/* Project Phoenix - Locked */}
-										<ScrollReveal phase={3} delay={0.2} className="w-full">
-											<div id="project-phoenix">
-												<ProjectCardGallery
-													index={`0${featuredProjects.length + 1}`}
-													title="Project Phoenix"
-													description="Large-scale data matching engine with AI-driven cleansing, semantic search, and resumable processing pipelines."
-													href="#"
-													tags={[
-														"Meilisearch",
-														"OpenAI",
-														"PostgreSQL",
-														"Data Pipelines",
-													]}
-													images={[AssetPhoenix]}
-													isPrivate
-													challenge="Match thousands of university programs to student profiles with high accuracy."
-													solution="3-phase system using Meilisearch, OpenAI embeddings, and resumable data pipelines."
-													date="June 2025"
-												/>
-											</div>
-										</ScrollReveal>
-
-										{/* Onboard Flow - Locked */}
-										<ScrollReveal phase={3} delay={0.25} className="w-full">
-											<div id="project-onboard">
-												<ProjectCardGallery
-													index={`0${featuredProjects.length + 2}`}
-													title="Onboard Flow"
-													description="Intelligent customer portal with step-by-step onboarding, document scanning, and dynamic form logic."
-													href="#"
-													tags={["React", "Node.js", "PostgreSQL", "OCR"]}
-													images={[AssetOnboardFlow]}
-													isPrivate
-													challenge="Replace a complex static form with a high-conversion step-by-step experience."
-													solution="Typeform-style portal with OCR scanning and dynamic form logic. Delivered in 6 weeks."
-													date="October 2025"
-												/>
-											</div>
-										</ScrollReveal>
 									</div>
 								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
+							) : (
+								<ScrollReveal phase={3} className="w-full">
+									<EditorialEmptyState
+										eyebrow="Selected Work"
+										icon={
+											<Briefcase
+												className="size-[var(--portfolio-icon-sm)] opacity-80"
+												weight="regular"
+											/>
+										}
+										title="No case studies listed."
+										description="The public archive is currently unlisted."
+									/>
+								</ScrollReveal>
+							)}
+						</SwissGridRow>
 
-					{/* NDA Disclaimer */}
-					<SwissGridSection id="home-nda" className="w-full">
-						<ScrollReveal phase={3} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-24 text-center sm:px-8">
-									<div className="mb-4 flex items-center justify-center gap-2">
-										<p className="font-mono text-surface-400 text-xs uppercase tracking-[0.2em] dark:text-surface-500">
-											Confidential Work
-										</p>
-									</div>
-									<p className="max-w-md text-sm text-surface-600 leading-relaxed dark:text-surface-400">
-										Due to strict NDAs and client privacy, most commercial
-										enterprise work cannot be publicly displayed.{" "}
-										<Link
-											href="/contact"
-											className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-4 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
-										>
-											Contact me
-										</Link>{" "}
-										directly to discuss enterprise experience.
-									</p>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
+						<SwissGridRow>
+							<ScrollReveal phase={3} className="w-full">
+								<ConfidentialWorkCallout />
+							</ScrollReveal>
+						</SwissGridRow>
+					</SwissGridBox>
+				</PageContainer>
 
-					{/* CTA */}
-					<SwissGridSection id="cta" className="w-full">
-						<ScrollReveal phase={3} className="w-full">
-							<section className="w-full">
-								<div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-									<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-										<div>
-											<h2 className="text-heading-lg text-surface-900 dark:text-surface-100">
-												View selected work.
-											</h2>
-										</div>
-										<div className="flex items-center gap-3">
-											<Button
-												asChild
-												size="lg"
-												variant="outlined"
-												color="default"
-											>
-												<Link href="/contact">Email</Link>
-											</Button>
-											<Button
-												asChild
-												size="lg"
-												variant="solid"
-												color="primary"
-											>
-												<Link href="/projects">
-													Case Studies
-													<ArrowRightIcon
-														className="size-4"
-														weight="bold"
-													/>
-												</Link>
-											</Button>
-										</div>
-									</div>
-								</div>
-							</section>
-						</ScrollReveal>
-					</SwissGridSection>
-				</main>
+				{/* Box 4: Closing CTA */}
+				<PageContainer>
+					<SwissGridBox className="mt-10">
+						<SwissGridRow>
+							<ScrollReveal phase={3} className="w-full">
+								<section className="w-full">
+									<HomeClosingCta />
+								</section>
+							</ScrollReveal>
+						</SwissGridRow>
+					</SwissGridBox>
+				</PageContainer>
+
+				{/* Footer — not boxed */}
 				<SiteFooter />
-				<SwissGridSection id="nav-spacer" className="h-29.5 w-full" />
-			</div>
-		</SwissGridProvider>
+
+				{/* Bottom nav spacer */}
+				<section id="nav-spacer" className="portfolio-nav-spacer w-full" />
+			</main>
+		</div>
 	);
 }

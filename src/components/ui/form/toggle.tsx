@@ -1,32 +1,12 @@
-/**
- * Toggle button component.
- *
- * @remarks
- * Built on Radix UI's Toggle primitive.
- *
- * @example
- * ```tsx
- * <Toggle aria-label="Toggle italic">
- *   <ItalicIcon className="size-4" />
- * </Toggle>
- * ```
- *
- * @public
- */
-
 "use client";
 
 import * as TogglePrimitive from "@radix-ui/react-toggle";
 import { cva, type VariantProps } from "class-variance-authority";
-import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
+import { type HTMLMotionProps, motion } from "motion/react";
 import type * as React from "react";
 import { useControlledState } from "@/src/hooks/use-controlled-state";
 import { getStrictContext } from "@/src/lib/get-strict-context";
 import { cn } from "@/src/lib/index";
-
-// ============================================================================
-// PRIMITIVES (Inline from animate-ui/primitives/radix/toggle.tsx)
-// ============================================================================
 
 type ToggleContextType = {
 	isPressed: boolean;
@@ -34,8 +14,7 @@ type ToggleContextType = {
 	disabled?: boolean;
 };
 
-const [TogglePrimitiveProvider, useTogglePrimitive] =
-	getStrictContext<ToggleContextType>("ToggleContext");
+const [TogglePrimitiveProvider] = getStrictContext<ToggleContextType>("ToggleContext");
 
 type TogglePrimitiveProps = Omit<React.ComponentProps<typeof TogglePrimitive.Root>, "asChild"> &
 	HTMLMotionProps<"button">;
@@ -68,53 +47,8 @@ function ToggleRoot({
 	);
 }
 
-type ToggleHighlightPrimitiveProps = HTMLMotionProps<"div">;
-
-function _ToggleHighlightPrimitive({ style, ...props }: ToggleHighlightPrimitiveProps) {
-	const { disabled, isPressed } = useTogglePrimitive();
-
-	return (
-		<AnimatePresence>
-			{isPressed && (
-				<motion.div
-					animate={{ opacity: 1 }}
-					aria-pressed={isPressed}
-					data-disabled={disabled}
-					data-slot="toggle-highlight"
-					data-state={isPressed ? "on" : "off"}
-					exit={{ opacity: 0 }}
-					initial={{ opacity: 0 }}
-					style={{ position: "absolute", zIndex: 0, inset: 0, ...style }}
-					{...props}
-				/>
-			)}
-		</AnimatePresence>
-	);
-}
-
-type ToggleItemPrimitiveProps = HTMLMotionProps<"div">;
-
-function _ToggleItemPrimitive({ style, ...props }: ToggleItemPrimitiveProps) {
-	const { disabled, isPressed } = useTogglePrimitive();
-
-	return (
-		<motion.div
-			aria-pressed={isPressed}
-			data-disabled={disabled}
-			data-slot="toggle-item"
-			data-state={isPressed ? "on" : "off"}
-			style={{ position: "relative", zIndex: 1, ...style }}
-			{...props}
-		/>
-	);
-}
-
-// ============================================================================
-// COMPONENT (From animate-ui/components/radix/toggle.tsx)
-// ============================================================================
-
 const toggleVariants = cva(
-	"isolate inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full font-bold text-sm outline-none transition-all duration-200 ease-out after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:transition-opacity after:duration-200 after:ease-out after:content-[''] focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-0 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:outline-primary-500 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+	"isolate inline-flex items-center justify-center gap-[var(--portfolio-control-gap)] overflow-hidden whitespace-nowrap rounded-full font-medium outline-none transition-all duration-200 ease-out after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:transition-opacity after:duration-200 after:ease-out after:content-[''] focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-0 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:outline-primary-500 [&_svg:not([class*='size-'])]:size-[var(--portfolio-icon-sm)] [&_svg]:pointer-events-none [&_svg]:shrink-0",
 	{
 		variants: {
 			variant: {
@@ -124,10 +58,11 @@ const toggleVariants = cva(
 					"border border-input bg-transparent shadow-xs hover:bg-surface-100 data-[state=on]:border-primary-500 data-[state=on]:bg-primary-950 data-[state=on]:text-primary-50 dark:hover:bg-surface-900",
 			},
 			size: {
-				default: "h-9 min-w-9 px-4",
-				sm: "h-8 min-w-8 px-3",
-				lg: "h-10 min-w-10 px-5",
-				icon: "size-9",
+				default:
+					"portfolio-control-label h-[var(--portfolio-control-default)] min-w-[var(--portfolio-control-default)] px-[var(--portfolio-control-pad-default)]",
+				sm: "portfolio-chip-label h-[var(--portfolio-control-compact)] min-w-[var(--portfolio-control-compact)] px-[var(--portfolio-control-pad-compact)]",
+				lg: "portfolio-control-label h-[var(--portfolio-control-prominent)] min-w-[var(--portfolio-control-prominent)] px-[var(--portfolio-control-pad-prominent)]",
+				icon: "size-[var(--portfolio-control-default)] px-0",
 			},
 		},
 		defaultVariants: {
@@ -137,9 +72,7 @@ const toggleVariants = cva(
 	},
 );
 
-type ToggleProps = TogglePrimitiveProps &
-	ToggleItemPrimitiveProps &
-	VariantProps<typeof toggleVariants>;
+type ToggleProps = TogglePrimitiveProps & VariantProps<typeof toggleVariants>;
 
 function Toggle({
 	className,
@@ -163,4 +96,4 @@ function Toggle({
 	);
 }
 
-export { Toggle, toggleVariants, type ToggleProps };
+export { Toggle, type ToggleProps, toggleVariants };

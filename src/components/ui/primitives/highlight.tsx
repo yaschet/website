@@ -138,7 +138,6 @@ type HighlightProps<T extends React.ElementType = "div"> =
 
 function Highlight<T extends React.ElementType = "div">({ ref, ...props }: HighlightProps<T>) {
 	const {
-		as: Component = "div",
 		children,
 		className,
 		click = true,
@@ -261,9 +260,8 @@ function Highlight<T extends React.ElementType = "div">({ ref, ...props }: Highl
 
 	const render = (children: React.ReactNode) => {
 		if (mode === "parent") {
-			const ContainerComponent = Component as React.ElementType;
 			return (
-				<ContainerComponent
+				<div
 					ref={localRef}
 					className={(props as ParentModeHighlightProps)?.containerClassName}
 					data-slot="motion-highlight-container"
@@ -301,7 +299,7 @@ function Highlight<T extends React.ElementType = "div">({ ref, ...props }: Highl
 						)}
 					</AnimatePresence>
 					{children}
-				</ContainerComponent>
+				</div>
 			);
 		}
 
@@ -633,4 +631,4 @@ function HighlightItem<T extends React.ElementType>({
 	);
 }
 
-export { Highlight, HighlightItem, useHighlight, type HighlightProps, type HighlightItemProps };
+export { Highlight, HighlightItem, type HighlightItemProps, type HighlightProps, useHighlight };

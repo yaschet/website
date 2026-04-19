@@ -1,12 +1,13 @@
-import { allPosts, allProjects } from "contentlayer2/generated";
 import type { MetadataRoute } from "next";
+import { getAllPosts, getListedPublicProjects } from "@/src/content/registry";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+	const [allProjects, allPosts] = await Promise.all([getListedPublicProjects(), getAllPosts()]);
 	// Base URL for the production site
 	const baseUrl = "https://yaschet.dev";
 
 	// 1. Core Pages (Static)
-	const coreRoutes = ["", "/about", "/projects", "/blog", "/contact"].map((route) => ({
+	const coreRoutes = ["", "/about", "/case-studies", "/blog", "/contact"].map((route) => ({
 		url: `${baseUrl}${route}`,
 		lastModified: new Date(),
 		changeFrequency: "monthly" as const,
@@ -23,7 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 	// 3. Dynamic Projects (from Contentlayer)
 	const projectRoutes = allProjects.map((project) => ({
-		url: `${baseUrl}/projects/${project.slug}`,
+		url: `${baseUrl}/case-studies/${project.slug}`,
 		lastModified: new Date(project.date),
 		changeFrequency: "monthly" as const,
 		priority: 0.9, // Projects are high value

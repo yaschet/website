@@ -40,6 +40,8 @@ interface ProjectCardGalleryProps {
 	solution?: string;
 	className?: string;
 	date?: string;
+	imageTreatment?: "default" | "disciplined";
+	imageAspectRatio?: string | string[] | "auto";
 }
 
 export function ProjectCardGallery({
@@ -54,6 +56,8 @@ export function ProjectCardGallery({
 	solution,
 	className,
 	date,
+	imageTreatment = "default",
+	imageAspectRatio = "16/9",
 }: ProjectCardGalleryProps) {
 	const galleryImages = images && images.length > 0 ? images : [];
 
@@ -62,7 +66,7 @@ export function ProjectCardGallery({
 			<div
 				className={cn(
 					"group block w-full overflow-hidden rounded-[var(--radius)]",
-					"border border-surface-200 bg-surface-50 dark:border-surface-800 dark:bg-surface-900",
+					"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-950",
 					"transition-shadow duration-300",
 					className,
 				)}
@@ -77,8 +81,8 @@ export function ProjectCardGallery({
 			href={href}
 			className={cn(
 				"group block w-full overflow-hidden rounded-[var(--radius)]",
-				"border border-surface-200 bg-surface-50 dark:border-surface-800 dark:bg-surface-900",
-				"transition-shadow duration-300 hover:shadow-lg",
+				"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-950",
+				"transition-shadow duration-200 hover:shadow-lg",
 				className,
 			)}
 		>
@@ -91,26 +95,36 @@ export function ProjectCardGallery({
 			<>
 				{/* IMAGE ZONE — Interactive Gallery */}
 				{galleryImages.length > 0 ? (
-					<div className="relative">
+					<div
+						className={cn(
+							"relative overflow-hidden",
+							imageTreatment === "disciplined" && [
+								"shadow-[inset_0_-1px_0_rgba(15,23,42,0.08)] dark:shadow-[inset_0_-1px_0_rgba(248,250,252,0.08)]",
+							],
+						)}
+					>
 						<ImageGallery
 							images={galleryImages}
 							altPrefix={title}
-							aspectRatio="16/9"
+							aspectRatio={imageAspectRatio}
 							showArrows={galleryImages.length > 1 && !isPrivate}
 							showProgress={galleryImages.length > 1 && !isPrivate}
 							showCounter={false}
-							className="border-0 border-surface-200 border-b dark:border-surface-800"
+							className={cn(
+								"border-0 border-surface-200 border-b dark:border-surface-800",
+							)}
+							imageClassName="transition-transform duration-200 group-hover:scale-[1.01]"
 							sizes="(max-width: 768px) 100vw, 768px"
 							quality={75}
 						/>
 						{isPrivate && (
-							<div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-50/10 backdrop-blur-3xl transition-all duration-500 dark:bg-surface-900/40">
-								<div className="flex items-center gap-3 rounded-full border border-surface-200/20 bg-surface-50/10 px-4 py-1.5 backdrop-blur-md dark:border-surface-800/20 dark:bg-surface-900/10">
+							<div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-50/10 backdrop-blur-3xl transition-all duration-200 dark:bg-surface-900/40">
+								<div className="portfolio-chip border-surface-200/20 bg-surface-50/10 backdrop-blur-md dark:border-surface-800/20 dark:bg-surface-900/10">
 									<Lock
 										weight="fill"
 										className="size-3 text-surface-900 opacity-60 dark:text-surface-100"
 									/>
-									<span className="font-medium font-mono text-[10px] text-surface-900 uppercase tracking-[0.2em] opacity-80 dark:text-surface-100">
+									<span className="text-surface-900 opacity-80 dark:text-surface-100">
 										Coming Soon
 									</span>
 								</div>
@@ -123,76 +137,66 @@ export function ProjectCardGallery({
 						aria-label="No preview available"
 					>
 						<div className="flex h-full w-full items-center justify-center">
-							<span className="font-mono text-surface-400 text-xs uppercase tracking-wider">
-								No Preview
-							</span>
+							<span className="portfolio-kicker text-surface-400">No Preview</span>
 						</div>
 					</section>
 				)}
 
 				{/* DATA ZONE — Solid Background, Maximum Legibility */}
-				<div className="p-6">
-					{/* Header Row */}
-					<div className="mb-6 flex flex-col gap-4">
+				<div className="portfolio-box-pad portfolio-stack-group">
+					<div className="portfolio-stack-related">
 						{/* Meta Layer: Functional Data — ZERO BORDERS, PURE SPACE */}
-						<div className="flex items-center justify-between">
-							<span className="!text-xs font-mono text-surface-500 dark:text-surface-400">
+						<div className="flex items-center justify-between gap-[var(--portfolio-space-2)]">
+							<span className="portfolio-kicker text-surface-500 dark:text-surface-400">
 								{index}
 							</span>
 							{date && (
-								<span className="!text-xs font-mono text-surface-500 uppercase tracking-wider dark:text-surface-400">
+								<span className="portfolio-kicker text-surface-500 dark:text-surface-400">
 									{date}
 								</span>
 							)}
 						</div>
 
 						{/* Identity Layer: Title & Action — OPTICALLY CENTERED */}
-						<div className="flex items-center justify-between gap-4">
-							<h3 className="!text-xl font-medium text-surface-900 leading-tight dark:text-surface-50">
+						<div className="flex flex-col items-start gap-[var(--portfolio-space-2)] sm:flex-row sm:items-center sm:justify-between">
+							<h3 className="portfolio-heading-sm portfolio-capsize-heading-sm text-surface-900 dark:text-surface-50">
 								{title}
 							</h3>
 
-							{/* Action Icon */}
-							<div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-surface-200 bg-surface-100 transition-all duration-300 group-hover:border-surface-900 group-hover:bg-surface-900 dark:border-surface-700 dark:bg-surface-800 dark:group-hover:border-surface-100 dark:group-hover:bg-surface-100">
+							<div className="flex size-[var(--portfolio-control-default)] shrink-0 items-center justify-center rounded-full border border-surface-200 bg-surface-50 transition-all duration-200 group-hover:border-surface-900 group-hover:bg-surface-900 dark:border-surface-700 dark:bg-surface-900 dark:group-hover:border-surface-100 dark:group-hover:bg-surface-100">
 								{isPrivate ? (
 									<Lock
 										weight="bold"
-										className="size-3.5 text-surface-600 transition-colors duration-300 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+										className="size-[var(--portfolio-icon-sm)] text-surface-600 transition-colors duration-200 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
 									/>
 								) : (
 									<ArrowUpRight
 										weight="bold"
-										className="size-3.5 text-surface-600 transition-all duration-300 group-hover:translate-x-px group-hover:-translate-y-px group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
+										className="size-[var(--portfolio-icon-sm)] text-surface-600 transition-colors duration-200 group-hover:text-surface-50 dark:text-surface-400 dark:group-hover:text-surface-900"
 									/>
 								)}
 							</div>
 						</div>
 					</div>
 
-					{/* Description */}
-					<p className="!text-sm mb-4 line-clamp-2 text-surface-600 dark:text-surface-400">
+					<p className="portfolio-body-sm line-clamp-2 text-surface-600 dark:text-surface-400">
 						{description}
 					</p>
 
-					{/* Extended Details (Challenge / Solution) — Vertical Stack for Editorial Feel */}
 					{(challenge || solution) && (
-						<div className="mb-6 space-y-4">
+						<div className="portfolio-stack-group">
 							{challenge && (
-								<div className="space-y-1.5">
-									<h4 className="!text-xs font-medium font-mono text-surface-400 uppercase tracking-wider">
-										Challenge
-									</h4>
-									<p className="!text-sm text-surface-700 leading-relaxed dark:text-surface-300">
+								<div className="portfolio-card-copy">
+									<h4 className="portfolio-kicker text-surface-400">Challenge</h4>
+									<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
 										{challenge}
 									</p>
 								</div>
 							)}
 							{solution && (
-								<div className="space-y-1.5">
-									<h4 className="!text-xs font-medium font-mono text-surface-400 uppercase tracking-wider">
-										Solution
-									</h4>
-									<p className="!text-sm text-surface-700 leading-relaxed dark:text-surface-300">
+								<div className="portfolio-card-copy">
+									<h4 className="portfolio-kicker text-surface-400">Solution</h4>
+									<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
 										{solution}
 									</p>
 								</div>
@@ -200,13 +204,9 @@ export function ProjectCardGallery({
 						</div>
 					)}
 
-					{/* Tags — Hard Edge (0 radius) */}
-					<div className="flex flex-wrap gap-1.5">
+					<div className="flex flex-wrap gap-[var(--portfolio-space-tight)]">
 						{tags.map((tag) => (
-							<span
-								key={`${index}-tag-${tag}`}
-								className="inline-block border border-surface-200 bg-surface-100 px-2 py-0.5 font-mono text-[10px] text-surface-700 uppercase tracking-wide dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300"
-							>
+							<span key={`${index}-tag-${tag}`} className="portfolio-chip">
 								{tag}
 							</span>
 						))}

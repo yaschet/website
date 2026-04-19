@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
+import { PageContainer } from "@/src/components/layout/containers";
+import { ShellReveal } from "@/src/components/ui/reveal";
 
 /**
  * SiteFooter component.
@@ -14,61 +15,74 @@ import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
  */
 export function SiteFooter() {
 	return (
-		<footer className="relative z-10 w-full bg-transparent text-surface-900 dark:text-surface-50">
-			<SwissGridSection id="footer" className="w-full">
-				<div className="mx-auto max-w-3xl px-6 py-8 sm:px-8">
-					<div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-						{/* Copyright & Email */}
-						<div className="flex flex-col items-center gap-1 sm:items-start">
-							<span className="font-medium text-surface-600 text-xs dark:text-surface-300">
-								© 2026 Yassine Chettouch
-							</span>
-							<a
-								href="mailto:hello@yaschet.dev"
-								className="font-medium text-surface-500 text-xs transition-colors hover:text-accent-600 dark:text-surface-400 dark:hover:text-accent-400"
-							>
-								hello@yaschet.dev
-							</a>
-						</div>
+		<ShellReveal phase={1} className="w-full">
+			<footer className="relative z-10 w-full bg-transparent text-surface-900 dark:text-surface-50">
+				<section id="footer" className="w-full">
+					<PageContainer className="portfolio-footer-pad">
+						<div className="portfolio-stack-group text-center sm:text-left">
+							<div className="flex flex-col gap-[var(--portfolio-space-related)] sm:flex-row sm:items-start sm:justify-between">
+								<div className="portfolio-stack-tight">
+									<span className="portfolio-caption font-medium text-surface-600 dark:text-surface-300">
+										© 2026 Yassine Chettouch
+									</span>
+									<a
+										href="mailto:hello@yaschet.dev"
+										className="portfolio-caption font-medium text-surface-500 transition-colors hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50"
+									>
+										hello@yaschet.dev
+									</a>
+								</div>
 
-						{/* Social Links */}
-						<nav className="flex items-center gap-6" aria-label="Social Links">
-							<Link
-								href="https://linkedin.com/in/yassinechettouch"
-								target="_blank"
-								className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
-							>
-								LinkedIn
-							</Link>
-							<Link
-								href="https://github.com/yaschet"
-								target="_blank"
-								className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
-							>
-								GitHub
-							</Link>
-							<Link
-								href="https://x.com/yaschett"
-								target="_blank"
-								className="font-medium text-surface-600 text-xs transition-colors hover:text-accent-600 dark:text-surface-300 dark:hover:text-accent-400"
-							>
-								X
-							</Link>
-						</nav>
-					</div>
-					<div className="mt-3 text-center text-[11px] text-surface-500 sm:text-right dark:text-surface-400">
-						<a
-							href="https://github.com/yaschet/website"
-							target="_blank"
-							rel="noreferrer"
-							className="font-mono uppercase tracking-[0.2em] transition-colors hover:text-accent-600 dark:hover:text-accent-400"
-						>
-							source
-						</a>
-						<span className="ml-2">built by hand, in code</span>
-					</div>
-				</div>
-			</SwissGridSection>
-		</footer>
+								<div className="portfolio-stack-tight sm:items-end">
+									<nav
+										className="flex items-center justify-center gap-[var(--portfolio-space-related)] sm:justify-end"
+										aria-label="Social Links"
+									>
+										<Link
+											href="https://linkedin.com/in/yassinechettouch"
+											target="_blank"
+											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
+										>
+											LinkedIn
+										</Link>
+										<Link
+											href="https://github.com/yaschet"
+											target="_blank"
+											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
+										>
+											GitHub
+										</Link>
+										<Link
+											href="https://x.com/yaschett"
+											target="_blank"
+											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
+										>
+											X
+										</Link>
+										<Link
+											href="https://github.com/yaschet/website"
+											target="_blank"
+											rel="noreferrer"
+											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
+										>
+											Source
+										</Link>
+									</nav>
+								</div>
+							</div>
+
+							<p className="portfolio-body-xs max-w-[72ch] text-surface-500 dark:text-surface-400">
+								<span className="font-medium text-surface-700 dark:text-surface-300">
+									Colophon.
+								</span>{" "}
+								Typeset in Space Grotesk and Space Mono. Built with Next.js 16,
+								Tailwind v4, Framer Motion, and a custom WebGL2 topographic field
+								shader. Deployed on Vercel. Source open on GitHub.
+							</p>
+						</div>
+					</PageContainer>
+				</section>
+			</footer>
+		</ShellReveal>
 	);
 }

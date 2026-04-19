@@ -1,7 +1,7 @@
-import { allPosts } from "contentlayer2/generated";
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { PostContentRSC } from "@/src/components/content/post-content-rsc";
+import { getAllPosts, getPostBySlug } from "@/src/content/registry";
 
 interface PostPageProps {
 	params: Promise<{
@@ -9,8 +9,14 @@ interface PostPageProps {
 	}>;
 }
 
-export function generateStaticParams() {
-	return allPosts.map((post) => ({
+export async function generateStaticParams() {
+	const posts = await getAllPosts();
+
+	if (posts.length === 0) {
+		return [{ slug: "_placeholder" }];
+	}
+
+	return posts.map((post) => ({
 		slug: post.slug,
 	}));
 }
@@ -20,7 +26,7 @@ export async function generateMetadata(
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
 	const { slug } = await params;
-	const post = allPosts.find((p) => p.slug === slug);
+	const post = await getPostBySlug(slug);
 
 	if (!post) {
 		return {
@@ -67,7 +73,7 @@ export async function generateMetadata(
 
 export default async function PostPage({ params }: PostPageProps) {
 	const { slug } = await params;
-	const post = allPosts.find((p) => p.slug === slug);
+	const post = await getPostBySlug(slug);
 
 	if (!post) {
 		notFound();

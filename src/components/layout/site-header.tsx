@@ -1,7 +1,8 @@
 "use client";
 
+import { PageContainer } from "@/src/components/layout/containers";
 import { LocationBadge, MarqueeBadge, TimeBadge } from "@/src/components/ui/context-badges";
-import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
+import { ShellReveal } from "@/src/components/ui/reveal";
 
 /**
  * SiteHeader
@@ -11,26 +12,31 @@ import { SwissGridSection } from "@/src/components/ui/swiss-grid-canvas";
  */
 export function SiteHeader() {
 	return (
-		<SwissGridSection id="header" className="relative z-20 w-full">
-			<div className="h-29.5 w-full" suppressHydrationWarning>
-				<div className="mx-auto flex h-full max-w-3xl items-center justify-between gap-3 px-6 sm:px-8">
-					<LocationBadge className="flex w-40 max-w-full shrink-0" />
+		<ShellReveal phase={1} className="w-full">
+			<section id="header" className="relative z-20 w-full">
+				<div
+					className="w-full"
+					style={{ height: "var(--portfolio-header-height)" }}
+					suppressHydrationWarning
+				>
+					<PageContainer className="flex h-full items-center justify-between gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
+						<LocationBadge className="flex min-w-0 max-w-[calc(50%-(var(--portfolio-space-1)/2))] flex-1 sm:w-[var(--portfolio-badge-width)] sm:max-w-full sm:flex-none sm:shrink-0" />
 
-					<MarqueeBadge
-						className="hidden flex-1 sm:flex"
-						// Swiss Design: Ticker style, uppercase, consistent separator
-						items={[
-							"PRODUCT ENGINEERING",
-							"DESIGN SYSTEMS",
-							"HIGH-PERFORMANCE INTERFACES",
-							"AI INTEGRATION",
-							"FULL-STACK TYPESCRIPT",
-						]}
-					/>
+						<MarqueeBadge
+							className="hidden flex-1 sm:flex"
+							items={[
+								"PRODUCT ENGINEERING",
+								"DESIGN SYSTEMS",
+								"HIGH-PERFORMANCE INTERFACES",
+								"AI INTEGRATION",
+								"FULL-STACK TYPESCRIPT",
+							]}
+						/>
 
-					<TimeBadge className="flex w-40 max-w-full shrink-0" />
+						<TimeBadge className="flex min-w-0 max-w-[calc(50%-(var(--portfolio-space-1)/2))] flex-1 sm:w-[var(--portfolio-badge-width)] sm:max-w-full sm:flex-none sm:shrink-0" />
+					</PageContainer>
 				</div>
-			</div>
-		</SwissGridSection>
+			</section>
+		</ShellReveal>
 	);
 }

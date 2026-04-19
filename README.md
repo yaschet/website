@@ -2,7 +2,7 @@
 
 ![Website Home Page Mockup](public/images/screenshots/home-page-mockup.png)
 
-**Product Engineer Website**. Built with Next.js 16, Tailwind CSS v4, and TypeScript. Focused on performance, type safety, and rigorous design constraints.
+**Software Engineer Website**. Built with Next.js 16, Tailwind CSS v4, and TypeScript. Focused on performance, type safety, and rigorous design constraints.
 
 ## Tech Stack
 

@@ -96,7 +96,7 @@ function ToggleGroupHighlightItem({ children, style, ...props }: ToggleGroupHigh
 	}
 
 	if (type === "multiple" && React.isValidElement(children)) {
-		const isActive = props.value && value && value.includes(props.value);
+		const isActive = props.value && value?.includes(props.value);
 
 		const element = children as React.ReactElement<React.ComponentProps<"div">>;
 
@@ -138,13 +138,13 @@ function ToggleGroupHighlightItem({ children, style, ...props }: ToggleGroupHigh
 
 export {
 	ToggleGroup,
-	ToggleGroupItem,
+	type ToggleGroupContextType,
 	ToggleGroupHighlight,
 	ToggleGroupHighlightItem,
-	useToggleGroup,
-	type ToggleGroupProps,
-	type ToggleGroupItemProps,
-	type ToggleGroupHighlightProps,
 	type ToggleGroupHighlightItemProps,
-	type ToggleGroupContextType,
+	type ToggleGroupHighlightProps,
+	ToggleGroupItem,
+	type ToggleGroupItemProps,
+	type ToggleGroupProps,
+	useToggleGroup,
 };

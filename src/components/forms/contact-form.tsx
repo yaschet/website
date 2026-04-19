@@ -30,10 +30,10 @@ function FormField({
 	const Comp = isTextArea ? Textarea : Input;
 
 	return (
-		<div className="group space-y-2.5">
+		<div className="group portfolio-stack-tight">
 			<Label
 				htmlFor={field.name}
-				className="block font-bold text-surface-400 text-xs uppercase tracking-widest transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
+				className="portfolio-kicker block text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
 			>
 				{label}
 			</Label>
@@ -47,11 +47,11 @@ function FormField({
 				// biome-ignore lint/suspicious/noExplicitAny: Event type alignment
 				onChange={(e: any) => field.handleChange(e.target.value)}
 				placeholder={placeholder}
-				size={isTextArea ? undefined : "lg"}
+				size={isTextArea ? undefined : "md"}
 				hasError={field.state.meta.isTouched && !!field.state.meta.errors.length}
 			/>
 			{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-				<p className="!text-[10px] font-medium text-destructive uppercase tracking-wide">
+				<p className="portfolio-caption font-medium text-destructive">
 					{field.state.meta.errors[0]?.message ?? String(field.state.meta.errors[0])}
 				</p>
 			)}
@@ -102,9 +102,9 @@ export function ContactForm() {
 				e.stopPropagation();
 				form.handleSubmit();
 			}}
-			className="space-y-10"
+			className="portfolio-stack-section"
 		>
-			<div className="grid gap-8 sm:grid-cols-2">
+			<div className="grid gap-[var(--portfolio-space-section)] sm:grid-cols-2">
 				<form.Field name="name">
 					{(field) => <FormField field={field} label="Name" placeholder="John Doe" />}
 				</form.Field>
@@ -139,7 +139,7 @@ export function ContactForm() {
 				{([canSubmit, isSubmitting]) => (
 					<Button
 						type="submit"
-						size="xl"
+						size="md"
 						variant="solid"
 						color="primary"
 						disabled={!canSubmit || isSubmitting}

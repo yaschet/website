@@ -1,17 +1,3 @@
-/**
- * FloatingNav component.
- *
- * @remarks
- * "Interaction Engineered" navigation bar.
- * features:
- * - Unified Physics Object (Whole button squish)
- * - Contiguous Hit Zones (Zero gaps)
- * - Optimistic State
- * - High-Contrast Swiss Design
- *
- * @public
- */
-
 "use client";
 
 import {
@@ -23,78 +9,76 @@ import {
 	Sun,
 	User,
 } from "@phosphor-icons/react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useEffect, useRef, useState } from "react";
+import type { ComponentType, CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
-import { useReveal } from "@/src/components/providers/reveal-provider";
-import { cn, springs } from "@/src/lib/index";
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CONFIGURATION
-// ═══════════════════════════════════════════════════════════════════════════
+import { useRevealState } from "@/src/components/providers/reveal-provider";
+import { HoverTooltip } from "@/src/components/ui/hover-tooltip";
+import { cn, tweens } from "@/src/lib/index";
 
 type NavItem = {
 	name: string;
 	link: string;
-	icon: React.ElementType;
+	icon: ComponentType<{
+		className?: string;
+		style?: CSSProperties;
+		weight?: "regular" | "bold";
+	}>;
 };
 
 const navItems: NavItem[] = [
 	{ name: "Home", link: "/", icon: House },
 	{ name: "About", link: "/about", icon: User },
-	{ name: "Projects", link: "/projects", icon: Briefcase }, // Rename "Work" -> "Projects" to match URL
+	{ name: "Case Studies", link: "/case-studies", icon: Briefcase },
 	{ name: "Blog", link: "/blog", icon: FileText },
 	{ name: "Contact", link: "/contact", icon: ChatCenteredText },
 ];
 
-const BUTTON_SIZE = 40;
-const ICON_SIZE = 18;
+const NAV_BUTTON_SIZE = "var(--portfolio-control-default)";
+const NAV_ICON_SIZE = "var(--portfolio-icon-sm)";
 
-// ═══════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
+function getActiveTab(pathname: string): string {
+	const activeItem = navItems.find((item) =>
+		item.link === "/" ? pathname === "/" : pathname.startsWith(item.link),
+	);
 
-/**
- * FloatingNav - Main navigation.
- */
+	return activeItem?.link ?? "";
+}
+
 export function FloatingNav() {
 	const pathname = usePathname();
 	const { setTheme, resolvedTheme } = useTheme();
-	const [mounted, setMounted] = useState(false);
+	const activeTab = getActiveTab(pathname);
 
-	// Separate hover state from active state to avoid conflict
+	const [isMounted, setIsMounted] = useState(false);
 	const [hoveredTab, setHoveredTab] = useState<string | null>(null);
-	// OPTIMISTIC UI: Track active tab locally to support instant click feedback
-	const [optimisticTab, setOptimisticTab] = useState<string | null>(null);
+	const [isThemeHovered, setIsThemeHovered] = useState(false);
+	const [optimisticTab, setOptimisticTab] = useState(activeTab);
 
-	const themeButtonRef = useRef<HTMLButtonElement>(null);
-
-	const { phase } = useReveal();
+	const { environment, phase } = useRevealState();
 
 	useEffect(() => {
-		setMounted(true);
+		setIsMounted(true);
 	}, []);
 
-	// Sync optimistic state with actual pathname when it changes (correction)
 	useEffect(() => {
-		const activeItem = navItems.find((item) =>
-			item.link === "/" ? pathname === "/" : pathname.startsWith(item.link),
-		);
-		setOptimisticTab(activeItem?.link || "");
-	}, [pathname]);
+		setOptimisticTab(activeTab);
+	}, [activeTab]);
 
-	if (!mounted) return null;
-
-	const isEnabled = phase >= 1; // Visual Priority: Hover > Optimistic Click > Actual Pathname
+	const isEnabled = phase >= 1;
+	const isReduced = environment === "reduced-motion";
+	const isAutomation = environment === "automation";
 	const currentTab = hoveredTab ?? optimisticTab;
+	const themeToggleLabel =
+		isMounted && resolvedTheme
+			? `Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`
+			: "Toggle theme";
 
-	/**
-	 * Toggles the theme with a view transition.
-	 */
-	const toggleTheme = async () => {
+	const toggleTheme = () => {
 		const newTheme = resolvedTheme === "dark" ? "light" : "dark";
 
 		if (
@@ -105,50 +89,26 @@ export function FloatingNav() {
 			return;
 		}
 
-		await (
-			document as Document & {
-				startViewTransition: (cb: () => void) => { ready: Promise<void> };
-			}
+		(
+			document as Document & { startViewTransition: (cb: () => void) => void }
 		).startViewTransition(() => {
 			flushSync(() => {
 				setTheme(newTheme);
 			});
-		}).ready;
-
-		const animation = document.documentElement.animate(
-			{
-				clipPath: ["inset(100% 0 0 0)", "inset(0 0 0 0)"],
-			},
-			{
-				duration: 550,
-				easing: "cubic-bezier(0.19, 1, 0.22, 1)",
-				pseudoElement: "::view-transition-new(root)",
-			},
-		);
-
-		animation.onfinish = () => {
-			document.documentElement.classList.remove(
-				"transition-bg-light",
-				"transition-bg-dark",
-				"view-transition-active",
-			);
-		};
+		});
 	};
 
 	return (
-		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-29.5 items-center justify-center px-6">
+		<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-[var(--portfolio-nav-clearance)] items-center justify-center px-[var(--portfolio-page-gutter-mobile)] sm:px-[var(--portfolio-page-gutter-desktop)]">
 			<motion.nav
-				initial={{ y: 20, opacity: 0 }}
-				animate={isEnabled ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
-				transition={springs.responsive}
+				initial={isAutomation ? false : { y: isReduced ? 0 : 20, opacity: 0 }}
+				animate={isEnabled ? { y: 0, opacity: 1 } : { y: isReduced ? 0 : 20, opacity: 0 }}
+				transition={isReduced ? tweens.reduced : tweens.shell}
 				className={cn(
-					"pointer-events-auto relative flex items-center p-1.5",
-					// SWISS DESIGN: Solid, High Contrast, No Blur
+					"pointer-events-auto relative flex items-center p-[var(--portfolio-space-tight)]",
 					"bg-surface-950 dark:bg-surface-50",
 					"border border-surface-800 dark:border-surface-200",
-					// Enforce 0px radius
 					"rounded-(--radius)",
-					// SHADOW: Allowed here for "Floating" context, but kept tight
 					"shadow-sm",
 				)}
 				style={{
@@ -157,35 +117,34 @@ export function FloatingNav() {
 				}}
 				role="navigation"
 				aria-label="Main navigation"
-				onMouseLeave={() => setHoveredTab(null)}
 			>
-				<ul className="relative flex items-center">
+				<ul className="relative flex items-center" onMouseLeave={() => setHoveredTab(null)}>
 					{navItems.map((item) => {
-						const isActive = item.link === optimisticTab; // Logical state (for Icon weight)
-						const isVisuallyActive = currentTab === item.link; // Visual state (for Colors)
+						const isActive = item.link === optimisticTab;
+						const isVisuallyActive = currentTab === item.link;
 						const Icon = item.icon;
 
 						return (
 							<li key={item.link} className="relative z-0">
 								<Link
 									href={item.link}
-									onClick={() => setOptimisticTab(item.link)} // Optimistic update
+									onClick={() => setOptimisticTab(item.link)}
 									className={cn(
 										"relative flex items-center justify-center transition-colors duration-200",
 										"rounded-(--radius)",
-										// Invert text color when pill is behind item
 										isVisuallyActive
-											? "text-surface-950 dark:text-surface-50" // High Contrast (Black on White Pill, White on Black Pill)
-											: "text-surface-400 hover:text-surface-50 dark:text-surface-500 dark:hover:text-surface-950", // Muted -> Hover
+											? "text-surface-950 dark:text-surface-50"
+											: "text-surface-400 hover:text-surface-50 dark:text-surface-500 dark:hover:text-surface-950",
 									)}
 									style={{
-										width: BUTTON_SIZE,
-										height: BUTTON_SIZE,
+										width: NAV_BUTTON_SIZE,
+										height: NAV_BUTTON_SIZE,
 									}}
 									onMouseEnter={() => setHoveredTab(item.link)}
+									onFocus={() => setHoveredTab(item.link)}
+									onBlur={() => setHoveredTab(null)}
 									aria-current={isActive ? "page" : undefined}
 								>
-									{/* Animation Container: Handles scale effects independently of Link routing */}
 									<motion.div
 										className="relative flex h-full w-full items-center justify-center"
 										initial="idle"
@@ -196,15 +155,14 @@ export function FloatingNav() {
 											hover: { scale: 1 },
 											tap: { scale: 0.92 },
 										}}
-										transition={springs.snappy}
+										transition={tweens.interaction}
 									>
 										{currentTab === item.link && (
 											<motion.div
 												layoutId="nav-bg"
 												className="absolute inset-0 -z-10 bg-surface-50 dark:bg-surface-950"
-												transition={springs.snappy}
+												transition={tweens.interaction}
 												style={{ borderRadius: "var(--radius)" }}
-												// React to parent tap
 												variants={{
 													tap: {
 														scale: 0.95,
@@ -221,48 +179,38 @@ export function FloatingNav() {
 										>
 											<Icon
 												className="shrink-0"
-												style={{ width: ICON_SIZE, height: ICON_SIZE }}
-												weight={isActive ? "bold" : "regular"} // Visual state change
+												style={{
+													width: NAV_ICON_SIZE,
+													height: NAV_ICON_SIZE,
+												}}
+												weight={isActive ? "bold" : "regular"}
 											/>
 										</motion.div>
 									</motion.div>
 								</Link>
 
-								<AnimatePresence>
-									{currentTab === item.link && hoveredTab === item.link && (
-										<motion.div
-											initial={{ opacity: 0, y: 8, scale: 0.95 }}
-											animate={{ opacity: 1, y: 0, scale: 1 }}
-											exit={{ opacity: 0, y: 4, scale: 0.98 }}
-											transition={springs.snappy}
-											className={cn(
-												"pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2 whitespace-nowrap",
-												"px-2.5 py-1.5 font-medium text-xs tracking-wide",
-												"bg-surface-950 text-surface-50", // Inverse tooltip
-												"dark:bg-surface-50 dark:text-surface-950",
-												"rounded-none",
-												"shadow-xl",
-											)}
-										>
-											{item.name}
-										</motion.div>
-									)}
-								</AnimatePresence>
+								<HoverTooltip
+									visible={currentTab === item.link && hoveredTab === item.link}
+									className="bottom-[calc(100%+var(--portfolio-space-related))] mb-0"
+								>
+									{item.name}
+								</HoverTooltip>
 							</li>
 						);
 					})}
 				</ul>
 
 				<div
-					className="mx-1 h-5 w-px bg-surface-800 dark:bg-surface-200"
+					className="mx-[var(--portfolio-space-tight)] w-px shrink-0 self-stretch bg-surface-800 dark:bg-surface-200"
 					aria-hidden="true"
 				/>
 
 				<motion.button
-					ref={themeButtonRef}
-					onMouseEnter={() => setHoveredTab("theme-toggle")}
+					onMouseEnter={() => setIsThemeHovered(true)}
+					onMouseLeave={() => setIsThemeHovered(false)}
+					onFocus={() => setIsThemeHovered(true)}
+					onBlur={() => setIsThemeHovered(false)}
 					onClick={toggleTheme}
-					// INTERACTION: Match Link Physics
 					initial="idle"
 					whileHover="hover"
 					whileTap="tap"
@@ -271,35 +219,30 @@ export function FloatingNav() {
 						hover: { scale: 1 },
 						tap: { scale: 0.92 },
 					}}
-					transition={springs.snappy}
+					transition={tweens.interaction}
 					className={cn(
 						"relative z-10 flex items-center justify-center rounded-(--radius)",
-						// COLOR SYNC: Theme Button
-						currentTab === "theme-toggle"
-							? "text-surface-950 dark:text-surface-50" // INVERTED
+						isThemeHovered
+							? "text-surface-950 dark:text-surface-50"
 							: "text-surface-400 hover:text-surface-50 dark:text-surface-500 dark:hover:text-surface-950",
 						"outline-none transition-colors duration-200",
 					)}
 					style={{
-						width: BUTTON_SIZE,
-						height: BUTTON_SIZE,
+						width: NAV_BUTTON_SIZE,
+						height: NAV_BUTTON_SIZE,
 					}}
-					aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
+					aria-label={themeToggleLabel}
 				>
-					{currentTab === "theme-toggle" && (
-						<motion.div
-							layoutId="nav-bg"
-							className="absolute inset-0 -z-10 bg-surface-50 dark:bg-surface-950"
-							transition={springs.snappy}
-							style={{ borderRadius: "var(--radius)" }}
-							variants={{
-								tap: {
-									scale: 0.95,
-								},
-							}}
-						/>
-					)}
-					{/* FIX: Add relative/flex container for absolute icon positioning */}
+					<motion.div
+						className="absolute inset-0 -z-10 bg-surface-50 dark:bg-surface-950"
+						initial={false}
+						animate={{
+							opacity: isThemeHovered ? 1 : 0,
+							scale: isThemeHovered ? 1 : 0.92,
+						}}
+						transition={tweens.interaction}
+						style={{ borderRadius: "var(--radius)" }}
+					/>
 					<motion.div
 						className="relative flex h-full w-full items-center justify-center"
 						variants={{
@@ -308,16 +251,22 @@ export function FloatingNav() {
 						}}
 					>
 						<Sun
-							className="rotate-0 scale-100 transition-transform duration-300 dark:-rotate-90 dark:scale-0"
-							style={{ width: ICON_SIZE, height: ICON_SIZE }}
+							className="rotate-0 scale-100 transition-transform duration-200 dark:-rotate-90 dark:scale-0"
+							style={{ width: NAV_ICON_SIZE, height: NAV_ICON_SIZE }}
 							weight="regular"
 						/>
 						<Moon
-							className="absolute rotate-90 scale-0 transition-transform duration-300 dark:rotate-0 dark:scale-100"
-							style={{ width: ICON_SIZE, height: ICON_SIZE }}
+							className="absolute rotate-90 scale-0 transition-transform duration-200 dark:rotate-0 dark:scale-100"
+							style={{ width: NAV_ICON_SIZE, height: NAV_ICON_SIZE }}
 							weight="regular"
 						/>
 					</motion.div>
+					<HoverTooltip
+						visible={isThemeHovered}
+						className="bottom-[calc(100%+var(--portfolio-space-related))] mb-0"
+					>
+						Theme
+					</HoverTooltip>
 				</motion.button>
 			</motion.nav>
 		</div>
