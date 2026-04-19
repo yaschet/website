@@ -45,7 +45,7 @@ export default async function CaseStudiesPage() {
 
 				<section id="projects-list" className="w-full">
 					<PageContainer className="portfolio-section-top">
-						<SwissGridBox>
+						<SwissGridBox className="!bg-surface-50 dark:!bg-surface-900/80">
 							<SwissGridRow>
 								<Reveal phase={1} className="w-full">
 									<div className="portfolio-box-pad">

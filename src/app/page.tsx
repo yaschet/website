@@ -66,7 +66,7 @@ export default async function Home() {
 
 				{/* Box 2: Selected Work */}
 				<PageContainer className="mt-10">
-					<SwissGridBox>
+					<SwissGridBox className="!bg-surface-50 dark:!bg-surface-900/80">
 						<SwissGridRow>
 							{hasFeaturedProjects ? (
 								<div className="portfolio-box-pad">

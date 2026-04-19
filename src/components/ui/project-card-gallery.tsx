@@ -66,8 +66,8 @@ export function ProjectCardGallery({
 			<div
 				className={cn(
 					"group block w-full overflow-hidden rounded-[var(--radius)]",
-					"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-950",
-					"transition-shadow duration-300",
+					"border border-surface-200/80 bg-white shadow-[0_1px_1px_rgba(15,23,42,0.03),0_10px_24px_rgba(15,23,42,0.05)] transition-[border-color,box-shadow] duration-200",
+					"dark:border-surface-800 dark:bg-surface-950 dark:shadow-[0_1px_0_rgba(255,255,255,0.03),0_14px_32px_rgba(0,0,0,0.42)]",
 					className,
 				)}
 			>
@@ -81,8 +81,9 @@ export function ProjectCardGallery({
 			href={href}
 			className={cn(
 				"group block w-full overflow-hidden rounded-[var(--radius)]",
-				"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-950",
-				"transition-shadow duration-200 hover:shadow-lg",
+				"border border-surface-200/80 bg-white shadow-[0_1px_1px_rgba(15,23,42,0.03),0_10px_24px_rgba(15,23,42,0.05)]",
+				"transition-[border-color,box-shadow] duration-200 hover:border-surface-300 hover:shadow-[0_6px_16px_rgba(15,23,42,0.07),0_16px_34px_rgba(15,23,42,0.06)]",
+				"dark:border-surface-800 dark:bg-surface-950 dark:shadow-[0_1px_0_rgba(255,255,255,0.03),0_14px_32px_rgba(0,0,0,0.42)] dark:hover:border-surface-700 dark:hover:shadow-[0_1px_0_rgba(255,255,255,0.04),0_18px_40px_rgba(0,0,0,0.5)]",
 				className,
 			)}
 		>
