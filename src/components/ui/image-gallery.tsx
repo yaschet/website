@@ -54,6 +54,8 @@ interface ImageGalleryProps {
 	quality?: number;
 	/** Callback when index changes */
 	onIndexChange?: (index: number) => void;
+	/** Preload the first image when the gallery is likely above the fold */
+	prioritizeFirstImage?: boolean;
 }
 
 /**
@@ -89,6 +91,7 @@ export function ImageGallery({
 	className,
 	imageClassName,
 	onIndexChange,
+	prioritizeFirstImage = true,
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw",
 	quality = 75,
 }: ImageGalleryProps) {
@@ -310,7 +313,7 @@ export function ImageGallery({
 									)}
 									placeholder={isStatic ? "blur" : "empty"}
 									draggable={false}
-									priority={i === 0} // Only prioritize the first image (LCP). Neighbors should load lazily.
+									priority={prioritizeFirstImage && i === 0} // Only prioritize above-the-fold galleries.
 									decoding="async"
 									quality={quality}
 								/>

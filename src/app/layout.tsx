@@ -106,7 +106,12 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html suppressHydrationWarning lang="en" className={fontVariables}>
+		<html
+			suppressHydrationWarning
+			lang="en"
+			className={fontVariables}
+			data-scroll-behavior="smooth"
+		>
 			<head>
 				<PortfolioTypeStyles />
 				<Script id="theme-bootstrap" strategy="beforeInteractive">

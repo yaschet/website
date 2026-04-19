@@ -42,6 +42,7 @@ interface ProjectCardGalleryProps {
 	date?: string;
 	imageTreatment?: "default" | "disciplined";
 	imageAspectRatio?: string | string[] | "auto";
+	prioritizeFirstImage?: boolean;
 }
 
 export function ProjectCardGallery({
@@ -58,6 +59,7 @@ export function ProjectCardGallery({
 	date,
 	imageTreatment = "default",
 	imageAspectRatio = "16/9",
+	prioritizeFirstImage = true,
 }: ProjectCardGalleryProps) {
 	const galleryImages = images && images.length > 0 ? images : [];
 
@@ -108,6 +110,7 @@ export function ProjectCardGallery({
 							images={galleryImages}
 							altPrefix={title}
 							aspectRatio={imageAspectRatio}
+							prioritizeFirstImage={prioritizeFirstImage}
 							showArrows={galleryImages.length > 1 && !isPrivate}
 							showProgress={galleryImages.length > 1 && !isPrivate}
 							showCounter={false}

@@ -75,6 +75,7 @@ export default async function CaseStudiesPage() {
 														href={project.urlPath}
 														tags={project.tech ?? []}
 														images={project.coverImages}
+														prioritizeFirstImage={false}
 														isPrivate={
 															project.cardState === "coming-soon"
 														}
