@@ -12,27 +12,16 @@
 
 import { CaretLeft, CaretRight, Play } from "@phosphor-icons/react/dist/ssr";
 import { motion, useReducedMotion } from "framer-motion";
-import dynamic from "next/dynamic";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GalleryLightbox } from "@/src/components/ui/gallery-lightbox";
+import { PortfolioMuxVideo } from "@/src/components/ui/portfolio-mux-video";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn, tweens } from "@/src/lib/index";
 import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
-
-const loadPortfolioMuxVideoModule = () =>
-	import("@/src/components/ui/portfolio-mux-video").then((module) => module.PortfolioMuxVideo);
-
-const PortfolioMuxVideo = dynamic(loadPortfolioMuxVideoModule, { ssr: false });
-
-function warmPortfolioMuxVideoModule() {
-	void loadPortfolioMuxVideoModule();
-}
-
-void loadPortfolioMuxVideoModule();
 
 interface ImageGalleryProps {
 	/** Rich gallery items. Preferred over legacy `images`. */
@@ -152,7 +141,6 @@ export function ImageGallery({
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 	const [visibleVideoId, setVisibleVideoId] = useState<string | null>(null);
 	const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
-	const [mountedPlaybackIds, setMountedPlaybackIds] = useState<string[]>([]);
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
 	const [isPointerInside, setIsPointerInside] = useState(false);
@@ -218,6 +206,16 @@ export function ImageGallery({
 		const first = aspectRatios[0];
 		return aspectRatios.some((ratio) => Math.abs(ratio - first) > 0.01);
 	}, [aspectRatios]);
+	const galleryVideoPlaybackIds = useMemo(
+		() =>
+			galleryItems
+				.filter(
+					(item): item is Extract<ResolvedGalleryItem, { kind: "mux-video" }> =>
+						item.kind === "mux-video",
+				)
+				.map((item) => item.playbackId),
+		[galleryItems],
+	);
 	const activeItem = galleryItems[activeIndex];
 	const isActiveVideoVisible =
 		activeItem?.kind === "mux-video" && visibleVideoId === activeItem.playbackId;
@@ -269,15 +267,8 @@ export function ImageGallery({
 		setHoveredIndex(null);
 		setVisibleVideoId(null);
 		setPlayingVideoId(null);
-		setMountedPlaybackIds([]);
 		setIsLightboxOpen(false);
 	}, [galleryIdentity]);
-
-	useEffect(() => {
-		if (galleryItems.some((item) => item.kind === "mux-video")) {
-			warmPortfolioMuxVideoModule();
-		}
-	}, [galleryItems]);
 
 	useEffect(() => {
 		if (playingVideoId === null) return;
@@ -285,13 +276,6 @@ export function ImageGallery({
 			setPlayingVideoId(null);
 		}
 	}, [activeItem, playingVideoId]);
-
-	const mountGalleryVideo = useCallback((playbackId: string) => {
-		setMountedPlaybackIds((current) => {
-			const next = [...current.filter((id) => id !== playbackId), playbackId];
-			return next.length <= 3 ? next : next.slice(-3);
-		});
-	}, []);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -425,9 +409,6 @@ export function ImageGallery({
 							item.kind === "mux-video" && playingVideoId === item.playbackId;
 						const isViewingInline =
 							item.kind === "mux-video" && visibleVideoId === item.playbackId;
-						const hasMountedInlineVideo =
-							item.kind === "mux-video" &&
-							mountedPlaybackIds.includes(item.playbackId);
 						const isExpandableImage = expandable && item.kind === "image";
 
 						const stageClassName = cn(
@@ -436,44 +417,52 @@ export function ImageGallery({
 						);
 						const stageContent = (
 							<>
-								{item.kind === "mux-video" && hasMountedInlineVideo && (
-									<div
-										className="absolute inset-0 z-0"
-										style={{
-											visibility:
-												activeIndex === index ? "visible" : "hidden",
-											pointerEvents: activeIndex === index ? "auto" : "none",
-										}}
-									>
-										<PortfolioMuxVideo
-											playbackId={item.playbackId}
-											poster={item.poster}
-											metadata={item.metadata}
-											active={isPlayingInline}
-											variant="gallery"
-											className="h-full w-full"
-											onExit={() => {
-												setVisibleVideoId((current) =>
-													current === item.playbackId ? null : current,
-												);
-												setPlayingVideoId((current) =>
-													current === item.playbackId ? null : current,
-												);
+								{item.kind === "mux-video" &&
+									galleryVideoPlaybackIds.includes(item.playbackId) && (
+										<div
+											className="absolute inset-0 z-0"
+											style={{
+												visibility:
+													activeIndex === index ? "visible" : "hidden",
+												pointerEvents:
+													activeIndex === index ? "auto" : "none",
 											}}
-											onPlayingChange={(playing) => {
-												if (playing) {
-													setVisibleVideoId(item.playbackId);
-													setPlayingVideoId(item.playbackId);
-													return;
-												}
+										>
+											<PortfolioMuxVideo
+												playbackId={item.playbackId}
+												poster={item.poster}
+												metadata={item.metadata}
+												active={isPlayingInline}
+												variant="gallery"
+												className="h-full w-full"
+												onExit={() => {
+													setVisibleVideoId((current) =>
+														current === item.playbackId
+															? null
+															: current,
+													);
+													setPlayingVideoId((current) =>
+														current === item.playbackId
+															? null
+															: current,
+													);
+												}}
+												onPlayingChange={(playing) => {
+													if (playing) {
+														setVisibleVideoId(item.playbackId);
+														setPlayingVideoId(item.playbackId);
+														return;
+													}
 
-												setPlayingVideoId((current) =>
-													current === item.playbackId ? null : current,
-												);
-											}}
-										/>
-									</div>
-								)}
+													setPlayingVideoId((current) =>
+														current === item.playbackId
+															? null
+															: current,
+													);
+												}}
+											/>
+										</div>
+									)}
 
 								<motion.div
 									className="absolute inset-0 z-10"
@@ -566,14 +555,10 @@ export function ImageGallery({
 													event.preventDefault();
 													event.stopPropagation();
 													stopAllPortfolioVideos();
-													warmPortfolioMuxVideoModule();
-													mountGalleryVideo(item.playbackId);
 													setActiveIndex(index);
 													setVisibleVideoId(item.playbackId);
 													setPlayingVideoId(item.playbackId);
 												}}
-												onPointerEnter={warmPortfolioMuxVideoModule}
-												onFocus={warmPortfolioMuxVideoModule}
 												aria-label={
 													item.duration
 														? `Play video, duration ${item.duration}`
