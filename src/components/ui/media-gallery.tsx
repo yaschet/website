@@ -579,8 +579,8 @@ export function MediaGallery({
 													<span className="flex w-[14px] items-center justify-center">
 														<Play size={14} weight="fill" />
 													</span>
-													<span className="flex items-baseline gap-x-2 leading-none">
-														<span className="portfolio-control-label leading-none">
+													<span className="inline-flex items-baseline gap-x-2">
+														<span className="portfolio-control-label">
 															Play
 														</span>
 														{item.duration ? (
@@ -589,7 +589,7 @@ export function MediaGallery({
 																	aria-hidden
 																	className="h-3 w-px self-center bg-white/16"
 																/>
-																<span className="portfolio-chip-label text-white/72 tabular-nums leading-none">
+																<span className="portfolio-chip-label text-white/72 tabular-nums">
 																	{item.duration}
 																</span>
 															</>
