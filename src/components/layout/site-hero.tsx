@@ -53,7 +53,7 @@ function HeroContent() {
 							size="md"
 							variant="soft"
 							color="default"
-							className="bg-surface-900 text-surface-50 hover:bg-surface-800 focus-visible:bg-surface-800 dark:bg-surface-100 dark:text-surface-950 dark:hover:bg-surface-200 dark:focus-visible:bg-surface-200"
+							className="bg-surface-900 text-surface-50 hover:bg-surface-800 focus-visible:bg-surface-800 dark:bg-surface-100 dark:text-surface-950 dark:focus-visible:bg-surface-200 dark:hover:bg-surface-200"
 						>
 							<Link href="/case-studies">
 								Case Studies
@@ -65,7 +65,7 @@ function HeroContent() {
 							size="md"
 							variant="soft"
 							color="default"
-							className="bg-surface-100 text-surface-800 hover:bg-surface-200 focus-visible:bg-surface-200 dark:bg-surface-800 dark:text-surface-200 dark:hover:bg-surface-700 dark:focus-visible:bg-surface-700"
+							className="bg-surface-100 text-surface-800 hover:bg-surface-200 focus-visible:bg-surface-200 dark:bg-surface-800 dark:text-surface-200 dark:focus-visible:bg-surface-700 dark:hover:bg-surface-700"
 						>
 							<Link href="/contact">Email</Link>
 						</Button>

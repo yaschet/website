@@ -58,21 +58,21 @@ const ACTIVE_PLAYER_EVENT = "portfolio:mux-video-active";
 let nextPortfolioMuxVideoId = 0;
 
 const PLAYER_BUTTON_CLASS_NAME = cn(
-	"flex h-10 items-center justify-center gap-2 px-3 border-none bg-surface-950/10 text-white rounded-none",
-	"hover:bg-surface-950",
-	"focus-visible:outline-none",
+	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-900 px-3 text-white",
 	"disabled:pointer-events-none disabled:opacity-35",
+	"focus-visible:outline-none",
+	"hover:bg-surface-800",
 );
 
 const PLAYER_ICON_BUTTON_CLASS_NAME = cn(
-	"flex h-10 w-10 items-center justify-center border-none bg-surface-950/10 text-white rounded-none",
-	"hover:bg-surface-950",
-	"focus-visible:outline-none",
+	"flex h-10 w-10 items-center justify-center rounded-none border-none bg-surface-900 text-white",
 	"disabled:pointer-events-none disabled:opacity-35",
+	"focus-visible:outline-none",
+	"hover:bg-surface-800",
 );
 
 const PLAYER_TIME_DISPLAY_CLASS_NAME = cn(
-	"pointer-events-auto inline-flex h-10 items-center rounded-none border-none bg-surface-950/10 hover:bg-surface-950 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em]",
+	"pointer-events-auto inline-flex h-10 items-center rounded-none border-none bg-surface-900 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em] hover:bg-surface-800",
 );
 
 function formatPlaybackTime(value: number) {
@@ -763,8 +763,8 @@ export function PortfolioMuxVideo({
 					controlsVisible ? "opacity-100" : "opacity-0",
 				)}
 			>
-				<div className="absolute inset-0 bg-linear-to-t from-surface-950/88 via-surface-950/34 to-transparent" />
-				<div className="relative flex flex-col gap-3 px-4 pt-12 pb-4">
+				<div className="absolute inset-0 bg-surface-950" />
+				<div className="relative flex flex-col gap-2 px-4 pt-3 pb-3">
 					<input
 						data-player-interactive
 						type="range"
