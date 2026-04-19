@@ -12,16 +12,6 @@ export default function manifest(): MetadataRoute.Manifest {
 		theme_color: "#09090b", // Zinc-950 (Theme Dark / Primary)
 		icons: [
 			{
-				src: "/favicon.ico",
-				sizes: "any",
-				type: "image/x-icon",
-			},
-			{
-				src: "/icon1.png",
-				sizes: "192x192",
-				type: "image/png",
-			},
-			{
 				src: "/apple-icon.png",
 				sizes: "180x180",
 				type: "image/png",
