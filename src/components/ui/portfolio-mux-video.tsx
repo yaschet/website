@@ -24,6 +24,7 @@ import {
 	DropdownMenuRadioItem,
 	DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
+import { Spinner } from "@/src/components/ui/spinner";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { cn, tweens } from "@/src/lib/index";
 import {
@@ -52,6 +53,7 @@ type QualityOption = {
 	label: string;
 	shortLabel: string;
 	value: string;
+	badge?: string;
 };
 
 const PLAYBACK_RATE_OPTIONS = [
@@ -65,21 +67,21 @@ const PLAYBACK_RATE_OPTIONS = [
 let nextPortfolioMuxVideoId = 0;
 
 const PLAYER_BUTTON_CLASS_NAME = cn(
-	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-900 px-3 text-white",
+	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-950 px-3 text-white",
 	"disabled:pointer-events-none disabled:opacity-35",
 	"focus-visible:outline-none",
 	"hover:bg-surface-800",
 );
 
 const PLAYER_ICON_BUTTON_CLASS_NAME = cn(
-	"flex h-10 w-10 items-center justify-center rounded-none border-none bg-surface-900 text-white",
+	"flex h-10 w-10 items-center justify-center rounded-none border-none bg-surface-950 text-white",
 	"disabled:pointer-events-none disabled:opacity-35",
 	"focus-visible:outline-none",
 	"hover:bg-surface-800",
 );
 
 const PLAYER_TIME_DISPLAY_CLASS_NAME = cn(
-	"pointer-events-auto inline-flex h-10 items-center rounded-none border-none bg-surface-900 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em] hover:bg-surface-800",
+	"pointer-events-auto inline-flex h-10 cursor-default items-center rounded-none border-none bg-surface-950 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em]",
 );
 
 function formatPlaybackTime(value: number) {
@@ -99,19 +101,27 @@ function formatPlaybackTime(value: number) {
 	return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-function formatBitrate(bitrate?: number) {
-	if (!bitrate || bitrate <= 0) {
-		return null;
-	}
-
-	const megabits = bitrate / 1_000_000;
-	return Number.isInteger(megabits) ? `${megabits} Mbps` : `${megabits.toFixed(1)} Mbps`;
+function getQualityBadge(height?: number) {
+	if (!height) return null;
+	if (height >= 2160) return "4K";
+	if (height >= 1440) return "QHD";
+	if (height >= 720) return "HD";
+	if (height >= 480) return "SD";
+	return null;
 }
 
-function formatQualityOptionLabel(rendition: { bitrate?: number; height?: number; id?: string }) {
+function formatQualityOption(rendition: {
+	bitrate?: number;
+	height?: number;
+	id?: string;
+}): QualityOption {
 	const resolutionLabel = rendition.height ? `${rendition.height}p` : (rendition.id ?? "Manual");
-	const bitrateLabel = formatBitrate(rendition.bitrate);
-	return bitrateLabel ? `${resolutionLabel} (${bitrateLabel})` : resolutionLabel;
+	return {
+		label: resolutionLabel,
+		shortLabel: resolutionLabel,
+		value: String(rendition.id),
+		badge: getQualityBadge(rendition.height) ?? undefined,
+	};
 }
 
 function getPosterSrc(poster?: string | StaticImageData) {
@@ -202,6 +212,11 @@ export function PortfolioMuxVideo({
 	]);
 	const [qualityValue, setQualityValue] = useState("auto");
 	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [isMediaReady, setIsMediaReady] = useState(false);
+	const [isBuffering, setIsBuffering] = useState(Boolean(isActive));
+	const [isWaitingForPlayback, setIsWaitingForPlayback] = useState(Boolean(isActive));
+	const [isSeeking, setIsSeeking] = useState(false);
+	const [hasStartedPlayback, setHasStartedPlayback] = useState(false);
 
 	const posterSrc = useMemo(() => getPosterSrc(poster), [poster]);
 	const resolvedPlaybackSrc = useMemo(() => getMuxStreamSrc(playbackId), [playbackId]);
@@ -216,6 +231,12 @@ export function PortfolioMuxVideo({
 	const controlsInteractiveClassName = controlsVisible
 		? "pointer-events-auto"
 		: "pointer-events-none";
+	const showCenterStatus = isActive && (isWaitingForPlayback || isBuffering || isSeeking);
+	const centerStatusLabel = isSeeking
+		? "Seeking"
+		: !isMediaReady || !hasStartedPlayback
+			? "Loading video"
+			: "Buffering";
 
 	const clearControlsTimeout = useCallback(() => {
 		if (hideControlsTimeoutRef.current !== null) {
@@ -296,12 +317,26 @@ export function PortfolioMuxVideo({
 		if (!media) return;
 
 		const currentlyPlaying = !media.paused && !media.ended;
+		const readyState = media.readyState ?? 0;
+		const metadataReady = readyState >= 1;
+		const buffering =
+			desiredPlayingRef.current &&
+			!media.ended &&
+			(media.seeking || readyState < (currentlyPlaying ? 3 : 2));
+		const waitingForPlayback = desiredPlayingRef.current && !currentlyPlaying && !media.ended;
 		setIsPlaying(currentlyPlaying);
 		setCurrentTime(Number.isFinite(media.currentTime) ? media.currentTime : 0);
 		setDuration(Number.isFinite(media.duration) ? media.duration : 0);
 		setIsMuted(media.muted);
 		setVolume(media.volume ?? 1);
 		setPlaybackRate(media.playbackRate ?? 1);
+		setIsMediaReady(metadataReady);
+		setIsBuffering(buffering);
+		setIsWaitingForPlayback(waitingForPlayback);
+		setIsSeeking(media.seeking);
+		if (currentlyPlaying || media.currentTime > 0) {
+			setHasStartedPlayback(true);
+		}
 
 		const renditionList = media.videoRenditions;
 		const renditions = renditionList ? Array.from(renditionList) : [];
@@ -312,11 +347,7 @@ export function PortfolioMuxVideo({
 		});
 
 		const nextOptions = [
-			...sortedRenditions.map((rendition) => ({
-				label: formatQualityOptionLabel(rendition),
-				shortLabel: rendition.height ? `${rendition.height}p` : "Manual",
-				value: String(rendition.id),
-			})),
+			...sortedRenditions.map((rendition) => formatQualityOption(rendition)),
 			{ label: "Auto", shortLabel: "Auto", value: "auto" },
 		];
 
@@ -333,6 +364,19 @@ export function PortfolioMuxVideo({
 			onPlayingChange?.(currentlyPlaying);
 		}
 	}, [onPlayingChange]);
+
+	useEffect(() => {
+		void playbackId;
+		setIsMediaReady(false);
+		setIsBuffering(false);
+		setIsWaitingForPlayback(false);
+		setIsSeeking(false);
+		setHasStartedPlayback(false);
+		setCurrentTime(0);
+		setDuration(0);
+		setQualityOptions([{ label: "Auto", shortLabel: "Auto", value: "auto" }]);
+		setQualityValue("auto");
+	}, [playbackId]);
 
 	const togglePlayback = useCallback(async () => {
 		const media = mediaRef.current;
@@ -471,15 +515,24 @@ export function PortfolioMuxVideo({
 		};
 
 		const eventNames = [
+			"loadstart",
 			"play",
+			"playing",
 			"pause",
 			"ended",
 			"timeupdate",
 			"durationchange",
 			"volumechange",
 			"ratechange",
+			"loadedmetadata",
+			"loadeddata",
 			"canplay",
+			"canplaythrough",
 			"progress",
+			"waiting",
+			"stalled",
+			"seeking",
+			"seeked",
 		] as const;
 
 		const sourceIntegrityEventNames = ["emptied", "abort", "suspend"] as const;
@@ -869,6 +922,30 @@ export function PortfolioMuxVideo({
 			/>
 
 			<motion.div
+				className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+				initial={false}
+				animate={{ opacity: showCenterStatus ? 1 : 0 }}
+				transition={tweens.interactionFast}
+				aria-hidden={!showCenterStatus}
+			>
+				<div className="flex min-w-36 items-center gap-3 border border-[color:var(--portfolio-player-hairline)] bg-surface-950 px-4 py-3 text-surface-50">
+					<Spinner size="sm" color="white" className="shrink-0" />
+					<div className="flex flex-col gap-1">
+						<span className="font-mono text-[10px] text-surface-50 uppercase tracking-[0.22em]">
+							{centerStatusLabel}
+						</span>
+						<span className="text-[11px] text-surface-300">
+							{isSeeking
+								? "Updating playback position"
+								: !isMediaReady || !hasStartedPlayback
+									? "Preparing stream"
+									: "Waiting for enough data to continue"}
+						</span>
+					</div>
+				</div>
+			</motion.div>
+
+			<motion.div
 				className="pointer-events-none absolute inset-x-4 top-4 z-20 flex justify-end"
 				initial={{ opacity: 1 }}
 				animate={{
@@ -893,7 +970,8 @@ export function PortfolioMuxVideo({
 			</motion.div>
 
 			<motion.div
-				className="pointer-events-none absolute inset-x-0 bottom-0 z-20 border-white/8 border-t"
+				className="pointer-events-none absolute inset-x-0 bottom-0 z-20 border-t"
+				style={{ borderColor: "var(--portfolio-player-hairline)" }}
 				initial={{ opacity: 1 }}
 				animate={{
 					opacity: controlsVisible ? 1 : 0,
@@ -964,36 +1042,45 @@ export function PortfolioMuxVideo({
 									<VolumeIcon size={18} weight="fill" />
 								</button>
 
-								<input
-									data-player-interactive
-									type="range"
-									min={0}
-									max={1}
-									step={0.05}
-									value={isMuted ? 0 : volume}
-									onChange={(event) =>
-										handleVolumeChange(Number(event.target.value))
-									}
-									className="portfolio-video-volume hidden w-20 md:block"
-									aria-label="Adjust video volume"
-									style={
-										{
-											"--portfolio-video-range-progress": `${volumePercent}%`,
-										} as CSSProperties
-									}
-								/>
+								<div
+									className="hidden items-center border-l pl-2 md:flex"
+									style={{ borderColor: "var(--portfolio-player-hairline)" }}
+								>
+									<input
+										data-player-interactive
+										type="range"
+										min={0}
+										max={1}
+										step={0.05}
+										value={isMuted ? 0 : volume}
+										onChange={(event) =>
+											handleVolumeChange(Number(event.target.value))
+										}
+										className="portfolio-video-volume w-20"
+										aria-label="Adjust video volume"
+										style={
+											{
+												"--portfolio-video-range-progress": `${volumePercent}%`,
+											} as CSSProperties
+										}
+									/>
+								</div>
 							</div>
 
-							<div className={PLAYER_TIME_DISPLAY_CLASS_NAME}>
+							<div
+								className={cn(PLAYER_TIME_DISPLAY_CLASS_NAME, "border-l pl-3")}
+								style={{ borderColor: "var(--portfolio-player-hairline)" }}
+							>
 								{formatPlaybackTime(currentTime)} / {formatPlaybackTime(duration)}
 							</div>
 						</div>
 
 						<div
 							className={cn(
-								"flex items-center gap-2 border-white/8 border-l pl-2",
+								"flex items-center gap-2 border-l pl-2",
 								controlsInteractiveClassName,
 							)}
+							style={{ borderColor: "var(--portfolio-player-hairline)" }}
 						>
 							{hasQualityMenu && (
 								<DropdownMenu
@@ -1016,7 +1103,7 @@ export function PortfolioMuxVideo({
 									</DropdownMenuTrigger>
 									<DropdownMenuContent
 										align="end"
-										className="min-w-40 border-surface-700/45 bg-surface-950/96 p-1.5 text-surface-50 backdrop-blur-md"
+										className="min-w-40 rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none"
 									>
 										<DropdownMenuRadioGroup
 											value={qualityValue}
@@ -1026,9 +1113,16 @@ export function PortfolioMuxVideo({
 												<DropdownMenuRadioItem
 													key={option.value}
 													value={option.value}
-													className="text-surface-100 focus:bg-surface-800 focus:text-white dark:focus:bg-surface-800"
+													className="rounded-none text-surface-100 focus:bg-surface-800 focus:text-white data-[state=checked]:bg-surface-800 data-[state=checked]:text-white dark:focus:bg-surface-800"
 												>
-													{option.label}
+													<span className="flex min-w-0 items-center justify-between gap-3">
+														<span>{option.label}</span>
+														{option.badge ? (
+															<span className="inline-flex min-w-9 items-center justify-center border border-[color:var(--portfolio-player-hairline)] px-1.5 py-0.5 font-mono text-[9px] text-surface-100 uppercase leading-none tracking-[0.18em]">
+																{option.badge}
+															</span>
+														) : null}
+													</span>
 												</DropdownMenuRadioItem>
 											))}
 										</DropdownMenuRadioGroup>
@@ -1056,7 +1150,7 @@ export function PortfolioMuxVideo({
 								</DropdownMenuTrigger>
 								<DropdownMenuContent
 									align="end"
-									className="min-w-36 border-surface-700/45 bg-surface-950/96 p-1.5 text-surface-50 backdrop-blur-md"
+									className="min-w-36 rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none"
 								>
 									<DropdownMenuRadioGroup
 										value={String(playbackRate)}
@@ -1066,7 +1160,7 @@ export function PortfolioMuxVideo({
 											<DropdownMenuRadioItem
 												key={option.value}
 												value={String(option.value)}
-												className="text-surface-100 focus:bg-surface-800 focus:text-white dark:focus:bg-surface-800"
+												className="rounded-none text-surface-100 focus:bg-surface-800 focus:text-white data-[state=checked]:bg-surface-800 data-[state=checked]:text-white dark:focus:bg-surface-800"
 											>
 												{option.label}
 											</DropdownMenuRadioItem>
