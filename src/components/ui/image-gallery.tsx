@@ -20,7 +20,7 @@ import { GalleryLightbox } from "@/src/components/ui/gallery-lightbox";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
-import { cn } from "@/src/lib/index";
+import { cn, tweens } from "@/src/lib/index";
 
 const PortfolioMuxVideo = dynamic(
 	() =>
@@ -494,6 +494,15 @@ export function ImageGallery({
 									<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-6">
 										<motion.button
 											type="button"
+											initial="idle"
+											whileHover="hover"
+											whileTap="tap"
+											variants={{
+												idle: { scale: 1 },
+												hover: { scale: 1.05 },
+												tap: { scale: 0.92 },
+											}}
+											transition={tweens.interaction}
 											className={cn(
 												"flex h-11 items-center justify-center gap-3 rounded-none border-2 border-white bg-surface-950 px-6 text-white",
 												"hover:bg-surface-900",
@@ -507,8 +516,6 @@ export function ImageGallery({
 												setActiveIndex(index);
 												setPlayingIndex(index);
 											}}
-											whileHover={{ scale: 1.05 }}
-											whileTap={{ scale: 0.98 }}
 											aria-label={
 												item.duration
 													? `Play video, duration ${item.duration}`
@@ -577,8 +584,17 @@ export function ImageGallery({
 
 				{hasMultiple && showArrows && (
 					<>
-						<button
+						<motion.button
 							type="button"
+							initial="idle"
+							whileHover="hover"
+							whileTap="tap"
+							variants={{
+								idle: { scale: 1 },
+								hover: { scale: 1.05 },
+								tap: { scale: 0.92 },
+							}}
+							transition={tweens.interaction}
 							onClick={(event) => {
 								event.preventDefault();
 								event.stopPropagation();
@@ -595,10 +611,19 @@ export function ImageGallery({
 							)}
 						>
 							<CaretLeft size={18} weight="bold" />
-						</button>
+						</motion.button>
 
-						<button
+						<motion.button
 							type="button"
+							initial="idle"
+							whileHover="hover"
+							whileTap="tap"
+							variants={{
+								idle: { scale: 1 },
+								hover: { scale: 1.05 },
+								tap: { scale: 0.92 },
+							}}
+							transition={tweens.interaction}
 							onClick={(event) => {
 								event.preventDefault();
 								event.stopPropagation();
@@ -615,7 +640,7 @@ export function ImageGallery({
 							)}
 						>
 							<CaretRight size={18} weight="bold" />
-						</button>
+						</motion.button>
 					</>
 				)}
 

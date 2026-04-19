@@ -58,21 +58,21 @@ const ACTIVE_PLAYER_EVENT = "portfolio:mux-video-active";
 let nextPortfolioMuxVideoId = 0;
 
 const PLAYER_BUTTON_CLASS_NAME = cn(
-	"flex h-10 items-center justify-center gap-2 px-3 border-none bg-surface-950/20 text-white rounded-none",
-	"hover:bg-surface-950/30",
+	"flex h-10 items-center justify-center gap-2 px-3 border-none bg-surface-950/10 text-white rounded-none",
+	"hover:bg-surface-950",
 	"focus-visible:outline-none",
 	"disabled:pointer-events-none disabled:opacity-35",
 );
 
 const PLAYER_ICON_BUTTON_CLASS_NAME = cn(
-	"flex h-10 w-10 items-center justify-center border-none bg-surface-950/20 text-white rounded-none",
-	"hover:bg-surface-950/30",
+	"flex h-10 w-10 items-center justify-center border-none bg-surface-950/10 text-white rounded-none",
+	"hover:bg-surface-950",
 	"focus-visible:outline-none",
 	"disabled:pointer-events-none disabled:opacity-35",
 );
 
 const PLAYER_TIME_DISPLAY_CLASS_NAME = cn(
-	"pointer-events-auto inline-flex h-10 items-center rounded-none border-none bg-surface-950/20 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em] backdrop-blur-md",
+	"pointer-events-auto inline-flex h-10 items-center rounded-none border-none bg-surface-950/10 hover:bg-surface-950 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em]",
 );
 
 function formatPlaybackTime(value: number) {
