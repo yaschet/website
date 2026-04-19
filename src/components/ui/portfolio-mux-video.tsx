@@ -3,16 +3,17 @@
 import type MuxVideoElement from "@mux/mux-video";
 import MuxVideo from "@mux/mux-video/react";
 import {
-	ArrowsIn,
-	ArrowsOut,
-	Pause,
-	Play,
-	SpeakerHigh,
-	SpeakerLow,
-	SpeakerSimpleSlash,
-	X,
+	ArrowsInIcon,
+	ArrowsOutIcon,
+	PauseIcon,
+	PlayIcon,
+	SpeakerHighIcon,
+	SpeakerLowIcon,
+	SpeakerSimpleSlashIcon,
+	XIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import type { StaticImageData } from "next/image";
+import { usePathname } from "next/navigation";
 import type { ComponentProps, CSSProperties, KeyboardEvent, MouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -53,11 +54,25 @@ const PLAYBACK_RATE_OPTIONS = [
 	{ label: "2x", value: 2 },
 ] as const;
 
+const ACTIVE_PLAYER_EVENT = "portfolio:mux-video-active";
+let nextPortfolioMuxVideoId = 0;
+
 const PLAYER_BUTTON_CLASS_NAME = cn(
-	"flex h-10 min-w-10 items-center justify-center gap-2 border border-surface-700/45 bg-surface-950/72 px-3 text-surface-50 backdrop-blur-sm",
-	"transition-[background-color,border-color,color,opacity] duration-200 hover:bg-surface-950/88 hover:text-surface-50",
-	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+	"flex h-10 items-center justify-center gap-2 px-3 border-none bg-surface-950/20 text-white rounded-[200px]",
+	"hover:bg-surface-950/30",
+	"focus-visible:outline-none",
 	"disabled:pointer-events-none disabled:opacity-35",
+);
+
+const PLAYER_ICON_BUTTON_CLASS_NAME = cn(
+	"flex h-10 w-10 items-center justify-center border-none bg-surface-950/20 text-white rounded-[200px]",
+	"hover:bg-surface-950/30",
+	"focus-visible:outline-none",
+	"disabled:pointer-events-none disabled:opacity-35",
+);
+
+const PLAYER_TIME_DISPLAY_CLASS_NAME = cn(
+	"pointer-events-auto inline-flex h-10 items-center px-3 border-none bg-surface-950/20 text-white rounded-[200px] font-mono text-[10px] uppercase tracking-[0.22em] backdrop-blur-md",
 );
 
 function formatPlaybackTime(value: number) {
@@ -97,20 +112,50 @@ function getPosterSrc(poster?: string | StaticImageData) {
 	return typeof poster === "string" ? poster : poster.src;
 }
 
+function getMuxStreamSrc(playbackId: string) {
+	return `https://stream.mux.com/${playbackId}.m3u8`;
+}
+
 function getPlaybackRateLabel(value: number) {
 	return PLAYBACK_RATE_OPTIONS.find((option) => option.value === value)?.label ?? `${value}x`;
 }
 
 function getVolumeIcon(isMuted: boolean, volume: number) {
 	if (isMuted || volume <= 0.01) {
-		return SpeakerSimpleSlash;
+		return SpeakerSimpleSlashIcon;
 	}
 
 	if (volume < 0.5) {
-		return SpeakerLow;
+		return SpeakerLowIcon;
 	}
 
-	return SpeakerHigh;
+	return SpeakerHighIcon;
+}
+
+function pauseNativeMediaElement(media: HTMLMediaElement) {
+	try {
+		media.pause();
+	} catch {}
+}
+
+function pauseMuxMediaElement(media: MuxVideoElement, options?: { unload?: boolean }) {
+	try {
+		media.pause();
+	} catch {}
+
+	try {
+		media.autoplay = false;
+	} catch {}
+
+	try {
+		media.removeAttribute("autoplay");
+	} catch {}
+
+	if (options?.unload) {
+		try {
+			media.unload?.();
+		} catch {}
+	}
 }
 
 export function PortfolioMuxVideo({
@@ -124,9 +169,14 @@ export function PortfolioMuxVideo({
 	className,
 	onExit,
 }: PortfolioMuxVideoProps) {
+	const pathname = usePathname();
 	const mediaRef = useRef<MuxVideoElement | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const hideControlsTimeoutRef = useRef<number | null>(null);
+	const instanceIdRef = useRef(++nextPortfolioMuxVideoId);
+	const playbackCommandIdRef = useRef(0);
+	const desiredPlayingRef = useRef(Boolean(autoPlay));
+	const sourceSyncNonceRef = useRef(0);
 	const [isPlaying, setIsPlaying] = useState(Boolean(autoPlay));
 	const [isMuted, setIsMuted] = useState(muted);
 	const [volume, setVolume] = useState(1);
@@ -144,6 +194,7 @@ export function PortfolioMuxVideo({
 	const [isFullscreen, setIsFullscreen] = useState(false);
 
 	const posterSrc = useMemo(() => getPosterSrc(poster), [poster]);
+	const resolvedPlaybackSrc = useMemo(() => getMuxStreamSrc(playbackId), [playbackId]);
 	const menuOpen = openMenu !== null;
 	const hasQualityMenu = qualityOptions.length > 2;
 	const playedPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0;
@@ -162,6 +213,67 @@ export function PortfolioMuxVideo({
 			hideControlsTimeoutRef.current = null;
 		}
 	}, []);
+
+	const pauseOtherDocumentMedia = useCallback((except?: MuxVideoElement | null) => {
+		if (typeof document === "undefined") return;
+
+		for (const media of document.querySelectorAll("mux-video")) {
+			const muxMedia = media as MuxVideoElement;
+			if (except && muxMedia === except) continue;
+			pauseMuxMediaElement(muxMedia);
+		}
+
+		for (const media of document.querySelectorAll("video, audio")) {
+			pauseNativeMediaElement(media as HTMLMediaElement);
+		}
+	}, []);
+
+	const stopPlayback = useCallback((options?: { unload?: boolean }) => {
+		const media = mediaRef.current;
+		if (!media) return;
+
+		playbackCommandIdRef.current += 1;
+		desiredPlayingRef.current = false;
+		pauseMuxMediaElement(media, options && !options.unload ? options : undefined);
+
+		setIsPlaying(false);
+		setOpenMenu(null);
+		setControlsVisible(true);
+	}, []);
+
+	const ensureMediaSource = useCallback(
+		(options?: { forceLoad?: boolean }) => {
+			const media = mediaRef.current;
+			if (!media) return;
+
+			const expectedSrc = resolvedPlaybackSrc;
+			const currentAttrSrc = media.getAttribute("src");
+			const currentAttrPlaybackId = media.getAttribute("playback-id");
+
+			if (currentAttrPlaybackId !== playbackId) {
+				media.setAttribute("playback-id", playbackId);
+			}
+
+			if (currentAttrSrc !== expectedSrc) {
+				media.setAttribute("src", expectedSrc);
+			}
+
+			const currentSource = media.currentSrc || media.src || media.getAttribute("src") || "";
+			const sourceLooksMissing =
+				!currentSource ||
+				(!currentSource.includes(playbackId) && currentSource !== expectedSrc);
+
+			if (
+				options?.forceLoad ||
+				sourceLooksMissing ||
+				media.networkState === HTMLMediaElement.NETWORK_EMPTY
+			) {
+				sourceSyncNonceRef.current += 1;
+				media.load();
+			}
+		},
+		[playbackId, resolvedPlaybackSrc],
+	);
 
 	const scheduleControlsHide = useCallback(() => {
 		clearControlsTimeout();
@@ -215,17 +327,38 @@ export function PortfolioMuxVideo({
 		const media = mediaRef.current;
 		if (!media) return;
 
-		if (media.paused || media.ended) {
+		const shouldPlay = media.paused || media.ended || !desiredPlayingRef.current;
+
+		if (shouldPlay) {
+			const commandId = ++playbackCommandIdRef.current;
+			desiredPlayingRef.current = true;
+			setControlsVisible(true);
+			pauseOtherDocumentMedia(media);
+
 			try {
 				await media.play();
 			} catch {
+				if (playbackCommandIdRef.current === commandId) {
+					desiredPlayingRef.current = false;
+					syncFromMedia();
+				}
 				setControlsVisible(true);
+				return;
+			}
+
+			if (
+				playbackCommandIdRef.current !== commandId ||
+				!desiredPlayingRef.current ||
+				mediaRef.current !== media
+			) {
+				pauseMuxMediaElement(media);
+				syncFromMedia();
 			}
 			return;
 		}
 
-		media.pause();
-	}, []);
+		stopPlayback();
+	}, [pauseOtherDocumentMedia, stopPlayback, syncFromMedia]);
 
 	const toggleMute = useCallback(() => {
 		const media = mediaRef.current;
@@ -308,6 +441,10 @@ export function PortfolioMuxVideo({
 			syncFromMedia();
 		};
 
+		const handleSourceIntegrityEvent = () => {
+			ensureMediaSource();
+		};
+
 		const eventNames = [
 			"play",
 			"pause",
@@ -321,8 +458,14 @@ export function PortfolioMuxVideo({
 			"progress",
 		] as const;
 
+		const sourceIntegrityEventNames = ["emptied", "abort", "suspend"] as const;
+
 		for (const eventName of eventNames) {
 			media.addEventListener(eventName, handleMediaEvent);
+		}
+
+		for (const eventName of sourceIntegrityEventNames) {
+			media.addEventListener(eventName, handleSourceIntegrityEvent);
 		}
 
 		const renditions = media.videoRenditions;
@@ -339,13 +482,21 @@ export function PortfolioMuxVideo({
 				media.removeEventListener(eventName, handleMediaEvent);
 			}
 
+			for (const eventName of sourceIntegrityEventNames) {
+				media.removeEventListener(eventName, handleSourceIntegrityEvent);
+			}
+
 			if (renditions) {
 				renditions.removeEventListener("change", handleMediaEvent);
 				renditions.removeEventListener("addrendition", handleMediaEvent);
 				renditions.removeEventListener("removerendition", handleMediaEvent);
 			}
 		};
-	}, [syncFromMedia]);
+	}, [ensureMediaSource, syncFromMedia]);
+
+	useEffect(() => {
+		ensureMediaSource({ forceLoad: true });
+	}, [ensureMediaSource]);
 
 	useEffect(() => {
 		if (!autoPlay) return;
@@ -353,8 +504,9 @@ export function PortfolioMuxVideo({
 		const media = mediaRef.current;
 		if (!media) return;
 
+		desiredPlayingRef.current = true;
 		const playWhenReady = () => {
-			void media.play().catch(() => undefined);
+			void togglePlayback();
 		};
 
 		if (media.readyState >= 1) {
@@ -364,7 +516,43 @@ export function PortfolioMuxVideo({
 
 		media.addEventListener("loadedmetadata", playWhenReady, { once: true });
 		return () => media.removeEventListener("loadedmetadata", playWhenReady);
-	}, [autoPlay]);
+	}, [autoPlay, togglePlayback]);
+
+	useEffect(() => {
+		const media = mediaRef.current;
+		if (!media || typeof window === "undefined") return;
+
+		const announceActivation = () => {
+			window.dispatchEvent(
+				new CustomEvent(ACTIVE_PLAYER_EVENT, {
+					detail: { instanceId: instanceIdRef.current, pathname },
+				}),
+			);
+		};
+
+		media.addEventListener("play", announceActivation);
+		return () => media.removeEventListener("play", announceActivation);
+	}, [pathname]);
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const handleActivePlayerChange = (event: Event) => {
+			const detail = (event as CustomEvent<{ instanceId?: number }>).detail;
+			if (detail?.instanceId === instanceIdRef.current) {
+				return;
+			}
+
+			stopPlayback();
+		};
+
+		window.addEventListener(ACTIVE_PLAYER_EVENT, handleActivePlayerChange as EventListener);
+		return () =>
+			window.removeEventListener(
+				ACTIVE_PLAYER_EVENT,
+				handleActivePlayerChange as EventListener,
+			);
+	}, [stopPlayback]);
 
 	useEffect(() => {
 		if (typeof document === "undefined") return;
@@ -390,8 +578,19 @@ export function PortfolioMuxVideo({
 	useEffect(() => {
 		return () => {
 			clearControlsTimeout();
+			stopPlayback();
 		};
-	}, [clearControlsTimeout]);
+	}, [clearControlsTimeout, stopPlayback]);
+
+	useEffect(() => {
+		const activePathname = pathname;
+
+		return () => {
+			void activePathname;
+			pauseOtherDocumentMedia();
+			stopPlayback();
+		};
+	}, [pathname, pauseOtherDocumentMedia, stopPlayback]);
 
 	const handlePointerActivity = useCallback(() => {
 		setControlsVisible(true);
@@ -514,9 +713,9 @@ export function PortfolioMuxVideo({
 					} as ComponentProps<typeof MuxVideo>["style"]
 				}
 				playbackId={playbackId}
+				src={resolvedPlaybackSrc}
 				metadata={metadata}
 				poster={posterSrc}
-				autoplay={autoPlay || undefined}
 				loop={loop}
 				muted={muted}
 				playsInline
@@ -524,23 +723,21 @@ export function PortfolioMuxVideo({
 				preload={autoPlay || variant !== "article" ? "auto" : "metadata"}
 			/>
 
-			{onExit && (
-				<div className="pointer-events-none absolute inset-x-4 top-4 z-20 flex justify-end">
-					<button
-						type="button"
-						className={cn(PLAYER_BUTTON_CLASS_NAME, "pointer-events-auto")}
-						data-player-interactive
-						aria-label="Return video tile to poster"
-						onClick={(event) => {
-							event.preventDefault();
-							event.stopPropagation();
-							onExit();
-						}}
-					>
-						<X size={18} weight="bold" />
-					</button>
-				</div>
-			)}
+			<div className="pointer-events-none absolute inset-x-4 top-4 z-20 flex justify-end">
+				<button
+					type="button"
+					className={cn(PLAYER_ICON_BUTTON_CLASS_NAME, "pointer-events-auto")}
+					data-player-interactive
+					aria-label="Return video tile to poster"
+					onClick={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						onExit?.();
+					}}
+				>
+					<XIcon size={18} weight="bold" />
+				</button>
+			</div>
 
 			<div
 				className={cn(
@@ -548,7 +745,7 @@ export function PortfolioMuxVideo({
 					controlsVisible ? "opacity-100" : "opacity-0",
 				)}
 			>
-				<div className="absolute inset-0 bg-gradient-to-t from-surface-950/88 via-surface-950/34 to-transparent" />
+				<div className="absolute inset-0 bg-linear-to-t from-surface-950/88 via-surface-950/34 to-transparent" />
 				<div className="relative flex flex-col gap-3 px-4 pt-12 pb-4">
 					<input
 						data-player-interactive
@@ -576,7 +773,7 @@ export function PortfolioMuxVideo({
 						>
 							<button
 								type="button"
-								className={PLAYER_BUTTON_CLASS_NAME}
+								className={PLAYER_ICON_BUTTON_CLASS_NAME}
 								data-player-interactive
 								aria-label={isPlaying ? "Pause video" : "Play video"}
 								onClick={(event) => {
@@ -586,16 +783,20 @@ export function PortfolioMuxVideo({
 								}}
 							>
 								{isPlaying ? (
-									<Pause size={18} weight="fill" />
+									<PauseIcon size={18} weight="fill" />
 								) : (
-									<Play size={18} weight="fill" className="translate-x-px" />
+									<PlayIcon
+										size={18}
+										weight="fill"
+										className="-translate-x-[0.75px]"
+									/>
 								)}
 							</button>
 
 							<div className="flex items-center gap-2">
 								<button
 									type="button"
-									className={PLAYER_BUTTON_CLASS_NAME}
+									className={PLAYER_ICON_BUTTON_CLASS_NAME}
 									data-player-interactive
 									aria-label={isMuted ? "Unmute video" : "Mute video"}
 									onClick={(event) => {
@@ -627,7 +828,7 @@ export function PortfolioMuxVideo({
 								/>
 							</div>
 
-							<div className="pointer-events-auto border border-surface-700/45 bg-surface-950/58 px-3 py-2 font-mono text-[10px] text-surface-50 uppercase tracking-[0.22em] backdrop-blur-sm">
+							<div className={PLAYER_TIME_DISPLAY_CLASS_NAME}>
 								{formatPlaybackTime(currentTime)} / {formatPlaybackTime(duration)}
 							</div>
 						</div>
@@ -646,7 +847,7 @@ export function PortfolioMuxVideo({
 											type="button"
 											className={cn(
 												PLAYER_BUTTON_CLASS_NAME,
-												"min-w-[5.25rem] justify-center font-mono text-[10px] uppercase tracking-[0.22em]",
+												"min-w-21 justify-center font-mono text-[10px] uppercase tracking-[0.22em]",
 											)}
 											data-player-interactive
 											aria-label="Select video quality"
@@ -656,7 +857,7 @@ export function PortfolioMuxVideo({
 									</DropdownMenuTrigger>
 									<DropdownMenuContent
 										align="end"
-										className="min-w-[10rem] border-surface-700/45 bg-surface-950/96 p-1.5 text-surface-50 backdrop-blur-md"
+										className="min-w-40 border-surface-700/45 bg-surface-950/96 p-1.5 text-surface-50 backdrop-blur-md"
 									>
 										<DropdownMenuRadioGroup
 											value={qualityValue}
@@ -686,7 +887,7 @@ export function PortfolioMuxVideo({
 										type="button"
 										className={cn(
 											PLAYER_BUTTON_CLASS_NAME,
-											"min-w-[4.75rem] justify-center font-mono text-[10px] uppercase tracking-[0.22em]",
+											"min-w-19 justify-center font-mono text-[10px] uppercase tracking-[0.22em]",
 										)}
 										data-player-interactive
 										aria-label="Select playback speed"
@@ -696,7 +897,7 @@ export function PortfolioMuxVideo({
 								</DropdownMenuTrigger>
 								<DropdownMenuContent
 									align="end"
-									className="min-w-[9rem] border-surface-700/45 bg-surface-950/96 p-1.5 text-surface-50 backdrop-blur-md"
+									className="min-w-36 border-surface-700/45 bg-surface-950/96 p-1.5 text-surface-50 backdrop-blur-md"
 								>
 									<DropdownMenuRadioGroup
 										value={String(playbackRate)}
@@ -717,7 +918,7 @@ export function PortfolioMuxVideo({
 
 							<button
 								type="button"
-								className={PLAYER_BUTTON_CLASS_NAME}
+								className={PLAYER_ICON_BUTTON_CLASS_NAME}
 								data-player-interactive
 								aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
 								onClick={(event) => {
@@ -727,9 +928,9 @@ export function PortfolioMuxVideo({
 								}}
 							>
 								{isFullscreen ? (
-									<ArrowsIn size={18} weight="bold" />
+									<ArrowsInIcon size={18} weight="bold" />
 								) : (
-									<ArrowsOut size={18} weight="bold" />
+									<ArrowsOutIcon size={18} weight="bold" />
 								)}
 							</button>
 						</div>
