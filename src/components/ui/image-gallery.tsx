@@ -21,7 +21,6 @@ import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
-import { springs } from "@/src/lib/physics";
 
 const PortfolioMuxVideo = dynamic(
 	() =>
@@ -92,13 +91,6 @@ type ResolvedGalleryItem =
 const GALLERY_CONTROL_CLASS_NAME = cn(
 	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-950/70 px-3 text-white",
 	"hover:bg-surface-950/80",
-	"focus-visible:outline-none",
-	"disabled:pointer-events-none disabled:opacity-35",
-);
-
-const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
-	"flex h-11 items-center justify-center gap-3 rounded-none border-2 border-white bg-surface-950 px-6 text-white",
-	"hover:bg-surface-900",
 	"focus-visible:outline-none",
 	"disabled:pointer-events-none disabled:opacity-35",
 );
@@ -438,7 +430,7 @@ export function ImageGallery({
 										>
 											<div
 												className={cn(
-													"absolute inset-0 transform-gpu transition-transform duration-[650ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform motion-reduce:transition-none",
+													"absolute inset-0 transform-gpu transition-transform duration-650 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform motion-reduce:transition-none",
 													isHovered && "scale-[1.03]",
 												)}
 											>
@@ -503,7 +495,10 @@ export function ImageGallery({
 										<motion.button
 											type="button"
 											className={cn(
-												GALLERY_PLAY_BUTTON_CLASS_NAME,
+												"flex h-11 items-center justify-center gap-3 rounded-none border-2 border-white bg-surface-950 px-6 text-white",
+												"hover:bg-surface-900",
+												"focus-visible:outline-none",
+												"disabled:pointer-events-none disabled:opacity-35",
 												"pointer-events-auto",
 											)}
 											onClick={(event) => {
@@ -514,7 +509,6 @@ export function ImageGallery({
 											}}
 											whileHover={{ scale: 1.05 }}
 											whileTap={{ scale: 0.98 }}
-											transition={springs.button}
 											aria-label={
 												item.duration
 													? `Play video, duration ${item.duration}`
@@ -526,7 +520,7 @@ export function ImageGallery({
 												weight="fill"
 												className="-translate-x-0.5"
 											/>
-											<span className="font-mono text-sm font-semibold uppercase tracking-[0.1cking-[0.12em]">
+											<span className="font-mono font-semibold text-sm uppercase tracking-[0.12em]">
 												{item.duration
 													? `Play · ${item.duration}`
 													: "Play Demo"}
