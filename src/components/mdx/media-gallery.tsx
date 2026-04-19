@@ -2,14 +2,14 @@
  * MediaGallery component.
  *
  * @remarks
- * MDX wrapper for ImageGallery with caption support.
+ * MDX wrapper for the shared MediaGallery with caption support.
  * Features:
  * - Click arrows or swipe to navigate
  * - Spring physics for slide transitions
  * - Always-visible dot indicators
  * - Touch/swipe support for mobile
  * - Keyboard navigation (arrow keys)
- * - Per-image captions
+ * - Per-item captions
  *
  * @example
  * ```tsx
@@ -22,7 +22,7 @@
 "use client";
 
 import { useState } from "react";
-import { ImageGallery } from "@/src/components/ui/image-gallery";
+import { MediaGallery as BaseMediaGallery } from "@/src/components/ui/media-gallery";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 
 interface MediaGalleryProps {
@@ -47,17 +47,17 @@ export function MediaGallery({
 
 	if (itemCount === 0) return null;
 
-	// Get current image caption
+	// Get current media caption
 	const currentCaption =
 		captions?.[activeIndex] || (items?.[activeIndex]?.caption ?? undefined) || caption;
 
 	return (
 		<figure className="mb-8">
-			<ImageGallery
+			<BaseMediaGallery
 				items={items}
 				images={images}
 				alts={captions}
-				altPrefix="Gallery image"
+				altPrefix="Gallery media"
 				aspectRatio={aspectRatio}
 				showArrows={itemCount > 1}
 				showProgress={itemCount > 1}

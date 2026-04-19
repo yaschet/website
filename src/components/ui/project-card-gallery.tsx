@@ -9,7 +9,7 @@
 import { ArrowUpRight, Lock } from "@phosphor-icons/react/dist/ssr";
 import type { StaticImageData } from "next/image";
 import Link from "next/link";
-import { ImageGallery } from "@/src/components/ui/image-gallery";
+import { MediaGallery } from "@/src/components/ui/media-gallery";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
 
@@ -69,7 +69,7 @@ export function ProjectCardGallery({
 						],
 					)}
 				>
-					<ImageGallery
+					<MediaGallery
 						items={items}
 						images={images}
 						altPrefix={title}
