@@ -1515,6 +1515,92 @@
    Component-level overrides and specialized UI abstractions.
    ═══════════════════════════════════════════════════════════════════════════ */
 @layer components {
+  .portfolio-mux-player {
+    font-family: var(--font-app-sans), ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "ss01" 1, "tnum" 1;
+    --top-controls: none;
+    --center-controls: none;
+    --seek-backward-button: none;
+    --seek-forward-button: none;
+    --airplay-button: none;
+    --pip-button: none;
+    --cast-button: none;
+    --rendition-menu-button: none;
+    --volume-range: none;
+    --media-control-height: 16px;
+    --media-control-padding: 6px 4px;
+    --media-button-icon-width: 16px;
+    --media-button-icon-height: 16px;
+    --media-focus-box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.24);
+    --media-tooltip-display: none;
+    --media-preview-background: rgb(3 7 18 / 0.94);
+    --media-preview-border-radius: 0;
+    --media-preview-thumbnail-border: 1px solid rgb(255 255 255 / 0.12);
+    --media-preview-time-padding: 0.4rem 0.625rem;
+    --media-preview-chapter-padding: 0.4rem 0.625rem 0;
+    --media-box-arrow-background: rgb(3 7 18 / 0.94);
+    --media-menu-background: rgb(3 7 18 / 0.94);
+    --media-menu-border: 1px solid rgb(255 255 255 / 0.1);
+    --media-menu-border-radius: 0;
+    --media-menu-item-hover-background: rgb(255 255 255 / 0.05);
+    --media-menu-item-hover-outline: none;
+    --media-menu-item-focus-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+    --media-menu-item-checked-background: rgb(255 255 255 / 0.12);
+    --media-menu-transition-in: opacity 120ms ease, transform 120ms ease;
+    --media-menu-transition-out: opacity 120ms ease, transform 120ms ease;
+  }
+
+  .portfolio-mux-player::part(bottom) {
+    padding: var(--portfolio-space-tight) var(--portfolio-space-tight);
+    background:
+      linear-gradient(
+        to top,
+        rgb(3 7 18 / 0.72),
+        rgb(3 7 18 / 0.24) 44%,
+        rgb(3 7 18 / 0.04) 76%,
+        transparent
+      );
+  }
+
+  .portfolio-mux-player::part(button) {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    color: rgb(255 255 255 / 0.9);
+    font-size: var(--text-chip);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .portfolio-mux-player::part(display),
+  .portfolio-mux-player::part(time) {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    color: rgb(255 255 255 / 0.82);
+    font-family: var(--font-app-mono), ui-monospace, monospace;
+    font-size: var(--text-chip);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+  }
+
+  .portfolio-mux-player::part(menu) {
+    font-family: var(--font-app-sans), ui-sans-serif, system-ui, sans-serif;
+    border-radius: 0;
+    backdrop-filter: blur(16px) saturate(1.15);
+  }
+
+  .portfolio-mux-player::part(range) {
+    --media-range-track-background: rgb(255 255 255 / 0.14);
+    --media-time-range-buffered-color: transparent;
+    --media-time-buffered-color: transparent;
+    --media-range-bar-color: rgb(255 255 255 / 0.98);
+    --media-range-track-height: 2px;
+    --media-range-thumb-background:
+      radial-gradient(circle, rgb(255 255 255 / 0.98) 0 46%, rgb(15 23 42 / 0.92) 47% 100%);
+  }
+
   .portfolio-heading-xl {
     font-size: var(--text-heading-xl) !important;
     line-height: var(--text-heading-xl--line-height) !important;

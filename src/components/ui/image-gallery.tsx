@@ -21,7 +21,7 @@ import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
-import { muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
+import { muxPlayerClassName, muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
 
 interface ImageGalleryProps {
 	/** Rich gallery items. Preferred over legacy `images`. */
@@ -408,6 +408,7 @@ export function ImageGallery({
 												metadata={item.metadata}
 												autoPlay
 												streamType="on-demand"
+												className={muxPlayerClassName}
 												style={muxPlayerPresentationStyle}
 											/>
 										</motion.div>

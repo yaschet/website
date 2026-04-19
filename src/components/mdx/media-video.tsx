@@ -20,7 +20,7 @@ import { motion } from "framer-motion";
 import type { ComponentProps } from "react";
 import { useEffect, useRef, useState } from "react";
 import { cn, springs } from "@/src/lib/index";
-import { muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
+import { muxPlayerClassName, muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
 
 type MuxPlayerProps = ComponentProps<typeof MuxPlayer>;
 
@@ -99,6 +99,7 @@ export function MediaVideo({
 							muted={muted}
 							autoPlay={loop && muted}
 							streamType="on-demand"
+							className={muxPlayerClassName}
 							style={muxPlayerPresentationStyle}
 							placeholder={poster}
 						/>

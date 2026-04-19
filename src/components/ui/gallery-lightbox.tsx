@@ -24,15 +24,14 @@ import {
 } from "react";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
-import { muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
+import { muxPlayerClassName, muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
 
 const LIGHTBOX_CONTROL_CLASS_NAME = cn(
 	"flex h-11 min-w-11 items-center justify-center gap-2 px-3",
-	"border border-surface-200/80 bg-white/84 text-surface-900 shadow-[0_6px_18px_rgba(15,23,42,0.12)] backdrop-blur-md",
-	"transition-[opacity,background-color,border-color,color,transform] duration-200 hover:bg-white hover:text-surface-950",
-	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-900/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+	"border border-surface-700/45 bg-surface-950/68 text-surface-50 backdrop-blur-sm",
+	"transition-[background-color,border-color,color,opacity] duration-200 hover:bg-surface-950/82 hover:text-surface-50",
+	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
 	"disabled:pointer-events-none disabled:opacity-35",
-	"dark:border-surface-700/80 dark:bg-surface-950/82 dark:text-surface-50 dark:shadow-[0_8px_20px_rgba(0,0,0,0.36)] dark:hover:bg-surface-950",
 );
 
 function clamp(value: number, min: number, max: number) {
@@ -611,6 +610,7 @@ export function GalleryLightbox({
 																	metadata={currentItem.metadata}
 																	autoPlay
 																	streamType="on-demand"
+																	className={muxPlayerClassName}
 																	style={
 																		muxPlayerPresentationStyle
 																	}
