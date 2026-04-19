@@ -522,11 +522,11 @@ export function ImageGallery({
 											}
 										>
 											<Play
-												size={18}
+												size={22}
 												weight="fill"
 												className="-translate-x-0.5"
 											/>
-											<span className="font-mono text-[10px] uppercase tracking-[0.22em]">
+											<span className="font-mono text-sm font-semibold uppercase tracking-[0.1cking-[0.12em]">
 												{item.duration
 													? `Play · ${item.duration}`
 													: "Play Demo"}
