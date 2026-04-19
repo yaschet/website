@@ -97,7 +97,7 @@ const GALLERY_CONTROL_CLASS_NAME = cn(
 );
 
 const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
-	"flex h-14 items-center justify-center gap-3 rounded-none border-2 border-white bg-surface-950 px-6 text-white",
+	"flex h-11 items-center justify-center gap-3 rounded-none border-2 border-white bg-surface-950 px-6 text-white",
 	"hover:bg-surface-900",
 	"focus-visible:outline-none",
 	"disabled:pointer-events-none disabled:opacity-35",
