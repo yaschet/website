@@ -297,9 +297,8 @@ export function PortfolioMuxVideo({
 			return;
 		}
 
-		hideControlsTimeoutRef.current = window.setTimeout(() => {
-			setControlsVisible(false);
-		}, 1800);
+		// Instant disappearance on pointer leave for maximum video aspect
+		setControlsVisible(false);
 	}, [clearControlsTimeout, isFocusedWithin, isPlaying, isPointerInside, menuOpen]);
 
 	const syncFromMedia = useCallback(() => {
@@ -619,6 +618,32 @@ export function PortfolioMuxVideo({
 		};
 	}, [pathname, pauseOtherDocumentMedia, stopPlayback]);
 
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		// Hide controls when window loses focus (switching to another app)
+		const handleWindowBlur = () => {
+			setControlsVisible(false);
+			setIsPointerInside(false);
+		};
+
+		// Hide controls when page becomes hidden (tab switch, minimize)
+		const handleVisibilityChange = () => {
+			if (document.hidden) {
+				setControlsVisible(false);
+				setIsPointerInside(false);
+			}
+		};
+
+		window.addEventListener("blur", handleWindowBlur);
+		document.addEventListener("visibilitychange", handleVisibilityChange);
+
+		return () => {
+			window.removeEventListener("blur", handleWindowBlur);
+			document.removeEventListener("visibilitychange", handleVisibilityChange);
+		};
+	}, []);
+
 	const handlePointerActivity = useCallback(() => {
 		setControlsVisible(true);
 		scheduleControlsHide();
@@ -749,7 +774,7 @@ export function PortfolioMuxVideo({
 					opacity: controlsVisible ? 1 : 0,
 					pointerEvents: controlsVisible ? "auto" : "none",
 				}}
-				transition={tweens.interaction}
+				transition={tweens.interactionFast}
 			>
 				<button
 					type="button"
@@ -773,7 +798,7 @@ export function PortfolioMuxVideo({
 					opacity: controlsVisible ? 1 : 0,
 					pointerEvents: controlsVisible ? "auto" : "none",
 				}}
-				transition={tweens.interaction}
+				transition={tweens.interactionFast}
 			>
 				<div className="absolute inset-0 bg-surface-950" />
 				<div className="relative flex flex-col gap-2 px-4 pt-3 pb-3">
