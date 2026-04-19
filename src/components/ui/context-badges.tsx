@@ -7,11 +7,15 @@ import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
 import { useRevealState } from "@/src/components/providers/reveal-provider";
 import { cn, springs, tweens } from "@/src/lib/index";
+import {
+	getBrowserTimeZone,
+	getTimeZoneOffsetMinutes,
+	type ViewerTimeZoneSource,
+} from "@/src/lib/time-zone";
 
 const BADGE_HEIGHT = "var(--portfolio-badge-height)";
 const INSIGNIA_SIZE = "var(--portfolio-status-insignia-size)";
 const TARGET_TIME_ZONE = "Africa/Casablanca";
-const VIEWER_CONTEXT_ENDPOINT = "/api/viewer-context";
 
 const badgeBaseClasses = cn(
 	"group relative flex items-center",
@@ -51,59 +55,6 @@ const tooltipValueClasses = cn(
 	"!m-0 !text-[12px] !leading-[14px] min-w-0 whitespace-nowrap text-left font-medium text-surface-800 tracking-[0.01em] dark:text-surface-200",
 );
 
-function getTimeZoneOffsetMinutes(timeZone: string, date: Date) {
-	const formatter = new Intl.DateTimeFormat("en-GB", {
-		timeZone,
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-		hour12: false,
-	});
-
-	const parts = Object.fromEntries(
-		formatter
-			.formatToParts(date)
-			.filter((part) => part.type !== "literal")
-			.map((part) => [part.type, part.value]),
-	);
-
-	const asUtcTimestamp = Date.UTC(
-		Number(parts.year),
-		Number(parts.month) - 1,
-		Number(parts.day),
-		Number(parts.hour),
-		Number(parts.minute),
-		Number(parts.second),
-	);
-
-	return Math.round((asUtcTimestamp - date.getTime()) / 60000);
-}
-
-function isValidTimeZone(timeZone: string | null | undefined): timeZone is string {
-	if (!timeZone) {
-		return false;
-	}
-
-	try {
-		new Intl.DateTimeFormat("en-GB", { timeZone }).format(new Date());
-		return true;
-	} catch {
-		return false;
-	}
-}
-
-function getBrowserTimeZone() {
-	if (typeof window === "undefined") {
-		return null;
-	}
-
-	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-	return isValidTimeZone(timeZone) ? timeZone : null;
-}
-
 function formatUtcOffset(offsetMinutes: number) {
 	if (offsetMinutes === 0) {
 		return "UTC";
@@ -142,9 +93,20 @@ function formatDeltaOffset(offsetMinutes: number) {
 	return `${sign}${hours}h ${minutes}m`;
 }
 
-type ViewerContextResponse = {
-	timeZone?: string | null;
-};
+function formatViewerTimeZoneSource(source: ViewerTimeZoneSource | null) {
+	switch (source) {
+		case "request":
+			return "Request Geo";
+		case "override":
+			return "Dev Override";
+		case "browser":
+			return "Browser";
+		default:
+			return "Unavailable";
+	}
+}
+
+const isDevelopment = process.env.NODE_ENV === "development";
 
 function BadgeTooltip({
 	align,
@@ -226,52 +188,36 @@ export function LocationBadge({ className }: { className?: string }) {
 	);
 }
 
-export function TimeBadge({ className }: { className?: string }) {
+export function TimeBadge({
+	className,
+	viewerTimeZone: requestViewerTimeZone = null,
+	viewerTimeZoneSource: requestViewerTimeZoneSource = null,
+}: {
+	className?: string;
+	viewerTimeZone?: string | null;
+	viewerTimeZoneSource?: ViewerTimeZoneSource | null;
+}) {
 	const [time, setTime] = useState<string>("");
 	const [zoneOffset, setZoneOffset] = useState<string>("");
 	const [relativeOffset, setRelativeOffset] = useState<string>("");
-	const [viewerTimeZone, setViewerTimeZone] = useState<string | null>(null);
+	const [browserTimeZone, setBrowserTimeZone] = useState<string | null>(null);
 	const [mounted, setMounted] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const { environment } = useRevealState();
 	const shouldBypass = environment === "automation";
 	const shouldReduce = environment === "reduced-motion";
+	const viewerTimeZone = requestViewerTimeZone ?? browserTimeZone;
+	const viewerTimeZoneSource =
+		requestViewerTimeZoneSource ?? (browserTimeZone ? "browser" : null);
+	const shouldShowRelativeOffset =
+		isDevelopment || viewerTimeZoneSource === "request" || viewerTimeZoneSource === "override";
 
 	useEffect(() => {
 		setMounted(true);
-		setViewerTimeZone(getBrowserTimeZone());
-	}, []);
-
-	useEffect(() => {
-		const controller = new AbortController();
-
-		const loadViewerTimeZone = async () => {
-			try {
-				const response = await fetch(VIEWER_CONTEXT_ENDPOINT, {
-					cache: "no-store",
-					signal: controller.signal,
-				});
-
-				if (!response.ok) {
-					return;
-				}
-
-				const data: ViewerContextResponse = await response.json();
-
-				if (isValidTimeZone(data.timeZone)) {
-					setViewerTimeZone(data.timeZone);
-				}
-			} catch (error) {
-				if ((error as Error).name !== "AbortError") {
-					setViewerTimeZone((currentTimeZone) => currentTimeZone ?? getBrowserTimeZone());
-				}
-			}
-		};
-
-		void loadViewerTimeZone();
-
-		return () => controller.abort();
-	}, []);
+		if (!requestViewerTimeZone) {
+			setBrowserTimeZone(getBrowserTimeZone());
+		}
+	}, [requestViewerTimeZone]);
 
 	useEffect(() => {
 		if (!mounted) {
@@ -347,7 +293,17 @@ export function TimeBadge({ className }: { className?: string }) {
 						align="end"
 						rows={[
 							{ label: "ZONE", value: zoneOffset },
-							{ label: "YOU", value: relativeOffset },
+							...(shouldShowRelativeOffset
+								? [{ label: "YOU", value: relativeOffset }]
+								: []),
+							...(isDevelopment
+								? [
+										{
+											label: "SRC",
+											value: formatViewerTimeZoneSource(viewerTimeZoneSource),
+										},
+									]
+								: []),
 						]}
 					/>
 				)}

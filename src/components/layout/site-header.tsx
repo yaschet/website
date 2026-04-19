@@ -3,6 +3,7 @@
 import { PageContainer } from "@/src/components/layout/containers";
 import { LocationBadge, MarqueeBadge, TimeBadge } from "@/src/components/ui/context-badges";
 import { ShellReveal } from "@/src/components/ui/reveal";
+import type { ViewerTimeZoneSource } from "@/src/lib/time-zone";
 
 /**
  * SiteHeader
@@ -10,7 +11,16 @@ import { ShellReveal } from "@/src/components/ui/reveal";
  * The standard "System Status" header containing Context Badges.
  * Should be used on every page for consistent Swiss "System" feel.
  */
-export function SiteHeader() {
+export function SiteHeader({
+	viewerTimeZone = null,
+	viewerTimeZoneSource = null,
+}: {
+	viewerTimeZone?: string | null;
+	viewerTimeZoneSource?: ViewerTimeZoneSource | null;
+}) {
+	const badgeClassName =
+		"flex min-w-0 max-w-[calc(50%-(var(--portfolio-space-1)/2))] flex-1 sm:w-[var(--portfolio-badge-width)] sm:max-w-full sm:flex-none sm:shrink-0";
+
 	return (
 		<ShellReveal phase={1} className="w-full">
 			<section id="header" className="relative z-20 w-full">
@@ -20,7 +30,7 @@ export function SiteHeader() {
 					suppressHydrationWarning
 				>
 					<PageContainer className="flex h-full items-center justify-between gap-[var(--portfolio-space-1)] sm:gap-[var(--portfolio-space-2)]">
-						<LocationBadge className="flex min-w-0 max-w-[calc(50%-(var(--portfolio-space-1)/2))] flex-1 sm:w-[var(--portfolio-badge-width)] sm:max-w-full sm:flex-none sm:shrink-0" />
+						<LocationBadge className={badgeClassName} />
 
 						<MarqueeBadge
 							className="hidden flex-1 sm:flex"
@@ -33,7 +43,11 @@ export function SiteHeader() {
 							]}
 						/>
 
-						<TimeBadge className="flex min-w-0 max-w-[calc(50%-(var(--portfolio-space-1)/2))] flex-1 sm:w-[var(--portfolio-badge-width)] sm:max-w-full sm:flex-none sm:shrink-0" />
+						<TimeBadge
+							className={badgeClassName}
+							viewerTimeZone={viewerTimeZone}
+							viewerTimeZoneSource={viewerTimeZoneSource}
+						/>
 					</PageContainer>
 				</div>
 			</section>
