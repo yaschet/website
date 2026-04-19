@@ -254,24 +254,36 @@ const DropdownMenuCheckboxItem = React.forwardRef<
  */
 const DropdownMenuRadioItem = React.forwardRef<
 	React.ComponentRef<typeof DropdownMenuPrimitive.RadioItem>,
-	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.RadioItem>
->(({ children, className, ...props }, ref) => {
-	const size = useDropdownMenuSize();
-	return (
-		<DropdownMenuPrimitive.RadioItem
-			ref={ref}
-			className={cn(dropdownMenuItemVariants({ size }), className)}
-			{...props}
-		>
-			<span className="absolute left-2 flex size-[1em] items-center justify-center">
-				<DropdownMenuPrimitive.ItemIndicator>
-					<CheckIcon className="size-full" weight="bold" />
-				</DropdownMenuPrimitive.ItemIndicator>
-			</span>
-			<span className="pl-6">{children}</span>
-		</DropdownMenuPrimitive.RadioItem>
-	);
-});
+	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.RadioItem> & {
+		hideIndicator?: boolean;
+		disableIndicatorPadding?: boolean;
+	}
+>(
+	(
+		{ children, className, disableIndicatorPadding = false, hideIndicator = false, ...props },
+		ref,
+	) => {
+		const size = useDropdownMenuSize();
+		return (
+			<DropdownMenuPrimitive.RadioItem
+				ref={ref}
+				className={cn(dropdownMenuItemVariants({ size }), className)}
+				{...props}
+			>
+				{!hideIndicator ? (
+					<span className="absolute left-2 flex size-[1em] items-center justify-center">
+						<DropdownMenuPrimitive.ItemIndicator>
+							<CheckIcon className="size-full" weight="bold" />
+						</DropdownMenuPrimitive.ItemIndicator>
+					</span>
+				) : null}
+				<span className={cn(!hideIndicator && !disableIndicatorPadding && "pl-6")}>
+					{children}
+				</span>
+			</DropdownMenuPrimitive.RadioItem>
+		);
+	},
+);
 
 /**
  * DropdownMenuLabel - Descriptive label for menu sections.

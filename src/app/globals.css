@@ -1562,7 +1562,19 @@
     outline: none;
   }
 
-  .portfolio-video-range::-webkit-slider-runnable-track,
+  .portfolio-video-range::-webkit-slider-runnable-track {
+    block-size: 2px;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .portfolio-video-range::-moz-range-track {
+    block-size: 2px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
   .portfolio-video-volume::-webkit-slider-runnable-track {
     block-size: 2px;
     border-radius: 0;
@@ -1576,7 +1588,6 @@
       );
   }
 
-  .portfolio-video-range::-moz-range-track,
   .portfolio-video-volume::-moz-range-track {
     block-size: 2px;
     border: 0;
@@ -1601,6 +1612,11 @@
     border-radius: 0;
     background: rgb(255 255 255);
     box-shadow: none;
+  }
+
+  .portfolio-video-range[data-seeking="true"]::-webkit-slider-thumb,
+  .portfolio-video-range[data-seeking="true"]::-moz-range-thumb {
+    background: rgb(255 255 255 / 0.4);
   }
 
   .portfolio-video-range::-moz-range-thumb,

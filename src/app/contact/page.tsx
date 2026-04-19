@@ -129,9 +129,9 @@ export default function ContactPage() {
 										<div className="portfolio-box-pad">
 											<ProseContainer className="portfolio-prose">
 												<div className="portfolio-card-copy">
-													<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
-														ENGAGEMENT
-													</p>
+													<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+														Engagement
+													</h2>
 													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
 														Retainer engagements start at
 														<strong className="font-medium text-surface-900 dark:text-surface-100">
