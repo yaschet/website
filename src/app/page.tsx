@@ -4,7 +4,7 @@ import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-wo
 import { PageContainer } from "@/src/components/layout/containers";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
+import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
 import { SiteHero } from "@/src/components/layout/site-hero";
 import { Button } from "@/src/components/ui/button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";

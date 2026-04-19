@@ -21,6 +21,7 @@ import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
+import { muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
 
 interface ImageGalleryProps {
 	/** Rich gallery items. Preferred over legacy `images`. */
@@ -205,6 +206,7 @@ export function ImageGallery({
 	const activeItem = galleryItems[activeIndex];
 	const isActiveVideoPlaying = activeItem?.kind === "mux-video" && playingIndex === activeIndex;
 	const chromeVisible = isFocusedWithin || (canHover && isPointerInside);
+	const isPlaybackExitVisible = !canHover || chromeVisible;
 
 	const currentHeight =
 		hasVaryingRatios && viewportWidth > 0
@@ -380,6 +382,8 @@ export function ImageGallery({
 					{galleryItems.map((item, index) => {
 						const isHovered = canHover && hoveredIndex === index;
 						const isPlayingInline = item.kind === "mux-video" && playingIndex === index;
+						const isExpandableImage =
+							expandable && item.kind === "image" && !isPlayingInline;
 
 						const stageClassName = cn(
 							"relative h-full overflow-hidden bg-surface-100 dark:bg-surface-950",
@@ -402,10 +406,9 @@ export function ImageGallery({
 											<MuxPlayer
 												playbackId={item.playbackId}
 												metadata={item.metadata}
-												accentColor="var(--accent)"
 												autoPlay
 												streamType="on-demand"
-												style={{ height: "100%", width: "100%" }}
+												style={muxPlayerPresentationStyle}
 											/>
 										</motion.div>
 									) : (
@@ -421,7 +424,7 @@ export function ImageGallery({
 										>
 											<div
 												className={cn(
-													"absolute inset-0 transition-transform duration-[650ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none",
+													"absolute inset-0 transform-gpu transition-transform duration-[650ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform motion-reduce:transition-none",
 													isHovered && "scale-[1.03]",
 												)}
 											>
@@ -486,8 +489,14 @@ export function ImageGallery({
 										<div className="pointer-events-auto flex items-center gap-2">
 											<button
 												type="button"
-												className={GALLERY_CONTROL_CLASS_NAME}
+												className={cn(
+													GALLERY_CONTROL_CLASS_NAME,
+													"pointer-events-none opacity-0 transition-opacity duration-200",
+													isPlaybackExitVisible &&
+														"pointer-events-auto opacity-100",
+												)}
 												aria-label="Return video tile to poster"
+												tabIndex={isPlaybackExitVisible ? 0 : -1}
 												onClick={(event) => {
 													event.preventDefault();
 													event.stopPropagation();
@@ -539,9 +548,9 @@ export function ImageGallery({
 						return (
 							<div
 								key={getGalleryItemKey(item)}
-								className="relative h-full min-w-0 shrink-0 basis-full snap-center"
+								className="relative h-full min-w-0 shrink-0 basis-full snap-center overflow-hidden"
 							>
-								{expandable && !isPlayingInline ? (
+								{isExpandableImage ? (
 									<button
 										type="button"
 										className={cn(
@@ -558,11 +567,7 @@ export function ImageGallery({
 											setActiveIndex(index);
 											setIsLightboxOpen(true);
 										}}
-										aria-label={
-											item.kind === "image"
-												? `Open slide ${index + 1} in expanded viewer`
-												: `Open video slide ${index + 1} in expanded viewer`
-										}
+										aria-label={`Open slide ${index + 1} in expanded viewer`}
 									>
 										{stageContent}
 									</button>

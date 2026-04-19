@@ -16,7 +16,7 @@ import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { ProjectEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
-import { SiteHeader } from "../layout/site-header";
+import { RequestAwareSiteHeader as SiteHeader } from "../layout/site-header-rsc";
 
 interface ProjectContentProps {
 	project: ProjectEntry;

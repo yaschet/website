@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowRight, Clock } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
+import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";

@@ -24,6 +24,7 @@ import {
 } from "react";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
+import { muxPlayerPresentationStyle } from "@/src/lib/mux-player-presentation";
 
 const LIGHTBOX_CONTROL_CLASS_NAME = cn(
 	"flex h-11 min-w-11 items-center justify-center gap-2 px-3",
@@ -608,13 +609,11 @@ export function GalleryLightbox({
 																		currentItem.playbackId
 																	}
 																	metadata={currentItem.metadata}
-																	accentColor="var(--accent)"
 																	autoPlay
 																	streamType="on-demand"
-																	style={{
-																		height: "100%",
-																		width: "100%",
-																	}}
+																	style={
+																		muxPlayerPresentationStyle
+																	}
 																/>
 															</div>
 														)}
