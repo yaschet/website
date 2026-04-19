@@ -7,11 +7,7 @@ import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
 import { useRevealState } from "@/src/components/providers/reveal-provider";
 import { cn, springs, tweens } from "@/src/lib/index";
-import {
-	getBrowserTimeZone,
-	getTimeZoneOffsetMinutes,
-	type ViewerTimeZoneSource,
-} from "@/src/lib/time-zone";
+import { getTimeZoneOffsetMinutes, type ViewerTimeZoneSource } from "@/src/lib/time-zone";
 
 const BADGE_HEIGHT = "var(--portfolio-badge-height)";
 const INSIGNIA_SIZE = "var(--portfolio-status-insignia-size)";
@@ -99,8 +95,6 @@ function formatViewerTimeZoneSource(source: ViewerTimeZoneSource | null) {
 			return "Request Geo";
 		case "override":
 			return "Dev Override";
-		case "browser":
-			return "Browser";
 		default:
 			return "Unavailable";
 	}
@@ -200,24 +194,19 @@ export function TimeBadge({
 	const [time, setTime] = useState<string>("");
 	const [zoneOffset, setZoneOffset] = useState<string>("");
 	const [relativeOffset, setRelativeOffset] = useState<string>("");
-	const [browserTimeZone, setBrowserTimeZone] = useState<string | null>(null);
 	const [mounted, setMounted] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const { environment } = useRevealState();
 	const shouldBypass = environment === "automation";
 	const shouldReduce = environment === "reduced-motion";
-	const viewerTimeZone = requestViewerTimeZone ?? browserTimeZone;
-	const viewerTimeZoneSource =
-		requestViewerTimeZoneSource ?? (browserTimeZone ? "browser" : null);
+	const viewerTimeZone = requestViewerTimeZone;
+	const viewerTimeZoneSource = requestViewerTimeZoneSource;
 	const shouldShowRelativeOffset =
 		isDevelopment || viewerTimeZoneSource === "request" || viewerTimeZoneSource === "override";
 
 	useEffect(() => {
 		setMounted(true);
-		if (!requestViewerTimeZone) {
-			setBrowserTimeZone(getBrowserTimeZone());
-		}
-	}, [requestViewerTimeZone]);
+	}, []);
 
 	useEffect(() => {
 		if (!mounted) {
@@ -237,7 +226,7 @@ export function TimeBadge({
 			const targetOffsetMinutes = getTimeZoneOffsetMinutes(TARGET_TIME_ZONE, now);
 			const viewerOffsetMinutes = viewerTimeZone
 				? getTimeZoneOffsetMinutes(viewerTimeZone, now)
-				: -now.getTimezoneOffset();
+				: targetOffsetMinutes;
 
 			setTime(formatter.format(now));
 			setZoneOffset(formatUtcOffset(targetOffsetMinutes));

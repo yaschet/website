@@ -1,6 +1,6 @@
 export const VERCEL_VIEWER_TIME_ZONE_HEADER = "x-vercel-ip-timezone";
 
-export type ViewerTimeZoneSource = "request" | "override" | "browser";
+export type ViewerTimeZoneSource = "request" | "override";
 
 export type ResolvedViewerTimeZone = {
 	timeZone: string | null;
@@ -18,15 +18,6 @@ export function isValidTimeZone(timeZone: string | null | undefined): timeZone i
 	} catch {
 		return false;
 	}
-}
-
-export function getBrowserTimeZone() {
-	if (typeof window === "undefined") {
-		return null;
-	}
-
-	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-	return isValidTimeZone(timeZone) ? timeZone : null;
 }
 
 export function resolveViewerTimeZone({
