@@ -12,6 +12,7 @@ import {
 	SpeakerSimpleSlashIcon,
 	XIcon,
 } from "@phosphor-icons/react/dist/ssr";
+import { motion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
@@ -24,7 +25,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import type { MuxVideoMetadata } from "@/src/content/types";
-import { cn } from "@/src/lib/index";
+import { cn, tweens } from "@/src/lib/index";
 
 type PortfolioMuxVideoVariant = "gallery" | "lightbox" | "article";
 
@@ -741,7 +742,15 @@ export function PortfolioMuxVideo({
 				}
 			/>
 
-			<div className="pointer-events-none absolute inset-x-4 top-4 z-20 flex justify-end">
+			<motion.div
+				className="pointer-events-none absolute inset-x-4 top-4 z-20 flex justify-end"
+				initial={{ opacity: 1 }}
+				animate={{
+					opacity: controlsVisible ? 1 : 0,
+					pointerEvents: controlsVisible ? "auto" : "none",
+				}}
+				transition={tweens.interaction}
+			>
 				<button
 					type="button"
 					className={cn(PLAYER_ICON_BUTTON_CLASS_NAME, "pointer-events-auto")}
@@ -755,13 +764,16 @@ export function PortfolioMuxVideo({
 				>
 					<XIcon size={18} weight="bold" />
 				</button>
-			</div>
+			</motion.div>
 
-			<div
-				className={cn(
-					"pointer-events-none absolute inset-x-0 bottom-0 z-20 transition-opacity duration-200",
-					controlsVisible ? "opacity-100" : "opacity-0",
-				)}
+			<motion.div
+				className="pointer-events-none absolute inset-x-0 bottom-0 z-20"
+				initial={{ opacity: 1 }}
+				animate={{
+					opacity: controlsVisible ? 1 : 0,
+					pointerEvents: controlsVisible ? "auto" : "none",
+				}}
+				transition={tweens.interaction}
 			>
 				<div className="absolute inset-0 bg-surface-950" />
 				<div className="relative flex flex-col gap-2 px-4 pt-3 pb-3">
@@ -954,7 +966,7 @@ export function PortfolioMuxVideo({
 						</div>
 					</div>
 				</div>
-			</div>
+			</motion.div>
 		</div>
 	);
 }
