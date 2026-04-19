@@ -21,6 +21,7 @@ import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn, tweens } from "@/src/lib/index";
+import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
 
 const PortfolioMuxVideo = dynamic(
 	() =>
@@ -190,6 +191,10 @@ export function ImageGallery({
 	}, [alts, altPrefix, images, items]);
 
 	const hasMultiple = galleryItems.length > 1;
+	const galleryIdentity = useMemo(
+		() => galleryItems.map(getGalleryItemKey).join("|"),
+		[galleryItems],
+	);
 
 	const aspectRatios = useMemo(() => {
 		if (Array.isArray(aspectRatio)) {
@@ -250,6 +255,15 @@ export function ImageGallery({
 	useEffect(() => {
 		activeIndexRef.current = activeIndex;
 	}, [activeIndex]);
+
+	useEffect(() => {
+		void galleryIdentity;
+		activeIndexRef.current = 0;
+		setActiveIndex(0);
+		setHoveredIndex(null);
+		setPlayingIndex(null);
+		setIsLightboxOpen(false);
+	}, [galleryIdentity]);
 
 	useEffect(() => {
 		if (playingIndex !== null && playingIndex !== activeIndex) {
@@ -408,6 +422,7 @@ export function ImageGallery({
 											}}
 										>
 											<PortfolioMuxVideo
+												key={`gallery-player-${item.playbackId}`}
 												playbackId={item.playbackId}
 												poster={item.poster}
 												metadata={item.metadata}
@@ -504,7 +519,7 @@ export function ImageGallery({
 											}}
 											transition={tweens.interaction}
 											className={cn(
-												"flex h-11 items-center justify-center gap-3 rounded-none border-2 border-white bg-surface-950 px-6 text-white",
+												"flex h-11 items-center justify-center gap-3 rounded-none bg-surface-950 px-6 text-white",
 												"hover:bg-surface-900",
 												"focus-visible:outline-none",
 												"disabled:pointer-events-none disabled:opacity-35",
@@ -513,6 +528,7 @@ export function ImageGallery({
 											onClick={(event) => {
 												event.preventDefault();
 												event.stopPropagation();
+												stopAllPortfolioVideos();
 												setActiveIndex(index);
 												setPlayingIndex(index);
 											}}

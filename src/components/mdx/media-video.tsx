@@ -14,14 +14,14 @@
 
 "use client";
 
-import type MuxVideo from "@mux/mux-video/react";
 import { Pause, Play } from "@phosphor-icons/react/dist/ssr";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import type { ComponentProps } from "react";
 import { useEffect, useRef, useState } from "react";
+import type { MuxVideoMetadata } from "@/src/content/types";
 import { cn, springs } from "@/src/lib/index";
+import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
 
 const PortfolioMuxVideo = dynamic(
 	() =>
@@ -31,15 +31,13 @@ const PortfolioMuxVideo = dynamic(
 	{ ssr: false },
 );
 
-type MuxVideoProps = ComponentProps<typeof MuxVideo>;
-
 interface MediaVideoProps {
 	/** Direct URL to a video file (mp4). mutually exclusive with playbackId. */
 	src?: string;
 	/** Mux Playback ID. If provided, renders the portfolio Mux player. mutually exclusive with src. */
 	playbackId?: string;
 	/** Mux Data Metadata for analytics. */
-	metadata?: MuxVideoProps["metadata"];
+	metadata?: MuxVideoMetadata;
 	poster?: string;
 	caption?: string;
 	loop?: boolean;
@@ -65,6 +63,15 @@ export function MediaVideo({
 	// True Lazy Load: Only inject <source> when near viewport
 	const [shouldLoad, setShouldLoad] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		void playbackId;
+		void src;
+		setIsPlaying(false);
+		setHasStarted(false);
+		setUserRequestedPlay(false);
+		setShouldLoad(false);
+	}, [playbackId, src]);
 
 	useEffect(() => {
 		if (shouldLoad) return;
@@ -119,6 +126,7 @@ export function MediaVideo({
 
 					{shouldLoad && (
 						<PortfolioMuxVideo
+							key={`article-player-${playbackId}`}
 							playbackId={playbackId}
 							poster={poster}
 							metadata={metadata}
@@ -141,6 +149,7 @@ export function MediaVideo({
 								)}
 								aria-label="Load and play video"
 								onClick={() => {
+									stopAllPortfolioVideos();
 									setUserRequestedPlay(true);
 									setShouldLoad(true);
 								}}
@@ -167,6 +176,7 @@ export function MediaVideo({
 			if (!video) return;
 
 			if (!shouldLoad) {
+				stopAllPortfolioVideos();
 				setShouldLoad(true);
 				// Wait for render cycle to inject source
 				setTimeout(() => {
@@ -183,6 +193,7 @@ export function MediaVideo({
 				video.pause();
 				setIsPlaying(false);
 			} else {
+				stopAllPortfolioVideos();
 				video.play();
 				setIsPlaying(true);
 				setHasStarted(true);

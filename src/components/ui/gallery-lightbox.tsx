@@ -24,6 +24,7 @@ import {
 } from "react";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
+import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
 
 const PortfolioMuxVideo = dynamic(
 	() =>
@@ -364,6 +365,11 @@ export function GalleryLightbox({
 	const canGoNext = activeIndex < items.length - 1;
 	const canGoPrev = activeIndex > 0;
 
+	useEffect(() => {
+		if (!open || currentItem?.kind !== "mux-video") return;
+		stopAllPortfolioVideos();
+	}, [currentItem, open]);
+
 	const goToIndex = useCallback(
 		(index: number) => {
 			const nextIndex = clamp(index, 0, items.length - 1);
@@ -611,6 +617,7 @@ export function GalleryLightbox({
 														) : (
 															<div className="relative h-full w-full">
 																<PortfolioMuxVideo
+																	key={`lightbox-player-${currentItem.playbackId}-${activeIndex}`}
 																	playbackId={
 																		currentItem.playbackId
 																	}

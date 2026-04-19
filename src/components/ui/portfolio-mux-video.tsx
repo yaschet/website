@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -26,6 +26,11 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { cn, tweens } from "@/src/lib/index";
+import {
+	announceActivePortfolioVideo,
+	PORTFOLIO_VIDEO_ACTIVE_EVENT,
+	type PortfolioVideoActiveEventDetail,
+} from "@/src/lib/portfolio-video-sync";
 
 type PortfolioMuxVideoVariant = "gallery" | "lightbox" | "article";
 
@@ -55,7 +60,6 @@ const PLAYBACK_RATE_OPTIONS = [
 	{ label: "2x", value: 2 },
 ] as const;
 
-const ACTIVE_PLAYER_EVENT = "portfolio:mux-video-active";
 let nextPortfolioMuxVideoId = 0;
 
 const PLAYER_BUTTON_CLASS_NAME = cn(
@@ -196,6 +200,10 @@ export function PortfolioMuxVideo({
 
 	const posterSrc = useMemo(() => getPosterSrc(poster), [poster]);
 	const resolvedPlaybackSrc = useMemo(() => getMuxStreamSrc(playbackId), [playbackId]);
+	const mediaSessionKey = useMemo(
+		() => `${pathname ?? ""}:${variant}:${playbackId}`,
+		[pathname, playbackId, variant],
+	);
 	const menuOpen = openMenu !== null;
 	const hasQualityMenu = qualityOptions.length > 2;
 	const playedPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0;
@@ -214,6 +222,22 @@ export function PortfolioMuxVideo({
 			hideControlsTimeoutRef.current = null;
 		}
 	}, []);
+
+	const resetPlaybackSessionState = useCallback(() => {
+		playbackCommandIdRef.current += 1;
+		desiredPlayingRef.current = Boolean(autoPlay);
+		lastSourceRepairTimestampRef.current = 0;
+		setIsPlaying(false);
+		setIsMuted(muted);
+		setVolume(1);
+		setDuration(0);
+		setCurrentTime(0);
+		setPlaybackRate(1);
+		setControlsVisible(true);
+		setOpenMenu(null);
+		setQualityOptions([{ label: "Auto", shortLabel: "Auto", value: "auto" }]);
+		setQualityValue("auto");
+	}, [autoPlay, muted]);
 
 	const pauseOtherDocumentMedia = useCallback((except?: MuxVideoElement | null) => {
 		if (typeof document === "undefined") return;
@@ -337,6 +361,11 @@ export function PortfolioMuxVideo({
 		);
 	}, []);
 
+	useLayoutEffect(() => {
+		void mediaSessionKey;
+		resetPlaybackSessionState();
+	}, [mediaSessionKey, resetPlaybackSessionState]);
+
 	const togglePlayback = useCallback(async () => {
 		const media = mediaRef.current;
 		if (!media) return;
@@ -456,6 +485,7 @@ export function PortfolioMuxVideo({
 	}, []);
 
 	useEffect(() => {
+		void mediaSessionKey;
 		const media = mediaRef.current;
 		if (!media) return;
 
@@ -514,17 +544,20 @@ export function PortfolioMuxVideo({
 				renditions.removeEventListener("removerendition", handleMediaEvent);
 			}
 		};
-	}, [ensureMediaSource, syncFromMedia]);
+	}, [ensureMediaSource, mediaSessionKey, syncFromMedia]);
 
 	useEffect(() => {
+		void mediaSessionKey;
 		applyStableMediaConfig();
-	}, [applyStableMediaConfig]);
+	}, [applyStableMediaConfig, mediaSessionKey]);
 
 	useEffect(() => {
+		void mediaSessionKey;
 		ensureMediaSource({ forceLoad: true });
-	}, [ensureMediaSource]);
+	}, [ensureMediaSource, mediaSessionKey]);
 
 	useEffect(() => {
+		void mediaSessionKey;
 		if (!autoPlay) return;
 
 		const media = mediaRef.current;
@@ -542,29 +575,29 @@ export function PortfolioMuxVideo({
 
 		media.addEventListener("loadedmetadata", playWhenReady, { once: true });
 		return () => media.removeEventListener("loadedmetadata", playWhenReady);
-	}, [autoPlay, togglePlayback]);
+	}, [autoPlay, mediaSessionKey, togglePlayback]);
 
 	useEffect(() => {
+		void mediaSessionKey;
 		const media = mediaRef.current;
 		if (!media || typeof window === "undefined") return;
 
 		const announceActivation = () => {
-			window.dispatchEvent(
-				new CustomEvent(ACTIVE_PLAYER_EVENT, {
-					detail: { instanceId: instanceIdRef.current, pathname },
-				}),
-			);
+			announceActivePortfolioVideo({
+				instanceId: instanceIdRef.current,
+				pathname,
+			});
 		};
 
 		media.addEventListener("play", announceActivation);
 		return () => media.removeEventListener("play", announceActivation);
-	}, [pathname]);
+	}, [mediaSessionKey, pathname]);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 
 		const handleActivePlayerChange = (event: Event) => {
-			const detail = (event as CustomEvent<{ instanceId?: number }>).detail;
+			const detail = (event as CustomEvent<PortfolioVideoActiveEventDetail>).detail;
 			if (detail?.instanceId === instanceIdRef.current) {
 				return;
 			}
@@ -572,10 +605,13 @@ export function PortfolioMuxVideo({
 			stopPlayback();
 		};
 
-		window.addEventListener(ACTIVE_PLAYER_EVENT, handleActivePlayerChange as EventListener);
+		window.addEventListener(
+			PORTFOLIO_VIDEO_ACTIVE_EVENT,
+			handleActivePlayerChange as EventListener,
+		);
 		return () =>
 			window.removeEventListener(
-				ACTIVE_PLAYER_EVENT,
+				PORTFOLIO_VIDEO_ACTIVE_EVENT,
 				handleActivePlayerChange as EventListener,
 			);
 	}, [stopPlayback]);
@@ -604,7 +640,7 @@ export function PortfolioMuxVideo({
 	useEffect(() => {
 		return () => {
 			clearControlsTimeout();
-			stopPlayback();
+			stopPlayback({ unload: true });
 		};
 	}, [clearControlsTimeout, stopPlayback]);
 
@@ -614,7 +650,7 @@ export function PortfolioMuxVideo({
 		return () => {
 			void activePathname;
 			pauseOtherDocumentMedia();
-			stopPlayback();
+			stopPlayback({ unload: true });
 		};
 	}, [pathname, pauseOtherDocumentMedia, stopPlayback]);
 
@@ -755,6 +791,7 @@ export function PortfolioMuxVideo({
 			onPointerMove={handlePointerActivity}
 		>
 			<mux-video
+				key={mediaSessionKey}
 				ref={mediaRef}
 				className="portfolio-mux-video-host block size-full"
 				tabIndex={0}
