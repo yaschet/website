@@ -1521,6 +1521,14 @@
     block-size: 100%;
     background: rgb(2 6 23);
     color: inherit;
+    /* Preserve aspect ratio: use object-fit from CSS variable */
+    object-fit: var(--media-object-fit, cover);
+    object-position: var(--media-object-position, center);
+    /* Ensure video respects container constraints */
+    max-inline-size: var(--media-max-width, 100%);
+    max-block-size: var(--media-max-height, 100%);
+    width: 100%;
+    height: 100%;
   }
 
   .portfolio-video-range,
@@ -1604,6 +1612,19 @@
     box-shadow:
       0 0 0 2px rgb(255 255 255 / 0.16),
       0 1px 4px rgb(2 6 23 / 0.35);
+  }
+
+  /* Fullscreen video optimizations - ensure video respects container */
+  mux-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Prevent scrolling and overflow during fullscreen */
+  :-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
   }
 
   .portfolio-heading-xl {

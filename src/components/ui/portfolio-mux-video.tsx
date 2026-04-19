@@ -481,7 +481,13 @@ export function PortfolioMuxVideo({
 			return;
 		}
 
-		await container.requestFullscreen?.().catch(() => undefined);
+		try {
+			if (container.requestFullscreen) {
+				await container.requestFullscreen({
+					navigationUI: "hide",
+				});
+			}
+		} catch (_error) {}
 	}, []);
 
 	useEffect(() => {
@@ -505,7 +511,6 @@ export function PortfolioMuxVideo({
 			"durationchange",
 			"volumechange",
 			"ratechange",
-			"loadedmetadata",
 			"canplay",
 			"progress",
 		] as const;
@@ -620,7 +625,24 @@ export function PortfolioMuxVideo({
 		if (typeof document === "undefined") return;
 
 		const handleFullscreenChange = () => {
-			setIsFullscreen(document.fullscreenElement === containerRef.current);
+			const isNowFullscreen = document.fullscreenElement === containerRef.current;
+			setIsFullscreen(isNowFullscreen);
+
+			const container = containerRef.current;
+			if (container) {
+				if (isNowFullscreen) {
+					// Prevent scrolling in fullscreen mode
+					document.documentElement.style.overflow = "hidden";
+					document.body.style.overflow = "hidden";
+					// Update layout containment
+					container.style.contain = "layout style paint";
+				} else {
+					// Restore scrolling
+					document.documentElement.style.overflow = "";
+					document.body.style.overflow = "";
+					container.style.contain = "";
+				}
+			}
 		};
 
 		document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -636,6 +658,36 @@ export function PortfolioMuxVideo({
 
 		scheduleControlsHide();
 	}, [clearControlsTimeout, isPlaying, scheduleControlsHide]);
+
+	// Handle window resize and orientation change for responsive fullscreen
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const handleResize = () => {
+			const container = containerRef.current;
+			if (!container || document.fullscreenElement !== container) return;
+
+			// Force re-layout in fullscreen mode
+			const wasVisible = container.style.display;
+			container.style.display = "none";
+			// Trigger reflow
+			void container.offsetHeight;
+			container.style.display = wasVisible;
+		};
+
+		const handleOrientationChange = () => {
+			// Allow brief delay for browser to update viewport dimensions
+			setTimeout(handleResize, 100);
+		};
+
+		window.addEventListener("resize", handleResize, { passive: true });
+		window.addEventListener("orientationchange", handleOrientationChange, { passive: true });
+
+		return () => {
+			window.removeEventListener("resize", handleResize);
+			window.removeEventListener("orientationchange", handleOrientationChange);
+		};
+	}, []);
 
 	useEffect(() => {
 		return () => {
@@ -768,6 +820,7 @@ export function PortfolioMuxVideo({
 			className={cn(
 				"group relative h-full w-full overflow-hidden bg-surface-950 text-surface-50",
 				"outline-none focus-visible:ring-2 focus-visible:ring-surface-50/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+				isFullscreen && "fixed inset-0 z-50 m-0 rounded-none",
 				className,
 			)}
 			role="application"
@@ -789,6 +842,18 @@ export function PortfolioMuxVideo({
 				scheduleControlsHide();
 			}}
 			onPointerMove={handlePointerActivity}
+			onTouchStart={(event) => {
+				// Prevent default touch behaviors that might interfere
+				if ((event.target as HTMLElement)?.closest("input, button, [role='button']"))
+					return;
+				handlePointerActivity();
+			}}
+			onTouchMove={(event) => {
+				// Allow scrolling in non-fullscreen mode
+				if (isFullscreen && (event.target as HTMLElement)?.closest("mux-video")) {
+					event.preventDefault();
+				}
+			}}
 		>
 			<mux-video
 				key={mediaSessionKey}
@@ -798,8 +863,14 @@ export function PortfolioMuxVideo({
 				data-playback-id={playbackId}
 				style={
 					{
-						"--media-object-fit": variant === "lightbox" ? "contain" : "cover",
+						"--media-object-fit": isFullscreen
+							? "contain"
+							: variant === "lightbox"
+								? "contain"
+								: "cover",
 						"--media-object-position": "center",
+						"--media-max-width": "100%",
+						"--media-max-height": "100%",
 					} as CSSProperties
 				}
 			/>
