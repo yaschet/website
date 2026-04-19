@@ -89,7 +89,7 @@ const GALLERY_CONTROL_CLASS_NAME = cn(
 );
 
 const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
-	"portfolio-control-label pointer-events-auto inline-flex h-[var(--portfolio-control-default)] items-center justify-center px-[var(--portfolio-control-pad-default)]",
+	"pointer-events-auto inline-flex h-[var(--portfolio-control-default)] items-center justify-center px-[var(--portfolio-control-pad-default)]",
 	"border border-white/12 bg-surface-950/88 text-white backdrop-blur-md",
 	"shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-colors duration-150",
 	"hover:border-white/18 hover:bg-surface-950/94",
@@ -572,25 +572,29 @@ export function MediaGallery({
 													className={cn(
 														"inline-grid items-center",
 														item.duration
-															? "grid-cols-[14px_auto_1px_auto] gap-x-2"
+															? "grid-cols-[14px_auto] gap-x-2"
 															: "grid-cols-[14px_auto] gap-x-2",
 													)}
 												>
 													<span className="flex w-[14px] items-center justify-center">
 														<Play size={14} weight="fill" />
 													</span>
-													<span className="leading-none">Play</span>
-													{item.duration ? (
-														<>
-															<span
-																aria-hidden
-																className="h-3 w-px bg-white/16"
-															/>
-															<span className="portfolio-chip-label text-white/72 leading-none tabular-nums">
-																{item.duration}
-															</span>
-														</>
-													) : null}
+													<span className="flex items-baseline gap-x-2 leading-none">
+														<span className="portfolio-control-label leading-none">
+															Play
+														</span>
+														{item.duration ? (
+															<>
+																<span
+																	aria-hidden
+																	className="h-3 w-px self-center bg-white/16"
+																/>
+																<span className="portfolio-chip-label text-white/72 tabular-nums leading-none">
+																	{item.duration}
+																</span>
+															</>
+														) : null}
+													</span>
 												</span>
 											</motion.button>
 										</div>
