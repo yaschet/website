@@ -1549,7 +1549,7 @@
   .portfolio-video-range::-webkit-slider-runnable-track,
   .portfolio-video-volume::-webkit-slider-runnable-track {
     block-size: 2px;
-    border-radius: 999px;
+    border-radius: 0;
     background:
       linear-gradient(
         to right,
@@ -1564,7 +1564,7 @@
   .portfolio-video-volume::-moz-range-track {
     block-size: 2px;
     border: 0;
-    border-radius: 999px;
+    border-radius: 0;
     background:
       linear-gradient(
         to right,
@@ -1582,7 +1582,7 @@
     block-size: 10px;
     margin-top: -4px;
     border: 1px solid rgb(15 23 42 / 0.9);
-    border-radius: 999px;
+    border-radius: 0;
     background: rgb(255 255 255 / 0.98);
     box-shadow: 0 1px 4px rgb(2 6 23 / 0.35);
   }
@@ -1592,7 +1592,7 @@
     inline-size: 10px;
     block-size: 10px;
     border: 1px solid rgb(15 23 42 / 0.9);
-    border-radius: 999px;
+    border-radius: 0;
     background: rgb(255 255 255 / 0.98);
     box-shadow: 0 1px 4px rgb(2 6 23 / 0.35);
   }

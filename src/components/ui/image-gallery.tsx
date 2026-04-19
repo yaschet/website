@@ -21,6 +21,7 @@ import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
+import { springs } from "@/src/lib/physics";
 
 const PortfolioMuxVideo = dynamic(
 	() =>
@@ -89,8 +90,15 @@ type ResolvedGalleryItem =
 	  };
 
 const GALLERY_CONTROL_CLASS_NAME = cn(
-	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-950/50 px-3 text-white",
-	"hover:bg-surface-950/60",
+	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-950/70 px-3 text-white",
+	"hover:bg-surface-950/80",
+	"focus-visible:outline-none",
+	"disabled:pointer-events-none disabled:opacity-35",
+);
+
+const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
+	"flex h-14 items-center justify-center gap-3 rounded-none border-2 border-white bg-surface-950 px-6 text-white",
+	"hover:bg-surface-900",
 	"focus-visible:outline-none",
 	"disabled:pointer-events-none disabled:opacity-35",
 );
@@ -492,11 +500,11 @@ export function ImageGallery({
 
 								{item.kind === "mux-video" && !isPlayingInline && (
 									<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-6">
-										<button
+										<motion.button
 											type="button"
 											className={cn(
-												GALLERY_CONTROL_CLASS_NAME,
-												"pointer-events-auto min-w-[11.5rem] justify-center px-4",
+												GALLERY_PLAY_BUTTON_CLASS_NAME,
+												"pointer-events-auto",
 											)}
 											onClick={(event) => {
 												event.preventDefault();
@@ -504,6 +512,9 @@ export function ImageGallery({
 												setActiveIndex(index);
 												setPlayingIndex(index);
 											}}
+											whileHover={{ scale: 1.05 }}
+											whileTap={{ scale: 0.98 }}
+											transition={springs.button}
 											aria-label={
 												item.duration
 													? `Play video, duration ${item.duration}`
@@ -520,7 +531,7 @@ export function ImageGallery({
 													? `Play · ${item.duration}`
 													: "Play Demo"}
 											</span>
-										</button>
+										</motion.button>
 									</div>
 								)}
 							</>

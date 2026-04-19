@@ -726,7 +726,11 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
 	const baseSurface = resolveSurfaceTone(node, 500, neutralFallback);
 	const resolveTone = (tone: number) => resolveSurfaceTone(node, tone, baseSurface);
-	const lightBaseUnderlay = resolveCssColor(node, "var(--instrument-field-bg-auto)", [255, 255, 255]);
+	const lightBaseUnderlay = resolveCssColor(
+		node,
+		"var(--instrument-field-bg-auto)",
+		[255, 255, 255],
+	);
 	const lightBandOneUnderlay = mixRgb(resolveTone(200), resolveTone(300), 0.18);
 	const lightBandTwoUnderlay = mixRgb(resolveTone(300), resolveTone(400), 0.34);
 	const lightPeakUnderlay = mixRgb(resolveTone(400), resolveTone(500), 0.14);

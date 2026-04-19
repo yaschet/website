@@ -21,7 +21,10 @@ const HERO_FIELD_SPEED = 0.28;
 function HeroContent() {
 	return (
 		<div className="portfolio-box-pad relative z-10">
-			<div className="portfolio-stack-related w-full" style={{ maxWidth: HERO_COLUMN_MAX_WIDTH }}>
+			<div
+				className="portfolio-stack-related w-full"
+				style={{ maxWidth: HERO_COLUMN_MAX_WIDTH }}
+			>
 				<div className="portfolio-stack-related">
 					<HeadingReveal
 						as="h1"
@@ -37,9 +40,9 @@ function HeroContent() {
 							style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
 						>
 							I build CRMs, billing systems, document workflows, and{" "}
-							<span className="whitespace-nowrap">AI pipelines</span> that replace manual
-							work. Internal tools and SaaS for small businesses, made to feel simple to
-							use.
+							<span className="whitespace-nowrap">AI pipelines</span> that replace
+							manual work. Internal tools and SaaS for small businesses, made to feel
+							simple to use.
 						</p>
 					</Reveal>
 				</div>
