@@ -12,7 +12,7 @@ import {
 	SpeakerSimpleSlashIcon,
 	XIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
@@ -26,7 +26,7 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 import { Spinner } from "@/src/components/ui/spinner";
 import type { MuxVideoMetadata } from "@/src/content/types";
-import { cn, tweens } from "@/src/lib/index";
+import { applyEdgeResistance, cn, springs, tweens } from "@/src/lib/index";
 import {
 	announceActivePortfolioVideo,
 	PORTFOLIO_VIDEO_ACTIVE_EVENT,
@@ -292,7 +292,10 @@ export function PortfolioMuxVideo({
 	const [hasStartedPlayback, setHasStartedPlayback] = useState(false);
 	const [storyboardCues, setStoryboardCues] = useState<StoryboardCue[]>([]);
 	const [scrubPreviewTime, setScrubPreviewTime] = useState<number | null>(null);
-	const [scrubPreviewPercent, setScrubPreviewPercent] = useState(0);
+	const [scrubPreviewRawX, setScrubPreviewRawX] = useState<number | null>(null);
+	const [scrubPreviewTrackWidth, setScrubPreviewTrackWidth] = useState(0);
+	const scrubPreviewX = useMotionValue(0);
+	const scrubPreviewXSpring = useSpring(scrubPreviewX, springs.layout);
 
 	const posterSrc = useMemo(() => getPosterSrc(poster), [poster]);
 	const resolvedPlaybackSrc = useMemo(() => getMuxStreamSrc(playbackId), [playbackId]);
@@ -331,6 +334,7 @@ export function PortfolioMuxVideo({
 			null
 		);
 	}, [scrubPreviewTime, storyboardCues]);
+	const scrubPreviewWidth = activeStoryboardCue?.width ?? 160;
 
 	const clearControlsTimeout = useCallback(() => {
 		if (hideControlsTimeoutRef.current !== null) {
@@ -380,6 +384,15 @@ export function PortfolioMuxVideo({
 			media.src = expectedSrc;
 		}
 	}, [playbackId, resolvedPlaybackSrc]);
+
+	const keepPlaybackRunning = useCallback(() => {
+		const media = mediaRef.current;
+		if (!media || !desiredPlayingRef.current || media.ended || !media.paused) {
+			return;
+		}
+
+		void media.play().catch(() => undefined);
+	}, []);
 
 	const applyStableMediaConfig = useCallback(() => {
 		const media = mediaRef.current;
@@ -476,7 +489,8 @@ export function PortfolioMuxVideo({
 		setResolvedQualityLabel(null);
 		setStoryboardCues([]);
 		setScrubPreviewTime(null);
-		setScrubPreviewPercent(0);
+		setScrubPreviewRawX(null);
+		setScrubPreviewTrackWidth(0);
 	}, [playbackId]);
 
 	const togglePlayback = useCallback(async () => {
@@ -560,7 +574,8 @@ export function PortfolioMuxVideo({
 			if (bounds.width <= 0) return;
 
 			const percent = Math.min(Math.max((clientX - bounds.left) / bounds.width, 0), 1);
-			setScrubPreviewPercent(percent * 100);
+			setScrubPreviewRawX(percent * bounds.width);
+			setScrubPreviewTrackWidth(bounds.width);
 			setScrubPreviewTime(percent * duration);
 		},
 		[duration],
@@ -568,23 +583,35 @@ export function PortfolioMuxVideo({
 
 	const clearScrubPreview = useCallback(() => {
 		setScrubPreviewTime(null);
+		setScrubPreviewRawX(null);
 	}, []);
 
-	const handlePlaybackRateChange = useCallback((nextRate: string) => {
-		const media = mediaRef.current;
-		if (!media) return;
+	const handlePlaybackRateChange = useCallback(
+		(nextRate: string) => {
+			const media = mediaRef.current;
+			if (!media) return;
 
-		const parsedRate = Number(nextRate);
-		media.playbackRate = parsedRate;
-		setPlaybackRate(parsedRate);
-		setOpenMenu(null);
-	}, []);
+			const shouldResume = desiredPlayingRef.current && !media.ended;
+			const parsedRate = Number(nextRate);
+			media.playbackRate = parsedRate;
+			setPlaybackRate(parsedRate);
+			setOpenMenu(null);
+
+			if (shouldResume && typeof window !== "undefined") {
+				window.setTimeout(() => {
+					keepPlaybackRunning();
+				}, 0);
+			}
+		},
+		[keepPlaybackRunning],
+	);
 
 	const handleQualityChange = useCallback(
 		(nextQuality: string) => {
 			const media = mediaRef.current;
 			if (!media?.videoRenditions) return;
 
+			const shouldResume = desiredPlayingRef.current && !media.ended;
 			const renditions = Array.from(media.videoRenditions);
 			if (nextQuality === "auto") {
 				media.videoRenditions.selectedIndex = -1;
@@ -599,8 +626,14 @@ export function PortfolioMuxVideo({
 
 			syncFromMedia();
 			setOpenMenu(null);
+
+			if (shouldResume && typeof window !== "undefined") {
+				window.setTimeout(() => {
+					keepPlaybackRunning();
+				}, 0);
+			}
 		},
-		[syncFromMedia],
+		[keepPlaybackRunning, syncFromMedia],
 	);
 
 	const toggleFullscreen = useCallback(async () => {
@@ -630,7 +663,27 @@ export function PortfolioMuxVideo({
 		};
 
 		const handleSourceIntegrityEvent = () => {
-			ensureMediaSource();
+			if (typeof window === "undefined") {
+				return;
+			}
+
+			window.setTimeout(() => {
+				const currentMedia = mediaRef.current;
+				if (!currentMedia) return;
+
+				const currentSource = currentMedia.currentSrc || currentMedia.src || "";
+				const sourceLooksMissing =
+					!currentSource ||
+					(!currentSource.includes(playbackId) && currentSource !== resolvedPlaybackSrc);
+
+				if (!sourceLooksMissing) {
+					return;
+				}
+
+				ensureMediaSource();
+				keepPlaybackRunning();
+				syncFromMedia();
+			}, 0);
 		};
 
 		const eventNames = [
@@ -654,7 +707,7 @@ export function PortfolioMuxVideo({
 			"seeked",
 		] as const;
 
-		const sourceIntegrityEventNames = ["emptied", "abort", "suspend"] as const;
+		const sourceIntegrityEventNames = ["emptied"] as const;
 
 		for (const eventName of eventNames) {
 			media.addEventListener(eventName, handleMediaEvent);
@@ -688,7 +741,7 @@ export function PortfolioMuxVideo({
 				renditions.removeEventListener("removerendition", handleMediaEvent);
 			}
 		};
-	}, [ensureMediaSource, syncFromMedia]);
+	}, [ensureMediaSource, keepPlaybackRunning, playbackId, resolvedPlaybackSrc, syncFromMedia]);
 
 	useEffect(() => {
 		applyStableMediaConfig();
@@ -727,6 +780,22 @@ export function PortfolioMuxVideo({
 
 		return () => controller.abort();
 	}, [playbackId]);
+
+	useEffect(() => {
+		if (scrubPreviewRawX === null || scrubPreviewTrackWidth <= 0) {
+			return;
+		}
+
+		const minLeft = 0;
+		const maxLeft = Math.max(minLeft, scrubPreviewTrackWidth - scrubPreviewWidth);
+		const targetLeft = applyEdgeResistance(
+			scrubPreviewRawX - scrubPreviewWidth / 2,
+			minLeft,
+			maxLeft,
+			Math.min(Math.max(scrubPreviewWidth * 0.85, 64), 112),
+		);
+		scrubPreviewX.set(targetLeft);
+	}, [scrubPreviewRawX, scrubPreviewTrackWidth, scrubPreviewWidth, scrubPreviewX]);
 
 	useLayoutEffect(() => {
 		const media = mediaRef.current;
@@ -1148,14 +1217,15 @@ export function PortfolioMuxVideo({
 				<div className="relative flex flex-col gap-2 px-4 pt-3 pb-3">
 					<div className={cn("relative h-[18px]", controlsInteractiveClassName)}>
 						{activeStoryboardCue && scrubPreviewTime !== null ? (
-							<div
-								className="pointer-events-none absolute bottom-full z-30 mb-3 overflow-hidden border border-white/20 bg-black"
+							<motion.div
+								className="pointer-events-none absolute bottom-full z-30 mb-[var(--portfolio-overlay-gap)] overflow-hidden border border-white/20 bg-black"
 								style={{
-									left: `clamp(80px, ${scrubPreviewPercent}%, calc(100% - 80px))`,
-									transform: "translateX(-50%)",
+									left: 0,
+									x: scrubPreviewXSpring,
 									width: activeStoryboardCue.width,
 									height: activeStoryboardCue.height,
 								}}
+								transition={springs.layout}
 							>
 								<div
 									className="size-full bg-no-repeat"
@@ -1164,7 +1234,7 @@ export function PortfolioMuxVideo({
 										backgroundPosition: `-${activeStoryboardCue.x}px -${activeStoryboardCue.y}px`,
 									}}
 								/>
-							</div>
+							</motion.div>
 						) : null}
 
 						<div

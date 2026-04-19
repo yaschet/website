@@ -191,7 +191,6 @@ export function FloatingNav() {
 
 								<HoverTooltip
 									visible={currentTab === item.link && hoveredTab === item.link}
-									className="bottom-[calc(100%+var(--portfolio-space-related))] mb-0"
 								>
 									{item.name}
 								</HoverTooltip>
@@ -261,12 +260,7 @@ export function FloatingNav() {
 							weight="regular"
 						/>
 					</motion.div>
-					<HoverTooltip
-						visible={isThemeHovered}
-						className="bottom-[calc(100%+var(--portfolio-space-related))] mb-0"
-					>
-						Theme
-					</HoverTooltip>
+					<HoverTooltip visible={isThemeHovered}>Theme</HoverTooltip>
 				</motion.button>
 			</motion.nav>
 		</div>

@@ -32,7 +32,7 @@ const insigniaClasses = cn(
 const contentClasses = cn("flex items-center");
 
 const tooltipPanelClasses = cn(
-	"pointer-events-none absolute top-full z-20 mt-2",
+	"pointer-events-none absolute top-full z-20 mt-[var(--portfolio-overlay-gap)]",
 	"max-w-[calc(100vw-(var(--portfolio-page-gutter-mobile)*2))]",
 	"w-max border border-surface-200/90 bg-white/98 px-[var(--portfolio-space-tight)] py-[8px] shadow-md backdrop-blur-sm",
 	"dark:border-surface-800 dark:bg-surface-900/98",

@@ -88,6 +88,15 @@ const GALLERY_CONTROL_CLASS_NAME = cn(
 	"disabled:pointer-events-none disabled:opacity-35",
 );
 
+const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
+	"portfolio-control-label pointer-events-auto inline-flex h-[var(--portfolio-control-default)] items-center justify-center px-[var(--portfolio-control-pad-default)]",
+	"border border-white/12 bg-surface-950/88 text-white backdrop-blur-md",
+	"shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-colors duration-150",
+	"hover:border-white/18 hover:bg-surface-950/94",
+	"focus-visible:border-white/18 focus-visible:bg-surface-950/94 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+	"disabled:pointer-events-none disabled:opacity-35",
+);
+
 function parseAspectRatio(ratio: string): number {
 	if (ratio.includes("/")) {
 		const [w, h] = ratio.split("/").map(Number);
@@ -544,13 +553,7 @@ export function MediaGallery({
 													tap: { scale: 0.92 },
 												}}
 												transition={tweens.interaction}
-												className={cn(
-													"flex h-11 items-center justify-center gap-3 rounded-none bg-surface-950 px-6 text-white",
-													"hover:bg-surface-900",
-													"focus-visible:outline-none",
-													"disabled:pointer-events-none disabled:opacity-35",
-													"pointer-events-auto",
-												)}
+												className={GALLERY_PLAY_BUTTON_CLASS_NAME}
 												onClick={(event) => {
 													event.preventDefault();
 													event.stopPropagation();
@@ -565,15 +568,29 @@ export function MediaGallery({
 														: "Play video"
 												}
 											>
-												<Play
-													size={22}
-													weight="fill"
-													className="-translate-x-0.5"
-												/>
-												<span className="font-mono font-semibold text-sm uppercase tracking-[0.12em]">
-													{item.duration
-														? `Play · ${item.duration}`
-														: "Play Demo"}
+												<span
+													className={cn(
+														"inline-grid items-center",
+														item.duration
+															? "grid-cols-[14px_auto_1px_auto] gap-x-2"
+															: "grid-cols-[14px_auto] gap-x-2",
+													)}
+												>
+													<span className="flex w-[14px] items-center justify-center">
+														<Play size={14} weight="fill" />
+													</span>
+													<span className="leading-none">Play</span>
+													{item.duration ? (
+														<>
+															<span
+																aria-hidden
+																className="h-3 w-px bg-white/16"
+															/>
+															<span className="portfolio-chip-label text-white/72 leading-none tabular-nums">
+																{item.duration}
+															</span>
+														</>
+													) : null}
 												</span>
 											</motion.button>
 										</div>

@@ -1480,6 +1480,7 @@
   --portfolio-space-group: calc(var(--portfolio-rhythm) * 3); /* 30px content group */
   --portfolio-space-section: calc(var(--portfolio-rhythm) * 4); /* 40px section gap */
   --portfolio-space-major: calc(var(--portfolio-rhythm) * 8); /* 80px major air */
+  --portfolio-overlay-gap: calc(var(--portfolio-rhythm) * 0.8); /* 8px overlay/tooltip clearance */
   --portfolio-space-1: var(--portfolio-rhythm); /* 10px */
   --portfolio-space-2: var(--portfolio-grid-step); /* 20px */
   --portfolio-space-3: calc(var(--portfolio-rhythm) * 3); /* 30px */
