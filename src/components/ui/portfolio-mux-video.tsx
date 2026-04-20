@@ -278,7 +278,7 @@ export function PortfolioMuxVideo({
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const [controlsVisible, setControlsVisible] = useState(true);
 	const [isPointerInside, setIsPointerInside] = useState(false);
-	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
+	const [isFocusVisibleWithin, setIsFocusVisibleWithin] = useState(false);
 	const [openMenu, setOpenMenu] = useState<"quality" | "rate" | null>(null);
 	const [qualityOptions, setQualityOptions] = useState<QualityOption[]>([
 		{ label: "Auto", value: "auto" },
@@ -427,6 +427,19 @@ export function PortfolioMuxVideo({
 		setControlsVisible(true);
 	}, []);
 
+	const handleExitSurface = useCallback(async () => {
+		stopPlayback();
+
+		if (
+			typeof document !== "undefined" &&
+			document.fullscreenElement === containerRef.current
+		) {
+			await document.exitFullscreen().catch(() => undefined);
+		}
+
+		onExit?.();
+	}, [onExit, stopPlayback]);
+
 	const ensureMediaSource = useCallback(() => {
 		const media = mediaRef.current;
 		if (!media) return;
@@ -467,25 +480,17 @@ export function PortfolioMuxVideo({
 
 	const scheduleControlsHide = useCallback(() => {
 		clearControlsTimeout();
-		if (!isPlaying || isFocusedWithin || menuOpen) {
+		if (!isPlaying || isFocusVisibleWithin || menuOpen) {
 			setControlsVisible(true);
 			return;
 		}
-
-		if (canHover) {
-			if (isPointerInside) {
-				setControlsVisible(true);
-				return;
-			}
-
-			setControlsVisible(false);
-			return;
-		}
-
-		hideControlsTimeoutRef.current = window.setTimeout(() => {
-			setControlsVisible(false);
-		}, 2200);
-	}, [canHover, clearControlsTimeout, isFocusedWithin, isPlaying, isPointerInside, menuOpen]);
+		hideControlsTimeoutRef.current = window.setTimeout(
+			() => {
+				setControlsVisible(false);
+			},
+			canHover ? 1600 : 2200,
+		);
+	}, [canHover, clearControlsTimeout, isFocusVisibleWithin, isPlaying, menuOpen]);
 
 	const syncFromMedia = useCallback(() => {
 		const media = mediaRef.current;
@@ -1162,9 +1167,15 @@ export function PortfolioMuxVideo({
 					handleSeek(Math.min(duration || currentTime + 5, currentTime + 5));
 					return;
 				case "Escape":
+					if (isFullscreen) {
+						event.preventDefault();
+						void toggleFullscreen();
+						return;
+					}
+
 					if (onExit) {
 						event.preventDefault();
-						onExit();
+						void handleExitSurface();
 					}
 					return;
 				default:
@@ -1174,7 +1185,9 @@ export function PortfolioMuxVideo({
 		[
 			currentTime,
 			duration,
+			handleExitSurface,
 			handleSeek,
+			isFullscreen,
 			menuOpen,
 			onExit,
 			toggleFullscreen,
@@ -1374,19 +1387,28 @@ export function PortfolioMuxVideo({
 			className={cn(
 				"group relative h-full w-full overflow-hidden bg-surface-950 text-surface-50",
 				"outline-none focus-visible:ring-2 focus-visible:ring-surface-50/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+				canHover && isPlaying && !controlsVisible && "cursor-none",
 				isFullscreen && "fixed inset-0 z-50 m-0 rounded-none",
 				className,
 			)}
 			role="application"
 			aria-label="Video player"
 			onClick={handleRootClick}
-			onFocus={() => setIsFocusedWithin(true)}
+			onFocus={(event) => {
+				const target = event.target as HTMLElement | null;
+				if (target?.matches(":focus-visible")) {
+					setIsFocusVisibleWithin(true);
+				}
+			}}
 			onBlur={(event) => {
 				if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-					setIsFocusedWithin(false);
+					setIsFocusVisibleWithin(false);
 				}
 			}}
 			onKeyDown={handleKeyDown}
+			onPointerDownCapture={() => {
+				setIsFocusVisibleWithin(false);
+			}}
 			onPointerEnter={() => {
 				if (!canHover) return;
 				setIsPointerInside(true);
@@ -1400,6 +1422,9 @@ export function PortfolioMuxVideo({
 			}}
 			onPointerMove={() => {
 				if (!canHover) return;
+				if (!isPointerInside) {
+					setIsPointerInside(true);
+				}
 				handlePointerActivity();
 			}}
 			onTouchStart={(event) => {
@@ -1473,7 +1498,7 @@ export function PortfolioMuxVideo({
 						onClick={(event) => {
 							event.preventDefault();
 							event.stopPropagation();
-							onExit();
+							void handleExitSurface();
 						}}
 					>
 						<XIcon size={18} weight="bold" />

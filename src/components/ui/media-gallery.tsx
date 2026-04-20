@@ -804,65 +804,67 @@ export function MediaGallery({
 
 					{showStageArrows && (
 						<>
-							<motion.button
-								type="button"
-								initial="idle"
-								whileHover="hover"
-								whileTap="tap"
-								variants={{
-									idle: { scale: 1 },
-									hover: { scale: 1.04 },
-									tap: { scale: 0.96 },
-								}}
-								transition={tweens.interaction}
-								onClick={(event) => {
-									event.preventDefault();
-									event.stopPropagation();
-									goToPrev();
-								}}
-								disabled={activeIndex === 0}
-								aria-label="Previous slide"
-								className={cn(
-									GALLERY_CHROME_BUTTON_CLASS_NAME,
-									isTouchLayout && GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
-									"absolute top-1/2 left-[var(--gallery-stage-inset)] z-30 -translate-y-1/2 transition-opacity",
-									floatingChromeVisible
-										? "pointer-events-auto opacity-100"
-										: "pointer-events-none opacity-0",
-								)}
-							>
-								<CaretLeft size={GALLERY_CHROME_ICON_SIZE} weight="bold" />
-							</motion.button>
+							{activeIndex > 0 ? (
+								<motion.button
+									type="button"
+									initial="idle"
+									whileHover="hover"
+									whileTap="tap"
+									variants={{
+										idle: { scale: 1 },
+										hover: { scale: 1.04 },
+										tap: { scale: 0.96 },
+									}}
+									transition={tweens.interaction}
+									onClick={(event) => {
+										event.preventDefault();
+										event.stopPropagation();
+										goToPrev();
+									}}
+									aria-label="Previous slide"
+									className={cn(
+										GALLERY_CHROME_BUTTON_CLASS_NAME,
+										isTouchLayout && GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
+										"absolute top-1/2 left-[var(--gallery-stage-inset)] z-30 -translate-y-1/2 transition-opacity",
+										floatingChromeVisible
+											? "pointer-events-auto opacity-100"
+											: "pointer-events-none opacity-0",
+									)}
+								>
+									<CaretLeft size={GALLERY_CHROME_ICON_SIZE} weight="bold" />
+								</motion.button>
+							) : null}
 
-							<motion.button
-								type="button"
-								initial="idle"
-								whileHover="hover"
-								whileTap="tap"
-								variants={{
-									idle: { scale: 1 },
-									hover: { scale: 1.04 },
-									tap: { scale: 0.96 },
-								}}
-								transition={tweens.interaction}
-								onClick={(event) => {
-									event.preventDefault();
-									event.stopPropagation();
-									goToNext();
-								}}
-								disabled={activeIndex === galleryItems.length - 1}
-								aria-label="Next slide"
-								className={cn(
-									GALLERY_CHROME_BUTTON_CLASS_NAME,
-									isTouchLayout && GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
-									"absolute top-1/2 right-[var(--gallery-stage-inset)] z-30 -translate-y-1/2 transition-opacity",
-									floatingChromeVisible
-										? "pointer-events-auto opacity-100"
-										: "pointer-events-none opacity-0",
-								)}
-							>
-								<CaretRight size={GALLERY_CHROME_ICON_SIZE} weight="bold" />
-							</motion.button>
+							{activeIndex < galleryItems.length - 1 ? (
+								<motion.button
+									type="button"
+									initial="idle"
+									whileHover="hover"
+									whileTap="tap"
+									variants={{
+										idle: { scale: 1 },
+										hover: { scale: 1.04 },
+										tap: { scale: 0.96 },
+									}}
+									transition={tweens.interaction}
+									onClick={(event) => {
+										event.preventDefault();
+										event.stopPropagation();
+										goToNext();
+									}}
+									aria-label="Next slide"
+									className={cn(
+										GALLERY_CHROME_BUTTON_CLASS_NAME,
+										isTouchLayout && GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
+										"absolute top-1/2 right-[var(--gallery-stage-inset)] z-30 -translate-y-1/2 transition-opacity",
+										floatingChromeVisible
+											? "pointer-events-auto opacity-100"
+											: "pointer-events-none opacity-0",
+									)}
+								>
+									<CaretRight size={GALLERY_CHROME_ICON_SIZE} weight="bold" />
+								</motion.button>
+							) : null}
 						</>
 					)}
 					{hasMultiple && showCounter && !isActiveVideoVisible && (
@@ -893,8 +895,8 @@ export function MediaGallery({
 							/>
 							<div
 								className={cn(
-									"pointer-events-none absolute right-[var(--gallery-progress-edge)] bottom-[4px] left-[var(--gallery-progress-edge)] z-30 flex h-12 items-end gap-2 pb-[var(--gallery-progress-baseline)] transition-opacity duration-200",
-									isTouchLayout && "h-14",
+									"pointer-events-none absolute right-[var(--gallery-progress-edge)] bottom-0 left-[var(--gallery-progress-edge)] z-30 flex h-14 items-stretch transition-opacity duration-200",
+									isTouchLayout && "h-16",
 									floatingChromeVisible ? "opacity-100" : "opacity-0",
 								)}
 							>
@@ -911,7 +913,7 @@ export function MediaGallery({
 										aria-label={`Go to slide ${index + 1}`}
 										aria-current={index === activeIndex}
 										className={cn(
-											"group relative flex h-full flex-1 items-end justify-center",
+											"group relative flex h-full flex-1 items-end justify-center px-1",
 											floatingChromeVisible
 												? "pointer-events-auto"
 												: "pointer-events-none",
@@ -920,7 +922,7 @@ export function MediaGallery({
 									>
 										<span
 											className={cn(
-												"block h-0.5 w-full shadow-[0_1px_10px_rgba(0,0,0,0.35)] transition-colors duration-150",
+												"mb-[calc(var(--gallery-progress-baseline)+4px)] block h-0.5 w-full shadow-[0_1px_10px_rgba(0,0,0,0.35)] transition-colors duration-150",
 												index === activeIndex
 													? "bg-white"
 													: "bg-white/42 group-hover:bg-white/72",
