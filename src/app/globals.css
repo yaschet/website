@@ -2024,17 +2024,17 @@
 
   .portfolio-article > h2 {
     margin-top: 2.5em;
-    margin-bottom: 0.75em;
+    margin-bottom: 0.5em;
   }
 
   .portfolio-article > h3 {
     margin-top: 2em;
-    margin-bottom: 0.6em;
+    margin-bottom: 0.4em;
   }
 
   .portfolio-article > h4 {
     margin-top: 1.5em;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.35em;
   }
 
   @media (max-width: 640px) {

@@ -21,7 +21,7 @@ import { cn } from "@/src/lib/index";
 
 const ARTICLE_FLOW_STYLE = {
 	margin: 0,
-	marginBottom: "1.25em",
+	marginBottom: "1.4em",
 	lineHeight: "var(--leading-article-body)",
 	letterSpacing: "var(--tracking-article)",
 } as const;
