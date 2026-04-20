@@ -98,7 +98,7 @@ const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
 );
 
 const GALLERY_STAGE_INSET_CLASS_NAME =
-	"[--gallery-stage-inset:var(--portfolio-control-pad-default)] [--gallery-progress-baseline:calc(var(--portfolio-space-tight)*0.65)]";
+	"[--gallery-stage-inset:var(--portfolio-control-pad-default)] [--gallery-progress-edge:var(--portfolio-space-tight)] [--gallery-progress-baseline:calc(var(--portfolio-space-tight)*0.8)]";
 
 function getMuxAnimatedPreviewSrc(playbackId: string) {
 	return `https://image.mux.com/${playbackId}/animated.webp?width=640&fps=15&start=0&end=4`;
@@ -483,164 +483,128 @@ export function MediaGallery({
 					setHoveredIndex(null);
 					clearHoverPreview();
 				}}
+				onPointerDownCapture={(event) => {
+					if (event.pointerType !== "mouse") {
+						revealTouchChrome();
+					}
+				}}
 			>
 				<div
-					ref={scrollContainerRef}
 					className={cn(
-						"flex h-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth",
-						"[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-						hasMultiple && "cursor-grab active:cursor-grabbing",
+						"relative w-full overflow-hidden",
+						GALLERY_STAGE_INSET_CLASS_NAME,
 					)}
 					style={{
-						scrollbarWidth: "none",
+						aspectRatio: hasVaryingRatios ? undefined : `${aspectRatios[0] ?? 16 / 9}`,
+						height: currentHeight,
+						transition: shouldReduceMotion ? undefined : "height 280ms ease",
 					}}
 				>
-					{galleryItems.map((item, index) => {
-						const isHovered = canHover && hoveredIndex === index;
-						const isPlayingInline =
-							item.kind === "mux-video" && playingVideoId === item.playbackId;
-						const isViewingInline =
-							item.kind === "mux-video" && visibleVideoId === item.playbackId;
-						const isHoverPreviewActive =
-							item.kind === "mux-video" &&
-							hoverPreviewPlaybackId === item.playbackId &&
-							!isViewingInline;
-						const isExpandableImage = expandable && item.kind === "image";
+					<div
+						ref={scrollContainerRef}
+						className={cn(
+							"flex h-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth",
+							"[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+							hasMultiple && "cursor-grab active:cursor-grabbing",
+						)}
+						style={{
+							scrollbarWidth: "none",
+						}}
+					>
+						{galleryItems.map((item, index) => {
+							const isHovered = canHover && hoveredIndex === index;
+							const isPlayingInline =
+								item.kind === "mux-video" && playingVideoId === item.playbackId;
+							const isViewingInline =
+								item.kind === "mux-video" && visibleVideoId === item.playbackId;
+							const isHoverPreviewActive =
+								item.kind === "mux-video" &&
+								hoverPreviewPlaybackId === item.playbackId &&
+								!isViewingInline;
+							const isExpandableImage = expandable && item.kind === "image";
 
-						const stageClassName = cn(
-							"relative h-full overflow-hidden bg-surface-100 dark:bg-surface-950",
-							item.kind === "image" && expandable && "cursor-zoom-in",
-						);
-						const stageContent = (
-							<>
-								{item.kind === "mux-video" &&
-									galleryVideoPlaybackIds.includes(item.playbackId) && (
-										<div
-											className="absolute inset-0 z-0"
-											style={{
-												visibility:
-													activeIndex === index ? "visible" : "hidden",
-												pointerEvents:
-													activeIndex === index ? "auto" : "none",
-											}}
-										>
-											<PortfolioMuxVideo
-												playbackId={item.playbackId}
-												poster={item.poster}
-												metadata={item.metadata}
-												active={isPlayingInline}
-												variant="gallery"
-												className="h-full w-full"
-												onExit={() => {
-													setVisibleVideoId((current) =>
-														current === item.playbackId
-															? null
-															: current,
-													);
-													setPlayingVideoId((current) =>
-														current === item.playbackId
-															? null
-															: current,
-													);
+							const stageClassName = cn(
+								"relative h-full overflow-hidden bg-surface-100 dark:bg-surface-950",
+								item.kind === "image" && expandable && "cursor-zoom-in",
+							);
+							const stageContent = (
+								<>
+									{item.kind === "mux-video" &&
+										galleryVideoPlaybackIds.includes(item.playbackId) && (
+											<div
+												className="absolute inset-0 z-0"
+												style={{
+													visibility:
+														activeIndex === index
+															? "visible"
+															: "hidden",
+													pointerEvents:
+														activeIndex === index ? "auto" : "none",
 												}}
-												onPlayingChange={(playing) => {
-													if (playing) {
-														setVisibleVideoId(item.playbackId);
-														setPlayingVideoId(item.playbackId);
-														return;
-													}
-
-													setPlayingVideoId((current) =>
-														current === item.playbackId
-															? null
-															: current,
-													);
-												}}
-											/>
-										</div>
-									)}
-
-								<motion.div
-									className="absolute inset-0 z-10"
-									animate={{
-										opacity:
-											item.kind === "mux-video" && isViewingInline ? 0 : 1,
-									}}
-									transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
-									style={{
-										pointerEvents:
-											item.kind === "mux-video" && isViewingInline
-												? "none"
-												: "auto",
-									}}
-								>
-									<div
-										className={cn(
-											"absolute inset-0 transform-gpu transition-transform duration-650 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform motion-reduce:transition-none",
-											isHovered && "scale-[1.03]",
-										)}
-									>
-										{item.kind === "image" ? (
-											<Image
-												src={item.src}
-												alt={item.alt}
-												fill
-												sizes={sizes}
-												className={cn(
-													hasVaryingRatios
-														? "object-contain"
-														: "object-cover",
-													"pointer-events-none select-none",
-													mediaClassName,
-												)}
-												placeholder={
-													typeof item.src === "string" ? "empty" : "blur"
-												}
-												priority={prioritizeFirstImage && index === 0}
-												decoding="async"
-												draggable={false}
-												quality={quality}
-											/>
-										) : (
-											<Image
-												src={item.poster}
-												alt={item.alt}
-												fill
-												sizes={sizes}
-												className={cn(
-													hasVaryingRatios
-														? "object-contain"
-														: "object-cover",
-													"pointer-events-none select-none",
-													mediaClassName,
-												)}
-												placeholder={
-													typeof item.poster === "string"
-														? "empty"
-														: "blur"
-												}
-												priority={prioritizeFirstImage && index === 0}
-												decoding="async"
-												draggable={false}
-												quality={quality}
-											/>
-										)}
-									</div>
-
-									{item.kind === "mux-video" && (
-										<>
-											<motion.div
-												className="pointer-events-none absolute inset-0 z-10"
-												initial={false}
-												animate={{ opacity: isHoverPreviewActive ? 1 : 0 }}
-												transition={tweens.interaction}
-												aria-hidden={!isHoverPreviewActive}
 											>
+												<PortfolioMuxVideo
+													playbackId={item.playbackId}
+													poster={item.poster}
+													metadata={item.metadata}
+													active={isPlayingInline}
+													variant="gallery"
+													className="h-full w-full"
+													onExit={() => {
+														setVisibleVideoId((current) =>
+															current === item.playbackId
+																? null
+																: current,
+														);
+														setPlayingVideoId((current) =>
+															current === item.playbackId
+																? null
+																: current,
+														);
+													}}
+													onPlayingChange={(playing) => {
+														if (playing) {
+															setVisibleVideoId(item.playbackId);
+															setPlayingVideoId(item.playbackId);
+															return;
+														}
+
+														setPlayingVideoId((current) =>
+															current === item.playbackId
+																? null
+																: current,
+														);
+													}}
+												/>
+											</div>
+										)}
+
+									<motion.div
+										className="absolute inset-0 z-10"
+										animate={{
+											opacity:
+												item.kind === "mux-video" && isViewingInline
+													? 0
+													: 1,
+										}}
+										transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
+										style={{
+											pointerEvents:
+												item.kind === "mux-video" && isViewingInline
+													? "none"
+													: "auto",
+										}}
+									>
+										<div
+											className={cn(
+												"absolute inset-0 transform-gpu transition-transform duration-650 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform motion-reduce:transition-none",
+												isHovered && "scale-[1.03]",
+											)}
+										>
+											{item.kind === "image" ? (
 												<Image
-													src={getMuxAnimatedPreviewSrc(item.playbackId)}
-													alt=""
+													src={item.src}
+													alt={item.alt}
 													fill
-													unoptimized
 													sizes={sizes}
 													className={cn(
 														hasVaryingRatios
@@ -649,235 +613,325 @@ export function MediaGallery({
 														"pointer-events-none select-none",
 														mediaClassName,
 													)}
-													loading="lazy"
+													placeholder={
+														typeof item.src === "string"
+															? "empty"
+															: "blur"
+													}
+													priority={prioritizeFirstImage && index === 0}
 													decoding="async"
-													aria-hidden="true"
+													draggable={false}
+													quality={quality}
 												/>
-											</motion.div>
-											<div
-												className="pointer-events-none absolute inset-0 z-20"
-												style={{
-													background:
-														"radial-gradient(circle at center, rgb(0 0 0 / 0) 36%, rgb(0 0 0 / 0.14) 100%)",
-												}}
-												aria-hidden
-											/>
-										</>
-									)}
-
-									{item.kind === "mux-video" && (
-										<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-6">
-											<motion.button
-												type="button"
-												initial="idle"
-												whileHover="hover"
-												whileTap="tap"
-												variants={{
-													idle: { scale: 1 },
-													hover: { scale: 1.05 },
-													tap: { scale: 0.92 },
-												}}
-												transition={tweens.interaction}
-												className={cn(
-													GALLERY_PLAY_BUTTON_CLASS_NAME,
-													isHoverPreviewActive &&
-														"border-white/20 bg-surface-950",
-												)}
-												onClick={(event) => {
-													event.preventDefault();
-													event.stopPropagation();
-													clearHoverPreview();
-													stopAllPortfolioVideos();
-													setActiveIndex(index);
-													setVisibleVideoId(item.playbackId);
-													setPlayingVideoId(item.playbackId);
-												}}
-												aria-label={
-													item.duration
-														? `Play video, duration ${item.duration}`
-														: "Play video"
-												}
-											>
-												<span
+											) : (
+												<Image
+													src={item.poster}
+													alt={item.alt}
+													fill
+													sizes={sizes}
 													className={cn(
-														"inline-grid items-center",
-														item.duration
-															? "grid-cols-[14px_auto] gap-x-2"
-															: "grid-cols-[14px_auto] gap-x-2",
+														hasVaryingRatios
+															? "object-contain"
+															: "object-cover",
+														"pointer-events-none select-none",
+														mediaClassName,
 													)}
+													placeholder={
+														typeof item.poster === "string"
+															? "empty"
+															: "blur"
+													}
+													priority={prioritizeFirstImage && index === 0}
+													decoding="async"
+													draggable={false}
+													quality={quality}
+												/>
+											)}
+										</div>
+
+										{item.kind === "mux-video" && (
+											<>
+												<motion.div
+													className="pointer-events-none absolute inset-0 z-10"
+													initial={false}
+													animate={{
+														opacity: isHoverPreviewActive ? 1 : 0,
+													}}
+													transition={tweens.interaction}
+													aria-hidden={!isHoverPreviewActive}
 												>
-													<span className="flex w-[14px] items-center justify-center">
-														<Play size={14} weight="fill" />
-													</span>
-													<span className="inline-flex items-baseline gap-x-2">
-														<span className="portfolio-control-label">
-															Play
+													<Image
+														src={getMuxAnimatedPreviewSrc(
+															item.playbackId,
+														)}
+														alt=""
+														fill
+														unoptimized
+														sizes={sizes}
+														className={cn(
+															hasVaryingRatios
+																? "object-contain"
+																: "object-cover",
+															"pointer-events-none select-none",
+															mediaClassName,
+														)}
+														loading="lazy"
+														decoding="async"
+														aria-hidden="true"
+													/>
+												</motion.div>
+												<div
+													className="pointer-events-none absolute inset-0 z-20"
+													style={{
+														background:
+															"radial-gradient(circle at center, rgb(0 0 0 / 0) 36%, rgb(0 0 0 / 0.14) 100%)",
+													}}
+													aria-hidden
+												/>
+											</>
+										)}
+
+										{item.kind === "mux-video" && (
+											<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-[var(--gallery-stage-inset)]">
+												<motion.button
+													type="button"
+													initial="idle"
+													whileHover="hover"
+													whileTap="tap"
+													variants={{
+														idle: { scale: 1 },
+														hover: { scale: 1.05 },
+														tap: { scale: 0.92 },
+													}}
+													transition={tweens.interaction}
+													className={cn(
+														GALLERY_PLAY_BUTTON_CLASS_NAME,
+														isHoverPreviewActive &&
+															"border-white/20 bg-surface-950",
+													)}
+													onClick={(event) => {
+														event.preventDefault();
+														event.stopPropagation();
+														clearHoverPreview();
+														stopAllPortfolioVideos();
+														setActiveIndex(index);
+														setVisibleVideoId(item.playbackId);
+														setPlayingVideoId(item.playbackId);
+													}}
+													aria-label={
+														item.duration
+															? `Play video, duration ${item.duration}`
+															: "Play video"
+													}
+												>
+													<span className="inline-grid grid-cols-[14px_auto] items-center gap-x-2">
+														<span className="flex w-[14px] items-center justify-center">
+															<Play size={14} weight="fill" />
 														</span>
-														{item.duration ? (
-															<>
-																<span
-																	aria-hidden
-																	className="h-3 w-px self-center bg-white/16"
-																/>
-																<span className="portfolio-chip-label text-white/72 tabular-nums">
-																	{item.duration}
-																</span>
-															</>
-														) : null}
+														<span className="inline-flex items-baseline gap-x-2">
+															<span className="portfolio-control-label">
+																Play
+															</span>
+															{item.duration ? (
+																<>
+																	<span
+																		aria-hidden
+																		className="h-3 w-px self-center bg-white/16"
+																	/>
+																	<span className="portfolio-chip-label text-white/72 tabular-nums">
+																		{item.duration}
+																	</span>
+																</>
+															) : null}
+														</span>
 													</span>
-												</span>
-											</motion.button>
+												</motion.button>
+											</div>
+										)}
+									</motion.div>
+								</>
+							);
+
+							return (
+								<div
+									key={getGalleryItemKey(item)}
+									className="relative h-full min-w-0 shrink-0 basis-full snap-center overflow-hidden"
+								>
+									{isExpandableImage ? (
+										<button
+											type="button"
+											className={cn(
+												stageClassName,
+												"w-full border-0 p-0 text-left",
+											)}
+											onPointerEnter={() =>
+												armHoverPreview(item, index, isViewingInline)
+											}
+											onPointerLeave={() => {
+												setHoveredIndex((current) =>
+													current === index ? null : current,
+												);
+												clearHoverPreview();
+											}}
+											onClick={() => {
+												setActiveIndex(index);
+												setIsLightboxOpen(true);
+											}}
+											aria-label={`Open slide ${index + 1} in expanded viewer`}
+										>
+											{stageContent}
+										</button>
+									) : (
+										<div
+											className={stageClassName}
+											onPointerEnter={() =>
+												armHoverPreview(item, index, isViewingInline)
+											}
+											onPointerLeave={() => {
+												setHoveredIndex((current) =>
+													current === index ? null : current,
+												);
+												clearHoverPreview();
+											}}
+										>
+											{stageContent}
 										</div>
 									)}
-								</motion.div>
-							</>
-						);
-
-						return (
-							<div
-								key={getGalleryItemKey(item)}
-								className="relative h-full min-w-0 shrink-0 basis-full snap-center overflow-hidden"
-							>
-								{isExpandableImage ? (
-									<button
-										type="button"
-										className={cn(
-											stageClassName,
-											"w-full border-0 p-0 text-left",
-										)}
-										onPointerEnter={() =>
-											armHoverPreview(item, index, isViewingInline)
-										}
-										onPointerLeave={() => {
-											setHoveredIndex((current) =>
-												current === index ? null : current,
-											);
-											clearHoverPreview();
-										}}
-										onClick={() => {
-											setActiveIndex(index);
-											setIsLightboxOpen(true);
-										}}
-										aria-label={`Open slide ${index + 1} in expanded viewer`}
-									>
-										{stageContent}
-									</button>
-								) : (
-									<div
-										className={stageClassName}
-										onPointerEnter={() =>
-											armHoverPreview(item, index, isViewingInline)
-										}
-										onPointerLeave={() => {
-											setHoveredIndex((current) =>
-												current === index ? null : current,
-											);
-											clearHoverPreview();
-										}}
-									>
-										{stageContent}
-									</div>
-								)}
-							</div>
-						);
-					})}
-				</div>
-
-				{hasMultiple && showArrows && (
-					<>
-						<motion.button
-							type="button"
-							initial="idle"
-							whileHover="hover"
-							whileTap="tap"
-							variants={{
-								idle: { scale: 1 },
-								hover: { scale: 1.05 },
-								tap: { scale: 0.92 },
-							}}
-							transition={tweens.interaction}
-							onClick={(event) => {
-								event.preventDefault();
-								event.stopPropagation();
-								goToPrev();
-							}}
-							disabled={activeIndex === 0}
-							aria-label="Previous slide"
-							className={cn(
-								GALLERY_CONTROL_CLASS_NAME,
-								"pointer-events-none absolute top-1/2 left-4 z-30 -translate-y-1/2 opacity-0 transition-opacity disabled:opacity-0",
-								chromeVisible &&
-									!isActiveVideoVisible &&
-									"pointer-events-auto opacity-100",
-							)}
-						>
-							<CaretLeft size={18} weight="bold" />
-						</motion.button>
-
-						<motion.button
-							type="button"
-							initial="idle"
-							whileHover="hover"
-							whileTap="tap"
-							variants={{
-								idle: { scale: 1 },
-								hover: { scale: 1.05 },
-								tap: { scale: 0.92 },
-							}}
-							transition={tweens.interaction}
-							onClick={(event) => {
-								event.preventDefault();
-								event.stopPropagation();
-								goToNext();
-							}}
-							disabled={activeIndex === galleryItems.length - 1}
-							aria-label="Next slide"
-							className={cn(
-								GALLERY_CONTROL_CLASS_NAME,
-								"pointer-events-none absolute top-1/2 right-4 z-30 -translate-y-1/2 opacity-0 transition-opacity disabled:opacity-0",
-								chromeVisible &&
-									!isActiveVideoVisible &&
-									"pointer-events-auto opacity-100",
-							)}
-						>
-							<CaretRight size={18} weight="bold" />
-						</motion.button>
-					</>
-				)}
-
-				{hasMultiple && showCounter && !isActiveVideoVisible && (
-					<div className="pointer-events-none absolute bottom-11 left-4 z-30">
-						<div className={GALLERY_CONTROL_CLASS_NAME}>
-							<span className="font-mono text-[10px] uppercase tabular-nums tracking-[0.22em]">
-								{String(activeIndex + 1).padStart(2, "0")} /{" "}
-								{String(galleryItems.length).padStart(2, "0")}
-							</span>
-						</div>
+								</div>
+							);
+						})}
 					</div>
-				)}
 
-				{hasMultiple && showProgress && !isActiveVideoVisible && (
-					<div className="absolute inset-x-4 bottom-4 z-30 flex gap-2">
-						{galleryItems.map((item, index) => (
-							<button
-								key={`progress-${getGalleryItemKey(item)}`}
+					{showStageArrows && (
+						<>
+							<motion.button
 								type="button"
+								initial="idle"
+								whileHover="hover"
+								whileTap="tap"
+								variants={{
+									idle: { scale: 1 },
+									hover: { scale: 1.04 },
+									tap: { scale: 0.96 },
+								}}
+								transition={tweens.interaction}
 								onClick={(event) => {
 									event.preventDefault();
 									event.stopPropagation();
-									goToIndex(index);
+									goToPrev();
 								}}
-								aria-label={`Go to slide ${index + 1}`}
+								disabled={activeIndex === 0}
+								aria-label="Previous slide"
 								className={cn(
-									"h-0.5 flex-1 transition-colors duration-200",
-									index === activeIndex
-										? "bg-surface-900 dark:bg-surface-50"
-										: "bg-surface-900/18 hover:bg-surface-900/36 dark:bg-surface-50/22 dark:hover:bg-surface-50/42",
+									GALLERY_CHROME_BUTTON_CLASS_NAME,
+									isTouchLayout && GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
+									"absolute top-1/2 left-[var(--gallery-stage-inset)] z-30 -translate-y-1/2 transition-opacity",
+									floatingChromeVisible
+										? "pointer-events-auto opacity-100"
+										: "pointer-events-none opacity-0",
 								)}
+							>
+								<CaretLeft size={GALLERY_CHROME_ICON_SIZE} weight="bold" />
+							</motion.button>
+
+							<motion.button
+								type="button"
+								initial="idle"
+								whileHover="hover"
+								whileTap="tap"
+								variants={{
+									idle: { scale: 1 },
+									hover: { scale: 1.04 },
+									tap: { scale: 0.96 },
+								}}
+								transition={tweens.interaction}
+								onClick={(event) => {
+									event.preventDefault();
+									event.stopPropagation();
+									goToNext();
+								}}
+								disabled={activeIndex === galleryItems.length - 1}
+								aria-label="Next slide"
+								className={cn(
+									GALLERY_CHROME_BUTTON_CLASS_NAME,
+									isTouchLayout && GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
+									"absolute top-1/2 right-[var(--gallery-stage-inset)] z-30 -translate-y-1/2 transition-opacity",
+									floatingChromeVisible
+										? "pointer-events-auto opacity-100"
+										: "pointer-events-none opacity-0",
+								)}
+							>
+								<CaretRight size={GALLERY_CHROME_ICON_SIZE} weight="bold" />
+							</motion.button>
+						</>
+					)}
+					{hasMultiple && showCounter && !isActiveVideoVisible && (
+						<div className="pointer-events-none absolute top-[var(--gallery-stage-inset)] left-[var(--gallery-stage-inset)] z-30">
+							<div
+								className={cn(
+									GALLERY_CHROME_META_CHIP_CLASS_NAME,
+									GALLERY_CHROME_COUNTER_CLASS_NAME,
+								)}
+							>
+								{counterText}
+							</div>
+						</div>
+					)}
+
+					{hasMultiple && showProgress && !isActiveVideoVisible && (
+						<>
+							<div
+								aria-hidden
+								className={cn(
+									"pointer-events-none absolute inset-x-0 bottom-0 z-20 h-28 transition-opacity duration-200",
+									floatingChromeVisible ? "opacity-100" : "opacity-0",
+								)}
+								style={{
+									background:
+										"linear-gradient(to top, rgb(0 0 0 / 0.82) 0%, rgb(0 0 0 / 0.6) 22%, rgb(0 0 0 / 0.34) 46%, rgb(0 0 0 / 0.14) 72%, rgb(0 0 0 / 0) 100%)",
+								}}
 							/>
-						))}
-					</div>
-				)}
+							<div
+								className={cn(
+									"pointer-events-none absolute right-[var(--gallery-progress-edge)] bottom-[4px] left-[var(--gallery-progress-edge)] z-30 flex h-12 items-end gap-2 pb-[var(--gallery-progress-baseline)] transition-opacity duration-200",
+									isTouchLayout && "h-14",
+									floatingChromeVisible ? "opacity-100" : "opacity-0",
+								)}
+							>
+								{galleryItems.map((item, index) => (
+									<button
+										key={`progress-${getGalleryItemKey(item)}`}
+										type="button"
+										onClick={(event) => {
+											event.preventDefault();
+											event.stopPropagation();
+											revealTouchChrome();
+											goToIndex(index);
+										}}
+										aria-label={`Go to slide ${index + 1}`}
+										aria-current={index === activeIndex}
+										className={cn(
+											"group relative flex h-full flex-1 items-end justify-center",
+											floatingChromeVisible
+												? "pointer-events-auto"
+												: "pointer-events-none",
+											"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-inset",
+										)}
+									>
+										<span
+											className={cn(
+												"block h-0.5 w-full shadow-[0_1px_10px_rgba(0,0,0,0.35)] transition-colors duration-150",
+												index === activeIndex
+													? "bg-white"
+													: "bg-white/42 group-hover:bg-white/72",
+											)}
+										/>
+									</button>
+								))}
+							</div>
+						</>
+					)}
+				</div>
 
 				<div className="sr-only" aria-live="polite">
 					Slide {activeIndex + 1} of {galleryItems.length}
