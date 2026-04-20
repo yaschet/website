@@ -421,8 +421,8 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 			if (!animationRef.current) return;
 
 			// Asymmetric Physics Constants
-			const FRICTION_BRAKE = 0.12; // Fast stop (Responsiveness/Utility)
-			const INERTIA_ACCEL = 0.05; // faster start (Mass/Luxury) - Increased to fix "too late" feel
+			const FRICTION_BRAKE = 0.025; // Slow stop (Mass)
+			const INERTIA_ACCEL = 0.15; // faster start (Responsiveness)
 
 			// Determine which factor to use
 			// If target < curent, we are braking. If target > current, we are accelerating.
