@@ -30,11 +30,11 @@ interface RevealProps {
 }
 
 export function Reveal({ children, delay = 0, className, phase = 1 }: RevealProps) {
-	const { phase: currentPhase, environment, entryKey } = useRevealState();
+	const { phase: currentPhase, environment, entryKey, forceRevealed } = useRevealState();
 	const shouldReduceMotion = useReducedMotion();
 
-	// Can only animate if global phase is reached
-	const isEnabled = currentPhase >= phase;
+	// Can only animate if global phase is reached, OR if user force-reveals
+	const isEnabled = forceRevealed || currentPhase >= phase;
 	const isAutomation = environment === "automation";
 	const isReduced = environment === "reduced-motion" || shouldReduceMotion;
 
@@ -67,7 +67,7 @@ export function Reveal({ children, delay = 0, className, phase = 1 }: RevealProp
 
 // Special reveal for elements that trigger on scroll AFTER initial load
 export function ScrollReveal({ children, delay = 0, className, phase = 3 }: RevealProps) {
-	const { phase: currentPhase, environment, entryKey } = useRevealState();
+	const { phase: currentPhase, environment, entryKey, forceRevealed } = useRevealState();
 	const shouldReduceMotion = useReducedMotion();
 	const [hasEnteredView, setHasEnteredView] = useState(false);
 
@@ -76,11 +76,11 @@ export function ScrollReveal({ children, delay = 0, className, phase = 3 }: Reve
 		setHasEnteredView(false);
 	}, [entryKey]);
 
-	// Phase gate: start only after phase is reached
-	const isPhaseReached = currentPhase >= phase;
+	// Phase gate: start only after phase is reached, OR if user force-reveals
+	const isPhaseReached = forceRevealed || currentPhase >= phase;
 	const isAutomation = environment === "automation";
 	const isReduced = environment === "reduced-motion" || shouldReduceMotion;
-	const shouldReveal = isAutomation || (isPhaseReached && hasEnteredView);
+	const shouldReveal = isAutomation || (isPhaseReached && hasEnteredView) || forceRevealed;
 
 	if (isAutomation) {
 		return <div className={className}>{children}</div>;
@@ -118,8 +118,8 @@ export function RevealStagger({
 	className?: string;
 	phase?: RevealPhase;
 }) {
-	const { phase: currentPhase, environment, entryKey } = useRevealState();
-	const isEnabled = currentPhase >= phase;
+	const { phase: currentPhase, environment, entryKey, forceRevealed } = useRevealState();
+	const isEnabled = forceRevealed || currentPhase >= phase;
 	const shouldBypass = environment !== "normal";
 
 	if (shouldBypass) {
@@ -168,9 +168,9 @@ export function RevealItem({ children, className }: { children: ReactNode; class
 }
 
 export function ShellReveal({ children, delay = 0, className, phase = 1 }: RevealProps) {
-	const { phase: currentPhase, environment, entryKey } = useRevealState();
+	const { phase: currentPhase, environment, entryKey, forceRevealed } = useRevealState();
 	const shouldReduceMotion = useReducedMotion();
-	const isEnabled = currentPhase >= phase;
+	const isEnabled = forceRevealed || currentPhase >= phase;
 	const isAutomation = environment === "automation";
 	const isReduced = environment === "reduced-motion" || shouldReduceMotion;
 
