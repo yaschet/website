@@ -1522,6 +1522,22 @@
   --portfolio-header-height: calc(var(--portfolio-rhythm) * 7); /* 70px */
 }
 
+@media (max-width: 40rem) {
+  :root {
+    --text-body-lg: 1rem;
+    --text-body-lg--line-height: 1.6;
+    --text-body-md: 0.9375rem;
+    --text-body-md--line-height: 1.55;
+    --text-body-sm: 0.875rem;
+    --text-body-sm--line-height: 1.45;
+    --text-body-xs: 0.75rem;
+    --text-body-xs--line-height: 1.35;
+    --leading-body: 1.55;
+    --leading-article-body: 1.6;
+    --leading-article-quote: 1.5;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    LAYER COMPONENTS
    Component-level overrides and specialized UI abstractions.
