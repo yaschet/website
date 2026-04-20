@@ -233,11 +233,9 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 								<ScrollReveal phase={2} className="w-full">
 									<div className="portfolio-box-pad">
 										<ModuleContainer>
-											<ProseContainer className="portfolio-article max-w-none">
-												<article>
-													<project.Content components={mdxComponents} />
-												</article>
-											</ProseContainer>
+											<article className="portfolio-article">
+												<project.Content components={mdxComponents} />
+											</article>
 										</ModuleContainer>
 									</div>
 								</ScrollReveal>
