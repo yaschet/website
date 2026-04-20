@@ -2002,7 +2002,8 @@
   .portfolio-article > .media-breakout,
   .portfolio-article > [data-breakout="true"] {
     grid-column: content-start / breakout-end;
-    max-width: 900px;
+    width: 100%;
+    max-width: none;
   }
 
   .portfolio-article > h1 {
