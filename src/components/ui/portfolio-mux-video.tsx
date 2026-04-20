@@ -52,8 +52,11 @@ interface PortfolioMuxVideoProps {
 type QualityOption = {
 	label: string;
 	value: string;
+	detailLabel?: string;
 	chipLabel?: string;
 	height?: number;
+	resolutionLabel?: string;
+	triggerLabel?: string;
 };
 
 type StoryboardCue = {
@@ -125,17 +128,32 @@ function formatResolutionLabel(height?: number) {
 	return height ? `${height}P` : null;
 }
 
+function formatFrameRateLabel(frameRate?: number) {
+	if (!frameRate || !Number.isFinite(frameRate)) return null;
+	const roundedFrameRate =
+		Math.abs(frameRate - Math.round(frameRate)) < 0.05
+			? String(Math.round(frameRate))
+			: frameRate.toFixed(2).replace(/\.?0+$/, "");
+	return `${roundedFrameRate} FPS`;
+}
+
 function formatQualityOption(rendition: {
-	bitrate?: number;
+	frameRate?: number;
 	height?: number;
 	id?: string;
 }): QualityOption {
-	const resolutionLabel = rendition.height ? `${rendition.height}p` : (rendition.id ?? "Manual");
+	const resolutionLabel = rendition.height ? `${rendition.height}P` : (rendition.id ?? "MANUAL");
+	const frameRateLabel = formatFrameRateLabel(rendition.frameRate);
 	return {
-		label: resolutionLabel,
+		label: frameRateLabel ? `${resolutionLabel} · ${frameRateLabel}` : resolutionLabel,
+		detailLabel: frameRateLabel ?? undefined,
 		value: String(rendition.id),
 		chipLabel: getQualityBadge(rendition.height) ?? undefined,
 		height: rendition.height,
+		resolutionLabel,
+		triggerLabel: frameRateLabel
+			? `${resolutionLabel}/${frameRateLabel.replace(" FPS", "")}`
+			: resolutionLabel,
 	};
 }
 
@@ -268,6 +286,9 @@ export function PortfolioMuxVideo({
 	const instanceIdRef = useRef(++nextPortfolioMuxVideoId);
 	const lastEmittedPlayingStateRef = useRef<boolean | null>(null);
 	const playbackCommandIdRef = useRef(0);
+	const preferredMutedRef = useRef(muted);
+	const preferredVolumeRef = useRef(1);
+	const preferredPlaybackRateRef = useRef(1);
 	const isActive = active ?? autoPlay;
 	const desiredPlayingRef = useRef(Boolean(isActive));
 	const [isPlaying, setIsPlaying] = useState(Boolean(isActive));
@@ -281,7 +302,7 @@ export function PortfolioMuxVideo({
 	const [isFocusVisibleWithin, setIsFocusVisibleWithin] = useState(false);
 	const [openMenu, setOpenMenu] = useState<"quality" | "rate" | null>(null);
 	const [qualityOptions, setQualityOptions] = useState<QualityOption[]>([
-		{ label: "Auto", value: "auto" },
+		{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
 	]);
 	const [qualityValue, setQualityValue] = useState("auto");
 	const [resolvedQualityLabel, setResolvedQualityLabel] = useState<string | null>(null);
@@ -310,7 +331,7 @@ export function PortfolioMuxVideo({
 	const volumePercent = Math.min(Math.max(volume * 100, 0), 100);
 	const rateLabel = getPlaybackRateLabel(playbackRate);
 	const activeQualityOption = qualityOptions.find((option) => option.value === qualityValue);
-	const qualityLabel = activeQualityOption?.label ?? "Auto";
+	const qualityLabel = activeQualityOption?.triggerLabel ?? activeQualityOption?.label ?? "Auto";
 	const VolumeIcon = getVolumeIcon(isMuted, volume);
 	const controlsInteractiveClassName = controlsVisible
 		? "pointer-events-auto"
@@ -344,7 +365,7 @@ export function PortfolioMuxVideo({
 		Boolean(qualityTriggerLabel.resolved);
 	const qualityMenuContentClassName = cn(
 		"rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
-		isCompactLayout ? "min-w-32" : "min-w-40",
+		isCompactLayout ? "min-w-[12rem]" : "min-w-[15rem]",
 	);
 	const rateMenuContentClassName = cn(
 		"rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
@@ -469,14 +490,17 @@ export function PortfolioMuxVideo({
 		if (!media) return;
 
 		media.loop = loop;
-		media.muted = muted;
-		media.defaultMuted = muted;
+		media.muted = preferredMutedRef.current;
+		media.defaultMuted = preferredMutedRef.current;
+		media.volume = preferredVolumeRef.current;
+		media.defaultPlaybackRate = preferredPlaybackRateRef.current;
+		media.playbackRate = preferredPlaybackRateRef.current;
 		media.playsInline = true;
 		media.poster = posterSrc ?? "";
 		media.preload = isActive || variant !== "article" ? "auto" : "metadata";
 		media.streamType = "on-demand";
 		media.metadata = metadata ?? {};
-	}, [isActive, loop, metadata, muted, posterSrc, variant]);
+	}, [isActive, loop, metadata, posterSrc, variant]);
 
 	const scheduleControlsHide = useCallback(() => {
 		clearControlsTimeout();
@@ -504,12 +528,15 @@ export function PortfolioMuxVideo({
 			!media.ended &&
 			(media.seeking || readyState < (currentlyPlaying ? 3 : 2));
 		const waitingForPlayback = desiredPlayingRef.current && !currentlyPlaying && !media.ended;
+		preferredMutedRef.current = media.muted;
+		preferredVolumeRef.current = media.volume ?? 1;
+		preferredPlaybackRateRef.current = media.playbackRate ?? 1;
 		setIsPlaying(currentlyPlaying);
 		setCurrentTime(Number.isFinite(media.currentTime) ? media.currentTime : 0);
 		setDuration(Number.isFinite(media.duration) ? media.duration : 0);
-		setIsMuted(media.muted);
-		setVolume(media.volume ?? 1);
-		setPlaybackRate(media.playbackRate ?? 1);
+		setIsMuted(preferredMutedRef.current);
+		setVolume(preferredVolumeRef.current);
+		setPlaybackRate(preferredPlaybackRateRef.current);
 		setIsMediaReady(metadataReady);
 		setIsBuffering(buffering);
 		setIsWaitingForPlayback(waitingForPlayback);
@@ -528,7 +555,7 @@ export function PortfolioMuxVideo({
 
 		const nextOptions = [
 			...sortedRenditions.map((rendition) => formatQualityOption(rendition)),
-			{ label: "Auto", value: "auto" },
+			{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
 		];
 
 		setQualityOptions(nextOptions);
@@ -558,9 +585,15 @@ export function PortfolioMuxVideo({
 		setIsWaitingForPlayback(false);
 		setIsSeeking(false);
 		setHasStartedPlayback(false);
+		preferredMutedRef.current = muted;
+		preferredVolumeRef.current = 1;
+		preferredPlaybackRateRef.current = 1;
+		setIsMuted(muted);
+		setVolume(1);
+		setPlaybackRate(1);
 		setCurrentTime(0);
 		setDuration(0);
-		setQualityOptions([{ label: "Auto", value: "auto" }]);
+		setQualityOptions([{ label: "Auto", value: "auto", resolutionLabel: "AUTO" }]);
 		setQualityValue("auto");
 		setResolvedQualityLabel(null);
 		setResolvedQualityChipLabel(null);
@@ -568,7 +601,21 @@ export function PortfolioMuxVideo({
 		setScrubPreviewTime(null);
 		setScrubPreviewRawX(null);
 		setScrubPreviewTrackWidth(0);
-	}, [playbackId]);
+	}, [muted, playbackId]);
+
+	useEffect(() => {
+		preferredMutedRef.current = muted;
+
+		const media = mediaRef.current;
+		if (!media) {
+			setIsMuted(muted);
+			return;
+		}
+
+		media.muted = muted;
+		media.defaultMuted = muted;
+		syncFromMedia();
+	}, [muted, syncFromMedia]);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -651,7 +698,10 @@ export function PortfolioMuxVideo({
 		const media = mediaRef.current;
 		if (!media) return;
 
-		media.muted = !media.muted;
+		const nextMuted = !media.muted;
+		preferredMutedRef.current = nextMuted;
+		media.muted = nextMuted;
+		media.defaultMuted = nextMuted;
 		syncFromMedia();
 	}, [syncFromMedia]);
 
@@ -660,8 +710,11 @@ export function PortfolioMuxVideo({
 			const media = mediaRef.current;
 			if (!media) return;
 
+			preferredVolumeRef.current = nextVolume;
+			preferredMutedRef.current = nextVolume <= 0.01;
 			media.volume = nextVolume;
-			media.muted = nextVolume <= 0.01;
+			media.muted = preferredMutedRef.current;
+			media.defaultMuted = preferredMutedRef.current;
 			syncFromMedia();
 		},
 		[syncFromMedia],
@@ -702,6 +755,8 @@ export function PortfolioMuxVideo({
 
 			const shouldResume = desiredPlayingRef.current && !media.ended;
 			const parsedRate = Number(nextRate);
+			preferredPlaybackRateRef.current = parsedRate;
+			media.defaultPlaybackRate = parsedRate;
 			media.playbackRate = parsedRate;
 			setPlaybackRate(parsedRate);
 			setOpenMenu(null);
@@ -1423,26 +1478,31 @@ export function PortfolioMuxVideo({
 		({
 			active: rowActive,
 			chipLabel,
-			label,
+			detailLabel,
+			resolutionLabel,
 		}: {
 			active: boolean;
 			chipLabel?: string;
-			label: string;
+			detailLabel?: string;
+			resolutionLabel: string;
 		}) => (
-			<span className="grid min-w-0 grid-cols-[2px_minmax(0,1fr)_auto] items-center gap-3">
+			<span className="grid min-w-0 w-full grid-cols-[2px_6ch_8.5ch_3.25rem] items-baseline gap-3">
 				<span
 					aria-hidden
 					className={cn("h-5 w-[2px] bg-white", rowActive ? "opacity-100" : "opacity-0")}
 				/>
-				<span className="truncate font-mono text-[10px] uppercase tracking-[0.18em]">
-					{label}
+				<span className="truncate text-left font-mono tabular-nums text-[10px] uppercase tracking-[0.18em]">
+					{resolutionLabel}
+				</span>
+				<span className="truncate text-left font-mono tabular-nums text-[10px] text-white/50 uppercase tracking-[0.18em]">
+					{detailLabel ?? ""}
 				</span>
 				{chipLabel ? (
-					<span className="inline-flex h-5 min-w-[38px] items-center justify-center border border-white/20 px-1.5 font-mono text-[9px] text-white/70 uppercase leading-none tracking-[0.12em]">
+					<span className="inline-flex h-5 w-[3.25rem] justify-self-end items-center justify-center border border-white/20 px-1.5 font-mono tabular-nums text-[9px] text-white/70 uppercase leading-none tracking-[0.12em]">
 						{chipLabel}
 					</span>
 				) : (
-					<span />
+					<span aria-hidden className="block h-5 w-[3.25rem] justify-self-end" />
 				)}
 			</span>
 		),
@@ -1508,8 +1568,9 @@ export function PortfolioMuxVideo({
 						>
 							{renderMenuRow({
 								active: option.value === qualityValue,
-								label: option.label,
+								detailLabel: option.detailLabel,
 								chipLabel: option.chipLabel,
+								resolutionLabel: option.resolutionLabel ?? option.label,
 							})}
 						</DropdownMenuRadioItem>
 					))}
@@ -1562,7 +1623,7 @@ export function PortfolioMuxVideo({
 						>
 							{renderMenuRow({
 								active: option.value === playbackRate,
-								label: option.label,
+								resolutionLabel: option.label,
 							})}
 						</DropdownMenuRadioItem>
 					))}

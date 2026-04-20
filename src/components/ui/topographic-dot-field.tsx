@@ -328,7 +328,8 @@ float resolvedField(vec2 uv, float time) {
   vec2 clampedUv = clamp(uv, vec2(0.0), vec2(1.0));
   float sampleField = fieldValue(clampedUv, time);
   float sampleShield = contentShield(clampedUv);
-  float sampleMouseInfluence = gauss2(clampedUv, uMouse, vec2(0.12, 0.12));
+  float sampleMouseInfluence =
+    uMouseStrength > 0.001 ? gauss2(clampedUv, uMouse, vec2(0.12, 0.12)) : 0.0;
   float mouseSignedLift = mix(1.0, -1.0, uDark);
   float terrainVariant = 1.0 - step(0.5, uVariant);
   float terrainSurface = (1.0 - step(2.5, uSurface)) * terrainVariant;
@@ -357,7 +358,7 @@ void main() {
   float terrainVariant = 1.0 - step(0.5, uVariant);
   float terrainSurface = (1.0 - step(2.5, uSurface)) * terrainVariant;
 
-  float mouseInfluence = gauss2(uv, uMouse, vec2(0.12, 0.12));
+  float mouseInfluence = uMouseStrength > 0.001 ? gauss2(uv, uMouse, vec2(0.12, 0.12)) : 0.0;
 
   vec2 center = vec2(uStep * 0.5);
   vec2 cellDist = abs(mod(cssCoord - uOff + center, uStep) - center);
@@ -374,7 +375,8 @@ void main() {
   float d3 = mix(0.89, 0.80, uDark);
 
   float pulseVariant = step(0.5, uVariant);
-  float fieldGradient = length(vec2(dFdx(field), dFdy(field)));
+  vec2 fieldGradientVec = vec2(dFdx(field), dFdy(field));
+  float fieldGradient = length(fieldGradientVec);
   float contourWidth = mix(1.05, 0.92, uDark) * mix(1.0, 0.95, terrainSurface);
   float contour0 = contourBand(field, u0, fieldGradient, contourWidth) * mix(1.0, 0.05, terrainSurface);
   float contour1 = contourBand(field, u1, fieldGradient, contourWidth) * mix(1.0, 0.26, terrainSurface);
@@ -398,12 +400,14 @@ void main() {
   if (inDot) {
     vec2 cellCenter = (floor((cssCoord - uOff) / uStep + 0.5) * uStep + uOff) / uRes;
     vec2 cellKernel = (vec2(uStep) / uRes) * mix(0.34, 0.12, uDark);
+    vec2 dominantKernel =
+      abs(fieldGradientVec.x) >= abs(fieldGradientVec.y) ?
+        vec2(cellKernel.x, 0.0) :
+        vec2(0.0, cellKernel.y);
     float dotField =
-      resolvedField(cellCenter, uTime) * 0.36 +
-      resolvedField(cellCenter + vec2(cellKernel.x, 0.0), uTime) * 0.16 +
-      resolvedField(cellCenter - vec2(cellKernel.x, 0.0), uTime) * 0.16 +
-      resolvedField(cellCenter + vec2(0.0, cellKernel.y), uTime) * 0.16 +
-      resolvedField(cellCenter - vec2(0.0, cellKernel.y), uTime) * 0.16;
+      resolvedField(cellCenter, uTime) * 0.5 +
+      resolvedField(cellCenter + dominantKernel, uTime) * 0.25 +
+      resolvedField(cellCenter - dominantKernel, uTime) * 0.25;
     if (uDark < 0.5) {
       dotField = min(dotField, field);
       float dotStructure = sm3(0.003, 0.016, fieldGradient);
@@ -873,6 +877,7 @@ export function InstrumentField({
 	const { environment } = useRevealState();
 	const [documentIsDark, setDocumentIsDark] = useState(false);
 	const [isCanvasReady, setIsCanvasReady] = useState(false);
+	const [isInViewport, setIsInViewport] = useState(surface !== "band");
 	const [paletteSignature, setPaletteSignature] = useState("");
 	const [metrics, setMetrics] = useState<Metrics>({
 		dpr: 1,
@@ -950,11 +955,9 @@ export function InstrumentField({
 			attributes: true,
 			attributeFilter: ["class", "data-theme", "data-accent", "style"],
 		});
-		const palettePoll = window.setInterval(syncTheme, 400);
 
 		return () => {
 			observer.disconnect();
-			clearInterval(palettePoll);
 		};
 	}, []);
 
@@ -985,6 +988,29 @@ export function InstrumentField({
 
 		return () => mediaQuery.removeEventListener("change", sync);
 	}, []);
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const container = containerRef.current;
+		if (!container || !("IntersectionObserver" in window)) return;
+
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				const nextIsInViewport = entry?.isIntersecting ?? false;
+				setIsInViewport(nextIsInViewport);
+				if (!nextIsInViewport) {
+					mouseRef.current.targetStrength = 0;
+					mouseRef.current.currentStrength = 0;
+				}
+			},
+			{ rootMargin: surface === "band" ? "320px 0px" : "160px 0px" },
+		);
+
+		observer.observe(container);
+
+		return () => observer.disconnect();
+	}, [surface]);
 
 	useEffect(() => {
 		const container = containerRef.current;
@@ -1206,6 +1232,7 @@ export function InstrumentField({
 		const uniforms = uniformRef.current;
 
 		if (!container || !canvas || !gl || !program || !vao) return;
+		if (!isInViewport) return;
 		if (metrics.width <= 0 || metrics.height <= 0) return;
 
 		const physicalWidth = Math.round(metrics.width * metrics.dpr);
@@ -1283,6 +1310,7 @@ export function InstrumentField({
 		setUniform3("uUC3", palette.underlay[3].color);
 		setUniform1("uUA3", palette.underlay[3].alpha);
 
+		const shouldAnimate = isInViewport && !shouldFreezeField;
 		let frameId = 0;
 		let hasMarkedReady = false;
 		let startTime = 0;
@@ -1294,7 +1322,7 @@ export function InstrumentField({
 			const deltaSeconds = (now - lastFrameTime) / 1000;
 			lastFrameTime = now;
 
-			const elapsed = shouldFreezeField ? 0 : ((now - startTime) / 1000) * speed;
+			const elapsed = shouldAnimate ? ((now - startTime) / 1000) * speed : 0;
 			const mouse = mouseRef.current;
 			const pointerTau = 0.1;
 			const strengthTau = mouse.targetStrength > mouse.currentStrength ? 0.12 : 0.6;
@@ -1307,7 +1335,7 @@ export function InstrumentField({
 
 			gl.uniform1f(uniforms.uTime, elapsed);
 			gl.uniform2f(uniforms.uMouse, mouse.currentX, mouse.currentY);
-			gl.uniform1f(uniforms.uMouseStrength, shouldFreezeField ? 0 : mouse.currentStrength);
+			gl.uniform1f(uniforms.uMouseStrength, shouldAnimate ? mouse.currentStrength : 0);
 			gl.clear(gl.COLOR_BUFFER_BIT);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -1316,7 +1344,7 @@ export function InstrumentField({
 				setIsCanvasReady(true);
 			}
 
-			if (!shouldFreezeField) {
+			if (shouldAnimate) {
 				frameId = requestAnimationFrame(render);
 			}
 		};
@@ -1327,6 +1355,7 @@ export function InstrumentField({
 	}, [
 		backgroundPaint,
 		isDark,
+		isInViewport,
 		metrics,
 		origin,
 		paletteSignature,
