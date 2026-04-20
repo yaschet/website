@@ -1101,10 +1101,50 @@ export function PortfolioMuxVideo({
 		};
 	}, []);
 
+	const hideControlsImmediately = useCallback(() => {
+		clearControlsTimeout();
+		if (!isPlaying || isFocusVisibleWithin || menuOpen) {
+			return;
+		}
+		setControlsVisible(false);
+	}, [clearControlsTimeout, isFocusVisibleWithin, isPlaying, menuOpen]);
+
 	const handlePointerActivity = useCallback(() => {
 		setControlsVisible(true);
 		scheduleControlsHide();
 	}, [scheduleControlsHide]);
+
+	useEffect(() => {
+		if (typeof window === "undefined" || typeof document === "undefined") return;
+		if (!canHover || !isPlaying) return;
+
+		const handleGlobalPointerMove = (event: PointerEvent) => {
+			const container = containerRef.current;
+			if (!container) return;
+
+			const target = event.target as Node | null;
+			if (target && container.contains(target)) {
+				return;
+			}
+
+			setIsPointerInside(false);
+			hideControlsImmediately();
+		};
+
+		const handleDocumentPointerOut = (event: PointerEvent) => {
+			if (event.relatedTarget !== null) return;
+			setIsPointerInside(false);
+			hideControlsImmediately();
+		};
+
+		window.addEventListener("pointermove", handleGlobalPointerMove, true);
+		document.addEventListener("pointerout", handleDocumentPointerOut, true);
+
+		return () => {
+			window.removeEventListener("pointermove", handleGlobalPointerMove, true);
+			document.removeEventListener("pointerout", handleDocumentPointerOut, true);
+		};
+	}, [canHover, hideControlsImmediately, isPlaying]);
 
 	const handleRootClick = useCallback(
 		(event: MouseEvent<HTMLDivElement>) => {

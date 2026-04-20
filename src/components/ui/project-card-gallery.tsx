@@ -141,16 +141,6 @@ export function ProjectCardGallery({
 								</span>
 							</Link>
 						)}
-
-						{!isPrivate && (
-							<Link
-								href={href}
-								className="inline-flex items-center gap-2 font-mono text-[10px] text-surface-600 uppercase tracking-[0.22em] transition-colors hover:text-surface-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-900/15 focus-visible:ring-offset-2 dark:text-surface-400 dark:focus-visible:ring-surface-50/20 dark:hover:text-surface-50"
-							>
-								<span>View Case Study</span>
-								<ArrowUpRight weight="bold" className="size-3" />
-							</Link>
-						)}
 					</div>
 				</div>
 
