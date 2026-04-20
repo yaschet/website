@@ -913,19 +913,22 @@ export function MediaGallery({
 										aria-label={`Go to slide ${index + 1}`}
 										aria-current={index === activeIndex}
 										className={cn(
-											"group relative flex h-full flex-1 items-end justify-center px-1",
+											"group relative flex h-full flex-1 items-end justify-center px-1 transition-colors duration-150",
 											floatingChromeVisible
 												? "pointer-events-auto"
 												: "pointer-events-none",
+											index === activeIndex
+												? "bg-white/[0.06] hover:bg-white/[0.08] active:bg-white/[0.12]"
+												: "hover:bg-white/[0.05] active:bg-white/[0.1]",
 											"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-inset",
 										)}
 									>
 										<span
 											className={cn(
-												"mb-[calc(var(--gallery-progress-baseline)+4px)] block h-0.5 w-full shadow-[0_1px_10px_rgba(0,0,0,0.35)] transition-colors duration-150",
+												"mb-[calc(var(--gallery-progress-baseline)+4px)] block h-1 w-full rounded-none transition-[background-color,box-shadow,opacity] duration-150",
 												index === activeIndex
-													? "bg-white"
-													: "bg-white/42 group-hover:bg-white/72",
+													? "bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.16),0_0_14px_rgba(255,255,255,0.22)] group-hover:shadow-[0_0_0_1px_rgba(255,255,255,0.24),0_0_18px_rgba(255,255,255,0.3)] group-active:opacity-90"
+													: "bg-white/16 shadow-[0_1px_10px_rgba(0,0,0,0.28)] group-hover:bg-white/38 group-hover:shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_0_12px_rgba(255,255,255,0.12)] group-active:bg-white/54",
 											)}
 										/>
 									</button>
