@@ -1,7 +1,6 @@
-"use client";
-
 import type { ReactNode } from "react";
 import { cn } from "@/src/lib/utils";
+import { DeferredInstrumentField } from "./deferred-instrument-field";
 import {
 	ACTION_BAND_MIN_HEIGHT,
 	INSTRUMENT_DOT_RADIUS,
@@ -9,11 +8,7 @@ import {
 	INSTRUMENT_GRID_ORIGIN,
 	INSTRUMENT_GRID_STEP,
 } from "./instrument-field-metrics";
-import {
-	InstrumentField,
-	type InstrumentFieldTone,
-	type InstrumentFieldVariant,
-} from "./topographic-dot-field";
+import type { InstrumentFieldTone, InstrumentFieldVariant } from "./topographic-dot-field";
 
 interface InstrumentActionBandProps {
 	children: ReactNode;
@@ -50,7 +45,7 @@ export function InstrumentActionBand({
 			)}
 			data-tone={tone}
 		>
-			<InstrumentField
+			<DeferredInstrumentField
 				className="pointer-events-none opacity-100 dark:opacity-100"
 				interactive
 				step={INSTRUMENT_GRID_STEP}
