@@ -885,12 +885,12 @@ export function MediaGallery({
 							<div
 								aria-hidden
 								className={cn(
-									"pointer-events-none absolute inset-x-0 bottom-0 z-20 h-28 transition-opacity duration-200",
+									"pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 transition-opacity duration-200",
 									floatingChromeVisible ? "opacity-100" : "opacity-0",
 								)}
 								style={{
 									background:
-										"linear-gradient(to top, rgb(255 255 255 / 0.68) 0%, rgb(255 255 255 / 0.5) 24%, rgb(255 255 255 / 0.22) 48%, rgb(255 255 255 / 0.07) 72%, rgb(255 255 255 / 0) 100%)",
+										"linear-gradient(to top, rgb(255 255 255 / 0.44) 0%, rgb(255 255 255 / 0.28) 20%, rgb(255 255 255 / 0.12) 42%, rgb(255 255 255 / 0.03) 66%, rgb(255 255 255 / 0) 100%)",
 								}}
 							/>
 							<div
