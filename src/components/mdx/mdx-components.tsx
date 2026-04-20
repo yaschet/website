@@ -74,9 +74,6 @@ export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 				className,
 			)}
 			style={{
-				margin: 0,
-				marginTop: "4em",
-				marginBottom: "0.75em",
 				letterSpacing: "-0.015em",
 			}}
 			{...props}
@@ -97,9 +94,6 @@ export function H3({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
 				className,
 			)}
 			style={{
-				margin: 0,
-				marginTop: "2.5em",
-				marginBottom: "0.6em",
 				letterSpacing: "-0.005em",
 			}}
 			{...props}
@@ -120,9 +114,6 @@ export function H4({ className, ...props }: ComponentPropsWithoutRef<"h4">) {
 				className,
 			)}
 			style={{
-				margin: 0,
-				marginTop: "2em",
-				marginBottom: "0.5em",
 				letterSpacing: "-0.005em",
 			}}
 			{...props}
