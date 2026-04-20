@@ -20,6 +20,9 @@
 :root {
   --portfolio-player-hairline: rgb(255 255 255 / 0.14);
   --portfolio-player-track-color: rgb(255 255 255 / 0.14);
+  --portfolio-player-accent: rgb(255 255 255);
+  --portfolio-player-seeking-thumb: rgb(255 255 255 / 0.4);
+  --portfolio-player-focus-ring: rgb(255 255 255);
   /* SURFACE: Pure Achromatic (Zero Chroma = True Grayscale) */
   --surface-color-50: oklch(0.985 0 0);
   --surface-color-100: oklch(0.96 0 0);
@@ -400,6 +403,9 @@
 .dark {
   --portfolio-player-hairline: rgb(255 255 255 / 0.20);
   --portfolio-player-track-color: rgb(255 255 255 / 0.14);
+  --portfolio-player-accent: rgb(255 255 255);
+  --portfolio-player-seeking-thumb: rgb(255 255 255 / 0.4);
+  --portfolio-player-focus-ring: rgb(255 255 255);
   --foreground: var(--surface-color-50);
   --surface: #141414;
   --surface-foreground: var(--surface-color-50);
@@ -1582,8 +1588,8 @@
     background:
       linear-gradient(
         to right,
-        rgb(255 255 255) 0,
-        rgb(255 255 255) var(--portfolio-video-range-progress, 0%),
+        var(--portfolio-player-accent) 0,
+        var(--portfolio-player-accent) var(--portfolio-video-range-progress, 0%),
         var(--portfolio-player-track-color) var(--portfolio-video-range-progress, 0%),
         var(--portfolio-player-track-color) 100%
       );
@@ -1596,8 +1602,8 @@
     background:
       linear-gradient(
         to right,
-        rgb(255 255 255) 0,
-        rgb(255 255 255) var(--portfolio-video-range-progress, 0%),
+        var(--portfolio-player-accent) 0,
+        var(--portfolio-player-accent) var(--portfolio-video-range-progress, 0%),
         var(--portfolio-player-track-color) var(--portfolio-video-range-progress, 0%),
         var(--portfolio-player-track-color) 100%
       );
@@ -1611,13 +1617,13 @@
     margin-top: -4px;
     border: 0;
     border-radius: 0;
-    background: rgb(255 255 255);
+    background: var(--portfolio-player-accent);
     box-shadow: none;
   }
 
   .portfolio-video-range[data-seeking="true"]::-webkit-slider-thumb,
   .portfolio-video-range[data-seeking="true"]::-moz-range-thumb {
-    background: rgb(255 255 255 / 0.4);
+    background: var(--portfolio-player-seeking-thumb);
   }
 
   .portfolio-video-range::-moz-range-thumb,
@@ -1626,7 +1632,7 @@
     block-size: 10px;
     border: 0;
     border-radius: 0;
-    background: rgb(255 255 255);
+    background: var(--portfolio-player-accent);
     box-shadow: none;
   }
 
@@ -1635,8 +1641,8 @@
   .portfolio-video-range:focus-visible::-moz-range-thumb,
   .portfolio-video-volume:focus-visible::-moz-range-thumb {
     box-shadow:
-      0 0 0 2px rgb(255 255 255),
-      0 0 0 4px rgb(255 255 255 / 0.16);
+      0 0 0 2px var(--portfolio-player-focus-ring),
+      0 0 0 4px color-mix(in srgb, var(--portfolio-player-focus-ring) 16%, transparent);
   }
 
   /* Fullscreen video optimizations - ensure video respects container */

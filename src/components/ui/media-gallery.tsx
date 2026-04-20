@@ -90,10 +90,10 @@ type ResolvedGalleryItem =
 
 const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
 	"pointer-events-auto inline-flex h-[var(--portfolio-control-default)] items-center justify-center px-[var(--portfolio-control-pad-default)]",
-	"border border-white/12 bg-surface-950/88 text-white backdrop-blur-md",
-	"shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-colors duration-150",
-	"hover:border-white/18 hover:bg-surface-950/94",
-	"focus-visible:border-white/18 focus-visible:bg-surface-950/94 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+	"border border-white/12 bg-black/92 text-white backdrop-blur-md",
+	"shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-[background-color,border-color,box-shadow] duration-150",
+	"hover:border-white/18 hover:bg-black/84",
+	"focus-visible:border-white/18 focus-visible:bg-black/84 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
 	"disabled:pointer-events-none disabled:opacity-35",
 );
 
@@ -707,7 +707,7 @@ export function MediaGallery({
 													className={cn(
 														GALLERY_PLAY_BUTTON_CLASS_NAME,
 														isHoverPreviewActive &&
-															"border-white/20 bg-surface-950",
+															"border-white/20 bg-black/88",
 													)}
 													onClick={(event) => {
 														event.preventDefault();
@@ -890,7 +890,7 @@ export function MediaGallery({
 								)}
 								style={{
 									background:
-										"linear-gradient(to top, rgb(0 0 0 / 0.82) 0%, rgb(0 0 0 / 0.6) 22%, rgb(0 0 0 / 0.34) 46%, rgb(0 0 0 / 0.14) 72%, rgb(0 0 0 / 0) 100%)",
+										"linear-gradient(to top, rgb(255 255 255 / 0.98) 0%, rgb(255 255 255 / 0.84) 26%, rgb(255 255 255 / 0.52) 52%, rgb(255 255 255 / 0.18) 76%, rgb(255 255 255 / 0) 100%)",
 								}}
 							/>
 							<div
@@ -918,17 +918,17 @@ export function MediaGallery({
 												? "pointer-events-auto"
 												: "pointer-events-none",
 											index === activeIndex
-												? "bg-white/[0.06] hover:bg-white/[0.08] active:bg-white/[0.12]"
-												: "hover:bg-white/[0.05] active:bg-white/[0.1]",
-											"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-inset",
+												? "bg-black/[0.04] hover:bg-black/[0.06] active:bg-black/[0.1]"
+												: "hover:bg-black/[0.035] active:bg-black/[0.08]",
+											"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-950/20 focus-visible:ring-inset",
 										)}
 									>
 										<span
 											className={cn(
 												"mb-[calc(var(--gallery-progress-baseline)+4px)] block h-1 w-full rounded-none transition-[background-color,box-shadow,opacity] duration-150",
 												index === activeIndex
-													? "bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.16),0_0_14px_rgba(255,255,255,0.22)] group-hover:shadow-[0_0_0_1px_rgba(255,255,255,0.24),0_0_18px_rgba(255,255,255,0.3)] group-active:opacity-90"
-													: "bg-white/16 shadow-[0_1px_10px_rgba(0,0,0,0.28)] group-hover:bg-white/38 group-hover:shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_0_12px_rgba(255,255,255,0.12)] group-active:bg-white/54",
+													? "bg-black shadow-[0_6px_14px_rgba(0,0,0,0.14)] group-hover:bg-black/88 group-active:opacity-90"
+													: "bg-black/18 shadow-[0_4px_10px_rgba(0,0,0,0.08)] group-hover:bg-black/32 group-active:bg-black/48",
 											)}
 										/>
 									</button>

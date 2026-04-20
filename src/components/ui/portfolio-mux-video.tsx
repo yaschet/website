@@ -77,21 +77,24 @@ const PLAYBACK_RATE_OPTIONS = [
 let nextPortfolioMuxVideoId = 0;
 
 const PLAYER_BUTTON_CLASS_NAME = cn(
-	"flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-none border-none bg-surface-950 px-3 text-white",
+	"flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-none border-none bg-black/92 px-3 text-white backdrop-blur-md",
+	"shadow-[0_8px_18px_rgba(0,0,0,0.14)] transition-[background-color,box-shadow] duration-150",
 	"disabled:pointer-events-none disabled:opacity-35",
 	"focus-visible:outline-none",
-	"hover:bg-surface-800",
+	"hover:bg-black/84",
 );
 
 const PLAYER_ICON_BUTTON_CLASS_NAME = cn(
-	"flex h-10 w-10 items-center justify-center rounded-none border-none bg-surface-950 text-white",
+	"flex h-10 w-10 items-center justify-center rounded-none border-none bg-black/92 text-white backdrop-blur-md",
+	"shadow-[0_8px_18px_rgba(0,0,0,0.14)] transition-[background-color,box-shadow] duration-150",
 	"disabled:pointer-events-none disabled:opacity-35",
 	"focus-visible:outline-none",
-	"hover:bg-surface-800",
+	"hover:bg-black/84",
 );
 
 const PLAYER_TIME_DISPLAY_CLASS_NAME = cn(
-	"pointer-events-auto inline-flex h-10 cursor-default items-center whitespace-nowrap rounded-none border-none bg-surface-950 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em]",
+	"pointer-events-auto inline-flex h-10 cursor-default items-center whitespace-nowrap rounded-none border-none bg-black/92 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em] backdrop-blur-md",
+	"shadow-[0_8px_18px_rgba(0,0,0,0.14)]",
 );
 
 function formatPlaybackTime(value: number) {
@@ -343,11 +346,11 @@ export function PortfolioMuxVideo({
 		qualityTriggerLabel.mode === "auto" &&
 		Boolean(qualityTriggerLabel.resolved);
 	const qualityMenuContentClassName = cn(
-		"rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
+		"rounded-none border border-white/12 bg-black/95 p-1 text-surface-50 shadow-[0_16px_32px_rgba(0,0,0,0.18)] backdrop-blur-md",
 		isCompactLayout ? "min-w-32" : "min-w-40",
 	);
 	const rateMenuContentClassName = cn(
-		"rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
+		"rounded-none border border-white/12 bg-black/95 p-1 text-surface-50 shadow-[0_16px_32px_rgba(0,0,0,0.18)] backdrop-blur-md",
 		isCompactLayout ? "min-w-28" : "min-w-36",
 	);
 	const qualityTriggerClassName = cn(
@@ -1431,6 +1434,15 @@ export function PortfolioMuxVideo({
 				isFullscreen && "fixed inset-0 z-50 m-0 rounded-none",
 				className,
 			)}
+			style={
+				{
+					"--portfolio-player-hairline": "rgb(0 0 0 / 0.12)",
+					"--portfolio-player-track-color": "rgb(0 0 0 / 0.18)",
+					"--portfolio-player-accent": "rgb(0 0 0)",
+					"--portfolio-player-seeking-thumb": "rgb(0 0 0 / 0.42)",
+					"--portfolio-player-focus-ring": "rgb(0 0 0)",
+				} as CSSProperties
+			}
 			role="application"
 			aria-label="Video player"
 			onClick={handleRootClick}
@@ -1547,7 +1559,7 @@ export function PortfolioMuxVideo({
 			) : null}
 
 			<motion.div
-				className="pointer-events-none absolute inset-x-0 bottom-0 z-20 border-t"
+				className="pointer-events-none absolute inset-x-0 bottom-0 z-20 border-t backdrop-blur-[2px]"
 				style={{ borderColor: "var(--portfolio-player-hairline)" }}
 				initial={{ opacity: 1 }}
 				animate={{
@@ -1556,7 +1568,7 @@ export function PortfolioMuxVideo({
 				}}
 				transition={tweens.interactionFast}
 			>
-				<div className="absolute inset-0 bg-surface-950" />
+				<div className="absolute inset-0 bg-gradient-to-t from-white/98 via-55% via-white/82 to-white/0" />
 				<div className={controlsPanelClassName}>
 					<div className={timelineRowClassName}>
 						{activeStoryboardCue && scrubPreviewTime !== null ? (
@@ -1585,7 +1597,7 @@ export function PortfolioMuxVideo({
 							aria-hidden
 						/>
 						<motion.div
-							className="pointer-events-none absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-white"
+							className="pointer-events-none absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-[color:var(--portfolio-player-accent)]"
 							animate={
 								showTimelineBuffering ? { opacity: [1, 0.6, 1] } : { opacity: 1 }
 							}
