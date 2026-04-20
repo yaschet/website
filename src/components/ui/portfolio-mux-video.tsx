@@ -110,12 +110,13 @@ const PLAYER_TIME_DISPLAY_CLASS_NAME = cn(
 	"pointer-events-auto inline-flex h-10 cursor-default items-center whitespace-nowrap rounded-none border-none bg-surface-950 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em]",
 );
 
-function formatPlaybackTime(value: number) {
+function formatPlaybackTime(value: number, mode: "floor" | "ceil" = "floor") {
 	if (!Number.isFinite(value) || value <= 0) {
 		return "0:00";
 	}
 
-	const totalSeconds = Math.floor(value);
+	const totalSeconds =
+		mode === "ceil" ? Math.max(0, Math.ceil(value - 0.0001)) : Math.floor(value);
 	const hours = Math.floor(totalSeconds / 3600);
 	const minutes = Math.floor((totalSeconds % 3600) / 60);
 	const seconds = totalSeconds % 60;
@@ -339,6 +340,7 @@ export function PortfolioMuxVideo({
 	const pathname = usePathname();
 	const mediaRef = useRef<MuxVideoElement | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const volumeControlHoverRef = useRef(false);
 	const hideControlsTimeoutRef = useRef<number | null>(null);
 	const suppressNextRootClickRef = useRef(false);
 	const instanceIdRef = useRef(++nextPortfolioMuxVideoId);
@@ -458,8 +460,8 @@ export function PortfolioMuxVideo({
 				: "border-l pl-3",
 	);
 	const timeDisplayText = isCompactLayout
-		? `${formatPlaybackTime(currentTime)}/${formatPlaybackTime(duration)}`
-		: `${formatPlaybackTime(currentTime)} / ${formatPlaybackTime(duration)}`;
+		? `${formatPlaybackTime(currentTime)}/${formatPlaybackTime(duration, "ceil")}`
+		: `${formatPlaybackTime(currentTime)} / ${formatPlaybackTime(duration, "ceil")}`;
 	const activeStoryboardCue = useMemo(() => {
 		if (scrubPreviewTime === null) return null;
 		return (
@@ -819,9 +821,25 @@ export function PortfolioMuxVideo({
 		[syncFromMedia],
 	);
 
+	const adjustVolumeByStep = useCallback(
+		(stepDelta: number) => {
+			const startingVolume = isMuted
+				? lastAudibleVolumeRef.current
+				: volume > 0.01
+					? volume
+					: preferredVolumeRef.current;
+			const nextVolume = Math.min(1, Math.max(0, startingVolume + stepDelta));
+
+			handleVolumeChange(Number(nextVolume.toFixed(2)));
+			setControlsVisible(true);
+			scheduleControlsHide();
+		},
+		[handleVolumeChange, isMuted, scheduleControlsHide, volume],
+	);
+
 	const handleVolumeWheel = useCallback(
 		(event: WheelEvent<HTMLDivElement>) => {
-			if (!canHover) return;
+			if (!canHover || !isFullscreen) return;
 
 			const target = event.target as HTMLElement | null;
 			if (target?.closest("[data-player-interactive]")) {
@@ -831,20 +849,39 @@ export function PortfolioMuxVideo({
 			event.preventDefault();
 			event.stopPropagation();
 
-			const startingVolume = isMuted
-				? lastAudibleVolumeRef.current
-				: volume > 0.01
-					? volume
-					: preferredVolumeRef.current;
-			const delta = event.deltaY < 0 ? 0.06 : -0.06;
-			const nextVolume = Math.min(1, Math.max(0, startingVolume + delta));
-
-			handleVolumeChange(Number(nextVolume.toFixed(2)));
-			setControlsVisible(true);
-			scheduleControlsHide();
+			adjustVolumeByStep(event.deltaY < 0 ? 0.06 : -0.06);
 		},
-		[canHover, handleVolumeChange, isMuted, scheduleControlsHide, volume],
+		[adjustVolumeByStep, canHover, isFullscreen],
 	);
+
+	const handleInteractiveVolumeWheel = useCallback(
+		(event: WheelEvent<HTMLElement>) => {
+			event.preventDefault();
+			event.stopPropagation();
+			adjustVolumeByStep(event.deltaY < 0 ? 0.06 : -0.06);
+		},
+		[adjustVolumeByStep],
+	);
+
+	useEffect(() => {
+		const handleWindowWheel = (event: globalThis.WheelEvent) => {
+			if (!volumeControlHoverRef.current) return;
+
+			event.preventDefault();
+			event.stopPropagation();
+			adjustVolumeByStep(event.deltaY < 0 ? 0.06 : -0.06);
+		};
+
+		window.addEventListener("wheel", handleWindowWheel, {
+			capture: true,
+			passive: false,
+		});
+
+		return () =>
+			window.removeEventListener("wheel", handleWindowWheel, {
+				capture: true,
+			});
+	}, [adjustVolumeByStep]);
 
 	const handleSeek = useCallback((nextTime: number) => {
 		const media = mediaRef.current;
@@ -1394,6 +1431,11 @@ export function PortfolioMuxVideo({
 		scheduleControlsHide();
 	}, [clearControlsTimeout, isPlaying, scheduleControlsHide]);
 
+	useEffect(() => {
+		if (controlsVisible) return;
+		setOpenMenu(null);
+	}, [controlsVisible]);
+
 	// Handle window resize and orientation change for responsive fullscreen
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -1527,6 +1569,27 @@ export function PortfolioMuxVideo({
 		[togglePlayback],
 	);
 
+	const handleRootDoubleClick = useCallback(
+		(event: MouseEvent<HTMLDivElement>) => {
+			const target = event.target as HTMLElement | null;
+			if (target?.closest("[data-player-interactive]")) {
+				return;
+			}
+
+			event.preventDefault();
+			void toggleFullscreen();
+		},
+		[toggleFullscreen],
+	);
+
+	const handleVolumeControlPointerEnter = useCallback(() => {
+		volumeControlHoverRef.current = true;
+	}, []);
+
+	const handleVolumeControlPointerLeave = useCallback(() => {
+		volumeControlHoverRef.current = false;
+	}, []);
+
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent<HTMLDivElement>) => {
 			const target = event.target as HTMLElement | null;
@@ -1570,6 +1633,14 @@ export function PortfolioMuxVideo({
 					event.preventDefault();
 					handleSeek(Math.min(duration || currentTime + 5, currentTime + 5));
 					return;
+				case "ArrowUp":
+					event.preventDefault();
+					adjustVolumeByStep(0.05);
+					return;
+				case "ArrowDown":
+					event.preventDefault();
+					adjustVolumeByStep(-0.05);
+					return;
 				case "Escape":
 					if (isFullscreen) {
 						event.preventDefault();
@@ -1594,6 +1665,7 @@ export function PortfolioMuxVideo({
 			isFullscreen,
 			menuOpen,
 			onExit,
+			adjustVolumeByStep,
 			toggleFullscreen,
 			toggleMute,
 			togglePlayback,
@@ -1612,18 +1684,16 @@ export function PortfolioMuxVideo({
 			detailLabel?: string;
 			resolutionLabel: string;
 		}) => (
-			<span className="flex w-full min-w-0 items-center justify-between gap-2">
+			<span className="grid w-full min-w-0 grid-cols-[2px_minmax(0,1fr)_3.25rem] items-center gap-2">
+				<span
+					aria-hidden
+					className={cn(
+						"h-4 w-[2px] self-center bg-white",
+						rowActive ? "opacity-100" : "opacity-0",
+					)}
+				/>
 				<span className="flex min-w-0 items-center gap-1.5">
-					<span
-						aria-hidden
-						className={cn(
-							"h-4 w-[2px] shrink-0 self-center bg-white",
-							rowActive ? "opacity-100" : "opacity-0",
-						)}
-					/>
-					<span
-						className="shrink-0 text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]"
-					>
+					<span className="shrink-0 text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]">
 						{resolutionLabel}
 					</span>
 					{detailLabel ? (
@@ -1633,11 +1703,11 @@ export function PortfolioMuxVideo({
 					) : null}
 				</span>
 				{chipLabel ? (
-					<span className="inline-flex h-5 w-[3.25rem] shrink-0 items-center justify-center border border-white/20 px-1.5 font-mono tabular-nums text-[9px] text-white/70 uppercase leading-none tracking-[0.12em]">
+					<span className="inline-flex h-5 w-[3.25rem] justify-self-end items-center justify-center border border-white/20 px-1.5 font-mono tabular-nums text-[9px] text-white/70 uppercase leading-none tracking-[0.12em]">
 						{chipLabel}
 					</span>
 				) : (
-					<span aria-hidden className="block h-5 w-[3.25rem] shrink-0" />
+					<span aria-hidden className="block h-5 w-[3.25rem] justify-self-end" />
 				)}
 			</span>
 		),
@@ -1828,6 +1898,7 @@ export function PortfolioMuxVideo({
 			role="application"
 			aria-label="Video player"
 			onClick={handleRootClick}
+			onDoubleClick={handleRootDoubleClick}
 			onFocus={(event) => {
 				const target = event.target as HTMLElement | null;
 				if (target?.matches(":focus-visible")) {
@@ -2072,26 +2143,35 @@ export function PortfolioMuxVideo({
 								<VolumeIcon size={18} weight="fill" />
 							</button>
 
-							{showInlineVolume ? (
-								<div
-									className="hidden items-center border-l pl-2 md:flex"
-									style={{
-										borderColor: "var(--portfolio-player-hairline)",
-									}}
-								>
-									<input
+								{showInlineVolume ? (
+									<div
 										data-player-interactive
+										className="hidden items-center border-l pl-2 md:flex"
+										style={{
+											borderColor: "var(--portfolio-player-hairline)",
+										}}
+										onPointerEnter={handleVolumeControlPointerEnter}
+										onPointerLeave={handleVolumeControlPointerLeave}
+										onWheelCapture={handleInteractiveVolumeWheel}
+										onWheel={handleInteractiveVolumeWheel}
+									>
+										<input
+											data-player-interactive
 										type="range"
 										min={0}
 										max={1}
 										step={0.05}
 										value={isMuted ? 0 : volume}
-										onChange={(event) =>
-											handleVolumeChange(Number(event.target.value))
-										}
-										className="portfolio-video-volume w-20"
-										aria-label="Adjust video volume"
-										style={
+											onChange={(event) =>
+												handleVolumeChange(Number(event.target.value))
+											}
+											onPointerEnter={handleVolumeControlPointerEnter}
+											onPointerLeave={handleVolumeControlPointerLeave}
+											onWheelCapture={handleInteractiveVolumeWheel}
+											onWheel={handleInteractiveVolumeWheel}
+											className="portfolio-video-volume w-20"
+											aria-label="Adjust video volume"
+											style={
 											{
 												"--portfolio-video-range-progress": `${volumePercent}%`,
 											} as CSSProperties

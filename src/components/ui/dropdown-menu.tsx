@@ -278,7 +278,9 @@ const DropdownMenuRadioItem = React.forwardRef<
 						</DropdownMenuPrimitive.ItemIndicator>
 					</span>
 				) : null}
-				<span className={cn(!hideIndicator && !disableIndicatorPadding && "pl-6")}>
+				<span
+					className={cn("w-full", !hideIndicator && !disableIndicatorPadding && "pl-6")}
+				>
 					{children}
 				</span>
 			</DropdownMenuPrimitive.RadioItem>
