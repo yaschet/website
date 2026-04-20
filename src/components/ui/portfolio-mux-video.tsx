@@ -15,7 +15,7 @@ import {
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
-import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
+import type { CSSProperties, KeyboardEvent, MouseEvent, WheelEvent } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
 	DropdownMenu,
@@ -57,6 +57,19 @@ type QualityOption = {
 	height?: number;
 	resolutionLabel?: string;
 	triggerLabel?: string;
+};
+
+type VideoRenditionLike = {
+	bitrate?: number;
+	frameRate?: number;
+	height?: number;
+	id?: string;
+};
+
+type HlsLevelLike = {
+	bitrate?: number;
+	frameRate?: number;
+	height?: number;
 };
 
 type StoryboardCue = {
@@ -137,11 +150,42 @@ function formatFrameRateLabel(frameRate?: number) {
 	return `${roundedFrameRate} FPS`;
 }
 
-function formatQualityOption(rendition: {
-	frameRate?: number;
-	height?: number;
-	id?: string;
-}): QualityOption {
+function resolveRenditionFrameRate(
+	media: MuxVideoElement,
+	rendition: VideoRenditionLike,
+) {
+	if (rendition.frameRate && Number.isFinite(rendition.frameRate)) {
+		return rendition.frameRate;
+	}
+
+	const hls = (media as unknown as { _hls?: { levels?: HlsLevelLike[] } })._hls;
+	const levels = Array.isArray(hls?.levels) ? hls.levels : [];
+	if (levels.length === 0) return undefined;
+
+	const candidates = levels.filter(
+		(level) =>
+			level.frameRate &&
+			Number.isFinite(level.frameRate) &&
+			(rendition.height == null || level.height === rendition.height),
+	);
+	if (candidates.length === 0) return undefined;
+
+	const bestLevel = [...candidates].sort((left, right) => {
+		const leftBitrateDelta =
+			rendition.bitrate != null && left.bitrate != null
+				? Math.abs(left.bitrate - rendition.bitrate)
+				: Number.POSITIVE_INFINITY;
+		const rightBitrateDelta =
+			rendition.bitrate != null && right.bitrate != null
+				? Math.abs(right.bitrate - rendition.bitrate)
+				: Number.POSITIVE_INFINITY;
+		return leftBitrateDelta - rightBitrateDelta;
+	})[0];
+
+	return bestLevel?.frameRate;
+}
+
+function formatQualityOption(rendition: VideoRenditionLike): QualityOption {
 	const resolutionLabel = rendition.height ? `${rendition.height}P` : (rendition.id ?? "MANUAL");
 	const frameRateLabel = formatFrameRateLabel(rendition.frameRate);
 	return {
@@ -288,12 +332,13 @@ export function PortfolioMuxVideo({
 	const playbackCommandIdRef = useRef(0);
 	const preferredMutedRef = useRef(muted);
 	const preferredVolumeRef = useRef(1);
+	const lastAudibleVolumeRef = useRef(1);
 	const preferredPlaybackRateRef = useRef(1);
 	const isActive = active ?? autoPlay;
 	const desiredPlayingRef = useRef(Boolean(isActive));
 	const [isPlaying, setIsPlaying] = useState(Boolean(isActive));
 	const [isMuted, setIsMuted] = useState(muted);
-	const [volume, setVolume] = useState(1);
+	const [volume, setVolume] = useState(muted ? 0 : 1);
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [playbackRate, setPlaybackRate] = useState(1);
@@ -364,8 +409,7 @@ export function PortfolioMuxVideo({
 		qualityTriggerLabel.mode === "auto" &&
 		Boolean(qualityTriggerLabel.resolved);
 	const qualityMenuContentClassName = cn(
-		"rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
-		isCompactLayout ? "min-w-[12rem]" : "min-w-[15rem]",
+		"w-auto min-w-0 rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
 	);
 	const rateMenuContentClassName = cn(
 		"rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
@@ -528,14 +572,18 @@ export function PortfolioMuxVideo({
 			!media.ended &&
 			(media.seeking || readyState < (currentlyPlaying ? 3 : 2));
 		const waitingForPlayback = desiredPlayingRef.current && !currentlyPlaying && !media.ended;
+		const mediaVolume = media.volume ?? preferredVolumeRef.current;
+		if (!media.muted && mediaVolume > 0.01) {
+			lastAudibleVolumeRef.current = mediaVolume;
+			preferredVolumeRef.current = mediaVolume;
+		}
 		preferredMutedRef.current = media.muted;
-		preferredVolumeRef.current = media.volume ?? 1;
 		preferredPlaybackRateRef.current = media.playbackRate ?? 1;
 		setIsPlaying(currentlyPlaying);
 		setCurrentTime(Number.isFinite(media.currentTime) ? media.currentTime : 0);
 		setDuration(Number.isFinite(media.duration) ? media.duration : 0);
 		setIsMuted(preferredMutedRef.current);
-		setVolume(preferredVolumeRef.current);
+		setVolume(preferredMutedRef.current ? 0 : mediaVolume);
 		setPlaybackRate(preferredPlaybackRateRef.current);
 		setIsMediaReady(metadataReady);
 		setIsBuffering(buffering);
@@ -554,7 +602,12 @@ export function PortfolioMuxVideo({
 		});
 
 		const nextOptions = [
-			...sortedRenditions.map((rendition) => formatQualityOption(rendition)),
+			...sortedRenditions.map((rendition) =>
+				formatQualityOption({
+					...rendition,
+					frameRate: resolveRenditionFrameRate(media, rendition),
+				}),
+			),
 			{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
 		];
 
@@ -587,9 +640,10 @@ export function PortfolioMuxVideo({
 		setHasStartedPlayback(false);
 		preferredMutedRef.current = muted;
 		preferredVolumeRef.current = 1;
+		lastAudibleVolumeRef.current = 1;
 		preferredPlaybackRateRef.current = 1;
 		setIsMuted(muted);
-		setVolume(1);
+		setVolume(muted ? 0 : 1);
 		setPlaybackRate(1);
 		setCurrentTime(0);
 		setDuration(0);
@@ -605,17 +659,21 @@ export function PortfolioMuxVideo({
 
 	useEffect(() => {
 		preferredMutedRef.current = muted;
+		const restoredVolume =
+			preferredVolumeRef.current > 0.01 ? preferredVolumeRef.current : lastAudibleVolumeRef.current;
 
 		const media = mediaRef.current;
-		if (!media) {
-			setIsMuted(muted);
-			return;
+		if (media) {
+			if (!muted) {
+				media.volume = restoredVolume;
+			}
+			media.muted = muted;
+			media.defaultMuted = muted;
 		}
 
-		media.muted = muted;
-		media.defaultMuted = muted;
-		syncFromMedia();
-	}, [muted, syncFromMedia]);
+		setIsMuted(muted);
+		setVolume(muted ? 0 : restoredVolume);
+	}, [muted]);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -698,10 +756,25 @@ export function PortfolioMuxVideo({
 		const media = mediaRef.current;
 		if (!media) return;
 
-		const nextMuted = !media.muted;
-		preferredMutedRef.current = nextMuted;
-		media.muted = nextMuted;
-		media.defaultMuted = nextMuted;
+		if (media.muted || media.volume <= 0.01) {
+			const restoredVolume =
+				lastAudibleVolumeRef.current > 0.01 ? lastAudibleVolumeRef.current : 1;
+			preferredMutedRef.current = false;
+			preferredVolumeRef.current = restoredVolume;
+			media.volume = restoredVolume;
+			media.muted = false;
+			media.defaultMuted = false;
+		} else {
+			const currentVolume = media.volume > 0.01 ? media.volume : preferredVolumeRef.current;
+			if (currentVolume > 0.01) {
+				lastAudibleVolumeRef.current = currentVolume;
+				preferredVolumeRef.current = currentVolume;
+			}
+			preferredMutedRef.current = true;
+			media.muted = true;
+			media.defaultMuted = true;
+		}
+
 		syncFromMedia();
 	}, [syncFromMedia]);
 
@@ -710,14 +783,51 @@ export function PortfolioMuxVideo({
 			const media = mediaRef.current;
 			if (!media) return;
 
-			preferredVolumeRef.current = nextVolume;
-			preferredMutedRef.current = nextVolume <= 0.01;
-			media.volume = nextVolume;
-			media.muted = preferredMutedRef.current;
-			media.defaultMuted = preferredMutedRef.current;
+			const clampedVolume = Math.min(1, Math.max(0, nextVolume));
+			if (clampedVolume > 0.01) {
+				lastAudibleVolumeRef.current = clampedVolume;
+				preferredVolumeRef.current = clampedVolume;
+				preferredMutedRef.current = false;
+				media.volume = clampedVolume;
+				media.muted = false;
+				media.defaultMuted = false;
+			} else {
+				preferredMutedRef.current = true;
+				media.volume = 0;
+				media.muted = true;
+				media.defaultMuted = true;
+			}
+
 			syncFromMedia();
 		},
 		[syncFromMedia],
+	);
+
+	const handleVolumeWheel = useCallback(
+		(event: WheelEvent<HTMLDivElement>) => {
+			if (!canHover) return;
+
+			const target = event.target as HTMLElement | null;
+			if (target?.closest("[data-player-interactive]")) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const startingVolume = isMuted
+				? lastAudibleVolumeRef.current
+				: volume > 0.01
+					? volume
+					: preferredVolumeRef.current;
+			const delta = event.deltaY < 0 ? 0.06 : -0.06;
+			const nextVolume = Math.min(1, Math.max(0, startingVolume + delta));
+
+			handleVolumeChange(Number(nextVolume.toFixed(2)));
+			setControlsVisible(true);
+			scheduleControlsHide();
+		},
+		[canHover, handleVolumeChange, isMuted, scheduleControlsHide, volume],
 	);
 
 	const handleSeek = useCallback((nextTime: number) => {
@@ -1474,7 +1584,7 @@ export function PortfolioMuxVideo({
 		],
 	);
 
-	const renderMenuRow = useCallback(
+	const renderQualityMenuRow = useCallback(
 		({
 			active: rowActive,
 			chipLabel,
@@ -1486,15 +1596,15 @@ export function PortfolioMuxVideo({
 			detailLabel?: string;
 			resolutionLabel: string;
 		}) => (
-			<span className="grid min-w-0 w-full grid-cols-[2px_6ch_8.5ch_3.25rem] items-baseline gap-3">
+			<span className="inline-grid w-max max-w-full grid-cols-[2px_minmax(5.5ch,max-content)_7ch_3.25rem] items-center gap-2.5">
 				<span
 					aria-hidden
-					className={cn("h-5 w-[2px] bg-white", rowActive ? "opacity-100" : "opacity-0")}
+					className={cn("h-4 w-[2px] self-center bg-white", rowActive ? "opacity-100" : "opacity-0")}
 				/>
-				<span className="truncate text-left font-mono tabular-nums text-[10px] uppercase tracking-[0.18em]">
+				<span className="truncate text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]">
 					{resolutionLabel}
 				</span>
-				<span className="truncate text-left font-mono tabular-nums text-[10px] text-white/50 uppercase tracking-[0.18em]">
+				<span className="truncate text-left font-mono tabular-nums text-[10px] text-white/50 uppercase leading-none tracking-[0.18em]">
 					{detailLabel ?? ""}
 				</span>
 				{chipLabel ? (
@@ -1504,6 +1614,21 @@ export function PortfolioMuxVideo({
 				) : (
 					<span aria-hidden className="block h-5 w-[3.25rem] justify-self-end" />
 				)}
+			</span>
+		),
+		[],
+	);
+
+	const renderSimpleMenuRow = useCallback(
+		({ active: rowActive, label }: { active: boolean; label: string }) => (
+			<span className="inline-grid w-max max-w-full grid-cols-[2px_max-content] items-center gap-2.5">
+				<span
+					aria-hidden
+					className={cn("h-4 w-[2px] self-center bg-white", rowActive ? "opacity-100" : "opacity-0")}
+				/>
+				<span className="truncate text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]">
+					{label}
+				</span>
 			</span>
 		),
 		[],
@@ -1566,7 +1691,7 @@ export function PortfolioMuxVideo({
 								"data-[state=checked]:data-[highlighted]:bg-white/14 data-[state=checked]:focus:bg-white/14 data-[state=checked]:hover:bg-white/14",
 							)}
 						>
-							{renderMenuRow({
+							{renderQualityMenuRow({
 								active: option.value === qualityValue,
 								detailLabel: option.detailLabel,
 								chipLabel: option.chipLabel,
@@ -1621,9 +1746,9 @@ export function PortfolioMuxVideo({
 								"data-[state=checked]:data-[highlighted]:bg-white/14 data-[state=checked]:focus:bg-white/14 data-[state=checked]:hover:bg-white/14",
 							)}
 						>
-							{renderMenuRow({
+							{renderSimpleMenuRow({
 								active: option.value === playbackRate,
-								resolutionLabel: option.label,
+								label: option.label,
 							})}
 						</DropdownMenuRadioItem>
 					))}
@@ -1734,6 +1859,7 @@ export function PortfolioMuxVideo({
 					event.preventDefault();
 				}
 			}}
+			onWheel={handleVolumeWheel}
 		>
 			<mux-video
 				ref={mediaRef}
