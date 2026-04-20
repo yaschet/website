@@ -198,7 +198,21 @@ function formatQualityOption(rendition: VideoRenditionLike): QualityOption {
 		triggerLabel: frameRateLabel
 			? `${resolutionLabel}/${frameRateLabel.replace(" FPS", "")}`
 			: resolutionLabel,
-	};
+		};
+}
+
+function dedupeQualityOptions(options: QualityOption[]) {
+	const seen = new Set<string>();
+	const deduped: QualityOption[] = [];
+
+	for (const option of options) {
+		const key = `${option.resolutionLabel ?? option.label}|${option.detailLabel ?? ""}`;
+		if (seen.has(key)) continue;
+		seen.add(key);
+		deduped.push(option);
+	}
+
+	return deduped;
 }
 
 function parseTimestamp(value: string) {
@@ -601,15 +615,17 @@ export function PortfolioMuxVideo({
 			return (right.bitrate ?? 0) - (left.bitrate ?? 0);
 		});
 
-		const nextOptions = [
-			...sortedRenditions.map((rendition) =>
-				formatQualityOption({
-					...rendition,
-					frameRate: resolveRenditionFrameRate(media, rendition),
-				}),
-			),
-			{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
-		];
+			const nextOptions = [
+				...dedupeQualityOptions(
+					sortedRenditions.map((rendition) =>
+						formatQualityOption({
+							...rendition,
+							frameRate: resolveRenditionFrameRate(media, rendition),
+						}),
+					),
+				),
+				{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
+			];
 
 		setQualityOptions(nextOptions);
 		const selectedQualityValue =
@@ -1596,23 +1612,32 @@ export function PortfolioMuxVideo({
 			detailLabel?: string;
 			resolutionLabel: string;
 		}) => (
-			<span className="inline-grid w-max max-w-full grid-cols-[2px_minmax(5.5ch,max-content)_7ch_3.25rem] items-center gap-2.5">
-				<span
-					aria-hidden
-					className={cn("h-4 w-[2px] self-center bg-white", rowActive ? "opacity-100" : "opacity-0")}
-				/>
-				<span className="truncate text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]">
-					{resolutionLabel}
-				</span>
-				<span className="truncate text-left font-mono tabular-nums text-[10px] text-white/50 uppercase leading-none tracking-[0.18em]">
-					{detailLabel ?? ""}
+			<span className="flex w-full min-w-0 items-center justify-between gap-2">
+				<span className="flex min-w-0 items-center gap-1.5">
+					<span
+						aria-hidden
+						className={cn(
+							"h-4 w-[2px] shrink-0 self-center bg-white",
+							rowActive ? "opacity-100" : "opacity-0",
+						)}
+					/>
+					<span
+						className="shrink-0 text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]"
+					>
+						{resolutionLabel}
+					</span>
+					{detailLabel ? (
+						<span className="truncate text-left font-mono tabular-nums text-[10px] text-white/50 uppercase leading-none tracking-[0.18em]">
+							{detailLabel}
+						</span>
+					) : null}
 				</span>
 				{chipLabel ? (
-					<span className="inline-flex h-5 w-[3.25rem] justify-self-end items-center justify-center border border-white/20 px-1.5 font-mono tabular-nums text-[9px] text-white/70 uppercase leading-none tracking-[0.12em]">
+					<span className="inline-flex h-5 w-[3.25rem] shrink-0 items-center justify-center border border-white/20 px-1.5 font-mono tabular-nums text-[9px] text-white/70 uppercase leading-none tracking-[0.12em]">
 						{chipLabel}
 					</span>
 				) : (
-					<span aria-hidden className="block h-5 w-[3.25rem] justify-self-end" />
+					<span aria-hidden className="block h-5 w-[3.25rem] shrink-0" />
 				)}
 			</span>
 		),
