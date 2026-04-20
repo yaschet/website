@@ -1374,7 +1374,7 @@
   --leading-heading: 1;
   --leading-subheading: 1.1;
   --leading-body: 1.65;
-  --leading-article-body: 1.7;
+  --leading-article-body: 1.75;
   --leading-article-quote: 1.5;
   --leading-mono: 1.5;
 
@@ -1533,7 +1533,7 @@
     --text-body-xs: 0.75rem;
     --text-body-xs--line-height: 1.35;
     --leading-body: 1.55;
-    --leading-article-body: 1.6;
+    --leading-article-body: 1.65;
     --leading-article-quote: 1.5;
   }
 }
@@ -1983,7 +1983,7 @@
     width: 100% !important;
     max-width: none !important;
     grid-template-columns:
-      [content-start] minmax(0, min(64ch, 100%))
+      [content-start] minmax(0, min(60ch, 100%))
       [content-end] minmax(0, 1fr)
       [breakout-end];
     row-gap: 0 !important;
