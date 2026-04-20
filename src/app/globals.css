@@ -2022,24 +2022,78 @@
     max-width: none;
   }
 
+  .portfolio-article > h1 {
+    margin-top: 0 !important;
+    margin-bottom: 0.5em !important;
+    font-size: 2rem !important;
+    line-height: 1.15 !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .portfolio-article > p {
+    margin-top: 0 !important;
+    margin-bottom: 1.5em !important;
+    line-height: var(--leading-article-body) !important;
+    letter-spacing: var(--tracking-article) !important;
+  }
+
+  .portfolio-article > ul,
+  .portfolio-article > ol {
+    margin-top: 0 !important;
+    margin-bottom: 1.5em !important;
+    line-height: var(--leading-article-body) !important;
+    letter-spacing: var(--tracking-article) !important;
+  }
+
+  .portfolio-article li {
+    line-height: var(--leading-article-body) !important;
+    letter-spacing: var(--tracking-article) !important;
+  }
+
   .portfolio-article > h2 {
-    margin-top: 2.5em;
-    margin-bottom: 0.5em;
+    margin-top: 2.5em !important;
+    margin-bottom: 0.8em !important;
+    font-size: 1.5rem !important;
+    line-height: 1.25 !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.015em !important;
   }
 
   .portfolio-article > h3 {
-    margin-top: 2em;
-    margin-bottom: 0.4em;
+    margin-top: 2em !important;
+    margin-bottom: 0.9em !important;
+    font-size: 1.25rem !important;
+    line-height: 1.4 !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.005em !important;
   }
 
   .portfolio-article > h4 {
-    margin-top: 1.5em;
-    margin-bottom: 0.35em;
+    margin-top: 1.5em !important;
+    margin-bottom: 0.75em !important;
+    font-size: 1.125rem !important;
+    line-height: 1.45 !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.005em !important;
   }
 
   @media (max-width: 640px) {
+    .portfolio-article > h1 {
+      font-size: 1.625rem !important;
+    }
+
     .portfolio-article > h2 {
-      margin-top: 2em;
+      margin-top: 2em !important;
+      font-size: 1.25rem !important;
+    }
+
+    .portfolio-article > h3 {
+      font-size: 1.0625rem !important;
+    }
+
+    .portfolio-article > h4 {
+      font-size: 0.9375rem !important;
     }
   }
 

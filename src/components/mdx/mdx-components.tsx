@@ -21,7 +21,7 @@ import { cn } from "@/src/lib/index";
 
 const ARTICLE_FLOW_STYLE = {
 	margin: 0,
-	marginBottom: "1.4em",
+	marginBottom: "1.5em",
 	lineHeight: "var(--leading-article-body)",
 	letterSpacing: "var(--tracking-article)",
 } as const;
@@ -44,18 +44,7 @@ const ARTICLE_BLOCKQUOTE_STYLE = {
 export function H1({ className, ...props }: ComponentPropsWithoutRef<"h1">) {
 	return (
 		<h1
-			className={cn(
-				"group relative",
-				"portfolio-capsize-article-xl font-medium",
-				"text-foreground",
-				className,
-			)}
-			style={{
-				margin: 0,
-				marginTop: 0,
-				marginBottom: "0.4em",
-				letterSpacing: "-0.02em",
-			}}
+			className={cn("group relative", "font-medium", "text-foreground", className)}
 			{...props}
 		/>
 	);
@@ -67,15 +56,7 @@ export function H1({ className, ...props }: ComponentPropsWithoutRef<"h1">) {
 export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 	return (
 		<h2
-			className={cn(
-				"group relative",
-				"portfolio-capsize-article-lg font-medium",
-				"text-foreground",
-				className,
-			)}
-			style={{
-				letterSpacing: "-0.015em",
-			}}
+			className={cn("group relative", "font-medium", "text-foreground", className)}
 			{...props}
 		/>
 	);
@@ -87,15 +68,7 @@ export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 export function H3({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
 	return (
 		<h3
-			className={cn(
-				"group relative",
-				"portfolio-capsize-article-sm font-semibold",
-				"text-foreground",
-				className,
-			)}
-			style={{
-				letterSpacing: "-0.005em",
-			}}
+			className={cn("group relative", "font-semibold", "text-foreground", className)}
 			{...props}
 		/>
 	);
@@ -107,15 +80,7 @@ export function H3({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
 export function H4({ className, ...props }: ComponentPropsWithoutRef<"h4">) {
 	return (
 		<h4
-			className={cn(
-				"group relative",
-				"portfolio-capsize-article-xs font-semibold",
-				"text-foreground",
-				className,
-			)}
-			style={{
-				letterSpacing: "-0.005em",
-			}}
+			className={cn("group relative", "font-semibold", "text-foreground", className)}
 			{...props}
 		/>
 	);

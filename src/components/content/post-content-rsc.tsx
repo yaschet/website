@@ -90,11 +90,9 @@ export function PostContentRSC({ post }: PostContentProps) {
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ModuleContainer>
-												<ProseContainer className="portfolio-article max-w-none">
-													<article>
-														<post.Content components={mdxComponents} />
-													</article>
-												</ProseContainer>
+												<article className="portfolio-article">
+													<post.Content components={mdxComponents} />
+												</article>
 											</ModuleContainer>
 										</div>
 									</SwissGridRow>
