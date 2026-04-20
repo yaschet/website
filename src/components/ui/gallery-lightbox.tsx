@@ -22,6 +22,13 @@ import {
 	useRef,
 	useState,
 } from "react";
+import {
+	GALLERY_CHROME_BUTTON_CLASS_NAME,
+	GALLERY_CHROME_COUNTER_CLASS_NAME,
+	GALLERY_CHROME_ICON_SIZE,
+	GALLERY_CHROME_META_CHIP_CLASS_NAME,
+	GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
+} from "@/src/components/ui/gallery-chrome";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
 import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
@@ -32,14 +39,6 @@ const PortfolioMuxVideo = dynamic(
 			(module) => module.PortfolioMuxVideo,
 		),
 	{ ssr: false },
-);
-
-const LIGHTBOX_CONTROL_CLASS_NAME = cn(
-	"flex h-11 min-w-11 items-center justify-center gap-2 px-3",
-	"border border-surface-700/45 bg-surface-950/68 text-surface-50 backdrop-blur-sm",
-	"transition-[background-color,border-color,color,opacity] duration-200 hover:bg-surface-950/82 hover:text-surface-50",
-	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-	"disabled:pointer-events-none disabled:opacity-35",
 );
 
 function clamp(value: number, min: number, max: number) {
@@ -66,14 +65,6 @@ type ZoomableImageHandle = {
 	zoomIn: () => void;
 	zoomOut: () => void;
 };
-
-function getLightboxItemKey(item: GalleryMediaSource): string {
-	if (item.kind === "image") {
-		return typeof item.src === "string" ? item.src : item.src.src;
-	}
-
-	return item.playbackId;
-}
 
 interface ZoomableGalleryImageProps {
 	alt: string;
@@ -357,18 +348,41 @@ export function GalleryLightbox({
 }: GalleryLightboxProps) {
 	const zoomableRef = useRef<ZoomableImageHandle>(null);
 	const shouldReduceMotion = useReducedMotion();
+	const [canHover, setCanHover] = useState(false);
+	const [viewportWidth, setViewportWidth] = useState(0);
 	const currentItem = items[activeIndex];
 	const currentCaption = currentItem?.caption;
-	const slideLabel = `${activeIndex + 1} of ${items.length}`;
+	const slideLabel = `${String(activeIndex + 1).padStart(2, "0")} / ${String(items.length).padStart(2, "0")}`;
 	const hasMultiple = items.length > 1;
 
 	const canGoNext = activeIndex < items.length - 1;
 	const canGoPrev = activeIndex > 0;
+	const isTouchLayout = !canHover || viewportWidth < 768;
+	const lightboxButtonClassName = cn(
+		GALLERY_CHROME_BUTTON_CLASS_NAME,
+		isTouchLayout && GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
+	);
 
 	useEffect(() => {
 		if (!open || currentItem?.kind !== "mux-video") return;
 		stopAllPortfolioVideos();
 	}, [currentItem, open]);
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+		const syncCanHover = () => setCanHover(mediaQuery.matches);
+		const syncViewportWidth = () => setViewportWidth(window.innerWidth);
+		syncCanHover();
+		syncViewportWidth();
+		mediaQuery.addEventListener("change", syncCanHover);
+		window.addEventListener("resize", syncViewportWidth);
+		return () => {
+			mediaQuery.removeEventListener("change", syncCanHover);
+			window.removeEventListener("resize", syncViewportWidth);
+		};
+	}, []);
 
 	const goToIndex = useCallback(
 		(index: number) => {
@@ -495,92 +509,87 @@ export function GalleryLightbox({
 									</DialogPrimitive.Title>
 
 									<div className="relative flex h-full w-full flex-col px-4 py-4 sm:px-6 sm:py-6">
-										<div className="pointer-events-none absolute inset-x-4 top-4 z-20 flex items-start justify-between gap-3 sm:inset-x-6 sm:top-6">
+										<div className="pointer-events-none absolute inset-x-4 top-4 z-20 flex items-start justify-end gap-2 sm:inset-x-10 sm:top-6">
 											<div className="pointer-events-auto flex items-center gap-2">
-												<div className={LIGHTBOX_CONTROL_CLASS_NAME}>
-													<span className="font-mono text-[10px] uppercase tracking-[0.22em]">
-														Viewer
-													</span>
-												</div>
-												{hasMultiple && (
-													<div className={LIGHTBOX_CONTROL_CLASS_NAME}>
-														<span className="font-mono text-[10px] uppercase tabular-nums tracking-[0.22em]">
-															{slideLabel}
-														</span>
-													</div>
-												)}
-											</div>
-
-											<div className="pointer-events-auto flex items-center gap-2">
-												{currentItem?.kind === "image" && (
-													<>
-														<button
-															type="button"
-															className={LIGHTBOX_CONTROL_CLASS_NAME}
-															onClick={() =>
-																zoomableRef.current?.zoomOut()
-															}
-															aria-label="Zoom out"
-														>
-															<MagnifyingGlassMinus
-																size={18}
-																weight="bold"
-															/>
-														</button>
-														<button
-															type="button"
-															className={LIGHTBOX_CONTROL_CLASS_NAME}
-															onClick={() =>
-																zoomableRef.current?.zoomIn()
-															}
-															aria-label="Zoom in"
-														>
-															<MagnifyingGlassPlus
-																size={18}
-																weight="bold"
-															/>
-														</button>
-													</>
-												)}
+												{!isTouchLayout &&
+													currentItem?.kind === "image" && (
+														<>
+															<button
+																type="button"
+																className={lightboxButtonClassName}
+																onClick={() =>
+																	zoomableRef.current?.zoomOut()
+																}
+																aria-label="Zoom out"
+															>
+																<MagnifyingGlassMinus
+																	size={GALLERY_CHROME_ICON_SIZE}
+																	weight="bold"
+																/>
+															</button>
+															<button
+																type="button"
+																className={lightboxButtonClassName}
+																onClick={() =>
+																	zoomableRef.current?.zoomIn()
+																}
+																aria-label="Zoom in"
+															>
+																<MagnifyingGlassPlus
+																	size={GALLERY_CHROME_ICON_SIZE}
+																	weight="bold"
+																/>
+															</button>
+														</>
+													)}
 
 												<button
 													type="button"
-													className={LIGHTBOX_CONTROL_CLASS_NAME}
+													className={lightboxButtonClassName}
 													onClick={() => onOpenChange(false)}
 													aria-label="Close expanded viewer"
 												>
-													<X size={18} weight="bold" />
+													<X
+														size={GALLERY_CHROME_ICON_SIZE}
+														weight="bold"
+													/>
 												</button>
 											</div>
 										</div>
 
-										<div className="relative flex flex-1 items-center justify-center overflow-hidden pt-16 sm:pt-20">
+										<div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden pt-16 pb-16 sm:pt-20 sm:pb-20">
 											{hasMultiple && (
 												<>
 													<button
 														type="button"
 														className={cn(
-															LIGHTBOX_CONTROL_CLASS_NAME,
-															"absolute top-1/2 left-0 z-20 -translate-y-1/2 sm:left-1",
+															lightboxButtonClassName,
+															"absolute top-1/2 left-4 z-20 -translate-y-1/2 sm:left-10",
 														)}
 														onClick={() => goToIndex(activeIndex - 1)}
 														disabled={!canGoPrev}
 														aria-label="Previous slide"
 													>
-														<CaretLeft size={18} weight="bold" />
+														<CaretLeft
+															size={GALLERY_CHROME_ICON_SIZE}
+															weight="bold"
+														/>
 													</button>
 
 													<button
 														type="button"
 														className={cn(
-															LIGHTBOX_CONTROL_CLASS_NAME,
-															"absolute top-1/2 right-0 z-20 -translate-y-1/2 sm:right-1",
+															lightboxButtonClassName,
+															"absolute top-1/2 right-4 z-20 -translate-y-1/2 sm:right-10",
 														)}
 														onClick={() => goToIndex(activeIndex + 1)}
 														disabled={!canGoNext}
 														aria-label="Next slide"
 													>
-														<CaretRight size={18} weight="bold" />
+														<CaretRight
+															size={GALLERY_CHROME_ICON_SIZE}
+															weight="bold"
+														/>
 													</button>
 												</>
 											)}
@@ -589,15 +598,13 @@ export function GalleryLightbox({
 												{currentItem ? (
 													<motion.div
 														key={`${currentItem.kind}-${activeIndex}`}
-														className="relative h-full w-full"
+														className="relative mx-auto h-full max-h-full w-full max-w-[min(92vw,1400px)]"
 														initial={{
 															opacity: 0,
-															y: shouldReduceMotion ? 0 : 8,
 														}}
-														animate={{ opacity: 1, y: 0 }}
+														animate={{ opacity: 1 }}
 														exit={{
 															opacity: 0,
-															y: shouldReduceMotion ? 0 : -8,
 														}}
 														transition={{
 															duration: shouldReduceMotion ? 0 : 0.2,
@@ -634,41 +641,24 @@ export function GalleryLightbox({
 											</AnimatePresence>
 										</div>
 
-										<div className="pointer-events-none absolute inset-x-4 bottom-4 z-20 flex flex-col gap-3 sm:inset-x-6 sm:bottom-6">
-											{hasMultiple && (
-												<div className="pointer-events-auto flex gap-2">
-													{items.map((item, index) => (
-														<button
-															key={`lightbox-progress-${getLightboxItemKey(item)}`}
-															type="button"
-															onClick={() => goToIndex(index)}
-															aria-label={`Go to slide ${index + 1}`}
-															className={cn(
-																"h-0.5 flex-1 transition-colors duration-200",
-																index === activeIndex
-																	? "bg-surface-50"
-																	: "bg-surface-50/25 hover:bg-surface-50/55",
-															)}
-														/>
-													))}
+										<div className="pointer-events-none absolute inset-x-4 bottom-4 z-20 flex flex-col items-center gap-3 sm:inset-x-10 sm:bottom-6">
+											{hasMultiple ? (
+												<div
+													className={cn(
+														GALLERY_CHROME_META_CHIP_CLASS_NAME,
+														GALLERY_CHROME_COUNTER_CLASS_NAME,
+														"pointer-events-auto",
+													)}
+												>
+													{slideLabel}
 												</div>
-											)}
+											) : null}
 
-											<div className="flex items-end justify-between gap-4">
-												{currentCaption ? (
-													<div className="pointer-events-auto max-w-[min(44rem,72vw)] border border-surface-700/80 bg-surface-950/76 px-4 py-2 font-mono text-[11px] text-surface-100 uppercase tracking-[0.16em] backdrop-blur-md">
-														{currentCaption}
-													</div>
-												) : (
-													<div />
-												)}
-
-												{currentItem?.kind === "image" && (
-													<div className="pointer-events-auto border border-surface-700/80 bg-surface-950/76 px-4 py-2 font-mono text-[10px] text-surface-100 uppercase tracking-[0.22em] backdrop-blur-md">
-														Pinch or scroll to zoom
-													</div>
-												)}
-											</div>
+											{currentCaption ? (
+												<div className="pointer-events-auto max-w-[min(44rem,100%)] px-4 text-center font-mono text-[11px] text-surface-300 leading-relaxed">
+													{currentCaption}
+												</div>
+											) : null}
 										</div>
 									</div>
 								</motion.div>

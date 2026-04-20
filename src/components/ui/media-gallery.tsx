@@ -15,6 +15,13 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	GALLERY_CHROME_BUTTON_CLASS_NAME,
+	GALLERY_CHROME_COUNTER_CLASS_NAME,
+	GALLERY_CHROME_ICON_SIZE,
+	GALLERY_CHROME_META_CHIP_CLASS_NAME,
+	GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
+} from "@/src/components/ui/gallery-chrome";
 import { GalleryLightbox } from "@/src/components/ui/gallery-lightbox";
 import { PortfolioMuxVideo } from "@/src/components/ui/portfolio-mux-video";
 import type { MuxVideoMetadata } from "@/src/content/types";
@@ -81,13 +88,6 @@ type ResolvedGalleryItem =
 			metadata?: MuxVideoMetadata;
 	  };
 
-const GALLERY_CONTROL_CLASS_NAME = cn(
-	"flex h-10 items-center justify-center gap-2 rounded-none border-none bg-surface-950/70 px-3 text-white",
-	"hover:bg-surface-950/80",
-	"focus-visible:outline-none",
-	"disabled:pointer-events-none disabled:opacity-35",
-);
-
 const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
 	"pointer-events-auto inline-flex h-[var(--portfolio-control-default)] items-center justify-center px-[var(--portfolio-control-pad-default)]",
 	"border border-white/12 bg-surface-950/88 text-white backdrop-blur-md",
@@ -96,6 +96,9 @@ const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
 	"focus-visible:border-white/18 focus-visible:bg-surface-950/94 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
 	"disabled:pointer-events-none disabled:opacity-35",
 );
+
+const GALLERY_STAGE_INSET_CLASS_NAME =
+	"[--gallery-stage-inset:var(--portfolio-control-pad-default)] [--gallery-progress-baseline:calc(var(--portfolio-space-tight)*0.65)]";
 
 function getMuxAnimatedPreviewSrc(playbackId: string) {
 	return `https://image.mux.com/${playbackId}/animated.webp?width=640&fps=15&start=0&end=4`;
@@ -149,6 +152,7 @@ export function MediaGallery({
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const scrollFrameRef = useRef<number | null>(null);
 	const hoverPreviewTimeoutRef = useRef<number | null>(null);
+	const touchChromeTimeoutRef = useRef<number | null>(null);
 	const activeIndexRef = useRef(0);
 	const shouldReduceMotion = useReducedMotion();
 	const [activeIndex, setActiveIndex] = useState(0);
@@ -159,6 +163,7 @@ export function MediaGallery({
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
 	const [isPointerInside, setIsPointerInside] = useState(false);
+	const [touchChromeVisible, setTouchChromeVisible] = useState(false);
 	const [viewportWidth, setViewportWidth] = useState(0);
 	const [canHover, setCanHover] = useState(false);
 
@@ -234,7 +239,16 @@ export function MediaGallery({
 	const activeItem = galleryItems[activeIndex];
 	const isActiveVideoVisible =
 		activeItem?.kind === "mux-video" && visibleVideoId === activeItem.playbackId;
-	const chromeVisible = isFocusedWithin || (canHover && isPointerInside);
+	const chromeVisible = isFocusedWithin || isPointerInside;
+	const isTouchLayout = !canHover || viewportWidth < 768;
+	const floatingChromeVisible =
+		hasMultiple &&
+		!isActiveVideoVisible &&
+		(isTouchLayout ? touchChromeVisible : chromeVisible);
+	const showStageArrows = hasMultiple && showArrows && !isActiveVideoVisible;
+	const counterText = `${String(activeIndex + 1).padStart(2, "0")} / ${String(
+		galleryItems.length,
+	).padStart(2, "0")}`;
 
 	const currentHeight =
 		hasVaryingRatios && viewportWidth > 0
@@ -284,6 +298,7 @@ export function MediaGallery({
 		setVisibleVideoId(null);
 		setPlayingVideoId(null);
 		setIsLightboxOpen(false);
+		setTouchChromeVisible(false);
 	}, [galleryIdentity]);
 
 	useEffect(() => {
@@ -355,8 +370,28 @@ export function MediaGallery({
 			if (hoverPreviewTimeoutRef.current !== null) {
 				window.clearTimeout(hoverPreviewTimeoutRef.current);
 			}
+			if (touchChromeTimeoutRef.current !== null) {
+				window.clearTimeout(touchChromeTimeoutRef.current);
+			}
 		};
 	}, []);
+
+	const scheduleTouchChromeHide = useCallback(() => {
+		if (typeof window === "undefined" || !isTouchLayout) return;
+		if (touchChromeTimeoutRef.current !== null) {
+			window.clearTimeout(touchChromeTimeoutRef.current);
+		}
+		touchChromeTimeoutRef.current = window.setTimeout(() => {
+			setTouchChromeVisible(false);
+			touchChromeTimeoutRef.current = null;
+		}, 2000);
+	}, [isTouchLayout]);
+
+	const revealTouchChrome = useCallback(() => {
+		if (!isTouchLayout || isActiveVideoVisible) return;
+		setTouchChromeVisible(true);
+		scheduleTouchChromeHide();
+	}, [isActiveVideoVisible, isTouchLayout, scheduleTouchChromeHide]);
 
 	useEffect(() => {
 		const container = scrollContainerRef.current;
@@ -428,15 +463,10 @@ export function MediaGallery({
 			<section
 				ref={outerRef}
 				className={cn(
-					"relative w-full overflow-hidden bg-surface-100 dark:bg-surface-900",
+					"relative flex w-full flex-col overflow-hidden bg-surface-100 dark:bg-surface-900",
 					"outline-none focus-visible:ring-2 focus-visible:ring-surface-900/15 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent dark:focus-visible:ring-surface-50/25",
 					className,
 				)}
-				style={{
-					aspectRatio: hasVaryingRatios ? undefined : `${aspectRatios[0] ?? 16 / 9}`,
-					height: currentHeight,
-					transition: shouldReduceMotion ? undefined : "height 280ms ease",
-				}}
 				tabIndex={enableKeyboard ? 0 : undefined}
 				aria-roledescription="carousel"
 				aria-label={altPrefix}
