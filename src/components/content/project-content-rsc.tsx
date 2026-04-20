@@ -22,6 +22,75 @@ interface ProjectContentProps {
 	project: ProjectEntry;
 }
 
+function ProjectMasthead({
+	project,
+	galleryItems,
+}: {
+	project: ProjectEntry;
+	galleryItems: ReturnType<typeof getProjectCoverMedia>;
+}) {
+	const projectLede = project.subtitle ?? project.description;
+
+	return (
+		<div className="w-full">
+			<div className="portfolio-stack-group">
+				<Link href="/case-studies" className="portfolio-back-link portfolio-kicker">
+					<ArrowLeft size={14} weight="bold" />
+					<span>Back to Case Studies</span>
+				</Link>
+
+				<div className="portfolio-stack-related">
+					<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+						Case study · {formatDate(project.date)}
+					</p>
+
+					<div className="flex flex-col">
+						<h1 className="portfolio-masthead-title text-foreground">
+							{project.title}
+						</h1>
+
+						<ProseContainer className="portfolio-article max-w-none">
+							<p className="m-0">{projectLede}</p>
+						</ProseContainer>
+					</div>
+
+					<div className="portfolio-inline-meta">
+						<span className="portfolio-caption flex items-center gap-(--portfolio-space-tight) font-mono text-muted-foreground">
+							<Clock size={12} weight="bold" />
+							{project.readingTime} min read
+						</span>
+						{project.featured && (
+							<span className="portfolio-chip border-primary text-primary">
+								Featured
+							</span>
+						)}
+					</div>
+				</div>
+			</div>
+
+			{galleryItems.length > 0 && !project.hideCoverGallery && (
+				<div className="mt-(--portfolio-space-major)">
+					<MediaGallery
+						items={galleryItems}
+						altPrefix={project.title}
+						aspectRatio="16/9"
+						showArrows={galleryItems.length > 1}
+						showProgress={galleryItems.length > 1}
+						showCounter={galleryItems.length > 1}
+						expandable
+					/>
+				</div>
+			)}
+		</div>
+	);
+}
+
+/**
+ * Renders the case study shell and MDX content.
+ *
+ * @param props - Project entry data for the case study page.
+ * @returns The composed case study page content.
+ */
 export function ProjectContentRSC({ project }: ProjectContentProps) {
 	const galleryItems = getProjectCoverMedia(project);
 
@@ -38,54 +107,11 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 							<SwissGridRow>
 								<Reveal phase={1} className="w-full">
 									<div className="portfolio-box-pad">
-										<ModuleContainer className="portfolio-stack-group mx-auto">
-											<Link
-												href="/case-studies"
-												className="portfolio-back-link portfolio-kicker"
-											>
-												<ArrowLeft size={14} weight="bold" />
-												<span>Back to Case Studies</span>
-											</Link>
-
-											{galleryItems.length > 0 &&
-												!project.hideCoverGallery && (
-													<MediaGallery
-														items={galleryItems}
-														altPrefix={project.title}
-														aspectRatio="16/9"
-														showArrows={galleryItems.length > 1}
-														showProgress={galleryItems.length > 1}
-														showCounter={galleryItems.length > 1}
-														expandable
-													/>
-												)}
-
-											<div className="portfolio-stack-related">
-												<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl text-foreground">
-													{project.title}
-												</h1>
-
-												<div className="portfolio-inline-meta">
-													<time className="portfolio-caption font-mono text-muted-foreground tabular-nums">
-														{formatDate(project.date)}
-													</time>
-													<span className="portfolio-caption flex items-center gap-[var(--portfolio-space-tight)] font-mono text-muted-foreground">
-														<Clock size={12} weight="bold" />
-														{project.readingTime} min read
-													</span>
-													{project.featured && (
-														<span className="portfolio-chip border-primary text-primary">
-															Featured
-														</span>
-													)}
-												</div>
-
-												<ProseContainer>
-													<p className="portfolio-body-lg text-muted-foreground">
-														{project.subtitle ?? project.description}
-													</p>
-												</ProseContainer>
-											</div>
+										<ModuleContainer className="portfolio-stack-group">
+											<ProjectMasthead
+												project={project}
+												galleryItems={galleryItems}
+											/>
 										</ModuleContainer>
 									</div>
 								</Reveal>
@@ -93,8 +119,8 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 							<SwissGridRow>
 								<Reveal phase={2} delay={0.04} className="w-full">
 									<div className="portfolio-box-pad">
-										<ModuleContainer className="portfolio-stack-group mx-auto">
-											<div className="grid grid-cols-1 gap-[var(--portfolio-space-group)] sm:grid-cols-3">
+										<ModuleContainer className="portfolio-stack-group">
+											<div className="grid grid-cols-1 gap-(--portfolio-space-group) sm:grid-cols-3">
 												{project.role && (
 													<div className="portfolio-card-copy">
 														<span className="portfolio-meta-label text-muted-foreground">
@@ -130,7 +156,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 														<span className="portfolio-meta-label text-muted-foreground">
 															Engine Stack
 														</span>
-														<div className="flex flex-wrap gap-[var(--portfolio-space-tight)]">
+														<div className="flex flex-wrap gap-(--portfolio-space-tight)">
 															{project.stack.map((item) => (
 																<span
 																	key={item}
@@ -149,7 +175,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 															<span className="portfolio-meta-label text-muted-foreground">
 																Technologies
 															</span>
-															<div className="flex flex-wrap gap-[var(--portfolio-space-tight)]">
+															<div className="flex flex-wrap gap-(--portfolio-space-tight)">
 																{project.tech.map((tech) => (
 																	<span
 																		key={tech}
@@ -206,10 +232,12 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 							<SwissGridRow>
 								<ScrollReveal phase={2} className="w-full">
 									<div className="portfolio-box-pad">
-										<ModuleContainer className="mx-auto">
-											<article>
-												<project.Content components={mdxComponents} />
-											</article>
+										<ModuleContainer>
+											<ProseContainer className="portfolio-article max-w-none">
+												<article>
+													<project.Content components={mdxComponents} />
+												</article>
+											</ProseContainer>
 										</ModuleContainer>
 									</div>
 								</ScrollReveal>

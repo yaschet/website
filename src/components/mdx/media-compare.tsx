@@ -72,7 +72,7 @@ export function MediaCompare({
 	};
 
 	return (
-		<figure className="mb-8">
+		<figure data-breakout="true" className="media-breakout mb-(--portfolio-space-group)">
 			<section
 				ref={containerRef}
 				aria-label="Before and after comparison"
@@ -153,7 +153,7 @@ export function MediaCompare({
 
 			{/* Caption */}
 			{caption && (
-				<figcaption className="mt-3 text-center font-mono text-muted-foreground text-xs">
+				<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
 					{caption}
 				</figcaption>
 			)}

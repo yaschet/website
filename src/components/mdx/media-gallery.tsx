@@ -52,7 +52,7 @@ export function MediaGallery({
 		captions?.[activeIndex] || (items?.[activeIndex]?.caption ?? undefined) || caption;
 
 	return (
-		<figure className="mb-8">
+		<figure data-breakout="true" className="media-breakout mb-(--portfolio-space-group)">
 			<BaseMediaGallery
 				items={items}
 				images={images}
@@ -71,7 +71,7 @@ export function MediaGallery({
 
 			{/* Caption */}
 			{currentCaption && (
-				<figcaption className="mt-3 text-center font-mono text-muted-foreground text-xs">
+				<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
 					{currentCaption}
 				</figcaption>
 			)}

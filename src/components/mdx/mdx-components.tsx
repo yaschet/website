@@ -19,6 +19,21 @@ import { Badge } from "@/src/components/ui/badge";
 import { resolveAsset } from "@/src/lib/assets";
 import { cn } from "@/src/lib/index";
 
+const ARTICLE_FLOW_STYLE = {
+	margin: 0,
+	marginBottom: "1.25em",
+	lineHeight: "var(--leading-article-body)",
+	letterSpacing: "var(--tracking-article)",
+} as const;
+
+const ARTICLE_BLOCKQUOTE_STYLE = {
+	margin: 0,
+	marginTop: "var(--portfolio-space-section)",
+	marginBottom: "var(--portfolio-space-section)",
+	lineHeight: "var(--leading-article-quote)",
+	letterSpacing: "var(--tracking-article)",
+} as const;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // COMPONENTS
 // ═══════════════════════════════════════════════════════════════════════════
@@ -31,11 +46,16 @@ export function H1({ className, ...props }: ComponentPropsWithoutRef<"h1">) {
 		<h1
 			className={cn(
 				"group relative",
-				"portfolio-heading-xl portfolio-capsize-heading-xl",
+				"portfolio-capsize-article-xl font-medium",
 				"text-foreground",
 				className,
 			)}
-			style={{ margin: 0, marginBottom: "var(--portfolio-space-related)" }}
+			style={{
+				margin: 0,
+				marginTop: 0,
+				marginBottom: "0.4em",
+				letterSpacing: "-0.02em",
+			}}
 			{...props}
 		/>
 	);
@@ -49,14 +69,15 @@ export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 		<h2
 			className={cn(
 				"group relative",
-				"portfolio-heading-lg portfolio-capsize-heading-lg",
+				"portfolio-capsize-article-lg font-medium",
 				"text-foreground",
 				className,
 			)}
 			style={{
 				margin: 0,
-				marginTop: "var(--portfolio-space-major)",
-				marginBottom: "var(--portfolio-space-related)",
+				marginTop: "4em",
+				marginBottom: "0.75em",
+				letterSpacing: "-0.015em",
 			}}
 			{...props}
 		/>
@@ -71,14 +92,15 @@ export function H3({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
 		<h3
 			className={cn(
 				"group relative",
-				"portfolio-heading-sm portfolio-capsize-heading-sm",
+				"portfolio-capsize-article-sm font-semibold",
 				"text-foreground",
 				className,
 			)}
 			style={{
 				margin: 0,
-				marginTop: "var(--portfolio-space-section)",
-				marginBottom: "var(--portfolio-space-tight)",
+				marginTop: "2.5em",
+				marginBottom: "0.6em",
+				letterSpacing: "-0.005em",
 			}}
 			{...props}
 		/>
@@ -93,14 +115,15 @@ export function H4({ className, ...props }: ComponentPropsWithoutRef<"h4">) {
 		<h4
 			className={cn(
 				"group relative",
-				"portfolio-body-lg font-semibold",
+				"portfolio-capsize-article-xs font-semibold",
 				"text-foreground",
 				className,
 			)}
 			style={{
 				margin: 0,
-				marginTop: "var(--portfolio-space-section)",
-				marginBottom: "var(--portfolio-space-tight)",
+				marginTop: "2em",
+				marginBottom: "0.5em",
+				letterSpacing: "-0.005em",
 			}}
 			{...props}
 		/>
@@ -113,12 +136,8 @@ export function H4({ className, ...props }: ComponentPropsWithoutRef<"h4">) {
 export function P({ className, ...props }: ComponentPropsWithoutRef<"p">) {
 	return (
 		<p
-			className={cn("portfolio-body-md", "text-muted-foreground", className)}
-			style={{
-				margin: 0,
-				marginBottom: "var(--portfolio-space-related)",
-				lineHeight: "var(--leading-body)",
-			}}
+			className={cn("portfolio-body-lg", "text-foreground", className)}
+			style={ARTICLE_FLOW_STYLE}
 			{...props}
 		/>
 	);
@@ -135,7 +154,7 @@ export function Strong({ className, ...props }: ComponentPropsWithoutRef<"strong
  * Emphasis - Italic Text
  */
 export function Em({ className, ...props }: ComponentPropsWithoutRef<"em">) {
-	return <em className={cn("italic", "text-muted-foreground", className)} {...props} />;
+	return <em className={cn("italic", "text-foreground", className)} {...props} />;
 }
 
 /**
@@ -149,7 +168,7 @@ export function A({ className, ...props }: ComponentPropsWithoutRef<"a">) {
 		return (
 			<a
 				className={cn(
-					"absolute -ml-8 pl-2 opacity-0 transition-opacity group-hover:opacity-100",
+					"absolute top-1/2 -left-6 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100",
 					"text-muted-foreground no-underline hover:text-foreground",
 					className,
 				)}
@@ -178,16 +197,12 @@ export function UL({ className, ...props }: ComponentPropsWithoutRef<"ul">) {
 	return (
 		<ul
 			className={cn(
-				"portfolio-body-md list-outside list-disc pl-6",
-				"text-muted-foreground",
-				"marker:text-muted-foreground",
+				"portfolio-body-lg list-outside list-disc pl-6",
+				"text-foreground",
+				"marker:text-surface-500 dark:marker:text-surface-400",
 				className,
 			)}
-			style={{
-				margin: 0,
-				marginBottom: "var(--portfolio-space-related)",
-				lineHeight: "var(--leading-body)",
-			}}
+			style={ARTICLE_FLOW_STYLE}
 			{...props}
 		/>
 	);
@@ -200,16 +215,12 @@ export function OL({ className, ...props }: ComponentPropsWithoutRef<"ol">) {
 	return (
 		<ol
 			className={cn(
-				"portfolio-body-md list-outside list-decimal pl-8",
-				"text-muted-foreground",
-				"marker:font-mono marker:text-muted-foreground",
+				"portfolio-body-lg list-outside list-decimal pl-8",
+				"text-foreground",
+				"marker:font-mono marker:text-surface-500 dark:marker:text-surface-400",
 				className,
 			)}
-			style={{
-				margin: 0,
-				marginBottom: "var(--portfolio-space-related)",
-				lineHeight: "var(--leading-body)",
-			}}
+			style={ARTICLE_FLOW_STYLE}
 			{...props}
 		/>
 	);
@@ -219,7 +230,16 @@ export function OL({ className, ...props }: ComponentPropsWithoutRef<"ol">) {
  * List Item
  */
 export function LI({ className, ...props }: ComponentPropsWithoutRef<"li">) {
-	return <li className={cn("[line-height:var(--leading-body)]", className)} {...props} />;
+	return (
+		<li
+			className={cn("text-foreground", className)}
+			style={{
+				lineHeight: "var(--leading-article-body)",
+				letterSpacing: "var(--tracking-article)",
+			}}
+			{...props}
+		/>
+	);
 }
 
 /**
@@ -229,22 +249,12 @@ export function Blockquote({ className, ...props }: ComponentPropsWithoutRef<"bl
 	return (
 		<blockquote
 			className={cn(
-				"relative overflow-hidden rounded-none",
-				"border border-surface-950/15 dark:border-surface-50/15",
-				"bg-white/80 backdrop-blur-lg dark:bg-surface-950/80",
-				"p-6 pl-8",
-				"portfolio-body-lg font-medium italic",
-				"text-surface-700 dark:text-surface-200",
-				"before:absolute before:top-0 before:bottom-0 before:left-0 before:w-1",
-				"before:bg-surface-950 dark:before:bg-surface-50",
+				"border-surface-300 border-l pl-(--portfolio-space-group)",
+				"text-surface-700 dark:border-surface-700 dark:text-surface-300",
+				"portfolio-body-lg italic",
 				className,
 			)}
-			style={{
-				margin: 0,
-				marginTop: "var(--portfolio-space-related)",
-				marginBottom: "var(--portfolio-space-related)",
-				lineHeight: "var(--leading-body)",
-			}}
+			style={ARTICLE_BLOCKQUOTE_STYLE}
 			{...props}
 		/>
 	);
@@ -281,11 +291,8 @@ export function Code({ className, ...props }: ComponentPropsWithoutRef<"code">) 
 	return (
 		<code
 			className={cn(
-				"relative rounded-none px-[0.3rem] -py-[0.2rem] font-medium font-mono text-[0.85em] leading-none",
-				"border border-surface-200 dark:border-surface-700",
-				"bg-surface-50 dark:bg-surface-900",
-				"text-surface-900 dark:text-surface-50",
-				"transition-colors duration-200 hover:border-surface-300 dark:hover:border-surface-600",
+				"rounded-none bg-surface-100 px-1.5 py-0.5 font-mono text-[0.9em] leading-none",
+				"text-surface-900 dark:bg-surface-900 dark:text-surface-50",
 				className,
 			)}
 			{...props}
@@ -327,7 +334,7 @@ export function Pre({ className, children, ...props }: ComponentPropsWithoutRef<
 
 	return (
 		<CodeBlockWrapper
-			className={cn("mb-8 w-full", className)}
+			className={cn("mb-(--portfolio-space-group) w-full", className)}
 			highlightedHtml={highlightedHtml}
 			rawCode={rawCode}
 			{...props}
@@ -340,7 +347,10 @@ export function Pre({ className, children, ...props }: ComponentPropsWithoutRef<
  */
 export function Table({ className, ...props }: ComponentPropsWithoutRef<"table">) {
 	return (
-		<div className="mb-8 w-full overflow-x-auto">
+		<div
+			data-breakout="true"
+			className="media-breakout mb-(--portfolio-space-group) w-full overflow-x-auto"
+		>
 			<table className={cn("w-full border-collapse text-sm", className)} {...props} />
 		</div>
 	);
@@ -352,12 +362,7 @@ export function Table({ className, ...props }: ComponentPropsWithoutRef<"table">
 export function THead({ className, ...props }: ComponentPropsWithoutRef<"thead">) {
 	return (
 		<thead
-			className={cn(
-				"border-surface-200 border-b dark:border-surface-800",
-				"bg-surface-200/50 dark:bg-surface-800/50", // High Contrast Zebra
-				"transition-colors duration-200 hover:bg-surface-200/75 dark:hover:bg-surface-800/75", // Clear hover
-				className,
-			)}
+			className={cn("border-surface-200 border-b dark:border-surface-800", className)}
 			{...props}
 		/>
 	);
@@ -367,25 +372,14 @@ export function THead({ className, ...props }: ComponentPropsWithoutRef<"thead">
  * Table Body
  */
 export function TBody({ className, ...props }: ComponentPropsWithoutRef<"tbody">) {
-	return <tbody className={cn("divide-y divide-border", className)} {...props} />;
+	return <tbody className={cn(className)} {...props} />;
 }
 
 /**
  * Table Row
  */
 export function TR({ className, ...props }: ComponentPropsWithoutRef<"tr">) {
-	return (
-		<tr
-			className={cn(
-				"transition-colors duration-200", // Standard transition
-				"border-surface-200 border-b last:border-0 dark:border-surface-800", // Row separators
-				"hover:bg-surface-100 dark:hover:bg-surface-800", // Clear hover
-				"even:bg-surface-100/25 dark:even:bg-surface-800/50", // High Contrast Zebra
-				className,
-			)}
-			{...props}
-		/>
-	);
+	return <tr className={cn("py-3 text-left align-bottom", className)} {...props} />;
 }
 
 /**
@@ -395,9 +389,9 @@ export function TH({ className, ...props }: ComponentPropsWithoutRef<"th">) {
 	return (
 		<th
 			className={cn(
-				"px-4 py-3 text-left align-middle",
-				"font-bold font-mono text-xs uppercase tracking-widest",
-				"text-surface-900 dark:text-surface-100",
+				"py-3 text-left align-bottom",
+				"font-medium font-mono text-xs uppercase tracking-widest",
+				"text-surface-600 dark:text-surface-400",
 				className,
 			)}
 			{...props}
@@ -409,7 +403,7 @@ export function TH({ className, ...props }: ComponentPropsWithoutRef<"th">) {
  * Table Data Cell
  */
 export function TD({ className, ...props }: ComponentPropsWithoutRef<"td">) {
-	return <td className={cn("px-4 py-3", "text-muted-foreground", className)} {...props} />;
+	return <td className={cn("py-3 align-top text-foreground", className)} {...props} />;
 }
 
 /**
@@ -421,8 +415,16 @@ export function Img({ className, alt, src, ...props }: ComponentPropsWithoutRef<
 	const isStatic = typeof resolvedSrc !== "string";
 
 	return (
-		<figure className="mb-8 w-full">
-			<div className="relative aspect-video w-full border border-surface-200 dark:border-surface-800">
+		<figure data-breakout="true" className="media-breakout mb-(--portfolio-space-group) w-full">
+			<div
+				className="relative w-full border border-surface-200 dark:border-surface-800"
+				style={{
+					aspectRatio:
+						isStatic && resolvedSrc.width && resolvedSrc.height
+							? `${resolvedSrc.width} / ${resolvedSrc.height}`
+							: "16 / 9",
+				}}
+			>
 				<Image
 					src={resolvedSrc}
 					alt={alt || ""}
@@ -433,7 +435,7 @@ export function Img({ className, alt, src, ...props }: ComponentPropsWithoutRef<
 				/>
 			</div>
 			{alt && (
-				<figcaption className="mt-3 text-center font-mono text-muted-foreground text-xs">
+				<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
 					{alt}
 				</figcaption>
 			)}

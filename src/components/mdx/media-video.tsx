@@ -141,7 +141,11 @@ export function MediaVideo({
 	// 1. Mux Mode
 	if (playbackId) {
 		return (
-			<figure className="group mb-8" ref={containerRef}>
+			<figure
+				data-breakout="true"
+				className="media-breakout group mb-(--portfolio-space-group)"
+				ref={containerRef}
+			>
 				<div
 					className={cn(
 						"relative aspect-video w-full overflow-hidden",
@@ -253,8 +257,8 @@ export function MediaVideo({
 								}}
 								transition={springs.snappy}
 								className={cn(
-									"pointer-events-auto inline-flex h-[var(--portfolio-control-default)] items-center justify-center gap-2",
-									"border border-white/12 bg-surface-950/88 px-[var(--portfolio-control-pad-default)] text-white backdrop-blur-md",
+									"pointer-events-auto inline-flex h-(--portfolio-control-default) items-center justify-center gap-2",
+									"border border-white/12 bg-surface-950/88 px-(--portfolio-control-pad-default) text-white backdrop-blur-md",
 									"shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-colors duration-150",
 									"hover:border-white/18 hover:bg-surface-950/94",
 									"focus-visible:border-white/18 focus-visible:bg-surface-950/94 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
@@ -272,7 +276,7 @@ export function MediaVideo({
 								}}
 							>
 								<span className="inline-grid grid-cols-[14px_auto] items-center gap-x-2">
-									<span className="flex w-[14px] items-center justify-center">
+									<span className="flex w-3.5 items-center justify-center">
 										<Play size={14} weight="fill" />
 									</span>
 									<span className="inline-flex items-baseline gap-x-2">
@@ -296,7 +300,7 @@ export function MediaVideo({
 				</div>
 
 				{caption && (
-					<figcaption className="mt-3 text-center font-mono text-muted-foreground text-xs">
+					<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
 						{caption}
 					</figcaption>
 				)}
@@ -342,7 +346,11 @@ export function MediaVideo({
 		};
 
 		return (
-			<figure className="group mb-8" ref={containerRef}>
+			<figure
+				data-breakout="true"
+				className="media-breakout group mb-(--portfolio-space-group)"
+				ref={containerRef}
+			>
 				<button
 					type="button"
 					aria-label="Video player"
@@ -413,7 +421,7 @@ export function MediaVideo({
 
 				{/* Caption */}
 				{caption && (
-					<figcaption className="mt-3 text-center font-mono text-muted-foreground text-xs">
+					<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
 						{caption}
 					</figcaption>
 				)}
