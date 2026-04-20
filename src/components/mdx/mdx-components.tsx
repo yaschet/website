@@ -24,17 +24,18 @@ import { cn } from "@/src/lib/index";
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * H1 - Page Title.
+ * H1 - Article Title.
  */
 export function H1({ className, ...props }: ComponentPropsWithoutRef<"h1">) {
 	return (
 		<h1
 			className={cn(
-				"mt-0 mb-6 w-full max-w-[68ch] text-heading-xl",
+				"group relative",
+				"portfolio-heading-xl portfolio-capsize-heading-xl",
 				"text-foreground",
-				"-ml-[0.3em]", // Optical alignment
 				className,
 			)}
+			style={{ margin: 0, marginBottom: "var(--portfolio-space-related)" }}
 			{...props}
 		/>
 	);
@@ -47,47 +48,60 @@ export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 	return (
 		<h2
 			className={cn(
-				"mt-16 mb-6 w-full max-w-[68ch] first:mt-0",
-				"font-bold text-2xl tracking-tight",
+				"group relative",
+				"portfolio-heading-lg portfolio-capsize-heading-lg",
 				"text-foreground",
-				"-ml-[0.3em]", // Optical alignment
 				className,
 			)}
+			style={{
+				margin: 0,
+				marginTop: "var(--portfolio-space-major)",
+				marginBottom: "var(--portfolio-space-related)",
+			}}
 			{...props}
 		/>
 	);
 }
 
 /**
- * H3 - Subsection Heading
+ * H3 - Subsection Heading.
  */
 export function H3({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
 	return (
 		<h3
 			className={cn(
-				"mt-12 mb-4 w-full max-w-[68ch] first:mt-0",
-				"font-bold text-xl tracking-tight",
+				"group relative",
+				"portfolio-heading-sm portfolio-capsize-heading-sm",
 				"text-foreground",
-				"-ml-[0.3em]", // Optical alignment
 				className,
 			)}
+			style={{
+				margin: 0,
+				marginTop: "var(--portfolio-space-section)",
+				marginBottom: "var(--portfolio-space-tight)",
+			}}
 			{...props}
 		/>
 	);
 }
 
 /**
- * H4 - Minor Heading
+ * H4 - Minor Heading.
  */
 export function H4({ className, ...props }: ComponentPropsWithoutRef<"h4">) {
 	return (
 		<h4
 			className={cn(
-				"mt-8 mb-3 w-full max-w-[68ch] first:mt-0",
-				"font-bold text-lg",
+				"group relative",
+				"portfolio-body-lg font-semibold",
 				"text-foreground",
 				className,
 			)}
+			style={{
+				margin: 0,
+				marginTop: "var(--portfolio-space-section)",
+				marginBottom: "var(--portfolio-space-tight)",
+			}}
 			{...props}
 		/>
 	);
@@ -99,11 +113,12 @@ export function H4({ className, ...props }: ComponentPropsWithoutRef<"h4">) {
 export function P({ className, ...props }: ComponentPropsWithoutRef<"p">) {
 	return (
 		<p
-			className={cn(
-				"mb-6 w-full max-w-[68ch] leading-relaxed",
-				"text-muted-foreground",
-				className,
-			)}
+			className={cn("portfolio-body-md", "text-muted-foreground", className)}
+			style={{
+				margin: 0,
+				marginBottom: "var(--portfolio-space-related)",
+				lineHeight: "var(--leading-body)",
+			}}
 			{...props}
 		/>
 	);
@@ -134,7 +149,7 @@ export function A({ className, ...props }: ComponentPropsWithoutRef<"a">) {
 		return (
 			<a
 				className={cn(
-					"ml-2 inline-block opacity-0 transition-opacity group-hover:opacity-100",
+					"absolute -ml-8 pl-2 opacity-0 transition-opacity group-hover:opacity-100",
 					"text-muted-foreground no-underline hover:text-foreground",
 					className,
 				)}
@@ -163,11 +178,16 @@ export function UL({ className, ...props }: ComponentPropsWithoutRef<"ul">) {
 	return (
 		<ul
 			className={cn(
-				"mb-6 w-full max-w-[68ch] list-outside list-disc space-y-2 pl-6", // pl-6 (24px) brings bullet to ~0px
+				"portfolio-body-md list-outside list-disc pl-6",
 				"text-muted-foreground",
 				"marker:text-muted-foreground",
 				className,
 			)}
+			style={{
+				margin: 0,
+				marginBottom: "var(--portfolio-space-related)",
+				lineHeight: "var(--leading-body)",
+			}}
 			{...props}
 		/>
 	);
@@ -180,11 +200,16 @@ export function OL({ className, ...props }: ComponentPropsWithoutRef<"ol">) {
 	return (
 		<ol
 			className={cn(
-				"mb-6 w-full max-w-[68ch] list-outside list-decimal space-y-2 pl-8", // pl-8 (32px) brings number to ~0px
+				"portfolio-body-md list-outside list-decimal pl-8",
 				"text-muted-foreground",
 				"marker:font-mono marker:text-muted-foreground",
 				className,
 			)}
+			style={{
+				margin: 0,
+				marginBottom: "var(--portfolio-space-related)",
+				lineHeight: "var(--leading-body)",
+			}}
 			{...props}
 		/>
 	);
@@ -194,7 +219,7 @@ export function OL({ className, ...props }: ComponentPropsWithoutRef<"ol">) {
  * List Item
  */
 export function LI({ className, ...props }: ComponentPropsWithoutRef<"li">) {
-	return <li className={cn("leading-relaxed", className)} {...props} />;
+	return <li className={cn("[line-height:var(--leading-body)]", className)} {...props} />;
 }
 
 /**
@@ -204,16 +229,22 @@ export function Blockquote({ className, ...props }: ComponentPropsWithoutRef<"bl
 	return (
 		<blockquote
 			className={cn(
-				"relative mb-8 w-full max-w-[68ch] overflow-hidden rounded-none",
+				"relative overflow-hidden rounded-none",
 				"border border-surface-950/15 dark:border-surface-50/15",
 				"bg-white/80 backdrop-blur-lg dark:bg-surface-950/80",
 				"p-6 pl-8",
-				"font-medium text-lg italic leading-relaxed",
+				"portfolio-body-lg font-medium italic",
 				"text-surface-700 dark:text-surface-200",
 				"before:absolute before:top-0 before:bottom-0 before:left-0 before:w-1",
 				"before:bg-surface-950 dark:before:bg-surface-50",
 				className,
 			)}
+			style={{
+				margin: 0,
+				marginTop: "var(--portfolio-space-related)",
+				marginBottom: "var(--portfolio-space-related)",
+				lineHeight: "var(--leading-body)",
+			}}
 			{...props}
 		/>
 	);
@@ -225,10 +256,12 @@ export function Blockquote({ className, ...props }: ComponentPropsWithoutRef<"bl
 export function HR({ className, ...props }: ComponentPropsWithoutRef<"hr">) {
 	return (
 		<hr
-			className={cn(
-				"my-12 w-full border-surface-200 border-t dark:border-surface-800",
-				className,
-			)}
+			className={cn("border-surface-200 border-t dark:border-surface-800", className)}
+			style={{
+				margin: 0,
+				marginTop: "var(--portfolio-space-section)",
+				marginBottom: "var(--portfolio-space-section)",
+			}}
 			{...props}
 		/>
 	);
