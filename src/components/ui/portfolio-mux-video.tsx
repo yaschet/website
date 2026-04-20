@@ -750,9 +750,51 @@ export function PortfolioMuxVideo({
 		const media = mediaRef.current;
 		if (!container || typeof document === "undefined") return;
 
+		// Helper: Check if fullscreen is active (handles vendor prefixes for Android)
+		const checkIsFullscreen = (el: HTMLElement): boolean => {
+			if (document.fullscreenElement === el) return true;
+			if (
+				(document as unknown as { webkitFullscreenElement?: HTMLElement })
+					.webkitFullscreenElement === el
+			)
+				return true;
+			if (
+				(document as unknown as { mozFullScreenElement?: HTMLElement })
+					.mozFullScreenElement === el
+			)
+				return true;
+			if (
+				(document as unknown as { msFullscreenElement?: HTMLElement })
+					.msFullscreenElement === el
+			)
+				return true;
+			return false;
+		};
+
 		// Exit fullscreen
-		if (document.fullscreenElement === container) {
-			await document.exitFullscreen().catch(() => undefined);
+		if (checkIsFullscreen(container)) {
+			// Try standard exit first
+			if (document.exitFullscreen) {
+				await document.exitFullscreen().catch(() => undefined);
+			}
+			// Fallback to webkit (Android)
+			else if (
+				(document as unknown as { webkitExitFullscreen?: () => Promise<void> })
+					.webkitExitFullscreen
+			) {
+				await (document as unknown as { webkitExitFullscreen: () => Promise<void> })
+					.webkitExitFullscreen()
+					.catch(() => undefined);
+			}
+			// Fallback to moz (Firefox)
+			else if (
+				(document as unknown as { mozCancelFullScreen?: () => Promise<void> })
+					.mozCancelFullScreen
+			) {
+				await (document as unknown as { mozCancelFullScreen: () => Promise<void> })
+					.mozCancelFullScreen()
+					.catch(() => undefined);
+			}
 			// Unlock orientation when exiting fullscreen
 			if (screen?.orientation?.unlock) {
 				screen.orientation.unlock();
@@ -787,6 +829,34 @@ export function PortfolioMuxVideo({
 					navigationUI: "hide",
 				});
 				// Lock to landscape on mobile
+				if (screen?.orientation?.lock) {
+					screen.orientation.lock("landscape").catch(() => {
+						// Silently fail if lock not supported
+					});
+				}
+			}
+			// Fallback to webkit (Android)
+			else if (
+				(container as unknown as { webkitRequestFullscreen?: () => Promise<void> })
+					.webkitRequestFullscreen
+			) {
+				await (container as unknown as { webkitRequestFullscreen: () => Promise<void> })
+					.webkitRequestFullscreen()
+					.catch(() => undefined);
+				if (screen?.orientation?.lock) {
+					screen.orientation.lock("landscape").catch(() => {
+						// Silently fail if lock not supported
+					});
+				}
+			}
+			// Fallback to moz (Firefox)
+			else if (
+				(container as unknown as { mozRequestFullScreen?: () => Promise<void> })
+					.mozRequestFullScreen
+			) {
+				await (container as unknown as { mozRequestFullScreen: () => Promise<void> })
+					.mozRequestFullScreen()
+					.catch(() => undefined);
 				if (screen?.orientation?.lock) {
 					screen.orientation.lock("landscape").catch(() => {
 						// Silently fail if lock not supported
@@ -1030,23 +1100,52 @@ export function PortfolioMuxVideo({
 	useEffect(() => {
 		if (typeof document === "undefined") return;
 
+		// Helper: Check if fullscreen is active (handles vendor prefixes for Android)
+		const checkIsFullscreen = (container: HTMLElement): boolean => {
+			// Standard API
+			if (document.fullscreenElement === container) return true;
+			// Webkit (Android, older Safari)
+			if (
+				(document as unknown as { webkitFullscreenElement?: HTMLElement })
+					.webkitFullscreenElement === container
+			)
+				return true;
+			// Moz (Firefox)
+			if (
+				(document as unknown as { mozFullScreenElement?: HTMLElement })
+					.mozFullScreenElement === container
+			)
+				return true;
+			// MS (Edge)
+			if (
+				(document as unknown as { msFullscreenElement?: HTMLElement })
+					.msFullscreenElement === container
+			)
+				return true;
+			return false;
+		};
+
 		const handleFullscreenChange = () => {
-			const isNowFullscreen = document.fullscreenElement === containerRef.current;
+			const container = containerRef.current;
+			if (!container) return;
+
+			const isNowFullscreen = checkIsFullscreen(container);
 			setIsFullscreen(isNowFullscreen);
 
-			const container = containerRef.current;
-			if (container) {
-				if (isNowFullscreen) {
-					// Prevent scrolling in fullscreen mode
-					document.documentElement.style.overflow = "hidden";
-					document.body.style.overflow = "hidden";
-					// Update layout containment
-					container.style.contain = "layout style paint";
-				} else {
-					// Restore scrolling
-					document.documentElement.style.overflow = "";
-					document.body.style.overflow = "";
-					container.style.contain = "";
+			if (isNowFullscreen) {
+				// Prevent scrolling in fullscreen mode
+				document.documentElement.style.overflow = "hidden";
+				document.body.style.overflow = "hidden";
+				// Update layout containment
+				container.style.contain = "layout style paint";
+			} else {
+				// Restore scrolling
+				document.documentElement.style.overflow = "";
+				document.body.style.overflow = "";
+				container.style.contain = "";
+				// Ensure orientation is unlocked when exiting
+				if (screen?.orientation?.unlock) {
+					screen.orientation.unlock();
 				}
 			}
 		};
@@ -1065,7 +1164,12 @@ export function PortfolioMuxVideo({
 			}
 		};
 
+		// Listen to multiple fullscreen change events (standard + vendor prefixes for Android)
 		document.addEventListener("fullscreenchange", handleFullscreenChange);
+		document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+		document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+		document.addEventListener("msfullscreenchange", handleFullscreenChange);
+
 		if (media) {
 			media.addEventListener("webkitfullscreenchange", handleWebkitFullscreenChange);
 			media.addEventListener("webkitbeginfullscreen", () => {
@@ -1088,6 +1192,9 @@ export function PortfolioMuxVideo({
 
 		return () => {
 			document.removeEventListener("fullscreenchange", handleFullscreenChange);
+			document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+			document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+			document.removeEventListener("msfullscreenchange", handleFullscreenChange);
 			if (media) {
 				media.removeEventListener("webkitfullscreenchange", handleWebkitFullscreenChange);
 				media.removeEventListener("webkitbeginfullscreen", () => {});
