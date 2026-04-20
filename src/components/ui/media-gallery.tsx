@@ -890,7 +890,7 @@ export function MediaGallery({
 								)}
 								style={{
 									background:
-										"linear-gradient(to top, rgb(255 255 255 / 0.98) 0%, rgb(255 255 255 / 0.84) 26%, rgb(255 255 255 / 0.52) 52%, rgb(255 255 255 / 0.18) 76%, rgb(255 255 255 / 0) 100%)",
+										"linear-gradient(to top, rgb(255 255 255 / 0.68) 0%, rgb(255 255 255 / 0.5) 24%, rgb(255 255 255 / 0.22) 48%, rgb(255 255 255 / 0.07) 72%, rgb(255 255 255 / 0) 100%)",
 								}}
 							/>
 							<div
@@ -913,22 +913,49 @@ export function MediaGallery({
 										aria-label={`Go to slide ${index + 1}`}
 										aria-current={index === activeIndex}
 										className={cn(
-											"group relative flex h-full flex-1 items-end justify-center px-1 transition-colors duration-150",
+											"group relative flex h-full flex-1 items-end justify-center overflow-visible px-1",
 											floatingChromeVisible
 												? "pointer-events-auto"
 												: "pointer-events-none",
-											index === activeIndex
-												? "bg-black/[0.04] hover:bg-black/[0.06] active:bg-black/[0.1]"
-												: "hover:bg-black/[0.035] active:bg-black/[0.08]",
 											"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-950/20 focus-visible:ring-inset",
 										)}
 									>
 										<span
+											aria-hidden
 											className={cn(
-												"mb-[calc(var(--gallery-progress-baseline)+4px)] block h-1 w-full rounded-none transition-[background-color,box-shadow,opacity] duration-150",
+												"pointer-events-none absolute inset-x-[5px] bottom-0 h-[calc(100%-4px)] transition-opacity duration-200",
+												"bg-[linear-gradient(to_top,rgb(255_255_255_/_0.22)_0%,rgb(255_255_255_/_0.1)_22%,rgb(255_255_255_/_0.04)_46%,rgb(255_255_255_/_0)_100%)]",
 												index === activeIndex
-													? "bg-black shadow-[0_6px_14px_rgba(0,0,0,0.14)] group-hover:bg-black/88 group-active:opacity-90"
-													: "bg-black/18 shadow-[0_4px_10px_rgba(0,0,0,0.08)] group-hover:bg-black/32 group-active:bg-black/48",
+													? "opacity-[0.74]"
+													: "opacity-[0.16] group-hover:opacity-[0.32] group-active:opacity-[0.42]",
+											)}
+										/>
+										<span
+											aria-hidden
+											className={cn(
+												"pointer-events-none absolute bottom-[-18px] left-1/2 h-24 w-[156%] -translate-x-1/2 blur-[28px] transition-[opacity,transform] duration-200",
+												"bg-[radial-gradient(56%_100%_at_50%_100%,rgb(255_255_255_/_0.92)_0%,rgb(255_255_255_/_0.34)_26%,rgb(255_255_255_/_0.1)_50%,rgb(255_255_255_/_0)_78%)]",
+												index === activeIndex
+													? "scale-100 opacity-[0.56]"
+													: "scale-[0.94] opacity-[0.04] group-hover:scale-100 group-hover:opacity-[0.34] group-active:opacity-[0.42]",
+											)}
+										/>
+										<span
+											aria-hidden
+											className={cn(
+												"pointer-events-none absolute bottom-[-6px] left-1/2 h-18 w-[72%] -translate-x-1/2 blur-[8px] transition-[opacity,transform] duration-200",
+												"bg-[radial-gradient(52%_100%_at_50%_100%,rgb(255_255_255_/_0.98)_0%,rgb(255_255_255_/_0.36)_34%,rgb(255_255_255_/_0)_76%)]",
+												index === activeIndex
+													? "scale-100 opacity-[0.74]"
+													: "scale-[0.96] opacity-[0.03] group-hover:scale-100 group-hover:opacity-[0.38] group-active:opacity-[0.48]",
+											)}
+										/>
+										<span
+											className={cn(
+												"relative z-10 mb-[calc(var(--gallery-progress-baseline)+4px)] block h-1 w-full rounded-none transition-[background-color,box-shadow,opacity] duration-150",
+												index === activeIndex
+													? "bg-black shadow-[0_6px_14px_rgba(0,0,0,0.14)] group-active:opacity-90"
+													: "bg-black/18 shadow-[0_4px_10px_rgba(0,0,0,0.08)] group-active:bg-black/28",
 											)}
 										/>
 									</button>
