@@ -747,20 +747,55 @@ export function PortfolioMuxVideo({
 
 	const toggleFullscreen = useCallback(async () => {
 		const container = containerRef.current;
+		const media = mediaRef.current;
 		if (!container || typeof document === "undefined") return;
 
+		// Exit fullscreen
 		if (document.fullscreenElement === container) {
 			await document.exitFullscreen().catch(() => undefined);
+			// Unlock orientation when exiting fullscreen
+			if (screen?.orientation?.unlock) {
+				screen.orientation.unlock();
+			}
 			return;
 		}
 
+		// Enter fullscreen
+		// Mobile strategy: try video element's native fullscreen first (iOS),
+		// then fall back to container fullscreen API (Android/desktop)
 		try {
+			// iOS: Use video element's webkitEnterFullscreen if available
+			if (
+				media &&
+				"webkitEnterFullscreen" in media &&
+				typeof (media as unknown as { webkitEnterFullscreen: () => void })
+					.webkitEnterFullscreen === "function"
+			) {
+				(media as unknown as { webkitEnterFullscreen: () => void }).webkitEnterFullscreen();
+				// Lock to landscape on mobile
+				if (screen?.orientation?.lock) {
+					screen.orientation.lock("landscape").catch(() => {
+						// Silently fail if lock not supported
+					});
+				}
+				return;
+			}
+
+			// Standard: Request fullscreen on container
 			if (container.requestFullscreen) {
 				await container.requestFullscreen({
 					navigationUI: "hide",
 				});
+				// Lock to landscape on mobile
+				if (screen?.orientation?.lock) {
+					screen.orientation.lock("landscape").catch(() => {
+						// Silently fail if lock not supported
+					});
+				}
 			}
-		} catch (_error) {}
+		} catch (_error) {
+			// Silently fail - browser may have fullscreen disabled or user denied permission
+		}
 	}, []);
 
 	useEffect(() => {
@@ -1016,8 +1051,49 @@ export function PortfolioMuxVideo({
 			}
 		};
 
+		// iOS: Listen for native video fullscreen changes
+		const media = mediaRef.current;
+		const handleWebkitFullscreenChange = () => {
+			// Exit custom fullscreen when native fullscreen exits
+			if (media && "webkitDisplayingFullscreen" in media) {
+				const isWebkitFullscreen = (
+					media as unknown as { webkitDisplayingFullscreen: boolean }
+				).webkitDisplayingFullscreen;
+				if (!isWebkitFullscreen) {
+					setIsFullscreen(false);
+				}
+			}
+		};
+
 		document.addEventListener("fullscreenchange", handleFullscreenChange);
-		return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+		if (media) {
+			media.addEventListener("webkitfullscreenchange", handleWebkitFullscreenChange);
+			media.addEventListener("webkitbeginfullscreen", () => {
+				setIsFullscreen(true);
+				// Lock orientation when entering fullscreen
+				if (screen?.orientation?.lock) {
+					screen.orientation.lock("landscape").catch(() => {
+						// Silently fail if lock not supported
+					});
+				}
+			});
+			media.addEventListener("webkitendfullscreen", () => {
+				setIsFullscreen(false);
+				// Unlock orientation when exiting fullscreen
+				if (screen?.orientation?.unlock) {
+					screen.orientation.unlock();
+				}
+			});
+		}
+
+		return () => {
+			document.removeEventListener("fullscreenchange", handleFullscreenChange);
+			if (media) {
+				media.removeEventListener("webkitfullscreenchange", handleWebkitFullscreenChange);
+				media.removeEventListener("webkitbeginfullscreen", () => {});
+				media.removeEventListener("webkitendfullscreen", () => {});
+			}
+		};
 	}, []);
 
 	useEffect(() => {
