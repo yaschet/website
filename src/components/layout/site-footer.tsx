@@ -59,6 +59,8 @@ export function SiteFooter() {
 										>
 											X
 										</Link>
+									</nav>
+									<div>
 										<Link
 											href="https://github.com/yaschet/website"
 											target="_blank"
@@ -67,7 +69,7 @@ export function SiteFooter() {
 										>
 											Source
 										</Link>
-									</nav>
+									</div>
 								</div>
 							</div>
 

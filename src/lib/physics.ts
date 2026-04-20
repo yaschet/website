@@ -197,6 +197,40 @@ export const tweens = {
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
+// INTERACTION HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Applies non-linear resistance near the bounds of a range so an object eases
+ * into its stop zone instead of colliding with it linearly.
+ */
+export function applyEdgeResistance(value: number, min: number, max: number, buffer = 96) {
+	if (!Number.isFinite(value)) return min;
+	if (max <= min) return min;
+
+	const clampedValue = Math.min(Math.max(value, min), max);
+	const effectiveBuffer = Math.min(Math.max(buffer, 0), (max - min) / 2);
+
+	if (effectiveBuffer <= 0) {
+		return clampedValue;
+	}
+
+	if (clampedValue <= min + effectiveBuffer) {
+		const progress = (clampedValue - min) / effectiveBuffer;
+		const eased = 1 - (1 - progress) ** PHI;
+		return min + effectiveBuffer * eased;
+	}
+
+	if (clampedValue >= max - effectiveBuffer) {
+		const progress = (max - clampedValue) / effectiveBuffer;
+		const eased = 1 - (1 - progress) ** PHI;
+		return max - effectiveBuffer * eased;
+	}
+
+	return clampedValue;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // LAYERED BUTTON TRANSITIONS (animations.dev standard)
 // ═══════════════════════════════════════════════════════════════════════════
 

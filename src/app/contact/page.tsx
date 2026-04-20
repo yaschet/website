@@ -4,7 +4,7 @@ import { ContactForm } from "@/src/components/forms/contact-form";
 import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
+import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
 import { Button } from "@/src/components/ui/button";
 import {
 	INSTRUMENT_DOT_RADIUS,
@@ -129,9 +129,9 @@ export default function ContactPage() {
 										<div className="portfolio-box-pad">
 											<ProseContainer className="portfolio-prose">
 												<div className="portfolio-card-copy">
-													<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
-														ENGAGEMENT
-													</p>
+													<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+														Engagement
+													</h2>
 													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
 														Retainer engagements start at
 														<strong className="font-medium text-surface-900 dark:text-surface-100">

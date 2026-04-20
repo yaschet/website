@@ -5,7 +5,7 @@ import { PageContainer, ProseContainer } from "@/src/components/layout/container
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
+import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
 import { Button } from "@/src/components/ui/button";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
@@ -42,7 +42,7 @@ const PRINCIPLES = [
 	{
 		title: "End to end.",
 		description:
-			'I don\'t hand off at the edge of my tickets. I follow the work from first commit to the deployment logs. If something breaks at 2am, I\'m the one reading the stack trace.',
+			"I don't hand off at the edge of my tickets. I follow the work from first commit to the deployment logs. If something breaks at 2am, I'm the one reading the stack trace.",
 	},
 ] as const;
 
@@ -123,8 +123,9 @@ export default function AboutPage() {
 														I&apos;m most useful when the problem cuts
 														across parts of a product and someone has to
 														hold the whole thing in their head until it
-														works. I&apos;d rather ship a working version
-														in a week than a perfect spec in a month.
+														works. I&apos;d rather ship a working
+														version in a week than a perfect spec in a
+														month.
 													</p>
 												</ScrollReveal>
 											</ProseContainer>
@@ -223,10 +224,10 @@ export default function AboutPage() {
 												</ScrollReveal>
 												<ScrollReveal phase={2} delay={0.15}>
 													<p>
-														The job isn&apos;t to ship code. It&apos;s to
-														make sure the codebase six months from now is
-														still somewhere the next engineer wants to
-														work.
+														The job isn&apos;t to ship code. It&apos;s
+														to make sure the codebase six months from
+														now is still somewhere the next engineer
+														wants to work.
 													</p>
 												</ScrollReveal>
 											</ProseContainer>

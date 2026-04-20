@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Suspense } from "react";
 import "./globals.css";
 
-import { FloatingNav } from "@components/layout/floating-nav";
 import RootProvider from "@components/providers/root-provider";
 import { fontVariables } from "@/lib/fonts";
 import { PortfolioTypeStyles } from "@/src/components/layout/portfolio-type-styles";
-import { ReadingProgress } from "@/src/components/ui/reading-progress";
+import { DeferredGlobalChrome } from "@/src/components/providers/deferred-global-chrome";
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://yaschet.dev"),
@@ -106,7 +104,12 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html suppressHydrationWarning lang="en" className={fontVariables}>
+		<html
+			suppressHydrationWarning
+			lang="en"
+			className={fontVariables}
+			data-scroll-behavior="smooth"
+		>
 			<head>
 				<PortfolioTypeStyles />
 				<Script id="theme-bootstrap" strategy="beforeInteractive">
@@ -125,12 +128,7 @@ export default function RootLayout({
 				suppressHydrationWarning={true}
 			>
 				<RootProvider>
-					<Suspense fallback={null}>
-						<ReadingProgress />
-					</Suspense>
-					<Suspense fallback={null}>
-						<FloatingNav />
-					</Suspense>
+					<DeferredGlobalChrome />
 					{children}
 				</RootProvider>
 			</body>

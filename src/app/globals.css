@@ -18,6 +18,8 @@
    Surface: True Black/White (Zero Chroma) | Accent: Neutral Surface Mirror
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
+  --portfolio-player-hairline: rgb(255 255 255 / 0.14);
+  --portfolio-player-track-color: rgb(255 255 255 / 0.14);
   /* SURFACE: Pure Achromatic (Zero Chroma = True Grayscale) */
   --surface-color-50: oklch(0.985 0 0);
   --surface-color-100: oklch(0.96 0 0);
@@ -382,6 +384,10 @@
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
 
+  /* PLAYER UI TOKENS */
+  --player-hairline-light: 0.14;
+  --player-hairline-dark: 0.2;
+
   /* DYNAMIC VIEWPORT TOKENS: Responsive Engineering */
   /* Scales 24px (mobile) to 56px (desktop) @ 1440px. */
   --hover-zone-size: clamp(1.5rem, 5vw, 3.5rem);
@@ -392,8 +398,10 @@
    Inverted mapping for nocturnal contexts. High-contrast precision maintained.
    ═══════════════════════════════════════════════════════════════════════════ */
 .dark {
+  --portfolio-player-hairline: rgb(255 255 255 / 0.20);
+  --portfolio-player-track-color: rgb(255 255 255 / 0.14);
   --foreground: var(--surface-color-50);
-  --surface: var(--surface-color-950);
+  --surface: #141414;
   --surface-foreground: var(--surface-color-50);
   --surface-foreground-0: var(--surface-color-50);
   --surface-foreground-1: var(--surface-color-50);
@@ -401,7 +409,7 @@
   --surface-foreground-3: var(--surface-color-200);
   --surface-foreground-4: var(--surface-color-300);
   --surface-foreground-5: var(--surface-color-400);
-  --surface-0: var(--surface-color-950);
+  --surface-0: #141414;
   --surface-1: var(--surface-color-950);
   --surface-2: var(--surface-color-900);
   --surface-3: var(--surface-color-800);
@@ -1472,6 +1480,7 @@
   --portfolio-space-group: calc(var(--portfolio-rhythm) * 3); /* 30px content group */
   --portfolio-space-section: calc(var(--portfolio-rhythm) * 4); /* 40px section gap */
   --portfolio-space-major: calc(var(--portfolio-rhythm) * 8); /* 80px major air */
+  --portfolio-overlay-gap: calc(var(--portfolio-rhythm) * 0.8); /* 8px overlay/tooltip clearance */
   --portfolio-space-1: var(--portfolio-rhythm); /* 10px */
   --portfolio-space-2: var(--portfolio-grid-step); /* 20px */
   --portfolio-space-3: calc(var(--portfolio-rhythm) * 3); /* 30px */
@@ -1515,6 +1524,134 @@
    Component-level overrides and specialized UI abstractions.
    ═══════════════════════════════════════════════════════════════════════════ */
 @layer components {
+  .portfolio-mux-video-host {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    background: rgb(2 6 23);
+    color: inherit;
+    /* Preserve aspect ratio: use object-fit from CSS variable */
+    object-fit: var(--media-object-fit, cover);
+    object-position: var(--media-object-position, center);
+    /* Ensure video respects container constraints */
+    max-inline-size: var(--media-max-width, 100%);
+    max-block-size: var(--media-max-height, 100%);
+    width: 100%;
+    height: 100%;
+  }
+
+  .portfolio-video-range,
+  .portfolio-video-volume {
+    appearance: none;
+    inline-size: 100%;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .portfolio-video-range {
+    block-size: 18px;
+  }
+
+  .portfolio-video-volume {
+    block-size: 16px;
+  }
+
+  .portfolio-video-range:focus-visible,
+  .portfolio-video-volume:focus-visible {
+    outline: none;
+  }
+
+  .portfolio-video-range::-webkit-slider-runnable-track {
+    block-size: 2px;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .portfolio-video-range::-moz-range-track {
+    block-size: 2px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .portfolio-video-volume::-webkit-slider-runnable-track {
+    block-size: 2px;
+    border-radius: 0;
+    background:
+      linear-gradient(
+        to right,
+        rgb(255 255 255) 0,
+        rgb(255 255 255) var(--portfolio-video-range-progress, 0%),
+        var(--portfolio-player-track-color) var(--portfolio-video-range-progress, 0%),
+        var(--portfolio-player-track-color) 100%
+      );
+  }
+
+  .portfolio-video-volume::-moz-range-track {
+    block-size: 2px;
+    border: 0;
+    border-radius: 0;
+    background:
+      linear-gradient(
+        to right,
+        rgb(255 255 255) 0,
+        rgb(255 255 255) var(--portfolio-video-range-progress, 0%),
+        var(--portfolio-player-track-color) var(--portfolio-video-range-progress, 0%),
+        var(--portfolio-player-track-color) 100%
+      );
+  }
+
+  .portfolio-video-range::-webkit-slider-thumb,
+  .portfolio-video-volume::-webkit-slider-thumb {
+    appearance: none;
+    inline-size: 10px;
+    block-size: 10px;
+    margin-top: -4px;
+    border: 0;
+    border-radius: 0;
+    background: rgb(255 255 255);
+    box-shadow: none;
+  }
+
+  .portfolio-video-range[data-seeking="true"]::-webkit-slider-thumb,
+  .portfolio-video-range[data-seeking="true"]::-moz-range-thumb {
+    background: rgb(255 255 255 / 0.4);
+  }
+
+  .portfolio-video-range::-moz-range-thumb,
+  .portfolio-video-volume::-moz-range-thumb {
+    inline-size: 10px;
+    block-size: 10px;
+    border: 0;
+    border-radius: 0;
+    background: rgb(255 255 255);
+    box-shadow: none;
+  }
+
+  .portfolio-video-range:focus-visible::-webkit-slider-thumb,
+  .portfolio-video-volume:focus-visible::-webkit-slider-thumb,
+  .portfolio-video-range:focus-visible::-moz-range-thumb,
+  .portfolio-video-volume:focus-visible::-moz-range-thumb {
+    box-shadow:
+      0 0 0 2px rgb(255 255 255),
+      0 0 0 4px rgb(255 255 255 / 0.16);
+  }
+
+  /* Fullscreen video optimizations - ensure video respects container */
+  mux-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Prevent scrolling and overflow during fullscreen */
+  :-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+  }
+
   .portfolio-heading-xl {
     font-size: var(--text-heading-xl) !important;
     line-height: var(--text-heading-xl--line-height) !important;
@@ -1919,6 +2056,10 @@ html {
     @apply font-sans text-foreground antialiased selection:bg-surface-950 selection:text-surface-50;
     background-color: var(--app-background);
   }
+  
+  .portfolio-action-band {
+    @apply selection:bg-surface-50! selection:text-surface-950! dark:selection:bg-surface-950! dark:selection:text-surface-50!;
+  }
 }
 
 html,
@@ -1928,8 +2069,8 @@ body {
 
 .dark {
   color-scheme: dark;
-  --app-background: var(--surface-950);
-  --instrument-field-bg-auto: var(--surface-950);
+  --app-background: var(--surface-0);
+  --instrument-field-bg-auto: var(--surface-0);
   --instrument-field-bg-inverted: var(--surface-50);
 }
 

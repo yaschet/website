@@ -10,13 +10,17 @@ const nextConfig: NextConfig = {
 		formats: ["image/avif", "image/webp"],
 		qualities: [25, 50, 75, 100],
 		minimumCacheTTL: 60,
-		// Explicitly match our grid breakpoints (640, 768, 1024, 1280, 1536)
-		deviceSizes: [640, 768, 1024, 1280, 1536, 1920],
+		// Explicitly match our grid breakpoints and include a 2x desktop tier.
+		deviceSizes: [640, 768, 1024, 1280, 1536, 1920, 2048],
 		imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
 		remotePatterns: [
 			{
 				protocol: "https",
 				hostname: "images.unsplash.com",
+			},
+			{
+				protocol: "https",
+				hostname: "image.mux.com",
 			},
 		],
 	},
@@ -89,7 +93,7 @@ const nextConfig: NextConfig = {
 					},
 					{
 						key: "Permissions-Policy",
-						value: "camera=(), microphone=(), geolocations=()",
+						value: "camera=(), microphone=(), geolocation=()",
 					},
 					{
 						key: "Strict-Transport-Security",
@@ -101,7 +105,7 @@ const nextConfig: NextConfig = {
 					},
 					{
 						key: "Content-Security-Policy",
-						value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: mapbox://styles/* https://src.litix.io https://www.gstatic.com http://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob: https://image.mux.com https://*.litix.io; font-src 'self' data: https:; connect-src 'self' https: https://*.mux.com https://*.litix.io https://storage.googleapis.com; media-src 'self' blob: https://*.mux.com; worker-src 'self' blob:;",
+						value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: mapbox://styles/* https://src.litix.io https://www.gstatic.com http://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob: https://image.mux.com https://*.litix.io; font-src 'self' data: https:; connect-src 'self' https: http://localhost:4747 http://127.0.0.1:4747 https://*.mux.com https://*.litix.io https://storage.googleapis.com; media-src 'self' blob: https://*.mux.com; worker-src 'self' blob:;",
 					},
 				],
 			},

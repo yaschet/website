@@ -5,7 +5,7 @@ import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-wo
 import { PageContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
+import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
 import { Button } from "@/src/components/ui/button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
@@ -17,6 +17,7 @@ import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import { getListedPublicProjects } from "@/src/content/registry";
+import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 export const metadata: Metadata = {
 	title: "Case Studies | Yassine Chettouch",
@@ -45,7 +46,7 @@ export default async function CaseStudiesPage() {
 
 				<section id="projects-list" className="w-full">
 					<PageContainer className="portfolio-section-top">
-						<SwissGridBox>
+						<SwissGridBox className="!bg-surface-50 dark:!bg-surface-900/80">
 							<SwissGridRow>
 								<Reveal phase={1} className="w-full">
 									<div className="portfolio-box-pad">
@@ -74,7 +75,8 @@ export default async function CaseStudiesPage() {
 														description={project.description}
 														href={project.urlPath}
 														tags={project.tech ?? []}
-														images={project.coverImages}
+														items={getProjectCoverMedia(project)}
+														prioritizeFirstImage={false}
 														isPrivate={
 															project.cardState === "coming-soon"
 														}

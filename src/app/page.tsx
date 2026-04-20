@@ -4,7 +4,7 @@ import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-wo
 import { PageContainer } from "@/src/components/layout/containers";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
+import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
 import { SiteHero } from "@/src/components/layout/site-hero";
 import { Button } from "@/src/components/ui/button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
@@ -17,6 +17,7 @@ import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import { getListedPublicProjects } from "@/src/content/registry";
+import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 function HomeClosingCta() {
 	return (
@@ -66,7 +67,7 @@ export default async function Home() {
 
 				{/* Box 2: Selected Work */}
 				<PageContainer className="mt-10">
-					<SwissGridBox>
+					<SwissGridBox className="!bg-surface-50 dark:!bg-surface-900/80">
 						<SwissGridRow>
 							{hasFeaturedProjects ? (
 								<div className="portfolio-box-pad">
@@ -85,7 +86,7 @@ export default async function Home() {
 														description={project.description}
 														href={project.urlPath}
 														tags={project.tech ?? []}
-														images={project.coverImages}
+														items={getProjectCoverMedia(project)}
 														isPrivate={
 															project.cardState === "coming-soon"
 														}
@@ -100,7 +101,7 @@ export default async function Home() {
 																: undefined
 														}
 														imageTreatment="disciplined"
-														imageAspectRatio="1.92"
+														imageAspectRatio="16/9"
 													/>
 												</div>
 											</ScrollReveal>

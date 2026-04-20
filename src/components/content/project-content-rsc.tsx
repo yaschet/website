@@ -5,24 +5,25 @@ import { SiteFooter } from "@/src/components/layout/site-footer";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
-import { ImageGallery } from "@/src/components/ui/image-gallery";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
+import { MediaGallery } from "@/src/components/ui/media-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { ProjectEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
-import { SiteHeader } from "../layout/site-header";
+import { getProjectCoverMedia } from "@/src/lib/gallery-media";
+import { RequestAwareSiteHeader as SiteHeader } from "../layout/site-header-rsc";
 
 interface ProjectContentProps {
 	project: ProjectEntry;
 }
 
 export function ProjectContentRSC({ project }: ProjectContentProps) {
-	const galleryImages = project.coverImages ?? [];
+	const galleryItems = getProjectCoverMedia(project);
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -46,15 +47,16 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 												<span>Back to Case Studies</span>
 											</Link>
 
-											{galleryImages.length > 0 &&
+											{galleryItems.length > 0 &&
 												!project.hideCoverGallery && (
-													<ImageGallery
-														images={galleryImages}
+													<MediaGallery
+														items={galleryItems}
 														altPrefix={project.title}
 														aspectRatio="16/9"
-														showArrows={galleryImages.length > 1}
-														showProgress={galleryImages.length > 1}
-														showCounter={galleryImages.length > 1}
+														showArrows={galleryItems.length > 1}
+														showProgress={galleryItems.length > 1}
+														showCounter={galleryItems.length > 1}
+														expandable
 													/>
 												)}
 

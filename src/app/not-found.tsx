@@ -1,7 +1,7 @@
 import { ArrowLeft, ArrowRight, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
-import { SiteHeader } from "@/src/components/layout/site-header";
+import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
 import { Button } from "@/src/components/ui/button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";

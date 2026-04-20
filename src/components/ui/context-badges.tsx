@@ -7,6 +7,7 @@ import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
 import { useRevealState } from "@/src/components/providers/reveal-provider";
 import { cn, springs, tweens } from "@/src/lib/index";
+import { getTimeZoneOffsetMinutes, type ViewerTimeZoneSource } from "@/src/lib/time-zone";
 
 const BADGE_HEIGHT = "var(--portfolio-badge-height)";
 const INSIGNIA_SIZE = "var(--portfolio-status-insignia-size)";
@@ -31,7 +32,7 @@ const insigniaClasses = cn(
 const contentClasses = cn("flex items-center");
 
 const tooltipPanelClasses = cn(
-	"pointer-events-none absolute top-full z-20 mt-2",
+	"pointer-events-none absolute top-full z-20 mt-[var(--portfolio-overlay-gap)]",
 	"max-w-[calc(100vw-(var(--portfolio-page-gutter-mobile)*2))]",
 	"w-max border border-surface-200/90 bg-white/98 px-[var(--portfolio-space-tight)] py-[8px] shadow-md backdrop-blur-sm",
 	"dark:border-surface-800 dark:bg-surface-900/98",
@@ -49,37 +50,6 @@ const tooltipLabelClasses = cn(
 const tooltipValueClasses = cn(
 	"!m-0 !text-[12px] !leading-[14px] min-w-0 whitespace-nowrap text-left font-medium text-surface-800 tracking-[0.01em] dark:text-surface-200",
 );
-
-function getTimeZoneOffsetMinutes(timeZone: string, date: Date) {
-	const formatter = new Intl.DateTimeFormat("en-GB", {
-		timeZone,
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-		hour12: false,
-	});
-
-	const parts = Object.fromEntries(
-		formatter
-			.formatToParts(date)
-			.filter((part) => part.type !== "literal")
-			.map((part) => [part.type, part.value]),
-	);
-
-	const asUtcTimestamp = Date.UTC(
-		Number(parts.year),
-		Number(parts.month) - 1,
-		Number(parts.day),
-		Number(parts.hour),
-		Number(parts.minute),
-		Number(parts.second),
-	);
-
-	return Math.round((asUtcTimestamp - date.getTime()) / 60000);
-}
 
 function formatUtcOffset(offsetMinutes: number) {
 	if (offsetMinutes === 0) {
@@ -118,6 +88,19 @@ function formatDeltaOffset(offsetMinutes: number) {
 
 	return `${sign}${hours}h ${minutes}m`;
 }
+
+function formatViewerTimeZoneSource(source: ViewerTimeZoneSource | null) {
+	switch (source) {
+		case "request":
+			return "Request Geo";
+		case "override":
+			return "Dev Override";
+		default:
+			return "Unavailable";
+	}
+}
+
+const isDevelopment = process.env.NODE_ENV === "development";
 
 function BadgeTooltip({
 	align,
@@ -199,7 +182,15 @@ export function LocationBadge({ className }: { className?: string }) {
 	);
 }
 
-export function TimeBadge({ className }: { className?: string }) {
+export function TimeBadge({
+	className,
+	viewerTimeZone: requestViewerTimeZone = null,
+	viewerTimeZoneSource: requestViewerTimeZoneSource = null,
+}: {
+	className?: string;
+	viewerTimeZone?: string | null;
+	viewerTimeZoneSource?: ViewerTimeZoneSource | null;
+}) {
 	const [time, setTime] = useState<string>("");
 	const [zoneOffset, setZoneOffset] = useState<string>("");
 	const [relativeOffset, setRelativeOffset] = useState<string>("");
@@ -208,9 +199,20 @@ export function TimeBadge({ className }: { className?: string }) {
 	const { environment } = useRevealState();
 	const shouldBypass = environment === "automation";
 	const shouldReduce = environment === "reduced-motion";
+	const viewerTimeZone = requestViewerTimeZone;
+	const viewerTimeZoneSource = requestViewerTimeZoneSource;
+	const shouldShowRelativeOffset =
+		isDevelopment || viewerTimeZoneSource === "request" || viewerTimeZoneSource === "override";
 
 	useEffect(() => {
 		setMounted(true);
+	}, []);
+
+	useEffect(() => {
+		if (!mounted) {
+			return;
+		}
+
 		const formatter = new Intl.DateTimeFormat("en-GB", {
 			hour: "2-digit",
 			minute: "2-digit",
@@ -218,19 +220,23 @@ export function TimeBadge({ className }: { className?: string }) {
 			hour12: false,
 			timeZone: TARGET_TIME_ZONE,
 		});
+
 		const updateTime = () => {
 			const now = new Date();
 			const targetOffsetMinutes = getTimeZoneOffsetMinutes(TARGET_TIME_ZONE, now);
-			const viewerOffsetMinutes = -now.getTimezoneOffset();
+			const viewerOffsetMinutes = viewerTimeZone
+				? getTimeZoneOffsetMinutes(viewerTimeZone, now)
+				: targetOffsetMinutes;
 
 			setTime(formatter.format(now));
 			setZoneOffset(formatUtcOffset(targetOffsetMinutes));
 			setRelativeOffset(formatDeltaOffset(targetOffsetMinutes - viewerOffsetMinutes));
 		};
+
 		updateTime();
 		const interval = setInterval(updateTime, 1000);
 		return () => clearInterval(interval);
-	}, []);
+	}, [mounted, viewerTimeZone]);
 
 	if (!mounted) {
 		return null;
@@ -276,7 +282,17 @@ export function TimeBadge({ className }: { className?: string }) {
 						align="end"
 						rows={[
 							{ label: "ZONE", value: zoneOffset },
-							{ label: "YOU", value: relativeOffset },
+							...(shouldShowRelativeOffset
+								? [{ label: "YOU", value: relativeOffset }]
+								: []),
+							...(isDevelopment
+								? [
+										{
+											label: "SRC",
+											value: formatViewerTimeZoneSource(viewerTimeZoneSource),
+										},
+									]
+								: []),
 						]}
 					/>
 				)}
@@ -405,8 +421,8 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 			if (!animationRef.current) return;
 
 			// Asymmetric Physics Constants
-			const FRICTION_BRAKE = 0.12; // Fast stop (Responsiveness/Utility)
-			const INERTIA_ACCEL = 0.05; // faster start (Mass/Luxury) - Increased to fix "too late" feel
+			const FRICTION_BRAKE = 0.025; // Slow stop (Mass)
+			const INERTIA_ACCEL = 0.15; // faster start (Responsiveness)
 
 			// Determine which factor to use
 			// If target < curent, we are braking. If target > current, we are accelerating.
