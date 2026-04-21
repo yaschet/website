@@ -3,7 +3,7 @@ export const metadata = {
 	description:
 		"Solo-built operational rebuild for a study-abroad consultancy: schema redesign, AI-powered ETL, and explainable ranking across 33,612 spreadsheet rows.",
 	subtitle:
-		"A 16-week rebuild that turned 33,612 spreadsheet rows into a normalized schema, a resumable AI import pipeline, and an explainable matching engine advisors could use in live calls.",
+		"The original matching workflow broke in live advising calls. I rebuilt it into three connected systems: a normalized schema, a resumable AI import pipeline, and an explainable matching engine advisors could trust during real student calls.",
 	date: "2025-06-08",
 	role: "Sole Engineer (Architecture, Backend, Frontend, DevOps, QA)",
 	domain: "Education Operations / Internal Tools",
@@ -90,15 +90,27 @@ export const metadata = {
 	sortOrder: 1,
 };
 
-Clearway Phoenix started after a simpler V1 matching calculator failed. The original system could only do literal keyword filtering, which meant a student looking for `economy` would miss programs labeled `business` or `finance`. That failure exposed the real problem: the agency was trying to make high-stakes placement decisions from messy spreadsheets, shallow logic, and manual cross-referencing.
+The original matching workflow broke in live advising calls. Advisors were cross-referencing spreadsheet rows by hand, keyword filters missed relevant programs, and core eligibility rules lived in notes fields. I rebuilt that workflow into three connected systems: a 30-table schema, a resumable AI import pipeline, and an explainable matching engine that ranked 19,299 programs in under a second. The result was not a prettier dashboard; it was a workflow advisors could trust during real student calls.
 
-I rebuilt the workflow as a sequence of connected systems: a normalized data model, a resumable AI-powered import pipeline, and a real-time matching engine that could be used during live advisor calls.
+*Client name and public URLs changed for confidentiality. Architecture, decisions, and metrics are real.*
+
+## Why the design looked like this
+
+Three early decisions shaped everything that followed.
+
+**Embeddings stayed on program rows** instead of moving to separate vector infrastructure. The dataset was 19,299 programs — large enough to need semantic search, small enough that a dedicated vector database would have added operational complexity without proportional gain. MeiliSearch handled hybrid search with embeddings stored alongside relational data, which kept the deployment surface small and the query path fast.
+
+**Ordered sheet processing preceded inserts.** The spreadsheets contained cross-sheet foreign keys: programs referenced universities, scholarships referenced programs. Importing them out of order would have broken referential integrity silently. The pipeline enforced a strict stage sequence — universities first, then accommodations, then programs, then scholarships — with legacy ID maps persisted between stages to resolve foreign keys that did not yet exist in the new schema.
+
+**Explainability was non-negotiable**, even though a black-box scorer would have been faster to ship. Advisors needed to defend recommendations in live calls with students and parents. A green score without reasoning would not survive that conversation. So the scoring engine exposed every factor — grade fit, major alignment, scholarship potential, deadline proximity, semantic relevance — as individual line items with positive and negative breakdowns.
 
 ## Rebuilding the data model
 
 The first decision was sequencing. I did not start by importing data. I started by building the place that data needed to live.
 
 The legacy system was too flat to support intelligent matching. Critical business rules lived inside notes fields: nationality restrictions, scholarship variants, language thresholds, fee structures, and accommodation details. That makes data display possible, but it makes reasoning impossible.
+
+The rules were not simply a data-import problem. They had to be understood before they could be modeled — two weeks of reading scholarship eligibility rules, nationality restrictions, and language thresholds that lived inside notes fields before any schema work could start.
 
 So the first pass rebuilt the foundation as a normalized schema across universities, programs, scholarships, locations, and reference data. The goal was not elegance for its own sake. The goal was queryability. If a future recommendation engine needed to reason about grade requirements, scholarship coverage, or field alignment, those things had to exist as real structured relationships first.
 
@@ -112,22 +124,10 @@ So the first pass rebuilt the foundation as a normalized schema across universit
 
 The first pass also had to be usable by a non-technical team. That meant the work did not stop at migrations and models. It expanded into a full Livewire CRUD system for programs, universities, settings, language templates, scholarship types, and supporting reference entities. The system had to make clean data easier to enter than dirty data.
 
-<Gallery
-	images={[
-		"/images/clearway-phoenix/phase-1/01-programs-table.png",
-		"/images/clearway-phoenix/phase-1/03-programs-modal-grade-requirements.png",
-		"/images/clearway-phoenix/phase-1/05-universities-table.png",
-		"/images/clearway-phoenix/phase-1/09-university-detail-overview.png",
-		"/images/clearway-phoenix/phase-1/13-settings-scholarship-types-categories.png",
-	]}
-	captions={[
-		"Programs table backed by the normalized program schema.",
-		"Program grade requirements modeled as structured relationships.",
-		"Universities table surfacing data that used to live in notes fields.",
-		"University detail page proving the schema could support a rich read surface.",
-		"Scholarship types and categories turned free-text awards into structured records.",
-	]}
-	caption="The schema surfaces, ordered from the polished source set."
+<Image
+  src="/images/clearway-phoenix/phase-1/01-programs-table.png"
+  alt="Programs table backed by the normalized program schema."
+  priority={true}
 />
 
 What mattered most here was judgment, not volume. The difficult part was not creating many tables. The difficult part was deciding what deserved first-class structure and what should remain derived or auxiliary.
@@ -184,21 +184,12 @@ The important part was not "AI was used." The important part was how the pipelin
 - non-retriable failures were isolated instead of poisoning the full run
 - a dense terminal dashboard made reliability, cost, throughput, and failure modes visible while the job was still running
 
-<Gallery
-	images={[
-		"/images/clearway-phoenix/phase-2/p2-02-editorial-dashboard-angle.png",
-		"/images/clearway-phoenix/phase-2/p2-03-editorial-signal-detail.png",
-		"/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png",
-	]}
-	captions={[
-		"Dashboard angle view of the full run state.",
-		"Signal detail view showing the operator-grade telemetry.",
-		"Completed ETL dashboard with stage rail, reliability panels, and final cost.",
-	]}
-	caption="The import surfaces, ordered from the polished source set."
+<Image
+  src="/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png"
+  alt="Completed ETL dashboard with stage rail, reliability panels, and final cost."
 />
 
-This was the point where Phoenix stopped being an app rebuild and became systems work.
+By this point, the hard part was no longer CRUD screens. It was resumability, foreign-key recovery, API cost control, and score explanations that held up in live calls.
 
 ## From search to assignment
 
@@ -230,23 +221,24 @@ where the engine can also apply explicit penalties
 for grade blockers, weak alignment, or other critical failures
 ```
 
-<Gallery
-	images={[
-		"/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png",
-		"/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png",
-		"/images/clearway-phoenix/phase-3/p3-04-critical-score-breakdown.png",
-		"/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png",
-	]}
-	captions={[
-		"Semantic query for machine learning returning live matches.",
-		"Positive score breakdown with explainable reasoning.",
-		"Critical score breakdown exposing penalties and blockers.",
-		"Assigned programs workflow extending matching into operations.",
-	]}
-	caption="The matching surfaces, ordered from the polished source set."
+<Image
+  src="/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png"
+  alt="Positive score breakdown with explainable reasoning per factor."
 />
 
 The result was not just a recommendation engine. It was an advisor console that could move from search, to ranking, to assignment, to follow-through without losing context.
+
+## Verification and hardening
+
+The ETL could not be tested by running it — each full run took hours, consumed real API spend, and failed silently on edge cases that only surfaced at scale. I used Pest with AI-generated edge-case scenarios to simulate failure modes before running the full pipeline: malformed rows, missing foreign keys, API rate-limit cascades, and partial sheet failures.
+
+Three areas required dedicated verification:
+
+- **ETL row-to-row mappings.** Every AI transformation was validated against expected output schemas. Rows that produced invalid JSON were caught before insert, isolated, and flagged for manual review instead of poisoning the import.
+- **Scoring calibration.** The 13-factor model was tested against advisor expectations: known-good matches had to score high, known-bad matches had to score low, and edge cases had to produce explainable middle scores instead of false confidence.
+- **Resumability under failure.** The pipeline was deliberately crashed at different stages to verify that checkpoint recovery produced the same final state as an uninterrupted run. Without this, overnight imports that died at 10% completion would have replayed hours of work and re-spent API cost.
+
+Weeks of test-first iteration, not live-run iteration.
 
 ## Results
 
@@ -258,10 +250,42 @@ The result was not just a recommendation engine. It was an advisor console that 
 | Recommendation quality was opaque | Every score exposed its reasoning, penalties, and strengths |
 | Work stopped at discovery | Assigned programs entered a tracked lifecycle with prioritization and status changes |
 
-The CEO's reaction was straightforward: once he saw the system working end to end, he approved payment immediately and moved straight into discussing what came next.
+The CEO approved payment immediately after the end-to-end demo and moved straight into scoping the next phase.
 
 ## Takeaway
 
 Phoenix is the strongest example of the kind of engineering work I want more of: rebuilding brittle operations at the data-model layer, engineering the reliability around messy inputs, and shipping the final surface as a usable product instead of a technical demo.
 
 It was not one feature. It was a sequence of architectural decisions that had to hold together under real operational pressure.
+
+<Gallery
+	images={[
+		"/images/clearway-phoenix/phase-1/01-programs-table.png",
+		"/images/clearway-phoenix/phase-1/03-programs-modal-grade-requirements.png",
+		"/images/clearway-phoenix/phase-1/05-universities-table.png",
+		"/images/clearway-phoenix/phase-1/09-university-detail-overview.png",
+		"/images/clearway-phoenix/phase-1/13-settings-scholarship-types-categories.png",
+		"/images/clearway-phoenix/phase-2/p2-02-editorial-dashboard-angle.png",
+		"/images/clearway-phoenix/phase-2/p2-03-editorial-signal-detail.png",
+		"/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png",
+		"/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png",
+		"/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png",
+		"/images/clearway-phoenix/phase-3/p3-04-critical-score-breakdown.png",
+		"/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png",
+	]}
+	captions={[
+		"Programs table backed by the normalized program schema.",
+		"Program grade requirements modeled as structured relationships.",
+		"Universities table surfacing data that used to live in notes fields.",
+		"University detail page proving the schema could support a rich read surface.",
+		"Scholarship types and categories turned free-text awards into structured records.",
+		"Dashboard angle view of the full run state.",
+		"Signal detail view showing the operator-grade telemetry.",
+		"Completed ETL dashboard with stage rail, reliability panels, and final cost.",
+		"Semantic query for machine learning returning live matches.",
+		"Positive score breakdown with explainable reasoning.",
+		"Critical score breakdown exposing penalties and blockers.",
+		"Assigned programs workflow extending matching into operations.",
+	]}
+	caption="The complete surface: schema, ETL, and matching across all three phases."
+/>
