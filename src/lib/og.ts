@@ -1,6 +1,5 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { cwd } from "node:process";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -32,37 +31,55 @@ export const OG_COLORS = {
 // ═══════════════════════════════════════════════════════════════════════════
 // FONT LOADER
 // ═══════════════════════════════════════════════════════════════════════════
-export async function loadOgFonts() {
-	// In production (Vercel), we might need to fetch from URL if file system is restricted,
-	// but for local dev/build, reading from node_modules or assets is standard.
-	// We will try standard fetch for maximum compatibility.
+async function loadLocalFont(fontPath: string) {
+	try {
+		return await readFile(path.join(/* turbopackIgnore: true */ process.cwd(), fontPath));
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: Expected OG asset fallback logging
+		console.warn(`Failed to load OG font at ${fontPath}:`, error);
+		return null;
+	}
+}
 
-	const loadFont = async (name: string, weight: 300 | 400 | 500 | 600 | 700) => {
-		const url = `https://cdn.jsdelivr.net/npm/@fontsource/${name}/files/${name}-latin-${weight}-normal.woff`;
-		const res = await fetch(url);
-		return await res.arrayBuffer();
-	};
+export async function loadOgFonts() {
+	const [spaceGrotesk700, spaceGrotesk500, spaceMono] = await Promise.all([
+		loadLocalFont("public/fonts/og/SpaceGrotesk-700.woff"),
+		loadLocalFont("public/fonts/og/SpaceGrotesk-500.woff"),
+		loadLocalFont("public/fonts/SpaceMono-Regular.ttf"),
+	]);
 
 	return [
-		{
-			name: "Space Grotesk",
-			data: await loadFont("space-grotesk", 700),
-			style: "normal" as const,
-			weight: 700 as const,
-		},
-		{
-			name: "Space Grotesk",
-			data: await loadFont("space-grotesk", 500),
-			style: "normal" as const,
-			weight: 500 as const,
-		},
-		{
-			name: "Space Mono",
-			data: await loadFont("space-mono", 400),
-			style: "normal" as const,
-			weight: 400 as const,
-		},
-	];
+		spaceGrotesk700
+			? [
+					{
+						name: "Space Grotesk",
+						data: spaceGrotesk700,
+						style: "normal" as const,
+						weight: 700 as const,
+					},
+				]
+			: [],
+		spaceGrotesk500
+			? [
+					{
+						name: "Space Grotesk",
+						data: spaceGrotesk500,
+						style: "normal" as const,
+						weight: 500 as const,
+					},
+				]
+			: [],
+		spaceMono
+			? [
+					{
+						name: "Space Mono",
+						data: spaceMono,
+						style: "normal" as const,
+						weight: 400 as const,
+					},
+				]
+			: [],
+	].flat();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -75,13 +92,20 @@ export async function loadOgFonts() {
 export async function loadAvatar() {
 	try {
 		// Use file system for local reliability
-		const buffer = await readFile(path.join(cwd(), "public/images/avatar.png"));
+		const buffer = await readFile(
+			path.join(/* turbopackIgnore: true */ process.cwd(), "public/images/avatar.png"),
+		);
 		return buffer;
 	} catch (e) {
 		// biome-ignore lint/suspicious/noConsole: Expected error logging
 		console.warn("Failed to load avatar local:", e);
 		return null;
 	}
+}
+
+export async function loadAvatarDataUrl() {
+	const avatarBuffer = await loadAvatar();
+	return avatarBuffer ? `data:image/png;base64,${avatarBuffer.toString("base64")}` : "";
 }
 
 /**
@@ -94,7 +118,11 @@ export async function loadProjectImage(imagePath: string) {
 	try {
 		// Clean the path (remove leading slash if present for path.join)
 		const cleanPath = imagePath.startsWith("/") ? imagePath.slice(1) : imagePath;
-		const absolutePath = path.join(cwd(), "public", cleanPath);
+		const absolutePath = path.join(
+			/* turbopackIgnore: true */ process.cwd(),
+			"public",
+			cleanPath,
+		);
 
 		const buffer = await readFile(absolutePath);
 		return buffer;

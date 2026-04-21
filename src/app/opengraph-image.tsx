@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import {
-	loadAvatar,
+	loadAvatarDataUrl,
 	loadOgFonts,
 	OG_COLORS,
 	OG_CONTENT_TYPE,
@@ -16,10 +16,7 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default async function Image() {
-	const avatarBuffer = await loadAvatar();
-	const avatarUrl = avatarBuffer
-		? `data:image/jpeg;base64,${avatarBuffer.toString("base64")}`
-		: "";
+	const avatarUrl = await loadAvatarDataUrl();
 
 	const layout = OG_LAYOUT;
 
@@ -60,8 +57,8 @@ export default async function Image() {
 						{/* biome-ignore lint/performance/noImgElement: required for ImageResponse */}
 						<img
 							src={avatarUrl}
-							width="140"
-							height="140"
+							width={140}
+							height={140}
 							style={{ objectFit: "cover" }}
 							alt="Avatar"
 						/>

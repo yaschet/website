@@ -87,6 +87,7 @@ export default async function Home() {
 														href={project.urlPath}
 														tags={project.tech ?? []}
 														items={getProjectCoverMedia(project)}
+														prioritizeFirstImage={false}
 														isPrivate={
 															project.cardState === "coming-soon"
 														}

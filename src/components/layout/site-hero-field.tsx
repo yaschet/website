@@ -6,7 +6,7 @@ import {
 	INSTRUMENT_GRID_ORIGIN,
 	INSTRUMENT_GRID_STEP,
 } from "@/components/ui/instrument-field-metrics";
-import { InstrumentField } from "@/components/ui/topographic-dot-field";
+import { DeferredInstrumentField } from "@/src/components/ui/deferred-instrument-field";
 
 const HERO_FIELD_SPEED = 0.28;
 
@@ -17,7 +17,7 @@ export function SiteHeroField() {
 				className="pointer-events-none absolute inset-0"
 				style={{ backgroundColor: "var(--instrument-field-bg-auto)" }}
 			/>
-			<InstrumentField
+			<DeferredInstrumentField
 				interactive
 				step={INSTRUMENT_GRID_STEP}
 				minInset={INSTRUMENT_GRID_MIN_INSET}

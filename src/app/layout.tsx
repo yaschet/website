@@ -111,6 +111,10 @@ export default function RootLayout({
 			data-scroll-behavior="smooth"
 		>
 			<head>
+				<link rel="preconnect" href="https://image.mux.com" crossOrigin="" />
+				<link rel="preconnect" href="https://stream.mux.com" crossOrigin="" />
+				<link rel="dns-prefetch" href="https://image.mux.com" />
+				<link rel="dns-prefetch" href="https://stream.mux.com" />
 				<PortfolioTypeStyles />
 				<Script id="theme-bootstrap" strategy="beforeInteractive">
 					{THEME_BOOTSTRAP_SCRIPT}

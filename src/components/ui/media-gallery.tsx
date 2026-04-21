@@ -12,6 +12,7 @@
 
 import { CaretLeft, CaretRight, Play } from "@phosphor-icons/react/dist/ssr";
 import { motion, useReducedMotion } from "framer-motion";
+import dynamic from "next/dynamic";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -22,15 +23,28 @@ import {
 	GALLERY_CHROME_META_CHIP_CLASS_NAME,
 	GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
 } from "@/src/components/ui/gallery-chrome";
-import { GalleryLightbox } from "@/src/components/ui/gallery-lightbox";
-import { PortfolioMuxVideo } from "@/src/components/ui/portfolio-mux-video";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn, tweens } from "@/src/lib/index";
 import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
 
-interface MediaGalleryProps {
+const importPortfolioMuxVideo = () => import("@/src/components/ui/portfolio-mux-video");
+
+const GalleryLightbox = dynamic(
+	() => import("@/src/components/ui/gallery-lightbox").then((module) => module.GalleryLightbox),
+	{ ssr: false },
+);
+
+const PortfolioMuxVideo = dynamic(
+	() => importPortfolioMuxVideo().then((module) => module.PortfolioMuxVideo),
+	{
+		ssr: false,
+		loading: () => <div className="absolute inset-0 bg-surface-950" aria-hidden="true" />,
+	},
+);
+
+export interface MediaGalleryProps {
 	/** Rich gallery items. Preferred over legacy `images`. */
 	items?: GalleryMediaSource[];
 	/** Legacy array of image sources (strings or static imports). */
@@ -68,6 +82,8 @@ interface MediaGalleryProps {
 	onIndexChange?: (index: number) => void;
 	/** Preload the first image when the gallery is likely above the fold */
 	prioritizeFirstImage?: boolean;
+	/** Allow hover-triggered animated previews for Mux videos */
+	enableHoverPreview?: boolean;
 }
 
 type ResolvedGalleryItem =
@@ -87,6 +103,13 @@ type ResolvedGalleryItem =
 			duration?: string;
 			metadata?: MuxVideoMetadata;
 	  };
+
+type NetworkInformationLike = {
+	addEventListener?: (type: "change", listener: () => void) => void;
+	removeEventListener?: (type: "change", listener: () => void) => void;
+	effectiveType?: string;
+	saveData?: boolean;
+};
 
 const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
 	"pointer-events-auto inline-flex h-[var(--portfolio-control-default)] items-center justify-center px-[var(--portfolio-control-pad-default)]",
@@ -145,6 +168,7 @@ export function MediaGallery({
 	mediaClassName,
 	onIndexChange,
 	prioritizeFirstImage = true,
+	enableHoverPreview = true,
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw",
 	quality = 85,
 }: MediaGalleryProps) {
@@ -160,12 +184,14 @@ export function MediaGallery({
 	const [hoverPreviewPlaybackId, setHoverPreviewPlaybackId] = useState<string | null>(null);
 	const [visibleVideoId, setVisibleVideoId] = useState<string | null>(null);
 	const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+	const [loadingInlineVideoId, setLoadingInlineVideoId] = useState<string | null>(null);
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
 	const [isPointerInside, setIsPointerInside] = useState(false);
 	const [touchChromeVisible, setTouchChromeVisible] = useState(false);
 	const [viewportWidth, setViewportWidth] = useState(0);
 	const [canHover, setCanHover] = useState(false);
+	const [allowHoverPreview, setAllowHoverPreview] = useState(enableHoverPreview);
 
 	const galleryItems = useMemo<ResolvedGalleryItem[]>(() => {
 		if (items?.length) {
@@ -226,16 +252,6 @@ export function MediaGallery({
 		const first = aspectRatios[0];
 		return aspectRatios.some((ratio) => Math.abs(ratio - first) > 0.01);
 	}, [aspectRatios]);
-	const galleryVideoPlaybackIds = useMemo(
-		() =>
-			galleryItems
-				.filter(
-					(item): item is Extract<ResolvedGalleryItem, { kind: "mux-video" }> =>
-						item.kind === "mux-video",
-				)
-				.map((item) => item.playbackId),
-		[galleryItems],
-	);
 	const activeItem = galleryItems[activeIndex];
 	const isActiveVideoVisible =
 		activeItem?.kind === "mux-video" && visibleVideoId === activeItem.playbackId;
@@ -297,6 +313,7 @@ export function MediaGallery({
 		setHoverPreviewPlaybackId(null);
 		setVisibleVideoId(null);
 		setPlayingVideoId(null);
+		setLoadingInlineVideoId(null);
 		setIsLightboxOpen(false);
 		setTouchChromeVisible(false);
 	}, [galleryIdentity]);
@@ -317,6 +334,35 @@ export function MediaGallery({
 		mediaQuery.addEventListener("change", syncCanHover);
 		return () => mediaQuery.removeEventListener("change", syncCanHover);
 	}, []);
+
+	useEffect(() => {
+		if (typeof navigator === "undefined") {
+			setAllowHoverPreview(enableHoverPreview);
+			return;
+		}
+
+		const connection = (
+			navigator as Navigator & { connection?: NetworkInformationLike }
+		).connection;
+		const syncHoverPreviewPolicy = () => {
+			if (!enableHoverPreview) {
+				setAllowHoverPreview(false);
+				return;
+			}
+
+			const effectiveType = connection?.effectiveType;
+			const saveData = connection?.saveData === true;
+			const constrainedNetwork =
+				saveData || effectiveType === "slow-2g" || effectiveType === "2g";
+
+			setAllowHoverPreview(!constrainedNetwork);
+		};
+
+		syncHoverPreviewPolicy();
+		connection?.addEventListener?.("change", syncHoverPreviewPolicy);
+
+		return () => connection?.removeEventListener?.("change", syncHoverPreviewPolicy);
+	}, [enableHoverPreview]);
 
 	useEffect(() => {
 		if (!outerRef.current) return;
@@ -345,6 +391,7 @@ export function MediaGallery({
 
 			if (
 				typeof window === "undefined" ||
+				!allowHoverPreview ||
 				!canHover ||
 				item.kind !== "mux-video" ||
 				isViewingInline
@@ -362,7 +409,7 @@ export function MediaGallery({
 				hoverPreviewTimeoutRef.current = null;
 			}, 200);
 		},
-		[canHover],
+		[allowHoverPreview, canHover],
 	);
 
 	useEffect(() => {
@@ -517,7 +564,14 @@ export function MediaGallery({
 								item.kind === "mux-video" && playingVideoId === item.playbackId;
 							const isViewingInline =
 								item.kind === "mux-video" && visibleVideoId === item.playbackId;
+							const shouldRenderInlineVideo =
+								item.kind === "mux-video" && isViewingInline;
+							const isLoadingInlineVideo =
+								item.kind === "mux-video" &&
+								loadingInlineVideoId === item.playbackId &&
+								!isViewingInline;
 							const isHoverPreviewActive =
+								allowHoverPreview &&
 								item.kind === "mux-video" &&
 								hoverPreviewPlaybackId === item.playbackId &&
 								!isViewingInline;
@@ -529,8 +583,7 @@ export function MediaGallery({
 							);
 							const stageContent = (
 								<>
-									{item.kind === "mux-video" &&
-										galleryVideoPlaybackIds.includes(item.playbackId) && (
+									{shouldRenderInlineVideo && (
 											<div
 												className="absolute inset-0 z-0"
 												style={{
@@ -713,11 +766,26 @@ export function MediaGallery({
 														event.preventDefault();
 														event.stopPropagation();
 														clearHoverPreview();
-														stopAllPortfolioVideos();
-														setActiveIndex(index);
-														setVisibleVideoId(item.playbackId);
-														setPlayingVideoId(item.playbackId);
+														setLoadingInlineVideoId(item.playbackId);
+														void importPortfolioMuxVideo()
+															.then(() => {
+																stopAllPortfolioVideos();
+																setActiveIndex(index);
+																setVisibleVideoId(item.playbackId);
+																setPlayingVideoId(
+																	item.playbackId,
+																);
+															})
+															.finally(() => {
+																setLoadingInlineVideoId(
+																	(current) =>
+																		current === item.playbackId
+																			? null
+																			: current,
+																);
+															});
 													}}
+													disabled={isLoadingInlineVideo}
 													aria-label={
 														item.duration
 															? `Play video, duration ${item.duration}`
@@ -726,11 +794,20 @@ export function MediaGallery({
 												>
 													<span className="inline-grid grid-cols-[14px_auto] items-center gap-x-2">
 														<span className="flex w-[14px] items-center justify-center">
-															<Play size={14} weight="fill" />
+															{isLoadingInlineVideo ? (
+																<span
+																	className="size-[14px] animate-spin rounded-full border border-white/30 border-t-white"
+																	aria-hidden="true"
+																/>
+															) : (
+																<Play size={14} weight="fill" />
+															)}
 														</span>
 														<span className="inline-flex items-baseline gap-x-2">
 															<span className="portfolio-control-label">
-																Play
+																{isLoadingInlineVideo
+																	? "Loading"
+																	: "Play"}
 															</span>
 															{item.duration ? (
 																<>
