@@ -12,7 +12,7 @@ import type { StaticImageData } from "next/image";
 import Link from "next/link";
 import { Play } from "@phosphor-icons/react/dist/ssr";
 import type { ComponentType } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { resolveAsset } from "@/src/lib/assets";
 import { cn } from "@/src/lib/index";
@@ -103,6 +103,11 @@ export function ProjectCardGallery({
 		};
 	}, [images, items, title]);
 
+	const triggerRichMediaLoad = useCallback(() => {
+		if (shouldLoadRichMedia) return;
+		setShouldLoadRichMedia(true);
+	}, [shouldLoadRichMedia]);
+
 	useEffect(() => {
 		if (shouldLoadRichMedia || !deferMediaLoading) return;
 
@@ -166,6 +171,9 @@ export function ProjectCardGallery({
 							"shadow-[inset_0_-1px_0_rgba(15,23,42,0.08)] dark:shadow-[inset_0_-1px_0_rgba(248,250,252,0.08)]",
 						],
 					)}
+					onPointerEnter={triggerRichMediaLoad}
+					onFocusCapture={triggerRichMediaLoad}
+					onTouchStartCapture={triggerRichMediaLoad}
 				>
 					{shouldLoadRichMedia && RichMediaGallery ? (
 						<RichMediaGallery
