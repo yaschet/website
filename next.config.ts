@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
 
 	images: {
 		formats: ["image/avif", "image/webp"],
-		qualities: [25, 50, 75, 100],
+		qualities: [25, 50, 75, 90, 100],
 		minimumCacheTTL: 60,
 		// Explicitly match our grid breakpoints and include a 2x desktop tier.
 		deviceSizes: [640, 768, 1024, 1280, 1536, 1920, 2048],
