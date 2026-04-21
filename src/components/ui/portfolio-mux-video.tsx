@@ -1090,8 +1090,26 @@ export function PortfolioMuxVideo({
 		const media = mediaRef.current;
 		if (!media) return;
 
-		const handleMediaEvent = () => {
+		const handleMediaEvent = (event: Event) => {
 			syncFromMedia();
+
+			if (
+				desiredPlayingRef.current &&
+				(media.paused || media.readyState < 3) &&
+				(event.type === "loadedmetadata" ||
+					event.type === "loadeddata" ||
+					event.type === "canplay" ||
+					event.type === "canplaythrough")
+			) {
+				if (typeof window === "undefined") {
+					keepPlaybackRunning();
+					return;
+				}
+
+				window.setTimeout(() => {
+					keepPlaybackRunning();
+				}, 0);
+			}
 		};
 
 		const handleSourceIntegrityEvent = () => {
@@ -1247,11 +1265,17 @@ export function PortfolioMuxVideo({
 			pauseOtherDocumentMedia(media);
 
 			void media.play().catch(() => {
-				if (playbackCommandIdRef.current === commandId) {
-					desiredPlayingRef.current = false;
-					syncFromMedia();
-				}
 				setControlsVisible(true);
+				if (typeof window === "undefined") {
+					syncFromMedia();
+					return;
+				}
+
+				window.setTimeout(() => {
+					if (playbackCommandIdRef.current !== commandId) return;
+					keepPlaybackRunning();
+					syncFromMedia();
+				}, 0);
 			});
 			return;
 		}
@@ -1266,6 +1290,7 @@ export function PortfolioMuxVideo({
 		applyStableMediaConfig,
 		ensureMediaSource,
 		isActive,
+		keepPlaybackRunning,
 		pauseOtherDocumentMedia,
 		syncFromMedia,
 	]);

@@ -7,11 +7,18 @@
 "use client";
 
 import { ArrowUpRight, Lock } from "@phosphor-icons/react/dist/ssr";
+import Image from "next/image";
 import type { StaticImageData } from "next/image";
 import Link from "next/link";
-import { MediaGallery } from "@/src/components/ui/media-gallery";
+import { Play } from "@phosphor-icons/react/dist/ssr";
+import type { ComponentType } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
+import { resolveAsset } from "@/src/lib/assets";
 import { cn } from "@/src/lib/index";
+import type { MediaGalleryProps } from "@/src/components/ui/media-gallery";
+
+type MediaGalleryComponent = ComponentType<MediaGalleryProps>;
 
 interface ProjectCardGalleryProps {
 	title: string;
@@ -29,6 +36,9 @@ interface ProjectCardGalleryProps {
 	imageTreatment?: "default" | "disciplined";
 	imageAspectRatio?: string | string[] | "auto";
 	prioritizeFirstImage?: boolean;
+	enableHoverPreview?: boolean;
+	mediaQuality?: number;
+	deferMediaLoading?: boolean;
 }
 
 export function ProjectCardGallery({
@@ -46,9 +56,96 @@ export function ProjectCardGallery({
 	date,
 	imageTreatment = "default",
 	imageAspectRatio = "16/9",
-	prioritizeFirstImage = true,
+	prioritizeFirstImage = false,
+	enableHoverPreview = false,
+	mediaQuality = 75,
+	deferMediaLoading = true,
 }: ProjectCardGalleryProps) {
+	const stageRef = useRef<HTMLDivElement>(null);
+	const [RichMediaGallery, setRichMediaGallery] = useState<MediaGalleryComponent | null>(null);
+	const [shouldLoadRichMedia, setShouldLoadRichMedia] = useState(
+		!deferMediaLoading || prioritizeFirstImage,
+	);
+	const isRichMediaLoading = shouldLoadRichMedia && !RichMediaGallery;
 	const hasGalleryItems = (items?.length ?? 0) > 0 || (images?.length ?? 0) > 0;
+	const hasInlineVideo = useMemo(
+		() => (items?.some((item) => item.kind === "mux-video") ?? false),
+		[items],
+	);
+	const fallbackMedia = useMemo(() => {
+		const firstItem = items?.[0];
+		if (firstItem) {
+			if (firstItem.kind === "image") {
+				return {
+					kind: "image" as const,
+					src: typeof firstItem.src === "string" ? resolveAsset(firstItem.src) : firstItem.src,
+					alt: firstItem.alt ?? title,
+				};
+			}
+
+			return {
+				kind: "mux-video" as const,
+				src:
+					typeof firstItem.poster === "string"
+						? resolveAsset(firstItem.poster)
+						: firstItem.poster,
+				alt: firstItem.alt ?? firstItem.title ?? title,
+				duration: firstItem.duration,
+			};
+		}
+
+		const firstImage = images?.[0];
+		if (!firstImage) return null;
+		return {
+			kind: "image" as const,
+			src: typeof firstImage === "string" ? resolveAsset(firstImage) : firstImage,
+			alt: title,
+		};
+	}, [images, items, title]);
+
+	useEffect(() => {
+		if (shouldLoadRichMedia || !deferMediaLoading) return;
+
+		const stage = stageRef.current;
+		if (!stage) return;
+
+		if (!("IntersectionObserver" in window)) {
+			setShouldLoadRichMedia(true);
+			return;
+		}
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (!entries.some((entry) => entry.isIntersecting)) return;
+				setShouldLoadRichMedia(true);
+				observer.disconnect();
+			},
+			{ rootMargin: "320px 0px" },
+		);
+
+		observer.observe(stage);
+		return () => observer.disconnect();
+	}, [deferMediaLoading, shouldLoadRichMedia]);
+
+	useEffect(() => {
+		if (!shouldLoadRichMedia || RichMediaGallery) return;
+
+		let cancelled = false;
+
+		void Promise.all([
+			import("@/src/components/ui/media-gallery"),
+			hasInlineVideo
+				? import("@/src/components/ui/portfolio-mux-video")
+				: Promise.resolve(null),
+		]).then(([module]) => {
+			if (cancelled) return;
+			setRichMediaGallery(() => module.MediaGallery as MediaGalleryComponent);
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [RichMediaGallery, hasInlineVideo, shouldLoadRichMedia]);
 
 	return (
 		<article
@@ -62,6 +159,7 @@ export function ProjectCardGallery({
 		>
 			{hasGalleryItems ? (
 				<div
+					ref={stageRef}
 					className={cn(
 						"relative overflow-hidden",
 						imageTreatment === "disciplined" && [
@@ -69,20 +167,84 @@ export function ProjectCardGallery({
 						],
 					)}
 				>
-					<MediaGallery
-						items={items}
-						images={images}
-						altPrefix={title}
-						aspectRatio={imageAspectRatio}
-						prioritizeFirstImage={prioritizeFirstImage}
-						showArrows={!isPrivate}
-						showProgress={!isPrivate}
-						showCounter={false}
-						expandable={false}
-						className="border-0 border-surface-200 border-b dark:border-surface-800"
-						sizes="(max-width: 768px) 100vw, (max-width: 1400px) calc(100vw - 8rem), 1280px"
-						quality={90}
-					/>
+					{shouldLoadRichMedia && RichMediaGallery ? (
+						<RichMediaGallery
+							items={items}
+							images={images}
+							altPrefix={title}
+							aspectRatio={imageAspectRatio}
+							prioritizeFirstImage={prioritizeFirstImage}
+							showArrows={!isPrivate}
+							showProgress={!isPrivate}
+							showCounter={false}
+							expandable={false}
+							enableHoverPreview={enableHoverPreview}
+							className="border-0 border-surface-200 border-b dark:border-surface-800"
+							sizes="(max-width: 768px) 100vw, (max-width: 1400px) calc(100vw - 8rem), 1280px"
+							quality={mediaQuality}
+						/>
+					) : fallbackMedia ? (
+						<div
+							className="relative aspect-[16/9] w-full overflow-hidden border-0 border-surface-200 border-b bg-surface-100 dark:border-surface-800 dark:bg-surface-900"
+							aria-label={fallbackMedia.alt}
+							aria-busy={isRichMediaLoading || undefined}
+						>
+							<Image
+								src={fallbackMedia.src}
+								alt={fallbackMedia.alt}
+								fill
+								sizes="(max-width: 768px) 100vw, (max-width: 1400px) calc(100vw - 8rem), 1280px"
+								className="pointer-events-none select-none object-cover"
+								placeholder={typeof fallbackMedia.src === "string" ? "empty" : "blur"}
+								decoding="async"
+								draggable={false}
+								quality={mediaQuality}
+							/>
+
+							{fallbackMedia.kind === "mux-video" && (
+								<>
+									<div
+										className="pointer-events-none absolute inset-0"
+										style={{
+											background:
+												"radial-gradient(circle at center, rgb(0 0 0 / 0) 36%, rgb(0 0 0 / 0.14) 100%)",
+										}}
+										aria-hidden
+									/>
+									<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-[var(--portfolio-control-pad-default)]">
+										<div
+											className={cn(
+												"inline-flex h-[var(--portfolio-control-default)] items-center gap-2 border border-white/12 bg-black/92 px-[var(--portfolio-control-pad-default)] text-white shadow-[0_10px_30px_rgba(0,0,0,0.18)] backdrop-blur-md",
+											)}
+										>
+											{isRichMediaLoading ? (
+												<span
+													className="size-[14px] animate-spin rounded-full border border-white/30 border-t-white"
+													aria-hidden="true"
+												/>
+											) : (
+												<Play size={14} weight="fill" />
+											)}
+											<span className="portfolio-control-label">
+												{isRichMediaLoading ? "Loading" : "Play"}
+											</span>
+											{fallbackMedia.duration ? (
+												<>
+													<span
+														aria-hidden
+														className="h-3 w-px self-center bg-white/16"
+													/>
+													<span className="portfolio-chip-label text-white/72 tabular-nums">
+														{fallbackMedia.duration}
+													</span>
+												</>
+											) : null}
+										</div>
+									</div>
+								</>
+							)}
+						</div>
+					) : null}
 					{isPrivate && (
 						<div className="absolute inset-0 z-20 flex items-center justify-center bg-surface-50/10 backdrop-blur-3xl transition-all duration-200 dark:bg-surface-900/40">
 							<div className="portfolio-chip border-surface-200/20 bg-surface-50/10 backdrop-blur-md dark:border-surface-800/20 dark:bg-surface-900/10">
