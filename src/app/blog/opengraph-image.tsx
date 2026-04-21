@@ -57,8 +57,8 @@ export default async function Image() {
 						{/* biome-ignore lint/performance/noImgElement: required for ImageResponse */}
 						<img
 							src={avatarUrl}
-							width="140"
-							height="140"
+							width={140}
+							height={140}
 							style={{ objectFit: "cover" }}
 							alt="Avatar"
 						/>

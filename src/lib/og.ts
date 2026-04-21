@@ -42,29 +42,28 @@ async function loadLocalFont(fontPath: string) {
 }
 
 export async function loadOgFonts() {
-	const [inter700, inter500, spaceMono] = await Promise.all([
-		loadLocalFont("node_modules/@fontsource/inter/files/inter-latin-700-normal.woff"),
-		loadLocalFont("node_modules/@fontsource/inter/files/inter-latin-500-normal.woff"),
+	const [spaceGrotesk700, spaceGrotesk500, spaceMono] = await Promise.all([
+		loadLocalFont("public/fonts/og/SpaceGrotesk-700.woff"),
+		loadLocalFont("public/fonts/og/SpaceGrotesk-500.woff"),
 		loadLocalFont("public/fonts/SpaceMono-Regular.ttf"),
 	]);
 
 	return [
-		inter700
+		spaceGrotesk700
 			? [
 					{
-						// Register the site sans family name against a static font the OG renderer can parse.
 						name: "Space Grotesk",
-						data: inter700,
+						data: spaceGrotesk700,
 						style: "normal" as const,
 						weight: 700 as const,
 					},
 				]
 			: [],
-		inter500
+		spaceGrotesk500
 			? [
 					{
 						name: "Space Grotesk",
-						data: inter500,
+						data: spaceGrotesk500,
 						style: "normal" as const,
 						weight: 500 as const,
 					},
