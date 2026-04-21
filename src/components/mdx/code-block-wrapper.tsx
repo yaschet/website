@@ -19,7 +19,10 @@ export function CodeBlockWrapper({
 	const preRef = useRef<HTMLPreElement>(null);
 
 	return (
-		<div className="group relative mb-8">
+		<div
+			data-breakout="true"
+			className="media-breakout group relative mb-(--portfolio-space-group)"
+		>
 			<pre
 				ref={preRef}
 				className={cn(

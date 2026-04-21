@@ -20,6 +20,12 @@ interface PostContentProps {
 	post: PostEntry;
 }
 
+/**
+ * Renders the blog post shell and MDX content.
+ *
+ * @param props - Post entry data for the article page.
+ * @returns The composed blog post page content.
+ */
 export function PostContentRSC({ post }: PostContentProps) {
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -35,7 +41,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<ModuleContainer className="portfolio-stack-group mx-auto">
+											<ModuleContainer className="portfolio-stack-group">
 												<Link
 													href="/blog"
 													className="portfolio-back-link portfolio-kicker"
@@ -45,25 +51,27 @@ export function PostContentRSC({ post }: PostContentProps) {
 												</Link>
 
 												<div className="portfolio-stack-related">
-													<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl text-foreground">
-														{post.title}
-													</h1>
+													<div className="flex flex-col">
+														<h1 className="portfolio-masthead-title text-foreground">
+															{post.title}
+														</h1>
+
+														<ProseContainer className="portfolio-article max-w-none">
+															<p className="m-0 text-foreground">
+																{post.description}
+															</p>
+														</ProseContainer>
+													</div>
 
 													<div className="portfolio-inline-meta">
 														<time className="portfolio-caption font-mono text-muted-foreground tabular-nums">
 															{formatDate(post.date)}
 														</time>
-														<span className="portfolio-caption flex items-center gap-[var(--portfolio-space-tight)] font-mono text-muted-foreground">
+														<span className="portfolio-caption flex items-center gap-(--portfolio-space-tight) font-mono text-muted-foreground">
 															<Clock size={12} weight="bold" />
 															{post.readingTime} min read
 														</span>
 													</div>
-
-													<ProseContainer>
-														<p className="portfolio-body-lg text-muted-foreground">
-															{post.description}
-														</p>
-													</ProseContainer>
 												</div>
 											</ModuleContainer>
 										</div>
@@ -81,8 +89,8 @@ export function PostContentRSC({ post }: PostContentProps) {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<ModuleContainer className="mx-auto">
-												<article>
+											<ModuleContainer>
+												<article className="portfolio-article">
 													<post.Content components={mdxComponents} />
 												</article>
 											</ModuleContainer>

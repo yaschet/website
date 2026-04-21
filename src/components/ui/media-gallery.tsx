@@ -90,10 +90,10 @@ type ResolvedGalleryItem =
 
 const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
 	"pointer-events-auto inline-flex h-[var(--portfolio-control-default)] items-center justify-center px-[var(--portfolio-control-pad-default)]",
-	"border border-white/12 bg-surface-950/88 text-white backdrop-blur-md",
-	"shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-colors duration-150",
-	"hover:border-white/18 hover:bg-surface-950/94",
-	"focus-visible:border-white/18 focus-visible:bg-surface-950/94 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+	"border border-white/12 bg-black/92 text-white backdrop-blur-md",
+	"shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-[background-color,border-color,box-shadow] duration-150",
+	"hover:border-white/18 hover:bg-black/84",
+	"focus-visible:border-white/18 focus-visible:bg-black/84 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
 	"disabled:pointer-events-none disabled:opacity-35",
 );
 
@@ -707,7 +707,7 @@ export function MediaGallery({
 													className={cn(
 														GALLERY_PLAY_BUTTON_CLASS_NAME,
 														isHoverPreviewActive &&
-															"border-white/20 bg-surface-950",
+															"border-white/20 bg-black/88",
 													)}
 													onClick={(event) => {
 														event.preventDefault();
@@ -885,12 +885,12 @@ export function MediaGallery({
 							<div
 								aria-hidden
 								className={cn(
-									"pointer-events-none absolute inset-x-0 bottom-0 z-20 h-28 transition-opacity duration-200",
+									"pointer-events-none absolute inset-x-0 bottom-0 z-20 h-20 transition-opacity duration-200",
 									floatingChromeVisible ? "opacity-100" : "opacity-0",
 								)}
 								style={{
 									background:
-										"linear-gradient(to top, rgb(0 0 0 / 0.82) 0%, rgb(0 0 0 / 0.6) 22%, rgb(0 0 0 / 0.34) 46%, rgb(0 0 0 / 0.14) 72%, rgb(0 0 0 / 0) 100%)",
+										"linear-gradient(to top, rgb(255 255 255 / 0.18) 0%, rgb(255 255 255 / 0.1) 22%, rgb(255 255 255 / 0.04) 46%, rgb(255 255 255 / 0.01) 68%, rgb(255 255 255 / 0) 100%)",
 								}}
 							/>
 							<div
@@ -913,19 +913,29 @@ export function MediaGallery({
 										aria-label={`Go to slide ${index + 1}`}
 										aria-current={index === activeIndex}
 										className={cn(
-											"group relative flex h-full flex-1 items-end justify-center px-1",
+											"group relative flex h-full flex-1 items-end justify-center overflow-hidden px-1",
 											floatingChromeVisible
 												? "pointer-events-auto"
 												: "pointer-events-none",
-											"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-inset",
+											"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-950/20 focus-visible:ring-inset",
 										)}
 									>
 										<span
+											aria-hidden
 											className={cn(
-												"mb-[calc(var(--gallery-progress-baseline)+4px)] block h-0.5 w-full shadow-[0_1px_10px_rgba(0,0,0,0.35)] transition-colors duration-150",
+												"pointer-events-none absolute inset-x-[3px] bottom-0 h-full transition-opacity duration-150",
+												"bg-[linear-gradient(to_top,rgb(255_255_255_/_0.26)_0%,rgb(255_255_255_/_0.12)_22%,rgb(255_255_255_/_0.05)_48%,rgb(255_255_255_/_0)_100%)]",
 												index === activeIndex
-													? "bg-white"
-													: "bg-white/42 group-hover:bg-white/72",
+													? "opacity-[0.48]"
+													: "opacity-[0.12] group-hover:opacity-[0.24] group-active:opacity-[0.3]",
+											)}
+										/>
+										<span
+											className={cn(
+												"relative z-10 mb-[calc(var(--gallery-progress-baseline)+4px)] block h-1 w-full rounded-none transition-[background-color,box-shadow,opacity] duration-150",
+												index === activeIndex
+													? "bg-black shadow-[0_6px_14px_rgba(0,0,0,0.14)]"
+													: "bg-black/18 shadow-[0_4px_10px_rgba(0,0,0,0.08)] group-hover:bg-black/24 group-active:bg-black/28",
 											)}
 										/>
 									</button>

@@ -110,7 +110,10 @@ export function MediaImage({
 
 	return (
 		<>
-			<figure className="group mb-8">
+			<figure
+				data-breakout="true"
+				className="media-breakout group mb-(--portfolio-space-group)"
+			>
 				<motion.div
 					layoutId={layoutId}
 					onClick={() => setIsOpen(true)}
@@ -159,7 +162,7 @@ export function MediaImage({
 				</motion.div>
 
 				{(caption || alt) && (
-					<figcaption className="mt-3 text-center font-mono text-muted-foreground text-xs">
+					<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
 						{caption || alt}
 					</figcaption>
 				)}

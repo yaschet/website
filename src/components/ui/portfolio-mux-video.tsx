@@ -15,7 +15,7 @@ import {
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
-import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
+import type { CSSProperties, KeyboardEvent, MouseEvent, WheelEvent } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
 	DropdownMenu,
@@ -52,7 +52,23 @@ interface PortfolioMuxVideoProps {
 type QualityOption = {
 	label: string;
 	value: string;
+	detailLabel?: string;
 	chipLabel?: string;
+	height?: number;
+	resolutionLabel?: string;
+	triggerLabel?: string;
+};
+
+type VideoRenditionLike = {
+	bitrate?: number;
+	frameRate?: number;
+	height?: number;
+	id?: string;
+};
+
+type HlsLevelLike = {
+	bitrate?: number;
+	frameRate?: number;
 	height?: number;
 };
 
@@ -94,12 +110,13 @@ const PLAYER_TIME_DISPLAY_CLASS_NAME = cn(
 	"pointer-events-auto inline-flex h-10 cursor-default items-center whitespace-nowrap rounded-none border-none bg-surface-950 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em]",
 );
 
-function formatPlaybackTime(value: number) {
+function formatPlaybackTime(value: number, mode: "floor" | "ceil" = "floor") {
 	if (!Number.isFinite(value) || value <= 0) {
 		return "0:00";
 	}
 
-	const totalSeconds = Math.floor(value);
+	const totalSeconds =
+		mode === "ceil" ? Math.max(0, Math.ceil(value - 0.0001)) : Math.floor(value);
 	const hours = Math.floor(totalSeconds / 3600);
 	const minutes = Math.floor((totalSeconds % 3600) / 60);
 	const seconds = totalSeconds % 60;
@@ -125,18 +142,78 @@ function formatResolutionLabel(height?: number) {
 	return height ? `${height}P` : null;
 }
 
-function formatQualityOption(rendition: {
-	bitrate?: number;
-	height?: number;
-	id?: string;
-}): QualityOption {
-	const resolutionLabel = rendition.height ? `${rendition.height}p` : (rendition.id ?? "Manual");
+function formatFrameRateLabel(frameRate?: number) {
+	if (!frameRate || !Number.isFinite(frameRate)) return null;
+	const roundedFrameRate =
+		Math.abs(frameRate - Math.round(frameRate)) < 0.05
+			? String(Math.round(frameRate))
+			: frameRate.toFixed(2).replace(/\.?0+$/, "");
+	return `${roundedFrameRate} FPS`;
+}
+
+function resolveRenditionFrameRate(
+	media: MuxVideoElement,
+	rendition: VideoRenditionLike,
+) {
+	if (rendition.frameRate && Number.isFinite(rendition.frameRate)) {
+		return rendition.frameRate;
+	}
+
+	const hls = (media as unknown as { _hls?: { levels?: HlsLevelLike[] } })._hls;
+	const levels = Array.isArray(hls?.levels) ? hls.levels : [];
+	if (levels.length === 0) return undefined;
+
+	const candidates = levels.filter(
+		(level) =>
+			level.frameRate &&
+			Number.isFinite(level.frameRate) &&
+			(rendition.height == null || level.height === rendition.height),
+	);
+	if (candidates.length === 0) return undefined;
+
+	const bestLevel = [...candidates].sort((left, right) => {
+		const leftBitrateDelta =
+			rendition.bitrate != null && left.bitrate != null
+				? Math.abs(left.bitrate - rendition.bitrate)
+				: Number.POSITIVE_INFINITY;
+		const rightBitrateDelta =
+			rendition.bitrate != null && right.bitrate != null
+				? Math.abs(right.bitrate - rendition.bitrate)
+				: Number.POSITIVE_INFINITY;
+		return leftBitrateDelta - rightBitrateDelta;
+	})[0];
+
+	return bestLevel?.frameRate;
+}
+
+function formatQualityOption(rendition: VideoRenditionLike): QualityOption {
+	const resolutionLabel = rendition.height ? `${rendition.height}P` : (rendition.id ?? "MANUAL");
+	const frameRateLabel = formatFrameRateLabel(rendition.frameRate);
 	return {
-		label: resolutionLabel,
+		label: frameRateLabel ? `${resolutionLabel} · ${frameRateLabel}` : resolutionLabel,
+		detailLabel: frameRateLabel ?? undefined,
 		value: String(rendition.id),
 		chipLabel: getQualityBadge(rendition.height) ?? undefined,
 		height: rendition.height,
-	};
+		resolutionLabel,
+		triggerLabel: frameRateLabel
+			? `${resolutionLabel}/${frameRateLabel.replace(" FPS", "")}`
+			: resolutionLabel,
+		};
+}
+
+function dedupeQualityOptions(options: QualityOption[]) {
+	const seen = new Set<string>();
+	const deduped: QualityOption[] = [];
+
+	for (const option of options) {
+		const key = `${option.resolutionLabel ?? option.label}|${option.detailLabel ?? ""}`;
+		if (seen.has(key)) continue;
+		seen.add(key);
+		deduped.push(option);
+	}
+
+	return deduped;
 }
 
 function parseTimestamp(value: string) {
@@ -263,16 +340,21 @@ export function PortfolioMuxVideo({
 	const pathname = usePathname();
 	const mediaRef = useRef<MuxVideoElement | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const volumeControlHoverRef = useRef(false);
 	const hideControlsTimeoutRef = useRef<number | null>(null);
 	const suppressNextRootClickRef = useRef(false);
 	const instanceIdRef = useRef(++nextPortfolioMuxVideoId);
 	const lastEmittedPlayingStateRef = useRef<boolean | null>(null);
 	const playbackCommandIdRef = useRef(0);
+	const preferredMutedRef = useRef(muted);
+	const preferredVolumeRef = useRef(1);
+	const lastAudibleVolumeRef = useRef(1);
+	const preferredPlaybackRateRef = useRef(1);
 	const isActive = active ?? autoPlay;
 	const desiredPlayingRef = useRef(Boolean(isActive));
 	const [isPlaying, setIsPlaying] = useState(Boolean(isActive));
 	const [isMuted, setIsMuted] = useState(muted);
-	const [volume, setVolume] = useState(1);
+	const [volume, setVolume] = useState(muted ? 0 : 1);
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [playbackRate, setPlaybackRate] = useState(1);
@@ -281,7 +363,7 @@ export function PortfolioMuxVideo({
 	const [isFocusVisibleWithin, setIsFocusVisibleWithin] = useState(false);
 	const [openMenu, setOpenMenu] = useState<"quality" | "rate" | null>(null);
 	const [qualityOptions, setQualityOptions] = useState<QualityOption[]>([
-		{ label: "Auto", value: "auto" },
+		{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
 	]);
 	const [qualityValue, setQualityValue] = useState("auto");
 	const [resolvedQualityLabel, setResolvedQualityLabel] = useState<string | null>(null);
@@ -310,7 +392,7 @@ export function PortfolioMuxVideo({
 	const volumePercent = Math.min(Math.max(volume * 100, 0), 100);
 	const rateLabel = getPlaybackRateLabel(playbackRate);
 	const activeQualityOption = qualityOptions.find((option) => option.value === qualityValue);
-	const qualityLabel = activeQualityOption?.label ?? "Auto";
+	const qualityLabel = activeQualityOption?.triggerLabel ?? activeQualityOption?.label ?? "Auto";
 	const VolumeIcon = getVolumeIcon(isMuted, volume);
 	const controlsInteractiveClassName = controlsVisible
 		? "pointer-events-auto"
@@ -343,8 +425,7 @@ export function PortfolioMuxVideo({
 		qualityTriggerLabel.mode === "auto" &&
 		Boolean(qualityTriggerLabel.resolved);
 	const qualityMenuContentClassName = cn(
-		"rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
-		isCompactLayout ? "min-w-32" : "min-w-40",
+		"w-auto min-w-0 rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
 	);
 	const rateMenuContentClassName = cn(
 		"rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
@@ -379,8 +460,8 @@ export function PortfolioMuxVideo({
 				: "border-l pl-3",
 	);
 	const timeDisplayText = isCompactLayout
-		? `${formatPlaybackTime(currentTime)}/${formatPlaybackTime(duration)}`
-		: `${formatPlaybackTime(currentTime)} / ${formatPlaybackTime(duration)}`;
+		? `${formatPlaybackTime(currentTime)}/${formatPlaybackTime(duration, "ceil")}`
+		: `${formatPlaybackTime(currentTime)} / ${formatPlaybackTime(duration, "ceil")}`;
 	const activeStoryboardCue = useMemo(() => {
 		if (scrubPreviewTime === null) return null;
 		return (
@@ -469,14 +550,17 @@ export function PortfolioMuxVideo({
 		if (!media) return;
 
 		media.loop = loop;
-		media.muted = muted;
-		media.defaultMuted = muted;
+		media.muted = preferredMutedRef.current;
+		media.defaultMuted = preferredMutedRef.current;
+		media.volume = preferredVolumeRef.current;
+		media.defaultPlaybackRate = preferredPlaybackRateRef.current;
+		media.playbackRate = preferredPlaybackRateRef.current;
 		media.playsInline = true;
 		media.poster = posterSrc ?? "";
 		media.preload = isActive || variant !== "article" ? "auto" : "metadata";
 		media.streamType = "on-demand";
 		media.metadata = metadata ?? {};
-	}, [isActive, loop, metadata, muted, posterSrc, variant]);
+	}, [isActive, loop, metadata, posterSrc, variant]);
 
 	const scheduleControlsHide = useCallback(() => {
 		clearControlsTimeout();
@@ -504,12 +588,19 @@ export function PortfolioMuxVideo({
 			!media.ended &&
 			(media.seeking || readyState < (currentlyPlaying ? 3 : 2));
 		const waitingForPlayback = desiredPlayingRef.current && !currentlyPlaying && !media.ended;
+		const mediaVolume = media.volume ?? preferredVolumeRef.current;
+		if (!media.muted && mediaVolume > 0.01) {
+			lastAudibleVolumeRef.current = mediaVolume;
+			preferredVolumeRef.current = mediaVolume;
+		}
+		preferredMutedRef.current = media.muted;
+		preferredPlaybackRateRef.current = media.playbackRate ?? 1;
 		setIsPlaying(currentlyPlaying);
 		setCurrentTime(Number.isFinite(media.currentTime) ? media.currentTime : 0);
 		setDuration(Number.isFinite(media.duration) ? media.duration : 0);
-		setIsMuted(media.muted);
-		setVolume(media.volume ?? 1);
-		setPlaybackRate(media.playbackRate ?? 1);
+		setIsMuted(preferredMutedRef.current);
+		setVolume(preferredMutedRef.current ? 0 : mediaVolume);
+		setPlaybackRate(preferredPlaybackRateRef.current);
 		setIsMediaReady(metadataReady);
 		setIsBuffering(buffering);
 		setIsWaitingForPlayback(waitingForPlayback);
@@ -526,10 +617,17 @@ export function PortfolioMuxVideo({
 			return (right.bitrate ?? 0) - (left.bitrate ?? 0);
 		});
 
-		const nextOptions = [
-			...sortedRenditions.map((rendition) => formatQualityOption(rendition)),
-			{ label: "Auto", value: "auto" },
-		];
+			const nextOptions = [
+				...dedupeQualityOptions(
+					sortedRenditions.map((rendition) =>
+						formatQualityOption({
+							...rendition,
+							frameRate: resolveRenditionFrameRate(media, rendition),
+						}),
+					),
+				),
+				{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
+			];
 
 		setQualityOptions(nextOptions);
 		const selectedQualityValue =
@@ -558,9 +656,16 @@ export function PortfolioMuxVideo({
 		setIsWaitingForPlayback(false);
 		setIsSeeking(false);
 		setHasStartedPlayback(false);
+		preferredMutedRef.current = muted;
+		preferredVolumeRef.current = 1;
+		lastAudibleVolumeRef.current = 1;
+		preferredPlaybackRateRef.current = 1;
+		setIsMuted(muted);
+		setVolume(muted ? 0 : 1);
+		setPlaybackRate(1);
 		setCurrentTime(0);
 		setDuration(0);
-		setQualityOptions([{ label: "Auto", value: "auto" }]);
+		setQualityOptions([{ label: "Auto", value: "auto", resolutionLabel: "AUTO" }]);
 		setQualityValue("auto");
 		setResolvedQualityLabel(null);
 		setResolvedQualityChipLabel(null);
@@ -568,7 +673,25 @@ export function PortfolioMuxVideo({
 		setScrubPreviewTime(null);
 		setScrubPreviewRawX(null);
 		setScrubPreviewTrackWidth(0);
-	}, [playbackId]);
+	}, [muted, playbackId]);
+
+	useEffect(() => {
+		preferredMutedRef.current = muted;
+		const restoredVolume =
+			preferredVolumeRef.current > 0.01 ? preferredVolumeRef.current : lastAudibleVolumeRef.current;
+
+		const media = mediaRef.current;
+		if (media) {
+			if (!muted) {
+				media.volume = restoredVolume;
+			}
+			media.muted = muted;
+			media.defaultMuted = muted;
+		}
+
+		setIsMuted(muted);
+		setVolume(muted ? 0 : restoredVolume);
+	}, [muted]);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -651,7 +774,25 @@ export function PortfolioMuxVideo({
 		const media = mediaRef.current;
 		if (!media) return;
 
-		media.muted = !media.muted;
+		if (media.muted || media.volume <= 0.01) {
+			const restoredVolume =
+				lastAudibleVolumeRef.current > 0.01 ? lastAudibleVolumeRef.current : 1;
+			preferredMutedRef.current = false;
+			preferredVolumeRef.current = restoredVolume;
+			media.volume = restoredVolume;
+			media.muted = false;
+			media.defaultMuted = false;
+		} else {
+			const currentVolume = media.volume > 0.01 ? media.volume : preferredVolumeRef.current;
+			if (currentVolume > 0.01) {
+				lastAudibleVolumeRef.current = currentVolume;
+				preferredVolumeRef.current = currentVolume;
+			}
+			preferredMutedRef.current = true;
+			media.muted = true;
+			media.defaultMuted = true;
+		}
+
 		syncFromMedia();
 	}, [syncFromMedia]);
 
@@ -660,12 +801,87 @@ export function PortfolioMuxVideo({
 			const media = mediaRef.current;
 			if (!media) return;
 
-			media.volume = nextVolume;
-			media.muted = nextVolume <= 0.01;
+			const clampedVolume = Math.min(1, Math.max(0, nextVolume));
+			if (clampedVolume > 0.01) {
+				lastAudibleVolumeRef.current = clampedVolume;
+				preferredVolumeRef.current = clampedVolume;
+				preferredMutedRef.current = false;
+				media.volume = clampedVolume;
+				media.muted = false;
+				media.defaultMuted = false;
+			} else {
+				preferredMutedRef.current = true;
+				media.volume = 0;
+				media.muted = true;
+				media.defaultMuted = true;
+			}
+
 			syncFromMedia();
 		},
 		[syncFromMedia],
 	);
+
+	const adjustVolumeByStep = useCallback(
+		(stepDelta: number) => {
+			const startingVolume = isMuted
+				? lastAudibleVolumeRef.current
+				: volume > 0.01
+					? volume
+					: preferredVolumeRef.current;
+			const nextVolume = Math.min(1, Math.max(0, startingVolume + stepDelta));
+
+			handleVolumeChange(Number(nextVolume.toFixed(2)));
+			setControlsVisible(true);
+			scheduleControlsHide();
+		},
+		[handleVolumeChange, isMuted, scheduleControlsHide, volume],
+	);
+
+	const handleVolumeWheel = useCallback(
+		(event: WheelEvent<HTMLDivElement>) => {
+			if (!canHover || !isFullscreen) return;
+
+			const target = event.target as HTMLElement | null;
+			if (target?.closest("[data-player-interactive]")) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			adjustVolumeByStep(event.deltaY < 0 ? 0.06 : -0.06);
+		},
+		[adjustVolumeByStep, canHover, isFullscreen],
+	);
+
+	const handleInteractiveVolumeWheel = useCallback(
+		(event: WheelEvent<HTMLElement>) => {
+			event.preventDefault();
+			event.stopPropagation();
+			adjustVolumeByStep(event.deltaY < 0 ? 0.06 : -0.06);
+		},
+		[adjustVolumeByStep],
+	);
+
+	useEffect(() => {
+		const handleWindowWheel = (event: globalThis.WheelEvent) => {
+			if (!volumeControlHoverRef.current) return;
+
+			event.preventDefault();
+			event.stopPropagation();
+			adjustVolumeByStep(event.deltaY < 0 ? 0.06 : -0.06);
+		};
+
+		window.addEventListener("wheel", handleWindowWheel, {
+			capture: true,
+			passive: false,
+		});
+
+		return () =>
+			window.removeEventListener("wheel", handleWindowWheel, {
+				capture: true,
+			});
+	}, [adjustVolumeByStep]);
 
 	const handleSeek = useCallback((nextTime: number) => {
 		const media = mediaRef.current;
@@ -702,6 +918,8 @@ export function PortfolioMuxVideo({
 
 			const shouldResume = desiredPlayingRef.current && !media.ended;
 			const parsedRate = Number(nextRate);
+			preferredPlaybackRateRef.current = parsedRate;
+			media.defaultPlaybackRate = parsedRate;
 			media.playbackRate = parsedRate;
 			setPlaybackRate(parsedRate);
 			setOpenMenu(null);
@@ -747,20 +965,125 @@ export function PortfolioMuxVideo({
 
 	const toggleFullscreen = useCallback(async () => {
 		const container = containerRef.current;
+		const media = mediaRef.current;
 		if (!container || typeof document === "undefined") return;
 
-		if (document.fullscreenElement === container) {
-			await document.exitFullscreen().catch(() => undefined);
+		// Helper: Check if fullscreen is active (handles vendor prefixes for Android)
+		const checkIsFullscreen = (el: HTMLElement): boolean => {
+			if (document.fullscreenElement === el) return true;
+			if (
+				(document as unknown as { webkitFullscreenElement?: HTMLElement })
+					.webkitFullscreenElement === el
+			)
+				return true;
+			if (
+				(document as unknown as { mozFullScreenElement?: HTMLElement })
+					.mozFullScreenElement === el
+			)
+				return true;
+			if (
+				(document as unknown as { msFullscreenElement?: HTMLElement })
+					.msFullscreenElement === el
+			)
+				return true;
+			return false;
+		};
+
+		// Exit fullscreen
+		if (checkIsFullscreen(container)) {
+			// Try standard exit first
+			if (document.exitFullscreen) {
+				await document.exitFullscreen().catch(() => undefined);
+			}
+			// Fallback to webkit (Android)
+			else if (
+				(document as unknown as { webkitExitFullscreen?: () => Promise<void> })
+					.webkitExitFullscreen
+			) {
+				await (document as unknown as { webkitExitFullscreen: () => Promise<void> })
+					.webkitExitFullscreen()
+					.catch(() => undefined);
+			}
+			// Fallback to moz (Firefox)
+			else if (
+				(document as unknown as { mozCancelFullScreen?: () => Promise<void> })
+					.mozCancelFullScreen
+			) {
+				await (document as unknown as { mozCancelFullScreen: () => Promise<void> })
+					.mozCancelFullScreen()
+					.catch(() => undefined);
+			}
+			// Unlock orientation when exiting fullscreen
+			if (screen?.orientation?.unlock) {
+				screen.orientation.unlock();
+			}
 			return;
 		}
 
+		// Enter fullscreen
+		// Mobile strategy: try video element's native fullscreen first (iOS),
+		// then fall back to container fullscreen API (Android/desktop)
 		try {
+			// iOS: Use video element's webkitEnterFullscreen if available
+			if (
+				media &&
+				"webkitEnterFullscreen" in media &&
+				typeof (media as unknown as { webkitEnterFullscreen: () => void })
+					.webkitEnterFullscreen === "function"
+			) {
+				(media as unknown as { webkitEnterFullscreen: () => void }).webkitEnterFullscreen();
+				// Lock to landscape on mobile
+				if (screen?.orientation?.lock) {
+					screen.orientation.lock("landscape").catch(() => {
+						// Silently fail if lock not supported
+					});
+				}
+				return;
+			}
+
+			// Standard: Request fullscreen on container
 			if (container.requestFullscreen) {
 				await container.requestFullscreen({
 					navigationUI: "hide",
 				});
+				// Lock to landscape on mobile
+				if (screen?.orientation?.lock) {
+					screen.orientation.lock("landscape").catch(() => {
+						// Silently fail if lock not supported
+					});
+				}
 			}
-		} catch (_error) {}
+			// Fallback to webkit (Android)
+			else if (
+				(container as unknown as { webkitRequestFullscreen?: () => Promise<void> })
+					.webkitRequestFullscreen
+			) {
+				await (container as unknown as { webkitRequestFullscreen: () => Promise<void> })
+					.webkitRequestFullscreen()
+					.catch(() => undefined);
+				if (screen?.orientation?.lock) {
+					screen.orientation.lock("landscape").catch(() => {
+						// Silently fail if lock not supported
+					});
+				}
+			}
+			// Fallback to moz (Firefox)
+			else if (
+				(container as unknown as { mozRequestFullScreen?: () => Promise<void> })
+					.mozRequestFullScreen
+			) {
+				await (container as unknown as { mozRequestFullScreen: () => Promise<void> })
+					.mozRequestFullScreen()
+					.catch(() => undefined);
+				if (screen?.orientation?.lock) {
+					screen.orientation.lock("landscape").catch(() => {
+						// Silently fail if lock not supported
+					});
+				}
+			}
+		} catch (_error) {
+			// Silently fail - browser may have fullscreen disabled or user denied permission
+		}
 	}, []);
 
 	useEffect(() => {
@@ -995,29 +1318,107 @@ export function PortfolioMuxVideo({
 	useEffect(() => {
 		if (typeof document === "undefined") return;
 
+		// Helper: Check if fullscreen is active (handles vendor prefixes for Android)
+		const checkIsFullscreen = (container: HTMLElement): boolean => {
+			// Standard API
+			if (document.fullscreenElement === container) return true;
+			// Webkit (Android, older Safari)
+			if (
+				(document as unknown as { webkitFullscreenElement?: HTMLElement })
+					.webkitFullscreenElement === container
+			)
+				return true;
+			// Moz (Firefox)
+			if (
+				(document as unknown as { mozFullScreenElement?: HTMLElement })
+					.mozFullScreenElement === container
+			)
+				return true;
+			// MS (Edge)
+			if (
+				(document as unknown as { msFullscreenElement?: HTMLElement })
+					.msFullscreenElement === container
+			)
+				return true;
+			return false;
+		};
+
 		const handleFullscreenChange = () => {
-			const isNowFullscreen = document.fullscreenElement === containerRef.current;
+			const container = containerRef.current;
+			if (!container) return;
+
+			const isNowFullscreen = checkIsFullscreen(container);
 			setIsFullscreen(isNowFullscreen);
 
-			const container = containerRef.current;
-			if (container) {
-				if (isNowFullscreen) {
-					// Prevent scrolling in fullscreen mode
-					document.documentElement.style.overflow = "hidden";
-					document.body.style.overflow = "hidden";
-					// Update layout containment
-					container.style.contain = "layout style paint";
-				} else {
-					// Restore scrolling
-					document.documentElement.style.overflow = "";
-					document.body.style.overflow = "";
-					container.style.contain = "";
+			if (isNowFullscreen) {
+				// Prevent scrolling in fullscreen mode
+				document.documentElement.style.overflow = "hidden";
+				document.body.style.overflow = "hidden";
+				// Update layout containment
+				container.style.contain = "layout style paint";
+			} else {
+				// Restore scrolling
+				document.documentElement.style.overflow = "";
+				document.body.style.overflow = "";
+				container.style.contain = "";
+				// Ensure orientation is unlocked when exiting
+				if (screen?.orientation?.unlock) {
+					screen.orientation.unlock();
 				}
 			}
 		};
 
+		// iOS: Listen for native video fullscreen changes
+		const media = mediaRef.current;
+		const handleWebkitFullscreenChange = () => {
+			// Exit custom fullscreen when native fullscreen exits
+			if (media && "webkitDisplayingFullscreen" in media) {
+				const isWebkitFullscreen = (
+					media as unknown as { webkitDisplayingFullscreen: boolean }
+				).webkitDisplayingFullscreen;
+				if (!isWebkitFullscreen) {
+					setIsFullscreen(false);
+				}
+			}
+		};
+
+		// Listen to multiple fullscreen change events (standard + vendor prefixes for Android)
 		document.addEventListener("fullscreenchange", handleFullscreenChange);
-		return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+		document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+		document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+		document.addEventListener("msfullscreenchange", handleFullscreenChange);
+
+		if (media) {
+			media.addEventListener("webkitfullscreenchange", handleWebkitFullscreenChange);
+			media.addEventListener("webkitbeginfullscreen", () => {
+				setIsFullscreen(true);
+				// Lock orientation when entering fullscreen
+				if (screen?.orientation?.lock) {
+					screen.orientation.lock("landscape").catch(() => {
+						// Silently fail if lock not supported
+					});
+				}
+			});
+			media.addEventListener("webkitendfullscreen", () => {
+				setIsFullscreen(false);
+				// Unlock orientation when exiting fullscreen
+				if (screen?.orientation?.unlock) {
+					screen.orientation.unlock();
+				}
+			});
+		}
+
+		return () => {
+			document.removeEventListener("fullscreenchange", handleFullscreenChange);
+			document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+			document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+			document.removeEventListener("msfullscreenchange", handleFullscreenChange);
+			if (media) {
+				media.removeEventListener("webkitfullscreenchange", handleWebkitFullscreenChange);
+				media.removeEventListener("webkitbeginfullscreen", () => {});
+				media.removeEventListener("webkitendfullscreen", () => {});
+			}
+		};
 	}, []);
 
 	useEffect(() => {
@@ -1029,6 +1430,11 @@ export function PortfolioMuxVideo({
 
 		scheduleControlsHide();
 	}, [clearControlsTimeout, isPlaying, scheduleControlsHide]);
+
+	useEffect(() => {
+		if (controlsVisible) return;
+		setOpenMenu(null);
+	}, [controlsVisible]);
 
 	// Handle window resize and orientation change for responsive fullscreen
 	useEffect(() => {
@@ -1163,6 +1569,27 @@ export function PortfolioMuxVideo({
 		[togglePlayback],
 	);
 
+	const handleRootDoubleClick = useCallback(
+		(event: MouseEvent<HTMLDivElement>) => {
+			const target = event.target as HTMLElement | null;
+			if (target?.closest("[data-player-interactive]")) {
+				return;
+			}
+
+			event.preventDefault();
+			void toggleFullscreen();
+		},
+		[toggleFullscreen],
+	);
+
+	const handleVolumeControlPointerEnter = useCallback(() => {
+		volumeControlHoverRef.current = true;
+	}, []);
+
+	const handleVolumeControlPointerLeave = useCallback(() => {
+		volumeControlHoverRef.current = false;
+	}, []);
+
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent<HTMLDivElement>) => {
 			const target = event.target as HTMLElement | null;
@@ -1206,6 +1633,14 @@ export function PortfolioMuxVideo({
 					event.preventDefault();
 					handleSeek(Math.min(duration || currentTime + 5, currentTime + 5));
 					return;
+				case "ArrowUp":
+					event.preventDefault();
+					adjustVolumeByStep(0.05);
+					return;
+				case "ArrowDown":
+					event.preventDefault();
+					adjustVolumeByStep(-0.05);
+					return;
 				case "Escape":
 					if (isFullscreen) {
 						event.preventDefault();
@@ -1230,37 +1665,65 @@ export function PortfolioMuxVideo({
 			isFullscreen,
 			menuOpen,
 			onExit,
+			adjustVolumeByStep,
 			toggleFullscreen,
 			toggleMute,
 			togglePlayback,
 		],
 	);
 
-	const renderMenuRow = useCallback(
+	const renderQualityMenuRow = useCallback(
 		({
 			active: rowActive,
 			chipLabel,
-			label,
+			detailLabel,
+			resolutionLabel,
 		}: {
 			active: boolean;
 			chipLabel?: string;
-			label: string;
+			detailLabel?: string;
+			resolutionLabel: string;
 		}) => (
-			<span className="grid min-w-0 grid-cols-[2px_minmax(0,1fr)_auto] items-center gap-3">
+			<span className="grid w-full min-w-0 grid-cols-[2px_minmax(0,1fr)_3.25rem] items-center gap-2">
 				<span
 					aria-hidden
-					className={cn("h-5 w-[2px] bg-white", rowActive ? "opacity-100" : "opacity-0")}
+					className={cn(
+						"h-4 w-[2px] self-center bg-white",
+						rowActive ? "opacity-100" : "opacity-0",
+					)}
 				/>
-				<span className="truncate font-mono text-[10px] uppercase tracking-[0.18em]">
-					{label}
+				<span className="flex min-w-0 items-center gap-1.5">
+					<span className="shrink-0 text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]">
+						{resolutionLabel}
+					</span>
+					{detailLabel ? (
+						<span className="truncate text-left font-mono tabular-nums text-[10px] text-white/50 uppercase leading-none tracking-[0.18em]">
+							{detailLabel}
+						</span>
+					) : null}
 				</span>
 				{chipLabel ? (
-					<span className="inline-flex h-5 min-w-[38px] items-center justify-center border border-white/20 px-1.5 font-mono text-[9px] text-white/70 uppercase leading-none tracking-[0.12em]">
+					<span className="inline-flex h-5 w-[3.25rem] justify-self-end items-center justify-center border border-white/20 px-1.5 font-mono tabular-nums text-[9px] text-white/70 uppercase leading-none tracking-[0.12em]">
 						{chipLabel}
 					</span>
 				) : (
-					<span />
+					<span aria-hidden className="block h-5 w-[3.25rem] justify-self-end" />
 				)}
+			</span>
+		),
+		[],
+	);
+
+	const renderSimpleMenuRow = useCallback(
+		({ active: rowActive, label }: { active: boolean; label: string }) => (
+			<span className="inline-grid w-max max-w-full grid-cols-[2px_max-content] items-center gap-2.5">
+				<span
+					aria-hidden
+					className={cn("h-4 w-[2px] self-center bg-white", rowActive ? "opacity-100" : "opacity-0")}
+				/>
+				<span className="truncate text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]">
+					{label}
+				</span>
 			</span>
 		),
 		[],
@@ -1323,10 +1786,11 @@ export function PortfolioMuxVideo({
 								"data-[state=checked]:data-[highlighted]:bg-white/14 data-[state=checked]:focus:bg-white/14 data-[state=checked]:hover:bg-white/14",
 							)}
 						>
-							{renderMenuRow({
+							{renderQualityMenuRow({
 								active: option.value === qualityValue,
-								label: option.label,
+								detailLabel: option.detailLabel,
 								chipLabel: option.chipLabel,
+								resolutionLabel: option.resolutionLabel ?? option.label,
 							})}
 						</DropdownMenuRadioItem>
 					))}
@@ -1377,7 +1841,7 @@ export function PortfolioMuxVideo({
 								"data-[state=checked]:data-[highlighted]:bg-white/14 data-[state=checked]:focus:bg-white/14 data-[state=checked]:hover:bg-white/14",
 							)}
 						>
-							{renderMenuRow({
+							{renderSimpleMenuRow({
 								active: option.value === playbackRate,
 								label: option.label,
 							})}
@@ -1408,7 +1872,7 @@ export function PortfolioMuxVideo({
 		</button>
 	);
 	const controlsPanelClassName = cn(
-		"relative flex flex-col gap-2 px-4 pt-3 pb-3",
+		"relative flex flex-col gap-2 px-4 pt-1 pb-3",
 		isUltraCompactLayout
 			? "gap-1 px-2.5 pt-1.5 pb-1.5"
 			: isCompactLayout
@@ -1434,6 +1898,7 @@ export function PortfolioMuxVideo({
 			role="application"
 			aria-label="Video player"
 			onClick={handleRootClick}
+			onDoubleClick={handleRootDoubleClick}
 			onFocus={(event) => {
 				const target = event.target as HTMLElement | null;
 				if (target?.matches(":focus-visible")) {
@@ -1490,6 +1955,7 @@ export function PortfolioMuxVideo({
 					event.preventDefault();
 				}
 			}}
+			onWheel={handleVolumeWheel}
 		>
 			<mux-video
 				ref={mediaRef}
@@ -1677,26 +2143,35 @@ export function PortfolioMuxVideo({
 								<VolumeIcon size={18} weight="fill" />
 							</button>
 
-							{showInlineVolume ? (
-								<div
-									className="hidden items-center border-l pl-2 md:flex"
-									style={{
-										borderColor: "var(--portfolio-player-hairline)",
-									}}
-								>
-									<input
+								{showInlineVolume ? (
+									<div
 										data-player-interactive
+										className="hidden items-center border-l pl-2 md:flex"
+										style={{
+											borderColor: "var(--portfolio-player-hairline)",
+										}}
+										onPointerEnter={handleVolumeControlPointerEnter}
+										onPointerLeave={handleVolumeControlPointerLeave}
+										onWheelCapture={handleInteractiveVolumeWheel}
+										onWheel={handleInteractiveVolumeWheel}
+									>
+										<input
+											data-player-interactive
 										type="range"
 										min={0}
 										max={1}
 										step={0.05}
 										value={isMuted ? 0 : volume}
-										onChange={(event) =>
-											handleVolumeChange(Number(event.target.value))
-										}
-										className="portfolio-video-volume w-20"
-										aria-label="Adjust video volume"
-										style={
+											onChange={(event) =>
+												handleVolumeChange(Number(event.target.value))
+											}
+											onPointerEnter={handleVolumeControlPointerEnter}
+											onPointerLeave={handleVolumeControlPointerLeave}
+											onWheelCapture={handleInteractiveVolumeWheel}
+											onWheel={handleInteractiveVolumeWheel}
+											className="portfolio-video-volume w-20"
+											aria-label="Adjust video volume"
+											style={
 											{
 												"--portfolio-video-range-progress": `${volumePercent}%`,
 											} as CSSProperties

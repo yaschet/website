@@ -29,6 +29,7 @@ export interface RevealContextType {
 	entryKey: string;
 	environment: MotionEnvironment;
 	phase: RevealPhase;
+	forceRevealed: boolean;
 }
 
 const RevealContext = createContext<RevealContextType | null>(null);
@@ -47,6 +48,7 @@ export function useRevealState(): RevealContextType {
 			phase: 3,
 			environment: "normal",
 			entryKey: "standalone",
+			forceRevealed: false,
 		}
 	);
 }
@@ -81,9 +83,24 @@ export function RevealProvider({ children }: RevealProviderProps) {
 	const [phase, setPhase] = useState<RevealPhase>(0);
 	const [isAutomation, setIsAutomation] = useState(detectAutomation);
 	const [routeKey, setRouteKey] = useState(0);
+	const [forceRevealed, setForceRevealed] = useState(false);
 
 	useEffect(() => {
 		setIsAutomation(detectAutomation());
+	}, []);
+
+	// Emergency keyboard shortcut: Shift+Ctrl+R to force reveal all content
+	// Useful for debugging or when reveal system gets stuck
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.shiftKey && e.ctrlKey && e.key === "r") {
+				setForceRevealed(true);
+				setPhase(3);
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, []);
 
 	useEffect(() => {
@@ -170,15 +187,22 @@ export function RevealProvider({ children }: RevealProviderProps) {
 			environment === "reduced-motion" ? 120 : 320,
 		);
 
+		// Safety timeout: force phase 3 after absolute max time to prevent stuck reveals.
+		// If timers fail to execute (e.g., browser tab backgrounded), this ensures content eventually becomes visible.
+		const safetyTimer = window.setTimeout(() => {
+			setPhase(3);
+		}, 2000);
+
 		return () => {
 			cancelAnimationFrame(shellFrame);
 			clearTimeout(heroTimer);
 			clearTimeout(scrollTimer);
+			clearTimeout(safetyTimer);
 		};
 	}, [environment, routeKey]);
 
 	return (
-		<RevealContext.Provider value={{ phase, environment, entryKey }}>
+		<RevealContext.Provider value={{ phase, environment, entryKey, forceRevealed }}>
 			{children}
 		</RevealContext.Provider>
 	);
