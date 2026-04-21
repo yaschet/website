@@ -104,6 +104,13 @@ type ResolvedGalleryItem =
 			metadata?: MuxVideoMetadata;
 	  };
 
+type NetworkInformationLike = {
+	addEventListener?: (type: "change", listener: () => void) => void;
+	removeEventListener?: (type: "change", listener: () => void) => void;
+	effectiveType?: string;
+	saveData?: boolean;
+};
+
 const GALLERY_PLAY_BUTTON_CLASS_NAME = cn(
 	"pointer-events-auto inline-flex h-[var(--portfolio-control-default)] items-center justify-center px-[var(--portfolio-control-pad-default)]",
 	"border border-white/12 bg-black/92 text-white backdrop-blur-md",
@@ -184,6 +191,7 @@ export function MediaGallery({
 	const [touchChromeVisible, setTouchChromeVisible] = useState(false);
 	const [viewportWidth, setViewportWidth] = useState(0);
 	const [canHover, setCanHover] = useState(false);
+	const [allowHoverPreview, setAllowHoverPreview] = useState(enableHoverPreview);
 
 	const galleryItems = useMemo<ResolvedGalleryItem[]>(() => {
 		if (items?.length) {
@@ -328,6 +336,35 @@ export function MediaGallery({
 	}, []);
 
 	useEffect(() => {
+		if (typeof navigator === "undefined") {
+			setAllowHoverPreview(enableHoverPreview);
+			return;
+		}
+
+		const connection = (
+			navigator as Navigator & { connection?: NetworkInformationLike }
+		).connection;
+		const syncHoverPreviewPolicy = () => {
+			if (!enableHoverPreview) {
+				setAllowHoverPreview(false);
+				return;
+			}
+
+			const effectiveType = connection?.effectiveType;
+			const saveData = connection?.saveData === true;
+			const constrainedNetwork =
+				saveData || effectiveType === "slow-2g" || effectiveType === "2g";
+
+			setAllowHoverPreview(!constrainedNetwork);
+		};
+
+		syncHoverPreviewPolicy();
+		connection?.addEventListener?.("change", syncHoverPreviewPolicy);
+
+		return () => connection?.removeEventListener?.("change", syncHoverPreviewPolicy);
+	}, [enableHoverPreview]);
+
+	useEffect(() => {
 		if (!outerRef.current) return;
 
 		const observer = new ResizeObserver((entries) => {
@@ -354,7 +391,7 @@ export function MediaGallery({
 
 			if (
 				typeof window === "undefined" ||
-				!enableHoverPreview ||
+				!allowHoverPreview ||
 				!canHover ||
 				item.kind !== "mux-video" ||
 				isViewingInline
@@ -372,7 +409,7 @@ export function MediaGallery({
 				hoverPreviewTimeoutRef.current = null;
 			}, 200);
 		},
-		[canHover, enableHoverPreview],
+		[allowHoverPreview, canHover],
 	);
 
 	useEffect(() => {
@@ -534,7 +571,7 @@ export function MediaGallery({
 								loadingInlineVideoId === item.playbackId &&
 								!isViewingInline;
 							const isHoverPreviewActive =
-								enableHoverPreview &&
+								allowHoverPreview &&
 								item.kind === "mux-video" &&
 								hoverPreviewPlaybackId === item.playbackId &&
 								!isViewingInline;

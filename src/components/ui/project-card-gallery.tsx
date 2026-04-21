@@ -57,7 +57,7 @@ export function ProjectCardGallery({
 	imageTreatment = "default",
 	imageAspectRatio = "16/9",
 	prioritizeFirstImage = false,
-	enableHoverPreview = false,
+	enableHoverPreview = true,
 	mediaQuality = 75,
 	deferMediaLoading = true,
 }: ProjectCardGalleryProps) {
