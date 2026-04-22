@@ -1,4 +1,6 @@
-import { ArrowLeft, ArrowRight, Clock } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { Clock } from "@phosphor-icons/react/dist/ssr/Clock";
 import Link from "next/link";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
@@ -16,7 +18,6 @@ import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { ProjectEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
-import { RequestAwareSiteHeader as SiteHeader } from "../layout/site-header-rsc";
 
 interface ProjectContentProps {
 	project: ProjectEntry;
@@ -97,24 +98,18 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
-				<Reveal phase={1} className="w-full">
-					<SiteHeader />
-				</Reveal>
-
 				<section id="project-main" className="w-full">
 					<PageContainer className="portfolio-section-top">
 						<SwissGridBox>
 							<SwissGridRow>
-								<Reveal phase={1} className="w-full">
-									<div className="portfolio-box-pad">
-										<ModuleContainer className="portfolio-stack-group">
-											<ProjectMasthead
-												project={project}
-												galleryItems={galleryItems}
-											/>
-										</ModuleContainer>
-									</div>
-								</Reveal>
+								<div className="portfolio-box-pad">
+									<ModuleContainer className="portfolio-stack-group">
+										<ProjectMasthead
+											project={project}
+											galleryItems={galleryItems}
+										/>
+									</ModuleContainer>
+								</div>
 							</SwissGridRow>
 							<SwissGridRow>
 								<Reveal phase={2} delay={0.04} className="w-full">
