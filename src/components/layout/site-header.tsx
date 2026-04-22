@@ -9,15 +9,9 @@ import type { ViewerTimeZoneSource } from "@/src/lib/time-zone";
  * Should be used on every page for consistent Swiss "System" feel.
  */
 export function SiteHeader({
-	initialRelativeOffset,
-	initialTime,
-	initialZoneOffset,
 	viewerTimeZone = null,
 	viewerTimeZoneSource = null,
 }: {
-	initialRelativeOffset?: string;
-	initialTime?: string;
-	initialZoneOffset?: string;
 	viewerTimeZone?: string | null;
 	viewerTimeZoneSource?: ViewerTimeZoneSource | null;
 }) {
@@ -47,9 +41,6 @@ export function SiteHeader({
 
 					<TimeBadge
 						className={badgeClassName}
-						initialRelativeOffset={initialRelativeOffset}
-						initialTime={initialTime}
-						initialZoneOffset={initialZoneOffset}
 						viewerTimeZone={viewerTimeZone}
 						viewerTimeZoneSource={viewerTimeZoneSource}
 					/>

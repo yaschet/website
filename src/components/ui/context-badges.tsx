@@ -6,13 +6,8 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
 import { useRevealState } from "@/src/components/providers/reveal-provider";
-import { cn, tweens } from "@/src/lib/index";
-import {
-	formatDeltaOffset,
-	formatUtcOffset,
-	getTimeZoneOffsetMinutes,
-	type ViewerTimeZoneSource,
-} from "@/src/lib/time-zone";
+import { cn, springs, tweens } from "@/src/lib/index";
+import { getTimeZoneOffsetMinutes, type ViewerTimeZoneSource } from "@/src/lib/time-zone";
 
 const BADGE_HEIGHT = "var(--portfolio-badge-height)";
 const INSIGNIA_SIZE = "var(--portfolio-status-insignia-size)";
@@ -21,7 +16,7 @@ const TARGET_TIME_ZONE = "Africa/Casablanca";
 const badgeBaseClasses = cn(
 	"group relative flex items-center",
 	"rounded-[var(--radius)]",
-	"portfolio-solid-frame",
+	"border border-surface-200/80 dark:border-surface-800/80",
 	"bg-white/95 dark:bg-surface-950/95",
 	"shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
 	"portfolio-badge-label text-surface-600 dark:text-surface-400",
@@ -29,10 +24,9 @@ const badgeBaseClasses = cn(
 );
 
 const insigniaClasses = cn(
-	"relative flex shrink-0 items-center justify-center overflow-hidden",
+	"flex shrink-0 items-center justify-center overflow-hidden",
 	"rounded-l-[var(--radius)]",
 	"bg-surface-100/50 dark:bg-surface-800/50",
-	"after:pointer-events-none after:absolute after:top-0 after:right-0 after:h-full after:w-[var(--portfolio-hairline-width)] after:bg-[var(--portfolio-chrome-hairline)] after:content-['']",
 );
 
 const contentClasses = cn("flex items-center");
@@ -40,8 +34,8 @@ const contentClasses = cn("flex items-center");
 const tooltipPanelClasses = cn(
 	"pointer-events-none absolute top-full z-20 mt-[var(--portfolio-overlay-gap)]",
 	"max-w-[calc(100vw-(var(--portfolio-page-gutter-mobile)*2))]",
-	"portfolio-solid-frame w-max bg-white/98 px-[var(--portfolio-space-tight)] py-[8px] shadow-md backdrop-blur-sm",
-	"dark:bg-surface-900/98",
+	"w-max border border-surface-200/90 bg-white/98 px-[var(--portfolio-space-tight)] py-[8px] shadow-md backdrop-blur-sm",
+	"dark:border-surface-800 dark:bg-surface-900/98",
 	"!text-[12px] !leading-[14px] !tracking-normal rounded-none font-sans normal-case",
 );
 
@@ -56,6 +50,44 @@ const tooltipLabelClasses = cn(
 const tooltipValueClasses = cn(
 	"!m-0 !text-[12px] !leading-[14px] min-w-0 whitespace-nowrap text-left font-medium text-surface-800 tracking-[0.01em] dark:text-surface-200",
 );
+
+function formatUtcOffset(offsetMinutes: number) {
+	if (offsetMinutes === 0) {
+		return "UTC";
+	}
+
+	const sign = offsetMinutes > 0 ? "+" : "-";
+	const absoluteMinutes = Math.abs(offsetMinutes);
+	const hours = Math.floor(absoluteMinutes / 60);
+	const minutes = absoluteMinutes % 60;
+
+	if (minutes === 0) {
+		return `UTC${sign}${hours}`;
+	}
+
+	return `UTC${sign}${hours}:${String(minutes).padStart(2, "0")}`;
+}
+
+function formatDeltaOffset(offsetMinutes: number) {
+	if (offsetMinutes === 0) {
+		return "SAME";
+	}
+
+	const sign = offsetMinutes > 0 ? "+" : "-";
+	const absoluteMinutes = Math.abs(offsetMinutes);
+	const hours = Math.floor(absoluteMinutes / 60);
+	const minutes = absoluteMinutes % 60;
+
+	if (hours === 0) {
+		return `${sign}${minutes}m`;
+	}
+
+	if (minutes === 0) {
+		return `${sign}${hours}h`;
+	}
+
+	return `${sign}${hours}h ${minutes}m`;
+}
 
 function formatViewerTimeZoneSource(source: ViewerTimeZoneSource | null) {
 	switch (source) {
@@ -115,17 +147,19 @@ function BadgeTooltip({
 
 export function LocationBadge({ className }: { className?: string }) {
 	const [isHovered, setIsHovered] = useState(false);
+	const { environment } = useRevealState();
+	const shouldBypass = environment === "automation";
+	const shouldReduce = environment === "reduced-motion";
 
 	return (
-		<button
-			type="button"
-			className={cn(badgeBaseClasses, "appearance-none border-0 p-0 text-left", className)}
+		<motion.div
+			initial={shouldBypass ? false : { opacity: 0 }}
+			animate={{ opacity: 1 }}
+			transition={shouldReduce ? tweens.reduced : springs.responsive}
+			className={cn(badgeBaseClasses, className)}
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
-			onFocus={() => setIsHovered(true)}
-			onBlur={() => setIsHovered(false)}
-			aria-label="Location: Rabat, Morocco"
 		>
 			<div
 				className={insigniaClasses}
@@ -154,51 +188,55 @@ export function LocationBadge({ className }: { className?: string }) {
 					/>
 				)}
 			</AnimatePresence>
-		</button>
+		</motion.div>
 	);
 }
 
 export function TimeBadge({
 	className,
-	initialRelativeOffset,
-	initialTime,
-	initialZoneOffset,
 	viewerTimeZone: requestViewerTimeZone = null,
 	viewerTimeZoneSource: requestViewerTimeZoneSource = null,
 }: {
 	className?: string;
-	initialRelativeOffset?: string;
-	initialTime?: string;
-	initialZoneOffset?: string;
 	viewerTimeZone?: string | null;
 	viewerTimeZoneSource?: ViewerTimeZoneSource | null;
 }) {
-	const [time, setTime] = useState(initialTime ?? "--:--:--");
-	const [zoneOffset, setZoneOffset] = useState(initialZoneOffset ?? "UTC+0");
-	const [relativeOffset, setRelativeOffset] = useState(initialRelativeOffset ?? "SAME");
+	const [time, setTime] = useState<string>("");
+	const [zoneOffset, setZoneOffset] = useState<string>("");
+	const [relativeOffset, setRelativeOffset] = useState<string>("");
+	const [mounted, setMounted] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
+	const { environment } = useRevealState();
+	const shouldBypass = environment === "automation";
+	const shouldReduce = environment === "reduced-motion";
 	const viewerTimeZone = requestViewerTimeZone;
 	const viewerTimeZoneSource = requestViewerTimeZoneSource;
 	const shouldShowRelativeOffset =
 		isDevelopment || viewerTimeZoneSource === "request" || viewerTimeZoneSource === "override";
 
 	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	useEffect(() => {
+		if (!mounted) {
+			return;
+		}
+
+		const formatter = new Intl.DateTimeFormat("en-GB", {
+			hour: "2-digit",
+			minute: "2-digit",
+			second: "2-digit",
+			hour12: false,
+			timeZone: TARGET_TIME_ZONE,
+		});
+
 		const updateTime = () => {
-			const formatter = new Intl.DateTimeFormat("en-GB", {
-				hour: "2-digit",
-				minute: "2-digit",
-				second: "2-digit",
-				hour12: false,
-				timeZone: TARGET_TIME_ZONE,
-			});
 			const now = new Date();
 			const targetOffsetMinutes = getTimeZoneOffsetMinutes(TARGET_TIME_ZONE, now);
-			const browserTimeZone =
-				typeof Intl !== "undefined"
-					? Intl.DateTimeFormat().resolvedOptions().timeZone
-					: undefined;
-			const effectiveViewerTimeZone = viewerTimeZone ?? browserTimeZone ?? TARGET_TIME_ZONE;
-			const viewerOffsetMinutes = getTimeZoneOffsetMinutes(effectiveViewerTimeZone, now);
+			const viewerOffsetMinutes = viewerTimeZone
+				? getTimeZoneOffsetMinutes(viewerTimeZone, now)
+				: targetOffsetMinutes;
 
 			setTime(formatter.format(now));
 			setZoneOffset(formatUtcOffset(targetOffsetMinutes));
@@ -208,10 +246,17 @@ export function TimeBadge({
 		updateTime();
 		const interval = setInterval(updateTime, 1000);
 		return () => clearInterval(interval);
-	}, [viewerTimeZone]);
+	}, [mounted, viewerTimeZone]);
+
+	if (!mounted) {
+		return null;
+	}
 
 	return (
-		<div
+		<motion.div
+			initial={shouldBypass ? false : { opacity: 0 }}
+			animate={{ opacity: 1 }}
+			transition={shouldReduce ? tweens.reduced : { ...springs.responsive, delay: 0.1 }}
 			className={cn(badgeBaseClasses, className)}
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
@@ -262,7 +307,7 @@ export function TimeBadge({
 					/>
 				)}
 			</AnimatePresence>
-		</div>
+		</motion.div>
 	);
 }
 
