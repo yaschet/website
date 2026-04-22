@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import "./globals.css";
 
 import RootProvider from "@components/providers/root-provider";
 import { fontVariables } from "@/lib/fonts";
 import { PortfolioTypeStyles } from "@/src/components/layout/portfolio-type-styles";
-import { DeferredGlobalChrome } from "@/src/components/providers/deferred-global-chrome";
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://yaschet.dev"),
@@ -81,7 +79,11 @@ const personSchema = {
 const THEME_BOOTSTRAP_SCRIPT = `(() => {
   try {
     const root = document.documentElement;
-    const storedTheme = localStorage.getItem("theme");
+    const cookieTheme = document.cookie
+      .split("; ")
+      .find((entry) => entry.startsWith("theme="))
+      ?.split("=")[1];
+    const storedTheme = cookieTheme ?? localStorage.getItem("theme");
     const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const resolvedTheme =
       storedTheme === "light" || storedTheme === "dark"
@@ -111,18 +113,19 @@ export default function RootLayout({
 			data-scroll-behavior="smooth"
 		>
 			<head>
+				<script
+					id="theme-bootstrap"
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: theme bootstrap must run before first paint
+					dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }}
+				/>
 				<link rel="preconnect" href="https://image.mux.com" crossOrigin="" />
 				<link rel="preconnect" href="https://stream.mux.com" crossOrigin="" />
 				<link rel="dns-prefetch" href="https://image.mux.com" />
 				<link rel="dns-prefetch" href="https://stream.mux.com" />
 				<PortfolioTypeStyles />
-				<Script id="theme-bootstrap" strategy="beforeInteractive">
-					{THEME_BOOTSTRAP_SCRIPT}
-				</Script>
-				<Script
+				<script
 					id="person-schema"
 					type="application/ld+json"
-					strategy="beforeInteractive"
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD schema is trusted static data
 					dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
 				/>
@@ -131,10 +134,7 @@ export default function RootLayout({
 				className="relative min-h-screen text-surface-900 antialiased dark:text-surface-50"
 				suppressHydrationWarning={true}
 			>
-				<RootProvider>
-					<DeferredGlobalChrome />
-					{children}
-				</RootProvider>
+				<RootProvider>{children}</RootProvider>
 			</body>
 		</html>
 	);

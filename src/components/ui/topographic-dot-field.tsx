@@ -805,7 +805,7 @@ function resolveSurfaceValue(surface: InstrumentSurface) {
 	}
 }
 
-function resolveBackgroundPaint(tone: InstrumentFieldTone) {
+function resolveBackgroundPaint(tone: InstrumentFieldTone, surface: InstrumentSurface) {
 	switch (tone) {
 		case "dark":
 			return "var(--surface-950)";
@@ -814,6 +814,9 @@ function resolveBackgroundPaint(tone: InstrumentFieldTone) {
 		case "inverted":
 			return "var(--instrument-field-bg-inverted)";
 		default:
+			if (surface === "hero" || surface === "header") {
+				return "var(--instrument-field-bg-boxed)";
+			}
 			return "var(--instrument-field-bg-auto)";
 	}
 }
@@ -831,13 +834,87 @@ function resolveBackgroundFallback(tone: InstrumentFieldTone, isDark: boolean): 
 	}
 }
 
+function readDocumentIsDark() {
+	if (typeof document === "undefined") return false;
+
+	const root = document.documentElement;
+	if (root.classList.contains("dark")) return true;
+
+	if (typeof window !== "undefined") {
+		const computedColorScheme = window.getComputedStyle(root).colorScheme;
+		if (computedColorScheme.includes("dark")) return true;
+		if (computedColorScheme.includes("light")) return false;
+	}
+
+	const cookieTheme = document.cookie
+		.split("; ")
+		.find((entry) => entry.startsWith("theme="))
+		?.split("=")[1];
+	const storedTheme =
+		cookieTheme ?? (typeof localStorage !== "undefined" ? localStorage.getItem("theme") : null);
+
+	if (storedTheme === "dark") return true;
+	if (storedTheme === "light") return false;
+
+	return (
+		typeof window !== "undefined" &&
+		"matchMedia" in window &&
+		window.matchMedia("(prefers-color-scheme: dark)").matches
+	);
+}
+
+function readPaletteSignature() {
+	if (typeof document === "undefined") return "";
+
+	const root = getComputedStyle(document.documentElement);
+	return [
+		root.getPropertyValue("--surface-color-100").trim() ||
+			root.getPropertyValue("--surface-100").trim() ||
+			root.getPropertyValue("--color-surface-100").trim(),
+		root.getPropertyValue("--surface-color-200").trim() ||
+			root.getPropertyValue("--surface-200").trim() ||
+			root.getPropertyValue("--color-surface-200").trim(),
+		root.getPropertyValue("--surface-color-300").trim() ||
+			root.getPropertyValue("--surface-300").trim() ||
+			root.getPropertyValue("--color-surface-300").trim(),
+		root.getPropertyValue("--surface-color-400").trim() ||
+			root.getPropertyValue("--surface-400").trim() ||
+			root.getPropertyValue("--color-surface-400").trim(),
+		root.getPropertyValue("--surface-color-500").trim() ||
+			root.getPropertyValue("--surface-500").trim() ||
+			root.getPropertyValue("--color-surface-500").trim(),
+		root.getPropertyValue("--surface-color-600").trim() ||
+			root.getPropertyValue("--surface-600").trim() ||
+			root.getPropertyValue("--color-surface-600").trim(),
+		root.getPropertyValue("--surface-color-700").trim() ||
+			root.getPropertyValue("--surface-700").trim() ||
+			root.getPropertyValue("--color-surface-700").trim(),
+		root.getPropertyValue("--surface-color-800").trim() ||
+			root.getPropertyValue("--surface-800").trim() ||
+			root.getPropertyValue("--color-surface-800").trim(),
+		root.getPropertyValue("--surface-color-900").trim() ||
+			root.getPropertyValue("--surface-900").trim() ||
+			root.getPropertyValue("--color-surface-900").trim(),
+		root.getPropertyValue("--surface-color-950").trim() ||
+			root.getPropertyValue("--surface-950").trim() ||
+			root.getPropertyValue("--color-surface-950").trim(),
+	].join("|");
+}
+
 function resolveInteractionHost(container: HTMLDivElement) {
+	const explicitHost = container.closest("[data-instrument-host]");
+	if (explicitHost instanceof HTMLElement) {
+		return explicitHost;
+	}
+
 	let candidate = container.parentElement;
 
 	while (candidate) {
 		const position = window.getComputedStyle(candidate).position;
+		const rect = candidate.getBoundingClientRect();
+		const hasRenderableBox = rect.width > 0 && rect.height > 0;
 		if (position !== "absolute" && position !== "fixed") {
-			return candidate;
+			return hasRenderableBox ? candidate : candidate.parentElement;
 		}
 		candidate = candidate.parentElement;
 	}
@@ -879,6 +956,7 @@ export function InstrumentField({
 	const [isCanvasReady, setIsCanvasReady] = useState(false);
 	const [isInViewport, setIsInViewport] = useState(surface !== "band");
 	const [paletteSignature, setPaletteSignature] = useState("");
+	const [isThemeReady, setIsThemeReady] = useState(false);
 	const [metrics, setMetrics] = useState<Metrics>({
 		dpr: 1,
 		height: 0,
@@ -905,48 +983,13 @@ export function InstrumentField({
 	useLayoutEffect(() => {
 		if (typeof window === "undefined") return;
 
-		const readPaletteSignature = () => {
-			const root = getComputedStyle(document.documentElement);
-			return [
-				root.getPropertyValue("--surface-color-100").trim() ||
-					root.getPropertyValue("--surface-100").trim() ||
-					root.getPropertyValue("--color-surface-100").trim(),
-				root.getPropertyValue("--surface-color-200").trim() ||
-					root.getPropertyValue("--surface-200").trim() ||
-					root.getPropertyValue("--color-surface-200").trim(),
-				root.getPropertyValue("--surface-color-300").trim() ||
-					root.getPropertyValue("--surface-300").trim() ||
-					root.getPropertyValue("--color-surface-300").trim(),
-				root.getPropertyValue("--surface-color-400").trim() ||
-					root.getPropertyValue("--surface-400").trim() ||
-					root.getPropertyValue("--color-surface-400").trim(),
-				root.getPropertyValue("--surface-color-500").trim() ||
-					root.getPropertyValue("--surface-500").trim() ||
-					root.getPropertyValue("--color-surface-500").trim(),
-				root.getPropertyValue("--surface-color-600").trim() ||
-					root.getPropertyValue("--surface-600").trim() ||
-					root.getPropertyValue("--color-surface-600").trim(),
-				root.getPropertyValue("--surface-color-700").trim() ||
-					root.getPropertyValue("--surface-700").trim() ||
-					root.getPropertyValue("--color-surface-700").trim(),
-				root.getPropertyValue("--surface-color-800").trim() ||
-					root.getPropertyValue("--surface-800").trim() ||
-					root.getPropertyValue("--color-surface-800").trim(),
-				root.getPropertyValue("--surface-color-900").trim() ||
-					root.getPropertyValue("--surface-900").trim() ||
-					root.getPropertyValue("--color-surface-900").trim(),
-				root.getPropertyValue("--surface-color-950").trim() ||
-					root.getPropertyValue("--surface-950").trim() ||
-					root.getPropertyValue("--color-surface-950").trim(),
-			].join("|");
-		};
-
 		const syncTheme = () => {
-			setDocumentIsDark(document.documentElement.classList.contains("dark"));
+			setDocumentIsDark(readDocumentIsDark());
 			setPaletteSignature((current) => {
 				const next = readPaletteSignature();
 				return current === next ? current : next;
 			});
+			setIsThemeReady(true);
 		};
 
 		syncTheme();
@@ -969,7 +1012,7 @@ export function InstrumentField({
 				: tone === "inverted"
 					? !documentIsDark
 					: documentIsDark;
-	const backgroundPaint = resolveBackgroundPaint(tone);
+	const backgroundPaint = resolveBackgroundPaint(tone, surface);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -1232,6 +1275,7 @@ export function InstrumentField({
 		const uniforms = uniformRef.current;
 
 		if (!container || !canvas || !gl || !program || !vao) return;
+		if (!isThemeReady) return;
 		if (!isInViewport) return;
 		if (metrics.width <= 0 || metrics.height <= 0) return;
 
@@ -1360,6 +1404,7 @@ export function InstrumentField({
 		origin,
 		paletteSignature,
 		radius,
+		isThemeReady,
 		shouldFreezeField,
 		speed,
 		surface,
@@ -1381,7 +1426,7 @@ export function InstrumentField({
 				className="pointer-events-none absolute inset-0 h-full w-full transition-[opacity,background-color]"
 				style={{
 					backgroundColor: backgroundPaint,
-					opacity: isCanvasReady ? 1 : 0,
+					opacity: isThemeReady && isCanvasReady ? 1 : 0,
 					transitionDuration: `${tweens.field.duration}s`,
 					transitionTimingFunction: `cubic-bezier(${tweens.field.ease.join(",")})`,
 				}}

@@ -1,10 +1,11 @@
-import { ArrowRightIcon, Briefcase } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { Briefcase } from "@phosphor-icons/react/dist/ssr/Briefcase";
 import Link from "next/link";
 import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-work-callout";
 import { PageContainer } from "@/src/components/layout/containers";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
+import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteHero } from "@/src/components/layout/site-hero";
 import { Button } from "@/src/components/ui/button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
@@ -16,7 +17,7 @@ import {
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
-import { getListedPublicProjects } from "@/src/content/registry";
+import { getListedPublicProjectSummaries } from "@/src/content/registry";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 function HomeClosingCta() {
@@ -44,13 +45,14 @@ function HomeClosingCta() {
 }
 
 export default async function Home() {
-	const featuredProjects = await getListedPublicProjects();
+	"use cache";
+
+	const featuredProjects = await getListedPublicProjectSummaries();
 	const hasFeaturedProjects = featuredProjects.length > 0;
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
-				{/* Nav Row — not boxed */}
 				<SiteHeader />
 
 				{/* Box 1: Profile + Hero — two rows, one shared border */}
@@ -72,14 +74,13 @@ export default async function Home() {
 							{hasFeaturedProjects ? (
 								<div className="portfolio-box-pad">
 									<div className="portfolio-stack-group">
-										{featuredProjects.map((project, i) => (
-											<ScrollReveal
-												key={project.id}
-												phase={3}
-												delay={i * 0.05}
-												className="w-full"
-											>
-												<div id={`project-${i + 1}`}>
+										{featuredProjects.map((project, i) =>
+											i === 0 ? (
+												<div
+													key={project.id}
+													className="w-full"
+													id={`project-${i + 1}`}
+												>
 													<ProjectCardGallery
 														index={`0${i + 1}`}
 														title={project.title}
@@ -87,7 +88,7 @@ export default async function Home() {
 														href={project.urlPath}
 														tags={project.tech ?? []}
 														items={getProjectCoverMedia(project)}
-														prioritizeFirstImage={false}
+														prioritizeFirstImage={true}
 														isPrivate={
 															project.cardState === "coming-soon"
 														}
@@ -105,8 +106,45 @@ export default async function Home() {
 														imageAspectRatio="16/9"
 													/>
 												</div>
-											</ScrollReveal>
-										))}
+											) : (
+												<ScrollReveal
+													key={project.id}
+													phase={3}
+													delay={i * 0.05}
+													className="w-full"
+												>
+													<div id={`project-${i + 1}`}>
+														<ProjectCardGallery
+															index={`0${i + 1}`}
+															title={project.title}
+															description={project.description}
+															href={project.urlPath}
+															tags={project.tech ?? []}
+															items={getProjectCoverMedia(project)}
+															prioritizeFirstImage={false}
+															isPrivate={
+																project.cardState === "coming-soon"
+															}
+															date={
+																project.date
+																	? new Date(
+																			project.date,
+																		).toLocaleDateString(
+																			"en-US",
+																			{
+																				month: "long",
+																				year: "numeric",
+																			},
+																		)
+																	: undefined
+															}
+															imageTreatment="disciplined"
+															imageAspectRatio="16/9"
+														/>
+													</div>
+												</ScrollReveal>
+											),
+										)}
 									</div>
 								</div>
 							) : (

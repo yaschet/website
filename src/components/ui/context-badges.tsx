@@ -100,6 +100,16 @@ function formatViewerTimeZoneSource(source: ViewerTimeZoneSource | null) {
 	}
 }
 
+function getDuplicateOrdinal(items: string[], value: string, index: number) {
+	let occurrences = 0;
+	for (let cursor = 0; cursor < index; cursor += 1) {
+		if (items[cursor] === value) {
+			occurrences += 1;
+		}
+	}
+	return occurrences;
+}
+
 const isDevelopment = process.env.NODE_ENV === "development";
 
 function BadgeTooltip({
@@ -315,7 +325,7 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 	const [contentWidth, setContentWidth] = useState(0);
 	const [containerWidth, setContainerWidth] = useState(0);
 	const contentRef = useRef<HTMLDivElement>(null);
-	const containerRef = useRef<HTMLDivElement>(null);
+	const containerRef = useRef<HTMLButtonElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
 	const animationRef = useRef<Animation | null>(null);
 	const { environment } = useRevealState();
@@ -480,31 +490,62 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 		};
 	}, [mounted, translateDistance, duration]);
 
-	// SSR hydration safety
-	if (!mounted) {
-		return null;
-	}
-
 	// Swiss Design: Negative Space Separator
 	// Matches the portfolio's 10px rhythm unit.
 	const Separator = () => (
 		<span className="inline-block w-3 shrink-0 select-none" aria-hidden="true" />
 	);
 
+	if (!mounted) {
+		return (
+			<div
+				className={cn(badgeBaseClasses, "overflow-hidden", className)}
+				style={{ height: BADGE_HEIGHT }}
+				role="status"
+				aria-label={`Highlights: ${items.join(", ")}`}
+			>
+				<div className="relative flex h-full w-full items-center overflow-hidden px-2.5">
+					<div className="flex items-center whitespace-nowrap">
+						{items.map((item, index) => (
+							<div
+								key={`${item}-${getDuplicateOrdinal(items, item, index)}`}
+								className="flex items-center"
+							>
+								<span className="cursor-default whitespace-nowrap font-medium text-xs leading-none">
+									{item}
+								</span>
+								{index < items.length - 1 && <Separator />}
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
-		<motion.div
-			initial={shouldBypass ? false : { opacity: 0 }}
-			animate={{ opacity: 1 }}
-			transition={shouldReduce ? tweens.reduced : { ...springs.responsive, delay: 0.05 }}
-			className={cn(badgeBaseClasses, "overflow-hidden", className)}
+		<button
+			type="button"
+			className={cn(
+				badgeBaseClasses,
+				"appearance-none border-0 p-0 text-left overflow-hidden",
+				className,
+			)}
 			style={{ height: BADGE_HEIGHT }}
 			ref={containerRef}
+			aria-label={`Highlights: ${items.join(", ")}`}
 			// Interaction: Set target speed (Physics: Inertia)
 			onMouseEnter={() => {
 				targetSpeedRef.current = 0; // Target stop
 			}}
 			onMouseLeave={() => {
 				targetSpeedRef.current = 1; // Target full speed
+			}}
+			onFocus={() => {
+				targetSpeedRef.current = 0;
+			}}
+			onBlur={() => {
+				targetSpeedRef.current = 1;
 			}}
 		>
 			<div className="relative h-full w-full overflow-hidden px-2.5">
@@ -549,6 +590,6 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 					))}
 				</div>
 			</div>
-		</motion.div>
+		</button>
 	);
 }

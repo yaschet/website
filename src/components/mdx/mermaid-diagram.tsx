@@ -1,6 +1,6 @@
 "use client";
 
-import { MagnifyingGlassPlus } from "@phosphor-icons/react/dist/ssr";
+import { MagnifyingGlassPlus } from "@phosphor-icons/react/dist/ssr/MagnifyingGlassPlus";
 import { AnimatePresence, motion } from "framer-motion";
 import mermaid from "mermaid";
 import { useCallback, useEffect, useId, useState } from "react";

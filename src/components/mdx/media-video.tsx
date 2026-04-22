@@ -14,11 +14,13 @@
 
 "use client";
 
-import { Pause, Play } from "@phosphor-icons/react/dist/ssr";
+import { Pause } from "@phosphor-icons/react/dist/ssr/Pause";
+import { Play, Play as PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PortfolioMuxVideo } from "@/src/components/ui/portfolio-mux-video";
+import { Spinner } from "@/src/components/ui/spinner";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { cn, springs } from "@/src/lib/index";
 import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
@@ -53,6 +55,8 @@ export function MediaVideo({
 	const hoverPreviewTimeoutRef = useRef<number | null>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [hasStarted, setHasStarted] = useState(false);
+	const [isVideoRequested, setIsVideoRequested] = useState(false);
+	const [isVideoReady, setIsVideoReady] = useState(false);
 	const [isVideoVisible, setIsVideoVisible] = useState(false);
 	const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 	const [canHover, setCanHover] = useState(false);
@@ -82,6 +86,8 @@ export function MediaVideo({
 			return;
 		}
 
+		setShouldLoad(true);
+
 		if (hoverPreviewTimeoutRef.current !== null) {
 			window.clearTimeout(hoverPreviewTimeoutRef.current);
 		}
@@ -97,6 +103,8 @@ export function MediaVideo({
 		void src;
 		setIsPlaying(false);
 		setHasStarted(false);
+		setIsVideoRequested(false);
+		setIsVideoReady(false);
 		setIsVideoVisible(false);
 		setIsVideoPlaying(false);
 		setShouldLoad(false);
@@ -152,6 +160,7 @@ export function MediaVideo({
 						"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-800",
 						className,
 					)}
+					aria-busy={isVideoRequested && !isVideoReady ? true : undefined}
 					style={{
 						boxShadow: [
 							"0 1px 2px rgba(0, 0, 0, 0.04)",
@@ -166,7 +175,7 @@ export function MediaVideo({
 						<div
 							className="absolute inset-0 z-0"
 							style={{
-								visibility: isVideoVisible ? "visible" : "hidden",
+								visibility: "visible",
 								pointerEvents: isVideoVisible ? "auto" : "none",
 							}}
 						>
@@ -176,17 +185,24 @@ export function MediaVideo({
 								metadata={metadata}
 								loop={loop}
 								muted={muted}
-								active={isVideoPlaying}
+								active={isVideoRequested || isVideoPlaying}
 								variant="article"
 								className="h-full w-full"
 								onPlayingChange={(playing) => {
 									if (playing) {
 										setIsVideoVisible(true);
 										setIsVideoPlaying(true);
+										setIsVideoRequested(false);
 										return;
 									}
 
 									setIsVideoPlaying(false);
+								}}
+								onReadyChange={(ready) => {
+									setIsVideoReady(ready);
+									if (ready) {
+										setIsVideoVisible(true);
+									}
 								}}
 							/>
 						</div>
@@ -271,13 +287,16 @@ export function MediaVideo({
 									clearHoverPreview();
 									stopAllPortfolioVideos();
 									setShouldLoad(true);
-									setIsVideoVisible(true);
-									setIsVideoPlaying(true);
+									setIsVideoRequested(true);
 								}}
 							>
 								<span className="inline-grid grid-cols-[14px_auto] items-center gap-x-2">
 									<span className="flex w-3.5 items-center justify-center">
-										<Play size={14} weight="fill" />
+										{isVideoRequested && !isVideoVisible ? (
+											<Spinner size={14} color="white" aria-hidden="true" />
+										) : (
+											<PlayIcon size={14} weight="fill" />
+										)}
 									</span>
 									<span className="inline-flex items-baseline gap-x-2">
 										<span className="portfolio-control-label">Play</span>

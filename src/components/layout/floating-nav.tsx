@@ -51,7 +51,7 @@ function getActiveTab(pathname: string): string {
 
 export function FloatingNav() {
 	const pathname = usePathname();
-	const { setTheme, resolvedTheme } = useTheme();
+	const { setTheme, resolvedTheme, theme } = useTheme();
 	const activeTab = getActiveTab(pathname);
 
 	const [isMounted, setIsMounted] = useState(false);
@@ -68,6 +68,13 @@ export function FloatingNav() {
 	useEffect(() => {
 		setOptimisticTab(activeTab);
 	}, [activeTab]);
+
+	useEffect(() => {
+		if (!isMounted) return;
+		if (theme !== "light" && theme !== "dark" && theme !== "system") return;
+
+		document.cookie = `theme=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`;
+	}, [isMounted, theme]);
 
 	const isEnabled = phase >= 1;
 	const isReduced = environment === "reduced-motion";
@@ -105,9 +112,8 @@ export function FloatingNav() {
 				animate={isEnabled ? { y: 0, opacity: 1 } : { y: isReduced ? 0 : 20, opacity: 0 }}
 				transition={isReduced ? tweens.reduced : tweens.shell}
 				className={cn(
-					"pointer-events-auto relative flex items-center p-[var(--portfolio-space-tight)]",
+					"pointer-events-auto portfolio-solid-frame relative flex items-center p-[var(--portfolio-space-tight)]",
 					"bg-surface-950 dark:bg-surface-50",
-					"border border-surface-800 dark:border-surface-200",
 					"rounded-(--radius)",
 					"shadow-sm",
 				)}
@@ -191,6 +197,8 @@ export function FloatingNav() {
 
 								<HoverTooltip
 									visible={currentTab === item.link && hoveredTab === item.link}
+									offset="mb-[var(--portfolio-overlay-gap)]"
+									className="-translate-y-[var(--portfolio-space-tight)]"
 								>
 									{item.name}
 								</HoverTooltip>
@@ -200,7 +208,7 @@ export function FloatingNav() {
 				</ul>
 
 				<div
-					className="mx-[var(--portfolio-space-tight)] w-px shrink-0 self-stretch bg-surface-800 dark:bg-surface-200"
+					className="portfolio-solid-divider-y mx-[var(--portfolio-space-tight)] shrink-0 self-stretch"
 					aria-hidden="true"
 				/>
 
@@ -260,7 +268,13 @@ export function FloatingNav() {
 							weight="regular"
 						/>
 					</motion.div>
-					<HoverTooltip visible={isThemeHovered}>Theme</HoverTooltip>
+					<HoverTooltip
+						visible={isThemeHovered}
+						offset="mb-[var(--portfolio-overlay-gap)]"
+						className="-translate-y-[var(--portfolio-space-tight)]"
+					>
+						Theme
+					</HoverTooltip>
 				</motion.button>
 			</motion.nav>
 		</div>

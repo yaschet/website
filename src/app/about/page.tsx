@@ -1,11 +1,11 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
+import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
@@ -50,7 +50,6 @@ export default function AboutPage() {
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col">
-				{/* Nav Row */}
 				<SiteHeader />
 
 				{/* Profile */}
@@ -65,23 +64,21 @@ export default function AboutPage() {
 				</section>
 
 				<section id="about-intro" className="w-full">
-					<ScrollReveal phase={1} className="w-full">
-						<section className="w-full">
-							<PageContainer className="portfolio-section-top">
-								<SwissGridBox>
-									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<PageIntro
-												eyebrow="ABOUT"
-												title="How I work."
-												description="Engineering principles and the path that produced them."
-											/>
-										</div>
-									</SwissGridRow>
-								</SwissGridBox>
-							</PageContainer>
-						</section>
-					</ScrollReveal>
+					<section className="w-full">
+						<PageContainer className="portfolio-section-top">
+							<SwissGridBox>
+								<SwissGridRow>
+									<div className="portfolio-box-pad">
+										<PageIntro
+											eyebrow="ABOUT"
+											title="How I work."
+											description="Engineering principles and the path that produced them."
+										/>
+									</div>
+								</SwissGridRow>
+							</SwissGridBox>
+						</PageContainer>
+					</section>
 				</section>
 
 				{/* 01 · The Short Version */}
@@ -92,42 +89,33 @@ export default function AboutPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<ScrollReveal phase={2}>
-												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
-													01 · The Short Version
-												</p>
-											</ScrollReveal>
+											<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+												01 · The Short Version
+											</p>
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ProseContainer className="portfolio-prose">
-												<ScrollReveal phase={2} delay={0.05}>
-													<p>
-														I started in graphic design, caring mostly
-														about type and visual hierarchy. Around 2021
-														I realized design without code was half the
-														job, so I moved into engineering.
-													</p>
-												</ScrollReveal>
-												<ScrollReveal phase={2} delay={0.1}>
-													<p>
-														Today I build full-stack systems end to end.
-														Frontend, backend, data, AI, payments,
-														deployment. I&apos;m comfortable across the
-														whole surface.
-													</p>
-												</ScrollReveal>
-												<ScrollReveal phase={2} delay={0.15}>
-													<p>
-														I&apos;m most useful when the problem cuts
-														across parts of a product and someone has to
-														hold the whole thing in their head until it
-														works. I&apos;d rather ship a working
-														version in a week than a perfect spec in a
-														month.
-													</p>
-												</ScrollReveal>
+												<p>
+													I started in graphic design, caring mostly about
+													type and visual hierarchy. Around 2021 I
+													realized design without code was half the job,
+													so I moved into engineering.
+												</p>
+												<p>
+													Today I build full-stack systems end to end.
+													Frontend, backend, data, AI, payments,
+													deployment. I&apos;m comfortable across the
+													whole surface.
+												</p>
+												<p>
+													I&apos;m most useful when the problem cuts
+													across parts of a product and someone has to
+													hold the whole thing in their head until it
+													works. I&apos;d rather ship a working version in
+													a week than a perfect spec in a month.
+												</p>
 											</ProseContainer>
 										</div>
 									</SwissGridRow>
@@ -145,33 +133,28 @@ export default function AboutPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<ScrollReveal phase={2}>
-												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
-													02 · How I Think
-												</p>
-											</ScrollReveal>
+											<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+												02 · How I Think
+											</p>
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<div className="grid gap-[var(--portfolio-space-section)] sm:grid-cols-2">
-												{PRINCIPLES.map((principle, index) => (
-													<ScrollReveal
+												{PRINCIPLES.map((principle) => (
+													<div
 														key={principle.title}
-														phase={2}
-														delay={0.05 + index * 0.05}
+														className="portfolio-surface-card"
 													>
-														<div className="portfolio-surface-card">
-															<div className="portfolio-card-copy">
-																<h3 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-50">
-																	{principle.title}
-																</h3>
-																<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-																	{principle.description}
-																</p>
-															</div>
+														<div className="portfolio-card-copy">
+															<h3 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-50">
+																{principle.title}
+															</h3>
+															<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+																{principle.description}
+															</p>
 														</div>
-													</ScrollReveal>
+													</div>
 												))}
 											</div>
 										</div>
@@ -190,46 +173,35 @@ export default function AboutPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<ScrollReveal phase={2}>
-												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
-													03 · Engineering Philosophy
-												</p>
-											</ScrollReveal>
+											<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+												03 · Engineering Philosophy
+											</p>
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ProseContainer className="portfolio-prose">
-												<ScrollReveal phase={2} delay={0.05}>
-													<p>
-														I try to build things that bend when the
-														business changes direction, because the
-														business always does. That means strict
-														typing, clear module boundaries, and not
-														being clever when boring would work. Rigid
-														systems are fast to write and painful to
-														keep. Bendy systems cost more up front and a
-														lot less to live with.
-													</p>
-												</ScrollReveal>
-												<ScrollReveal phase={2} delay={0.1}>
-													<p>
-														I work in short cycles with running demos,
-														not Figma files. Architecture decisions show
-														up in production so we can see whether they
-														hold. Technical debt gets written down out
-														loud, not hidden for the next engineer to
-														find.
-													</p>
-												</ScrollReveal>
-												<ScrollReveal phase={2} delay={0.15}>
-													<p>
-														The job isn&apos;t to ship code. It&apos;s
-														to make sure the codebase six months from
-														now is still somewhere the next engineer
-														wants to work.
-													</p>
-												</ScrollReveal>
+												<p>
+													I try to build things that bend when the
+													business changes direction, because the business
+													always does. That means strict typing, clear
+													module boundaries, and not being clever when
+													boring would work. Rigid systems are fast to
+													write and painful to keep. Bendy systems cost
+													more up front and a lot less to live with.
+												</p>
+												<p>
+													I work in short cycles with running demos, not
+													Figma files. Architecture decisions show up in
+													production so we can see whether they hold.
+													Technical debt gets written down out loud, not
+													hidden for the next engineer to find.
+												</p>
+												<p>
+													The job isn&apos;t to ship code. It&apos;s to
+													make sure the codebase six months from now is
+													still somewhere the next engineer wants to work.
+												</p>
 											</ProseContainer>
 										</div>
 									</SwissGridRow>
@@ -246,47 +218,37 @@ export default function AboutPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<ScrollReveal phase={2}>
-												<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
-													04 · Working with AI
-												</p>
-											</ScrollReveal>
+											<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+												04 · Working with AI
+											</p>
 										</div>
 									</SwissGridRow>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
 											<ProseContainer className="portfolio-prose">
-												<ScrollReveal phase={2} delay={0.05}>
-													<p>AI is my compiler, not my architect.</p>
-												</ScrollReveal>
-												<ScrollReveal phase={2} delay={0.1}>
-													<p>
-														I use coding agents for scaffolding,
-														refactors, test generation, and reading new
-														codebases. They&apos;re fast where fast is
-														useful. They don&apos;t pick the
-														architecture, validate business logic, or
-														sign off on quality. Those stay with me.
-													</p>
-												</ScrollReveal>
-												<ScrollReveal phase={2} delay={0.15}>
-													<p>
-														Anything that touches money, eligibility,
-														user-visible correctness, or compliance gets
-														tests, evals, and a manual review before it
-														ships. I keep a trail of where AI helped and
-														where I overrode it. That makes things much
-														easier to debug six months later when
-														something goes sideways and someone needs to
-														find the root cause fast.
-													</p>
-												</ScrollReveal>
-												<ScrollReveal phase={2} delay={0.2}>
-													<p>
-														Yes, I ship faster with AI. No, I don&apos;t
-														ship AI output I can&apos;t explain.
-													</p>
-												</ScrollReveal>
+												<p>AI is my compiler, not my architect.</p>
+												<p>
+													I use coding agents for scaffolding, refactors,
+													test generation, and reading new codebases.
+													They&apos;re fast where fast is useful. They
+													don&apos;t pick the architecture, validate
+													business logic, or sign off on quality. Those
+													stay with me.
+												</p>
+												<p>
+													Anything that touches money, eligibility,
+													user-visible correctness, or compliance gets
+													tests, evals, and a manual review before it
+													ships. I keep a trail of where AI helped and
+													where I overrode it. That makes things much
+													easier to debug six months later when something
+													goes sideways and someone needs to find the root
+													cause fast.
+												</p>
+												<p>
+													Yes, I ship faster with AI. No, I don&apos;t
+													ship AI output I can&apos;t explain.
+												</p>
 											</ProseContainer>
 										</div>
 									</SwissGridRow>

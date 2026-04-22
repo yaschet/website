@@ -4,8 +4,9 @@ import { ContactForm } from "@/src/components/forms/contact-form";
 import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
+import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
+import { DeferredInstrumentField } from "@/src/components/ui/deferred-instrument-field";
 import {
 	INSTRUMENT_DOT_RADIUS,
 	INSTRUMENT_GRID_MIN_INSET,
@@ -13,7 +14,6 @@ import {
 } from "@/src/components/ui/instrument-field-metrics";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
-import { InstrumentField } from "@/src/components/ui/topographic-dot-field";
 
 export const metadata: Metadata = {
 	title: "Contact | Yassine Chettouch",
@@ -85,7 +85,8 @@ const CONTACT_METHODS = [
 function ContactInstrumentPlane() {
 	return (
 		<div className="absolute inset-0" aria-hidden="true">
-			<InstrumentField
+			<div className="pointer-events-none absolute inset-0 bg-white dark:bg-surface-900/80" />
+			<DeferredInstrumentField
 				className="pointer-events-none opacity-100 dark:opacity-100"
 				interactive
 				step={INSTRUMENT_GRID_STEP}
@@ -104,119 +105,118 @@ export default function ContactPage() {
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col">
-				{/* Nav Row */}
 				<SiteHeader />
 
 				{/* Header */}
 				<section id="contact-header" className="relative w-full">
-					<Reveal phase={1} className="relative z-10 w-full">
-						<section className="w-full">
-							<PageContainer className="portfolio-section-top">
-								<SwissGridBox>
-									<SwissGridRow>
-										<div className="relative isolate overflow-hidden">
-											<ContactInstrumentPlane />
-											<div className="portfolio-box-pad relative z-[1]">
-												<PageIntro
-													eyebrow="CONTACT"
-													title="Let’s talk."
-													description="Internal systems, workflow software, and customer-facing products where clear interfaces sit on top of heavy logic."
-												/>
+					<section className="w-full">
+						<PageContainer className="portfolio-section-top">
+							<SwissGridBox>
+								<SwissGridRow>
+									<div
+										className="relative isolate overflow-hidden"
+										data-instrument-host=""
+									>
+										<ContactInstrumentPlane />
+										<div className="portfolio-box-pad relative z-[1]">
+											<PageIntro
+												eyebrow="CONTACT"
+												title="Let’s talk."
+												description="Internal systems, workflow software, and customer-facing products where clear interfaces sit on top of heavy logic."
+											/>
+										</div>
+									</div>
+								</SwissGridRow>
+								<SwissGridRow>
+									<div className="portfolio-box-pad">
+										<ProseContainer className="portfolio-prose">
+											<div className="portfolio-card-copy">
+												<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+													Engagement
+												</h2>
+												<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+													Retainer engagements start at
+													<strong className="font-medium text-surface-900 dark:text-surface-100">
+														{" "}
+														$4,500/month
+													</strong>
+													. Most fixed-scope builds start at{" "}
+													<strong className="font-medium text-surface-900 dark:text-surface-100">
+														$8,000+
+													</strong>
+													, depending on integration risk, compliance
+													needs, and ownership scope.
+												</p>
 											</div>
-										</div>
-									</SwissGridRow>
-									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<ProseContainer className="portfolio-prose">
-												<div className="portfolio-card-copy">
-													<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-														Engagement
-													</h2>
-													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-														Retainer engagements start at
-														<strong className="font-medium text-surface-900 dark:text-surface-100">
-															{" "}
-															$4,500/month
-														</strong>
-														. Most fixed-scope builds start at{" "}
-														<strong className="font-medium text-surface-900 dark:text-surface-100">
-															$8,000+
-														</strong>
-														, depending on integration risk, compliance
-														needs, and ownership scope.
-													</p>
-												</div>
-												<div className="portfolio-card-copy">
-													<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-														Process
-													</h2>
-													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-														Most work starts with a short paid
-														diagnostic or a tightly scoped first build.
-													</p>
-													<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-														Based in Rabat, Morocco, working with
-														clients worldwide. Most collaboration runs
-														async, with strong live overlap across EU,
-														UK, Gulf, and US East mornings when the work
-														needs it. If the work is messy,
-														operationally important, or hard to
-														untangle, email below.
-													</p>
-												</div>
-											</ProseContainer>
-										</div>
-									</SwissGridRow>
-									<SwissGridRow>
-										<div className="portfolio-box-pad">
-											<div className="grid gap-[var(--portfolio-space-section)] md:grid-cols-3">
-												{CONTACT_METHODS.map((method) => (
-													<div
-														key={method.kicker}
-														className="portfolio-stack-group min-h-[calc(var(--portfolio-grid-step)*9)] justify-between"
-													>
-														<div className="portfolio-card-copy">
-															<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
-																{method.kicker}
-															</p>
-															<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-																{method.title}
-															</h2>
-															<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-																{method.description}
-															</p>
-														</div>
-														<div className="portfolio-control-row">
-															{method.actions.map((action) => (
-																<Button
-																	key={action.label}
-																	asChild
-																	size="md"
-																	variant={action.variant}
-																	color={action.color}
-																>
-																	<Link
-																		href={action.href}
-																		target={
-																			"target" in action
-																				? action.target
-																				: undefined
-																		}
-																	>
-																		{action.label}
-																	</Link>
-																</Button>
-															))}
-														</div>
+											<div className="portfolio-card-copy">
+												<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+													Process
+												</h2>
+												<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+													Most work starts with a short paid diagnostic or
+													a tightly scoped first build.
+												</p>
+												<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+													Based in Rabat, Morocco, working with clients
+													worldwide. Most collaboration runs async, with
+													strong live overlap across EU, UK, Gulf, and US
+													East mornings when the work needs it. If the
+													work is messy, operationally important, or hard
+													to untangle, email below.
+												</p>
+											</div>
+										</ProseContainer>
+									</div>
+								</SwissGridRow>
+								<SwissGridRow>
+									<div className="portfolio-box-pad">
+										<div className="grid gap-[var(--portfolio-space-section)] md:grid-cols-3">
+											{CONTACT_METHODS.map((method) => (
+												<div
+													key={method.kicker}
+													className="portfolio-stack-group min-h-[calc(var(--portfolio-grid-step)*9)] justify-between"
+												>
+													<div className="portfolio-card-copy">
+														<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
+															{method.kicker}
+														</p>
+														<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+															{method.title}
+														</h2>
+														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+															{method.description}
+														</p>
 													</div>
-												))}
-											</div>
+													<div className="portfolio-control-row">
+														{method.actions.map((action) => (
+															<Button
+																key={action.label}
+																asChild
+																size="md"
+																variant={action.variant}
+																color={action.color}
+															>
+																<Link
+																	href={action.href}
+																	target={
+																		"target" in action
+																			? action.target
+																			: undefined
+																	}
+																>
+																	{action.label}
+																</Link>
+															</Button>
+														))}
+													</div>
+												</div>
+											))}
 										</div>
-									</SwissGridRow>
-								</SwissGridBox>
-							</PageContainer>
-						</section>
-					</Reveal>
+									</div>
+								</SwissGridRow>
+							</SwissGridBox>
+						</PageContainer>
+					</section>
 				</section>
 
 				{/* Form Section */}

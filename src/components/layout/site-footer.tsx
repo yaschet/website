@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
 import { ShellReveal } from "@/src/components/ui/reveal";

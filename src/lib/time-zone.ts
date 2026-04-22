@@ -77,3 +77,69 @@ export function getTimeZoneOffsetMinutes(timeZone: string, date: Date) {
 
 	return Math.round((asUtcTimestamp - date.getTime()) / 60000);
 }
+
+export function formatUtcOffset(offsetMinutes: number) {
+	if (offsetMinutes === 0) {
+		return "UTC";
+	}
+
+	const sign = offsetMinutes > 0 ? "+" : "-";
+	const absoluteMinutes = Math.abs(offsetMinutes);
+	const hours = Math.floor(absoluteMinutes / 60);
+	const minutes = absoluteMinutes % 60;
+
+	if (minutes === 0) {
+		return `UTC${sign}${hours}`;
+	}
+
+	return `UTC${sign}${hours}:${String(minutes).padStart(2, "0")}`;
+}
+
+export function formatDeltaOffset(offsetMinutes: number) {
+	if (offsetMinutes === 0) {
+		return "SAME";
+	}
+
+	const sign = offsetMinutes > 0 ? "+" : "-";
+	const absoluteMinutes = Math.abs(offsetMinutes);
+	const hours = Math.floor(absoluteMinutes / 60);
+	const minutes = absoluteMinutes % 60;
+
+	if (hours === 0) {
+		return `${sign}${minutes}m`;
+	}
+
+	if (minutes === 0) {
+		return `${sign}${hours}h`;
+	}
+
+	return `${sign}${hours}h ${minutes}m`;
+}
+
+export function createTimeZoneClockSnapshot({
+	targetTimeZone,
+	viewerTimeZone,
+	date = new Date(),
+}: {
+	targetTimeZone: string;
+	viewerTimeZone?: string | null;
+	date?: Date;
+}) {
+	const formatter = new Intl.DateTimeFormat("en-GB", {
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false,
+		timeZone: targetTimeZone,
+	});
+	const targetOffsetMinutes = getTimeZoneOffsetMinutes(targetTimeZone, date);
+	const viewerOffsetMinutes = viewerTimeZone
+		? getTimeZoneOffsetMinutes(viewerTimeZone, date)
+		: targetOffsetMinutes;
+
+	return {
+		time: formatter.format(date),
+		zoneOffset: formatUtcOffset(targetOffsetMinutes),
+		relativeOffset: formatDeltaOffset(targetOffsetMinutes - viewerOffsetMinutes),
+	};
+}

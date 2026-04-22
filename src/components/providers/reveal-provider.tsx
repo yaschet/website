@@ -1,8 +1,7 @@
 "use client";
 
-import { useReducedMotion } from "framer-motion";
 import type React from "react";
-import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 /**
  * Reveal Phase System
@@ -53,10 +52,6 @@ export function useRevealState(): RevealContextType {
 	);
 }
 
-interface RevealProviderProps {
-	children: React.ReactNode;
-}
-
 function detectAutomation() {
 	if (typeof navigator === "undefined") return false;
 
@@ -67,62 +62,42 @@ function detectAutomation() {
 	);
 }
 
-/**
- * Manages staggered content delivery for improved perceived performance.
- *
- * @remarks
- * Manages the "Reveal Phase System" (0-3) which unlocks UI layers sequentially.
- * This ensures critical content loads first (LCP optimization) while
- * preventing layout thrashing and cognitive overload.
- *
- * @public
- */
-export function RevealProvider({ children }: RevealProviderProps) {
-	const prefersReducedMotion = useReducedMotion();
-	const [entryKey, setEntryKey] = useState("0");
-	const [phase, setPhase] = useState<RevealPhase>(0);
+export function RevealProvider({ children }: { children: React.ReactNode }) {
 	const [isAutomation, setIsAutomation] = useState(detectAutomation);
-	const [routeKey, setRouteKey] = useState(0);
-	const [forceRevealed, setForceRevealed] = useState(false);
+	const [entryKey, setEntryKey] = useState("initial");
+	const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
 	useEffect(() => {
 		setIsAutomation(detectAutomation());
 	}, []);
 
-	// Emergency keyboard shortcut: Shift+Ctrl+R to force reveal all content
-	// Useful for debugging or when reveal system gets stuck
 	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.shiftKey && e.ctrlKey && e.key === "r") {
-				setForceRevealed(true);
-				setPhase(3);
-			}
+		if (typeof window === "undefined" || !("matchMedia" in window)) return;
+
+		const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+		const syncReducedMotion = () => {
+			setPrefersReducedMotion(mediaQuery.matches);
 		};
 
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
+		syncReducedMotion();
+		mediaQuery.addEventListener("change", syncReducedMotion);
+
+		return () => {
+			mediaQuery.removeEventListener("change", syncReducedMotion);
+		};
 	}, []);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 
 		let lastPath = `${window.location.pathname}${window.location.search}`;
-		let pendingFrame: number | null = null;
-		const scheduleRouteKey = () => {
-			if (pendingFrame !== null) {
-				cancelAnimationFrame(pendingFrame);
-			}
-			pendingFrame = window.requestAnimationFrame(() => {
-				pendingFrame = null;
-				setRouteKey((current) => current + 1);
-			});
-		};
+		setEntryKey(lastPath);
 
-		const notifyPathChange = () => {
+		const syncEntryKey = () => {
 			const nextPath = `${window.location.pathname}${window.location.search}`;
 			if (nextPath === lastPath) return;
 			lastPath = nextPath;
-			scheduleRouteKey();
+			setEntryKey(nextPath);
 		};
 
 		const originalPushState = window.history.pushState;
@@ -130,25 +105,22 @@ export function RevealProvider({ children }: RevealProviderProps) {
 
 		window.history.pushState = function pushState(...args) {
 			const result = originalPushState.apply(this, args);
-			notifyPathChange();
+			syncEntryKey();
 			return result;
 		};
 
 		window.history.replaceState = function replaceState(...args) {
 			const result = originalReplaceState.apply(this, args);
-			notifyPathChange();
+			syncEntryKey();
 			return result;
 		};
 
-		window.addEventListener("popstate", notifyPathChange);
+		window.addEventListener("popstate", syncEntryKey);
 
 		return () => {
-			if (pendingFrame !== null) {
-				cancelAnimationFrame(pendingFrame);
-			}
 			window.history.pushState = originalPushState;
 			window.history.replaceState = originalReplaceState;
-			window.removeEventListener("popstate", notifyPathChange);
+			window.removeEventListener("popstate", syncEntryKey);
 		};
 	}, []);
 
@@ -158,51 +130,8 @@ export function RevealProvider({ children }: RevealProviderProps) {
 			? "reduced-motion"
 			: "normal";
 
-	useLayoutEffect(() => {
-		void routeKey;
-		setEntryKey((current) => String(Number(current) + 1));
-
-		if (environment === "automation") {
-			setPhase(3);
-			return;
-		}
-
-		setPhase(0);
-
-		const shellFrame = requestAnimationFrame(() => {
-			setPhase(1);
-		});
-
-		const heroTimer = window.setTimeout(
-			() => {
-				setPhase(2);
-			},
-			environment === "reduced-motion" ? 40 : 180,
-		);
-
-		const scrollTimer = window.setTimeout(
-			() => {
-				setPhase(3);
-			},
-			environment === "reduced-motion" ? 120 : 320,
-		);
-
-		// Safety timeout: force phase 3 after absolute max time to prevent stuck reveals.
-		// If timers fail to execute (e.g., browser tab backgrounded), this ensures content eventually becomes visible.
-		const safetyTimer = window.setTimeout(() => {
-			setPhase(3);
-		}, 2000);
-
-		return () => {
-			cancelAnimationFrame(shellFrame);
-			clearTimeout(heroTimer);
-			clearTimeout(scrollTimer);
-			clearTimeout(safetyTimer);
-		};
-	}, [environment, routeKey]);
-
 	return (
-		<RevealContext.Provider value={{ phase, environment, entryKey, forceRevealed }}>
+		<RevealContext.Provider value={{ phase: 3, environment, entryKey, forceRevealed: false }}>
 			{children}
 		</RevealContext.Provider>
 	);
