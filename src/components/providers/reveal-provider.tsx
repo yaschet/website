@@ -1,26 +1,19 @@
 "use client";
 
 import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 /**
- * Reveal Phase System
+ * Motion environment context.
  *
- * Total duration: ~250ms (imperceptible as "waiting")
- *
- * Phase 0: Structure (0ms)
- *   - Renders layout scaffolding (grid, borders).
- *
- * Phase 1: Primary Content (50ms)
- *   - Renders navigation, badges, and profile information.
- *
- * Phase 2: Hero Content (150ms)
- *   - Renders headlines and primary call-to-action elements.
- *
- * Phase 3: Scroll Content (250ms)
- *   - Enables scroll-triggered animations for subsequent sections.
+ * The old phased reveal orchestration is intentionally retired.
+ * `phase` remains for compatibility with existing component props, but the
+ * actual source of truth is:
+ * - motion environment (`normal`, `reduced-motion`, `automation`)
+ * - current route identity (`entryKey`)
+ * - whether a client-side route entry should animate
  */
-// No change needed to RevealPhase export
 export type RevealPhase = 0 | 1 | 2 | 3;
 export type MotionEnvironment = "normal" | "reduced-motion" | "automation";
 
@@ -29,6 +22,7 @@ export interface RevealContextType {
 	environment: MotionEnvironment;
 	phase: RevealPhase;
 	forceRevealed: boolean;
+	shouldAnimateEntry: boolean;
 }
 
 const RevealContext = createContext<RevealContextType | null>(null);
@@ -48,6 +42,7 @@ export function useRevealState(): RevealContextType {
 			environment: "normal",
 			entryKey: "standalone",
 			forceRevealed: false,
+			shouldAnimateEntry: false,
 		}
 	);
 }
@@ -63,12 +58,18 @@ function detectAutomation() {
 }
 
 export function RevealProvider({ children }: { children: React.ReactNode }) {
+	const pathname = usePathname();
 	const [isAutomation, setIsAutomation] = useState(detectAutomation);
-	const [entryKey, setEntryKey] = useState("initial");
 	const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+	const [isHydrated, setIsHydrated] = useState(false);
+	const previousPathRef = useRef<string>(pathname ?? "initial");
 
 	useEffect(() => {
 		setIsAutomation(detectAutomation());
+	}, []);
+
+	useEffect(() => {
+		setIsHydrated(true);
 	}, []);
 
 	useEffect(() => {
@@ -88,50 +89,29 @@ export function RevealProvider({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	useEffect(() => {
-		if (typeof window === "undefined") return;
-
-		let lastPath = `${window.location.pathname}${window.location.search}`;
-		setEntryKey(lastPath);
-
-		const syncEntryKey = () => {
-			const nextPath = `${window.location.pathname}${window.location.search}`;
-			if (nextPath === lastPath) return;
-			lastPath = nextPath;
-			setEntryKey(nextPath);
-		};
-
-		const originalPushState = window.history.pushState;
-		const originalReplaceState = window.history.replaceState;
-
-		window.history.pushState = function pushState(...args) {
-			const result = originalPushState.apply(this, args);
-			syncEntryKey();
-			return result;
-		};
-
-		window.history.replaceState = function replaceState(...args) {
-			const result = originalReplaceState.apply(this, args);
-			syncEntryKey();
-			return result;
-		};
-
-		window.addEventListener("popstate", syncEntryKey);
-
-		return () => {
-			window.history.pushState = originalPushState;
-			window.history.replaceState = originalReplaceState;
-			window.removeEventListener("popstate", syncEntryKey);
-		};
-	}, []);
+		if (!pathname) return;
+		previousPathRef.current = pathname;
+	}, [pathname]);
 
 	const environment: MotionEnvironment = isAutomation
 		? "automation"
 		: prefersReducedMotion
 			? "reduced-motion"
 			: "normal";
+	const entryKey = pathname ?? previousPathRef.current;
+	const shouldAnimateEntry = isHydrated && entryKey !== previousPathRef.current;
+	const forceRevealed = environment !== "normal" || !shouldAnimateEntry;
 
 	return (
-		<RevealContext.Provider value={{ phase: 3, environment, entryKey, forceRevealed: false }}>
+		<RevealContext.Provider
+			value={{
+				phase: 3,
+				environment,
+				entryKey,
+				forceRevealed,
+				shouldAnimateEntry,
+			}}
+		>
 			{children}
 		</RevealContext.Provider>
 	);

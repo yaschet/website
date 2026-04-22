@@ -1,61 +1,73 @@
-/**
- * Reveal component.
- *
- * @remarks
- * Manages entrance animations for children.
- *
- * @example
- * ```tsx
- * <Reveal>
- *   <h1>Content</h1>
- * </Reveal>
- * ```
- *
- * @public
- */
-
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 import { type RevealPhase, useRevealState } from "@/src/components/providers/reveal-provider";
-import { distances, springs, stagger, tweens } from "@/src/lib/index";
+import { blur, distances, springs, stagger, tweens } from "@/src/lib/index";
 
 interface RevealProps {
 	children: ReactNode;
 	delay?: number;
 	className?: string;
-	phase?: RevealPhase; // 0=Structure, 1=Primary, 2=Hero, 3=Scroll
+	phase?: RevealPhase;
+}
+
+export const revealSequence = {
+	backLink: 0.02,
+	eyebrow: 0.04,
+	kicker: 0.06,
+	heading: 0.1,
+	headingLate: 0.12,
+	body: 0.22,
+	bodyLate: 0.26,
+	children: 0.3,
+	controls: 0.32,
+	meta: 0.34,
+} as const;
+
+function useRevealMotionGate() {
+	const shouldReduceMotion = useReducedMotion();
+	const { environment, entryKey, forceRevealed, shouldAnimateEntry } = useRevealState();
+	const shouldBypass =
+		forceRevealed ||
+		environment === "automation" ||
+		environment === "reduced-motion" ||
+		shouldReduceMotion ||
+		!shouldAnimateEntry;
+
+	return { entryKey, shouldBypass, shouldReduceMotion };
 }
 
 export function Reveal({ children, delay = 0, className, phase = 1 }: RevealProps) {
-	void delay;
-	void phase;
-	return <div className={className}>{children}</div>;
-}
-
-export function ScrollReveal({ children, delay = 0, className, phase = 3 }: RevealProps) {
-	const { environment, entryKey } = useRevealState();
-	const shouldReduceMotion = useReducedMotion();
-	const isAutomation = environment === "automation";
-	const isReduced = environment === "reduced-motion" || shouldReduceMotion;
+	const { entryKey, shouldBypass } = useRevealMotionGate();
 	void phase;
 
-	if (isAutomation || isReduced) {
+	if (shouldBypass) {
 		return <div className={className}>{children}</div>;
 	}
 
 	return (
 		<motion.div
-			key={`scroll-reveal-${entryKey}-${delay}`}
-			initial={{ opacity: 0, y: distances.small }}
-			whileInView={{ opacity: 1, y: 0 }}
-			viewport={{ once: true, margin: "0px 0px -8% 0px", amount: 0.08 }}
-			transition={{ ...springs.gentle, delay }}
+			key={`reveal-${entryKey}-${delay}`}
+			initial={{ opacity: 0, y: distances.small, filter: blur.subtle }}
+			animate={{ opacity: 1, y: 0, filter: blur.none }}
+			transition={{
+				y: { ...springs.gentle, delay },
+				opacity: { ...tweens.content, delay },
+				filter: { ...tweens.interactionSlow, delay },
+			}}
 			className={className}
 		>
 			{children}
 		</motion.div>
+	);
+}
+
+export function ScrollReveal({ children, delay = 0, className, phase = 3 }: RevealProps) {
+	return (
+		<Reveal delay={delay} className={className} phase={phase}>
+			{children}
+		</Reveal>
 	);
 }
 
@@ -68,8 +80,7 @@ export function RevealStagger({
 	className?: string;
 	phase?: RevealPhase;
 }) {
-	const { environment, entryKey } = useRevealState();
-	const shouldBypass = environment !== "normal";
+	const { entryKey, shouldBypass } = useRevealMotionGate();
 	void phase;
 
 	if (shouldBypass) {
@@ -80,9 +91,9 @@ export function RevealStagger({
 		<motion.div
 			key={`reveal-stagger-${entryKey}`}
 			initial="hidden"
-			whileInView="visible"
-			viewport={{ once: true, margin: "0px 0px -8% 0px", amount: 0.08 }}
+			animate="visible"
 			variants={{
+				hidden: {},
 				visible: {
 					transition: {
 						staggerChildren: stagger.item,
@@ -97,18 +108,31 @@ export function RevealStagger({
 }
 
 export function RevealItem({ children, className }: { children: ReactNode; className?: string }) {
-	const { environment } = useRevealState();
-	const shouldReduceMotion = useReducedMotion();
-	const isReduced = environment !== "normal" || shouldReduceMotion;
+	const { shouldBypass, shouldReduceMotion } = useRevealMotionGate();
+
+	if (shouldBypass) {
+		return <div className={className}>{children}</div>;
+	}
 
 	return (
 		<motion.div
 			variants={{
-				hidden: { opacity: 0, y: isReduced ? 0 : distances.small },
+				hidden: {
+					opacity: 0,
+					y: shouldReduceMotion ? 0 : distances.small,
+					filter: blur.subtle,
+				},
 				visible: {
 					opacity: 1,
 					y: 0,
-					transition: isReduced ? tweens.reduced : springs.responsive,
+					filter: blur.none,
+					transition: shouldReduceMotion
+						? tweens.reduced
+						: {
+								y: springs.responsive,
+								opacity: tweens.content,
+								filter: tweens.interactionSlow,
+							},
 				},
 			}}
 			className={className}

@@ -3,17 +3,19 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { Clock } from "@phosphor-icons/react/dist/ssr/Clock";
 import Link from "next/link";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
+import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
+import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
 import { MediaGallery } from "@/src/components/ui/media-gallery";
-import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { Reveal, ScrollReveal, revealSequence } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { ProjectEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
@@ -35,37 +37,49 @@ function ProjectMasthead({
 	return (
 		<div className="w-full">
 			<div className="portfolio-stack-group">
-				<Link href="/case-studies" className="portfolio-back-link portfolio-kicker">
-					<ArrowLeft size={14} weight="bold" />
-					<span>Back to Case Studies</span>
-				</Link>
+				<Reveal delay={revealSequence.backLink}>
+					<Link href="/case-studies" className="portfolio-back-link portfolio-kicker">
+						<ArrowLeft size={14} weight="bold" />
+						<span>Back to Case Studies</span>
+					</Link>
+				</Reveal>
 
 				<div className="portfolio-stack-related">
-					<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
-						Case study · {formatDate(project.date)}
-					</p>
+					<Reveal delay={revealSequence.kicker}>
+						<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+							Case study · {formatDate(project.date)}
+						</p>
+					</Reveal>
 
 					<div className="flex flex-col">
-						<h1 className="portfolio-masthead-title text-foreground">
+						<HeadingReveal
+							as="h1"
+							delay={revealSequence.headingLate}
+							className="portfolio-masthead-title text-foreground"
+						>
 							{project.title}
-						</h1>
+						</HeadingReveal>
 
-						<ProseContainer className="portfolio-article max-w-none">
-							<p className="m-0">{projectLede}</p>
-						</ProseContainer>
+						<Reveal delay={revealSequence.bodyLate}>
+							<ProseContainer className="portfolio-article max-w-none">
+								<p className="m-0">{projectLede}</p>
+							</ProseContainer>
+						</Reveal>
 					</div>
 
-					<div className="portfolio-inline-meta">
-						<span className="portfolio-caption flex items-center gap-(--portfolio-space-tight) font-mono text-muted-foreground">
-							<Clock size={12} weight="bold" />
-							{project.readingTime} min read
-						</span>
-						{project.featured && (
-							<span className="portfolio-chip border-primary text-primary">
-								Featured
+					<Reveal delay={revealSequence.meta}>
+						<div className="portfolio-inline-meta">
+							<span className="portfolio-caption flex items-center gap-(--portfolio-space-tight) font-mono text-muted-foreground">
+								<Clock size={12} weight="bold" />
+								{project.readingTime} min read
 							</span>
-						)}
-					</div>
+							{project.featured && (
+								<span className="portfolio-chip border-primary text-primary">
+									Featured
+								</span>
+							)}
+						</div>
+					</Reveal>
 				</div>
 			</div>
 
@@ -98,6 +112,8 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
+				<SiteHeader />
+
 				<section id="project-main" className="w-full">
 					<PageContainer className="portfolio-section-top">
 						<SwissGridBox>
