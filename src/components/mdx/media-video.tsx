@@ -15,11 +15,12 @@
 "use client";
 
 import { Pause } from "@phosphor-icons/react/dist/ssr/Pause";
-import { Play } from "@phosphor-icons/react/dist/ssr/Play";
+import { Play, Play as PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PortfolioMuxVideo } from "@/src/components/ui/portfolio-mux-video";
+import { Spinner } from "@/src/components/ui/spinner";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { cn, springs } from "@/src/lib/index";
 import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
@@ -292,12 +293,9 @@ export function MediaVideo({
 								<span className="inline-grid grid-cols-[14px_auto] items-center gap-x-2">
 									<span className="flex w-3.5 items-center justify-center">
 										{isVideoRequested && !isVideoVisible ? (
-											<span
-												className="size-[14px] animate-spin rounded-full border border-white/30 border-t-white"
-												aria-hidden="true"
-											/>
+											<Spinner size={14} color="white" aria-hidden="true" />
 										) : (
-											<Play size={14} weight="fill" />
+											<PlayIcon size={14} weight="fill" />
 										)}
 									</span>
 									<span className="inline-flex items-baseline gap-x-2">
