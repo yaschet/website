@@ -10,7 +10,9 @@
 
 "use client";
 
-import { CaretLeft, CaretRight, Play } from "@phosphor-icons/react/dist/ssr";
+import { CaretLeft } from "@phosphor-icons/react/dist/ssr/CaretLeft";
+import { CaretRight } from "@phosphor-icons/react/dist/ssr/CaretRight";
+import { Play } from "@phosphor-icons/react/dist/ssr/Play";
 import { motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
 import type { StaticImageData } from "next/image";
@@ -84,6 +86,8 @@ export interface MediaGalleryProps {
 	prioritizeFirstImage?: boolean;
 	/** Allow hover-triggered animated previews for Mux videos */
 	enableHoverPreview?: boolean;
+	/** Request immediate playback for a specific Mux video item once mounted */
+	requestedPlaybackId?: string | null;
 }
 
 type ResolvedGalleryItem =
@@ -169,6 +173,7 @@ export function MediaGallery({
 	onIndexChange,
 	prioritizeFirstImage = true,
 	enableHoverPreview = true,
+	requestedPlaybackId = null,
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw",
 	quality = 85,
 }: MediaGalleryProps) {
@@ -182,9 +187,14 @@ export function MediaGallery({
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 	const [hoverPreviewPlaybackId, setHoverPreviewPlaybackId] = useState<string | null>(null);
+	const [requestedInlineVideoId, setRequestedInlineVideoId] = useState<string | null>(
+		requestedPlaybackId,
+	);
 	const [visibleVideoId, setVisibleVideoId] = useState<string | null>(null);
 	const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
-	const [loadingInlineVideoId, setLoadingInlineVideoId] = useState<string | null>(null);
+	const [loadingInlineVideoId, setLoadingInlineVideoId] = useState<string | null>(
+		requestedPlaybackId,
+	);
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
 	const [isPointerInside, setIsPointerInside] = useState(false);
@@ -192,6 +202,7 @@ export function MediaGallery({
 	const [viewportWidth, setViewportWidth] = useState(0);
 	const [canHover, setCanHover] = useState(false);
 	const [allowHoverPreview, setAllowHoverPreview] = useState(enableHoverPreview);
+	const lastHandledRequestedPlaybackIdRef = useRef<string | null>(null);
 
 	const galleryItems = useMemo<ResolvedGalleryItem[]>(() => {
 		if (items?.length) {
@@ -298,6 +309,22 @@ export function MediaGallery({
 	}, [activeIndex, goToIndex]);
 
 	useEffect(() => {
+		if (!requestedPlaybackId) return;
+		if (lastHandledRequestedPlaybackIdRef.current === requestedPlaybackId) return;
+
+		const requestedIndex = galleryItems.findIndex(
+			(item) => item.kind === "mux-video" && item.playbackId === requestedPlaybackId,
+		);
+		if (requestedIndex < 0) return;
+
+		lastHandledRequestedPlaybackIdRef.current = requestedPlaybackId;
+		void importPortfolioMuxVideo();
+		goToIndex(requestedIndex);
+		setLoadingInlineVideoId(requestedPlaybackId);
+		setRequestedInlineVideoId(requestedPlaybackId);
+	}, [galleryItems, goToIndex, requestedPlaybackId]);
+
+	useEffect(() => {
 		onIndexChange?.(activeIndex);
 	}, [activeIndex, onIndexChange]);
 
@@ -311,11 +338,13 @@ export function MediaGallery({
 		setActiveIndex(0);
 		setHoveredIndex(null);
 		setHoverPreviewPlaybackId(null);
+		setRequestedInlineVideoId(null);
 		setVisibleVideoId(null);
 		setPlayingVideoId(null);
 		setLoadingInlineVideoId(null);
 		setIsLightboxOpen(false);
 		setTouchChromeVisible(false);
+		lastHandledRequestedPlaybackIdRef.current = null;
 	}, [galleryIdentity]);
 
 	useEffect(() => {
@@ -324,6 +353,18 @@ export function MediaGallery({
 			setPlayingVideoId(null);
 		}
 	}, [activeItem, playingVideoId]);
+
+	useEffect(() => {
+		if (requestedInlineVideoId === null) return;
+
+		const activeVideoStillRequested =
+			activeItem?.kind === "mux-video" && activeItem.playbackId === requestedInlineVideoId;
+		const confirmedVisibleVideo = visibleVideoId === requestedInlineVideoId;
+
+		if (!activeVideoStillRequested && !confirmedVisibleVideo) {
+			setRequestedInlineVideoId(null);
+		}
+	}, [activeItem, requestedInlineVideoId, visibleVideoId]);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -341,9 +382,8 @@ export function MediaGallery({
 			return;
 		}
 
-		const connection = (
-			navigator as Navigator & { connection?: NetworkInformationLike }
-		).connection;
+		const connection = (navigator as Navigator & { connection?: NetworkInformationLike })
+			.connection;
 		const syncHoverPreviewPolicy = () => {
 			if (!enableHoverPreview) {
 				setAllowHoverPreview(false);
@@ -399,6 +439,8 @@ export function MediaGallery({
 				setHoverPreviewPlaybackId(null);
 				return;
 			}
+
+			void importPortfolioMuxVideo();
 
 			if (hoverPreviewTimeoutRef.current !== null) {
 				window.clearTimeout(hoverPreviewTimeoutRef.current);
@@ -562,10 +604,13 @@ export function MediaGallery({
 							const isHovered = canHover && hoveredIndex === index;
 							const isPlayingInline =
 								item.kind === "mux-video" && playingVideoId === item.playbackId;
+							const isRequestedInline =
+								item.kind === "mux-video" &&
+								requestedInlineVideoId === item.playbackId;
 							const isViewingInline =
 								item.kind === "mux-video" && visibleVideoId === item.playbackId;
 							const shouldRenderInlineVideo =
-								item.kind === "mux-video" && isViewingInline;
+								item.kind === "mux-video" && (isRequestedInline || isViewingInline);
 							const isLoadingInlineVideo =
 								item.kind === "mux-video" &&
 								loadingInlineVideoId === item.playbackId &&
@@ -584,52 +629,73 @@ export function MediaGallery({
 							const stageContent = (
 								<>
 									{shouldRenderInlineVideo && (
-											<div
-												className="absolute inset-0 z-0"
-												style={{
-													visibility:
-														activeIndex === index
-															? "visible"
-															: "hidden",
-													pointerEvents:
-														activeIndex === index ? "auto" : "none",
+										<div
+											className="absolute inset-0 z-0"
+											style={{
+												visibility:
+													activeIndex === index ? "visible" : "hidden",
+												pointerEvents:
+													activeIndex === index ? "auto" : "none",
+											}}
+										>
+											<PortfolioMuxVideo
+												playbackId={item.playbackId}
+												poster={item.poster}
+												metadata={item.metadata}
+												active={isPlayingInline || isRequestedInline}
+												variant="gallery"
+												className="h-full w-full"
+												onExit={() => {
+													setRequestedInlineVideoId((current) =>
+														current === item.playbackId
+															? null
+															: current,
+													);
+													setVisibleVideoId((current) =>
+														current === item.playbackId
+															? null
+															: current,
+													);
+													setPlayingVideoId((current) =>
+														current === item.playbackId
+															? null
+															: current,
+													);
 												}}
-											>
-												<PortfolioMuxVideo
-													playbackId={item.playbackId}
-													poster={item.poster}
-													metadata={item.metadata}
-													active={isPlayingInline}
-													variant="gallery"
-													className="h-full w-full"
-													onExit={() => {
-														setVisibleVideoId((current) =>
+												onPlayingChange={(playing) => {
+													if (playing) {
+														setVisibleVideoId(item.playbackId);
+														setPlayingVideoId(item.playbackId);
+														setRequestedInlineVideoId((current) =>
 															current === item.playbackId
 																? null
 																: current,
 														);
-														setPlayingVideoId((current) =>
+														setLoadingInlineVideoId((current) =>
 															current === item.playbackId
 																? null
 																: current,
 														);
-													}}
-													onPlayingChange={(playing) => {
-														if (playing) {
-															setVisibleVideoId(item.playbackId);
-															setPlayingVideoId(item.playbackId);
-															return;
-														}
+														return;
+													}
 
-														setPlayingVideoId((current) =>
-															current === item.playbackId
-																? null
-																: current,
-														);
-													}}
-												/>
-											</div>
-										)}
+													setPlayingVideoId((current) =>
+														current === item.playbackId
+															? null
+															: current,
+													);
+												}}
+												onReadyChange={(ready) => {
+													if (!ready) return;
+													setLoadingInlineVideoId((current) =>
+														current === item.playbackId
+															? null
+															: current,
+													);
+												}}
+											/>
+										</div>
+									)}
 
 									<motion.div
 										className="absolute inset-0 z-10"
@@ -766,24 +832,11 @@ export function MediaGallery({
 														event.preventDefault();
 														event.stopPropagation();
 														clearHoverPreview();
+														stopAllPortfolioVideos();
+														setActiveIndex(index);
 														setLoadingInlineVideoId(item.playbackId);
-														void importPortfolioMuxVideo()
-															.then(() => {
-																stopAllPortfolioVideos();
-																setActiveIndex(index);
-																setVisibleVideoId(item.playbackId);
-																setPlayingVideoId(
-																	item.playbackId,
-																);
-															})
-															.finally(() => {
-																setLoadingInlineVideoId(
-																	(current) =>
-																		current === item.playbackId
-																			? null
-																			: current,
-																);
-															});
+														setRequestedInlineVideoId(item.playbackId);
+														void importPortfolioMuxVideo();
 													}}
 													disabled={isLoadingInlineVideo}
 													aria-label={
@@ -805,9 +858,7 @@ export function MediaGallery({
 														</span>
 														<span className="inline-flex items-baseline gap-x-2">
 															<span className="portfolio-control-label">
-																{isLoadingInlineVideo
-																	? "Loading"
-																	: "Play"}
+																Play
 															</span>
 															{item.duration ? (
 																<>

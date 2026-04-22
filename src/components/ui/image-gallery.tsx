@@ -10,7 +10,9 @@
 
 "use client";
 
-import { CaretLeft, CaretRight, Play } from "@phosphor-icons/react/dist/ssr";
+import { CaretLeft } from "@phosphor-icons/react/dist/ssr/CaretLeft";
+import { CaretRight } from "@phosphor-icons/react/dist/ssr/CaretRight";
+import { Play } from "@phosphor-icons/react/dist/ssr/Play";
 import { motion, useReducedMotion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";

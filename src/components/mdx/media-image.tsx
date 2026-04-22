@@ -19,7 +19,7 @@
 
 "use client";
 
-import { MagnifyingGlassPlus } from "@phosphor-icons/react/dist/ssr";
+import { MagnifyingGlassPlus } from "@phosphor-icons/react/dist/ssr/MagnifyingGlassPlus";
 import { AnimatePresence, motion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import NextImage from "next/image";

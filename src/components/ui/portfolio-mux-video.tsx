@@ -2,16 +2,14 @@
 
 import "@mux/mux-video";
 import type MuxVideoElement from "@mux/mux-video";
-import {
-	ArrowsInIcon,
-	ArrowsOutIcon,
-	PauseIcon,
-	PlayIcon,
-	SpeakerHighIcon,
-	SpeakerLowIcon,
-	SpeakerSimpleSlashIcon,
-	XIcon,
-} from "@phosphor-icons/react/dist/ssr";
+import { ArrowsInIcon } from "@phosphor-icons/react/dist/ssr/ArrowsIn";
+import { ArrowsOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowsOut";
+import { PauseIcon } from "@phosphor-icons/react/dist/ssr/Pause";
+import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
+import { SpeakerHighIcon } from "@phosphor-icons/react/dist/ssr/SpeakerHigh";
+import { SpeakerLowIcon } from "@phosphor-icons/react/dist/ssr/SpeakerLow";
+import { SpeakerSimpleSlashIcon } from "@phosphor-icons/react/dist/ssr/SpeakerSimpleSlash";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
@@ -24,7 +22,6 @@ import {
 	DropdownMenuRadioItem,
 	DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
-import { Spinner } from "@/src/components/ui/spinner";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { applyEdgeResistance, cn, springs, tweens } from "@/src/lib/index";
 import {
@@ -47,6 +44,7 @@ interface PortfolioMuxVideoProps {
 	className?: string;
 	onExit?: () => void;
 	onPlayingChange?: (playing: boolean) => void;
+	onReadyChange?: (ready: boolean) => void;
 }
 
 type QualityOption = {
@@ -151,10 +149,7 @@ function formatFrameRateLabel(frameRate?: number) {
 	return `${roundedFrameRate} FPS`;
 }
 
-function resolveRenditionFrameRate(
-	media: MuxVideoElement,
-	rendition: VideoRenditionLike,
-) {
+function resolveRenditionFrameRate(media: MuxVideoElement, rendition: VideoRenditionLike) {
 	if (rendition.frameRate && Number.isFinite(rendition.frameRate)) {
 		return rendition.frameRate;
 	}
@@ -199,7 +194,7 @@ function formatQualityOption(rendition: VideoRenditionLike): QualityOption {
 		triggerLabel: frameRateLabel
 			? `${resolutionLabel}/${frameRateLabel.replace(" FPS", "")}`
 			: resolutionLabel,
-		};
+	};
 }
 
 function dedupeQualityOptions(options: QualityOption[]) {
@@ -336,6 +331,7 @@ export function PortfolioMuxVideo({
 	className,
 	onExit,
 	onPlayingChange,
+	onReadyChange,
 }: PortfolioMuxVideoProps) {
 	const pathname = usePathname();
 	const mediaRef = useRef<MuxVideoElement | null>(null);
@@ -397,8 +393,6 @@ export function PortfolioMuxVideo({
 	const controlsInteractiveClassName = controlsVisible
 		? "pointer-events-auto"
 		: "pointer-events-none";
-	const showInitialLoadSpinner =
-		isActive && !hasStartedPlayback && (isWaitingForPlayback || !isMediaReady);
 	const showTimelineBuffering = isActive && hasStartedPlayback && isBuffering && !isSeeking;
 	const qualityTriggerLabel =
 		qualityValue === "auto"
@@ -617,17 +611,17 @@ export function PortfolioMuxVideo({
 			return (right.bitrate ?? 0) - (left.bitrate ?? 0);
 		});
 
-			const nextOptions = [
-				...dedupeQualityOptions(
-					sortedRenditions.map((rendition) =>
-						formatQualityOption({
-							...rendition,
-							frameRate: resolveRenditionFrameRate(media, rendition),
-						}),
-					),
+		const nextOptions = [
+			...dedupeQualityOptions(
+				sortedRenditions.map((rendition) =>
+					formatQualityOption({
+						...rendition,
+						frameRate: resolveRenditionFrameRate(media, rendition),
+					}),
 				),
-				{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
-			];
+			),
+			{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
+		];
 
 		setQualityOptions(nextOptions);
 		const selectedQualityValue =
@@ -676,9 +670,15 @@ export function PortfolioMuxVideo({
 	}, [muted, playbackId]);
 
 	useEffect(() => {
+		onReadyChange?.(isMediaReady);
+	}, [isMediaReady, onReadyChange]);
+
+	useEffect(() => {
 		preferredMutedRef.current = muted;
 		const restoredVolume =
-			preferredVolumeRef.current > 0.01 ? preferredVolumeRef.current : lastAudibleVolumeRef.current;
+			preferredVolumeRef.current > 0.01
+				? preferredVolumeRef.current
+				: lastAudibleVolumeRef.current;
 
 		const media = mediaRef.current;
 		if (media) {
@@ -1744,7 +1744,10 @@ export function PortfolioMuxVideo({
 			<span className="inline-grid w-max max-w-full grid-cols-[2px_max-content] items-center gap-2.5">
 				<span
 					aria-hidden
-					className={cn("h-4 w-[2px] self-center bg-white", rowActive ? "opacity-100" : "opacity-0")}
+					className={cn(
+						"h-4 w-[2px] self-center bg-white",
+						rowActive ? "opacity-100" : "opacity-0",
+					)}
 				/>
 				<span className="truncate text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]">
 					{label}
@@ -1789,7 +1792,6 @@ export function PortfolioMuxVideo({
 				</button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
-				container={containerRef.current}
 				align="end"
 				side="top"
 				sideOffset={8}
@@ -1841,7 +1843,6 @@ export function PortfolioMuxVideo({
 				</button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
-				container={containerRef.current}
 				align="end"
 				side="top"
 				sideOffset={8}
@@ -2001,16 +2002,6 @@ export function PortfolioMuxVideo({
 				}
 			/>
 
-			<motion.div
-				className="pointer-events-none absolute bottom-16 left-4 z-10"
-				initial={false}
-				animate={{ opacity: showInitialLoadSpinner ? 1 : 0 }}
-				transition={tweens.interactionFast}
-				aria-hidden={!showInitialLoadSpinner}
-			>
-				<Spinner size="sm" color="white" className="shrink-0" />
-			</motion.div>
-
 			{onExit ? (
 				<motion.div
 					className="pointer-events-none absolute inset-x-4 top-4 z-20 flex justify-end"
@@ -2168,35 +2159,35 @@ export function PortfolioMuxVideo({
 								<VolumeIcon size={18} weight="fill" />
 							</button>
 
-								{showInlineVolume ? (
-									<div
+							{showInlineVolume ? (
+								<div
+									data-player-interactive
+									className="hidden items-center border-l pl-2 md:flex"
+									style={{
+										borderColor: "var(--portfolio-player-hairline)",
+									}}
+									onPointerEnter={handleVolumeControlPointerEnter}
+									onPointerLeave={handleVolumeControlPointerLeave}
+									onWheelCapture={handleInteractiveVolumeWheel}
+									onWheel={handleInteractiveVolumeWheel}
+								>
+									<input
 										data-player-interactive
-										className="hidden items-center border-l pl-2 md:flex"
-										style={{
-											borderColor: "var(--portfolio-player-hairline)",
-										}}
-										onPointerEnter={handleVolumeControlPointerEnter}
-										onPointerLeave={handleVolumeControlPointerLeave}
-										onWheelCapture={handleInteractiveVolumeWheel}
-										onWheel={handleInteractiveVolumeWheel}
-									>
-										<input
-											data-player-interactive
 										type="range"
 										min={0}
 										max={1}
 										step={0.05}
 										value={isMuted ? 0 : volume}
-											onChange={(event) =>
-												handleVolumeChange(Number(event.target.value))
-											}
-											onPointerEnter={handleVolumeControlPointerEnter}
-											onPointerLeave={handleVolumeControlPointerLeave}
-											onWheelCapture={handleInteractiveVolumeWheel}
-											onWheel={handleInteractiveVolumeWheel}
-											className="portfolio-video-volume w-20"
-											aria-label="Adjust video volume"
-											style={
+										onChange={(event) =>
+											handleVolumeChange(Number(event.target.value))
+										}
+										onPointerEnter={handleVolumeControlPointerEnter}
+										onPointerLeave={handleVolumeControlPointerLeave}
+										onWheelCapture={handleInteractiveVolumeWheel}
+										onWheel={handleInteractiveVolumeWheel}
+										className="portfolio-video-volume w-20"
+										aria-label="Adjust video volume"
+										style={
 											{
 												"--portfolio-video-range-progress": `${volumePercent}%`,
 											} as CSSProperties
