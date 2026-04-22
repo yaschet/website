@@ -1,7 +1,11 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { ProjectContentRSC } from "@/src/components/content/project-content-rsc";
-import { getPublicProjectBySlug, getPublicProjects } from "@/src/content/registry";
+import {
+	getPublicProjectBySlug,
+	getPublicProjectSummaries,
+	getPublicProjectSummaryBySlug,
+} from "@/src/content/registry";
 import { getFirstPresentableMediaAsset, getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 interface ProjectPageProps {
@@ -17,7 +21,7 @@ interface ProjectData {
 }
 
 export async function generateStaticParams() {
-	const projects = await getPublicProjects();
+	const projects = await getPublicProjectSummaries();
 
 	return projects.map((project) => ({
 		slug: project.slug,
@@ -28,8 +32,10 @@ export async function generateMetadata(
 	{ params }: ProjectPageProps,
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
+	"use cache";
+
 	const { slug } = await params;
-	const project = await getPublicProjectBySlug(slug);
+	const project = await getPublicProjectSummaryBySlug(slug);
 
 	if (!project) {
 		return {
@@ -80,6 +86,8 @@ export async function generateMetadata(
 }
 
 export default async function CaseStudyPage({ params }: ProjectPageProps) {
+	"use cache";
+
 	const { slug } = await params;
 	const project = await getPublicProjectBySlug(slug);
 

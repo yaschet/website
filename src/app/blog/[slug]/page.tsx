@@ -25,6 +25,8 @@ export async function generateMetadata(
 	{ params }: PostPageProps,
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
+	"use cache";
+
 	const { slug } = await params;
 	const post = await getPostBySlug(slug);
 
@@ -72,6 +74,8 @@ export async function generateMetadata(
 }
 
 export default async function PostPage({ params }: PostPageProps) {
+	"use cache";
+
 	const { slug } = await params;
 	const post = await getPostBySlug(slug);
 

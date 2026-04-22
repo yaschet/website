@@ -1,8 +1,11 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts, getListedPublicProjects } from "@/src/content/registry";
+import { getAllPosts, getListedPublicProjectSummaries } from "@/src/content/registry";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-	const [allProjects, allPosts] = await Promise.all([getListedPublicProjects(), getAllPosts()]);
+	const [allProjects, allPosts] = await Promise.all([
+		getListedPublicProjectSummaries(),
+		getAllPosts(),
+	]);
 	// Base URL for the production site
 	const baseUrl = "https://yaschet.dev";
 

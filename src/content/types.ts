@@ -81,5 +81,12 @@ type BaseEntry<TMetadata> = TMetadata & {
 	Content: MDXContentComponent;
 };
 
+type BaseSummaryEntry<TMetadata> = TMetadata & {
+	id: string;
+	slug: string;
+	urlPath: string;
+};
+
 export type PostEntry = BaseEntry<PostMetadata>;
 export type ProjectEntry = BaseEntry<ProjectMetadata>;
+export type ProjectSummaryEntry = BaseSummaryEntry<ProjectMetadata>;

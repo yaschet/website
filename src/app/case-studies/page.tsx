@@ -1,11 +1,12 @@
-import { ArrowRightIcon, Briefcase } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { Briefcase } from "@phosphor-icons/react/dist/ssr/Briefcase";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-work-callout";
 import { PageContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
+import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
@@ -16,7 +17,7 @@ import {
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
-import { getListedPublicProjects } from "@/src/content/registry";
+import { getListedPublicProjectSummaries } from "@/src/content/registry";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 export const metadata: Metadata = {
@@ -36,7 +37,9 @@ export const metadata: Metadata = {
 };
 
 export default async function CaseStudiesPage() {
-	const projects = await getListedPublicProjects();
+	"use cache";
+
+	const projects = await getListedPublicProjectSummaries();
 	const hasProjects = projects.length > 0;
 
 	return (
@@ -48,51 +51,82 @@ export default async function CaseStudiesPage() {
 					<PageContainer className="portfolio-section-top">
 						<SwissGridBox className="!bg-surface-50 dark:!bg-surface-900/80">
 							<SwissGridRow>
-								<Reveal phase={1} className="w-full">
-									<div className="portfolio-box-pad">
-										<PageIntro
-											eyebrow="Work"
-											title="Case studies."
-											description="Public write-ups of shipped systems work."
-										/>
-									</div>
-								</Reveal>
+								<div className="portfolio-box-pad">
+									<PageIntro
+										eyebrow="Work"
+										title="Case studies."
+										description="Public write-ups of shipped systems work."
+									/>
+								</div>
 							</SwissGridRow>
 							<SwissGridRow>
 								{hasProjects ? (
 									<div className="portfolio-box-pad">
 										<div className="portfolio-stack-group">
-											{projects.map((project, i) => (
-												<ScrollReveal
-													key={project.id}
-													phase={2}
-													delay={i * 0.05}
-													className="w-full"
-												>
-													<ProjectCardGallery
-														index={String(i + 1).padStart(2, "0")}
-														title={project.title}
-														description={project.description}
-														href={project.urlPath}
-														tags={project.tech ?? []}
-														items={getProjectCoverMedia(project)}
-														prioritizeFirstImage={false}
-														isPrivate={
-															project.cardState === "coming-soon"
-														}
-														date={
-															project.date
-																? new Date(
-																		project.date,
-																	).toLocaleDateString("en-US", {
-																		month: "long",
-																		year: "numeric",
-																	})
-																: undefined
-														}
-													/>
-												</ScrollReveal>
-											))}
+											{projects.map((project, i) =>
+												i === 0 ? (
+													<div key={project.id} className="w-full">
+														<ProjectCardGallery
+															index={String(i + 1).padStart(2, "0")}
+															title={project.title}
+															description={project.description}
+															href={project.urlPath}
+															tags={project.tech ?? []}
+															items={getProjectCoverMedia(project)}
+															prioritizeFirstImage={true}
+															isPrivate={
+																project.cardState === "coming-soon"
+															}
+															date={
+																project.date
+																	? new Date(
+																			project.date,
+																		).toLocaleDateString(
+																			"en-US",
+																			{
+																				month: "long",
+																				year: "numeric",
+																			},
+																		)
+																	: undefined
+															}
+														/>
+													</div>
+												) : (
+													<ScrollReveal
+														key={project.id}
+														phase={2}
+														delay={i * 0.05}
+														className="w-full"
+													>
+														<ProjectCardGallery
+															index={String(i + 1).padStart(2, "0")}
+															title={project.title}
+															description={project.description}
+															href={project.urlPath}
+															tags={project.tech ?? []}
+															items={getProjectCoverMedia(project)}
+															prioritizeFirstImage={false}
+															isPrivate={
+																project.cardState === "coming-soon"
+															}
+															date={
+																project.date
+																	? new Date(
+																			project.date,
+																		).toLocaleDateString(
+																			"en-US",
+																			{
+																				month: "long",
+																				year: "numeric",
+																			},
+																		)
+																	: undefined
+															}
+														/>
+													</ScrollReveal>
+												),
+											)}
 										</div>
 									</div>
 								) : (
