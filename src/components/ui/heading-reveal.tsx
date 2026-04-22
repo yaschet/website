@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { type RevealPhase, useRevealState } from "@/src/components/providers/reveal-provider";
@@ -27,8 +27,19 @@ export function HeadingReveal({
 	phase = 1,
 	style,
 }: HeadingRevealProps) {
-	const { environment, entryKey, phase: currentPhase } = useRevealState();
+	const shouldReduceMotion = useReducedMotion();
+	const { environment, entryKey, forceRevealed, shouldAnimateEntry } = useRevealState();
 	const [isDesktop, setIsDesktop] = useState(false);
+	const isAutomation = environment === "automation";
+	const isReduced =
+		forceRevealed ||
+		environment === "reduced-motion" ||
+		shouldReduceMotion ||
+		!shouldAnimateEntry;
+	const isTextContent = typeof children === "string" || typeof children === "number";
+	const MotionTag = motion[as] as typeof motion.div;
+	const StaticTag = as;
+	void phase;
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -43,14 +54,7 @@ export function HeadingReveal({
 		return () => mediaQuery.removeEventListener("change", syncDesktop);
 	}, []);
 
-	const isPhaseReached = currentPhase >= phase;
-	const isAutomation = environment === "automation";
-	const isReduced = environment === "reduced-motion";
-	const isTextContent = typeof children === "string" || typeof children === "number";
-	const MotionTag = motion[as] as typeof motion.div;
-	const StaticTag = as;
-
-	if (isAutomation) {
+	if (isAutomation || isReduced) {
 		return (
 			<StaticTag className={className} style={style}>
 				{children}
@@ -58,23 +62,13 @@ export function HeadingReveal({
 		);
 	}
 
-	if (isReduced || !isDesktop || !isTextContent) {
+	if (!isDesktop || !isTextContent) {
 		return (
 			<MotionTag
-				key={`heading-${entryKey}-${phase}-${delay}`}
-				initial={{
-					opacity: 0,
-					y: isReduced ? 0 : distances.small,
-				}}
-				animate={
-					isPhaseReached
-						? { opacity: 1, y: 0 }
-						: { opacity: 0, y: isReduced ? 0 : distances.small }
-				}
-				transition={{
-					...(isReduced ? tweens.reduced : tweens.content),
-					delay,
-				}}
+				key={`heading-${entryKey}-${delay}`}
+				initial={{ opacity: 0, y: distances.small }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ ...tweens.content, delay }}
 				className={className}
 				style={style}
 			>
@@ -83,17 +77,9 @@ export function HeadingReveal({
 		);
 	}
 
-	if (!isPhaseReached) {
-		return (
-			<StaticTag className={className} style={{ ...style, opacity: 0 }}>
-				{children}
-			</StaticTag>
-		);
-	}
-
 	return (
 		<TextEffectWrapper
-			key={`heading-text-${entryKey}-${phase}-${delay}`}
+			key={`heading-text-${entryKey}-${delay}`}
 			as={as}
 			per="word"
 			preset="fade-in-blur"
@@ -113,13 +99,7 @@ export function HeadingReveal({
 							staggerChildren: HEADING_STAGGER,
 						},
 					},
-					exit: {
-						opacity: 1,
-						transition: {
-							staggerChildren: HEADING_STAGGER,
-							staggerDirection: -1,
-						},
-					},
+					exit: { opacity: 1 },
 				},
 			}}
 		>

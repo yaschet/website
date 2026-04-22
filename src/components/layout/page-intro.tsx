@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { ProseContainer } from "@/src/components/layout/containers";
+import { HeadingReveal } from "@/src/components/ui/heading-reveal";
+import { Reveal } from "@/src/components/ui/reveal";
 import { cn } from "@/src/lib/utils";
 
 interface PageIntroProps {
@@ -30,23 +32,33 @@ export function PageIntro({
 			)}
 		>
 			{eyebrow && (
-				<p className="portfolio-kicker text-surface-400 dark:text-surface-500">{eyebrow}</p>
+				<Reveal delay={0.02}>
+					<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+						{eyebrow}
+					</p>
+				</Reveal>
 			)}
 
 			<div className={cn("portfolio-stack-related", isCentered && "items-center")}>
-				<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100">
+				<HeadingReveal
+					as="h1"
+					delay={0.06}
+					className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100"
+				>
 					{title}
-				</h1>
+				</HeadingReveal>
 
 				{description && (
-					<ProseContainer className={cn(isCentered && "mx-auto")}>
-						<p className="portfolio-body-lg text-surface-600 dark:text-surface-400">
-							{description}
-						</p>
-					</ProseContainer>
+					<Reveal delay={0.12}>
+						<ProseContainer className={cn(isCentered && "mx-auto")}>
+							<p className="portfolio-body-lg text-surface-600 dark:text-surface-400">
+								{description}
+							</p>
+						</ProseContainer>
+					</Reveal>
 				)}
 
-				{children && <div>{children}</div>}
+				{children && <Reveal delay={0.16}>{children}</Reveal>}
 			</div>
 		</div>
 	);

@@ -7,6 +7,7 @@ import { SiteFooter } from "@/src/components/layout/site-footer";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
+import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
@@ -48,26 +49,34 @@ export function PostContentRSC({ post }: PostContentProps) {
 
 											<div className="portfolio-stack-related">
 												<div className="flex flex-col">
-													<h1 className="portfolio-masthead-title text-foreground">
+													<HeadingReveal
+														as="h1"
+														delay={0.08}
+														className="portfolio-masthead-title text-foreground"
+													>
 														{post.title}
-													</h1>
+													</HeadingReveal>
 
-													<ProseContainer className="portfolio-article max-w-none">
-														<p className="m-0 text-foreground">
-															{post.description}
-														</p>
-													</ProseContainer>
+													<Reveal delay={0.14}>
+														<ProseContainer className="portfolio-article max-w-none">
+															<p className="m-0 text-foreground">
+																{post.description}
+															</p>
+														</ProseContainer>
+													</Reveal>
 												</div>
 
-												<div className="portfolio-inline-meta">
-													<time className="portfolio-caption font-mono text-muted-foreground tabular-nums">
-														{formatDate(post.date)}
-													</time>
-													<span className="portfolio-caption flex items-center gap-(--portfolio-space-tight) font-mono text-muted-foreground">
-														<Clock size={12} weight="bold" />
-														{post.readingTime} min read
-													</span>
-												</div>
+												<Reveal delay={0.18}>
+													<div className="portfolio-inline-meta">
+														<time className="portfolio-caption font-mono text-muted-foreground tabular-nums">
+															{formatDate(post.date)}
+														</time>
+														<span className="portfolio-caption flex items-center gap-(--portfolio-space-tight) font-mono text-muted-foreground">
+															<Clock size={12} weight="bold" />
+															{post.readingTime} min read
+														</span>
+													</div>
+												</Reveal>
 											</div>
 										</ModuleContainer>
 									</div>
