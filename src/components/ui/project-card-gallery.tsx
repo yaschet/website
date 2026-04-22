@@ -160,6 +160,7 @@ export function ProjectCardGallery({
 							altPrefix={title}
 							aspectRatio={imageAspectRatio}
 							prioritizeFirstImage={prioritizeFirstImage}
+							enableKeyboard={false}
 							showArrows={!isPrivate}
 							showProgress={!isPrivate}
 							showCounter={false}
