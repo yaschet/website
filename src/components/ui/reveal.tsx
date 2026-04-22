@@ -12,6 +12,19 @@ interface RevealProps {
 	phase?: RevealPhase;
 }
 
+export const revealSequence = {
+	backLink: 0.02,
+	eyebrow: 0.04,
+	kicker: 0.06,
+	heading: 0.1,
+	headingLate: 0.12,
+	body: 0.22,
+	bodyLate: 0.26,
+	children: 0.3,
+	controls: 0.32,
+	meta: 0.34,
+} as const;
+
 function useRevealMotionGate() {
 	const shouldReduceMotion = useReducedMotion();
 	const { environment, entryKey, forceRevealed, shouldAnimateEntry } = useRevealState();

@@ -15,7 +15,7 @@ import {
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
 import { MediaGallery } from "@/src/components/ui/media-gallery";
-import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { Reveal, ScrollReveal, revealSequence } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { ProjectEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
@@ -37,7 +37,7 @@ function ProjectMasthead({
 	return (
 		<div className="w-full">
 			<div className="portfolio-stack-group">
-				<Reveal delay={0.02}>
+				<Reveal delay={revealSequence.backLink}>
 					<Link href="/case-studies" className="portfolio-back-link portfolio-kicker">
 						<ArrowLeft size={14} weight="bold" />
 						<span>Back to Case Studies</span>
@@ -45,7 +45,7 @@ function ProjectMasthead({
 				</Reveal>
 
 				<div className="portfolio-stack-related">
-					<Reveal delay={0.06}>
+					<Reveal delay={revealSequence.kicker}>
 						<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 							Case study · {formatDate(project.date)}
 						</p>
@@ -54,20 +54,20 @@ function ProjectMasthead({
 					<div className="flex flex-col">
 						<HeadingReveal
 							as="h1"
-							delay={0.12}
+							delay={revealSequence.headingLate}
 							className="portfolio-masthead-title text-foreground"
 						>
 							{project.title}
 						</HeadingReveal>
 
-						<Reveal delay={0.26}>
+						<Reveal delay={revealSequence.bodyLate}>
 							<ProseContainer className="portfolio-article max-w-none">
 								<p className="m-0">{projectLede}</p>
 							</ProseContainer>
 						</Reveal>
 					</div>
 
-					<Reveal delay={0.34}>
+					<Reveal delay={revealSequence.meta}>
 						<div className="portfolio-inline-meta">
 							<span className="portfolio-caption flex items-center gap-(--portfolio-space-tight) font-mono text-muted-foreground">
 								<Clock size={12} weight="bold" />

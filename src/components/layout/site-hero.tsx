@@ -2,7 +2,7 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import Link from "next/link";
 import { SiteHeroField } from "@/src/components/layout/site-hero-field";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
-import { Reveal } from "@/src/components/ui/reveal";
+import { Reveal, revealSequence } from "@/src/components/ui/reveal";
 
 const HERO_COLUMN_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 50)";
 const HERO_BODY_MAX_WIDTH = "58ch";
@@ -23,13 +23,13 @@ export function SiteHero() {
 					<div className="portfolio-stack-related">
 						<HeadingReveal
 							as="h1"
-							delay={0.08}
+							delay={revealSequence.headingLate}
 							className="portfolio-heading-xl portfolio-capsize-heading-xl w-fit max-w-full text-surface-800 dark:text-surface-100"
 							style={{ margin: 0 }}
 						>
 							Complex systems, clean interfaces.
 						</HeadingReveal>
-						<Reveal delay={0.22}>
+						<Reveal delay={revealSequence.body}>
 							<p
 								className="portfolio-body-lg text-surface-700 dark:text-surface-300"
 								style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
@@ -41,7 +41,7 @@ export function SiteHero() {
 							</p>
 						</Reveal>
 					</div>
-					<Reveal delay={0.32}>
+					<Reveal delay={revealSequence.controls}>
 						<div className="portfolio-control-row pointer-events-auto">
 							<Link
 								href="/case-studies"

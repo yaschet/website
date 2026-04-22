@@ -14,7 +14,7 @@ import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
-import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { Reveal, ScrollReveal, revealSequence } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { PostEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
@@ -42,7 +42,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 								<SwissGridRow>
 									<div className="portfolio-box-pad">
 										<ModuleContainer className="portfolio-stack-group">
-											<Reveal delay={0.02}>
+											<Reveal delay={revealSequence.backLink}>
 												<Link
 													href="/blog"
 													className="portfolio-back-link portfolio-kicker"
@@ -56,13 +56,13 @@ export function PostContentRSC({ post }: PostContentProps) {
 												<div className="flex flex-col">
 													<HeadingReveal
 														as="h1"
-														delay={0.12}
+														delay={revealSequence.headingLate}
 														className="portfolio-masthead-title text-foreground"
 													>
 														{post.title}
 													</HeadingReveal>
 
-													<Reveal delay={0.26}>
+													<Reveal delay={revealSequence.bodyLate}>
 														<ProseContainer className="portfolio-article max-w-none">
 															<p className="m-0 text-foreground">
 																{post.description}
@@ -71,7 +71,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 													</Reveal>
 												</div>
 
-												<Reveal delay={0.34}>
+												<Reveal delay={revealSequence.meta}>
 													<div className="portfolio-inline-meta">
 														<time className="portfolio-caption font-mono text-muted-foreground tabular-nums">
 															{formatDate(post.date)}
