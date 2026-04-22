@@ -805,7 +805,7 @@ function resolveSurfaceValue(surface: InstrumentSurface) {
 	}
 }
 
-function resolveBackgroundPaint(tone: InstrumentFieldTone) {
+function resolveBackgroundPaint(tone: InstrumentFieldTone, surface: InstrumentSurface) {
 	switch (tone) {
 		case "dark":
 			return "var(--surface-950)";
@@ -814,6 +814,9 @@ function resolveBackgroundPaint(tone: InstrumentFieldTone) {
 		case "inverted":
 			return "var(--instrument-field-bg-inverted)";
 		default:
+			if (surface === "hero" || surface === "header") {
+				return "var(--instrument-field-bg-boxed)";
+			}
 			return "var(--instrument-field-bg-auto)";
 	}
 }
@@ -949,10 +952,10 @@ export function InstrumentField({
 
 	const shouldReduceMotion = useReducedMotion();
 	const { environment } = useRevealState();
-	const [documentIsDark, setDocumentIsDark] = useState(readDocumentIsDark);
+	const [documentIsDark, setDocumentIsDark] = useState(false);
 	const [isCanvasReady, setIsCanvasReady] = useState(false);
 	const [isInViewport, setIsInViewport] = useState(surface !== "band");
-	const [paletteSignature, setPaletteSignature] = useState(readPaletteSignature);
+	const [paletteSignature, setPaletteSignature] = useState("");
 	const [isThemeReady, setIsThemeReady] = useState(false);
 	const [metrics, setMetrics] = useState<Metrics>({
 		dpr: 1,
@@ -1009,7 +1012,7 @@ export function InstrumentField({
 				: tone === "inverted"
 					? !documentIsDark
 					: documentIsDark;
-	const backgroundPaint = resolveBackgroundPaint(tone);
+	const backgroundPaint = resolveBackgroundPaint(tone, surface);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -1272,6 +1275,7 @@ export function InstrumentField({
 		const uniforms = uniformRef.current;
 
 		if (!container || !canvas || !gl || !program || !vao) return;
+		if (!isThemeReady) return;
 		if (!isInViewport) return;
 		if (metrics.width <= 0 || metrics.height <= 0) return;
 
@@ -1400,6 +1404,7 @@ export function InstrumentField({
 		origin,
 		paletteSignature,
 		radius,
+		isThemeReady,
 		shouldFreezeField,
 		speed,
 		surface,

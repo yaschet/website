@@ -11,10 +11,7 @@ const HERO_FIELD_SPEED = 0.28;
 export function SiteHeroField() {
 	return (
 		<div className="absolute inset-0 opacity-100 dark:opacity-100" aria-hidden="true">
-			<div
-				className="pointer-events-none absolute inset-0"
-				style={{ backgroundColor: "var(--instrument-field-bg-auto)" }}
-			/>
+			<div className="pointer-events-none absolute inset-0 bg-white dark:bg-surface-900/80" />
 			<DeferredInstrumentField
 				interactive
 				step={INSTRUMENT_GRID_STEP}

@@ -85,6 +85,7 @@ const CONTACT_METHODS = [
 function ContactInstrumentPlane() {
 	return (
 		<div className="absolute inset-0" aria-hidden="true">
+			<div className="pointer-events-none absolute inset-0 bg-white dark:bg-surface-900/80" />
 			<DeferredInstrumentField
 				className="pointer-events-none opacity-100 dark:opacity-100"
 				interactive
