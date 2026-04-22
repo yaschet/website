@@ -2195,7 +2195,6 @@ html {
     scrollbar-gutter: stable;
     --app-background: var(--surface-100);
     --instrument-field-bg-auto: #ffffff;
-    --instrument-field-bg-hero: var(--surface-50);
     --instrument-field-bg-inverted: var(--surface-950);
   }
 
@@ -2218,7 +2217,6 @@ body {
   color-scheme: dark;
   --app-background: var(--surface-0);
   --instrument-field-bg-auto: var(--surface-0);
-  --instrument-field-bg-hero: var(--surface-900);
   --instrument-field-bg-inverted: var(--surface-50);
   --portfolio-chrome-hairline: rgb(248 250 252 / 0.10);
 }

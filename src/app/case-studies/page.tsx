@@ -163,7 +163,7 @@ export default async function CaseStudiesPage() {
 										<InstrumentActionBand
 											fieldSpeed={0.28}
 											fieldVariant="terrain"
-											tone="inverted"
+											tone="dark"
 										>
 											<h2
 												className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}

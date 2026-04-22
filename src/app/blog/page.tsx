@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
 function BlogClosingCta() {
 	return (
-		<InstrumentActionBand fieldSpeed={0.28} fieldVariant="terrain" tone="inverted">
+		<InstrumentActionBand fieldSpeed={0.28} fieldVariant="terrain" tone="dark">
 			<h2
 				className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 			>
