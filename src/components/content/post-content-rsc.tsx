@@ -106,7 +106,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 										<InstrumentActionBand
 											fieldSpeed={0.28}
 											fieldVariant="terrain"
-											tone="dark"
+											tone="inverted"
 										>
 											<ModuleContainer className="mx-auto w-full">
 												<h2

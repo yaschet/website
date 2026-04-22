@@ -22,7 +22,7 @@ import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 function HomeClosingCta() {
 	return (
-		<InstrumentActionBand fieldSpeed={0.28} fieldVariant="terrain" tone="dark">
+		<InstrumentActionBand fieldSpeed={0.28} fieldVariant="terrain" tone="inverted">
 			<h2
 				className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 			>

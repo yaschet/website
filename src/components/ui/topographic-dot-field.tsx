@@ -805,7 +805,7 @@ function resolveSurfaceValue(surface: InstrumentSurface) {
 	}
 }
 
-function resolveBackgroundPaint(tone: InstrumentFieldTone, surface: InstrumentSurface) {
+function resolveBackgroundPaint(tone: InstrumentFieldTone) {
 	switch (tone) {
 		case "dark":
 			return "var(--surface-950)";
@@ -848,15 +848,16 @@ function readDocumentIsDark() {
 		.find((entry) => entry.startsWith("theme="))
 		?.split("=")[1];
 	const storedTheme =
-		cookieTheme ??
-		(typeof localStorage !== "undefined" ? localStorage.getItem("theme") : null);
+		cookieTheme ?? (typeof localStorage !== "undefined" ? localStorage.getItem("theme") : null);
 
 	if (storedTheme === "dark") return true;
 	if (storedTheme === "light") return false;
 
-	return typeof window !== "undefined" &&
+	return (
+		typeof window !== "undefined" &&
 		"matchMedia" in window &&
-		window.matchMedia("(prefers-color-scheme: dark)").matches;
+		window.matchMedia("(prefers-color-scheme: dark)").matches
+	);
 }
 
 function readPaletteSignature() {
