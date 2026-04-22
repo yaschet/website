@@ -1,7 +1,8 @@
-import { ArrowLeft, ArrowRight, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
-import { RequestAwareSiteHeader as SiteHeader } from "@/src/components/layout/site-header-rsc";
 import { Button } from "@/src/components/ui/button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
@@ -9,10 +10,6 @@ import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 export default function NotFound() {
 	return (
 		<div className="relative flex min-h-screen w-full flex-col bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-50">
-			{/* 1. HEADER (Context Badges) */}
-			<SiteHeader />
-
-			{/* 2. CONTENT CELL */}
 			<section id="404-content" className="relative z-10 w-full">
 				<PageContainer className="portfolio-section-top-loose">
 					<SwissGridBox>

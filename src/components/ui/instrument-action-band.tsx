@@ -44,6 +44,7 @@ export function InstrumentActionBand({
 				className,
 			)}
 			data-tone={tone}
+			data-instrument-host=""
 		>
 			<DeferredInstrumentField
 				className="pointer-events-none opacity-100 dark:opacity-100"

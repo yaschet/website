@@ -805,7 +805,7 @@ function resolveSurfaceValue(surface: InstrumentSurface) {
 	}
 }
 
-function resolveBackgroundPaint(tone: InstrumentFieldTone) {
+function resolveBackgroundPaint(tone: InstrumentFieldTone, surface: InstrumentSurface) {
 	switch (tone) {
 		case "dark":
 			return "var(--surface-950)";
@@ -814,7 +814,9 @@ function resolveBackgroundPaint(tone: InstrumentFieldTone) {
 		case "inverted":
 			return "var(--instrument-field-bg-inverted)";
 		default:
-			return "var(--instrument-field-bg-auto)";
+			return surface === "hero"
+				? "var(--instrument-field-bg-hero)"
+				: "var(--instrument-field-bg-auto)";
 	}
 }
 
@@ -832,12 +834,19 @@ function resolveBackgroundFallback(tone: InstrumentFieldTone, isDark: boolean): 
 }
 
 function resolveInteractionHost(container: HTMLDivElement) {
+	const explicitHost = container.closest("[data-instrument-host]");
+	if (explicitHost instanceof HTMLElement) {
+		return explicitHost;
+	}
+
 	let candidate = container.parentElement;
 
 	while (candidate) {
 		const position = window.getComputedStyle(candidate).position;
+		const rect = candidate.getBoundingClientRect();
+		const hasRenderableBox = rect.width > 0 && rect.height > 0;
 		if (position !== "absolute" && position !== "fixed") {
-			return candidate;
+			return hasRenderableBox ? candidate : candidate.parentElement;
 		}
 		candidate = candidate.parentElement;
 	}
@@ -969,7 +978,7 @@ export function InstrumentField({
 				: tone === "inverted"
 					? !documentIsDark
 					: documentIsDark;
-	const backgroundPaint = resolveBackgroundPaint(tone);
+	const backgroundPaint = resolveBackgroundPaint(tone, surface);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;

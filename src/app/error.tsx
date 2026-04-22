@@ -4,10 +4,8 @@ import { ArrowClockwise, ArrowRight, Warning } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useEffect } from "react";
 import { PageContainer } from "@/src/components/layout/containers";
-import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
-import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export default function AppError({
 	error,
@@ -23,14 +21,10 @@ export default function AppError({
 
 	return (
 		<div className="relative flex min-h-screen w-full flex-col bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-50">
-			{/* 1. HEADER (Context Badges) */}
-			<SiteHeader />
-
-			{/* 2. CONTENT CELL */}
 			<section id="error-content" className="relative z-10 w-full">
 				<PageContainer className="portfolio-section-top-loose">
-					<SwissGridBox>
-						<SwissGridRow>
+					<div className="portfolio-grid-frame relative w-full overflow-hidden bg-white transition-colors dark:bg-surface-900/80">
+						<div className="portfolio-grid-row relative">
 							<EditorialEmptyState
 								eyebrow="Error"
 								icon={
@@ -57,8 +51,8 @@ export default function AppError({
 								}
 								note={error.digest ? `Reference: ${error.digest}` : undefined}
 							/>
-						</SwissGridRow>
-					</SwissGridBox>
+						</div>
+					</div>
 				</PageContainer>
 			</section>
 

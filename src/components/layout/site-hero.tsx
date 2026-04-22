@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import Link from "next/link";
 import { SiteHeroField } from "@/src/components/layout/site-hero-field";
 
@@ -7,7 +7,11 @@ const HERO_BODY_MAX_WIDTH = "58ch";
 
 export function SiteHero() {
 	return (
-		<section id="hero" className="relative isolate w-full overflow-hidden">
+		<section
+			id="hero"
+			className="relative isolate w-full overflow-hidden"
+			data-instrument-host=""
+		>
 			<SiteHeroField />
 			<div className="portfolio-box-pad relative z-10">
 				<div

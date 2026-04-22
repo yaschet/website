@@ -1,4 +1,6 @@
-import { GithubLogoIcon, LinkedinLogoIcon, XLogoIcon } from "@phosphor-icons/react/dist/ssr";
+import { GithubLogoIcon } from "@phosphor-icons/react/dist/ssr/GithubLogo";
+import { LinkedinLogoIcon } from "@phosphor-icons/react/dist/ssr/LinkedinLogo";
+import { XLogoIcon } from "@phosphor-icons/react/dist/ssr/XLogo";
 import Image from "next/image";
 import Link from "next/link";
 import avatarImage from "@/public/images/avatar.png";
