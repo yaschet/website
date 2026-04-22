@@ -6,8 +6,13 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CountryFlagMA, SquareFlag } from "react-square-flags";
 
 import { useRevealState } from "@/src/components/providers/reveal-provider";
-import { cn, springs, tweens } from "@/src/lib/index";
-import { getTimeZoneOffsetMinutes, type ViewerTimeZoneSource } from "@/src/lib/time-zone";
+import { cn, tweens } from "@/src/lib/index";
+import {
+	formatDeltaOffset,
+	formatUtcOffset,
+	getTimeZoneOffsetMinutes,
+	type ViewerTimeZoneSource,
+} from "@/src/lib/time-zone";
 
 const BADGE_HEIGHT = "var(--portfolio-badge-height)";
 const INSIGNIA_SIZE = "var(--portfolio-status-insignia-size)";
@@ -16,7 +21,7 @@ const TARGET_TIME_ZONE = "Africa/Casablanca";
 const badgeBaseClasses = cn(
 	"group relative flex items-center",
 	"rounded-[var(--radius)]",
-	"border border-surface-200/80 dark:border-surface-800/80",
+	"portfolio-solid-frame",
 	"bg-white/95 dark:bg-surface-950/95",
 	"shadow-lg shadow-surface-900/5 dark:shadow-surface-950/50",
 	"portfolio-badge-label text-surface-600 dark:text-surface-400",
@@ -24,9 +29,10 @@ const badgeBaseClasses = cn(
 );
 
 const insigniaClasses = cn(
-	"flex shrink-0 items-center justify-center overflow-hidden",
+	"relative flex shrink-0 items-center justify-center overflow-hidden",
 	"rounded-l-[var(--radius)]",
 	"bg-surface-100/50 dark:bg-surface-800/50",
+	"after:pointer-events-none after:absolute after:top-0 after:right-0 after:h-full after:w-[var(--portfolio-hairline-width)] after:bg-[var(--portfolio-chrome-hairline)] after:content-['']",
 );
 
 const contentClasses = cn("flex items-center");
@@ -34,8 +40,8 @@ const contentClasses = cn("flex items-center");
 const tooltipPanelClasses = cn(
 	"pointer-events-none absolute top-full z-20 mt-[var(--portfolio-overlay-gap)]",
 	"max-w-[calc(100vw-(var(--portfolio-page-gutter-mobile)*2))]",
-	"w-max border border-surface-200/90 bg-white/98 px-[var(--portfolio-space-tight)] py-[8px] shadow-md backdrop-blur-sm",
-	"dark:border-surface-800 dark:bg-surface-900/98",
+	"portfolio-solid-frame w-max bg-white/98 px-[var(--portfolio-space-tight)] py-[8px] shadow-md backdrop-blur-sm",
+	"dark:bg-surface-900/98",
 	"!text-[12px] !leading-[14px] !tracking-normal rounded-none font-sans normal-case",
 );
 
@@ -51,44 +57,6 @@ const tooltipValueClasses = cn(
 	"!m-0 !text-[12px] !leading-[14px] min-w-0 whitespace-nowrap text-left font-medium text-surface-800 tracking-[0.01em] dark:text-surface-200",
 );
 
-function formatUtcOffset(offsetMinutes: number) {
-	if (offsetMinutes === 0) {
-		return "UTC";
-	}
-
-	const sign = offsetMinutes > 0 ? "+" : "-";
-	const absoluteMinutes = Math.abs(offsetMinutes);
-	const hours = Math.floor(absoluteMinutes / 60);
-	const minutes = absoluteMinutes % 60;
-
-	if (minutes === 0) {
-		return `UTC${sign}${hours}`;
-	}
-
-	return `UTC${sign}${hours}:${String(minutes).padStart(2, "0")}`;
-}
-
-function formatDeltaOffset(offsetMinutes: number) {
-	if (offsetMinutes === 0) {
-		return "SAME";
-	}
-
-	const sign = offsetMinutes > 0 ? "+" : "-";
-	const absoluteMinutes = Math.abs(offsetMinutes);
-	const hours = Math.floor(absoluteMinutes / 60);
-	const minutes = absoluteMinutes % 60;
-
-	if (hours === 0) {
-		return `${sign}${minutes}m`;
-	}
-
-	if (minutes === 0) {
-		return `${sign}${hours}h`;
-	}
-
-	return `${sign}${hours}h ${minutes}m`;
-}
-
 function formatViewerTimeZoneSource(source: ViewerTimeZoneSource | null) {
 	switch (source) {
 		case "request":
@@ -98,6 +66,16 @@ function formatViewerTimeZoneSource(source: ViewerTimeZoneSource | null) {
 		default:
 			return "Unavailable";
 	}
+}
+
+function getDuplicateOrdinal(items: string[], value: string, index: number) {
+	let occurrences = 0;
+	for (let cursor = 0; cursor < index; cursor += 1) {
+		if (items[cursor] === value) {
+			occurrences += 1;
+		}
+	}
+	return occurrences;
 }
 
 const isDevelopment = process.env.NODE_ENV === "development";
@@ -137,19 +115,17 @@ function BadgeTooltip({
 
 export function LocationBadge({ className }: { className?: string }) {
 	const [isHovered, setIsHovered] = useState(false);
-	const { environment } = useRevealState();
-	const shouldBypass = environment === "automation";
-	const shouldReduce = environment === "reduced-motion";
 
 	return (
-		<motion.div
-			initial={shouldBypass ? false : { opacity: 0 }}
-			animate={{ opacity: 1 }}
-			transition={shouldReduce ? tweens.reduced : springs.responsive}
-			className={cn(badgeBaseClasses, className)}
+		<button
+			type="button"
+			className={cn(badgeBaseClasses, "appearance-none border-0 p-0 text-left", className)}
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
+			onFocus={() => setIsHovered(true)}
+			onBlur={() => setIsHovered(false)}
+			aria-label="Location: Rabat, Morocco"
 		>
 			<div
 				className={insigniaClasses}
@@ -178,55 +154,51 @@ export function LocationBadge({ className }: { className?: string }) {
 					/>
 				)}
 			</AnimatePresence>
-		</motion.div>
+		</button>
 	);
 }
 
 export function TimeBadge({
 	className,
+	initialRelativeOffset,
+	initialTime,
+	initialZoneOffset,
 	viewerTimeZone: requestViewerTimeZone = null,
 	viewerTimeZoneSource: requestViewerTimeZoneSource = null,
 }: {
 	className?: string;
+	initialRelativeOffset?: string;
+	initialTime?: string;
+	initialZoneOffset?: string;
 	viewerTimeZone?: string | null;
 	viewerTimeZoneSource?: ViewerTimeZoneSource | null;
 }) {
-	const [time, setTime] = useState<string>("");
-	const [zoneOffset, setZoneOffset] = useState<string>("");
-	const [relativeOffset, setRelativeOffset] = useState<string>("");
-	const [mounted, setMounted] = useState(false);
+	const [time, setTime] = useState(initialTime ?? "--:--:--");
+	const [zoneOffset, setZoneOffset] = useState(initialZoneOffset ?? "UTC+0");
+	const [relativeOffset, setRelativeOffset] = useState(initialRelativeOffset ?? "SAME");
 	const [isHovered, setIsHovered] = useState(false);
-	const { environment } = useRevealState();
-	const shouldBypass = environment === "automation";
-	const shouldReduce = environment === "reduced-motion";
 	const viewerTimeZone = requestViewerTimeZone;
 	const viewerTimeZoneSource = requestViewerTimeZoneSource;
 	const shouldShowRelativeOffset =
 		isDevelopment || viewerTimeZoneSource === "request" || viewerTimeZoneSource === "override";
 
 	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	useEffect(() => {
-		if (!mounted) {
-			return;
-		}
-
-		const formatter = new Intl.DateTimeFormat("en-GB", {
-			hour: "2-digit",
-			minute: "2-digit",
-			second: "2-digit",
-			hour12: false,
-			timeZone: TARGET_TIME_ZONE,
-		});
-
 		const updateTime = () => {
+			const formatter = new Intl.DateTimeFormat("en-GB", {
+				hour: "2-digit",
+				minute: "2-digit",
+				second: "2-digit",
+				hour12: false,
+				timeZone: TARGET_TIME_ZONE,
+			});
 			const now = new Date();
 			const targetOffsetMinutes = getTimeZoneOffsetMinutes(TARGET_TIME_ZONE, now);
-			const viewerOffsetMinutes = viewerTimeZone
-				? getTimeZoneOffsetMinutes(viewerTimeZone, now)
-				: targetOffsetMinutes;
+			const browserTimeZone =
+				typeof Intl !== "undefined"
+					? Intl.DateTimeFormat().resolvedOptions().timeZone
+					: undefined;
+			const effectiveViewerTimeZone = viewerTimeZone ?? browserTimeZone ?? TARGET_TIME_ZONE;
+			const viewerOffsetMinutes = getTimeZoneOffsetMinutes(effectiveViewerTimeZone, now);
 
 			setTime(formatter.format(now));
 			setZoneOffset(formatUtcOffset(targetOffsetMinutes));
@@ -236,17 +208,10 @@ export function TimeBadge({
 		updateTime();
 		const interval = setInterval(updateTime, 1000);
 		return () => clearInterval(interval);
-	}, [mounted, viewerTimeZone]);
-
-	if (!mounted) {
-		return null;
-	}
+	}, [viewerTimeZone]);
 
 	return (
-		<motion.div
-			initial={shouldBypass ? false : { opacity: 0 }}
-			animate={{ opacity: 1 }}
-			transition={shouldReduce ? tweens.reduced : { ...springs.responsive, delay: 0.1 }}
+		<div
 			className={cn(badgeBaseClasses, className)}
 			style={{ height: BADGE_HEIGHT }}
 			onMouseEnter={() => setIsHovered(true)}
@@ -297,7 +262,7 @@ export function TimeBadge({
 					/>
 				)}
 			</AnimatePresence>
-		</motion.div>
+		</div>
 	);
 }
 
@@ -315,7 +280,7 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 	const [contentWidth, setContentWidth] = useState(0);
 	const [containerWidth, setContainerWidth] = useState(0);
 	const contentRef = useRef<HTMLDivElement>(null);
-	const containerRef = useRef<HTMLDivElement>(null);
+	const containerRef = useRef<HTMLButtonElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
 	const animationRef = useRef<Animation | null>(null);
 	const { environment } = useRevealState();
@@ -480,31 +445,62 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 		};
 	}, [mounted, translateDistance, duration]);
 
-	// SSR hydration safety
-	if (!mounted) {
-		return null;
-	}
-
 	// Swiss Design: Negative Space Separator
 	// Matches the portfolio's 10px rhythm unit.
 	const Separator = () => (
 		<span className="inline-block w-3 shrink-0 select-none" aria-hidden="true" />
 	);
 
+	if (!mounted) {
+		return (
+			<div
+				className={cn(badgeBaseClasses, "overflow-hidden", className)}
+				style={{ height: BADGE_HEIGHT }}
+				role="status"
+				aria-label={`Highlights: ${items.join(", ")}`}
+			>
+				<div className="relative flex h-full w-full items-center overflow-hidden px-2.5">
+					<div className="flex items-center whitespace-nowrap">
+						{items.map((item, index) => (
+							<div
+								key={`${item}-${getDuplicateOrdinal(items, item, index)}`}
+								className="flex items-center"
+							>
+								<span className="cursor-default whitespace-nowrap font-medium text-xs leading-none">
+									{item}
+								</span>
+								{index < items.length - 1 && <Separator />}
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
-		<motion.div
-			initial={shouldBypass ? false : { opacity: 0 }}
-			animate={{ opacity: 1 }}
-			transition={shouldReduce ? tweens.reduced : { ...springs.responsive, delay: 0.05 }}
-			className={cn(badgeBaseClasses, "overflow-hidden", className)}
+		<button
+			type="button"
+			className={cn(
+				badgeBaseClasses,
+				"appearance-none border-0 p-0 text-left overflow-hidden",
+				className,
+			)}
 			style={{ height: BADGE_HEIGHT }}
 			ref={containerRef}
+			aria-label={`Highlights: ${items.join(", ")}`}
 			// Interaction: Set target speed (Physics: Inertia)
 			onMouseEnter={() => {
 				targetSpeedRef.current = 0; // Target stop
 			}}
 			onMouseLeave={() => {
 				targetSpeedRef.current = 1; // Target full speed
+			}}
+			onFocus={() => {
+				targetSpeedRef.current = 0;
+			}}
+			onBlur={() => {
+				targetSpeedRef.current = 1;
 			}}
 		>
 			<div className="relative h-full w-full overflow-hidden px-2.5">
@@ -549,6 +545,6 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 					))}
 				</div>
 			</div>
-		</motion.div>
+		</button>
 	);
 }

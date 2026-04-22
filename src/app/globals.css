@@ -1478,6 +1478,10 @@
 :root {
   --portfolio-rhythm: 0.625rem; /* 10px */
   --portfolio-grid-step: calc(var(--portfolio-rhythm) * 2); /* 20px structural step */
+  --portfolio-hairline-width: 1px;
+  --portfolio-grid-dash: 8px;
+  --portfolio-grid-gap: 8px;
+  --portfolio-chrome-hairline: rgb(15 23 42 / 0.10);
   --portfolio-space-tight: var(--portfolio-rhythm); /* 10px tightly coupled */
   --portfolio-space-related: var(--portfolio-grid-step); /* 20px related group */
   --portfolio-space-group: calc(var(--portfolio-rhythm) * 3); /* 30px content group */
@@ -2191,6 +2195,7 @@ html {
     scrollbar-gutter: stable;
     --app-background: var(--surface-100);
     --instrument-field-bg-auto: #ffffff;
+    --instrument-field-bg-hero: var(--surface-50);
     --instrument-field-bg-inverted: var(--surface-950);
   }
 
@@ -2213,7 +2218,9 @@ body {
   color-scheme: dark;
   --app-background: var(--surface-0);
   --instrument-field-bg-auto: var(--surface-0);
+  --instrument-field-bg-hero: var(--surface-900);
   --instrument-field-bg-inverted: var(--surface-50);
+  --portfolio-chrome-hairline: rgb(248 250 252 / 0.10);
 }
 
 .dark,
@@ -2277,76 +2284,123 @@ button path {
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   LAYOUT UTILITIES: DASHED GEOMETRY
-   
-   High-precision procedural borders for architectural layout markers.
+   LAYOUT UTILITIES: SWISS GRID CHROME
+
+   Server-first structural chrome for boxed layout surfaces.
 ═══════════════════════════════════════════════════════════════════════════ */
 
-.border-dash-b,
-.border-dash-x {
+.portfolio-dashed-frame,
+.portfolio-grid-frame {
   position: relative;
+  isolation: isolate;
 }
 
-/* Horizontal - Bottom border (CENTER-ALIGNED for perfect crosshairs) */
-.border-dash-b::after {
+.portfolio-solid-frame {
+  position: relative;
+  isolation: isolate;
+}
+
+.portfolio-dashed-frame::after,
+.portfolio-grid-frame::after {
   content: "";
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  /* Center-aligned: 768px / 16px = 48 cycles = perfect alignment at edges */
-  background: repeating-linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.1) 0px 8px,
-    transparent 8px 16px
-  );
-  background-position: center;
+  inset: 0;
+  z-index: 10;
   pointer-events: none;
-  z-index: 20;
+  border-radius: inherit;
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--portfolio-chrome-hairline) 0 var(--portfolio-grid-dash),
+      transparent var(--portfolio-grid-dash) calc(var(--portfolio-grid-dash) + var(--portfolio-grid-gap))
+    ),
+    repeating-linear-gradient(
+      to right,
+      var(--portfolio-chrome-hairline) 0 var(--portfolio-grid-dash),
+      transparent var(--portfolio-grid-dash) calc(var(--portfolio-grid-dash) + var(--portfolio-grid-gap))
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--portfolio-chrome-hairline) 0 var(--portfolio-grid-dash),
+      transparent var(--portfolio-grid-dash) calc(var(--portfolio-grid-dash) + var(--portfolio-grid-gap))
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--portfolio-chrome-hairline) 0 var(--portfolio-grid-dash),
+      transparent var(--portfolio-grid-dash) calc(var(--portfolio-grid-dash) + var(--portfolio-grid-gap))
+    );
+  background-position:
+    center top,
+    center bottom,
+    left top,
+    right top;
+  background-repeat: no-repeat;
+  background-size:
+    100% var(--portfolio-hairline-width),
+    100% var(--portfolio-hairline-width),
+    var(--portfolio-hairline-width) 100%,
+    var(--portfolio-hairline-width) 100%;
 }
 
-:is(.dark, [data-theme="dark"]) .border-dash-b::after {
-  background: repeating-linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.1) 0px 8px,
-    transparent 8px 16px
-  );
-  background-position: center;
-}
-
-/* Vertical - Both sides */
-.border-dash-x::before,
-.border-dash-x::after {
+.portfolio-solid-frame::after {
   content: "";
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.1) 0px 8px,
-    transparent 8px 16px
-  );
+  inset: 0;
+  z-index: 10;
   pointer-events: none;
-  z-index: 20;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 var(--portfolio-hairline-width) var(--portfolio-chrome-hairline);
 }
 
-.border-dash-x::before {
-  left: 0;
-}
-
-.border-dash-x::after {
-  right: 0;
-}
-
-:is(.dark, [data-theme="dark"]) .border-dash-x::before,
-:is(.dark, [data-theme="dark"]) .border-dash-x::after {
-  background: repeating-linear-gradient(
+.portfolio-dashed-divider-y {
+  background-image: repeating-linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.1) 0px 8px,
-    transparent 8px 16px
+    var(--portfolio-chrome-hairline) 0 var(--portfolio-grid-dash),
+    transparent var(--portfolio-grid-dash) calc(var(--portfolio-grid-dash) + var(--portfolio-grid-gap))
   );
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: var(--portfolio-hairline-width) 100%;
+}
+
+.portfolio-dashed-divider-x {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--portfolio-chrome-hairline) 0 var(--portfolio-grid-dash),
+    transparent var(--portfolio-grid-dash) calc(var(--portfolio-grid-dash) + var(--portfolio-grid-gap))
+  );
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% var(--portfolio-hairline-width);
+}
+
+.portfolio-solid-divider-y {
+  background-color: var(--portfolio-chrome-hairline);
+  width: var(--portfolio-hairline-width);
+}
+
+.portfolio-solid-divider-x {
+  background-color: var(--portfolio-chrome-hairline);
+  height: var(--portfolio-hairline-width);
+}
+
+.portfolio-grid-row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--portfolio-hairline-width);
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--portfolio-chrome-hairline) 0 var(--portfolio-grid-dash),
+    transparent var(--portfolio-grid-dash) calc(var(--portfolio-grid-dash) + var(--portfolio-grid-gap))
+  );
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% var(--portfolio-hairline-width);
+  pointer-events: none;
+  z-index: 10;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
