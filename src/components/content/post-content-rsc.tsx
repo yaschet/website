@@ -3,6 +3,7 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { Clock } from "@phosphor-icons/react/dist/ssr/Clock";
 import Link from "next/link";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
+import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
@@ -32,6 +33,8 @@ export function PostContentRSC({ post }: PostContentProps) {
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
+				<SiteHeader />
+
 				<section id="post-header" className="w-full">
 					<section className="w-full">
 						<PageContainer className="portfolio-section-top">
@@ -39,25 +42,27 @@ export function PostContentRSC({ post }: PostContentProps) {
 								<SwissGridRow>
 									<div className="portfolio-box-pad">
 										<ModuleContainer className="portfolio-stack-group">
-											<Link
-												href="/blog"
-												className="portfolio-back-link portfolio-kicker"
-											>
-												<ArrowLeft size={14} weight="bold" />
-												<span>Back to Blog</span>
-											</Link>
+											<Reveal delay={0.02}>
+												<Link
+													href="/blog"
+													className="portfolio-back-link portfolio-kicker"
+												>
+													<ArrowLeft size={14} weight="bold" />
+													<span>Back to Blog</span>
+												</Link>
+											</Reveal>
 
 											<div className="portfolio-stack-related">
 												<div className="flex flex-col">
 													<HeadingReveal
 														as="h1"
-														delay={0.08}
+														delay={0.12}
 														className="portfolio-masthead-title text-foreground"
 													>
 														{post.title}
 													</HeadingReveal>
 
-													<Reveal delay={0.14}>
+													<Reveal delay={0.26}>
 														<ProseContainer className="portfolio-article max-w-none">
 															<p className="m-0 text-foreground">
 																{post.description}
@@ -66,7 +71,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 													</Reveal>
 												</div>
 
-												<Reveal delay={0.18}>
+												<Reveal delay={0.34}>
 													<div className="portfolio-inline-meta">
 														<time className="portfolio-caption font-mono text-muted-foreground tabular-nums">
 															{formatDate(post.date)}

@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { type RevealPhase, useRevealState } from "@/src/components/providers/reveal-provider";
-import { distances, tweens } from "@/src/lib/index";
+import { blur, distances, tweens } from "@/src/lib/index";
 import { TextEffectWrapper } from "./text-effect-wrapper";
 
 interface HeadingRevealProps {
@@ -66,9 +66,13 @@ export function HeadingReveal({
 		return (
 			<MotionTag
 				key={`heading-${entryKey}-${delay}`}
-				initial={{ opacity: 0, y: distances.small }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ ...tweens.content, delay }}
+				initial={{ opacity: 0, y: distances.small, filter: blur.subtle }}
+				animate={{ opacity: 1, y: 0, filter: blur.none }}
+				transition={{
+					y: { ...tweens.content, delay },
+					opacity: { ...tweens.content, delay },
+					filter: { ...tweens.interactionSlow, delay },
+				}}
 				className={className}
 				style={style}
 			>

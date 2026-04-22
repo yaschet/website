@@ -32,7 +32,7 @@ export function PageIntro({
 			)}
 		>
 			{eyebrow && (
-				<Reveal delay={0.02}>
+				<Reveal delay={0.04}>
 					<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 						{eyebrow}
 					</p>
@@ -42,14 +42,14 @@ export function PageIntro({
 			<div className={cn("portfolio-stack-related", isCentered && "items-center")}>
 				<HeadingReveal
 					as="h1"
-					delay={0.06}
+					delay={0.1}
 					className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100"
 				>
 					{title}
 				</HeadingReveal>
 
 				{description && (
-					<Reveal delay={0.12}>
+					<Reveal delay={0.22}>
 						<ProseContainer className={cn(isCentered && "mx-auto")}>
 							<p className="portfolio-body-lg text-surface-600 dark:text-surface-400">
 								{description}
@@ -58,7 +58,7 @@ export function PageIntro({
 					</Reveal>
 				)}
 
-				{children && <Reveal delay={0.16}>{children}</Reveal>}
+				{children && <Reveal delay={0.3}>{children}</Reveal>}
 			</div>
 		</div>
 	);

@@ -36,9 +36,13 @@ export function Reveal({ children, delay = 0, className, phase = 1 }: RevealProp
 	return (
 		<motion.div
 			key={`reveal-${entryKey}-${delay}`}
-			initial={{ opacity: 0, y: distances.small }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ ...springs.gentle, delay }}
+			initial={{ opacity: 0, y: distances.small, filter: blur.subtle }}
+			animate={{ opacity: 1, y: 0, filter: blur.none }}
+			transition={{
+				y: { ...springs.gentle, delay },
+				opacity: { ...tweens.content, delay },
+				filter: { ...tweens.interactionSlow, delay },
+			}}
 			className={className}
 		>
 			{children}
@@ -100,12 +104,22 @@ export function RevealItem({ children, className }: { children: ReactNode; class
 	return (
 		<motion.div
 			variants={{
-				hidden: { opacity: 0, y: shouldReduceMotion ? 0 : distances.small, filter: blur.subtle },
+				hidden: {
+					opacity: 0,
+					y: shouldReduceMotion ? 0 : distances.small,
+					filter: blur.subtle,
+				},
 				visible: {
 					opacity: 1,
 					y: 0,
 					filter: blur.none,
-					transition: shouldReduceMotion ? tweens.reduced : springs.responsive,
+					transition: shouldReduceMotion
+						? tweens.reduced
+						: {
+								y: springs.responsive,
+								opacity: tweens.content,
+								filter: tweens.interactionSlow,
+							},
 				},
 			}}
 			className={className}

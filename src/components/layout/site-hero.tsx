@@ -23,13 +23,13 @@ export function SiteHero() {
 					<div className="portfolio-stack-related">
 						<HeadingReveal
 							as="h1"
-							delay={0.04}
+							delay={0.08}
 							className="portfolio-heading-xl portfolio-capsize-heading-xl w-fit max-w-full text-surface-800 dark:text-surface-100"
 							style={{ margin: 0 }}
 						>
 							Complex systems, clean interfaces.
 						</HeadingReveal>
-						<Reveal delay={0.12}>
+						<Reveal delay={0.22}>
 							<p
 								className="portfolio-body-lg text-surface-700 dark:text-surface-300"
 								style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
@@ -41,7 +41,7 @@ export function SiteHero() {
 							</p>
 						</Reveal>
 					</div>
-					<Reveal delay={0.18}>
+					<Reveal delay={0.32}>
 						<div className="portfolio-control-row pointer-events-auto">
 							<Link
 								href="/case-studies"
