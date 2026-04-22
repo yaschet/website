@@ -197,6 +197,8 @@ export function FloatingNav() {
 
 								<HoverTooltip
 									visible={currentTab === item.link && hoveredTab === item.link}
+									offset="mb-[var(--portfolio-overlay-gap)]"
+									className="-translate-y-[var(--portfolio-space-tight)]"
 								>
 									{item.name}
 								</HoverTooltip>
@@ -266,7 +268,13 @@ export function FloatingNav() {
 							weight="regular"
 						/>
 					</motion.div>
-					<HoverTooltip visible={isThemeHovered}>Theme</HoverTooltip>
+					<HoverTooltip
+						visible={isThemeHovered}
+						offset="mb-[var(--portfolio-overlay-gap)]"
+						className="-translate-y-[var(--portfolio-space-tight)]"
+					>
+						Theme
+					</HoverTooltip>
 				</motion.button>
 			</motion.nav>
 		</div>
