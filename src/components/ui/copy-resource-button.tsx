@@ -11,6 +11,7 @@ interface CopyResourceButtonProps {
 	label: string;
 	copiedLabel?: string;
 	className?: string;
+	variant?: "button" | "badge";
 }
 
 type CopyState = "idle" | "loading" | "copied" | "error";
@@ -51,6 +52,7 @@ export function CopyResourceButton({
 	label,
 	copiedLabel = "Copied",
 	className,
+	variant = "button",
 }: CopyResourceButtonProps) {
 	const [state, setState] = useState<CopyState>("idle");
 
@@ -84,17 +86,23 @@ export function CopyResourceButton({
 	const isCopied = state === "copied";
 	const isError = state === "error";
 	const visibleLabel = isLoading ? "Copying" : isCopied ? copiedLabel : isError ? "Retry" : label;
+	const isBadge = variant === "badge";
 
 	return (
 		<Button
 			type="button"
-			size="sm"
+			size={isBadge ? "xs" : "sm"}
 			variant="outlined"
 			color="default"
 			onClick={handleCopy}
 			disabled={isLoading}
 			aria-live="polite"
-			className={cn("min-w-[8.5rem]", className)}
+			className={cn(
+				isBadge
+					? "h-[var(--portfolio-badge-height)] border-surface-200/80 bg-white/95 px-[var(--portfolio-badge-inset)] shadow-lg shadow-surface-900/5 dark:border-surface-800/80 dark:bg-surface-950/95 dark:shadow-surface-950/50"
+					: "min-w-[8.5rem]",
+				className,
+			)}
 		>
 			{isLoading ? (
 				<Spinner size="xs" color="default" />
@@ -105,7 +113,9 @@ export function CopyResourceButton({
 			) : (
 				<Copy size={14} weight="bold" />
 			)}
-			{visibleLabel}
+			<span className={cn(isBadge && "inline-block min-w-[13ch] text-left")}>
+				{visibleLabel}
+			</span>
 		</Button>
 	);
 }

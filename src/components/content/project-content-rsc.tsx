@@ -37,7 +37,7 @@ function ProjectMasthead({
 
 	return (
 		<div className="w-full">
-			<div className="portfolio-stack-group">
+			<div className="portfolio-stack-group items-stretch">
 				<Reveal delay={revealSequence.backLink}>
 					<Link href="/case-studies" className="portfolio-back-link portfolio-kicker">
 						<ArrowLeft size={14} weight="bold" />
@@ -45,14 +45,14 @@ function ProjectMasthead({
 					</Link>
 				</Reveal>
 
-				<div className="portfolio-stack-related">
+				<div className="portfolio-case-study-hero">
 					<Reveal delay={revealSequence.kicker}>
 						<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 							Case study · {formatDate(project.date)}
 						</p>
 					</Reveal>
 
-					<div className="flex flex-col">
+					<div className="flex flex-col items-center">
 						<HeadingReveal
 							as="h1"
 							delay={revealSequence.headingLate}
@@ -62,15 +62,15 @@ function ProjectMasthead({
 						</HeadingReveal>
 
 						<Reveal delay={revealSequence.bodyLate}>
-							<ProseContainer className="portfolio-article max-w-none">
+							<ProseContainer className="portfolio-case-study-lede">
 								<p className="m-0">{projectLede}</p>
 							</ProseContainer>
 						</Reveal>
 					</div>
 
 					<Reveal delay={revealSequence.meta}>
-						<div className="portfolio-inline-meta">
-							<span className="portfolio-caption flex items-center gap-(--portfolio-space-tight) font-mono text-muted-foreground">
+						<div className="portfolio-inline-meta justify-center">
+							<span className="portfolio-badge-label flex h-[var(--portfolio-badge-height)] items-center gap-[var(--portfolio-control-gap)] border border-transparent px-[var(--portfolio-badge-inset)] text-muted-foreground">
 								<Clock size={12} weight="bold" />
 								{project.readingTime} min read
 							</span>
@@ -83,6 +83,7 @@ function ProjectMasthead({
 								href={`/case-studies/${project.slug}.md`}
 								label="Copy Markdown"
 								copiedLabel="Copied Markdown"
+								variant="badge"
 							/>
 						</div>
 					</Reveal>
@@ -90,7 +91,7 @@ function ProjectMasthead({
 			</div>
 
 			{galleryItems.length > 0 && !project.hideCoverGallery && (
-				<div className="mt-(--portfolio-space-major)">
+				<div className="mt-[var(--portfolio-space-4)]">
 					<MediaGallery
 						items={galleryItems}
 						altPrefix={project.title}
@@ -114,6 +115,13 @@ function ProjectMasthead({
  */
 export function ProjectContentRSC({ project }: ProjectContentProps) {
 	const galleryItems = getProjectCoverMedia(project);
+	const projectFacts = [
+		project.role ? { label: "Role", value: project.role } : null,
+		project.status ? { label: "Status", value: project.status } : null,
+		project.domain ? { label: "Domain", value: project.domain } : null,
+	].filter((fact): fact is { label: string; value: string } => fact !== null);
+	const projectStack = project.stack?.length ? project.stack : (project.tech ?? []);
+	const projectStackLabel = project.stack?.length ? "Engine Stack" : "Technologies";
 
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
@@ -136,45 +144,28 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 							<SwissGridRow>
 								<Reveal phase={2} delay={0.04} className="w-full">
 									<div className="portfolio-box-pad">
-										<ModuleContainer className="portfolio-stack-group">
-											<div className="grid grid-cols-1 gap-(--portfolio-space-group) sm:grid-cols-3">
-												{project.role && (
-													<div className="portfolio-card-copy">
+										<ModuleContainer className="portfolio-stack-related">
+											<div className="portfolio-project-facts">
+												{projectFacts.map((fact) => (
+													<div
+														key={fact.label}
+														className="portfolio-project-fact"
+													>
 														<span className="portfolio-meta-label text-muted-foreground">
-															Role
+															{fact.label}
 														</span>
 														<span className="portfolio-meta-value text-foreground">
-															{project.role}
+															{fact.value}
 														</span>
 													</div>
-												)}
-												{project.status && (
-													<div className="portfolio-card-copy">
+												))}
+												{projectStack.length > 0 && (
+													<div className="portfolio-project-fact portfolio-project-fact-stack">
 														<span className="portfolio-meta-label text-muted-foreground">
-															Status
-														</span>
-														<span className="portfolio-meta-value text-foreground">
-															{project.status}
-														</span>
-													</div>
-												)}
-												{project.domain && (
-													<div className="portfolio-card-copy">
-														<span className="portfolio-meta-label text-muted-foreground">
-															Domain
-														</span>
-														<span className="portfolio-meta-value text-foreground">
-															{project.domain}
-														</span>
-													</div>
-												)}
-												{project.stack && project.stack.length > 0 && (
-													<div className="portfolio-card-copy sm:col-span-3">
-														<span className="portfolio-meta-label text-muted-foreground">
-															Engine Stack
+															{projectStackLabel}
 														</span>
 														<div className="flex flex-wrap gap-(--portfolio-space-tight)">
-															{project.stack.map((item) => (
+															{projectStack.map((item) => (
 																<span
 																	key={item}
 																	className="portfolio-chip"
@@ -185,25 +176,6 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 														</div>
 													</div>
 												)}
-												{!project.stack &&
-													project.tech &&
-													project.tech.length > 0 && (
-														<div className="portfolio-card-copy sm:col-span-3">
-															<span className="portfolio-meta-label text-muted-foreground">
-																Technologies
-															</span>
-															<div className="flex flex-wrap gap-(--portfolio-space-tight)">
-																{project.tech.map((tech) => (
-																	<span
-																		key={tech}
-																		className="portfolio-chip"
-																	>
-																		{tech}
-																	</span>
-																))}
-															</div>
-														</div>
-													)}
 											</div>
 
 											{(project.url || project.github) && (
