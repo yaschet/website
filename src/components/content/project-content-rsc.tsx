@@ -3,11 +3,12 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { Clock } from "@phosphor-icons/react/dist/ssr/Clock";
 import Link from "next/link";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
-import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteFooter } from "@/src/components/layout/site-footer";
+import { SiteHeader } from "@/src/components/layout/site-header";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { Button } from "@/src/components/ui/button";
+import { CopyResourceButton } from "@/src/components/ui/copy-resource-button";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
@@ -15,7 +16,7 @@ import {
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
 import { MediaGallery } from "@/src/components/ui/media-gallery";
-import { Reveal, ScrollReveal, revealSequence } from "@/src/components/ui/reveal";
+import { Reveal, revealSequence, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { ProjectEntry } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
@@ -78,6 +79,11 @@ function ProjectMasthead({
 									Featured
 								</span>
 							)}
+							<CopyResourceButton
+								href={`/case-studies/${project.slug}.md`}
+								label="Copy Markdown"
+								copiedLabel="Copied Markdown"
+							/>
 						</div>
 					</Reveal>
 				</div>
