@@ -1,5 +1,8 @@
 packages:
   - .
+overrides:
+  # GHSA-mw96-cpmx-2vgc: constrain an older Storybook optional peer to patched Rollup 4.
+  "rollup@<4.59.0": "^4.59.0"
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver

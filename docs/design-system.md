@@ -2,12 +2,41 @@
 
 > **Single Source of Truth for UI/UX decisions.**
 
-## Core Principles
+## Relationship To Other Yaschet Products
+
+The public portfolio and Private Office are different products in one brand.
+Keep their repositories, runtime components, and releases independent. The
+website must build from its own checkout without access to private packages.
+
+| Foundation | Portfolio application |
+| --- | --- |
+| Space Grotesk | Public copy and editorial hierarchy; owned by `src/lib/fonts.ts` |
+| Space Mono | Code and technical metadata; not a substitute for readable body copy |
+| Sharp geometry and 4px spacing baseline | Shared visual principles, adapted to public page composition |
+| Swiss grid and aligned keylines | Responsive editorial layout, rather than dense workspace chrome |
+| Contrast, focus, keyboard access, reduced motion | Required interaction principles in both products |
+| Palette, type scale, density, navigation | Portfolio-owned; do not copy private application defaults |
+
+The existing website already shares the two type families and geometric
+principles. This is deliberate brand alignment, not automatic token
+synchronization. Runtime colors and component APIs remain independent.
+
+`src/app/globals.css` owns the current website tokens and layout roles;
+`src/lib/physics.ts` owns motion presets; Storybook renders the same runtime
+styles. Review these implementations alongside this document. Do not import a
+private stylesheet or reproduce application controls across public pages.
+
+If repeated work demonstrates a stable need, extract a small, reviewed public
+brand package containing only fonts/assets and foundational tokens. Version it
+and update consumers explicitly. A shared component library or repository move
+is not a prerequisite for improving the portfolio.
+
+## Portfolio Principles
 
 The design follows a **minimalist, grid-based** approach.
 
 - **Swiss Grid**: Strict adherence to the 12-column grid.
-- **Physics Motion**: Animations use spring physics constants from `src/lib/physics.ts`.
+- **Motion**: Animations use the spring and duration/easing presets in `src/lib/physics.ts`.
 - **Monochromatic**: Emphasis on contrast and typography over color.
 
 ## Strict Rules
@@ -29,7 +58,9 @@ The design follows a **minimalist, grid-based** approach.
 
 ### 4. 2D Motion
 - **Rule**: Animations should feel like 2D objects with mass and friction.
-- **Implementation**: Use `spring` transitions, not linear or ease-in-out duration-based animations.
+- **Implementation**: Use the existing presets in `src/lib/physics.ts`. Springs
+  serve physical movement; existing duration/easing presets serve reveals and
+  color changes. Respect reduced motion and keep essential content visible.
 
 ## Architectural Standards
 

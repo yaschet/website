@@ -1,43 +1,39 @@
-# AGENTS.md
+# Website Agent Contract
 
-## Project Overview
+This is Yassine Chettouch's public portfolio repository. Work stays inside this repository unless the owner expands the task. Preserve existing uncommitted work and inspect the diff before editing or committing.
 
-Personal portfolio for Yassine Chettouch, built with Next.js App Router, React, TypeScript, MDX content, Tailwind CSS, and Vercel-oriented performance guardrails.
+## Read First
 
-## Setup Commands
+- `docs/engineering-standards.md`: source ownership, types, requests, and checks.
+- `docs/design-system.md`: portfolio design and brand relationship.
+- `package.json`: installed toolchain and executable commands.
 
-- Install dependencies: `pnpm install`
-- Start development server: `pnpm dev`
-- Build production app: `pnpm build`
-- Run production server after build: `pnpm start`
-- Run lint and type checks: `pnpm verify`
-- Run performance and endpoint tests: `pnpm test:e2e`
+These checked-in documents govern the work. Private skills are optional aids; contributors must be able to build and verify without them.
 
-## Code Style
+## Public Boundary
 
-- Use TypeScript strict patterns and existing local abstractions.
-- Prefer Server Components and server-only utilities for content, metadata, and generated text routes.
-- Keep client components small and interaction-focused.
-- Use existing UI primitives from `src/components/ui` and layout primitives from `src/components/layout`.
-- Do not introduce broad visual redesigns while making infrastructure or content changes.
+- Never copy private application source, personal records, credentials, client exchanges, or internal documentation into this repository.
+- Do not import sibling repositories or add local `file:`/`workspace:` dependencies.
+- Use reviewed public assets and evidence. Preserve confidential work boundaries.
+- Keep secrets server-side; `NEXT_PUBLIC_*` values are public build output.
+- `pnpm check:repository` checks filenames and imports, not arbitrary secret values or Git history. It does not replace secret scanning or human diff review.
 
-## Content Rules
+## Working Rules
 
-- Public case studies live in `content/projects/*.mdx`.
-- Do not manually duplicate public case-study prose into generated Markdown routes.
-- AI-readable Markdown surfaces must be generated from the MDX source of truth.
-- If a new custom MDX component is added to case studies, update the AI Markdown serializer or keep the generated route failing closed.
+- Keep routes thin and content/metadata server-rendered. Put interactions in small client components; reuse existing UI and layout primitives.
+- Use strict TypeScript, explicit type imports, named reusable exports, runtime validation at external boundaries, and kebab-case authored filenames.
+- Follow Biome's existing tabs. Keep a formatting migration separate from behavior changes.
+- Do not apply a broad redesign during infrastructure or content maintenance.
+- MDX in `content/projects/` owns case-study prose. Generate Markdown from that source. New MDX components need serializer support or must fail closed.
+- Keep LCP content server-rendered, media dimensions stable, and heavy effects deferred. Fetch full Markdown only after copy intent.
+- Review production modules above roughly 500 lines for mixed responsibilities; do not split cohesive code at arbitrary line counts.
 
-## Verification
+## Verification And Release
 
-- Run `pnpm verify` after code changes.
-- Run `pnpm build` before testing production performance.
-- Run `pnpm test:e2e` when changing routes, sitemap behavior, public content, or performance-sensitive UI.
-- Verify browser-facing UI on `localhost:3000` when changing visible components.
-
-## Performance Constraints
-
-- Keep LCP-sensitive content server-rendered.
-- Do not ship full Markdown bodies to the browser for copy features; fetch them only after user intent.
-- Avoid adding generated Markdown routes to the visual sitemap performance loop unless tests are updated to treat text routes separately.
-- Keep media lazy-loading and layout dimensions stable.
+- `pnpm verify` checks boundaries, lint/format, and types without rewriting source.
+- `pnpm fix` explicitly writes source; inspect its diff.
+- Run `pnpm quality` for release candidates: verify, dependency audit, production build, browser/HTTP tests, and Storybook build.
+- Review visible changes in a real browser on `localhost:3000`, including mobile, both themes, keyboard focus, and reduced motion where relevant.
+- Never send a real contact email as a test without explicit authorization.
+- Use the configured Git workflow (GitButler in a managed workspace). Keep changes scoped and review the public diff. Do not push, merge, or deploy incidentally during local maintenance. Inspect actual CI/deployment mappings before release.
+- Report what passed, failed, remains, and whether anything was deployed. A build does not prove delivery, accessibility, or field performance.

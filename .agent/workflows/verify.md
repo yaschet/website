@@ -1,17 +1,9 @@
 ---
-description: Verify codebase health (Format, Lint, Typecheck)
+description: Verify repository, lint, types, dependencies, builds, and browser checks
 ---
 
-# Verification Workflow
+# Verification
 
-Run this workflow after making changes to ensure the codebase remains in an elite state.
-
-1.  **Format and Typecheck**
-    -   Run the combined verification script.
-    -   // turbo
-    -   `pnpm verify`
-
-2.  **Analyze Results**
-    -   If `pnpm verify` fails, YOU MUST FIX THE ERRORS.
-    -   Do not ask for permission to fix linting or type errors caused by your changes.
-    -   Repeat step 1 until it passes.
+Run `pnpm verify` after edits. Fix failures and inspect the diff.
+Run `pnpm quality` for a release candidate. Report the actual results and limitations.
+Verification does not authorize deployment or sending a real email.

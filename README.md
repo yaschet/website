@@ -1,65 +1,42 @@
 # Yaschet's Website
 
-![Website Home Page Mockup](public/images/screenshots/home-page-mockup.png)
+Yassine Chettouch's public portfolio: selected work, case studies, writing, and contact paths. Built with Next.js App Router, React, strict TypeScript, Tailwind CSS v4, and MDX compiled through `@next/mdx`.
 
-**Software Engineer Website**. Built with Next.js 16, Tailwind CSS v4, and TypeScript. Focused on performance, type safety, and rigorous design constraints.
+Server-rendered content and metadata, generated Markdown resources, Space Grotesk/Space Mono typography, and a responsive Swiss grid form the foundation. Storybook is the component workshop. Exact versions live in [`package.json`](package.json) and the lockfile.
 
-## Tech Stack
+## Development
 
-High-performance stack enforcing type safety and layout stability.
+Use Node 24 (the CI baseline) and the pinned pnpm version.
 
-| Domain | Technology | Rationale |
-| :--- | :--- | :--- |
-| **Framework** | **Next.js 16.1** | App Router, React Server Components (RSC), Turbopack. |
-| **Styling** | **Tailwind CSS v4** | Zero-runtime CSS, OKLCH color spaces, CSS Variables. |
-| **Language** | **TypeScript 5** | Strict Mode, Zod validation for all data boundaries. |
-| **Content** | **Contentlayer2** | Type-safe MDX content pipeline. |
-| **Motion** | **Framer Motion 12** | Physics-based animations and shared layout transitions. |
-| **State** | **TanStack Query** | Server-state management with optimistic UI patterns. |
-| **Tooling** | **Biome** | Rust-based high-performance linter and formatter. |
-
-## Key Features
-
-- **Strict Design System**: Custom 12-column grid system with fixed typography scales.
-- **Type Safety**: End-to-end type safety from database to UI components.
-- **Performance**: Optimized for Core Web Vitals with zero layout shift.
-- **Verification**: automated formatting and type checking via `pnpm verify`.
-
-## Project Structure
-
-```bash
-├── content/              # MDX Data Source (Projects, Case Studies)
-├── docs/                 # Engineering Guidelines (Single Source of Truth)
-│   ├── AI_GUIDELINES.md  # Rules for AI Agents
-│   └── design-system.md  # Design constraints & tokens
-├── public/               # Static Assets
-├── src/
-│   ├── app/              # Next.js App Router (Routes & Layouts)
-│   ├── components/
-│   │   ├── features/     # Domain-specific components (e.g., ContactForm)
-│   │   ├── forms/        # Form logic & Zod schemas
-│   │   ├── layout/       # Structural shell (Header, Footer, Hero)
-│   │   └── ui/           # Design System Primitives (Button, Input)
-│   └── lib/              # Utilities (Physics, Fonts, Schemas)
-└── tailwind.config.ts    # Design Tokens & Theme Configuration
-```
-
-## Local Development
-
-```bash
-# Install dependencies
-pnpm install
-
-# Run development server (Turbopack)
+```sh
+pnpm install --frozen-lockfile
+cp .env.example .env.local
+# Configure local application URL and email credentials if needed.
 pnpm dev
-
-# Verify codebase health (Typecheck + Lint)
-pnpm verify
-
-# Build for production
-pnpm build
 ```
 
-## License
+Environment files stay local. `NEXT_PUBLIC_*` values appear in browser output. CI uses an inert email-key fixture for compilation; it does not send messages or verify delivery.
 
-Licensed under the MIT License. Check the [LICENSE](LICENSE) file for details.
+```sh
+pnpm verify          # Read-only repository, lint/format, and type checks
+pnpm fix             # Apply safe Biome fixes; inspect the diff
+pnpm quality         # Verify, audit, build, browser tests, Storybook build
+pnpm storybook       # Component workshop on port 6006
+```
+
+`pnpm test:e2e` expects a production build and starts `next start` on port 3000. Install browsers with `pnpm exec playwright install chromium webkit`.
+
+## Source And Contracts
+
+- [`AGENTS.md`](AGENTS.md): contributor and agent entry point.
+- [`Engineering standards`](docs/engineering-standards.md): ownership and verification.
+- [`Design system`](docs/design-system.md): portfolio foundations and brand boundaries.
+- `src/app/`: routes, metadata, generated text responses.
+- `src/components/`: layout, UI, forms, MDX rendering.
+- `src/content/`: server content pipeline and Markdown serialization.
+- `content/projects/`: case studies; source of truth for generated Markdown.
+- `e2e/`: browser and HTTP checks.
+
+This is an independent public repository with no runtime dependency on a private application. It shares brand principles with other Yaschet products and owns its public experience and release lifecycle.
+
+Local checks, CI, preview acceptance, and production deployment are separate evidence. See [LICENSE](LICENSE) for licensing.

@@ -22,7 +22,7 @@ import { getListedPublicProjectSummaries } from "@/src/content/registry";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 export const metadata: Metadata = {
-	title: "Case Studies | Yassine Chettouch",
+	title: "Case Studies",
 	description:
 		"Selected case studies in product engineering, systems work, and shipped software.",
 	alternates: {

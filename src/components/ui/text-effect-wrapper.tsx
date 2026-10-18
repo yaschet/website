@@ -394,13 +394,11 @@ export function TextEffectWrapper({
 
 	const _baseDuration = 0.3 / speedSegment;
 
-	const customStagger = hasTransition(variants?.container?.visible ?? {})
-		? (variants?.container?.visible as TargetAndTransition).transition?.staggerChildren
-		: undefined;
-
-	const customDelay = hasTransition(variants?.container?.visible ?? {})
-		? (variants?.container?.visible as TargetAndTransition).transition?.delayChildren
-		: undefined;
+	const visibleVariant = variants?.container?.visible;
+	const customTransition =
+		visibleVariant && hasTransition(visibleVariant) ? visibleVariant.transition : undefined;
+	const customStagger = customTransition?.staggerChildren;
+	const customDelay = customTransition?.delayChildren;
 
 	const computedVariants = {
 		container: createVariantsWithTransition(variants?.container || baseVariants.container, {

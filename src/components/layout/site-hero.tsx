@@ -35,9 +35,9 @@ export function SiteHero() {
 								style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
 							>
 								I build CRMs, billing systems, document workflows, and{" "}
-								<span className="whitespace-nowrap">AI pipelines</span> that
-								replace manual work. Internal tools and SaaS for small
-								businesses, made to feel simple to use.
+								<span className="whitespace-nowrap">AI pipelines</span> that replace
+								manual work. Internal tools and SaaS for small businesses, made to
+								feel simple to use.
 							</p>
 						</Reveal>
 					</div>

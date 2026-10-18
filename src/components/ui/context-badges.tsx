@@ -328,9 +328,6 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 	const containerRef = useRef<HTMLButtonElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
 	const animationRef = useRef<Animation | null>(null);
-	const { environment } = useRevealState();
-	const shouldBypass = environment === "automation";
-	const shouldReduce = environment === "reduced-motion";
 
 	// Physics State
 	const speedRef = useRef(0); // Start at 0 for "Boot Sequence" overlap
@@ -528,7 +525,7 @@ export function MarqueeBadge({ items, className }: { items: string[]; className?
 			type="button"
 			className={cn(
 				badgeBaseClasses,
-				"appearance-none border-0 p-0 text-left overflow-hidden",
+				"appearance-none overflow-hidden border-0 p-0 text-left",
 				className,
 			)}
 			style={{ height: BADGE_HEIGHT }}
