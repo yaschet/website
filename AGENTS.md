@@ -6,6 +6,7 @@ This is Yassine Chettouch's public portfolio repository. Work stays inside this 
 
 - `docs/engineering-standards.md`: source ownership, types, requests, and checks.
 - `docs/design-system.md`: portfolio design and brand relationship.
+- `docs/version-control.md`: branch names, commit/PR tone, and checkpoint rules.
 - `package.json`: installed toolchain and executable commands.
 
 These checked-in documents govern the work. Private skills are optional aids; contributors must be able to build and verify without them.
