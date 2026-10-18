@@ -40,6 +40,7 @@ const nextConfig: NextConfig = {
 	partialPrefetching: false,
 
 	experimental: {
+		serverActions: { bodySizeLimit: "16kb" },
 		optimizePackageImports: [
 			"@phosphor-icons/react",
 			"lucide-react",

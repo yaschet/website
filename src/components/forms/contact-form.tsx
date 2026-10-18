@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
+import { type ChangeEvent, useRef } from "react";
 import { toast } from "sonner";
 import { submitContactForm } from "@/src/app/actions/contact";
 import { Button } from "@/src/components/ui/button";
@@ -10,9 +11,29 @@ import { Label } from "@/src/components/ui/form/label";
 import { Textarea } from "@/src/components/ui/form/textarea";
 import { type ContactFormValues, contactSchema } from "@/src/lib/schemas/contact";
 
-/**
- * A reusable field component to reduce JSX repetition in the contact form.
- */
+interface ContactField {
+	name: keyof ContactFormValues;
+	state: {
+		value: string;
+		meta: { isTouched: boolean; errors: readonly unknown[] };
+	};
+	handleBlur: () => void;
+	handleChange: (value: string) => void;
+}
+
+function fieldError(error: unknown): string {
+	if (typeof error === "string") return error;
+	if (
+		error &&
+		typeof error === "object" &&
+		"message" in error &&
+		typeof error.message === "string"
+	)
+		return error.message;
+	return "Please check this field.";
+}
+
+/** Only the string field contract needed by the existing presentation. */
 function FormField({
 	field,
 	label,
@@ -20,14 +41,26 @@ function FormField({
 	type = "text",
 	isTextArea = false,
 }: {
-	// biome-ignore lint/suspicious/noExplicitAny: Tanstack Form's FieldApi has high type overhead (23+ generics).
-	field: any;
+	field: ContactField;
 	label: string;
 	placeholder: string;
-	type?: string;
+	type?: "text" | "email";
 	isTextArea?: boolean;
 }) {
-	const Comp = isTextArea ? Textarea : Input;
+	const hasError = field.state.meta.isTouched && field.state.meta.errors.length > 0;
+	const controlProps = {
+		id: field.name,
+		name: field.name,
+		value: field.state.value,
+		onBlur: field.handleBlur,
+		onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+			field.handleChange(event.target.value),
+		placeholder,
+		hasError,
+		"aria-invalid": hasError,
+		"aria-describedby": hasError ? `${field.name}-error` : undefined,
+		maxLength: { name: 100, email: 254, subject: 200, message: 2000 }[field.name],
+	};
 
 	return (
 		<div className="group portfolio-stack-tight">
@@ -37,22 +70,17 @@ function FormField({
 			>
 				{label}
 			</Label>
-			<Comp
-				id={field.name}
-				name={field.name}
-				// biome-ignore lint/suspicious/noExplicitAny: Input type alignment
-				type={type as any}
-				value={field.state.value}
-				onBlur={field.handleBlur}
-				// biome-ignore lint/suspicious/noExplicitAny: Event type alignment
-				onChange={(e: any) => field.handleChange(e.target.value)}
-				placeholder={placeholder}
-				size={isTextArea ? undefined : "md"}
-				hasError={field.state.meta.isTouched && !!field.state.meta.errors.length}
-			/>
-			{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-				<p className="portfolio-caption font-medium text-destructive">
-					{field.state.meta.errors[0]?.message ?? String(field.state.meta.errors[0])}
+			{isTextArea ? (
+				<Textarea {...controlProps} />
+			) : (
+				<Input {...controlProps} type={type} size="md" />
+			)}
+			{hasError && (
+				<p
+					id={`${field.name}-error`}
+					className="portfolio-caption font-medium text-destructive"
+				>
+					{fieldError(field.state.meta.errors[0])}
 				</p>
 			)}
 		</div>
@@ -60,28 +88,32 @@ function FormField({
 }
 
 /**
- * Interactive contact form with TanStack Form integration.
- * Optimized for architectural simplicity and minimal JSX repetition.
+ * Retains failed drafts and a stable retry identifier. No automatic write retries.
  */
 export function ContactForm() {
+	const website = useRef<HTMLInputElement>(null);
+	const submissionId = useRef<string | null>(null);
+	const submissionPending = useRef(false);
+	const defaultValues: ContactFormValues = { name: "", email: "", subject: "", message: "" };
 	const form = useForm({
-		defaultValues: {
-			name: "",
-			email: "",
-			subject: "",
-			message: "",
-		} as ContactFormValues,
+		defaultValues,
 		onSubmit: async ({ value }) => {
 			try {
-				const result = await submitContactForm(value);
+				submissionId.current ??= crypto.randomUUID();
+				const result = await submitContactForm({
+					values: value,
+					website: website.current?.value ?? "",
+					submissionId: submissionId.current,
+				});
 				if (result.success) {
 					toast.success("Message Sent", {
 						description: "I'll get back to you as soon as possible.",
 					});
 					form.reset();
+					submissionId.current = null;
 				} else {
 					toast.error("Failed to Send", {
-						description: result.error || "Please try again later.",
+						description: result.error,
 					});
 				}
 			} catch (_error) {
@@ -97,13 +129,32 @@ export function ContactForm() {
 
 	return (
 		<form
-			onSubmit={(e) => {
+			onSubmit={async (e) => {
 				e.preventDefault();
 				e.stopPropagation();
-				form.handleSubmit();
+				// Guard the submit event too: Enter/programmatic submits bypass the button.
+				if (submissionPending.current) return;
+				submissionPending.current = true;
+				try {
+					await form.handleSubmit();
+				} finally {
+					submissionPending.current = false;
+				}
 			}}
 			className="portfolio-stack-section"
 		>
+			<div hidden aria-hidden="true">
+				<label htmlFor="contact-website">Website</label>
+				<input
+					ref={website}
+					id="contact-website"
+					name="website"
+					type="text"
+					tabIndex={-1}
+					autoComplete="off"
+					maxLength={200}
+				/>
+			</div>
 			<div className="grid gap-[var(--portfolio-space-section)] sm:grid-cols-2">
 				<form.Field name="name">
 					{(field) => <FormField field={field} label="Name" placeholder="John Doe" />}
@@ -134,9 +185,12 @@ export function ContactForm() {
 			</form.Field>
 
 			<form.Subscribe
-				selector={(state) => [state.canSubmit, state.isSubmitting] as [boolean, boolean]}
+				selector={(state) => ({
+					canSubmit: state.canSubmit,
+					isSubmitting: state.isSubmitting,
+				})}
 			>
-				{([canSubmit, isSubmitting]) => (
+				{({ canSubmit, isSubmitting }) => (
 					<Button
 						type="submit"
 						size="md"

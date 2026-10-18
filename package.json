@@ -17,12 +17,13 @@
 		"check:repository": "node scripts/check-repository.mjs",
 		"verify": "pnpm check:repository && pnpm lint && pnpm typecheck",
 		"audit:dependencies": "pnpm audit --audit-level=high",
-		"quality": "pnpm verify && pnpm audit:dependencies && pnpm build && pnpm test:e2e && pnpm build-storybook",
+		"quality": "pnpm verify && pnpm audit:dependencies && pnpm test:unit && pnpm build && pnpm test:e2e && pnpm build-storybook",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build",
 		"analyze": "ANALYZE=true pnpm build",
 		"test:e2e": "playwright test",
-		"prepare": "husky"
+		"prepare": "husky",
+		"test:unit": "playwright test --config playwright.unit.config.ts"
 	},
 	"dependencies": {
 		"@capsizecss/core": "^4.1.3",

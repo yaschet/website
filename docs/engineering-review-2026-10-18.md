@@ -64,12 +64,12 @@ Use the lockfile and recorded check results for the final installed state.
 5. Verify actual GitHub branch protection/secret-scanning settings and deployment
    mappings before release. Workflow files do not configure those host settings.
 
-The public contact page renders the form. It has runtime validation and pending
-UI, but the inspected server action has no application rate limit or anti-bot
-check. Prioritize abuse controls before promoting the next release; provider or
-host protections were not verified. The form's existing suppressed `any` types
-also need replacement with a small field contract. Do not claim email delivery
-without an explicitly authorized delivery test.
+The contact follow-up replaces the suppressed `any` types with a small field
+contract and adds shared address/email/global quotas, a hidden bot trap, bounded
+input and action bodies, same-origin checks, safe failures, and idempotent email
+requests. See `docs/contact-form.md` for exact limits and tradeoffs. Preview and
+production require Redis credentials and a hashing secret before release;
+provider connectivity and delivery have not been verified. No real email was sent.
 
 ## Remaining Dependency Work
 
@@ -128,3 +128,37 @@ After removal, `pnpm verify` passed without warnings and the production build
 passed on Node 24. All 16 generated HTML files retained identical icon links.
 HTTP checks confirmed the seven public HTML routes still reference the active
 icons, both icon assets return 200, and the removed SVG route returns 404.
+
+## Contact And Version-Control Follow-Up
+
+The contact policy now has 14 deterministic tests, including installed Upstash
+and Resend adapters with every provider request intercepted. Tests cover input
+and origin validation, each quota, hashed identifiers, trusted address handling,
+missing configuration, timeout/outage rejection, safe errors, and retry keys.
+No real email was sent and no live database was provisioned.
+
+Production-browser checks verified draft retention after a mocked network error
+and an actual missing-configuration response. Repeated submit events while
+pending initially exposed a duplicate path; an explicit submit-event guard now
+keeps one request pending. Exact manual retries retain their UUID. The hidden
+bot-trap discard path verified successful UI reset without email delivery.
+Keyboard order and error descriptions were checked. The form's existing styles
+and layout remain unchanged; desktop/mobile captures in both themes were reviewed
+with reduced motion enabled.
+
+The final Node 24.22.0 quality run passed: repository checks, Biome, TypeScript,
+dependency audit, 14 policy/adapter tests, production build, 12 browser/HTTP tests,
+and Storybook compilation. The documented low KaTeX advisory and upstream
+Storybook warnings remain. Gitleaks found no matches in the 223 candidate text
+files before committing this follow-up. The five pre-existing drafts remain
+byte-identical and excluded from these checkpoints.
+
+`docs/version-control.md` now defines scoped conventional commit/PR titles,
+imperative factual language, commit bodies, semantic branch names, and stack
+dependencies. A commit-message hook, PR template, and CI title check cover syntax.
+Current remote refs were checked: `main` is `00c48aa`, and `release/v2.06` is
+`f4331f6`, three commits ahead. Existing published history was preserved. New work
+uses separate local maintenance, Git-convention, and contact-fix branches stacked
+above that release branch. These are local checkpoints; no push, merge, deployment,
+or host protection change was performed. Redis configuration and deployed
+connectivity/header verification remain release requirements.
