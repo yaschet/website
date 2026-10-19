@@ -12,11 +12,11 @@ import {
 	INSTRUMENT_GRID_MIN_INSET,
 	INSTRUMENT_GRID_STEP,
 } from "@/src/components/ui/instrument-field-metrics";
-import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
+import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export const metadata: Metadata = {
-	title: "Contact | Yassine Chettouch",
+	title: "Contact",
 	description:
 		"Internal systems, workflow software, and customer-facing products where clear interfaces sit on top of heavy logic.",
 	alternates: {

@@ -17,7 +17,7 @@ import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export const metadata: Metadata = {
-	title: "Blog | Yassine Chettouch",
+	title: "Blog",
 	description: "Technical deep-dives and lessons learned from shipping products.",
 	alternates: {
 		canonical: "/blog",

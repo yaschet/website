@@ -32,9 +32,17 @@ export async function generateMetadata(
 	{ params }: ProjectPageProps,
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
+	const { slug } = await params;
+	const [metadata, parentMetadata] = await Promise.all([getProjectMetadata(slug), parent]);
+	return {
+		...metadata,
+		openGraph: { ...parentMetadata.openGraph, ...metadata.openGraph },
+	};
+}
+
+async function getProjectMetadata(slug: string): Promise<Metadata> {
 	"use cache";
 
-	const { slug } = await params;
 	const project = await getPublicProjectSummaryBySlug(slug);
 
 	if (!project) {
@@ -51,9 +59,6 @@ export async function generateMetadata(
 	const ogImage =
 		getFirstPresentableMediaAsset(getProjectCoverMedia(project), project.coverImages) ??
 		"/images/og-image.png";
-	const parentMetadata = await parent;
-	const parentOpenGraph = parentMetadata.openGraph || {};
-
 	return {
 		title: project.title,
 		description: project.description,
@@ -62,7 +67,6 @@ export async function generateMetadata(
 			canonical: `/case-studies/${slug}`,
 		},
 		openGraph: {
-			...parentOpenGraph,
 			title: `${project.title} | Yassine Chettouch`,
 			description: project.description,
 			type: "article",

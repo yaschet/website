@@ -73,6 +73,7 @@ export function FloatingNav() {
 		if (!isMounted) return;
 		if (theme !== "light" && theme !== "dark" && theme !== "system") return;
 
+		// biome-ignore lint/suspicious/noDocumentCookie: Non-sensitive preference needed by server rendering; Cookie Store is not supported in every target browser.
 		document.cookie = `theme=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`;
 	}, [isMounted, theme]);
 
@@ -112,7 +113,7 @@ export function FloatingNav() {
 				animate={isEnabled ? { y: 0, opacity: 1 } : { y: isReduced ? 0 : 20, opacity: 0 }}
 				transition={isReduced ? tweens.reduced : tweens.shell}
 				className={cn(
-					"pointer-events-auto portfolio-solid-frame relative flex items-center p-[var(--portfolio-space-tight)]",
+					"portfolio-solid-frame pointer-events-auto relative flex items-center p-[var(--portfolio-space-tight)]",
 					"bg-surface-950 dark:bg-surface-50",
 					"rounded-(--radius)",
 					"shadow-sm",
@@ -134,6 +135,7 @@ export function FloatingNav() {
 							<li key={item.link} className="relative z-0">
 								<Link
 									href={item.link}
+									aria-label={item.name}
 									onClick={() => setOptimisticTab(item.link)}
 									className={cn(
 										"relative flex items-center justify-center transition-colors duration-200",

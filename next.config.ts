@@ -2,7 +2,6 @@ import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-	// Note: middleware.ts is required for advanced routing/headers even if empty
 	reactCompiler: true,
 	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
 
@@ -37,6 +36,8 @@ const nextConfig: NextConfig = {
 	},
 
 	cacheComponents: true,
+	// Preserve existing link behavior until partial prefetching has a navigation audit.
+	partialPrefetching: false,
 
 	experimental: {
 		optimizePackageImports: [
