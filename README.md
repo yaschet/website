@@ -11,7 +11,7 @@ Use Node 24 (the CI baseline) and the pinned pnpm version.
 ```sh
 pnpm install --frozen-lockfile
 cp .env.example .env.local
-# Configure local application URL and email credentials if needed.
+# Configure local application URL; see docs/contact-form.md for delivery setup.
 pnpm dev
 ```
 
@@ -20,7 +20,8 @@ Environment files stay local. `NEXT_PUBLIC_*` values appear in browser output. C
 ```sh
 pnpm verify          # Read-only repository, lint/format, and type checks
 pnpm fix             # Apply safe Biome fixes; inspect the diff
-pnpm quality         # Verify, audit, build, browser tests, Storybook build
+pnpm test:unit       # Contact policy/adapter tests with intercepted transports
+pnpm quality         # Verify, audit, unit tests, build, browser tests, Storybook
 pnpm storybook       # Component workshop on port 6006
 ```
 
@@ -31,11 +32,14 @@ pnpm storybook       # Component workshop on port 6006
 - [`AGENTS.md`](AGENTS.md): contributor and agent entry point.
 - [`Engineering standards`](docs/engineering-standards.md): ownership and verification.
 - [`Design system`](docs/design-system.md): portfolio foundations and brand boundaries.
+- [`Version control`](docs/version-control.md): branches, commits, PR titles, and descriptions.
+- [`Contact form`](docs/contact-form.md): abuse policy, configuration, and tests.
 - `src/app/`: routes, metadata, generated text responses.
 - `src/components/`: layout, UI, forms, MDX rendering.
 - `src/content/`: server content pipeline and Markdown serialization.
 - `content/projects/`: case studies; source of truth for generated Markdown.
 - `e2e/`: browser and HTTP checks.
+- `tests/`: isolated policy and transport tests.
 
 This is an independent public repository with no runtime dependency on a private application. It shares brand principles with other Yaschet products and owns its public experience and release lifecycle.
 

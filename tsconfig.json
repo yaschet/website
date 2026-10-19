@@ -64,7 +64,9 @@
 		"dist/types/**/*.ts",
 		".storybook/*",
 		".next/types/**/*.ts",
-		".next/dev/types/**/*.ts"
+		".next/dev/types/**/*.ts",
+		"tests/**/*.ts",
+		"e2e/**/*.ts"
 	],
 	"exclude": [
 		"./node_modules",

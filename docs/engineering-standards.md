@@ -32,7 +32,7 @@ Document public helpers and non-obvious invariants with accurate TSDoc: units, m
 
 Prefer server content and local state. Add TanStack Query for real asynchronous interactions. Keys contain every result-affecting criterion; forward cancellation, bound retries, choose freshness intentionally, and avoid unnecessary polling or focus refetches. Measure request counts when changing fetch behavior.
 
-Validate Server Action input independently of UI state. Public contact submission needs deliberate abuse controls before wider exposure. Prevent duplicate submits, retain failed drafts, and do not automatically retry writes without idempotency. Return safe errors and keep provider details and credentials out of browser responses and logs. A real delivery test requires explicit authorization.
+Validate Server Action input independently of UI state. Public contact submission uses the shared limits, failure policy, and configuration in `docs/contact-form.md`. Prevent duplicate submits, retain failed drafts, and do not automatically retry writes without idempotency. Return safe errors and keep provider details and credentials out of browser responses and application logs. A real delivery test requires explicit authorization.
 
 ## Public And Design Boundaries
 
@@ -50,6 +50,7 @@ Keep generated output, environment files, private keys, and research captures ou
 | `pnpm verify` | All three checks above |
 | `pnpm audit:dependencies` | Registry advisories; high/critical findings fail |
 | `pnpm build` | Production compilation and route generation |
+| `pnpm test:unit` | Contact security policy and installed-adapter tests with intercepted transports |
 | `pnpm test:e2e` | Browser/HTTP checks against a built production server |
 | `pnpm build-storybook` | Component workshop compilation |
 | `pnpm quality` | Complete release-candidate sequence |
@@ -62,3 +63,7 @@ The workflow also runs a separate Gitleaks secret-scan job with full checkout
 history. PR comments and finding-artifact uploads are disabled. Secret scanners
 detect known patterns; they do not prove the absence of private information.
 Host branch protection must require the relevant checks before they gate merges.
+
+Follow `docs/version-control.md` for scoped conventional commit/PR titles,
+factual descriptions, branch names, and coherent checkpoints. Local hooks and
+CI check syntax; review must still assess the meaning and evidence.
