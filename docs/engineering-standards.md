@@ -46,7 +46,7 @@ Keep generated output, environment files, private keys, and research captures ou
 | --- | --- |
 | `pnpm check:repository` | Forbidden filenames, generated output, known private/local imports |
 | `pnpm lint` | Biome lint/format checks without source writes |
-| `pnpm typecheck` | TypeScript compile-time contracts |
+| `pnpm typecheck` | Regenerate ignored Next.js declarations, then check TypeScript contracts |
 | `pnpm verify` | All three checks above |
 | `pnpm audit:dependencies` | Registry advisories; high/critical findings fail |
 | `pnpm build` | Production compilation and route generation |

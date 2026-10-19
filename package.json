@@ -13,7 +13,7 @@
 		"lint": "biome check .",
 		"format": "biome format --write .",
 		"fix": "biome check --write .",
-		"typecheck": "tsc --noEmit",
+		"typecheck": "next typegen && tsc --noEmit",
 		"check:repository": "node scripts/check-repository.mjs",
 		"verify": "pnpm check:repository && pnpm lint && pnpm typecheck",
 		"audit:dependencies": "pnpm audit --audit-level=high",
