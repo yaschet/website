@@ -2,6 +2,7 @@ name: Quality
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   push:
     branches: [main, staging]
   workflow_dispatch:
@@ -14,6 +15,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  title:
+    name: Conventional PR title
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+      - run: node scripts/check-commit-message.mjs
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
   secrets:
     name: Secret scan
     runs-on: ubuntu-latest
