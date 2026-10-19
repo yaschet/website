@@ -1,4 +1,9 @@
-import { defineConfig, devices } from "@playwright/test";
+import { existsSync } from "node:fs";
+import { defineConfig, devices, webkit } from "@playwright/test";
+
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+const port = new URL(baseURL).port || "3000";
+const includeWebKit = process.env.CI || existsSync(webkit.executablePath());
 
 export default defineConfig({
 	testDir: "./e2e",
@@ -8,7 +13,7 @@ export default defineConfig({
 	workers: process.env.CI ? 1 : undefined,
 	reporter: "list",
 	use: {
-		baseURL: "http://localhost:3000",
+		baseURL,
 		trace: "on-first-retry",
 	},
 	projects: [
@@ -20,15 +25,19 @@ export default defineConfig({
 			name: "mobile-chrome",
 			use: { ...devices["Pixel 5"] },
 		},
-		{
-			name: "mobile-safari",
-			use: { ...devices["iPhone 12"] },
-		},
+		...(includeWebKit
+			? [
+					{
+						name: "mobile-safari",
+						use: { ...devices["iPhone 12"] },
+					},
+				]
+			: []),
 	],
 	/* Run your local dev server before starting the tests */
 	webServer: {
-		command: "pnpm start",
-		url: "http://localhost:3000",
+		command: `pnpm exec next start -p ${port}`,
+		url: baseURL,
 		reuseExistingServer: !process.env.CI,
 		timeout: 120 * 1000,
 	},

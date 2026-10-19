@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Elite Performance Guardrails (Dynamic Sitemap Coverage)", () => {
-	const BASE_URL = "http://localhost:3000";
+	const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
 
 	test("Global Route Performance (100% Coverage)", async ({ page, request }) => {
 		// 1. Fetch Sitemap
@@ -32,6 +32,12 @@ test.describe("Elite Performance Guardrails (Dynamic Sitemap Coverage)", () => {
 			// Convert absolute production URL back to local relative path
 			// e.g. https://www.yaschet.dev/about -> /about
 			const relativePath = new URL(url).pathname;
+
+			if (/\.[a-z0-9]+$/i.test(relativePath) && !relativePath.endsWith(".html")) {
+				// biome-ignore lint/suspicious/noConsole: Test output
+				console.log(`\n⏭️  Skipping non-HTML asset: ${relativePath}`);
+				continue;
+			}
 
 			// biome-ignore lint/suspicious/noConsole: Test output
 			console.log(`\n🔎 Testing Route: ${relativePath}`);

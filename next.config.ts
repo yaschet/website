@@ -70,6 +70,15 @@ const nextConfig: NextConfig = {
 		];
 	},
 
+	async rewrites() {
+		return [
+			{
+				source: "/case-studies/:slug.md",
+				destination: "/case-study-markdown/:slug",
+			},
+		];
+	},
+
 	async headers() {
 		return [
 			{
