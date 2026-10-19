@@ -367,7 +367,7 @@ export function PortfolioMuxVideo({
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [isMediaReady, setIsMediaReady] = useState(false);
 	const [isBuffering, setIsBuffering] = useState(Boolean(isActive));
-	const [isWaitingForPlayback, setIsWaitingForPlayback] = useState(Boolean(isActive));
+	const [, setIsWaitingForPlayback] = useState(Boolean(isActive));
 	const [isSeeking, setIsSeeking] = useState(false);
 	const [hasStartedPlayback, setHasStartedPlayback] = useState(false);
 	const [storyboardCues, setStoryboardCues] = useState<StoryboardCue[]>([]);
@@ -1718,17 +1718,17 @@ export function PortfolioMuxVideo({
 					)}
 				/>
 				<span className="flex min-w-0 items-center gap-1.5">
-					<span className="shrink-0 text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]">
+					<span className="shrink-0 text-left font-mono text-[10px] uppercase tabular-nums leading-none tracking-[0.18em]">
 						{resolutionLabel}
 					</span>
 					{detailLabel ? (
-						<span className="truncate text-left font-mono tabular-nums text-[10px] text-white/50 uppercase leading-none tracking-[0.18em]">
+						<span className="truncate text-left font-mono text-[10px] text-white/50 uppercase tabular-nums leading-none tracking-[0.18em]">
 							{detailLabel}
 						</span>
 					) : null}
 				</span>
 				{chipLabel ? (
-					<span className="inline-flex h-5 w-[3.25rem] justify-self-end items-center justify-center border border-white/20 px-1.5 font-mono tabular-nums text-[9px] text-white/70 uppercase leading-none tracking-[0.12em]">
+					<span className="inline-flex h-5 w-[3.25rem] items-center justify-center justify-self-end border border-white/20 px-1.5 font-mono text-[9px] text-white/70 uppercase tabular-nums leading-none tracking-[0.12em]">
 						{chipLabel}
 					</span>
 				) : (
@@ -1749,7 +1749,7 @@ export function PortfolioMuxVideo({
 						rowActive ? "opacity-100" : "opacity-0",
 					)}
 				/>
-				<span className="truncate text-left font-mono tabular-nums text-[10px] uppercase leading-none tracking-[0.18em]">
+				<span className="truncate text-left font-mono text-[10px] uppercase tabular-nums leading-none tracking-[0.18em]">
 					{label}
 				</span>
 			</span>

@@ -1,7 +1,7 @@
 "use client";
 
-import type React from "react";
 import { usePathname } from "next/navigation";
+import type React from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 /**

@@ -2,7 +2,6 @@ import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-	// Note: middleware.ts is required for advanced routing/headers even if empty
 	reactCompiler: true,
 	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
 
@@ -37,8 +36,11 @@ const nextConfig: NextConfig = {
 	},
 
 	cacheComponents: true,
+	// Preserve existing link behavior until partial prefetching has a navigation audit.
+	partialPrefetching: false,
 
 	experimental: {
+		serverActions: { bodySizeLimit: "16kb" },
 		optimizePackageImports: [
 			"@phosphor-icons/react",
 			"lucide-react",
@@ -66,6 +68,15 @@ const nextConfig: NextConfig = {
 				source: "/projects/:slug",
 				destination: "/case-studies/:slug",
 				permanent: true,
+			},
+		];
+	},
+
+	async rewrites() {
+		return [
+			{
+				source: "/case-studies/:slug.md",
+				destination: "/case-study-markdown/:slug",
 			},
 		];
 	},

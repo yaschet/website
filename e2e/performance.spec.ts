@@ -1,9 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Elite Performance Guardrails (Dynamic Sitemap Coverage)", () => {
-	const BASE_URL = "http://localhost:3000";
+test.describe("Sitemap route and lab performance checks", () => {
+	const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
 
-	test("Global Route Performance (100% Coverage)", async ({ page, request }) => {
+	test("public routes render within lab performance budgets", async ({
+		page,
+		request,
+		browserName,
+	}) => {
+		test.setTimeout(180_000);
 		// 1. Fetch Sitemap
 		// biome-ignore lint/suspicious/noConsole: Test output
 		console.log(`🗺️  Fetching sitemap from ${BASE_URL}/sitemap.xml ...`);
@@ -18,11 +23,7 @@ test.describe("Elite Performance Guardrails (Dynamic Sitemap Coverage)", () => {
 				return loc.replace("<loc>", "").replace("</loc>", "");
 			}) || [];
 
-		if (urls.length === 0) {
-			// biome-ignore lint/suspicious/noConsole: Test warning
-			console.warn("⚠️ No URLs found in sitemap.xml");
-			return;
-		}
+		expect(urls.length, "Sitemap must contain public routes").toBeGreaterThan(0);
 
 		// biome-ignore lint/suspicious/noConsole: Test output
 		console.log(`📊 Found ${urls.length} routes in sitemap.`);
@@ -33,44 +34,94 @@ test.describe("Elite Performance Guardrails (Dynamic Sitemap Coverage)", () => {
 			// e.g. https://www.yaschet.dev/about -> /about
 			const relativePath = new URL(url).pathname;
 
+			if (/\.[a-z0-9]+$/i.test(relativePath) && !relativePath.endsWith(".html")) {
+				// biome-ignore lint/suspicious/noConsole: Test output
+				console.log(`\n⏭️  Skipping non-HTML asset: ${relativePath}`);
+				continue;
+			}
+
 			// biome-ignore lint/suspicious/noConsole: Test output
 			console.log(`\n🔎 Testing Route: ${relativePath}`);
 
 			try {
-				await page.goto(relativePath);
+				const response = await page.goto(relativePath);
+				expect(
+					response?.ok(),
+					`${relativePath} must return a successful response`,
+				).toBeTruthy();
+				await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
 
 				// Measure LCP
 				const lcp = await page.evaluate(async () => {
-					return new Promise<number>((resolve) => {
-						new PerformanceObserver((list) => {
+					if (
+						!PerformanceObserver.supportedEntryTypes.includes(
+							"largest-contentful-paint",
+						)
+					)
+						return null;
+					return new Promise<number | null>((resolve) => {
+						let latest: number | null = null;
+						const observer = new PerformanceObserver((list) => {
 							const entries = list.getEntries();
-							const lastEntry = entries[entries.length - 1];
-							resolve(lastEntry.startTime);
-						}).observe({ type: "largest-contentful-paint", buffered: true });
-						setTimeout(() => resolve(0), 4000); // 4s timeout
+							const lastEntry = entries.at(-1);
+							if (lastEntry) latest = lastEntry.startTime;
+						});
+						observer.observe({ type: "largest-contentful-paint", buffered: true });
+						setTimeout(() => {
+							observer.disconnect();
+							resolve(latest);
+						}, 4000);
 					});
 				});
 
 				// Measure CLS
 				const cls = await page.evaluate(async () => {
+					if (!PerformanceObserver.supportedEntryTypes.includes("layout-shift"))
+						return null;
 					return new Promise<number>((resolve) => {
 						let value = 0;
-						new PerformanceObserver((list) => {
-							// biome-ignore lint/suspicious/noExplicitAny: LayoutShift type missing
-							for (const entry of list.getEntries() as any[]) {
-								if (!entry.hadRecentInput) value += entry.value;
+						const observer = new PerformanceObserver((list) => {
+							for (const entry of list.getEntries()) {
+								if (
+									"hadRecentInput" in entry &&
+									entry.hadRecentInput === false &&
+									"value" in entry &&
+									typeof entry.value === "number"
+								)
+									value += entry.value;
 							}
-						}).observe({ type: "layout-shift", buffered: true });
-						setTimeout(() => resolve(value), 1000);
+						});
+						observer.observe({ type: "layout-shift", buffered: true });
+						setTimeout(() => {
+							observer.disconnect();
+							resolve(value);
+						}, 1000);
 					});
 				});
 
 				// biome-ignore lint/suspicious/noConsole: Test output
-				console.log(`   ⏱️  LCP: ${lcp.toFixed(2)}ms | 📐 CLS: ${cls.toFixed(4)}`);
+				console.log(
+					`   LCP: ${lcp ?? "unavailable"}ms | Lab layout shift: ${cls ?? "unavailable"}`,
+				);
 
 				// Hard Gates
-				expect(lcp, `LCP too high on ${relativePath}`).toBeLessThan(2500);
-				expect(cls, `CLS too high on ${relativePath}`).toBeLessThan(0.1);
+				if (browserName === "chromium" || lcp !== null) {
+					expect(lcp, `Missing LCP measurement on ${relativePath}`).not.toBeNull();
+					expect(lcp, `LCP must be measured on ${relativePath}`).toBeGreaterThan(0);
+					expect(lcp, `LCP too high on ${relativePath}`).toBeLessThan(2500);
+				} else {
+					test.info().annotations.push({
+						type: "unsupported-metric",
+						description: `${relativePath}: browser does not expose LCP; route rendering is checked.`,
+					});
+				}
+				if (browserName === "chromium" || cls !== null) {
+					expect(
+						cls,
+						`Missing layout-shift measurement on ${relativePath}`,
+					).not.toBeNull();
+					expect(cls, `Layout shift too high on ${relativePath}`).toBeLessThan(0.1);
+				}
 			} catch (error) {
 				// biome-ignore lint/suspicious/noConsole: Error reporting
 				console.error(`❌ FAILED on ${relativePath}`);

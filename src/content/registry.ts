@@ -117,7 +117,7 @@ function extractExportedObjectLiteral(source: string, exportName: string) {
 
 function parseProjectMetadataFromSource(source: string): ProjectMetadata {
 	const metadataLiteral = extractExportedObjectLiteral(source, "metadata");
-	// biome-ignore lint/security/noGlobalEval: content metadata is local, repo-authored server-only input
+	// Only repository-authored content is evaluated; never pass user-provided source here.
 	const parsedMetadata = Function(`"use strict"; return (${metadataLiteral});`)();
 	return projectMetadataSchema.parse(parsedMetadata);
 }

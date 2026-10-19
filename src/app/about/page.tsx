@@ -16,7 +16,7 @@ import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export const metadata: Metadata = {
-	title: "About | Yassine Chettouch",
+	title: "About",
 	description: "Software Engineer based in Rabat, Morocco.",
 	alternates: {
 		canonical: "/about",

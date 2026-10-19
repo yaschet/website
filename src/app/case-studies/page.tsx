@@ -8,6 +8,7 @@ import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { Button } from "@/src/components/ui/button";
+import { CopyResourceButton } from "@/src/components/ui/copy-resource-button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
@@ -21,7 +22,7 @@ import { getListedPublicProjectSummaries } from "@/src/content/registry";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 export const metadata: Metadata = {
-	title: "Case Studies | Yassine Chettouch",
+	title: "Case Studies",
 	description:
 		"Selected case studies in product engineering, systems work, and shipped software.",
 	alternates: {
@@ -57,6 +58,19 @@ export default async function CaseStudiesPage() {
 										title="Case studies."
 										description="Public write-ups of shipped systems work."
 									/>
+									<div className="portfolio-control-row mt-(--portfolio-space-group)">
+										<CopyResourceButton
+											href="/portfolio.md"
+											label="Copy Portfolio"
+											copiedLabel="Copied Portfolio"
+										/>
+										<CopyResourceButton
+											href="/llms-full.txt"
+											label="Copy Full Context"
+											copiedLabel="Copied Context"
+											className="min-w-[9.75rem]"
+										/>
+									</div>
 								</div>
 							</SwissGridRow>
 							<SwissGridRow>

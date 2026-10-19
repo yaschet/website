@@ -25,9 +25,17 @@ export async function generateMetadata(
 	{ params }: PostPageProps,
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
+	const { slug } = await params;
+	const [metadata, parentMetadata] = await Promise.all([getPostMetadata(slug), parent]);
+	return {
+		...metadata,
+		openGraph: { ...parentMetadata.openGraph, ...metadata.openGraph },
+	};
+}
+
+async function getPostMetadata(slug: string): Promise<Metadata> {
 	"use cache";
 
-	const { slug } = await params;
 	const post = await getPostBySlug(slug);
 
 	if (!post) {
@@ -39,10 +47,6 @@ export async function generateMetadata(
 	// Resolve the primary image for OG
 	const ogImage = "/images/og-image.png";
 
-	// Await parent metadata to safely merge defaults
-	const parentMetadata = await parent;
-	const parentOpenGraph = parentMetadata.openGraph || {};
-
 	return {
 		title: post.title,
 		description: post.description,
@@ -50,7 +54,6 @@ export async function generateMetadata(
 			canonical: `/blog/${slug}`,
 		},
 		openGraph: {
-			...parentOpenGraph,
 			title: `${post.title} | Yassine Chettouch`,
 			description: post.description,
 			type: "article",

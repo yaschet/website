@@ -47,3 +47,8 @@ next-env.d.ts
 # temp
 .playwright-report
 .playwright-cli
+/playwright-report/
+/test-results/
+/storybook-static/
+/output/
+/.firecrawl/
