@@ -56,12 +56,12 @@ so the same key is retained for retry. See [Resend idempotency](https://resend.c
 As reviewed on October 18, 2026, Upstash is the selected adapter because the
 repository already has its SDKs and the form needs shared email/hour/day buckets.
 Its [free plan](https://upstash.com/pricing/redis) includes 500,000 monthly commands
-and 256 MB; ordinary portfolio volume should fit, but abuse consumes commands too.
+and 250 MB; ordinary portfolio volume should fit, but abuse consumes commands too.
 Vercel's [native limiter](https://vercel.com/docs/vercel-firewall/vercel-waf/rate-limiting)
 is a valid alternative for a simple edge rule. Its regional counters and Hobby
 window/rule limits do not provide the same shared budgets as this policy.
 
-Set these server-only variables in the website's preview and production settings:
+Set these server-only variables for each environment that should deliver mail:
 
 - `RESEND_API_KEY`: existing authorized email service key.
 - `UPSTASH_REDIS_REST_URL`: HTTPS REST URL for the selected Redis database.
@@ -78,7 +78,55 @@ rate-limit reset. Shared global budgets remain in Redis until their windows expi
 The optional limiter variables allow builds and non-contact pages to work before
 service setup. Omission leaves the form visible but returns a safe temporary
 unavailability error on submission. Do not release without configuring and
-verifying the shared service. No production service was provisioned by this change.
+verifying the shared service.
+
+## Provisioned Environments
+
+On October 19, 2026, a database was provisioned in the owner's Upstash account
+with these settings:
+
+| Setting | Value |
+| --- | --- |
+| Database | `yaschet-website-production` |
+| Plan | Free; no payment method or paid add-on added |
+| Primary region | AWS Northern Virginia (`us-east-1`) |
+| Website functions | Existing Vercel region `iad1` |
+| Eviction | Disabled, so memory pressure cannot discard active quotas |
+| Credential scope | Vercel `website` project, Production only |
+
+The database belongs to the website environment, rather than one form. Contact
+limits own `website:contact:v1:*`; future features must own distinct prefixes and
+policies, such as `website:comments:v1:*`. Adding a feature does not require
+renaming the database.
+
+The console enforces one Free database for this account. Preview and Development
+therefore receive no production Redis credential or hashing secret. Their contact
+submissions fail closed until a separate non-production datastore is configured.
+Deterministic tests use intercepted transports. Do not share production access
+with previews merely to make preview submissions succeed.
+
+The Redis URL, token, and independently generated 256-bit hashing secret are saved
+as Vercel Production secrets. They are absent from source control and public
+configuration. Local `.vercel/` contains only the ignored project link; local
+environment files remain ignored. A fresh clone can link the existing project
+and copy `.env.example` to `.env.local`, leaving the limiter variables empty until
+an isolated development datastore exists.
+
+Live verification authenticated over TLS and alternated requests between two
+independent SDK clients: five attempts succeeded and the sixth was rejected.
+Verification used a separate `website:verification:contact:*` prefix with a
+10-second window and confirmed key expiry within 60 seconds. Production contact
+budgets were not consumed, and no email request was made.
+
+Saving environment settings does not update an existing deployment. The contact
+code must follow the reviewed Git release workflow before the public website uses
+these controls. No website deployment was performed during provisioning.
+
+Free-tier availability has operational limits: command exhaustion stops delivery,
+and Upstash documents archival after at least 30 days of inactivity, with warning
+emails. Review those notices and restore the database if archived; do not add
+synthetic traffic merely to conceal this limitation. See the
+[Upstash inactivity policy](https://upstash.com/docs/redis/help/faq#what-happens-if-my-database-is-not-used).
 
 ## Verification
 
