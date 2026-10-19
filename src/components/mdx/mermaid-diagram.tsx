@@ -30,6 +30,10 @@ export function MermaidDiagram({ code, className }: { code: string; className?: 
 	useEffect(() => {
 		mermaid.initialize({
 			startOnLoad: false,
+			// Preserve the existing diagram when Mermaid's default renderer changes.
+			layout: "dagre",
+			look: "classic",
+			flowchart: { wrappingWidth: 200, minNodeWidth: 0 },
 			theme: "base",
 			themeVariables: {
 				fontFamily: "var(--font-sans)",

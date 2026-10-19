@@ -48,7 +48,7 @@ Keep generated output, environment files, private keys, and research captures ou
 | `pnpm lint` | Biome lint/format checks without source writes |
 | `pnpm typecheck` | Regenerate ignored Next.js declarations, then check TypeScript contracts |
 | `pnpm verify` | All three checks above |
-| `pnpm audit:dependencies` | Registry advisories; high/critical findings fail |
+| `pnpm audit:dependencies` | Registry advisories; all low-or-higher findings fail |
 | `pnpm build` | Production compilation and route generation |
 | `pnpm test:unit` | Contact security policy and installed-adapter tests with intercepted transports |
 | `pnpm test:e2e` | Browser/HTTP checks against a built production server |

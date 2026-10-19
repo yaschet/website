@@ -162,3 +162,25 @@ uses separate local maintenance, Git-convention, and contact-fix branches stacke
 above that release branch. These are local checkpoints; no push, merge, deployment,
 or host protection change was performed. Redis configuration and deployed
 connectivity/header verification remain release requirements.
+
+## KaTeX Advisory Resolution — October 19, 2026
+
+The KaTeX finding recorded above is resolved by upgrading Mermaid from 11.17.2
+to 12.2.0. Its supported dependency range installs KaTeX 0.18.10, beyond the
+0.18.2 fix for
+[GHSA-238p-pmpm-9mq7](https://github.com/KaTeX/KaTeX/security/advisories/GHSA-238p-pmpm-9mq7).
+No KaTeX override, advisory suppression, or audit exception is used.
+
+Mermaid 12 changes its default layout and appearance. The component explicitly
+selects Dagre, the classic look, and the previous label sizing while retaining
+the existing monochrome base theme. The [upstream migration notes](https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0)
+raise Mermaid's browser floor to ES2024 (including Safari 17.4+) and its Node
+floor to 22.12.0. The repository's Node 24 baseline meets that requirement.
+Older browsers are outside Mermaid's supported range; this is not a claim that
+they have been tested.
+
+The dependency audit now fails on every reported low-or-higher advisory instead
+of only high and critical findings. The lockfile audit reports zero findings
+across all severities. Browser regression coverage exercises the actual Verto
+diagram's labels, responsive rendering, expansion, and Escape dismissal in both
+themes on desktop Chromium, mobile Chromium, and mobile WebKit.
