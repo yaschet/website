@@ -13,7 +13,7 @@ const meta: Meta<typeof Badge> = {
 		docs: {
 			description: {
 				component:
-					"An architectural label primitive with 4 visual treatments and 7 semantic color mappings.",
+					"Compact semantic labels: solid fills, soft tints, outlined keylines, or plain text. Portfolio chips use the lighter keyline treatment. No shadows or movement.",
 			},
 		},
 	},
@@ -21,13 +21,13 @@ const meta: Meta<typeof Badge> = {
 		variant: {
 			control: "select",
 			options: ["solid", "soft", "outlined", "plain"],
-			description: "Visual weight of the badge.",
+			description: "Solid fill, soft tint, outlined keylines, or plain text.",
 			table: { category: "Appearance" },
 		},
 		color: {
 			control: "select",
 			options: [
-				"default", // Changed from primary to default as explicit option
+				"default",
 				"primary",
 				"secondary",
 				"accent",
@@ -47,13 +47,14 @@ const meta: Meta<typeof Badge> = {
 		},
 		shape: {
 			control: "select",
-			options: ["default", "sm", "md", "full"], // Simplified shapes based on new component
+			options: ["default", "sm", "md", "full"],
 			description: "Border radius override.",
 			table: { category: "Dimensions" },
 		},
 		interactive: {
 			control: "boolean",
-			description: "Enables hover/active physics.",
+			description:
+				"Emphasizes keylines on hover or press. Styling only; callers own interaction semantics and keyboard access.",
 			table: { category: "Behavior" },
 		},
 	},
@@ -116,4 +117,34 @@ export const Small: Story = {
 		size: "sm",
 		children: "Compact",
 	},
+};
+
+const variants = ["solid", "soft", "outlined", "plain"] as const;
+const colors = [
+	"default",
+	"primary",
+	"secondary",
+	"accent",
+	"success",
+	"warning",
+	"info",
+	"destructive",
+] as const;
+
+/** Shows every supported color against all four treatments in the active theme. */
+export const ColorMatrix: Story = {
+	render: () => (
+		<div className="flex flex-col gap-5">
+			{colors.map((color) => (
+				<div key={color} className="flex flex-wrap items-center gap-3">
+					<span className="w-24 font-mono text-xs">{color}</span>
+					{variants.map((variant) => (
+						<Badge key={variant} color={color} variant={variant}>
+							{variant}
+						</Badge>
+					))}
+				</div>
+			))}
+		</div>
+	),
 };

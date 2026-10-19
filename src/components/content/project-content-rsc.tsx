@@ -1,6 +1,4 @@
-import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import { Clock } from "@phosphor-icons/react/dist/ssr/Clock";
 import Link from "next/link";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
@@ -37,15 +35,14 @@ function ProjectMasthead({
 
 	return (
 		<div className="w-full">
-			<div className="portfolio-stack-group items-stretch">
-				<Reveal delay={revealSequence.backLink}>
-					<Link href="/case-studies" className="portfolio-back-link portfolio-kicker">
-						<ArrowLeft size={14} weight="bold" />
-						<span>Back to Case Studies</span>
-					</Link>
-				</Reveal>
-
+			<div className="portfolio-stack-group">
 				<div className="portfolio-case-study-hero">
+					<Reveal delay={revealSequence.backLink}>
+						<Link href="/case-studies" className="portfolio-case-study-back">
+							{"<- Case Studies"}
+						</Link>
+					</Reveal>
+
 					<Reveal delay={revealSequence.kicker}>
 						<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
 							Case study · {formatDate(project.date)}
@@ -69,21 +66,18 @@ function ProjectMasthead({
 					</div>
 
 					<Reveal delay={revealSequence.meta}>
-						<div className="portfolio-inline-meta justify-center">
-							<span className="portfolio-badge-label flex h-[var(--portfolio-badge-height)] items-center gap-[var(--portfolio-control-gap)] border border-transparent px-[var(--portfolio-badge-inset)] text-muted-foreground">
-								<Clock size={12} weight="bold" />
+						<div className="portfolio-case-study-meta-row">
+							<span className="portfolio-case-study-meta-item">
 								{project.readingTime} min read
 							</span>
-							{project.featured && (
-								<span className="portfolio-chip border-primary text-primary">
-									Featured
-								</span>
-							)}
+							<span aria-hidden="true" className="portfolio-case-study-meta-dot">
+								·
+							</span>
 							<CopyResourceButton
 								href={`/case-studies/${project.slug}.md`}
 								label="Copy Markdown"
 								copiedLabel="Copied Markdown"
-								variant="badge"
+								variant="inline"
 							/>
 						</div>
 					</Reveal>

@@ -74,6 +74,18 @@ The design follows a **minimalist, grid-based** approach.
 
 ## Component Stack
 
+### Badge Treatments
+
+`Badge` keeps four distinct treatments: `solid` uses an opaque fill with
+contrasting text, `soft` uses a tint, `outlined` uses horizontal keylines, and
+`plain` uses text alone. Portfolio technology chips use the lighter keyline
+treatment. Compact spacing and color transitions apply without shadows or
+movement. The `interactive` flag emphasizes keylines; it supplies appearance
+only, so callers remain responsible for semantic controls and keyboard access.
+Storybook's Badge color matrix shows every supported color in both themes.
+
+### Libraries
+
 - **Radix UI**: Headless primitives.
 - **Tailwind CSS v4**: Styling.
 - **Framer Motion**: Animation.

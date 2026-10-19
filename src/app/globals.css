@@ -1985,6 +1985,31 @@
     text-align: center !important;
   }
 
+  .portfolio-case-study-back {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: var(--portfolio-space-tight) !important;
+    color: var(--surface-600) !important;
+    font-family: var(--font-app-mono), ui-monospace, monospace !important;
+    font-size: var(--text-chip) !important;
+    line-height: var(--text-chip--line-height) !important;
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase !important;
+    transition: color 150ms ease-out !important;
+  }
+
+  .portfolio-case-study-back:hover {
+    color: var(--surface-900) !important;
+  }
+
+  .dark .portfolio-case-study-back {
+    color: var(--surface-400) !important;
+  }
+
+  .dark .portfolio-case-study-back:hover {
+    color: var(--surface-100) !important;
+  }
+
   .portfolio-prose {
     color: var(--surface-600) !important;
     font-size: var(--text-body-md) !important;
@@ -2023,6 +2048,92 @@
 
   .dark .portfolio-case-study-lede {
     color: var(--surface-300) !important;
+  }
+
+  .portfolio-case-study-meta-row {
+    display: inline-flex !important;
+    min-height: var(--portfolio-badge-height) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: var(--portfolio-space-related) !important;
+    color: var(--surface-600) !important;
+    font-family: var(--font-app-mono), ui-monospace, monospace !important;
+    font-size: var(--text-chip) !important;
+    line-height: var(--text-chip--line-height) !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+  }
+
+  .dark .portfolio-case-study-meta-row {
+    color: var(--surface-400) !important;
+  }
+
+  .portfolio-case-study-meta-item {
+    display: inline-flex !important;
+    min-height: var(--portfolio-badge-height) !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .portfolio-case-study-meta-dot {
+    display: inline-block !important;
+    color: color-mix(in oklab, var(--surface-500) 62%, transparent) !important;
+    line-height: 1 !important;
+  }
+
+  .dark .portfolio-case-study-meta-dot {
+    color: color-mix(in oklab, var(--surface-400) 58%, transparent) !important;
+  }
+
+  .portfolio-case-study-action {
+    display: inline-flex !important;
+    min-height: var(--portfolio-badge-height) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    gap: var(--portfolio-control-gap) !important;
+    color: inherit !important;
+    font: inherit !important;
+    letter-spacing: inherit !important;
+    text-transform: inherit !important;
+    white-space: nowrap !important;
+    transition: color 150ms ease-out !important;
+  }
+
+  .portfolio-case-study-action > svg {
+    flex-shrink: 0 !important;
+  }
+
+  .portfolio-case-study-action:hover,
+  .portfolio-case-study-action:focus-visible {
+    color: var(--surface-900) !important;
+  }
+
+  .dark .portfolio-case-study-action:hover,
+  .dark .portfolio-case-study-action:focus-visible {
+    color: var(--surface-50) !important;
+  }
+
+  .portfolio-case-study-action:focus-visible {
+    outline: 1px solid currentColor !important;
+    outline-offset: 4px !important;
+  }
+
+  .portfolio-case-study-action:disabled {
+    cursor: wait !important;
+    opacity: 0.68 !important;
+  }
+
+  @media (max-width: 30rem) {
+    .portfolio-case-study-meta-row {
+      flex-direction: column !important;
+      gap: 0 !important;
+    }
+
+    .portfolio-case-study-meta-dot {
+      display: none !important;
+    }
   }
 
   .portfolio-masthead-title {
@@ -2146,17 +2257,20 @@
     align-items: center !important;
     justify-content: center !important;
     min-height: var(--portfolio-control-compact) !important;
-    gap: var(--portfolio-control-gap) !important;
-    border: 1px solid var(--surface-200) !important;
-    background: var(--surface-50) !important;
-    padding-inline: var(--portfolio-control-pad-compact) !important;
-    color: var(--surface-700) !important;
+    gap: calc(var(--portfolio-control-gap) * 0.75) !important;
+    border: 0 !important;
+    border-top: 1px solid var(--surface-300) !important;
+    border-bottom: 1px solid var(--surface-300) !important;
+    background: transparent !important;
+    padding-inline: calc(var(--portfolio-control-pad-compact) * 0.7) !important;
+    color: color-mix(in oklab, var(--surface-700) 88%, transparent) !important;
   }
 
   .dark .portfolio-chip {
-    border-color: var(--surface-700) !important;
-    background: var(--surface-900) !important;
-    color: var(--surface-300) !important;
+    border-top-color: var(--surface-700) !important;
+    border-bottom-color: var(--surface-700) !important;
+    background: transparent !important;
+    color: color-mix(in oklab, var(--surface-300) 88%, transparent) !important;
   }
 
   .portfolio-link-row {

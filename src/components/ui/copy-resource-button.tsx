@@ -11,7 +11,7 @@ interface CopyResourceButtonProps {
 	label: string;
 	copiedLabel?: string;
 	className?: string;
-	variant?: "button" | "badge";
+	variant?: "button" | "inline";
 }
 
 type CopyState = "idle" | "loading" | "copied" | "error";
@@ -86,36 +86,51 @@ export function CopyResourceButton({
 	const isCopied = state === "copied";
 	const isError = state === "error";
 	const visibleLabel = isLoading ? "Copying" : isCopied ? copiedLabel : isError ? "Retry" : label;
-	const isBadge = variant === "badge";
+	const isInline = variant === "inline";
+	const iconSize = isInline ? 12 : 14;
+	const content = (
+		<>
+			{isLoading ? (
+				<Spinner size="xs" color="default" />
+			) : isCopied ? (
+				<Check size={iconSize} weight="bold" />
+			) : isError ? (
+				<WarningCircle size={iconSize} weight="bold" />
+			) : (
+				<Copy size={iconSize} weight="bold" />
+			)}
+			<span className={cn(isInline && "inline-block min-w-[13ch] text-left")}>
+				{visibleLabel}
+			</span>
+		</>
+	);
+
+	if (isInline) {
+		return (
+			<button
+				type="button"
+				onClick={handleCopy}
+				disabled={isLoading}
+				aria-live="polite"
+				className={cn("portfolio-case-study-action group", className)}
+			>
+				{content}
+			</button>
+		);
+	}
 
 	return (
 		<Button
 			type="button"
-			size={isBadge ? "xs" : "sm"}
+			size="sm"
 			variant="outlined"
 			color="default"
 			onClick={handleCopy}
 			disabled={isLoading}
 			aria-live="polite"
-			className={cn(
-				isBadge
-					? "h-[var(--portfolio-badge-height)] border-surface-200/80 bg-white/95 px-[var(--portfolio-badge-inset)] shadow-lg shadow-surface-900/5 dark:border-surface-800/80 dark:bg-surface-950/95 dark:shadow-surface-950/50"
-					: "min-w-[8.5rem]",
-				className,
-			)}
+			className={cn("min-w-[8.5rem]", className)}
 		>
-			{isLoading ? (
-				<Spinner size="xs" color="default" />
-			) : isCopied ? (
-				<Check size={14} weight="bold" />
-			) : isError ? (
-				<WarningCircle size={14} weight="bold" />
-			) : (
-				<Copy size={14} weight="bold" />
-			)}
-			<span className={cn(isBadge && "inline-block min-w-[13ch] text-left")}>
-				{visibleLabel}
-			</span>
+			{content}
 		</Button>
 	);
 }
