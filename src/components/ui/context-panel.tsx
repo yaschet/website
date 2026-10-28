@@ -83,10 +83,13 @@ export function ContextPanel({
 			if (document.hidden) close();
 		};
 		window.addEventListener("scroll", onScroll, true);
+		// Dismiss on wheel intent even when the document is at a scroll boundary.
+		window.addEventListener("wheel", onScroll, { capture: true, passive: true });
 		window.addEventListener("resize", close);
 		document.addEventListener("visibilitychange", onVisibility);
 		return () => {
 			window.removeEventListener("scroll", onScroll, true);
+			window.removeEventListener("wheel", onScroll, true);
 			window.removeEventListener("resize", close);
 			document.removeEventListener("visibilitychange", onVisibility);
 		};
