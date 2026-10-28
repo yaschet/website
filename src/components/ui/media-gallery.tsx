@@ -397,14 +397,21 @@ export function MediaGallery({
 	useEffect(() => {
 		if (!outerRef.current) return;
 
-		const observer = new ResizeObserver((entries) => {
-			for (const entry of entries) {
-				setViewportWidth(entry.contentRect.width);
-			}
+		let frame = 0;
+		const observer = new ResizeObserver(([entry]) => {
+			cancelAnimationFrame(frame);
+			const width = entry.contentRect.width;
+			// A retained, hidden route has no usable carousel dimensions.
+			if (width <= 0) return;
+			// Height changes must happen after this observer delivery finishes.
+			frame = requestAnimationFrame(() => setViewportWidth(width));
 		});
 
 		observer.observe(outerRef.current);
-		return () => observer.disconnect();
+		return () => {
+			observer.disconnect();
+			cancelAnimationFrame(frame);
+		};
 	}, []);
 
 	const clearHoverPreview = useCallback(() => {

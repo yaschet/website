@@ -21,14 +21,25 @@ function ContentSizedText({ value, items, className }: StateSwapProps) {
 			(child) => child instanceof HTMLElement && child.dataset.state === value,
 		);
 		if (!element || !(active instanceof HTMLElement)) return;
+		let measureFrame = 0;
 		const measure = () => {
-			element.style.width = getComputedStyle(active).width;
+			// Retained routes can be hidden by React Activity between visits.
+			if (!active.getClientRects().length) return;
+			const width = getComputedStyle(active).width;
+			if (element.style.width !== width) element.style.width = width;
 			element.dataset.measured = "true";
 		};
 		measure();
-		const observer = new ResizeObserver(measure);
+		const observer = new ResizeObserver(() => {
+			// A layout write during observer delivery can trigger a WebKit resize loop.
+			cancelAnimationFrame(measureFrame);
+			measureFrame = requestAnimationFrame(measure);
+		});
 		observer.observe(active);
-		return () => observer.disconnect();
+		return () => {
+			observer.disconnect();
+			cancelAnimationFrame(measureFrame);
+		};
 	}, [value]);
 	return (
 		<span

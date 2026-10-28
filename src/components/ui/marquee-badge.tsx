@@ -179,7 +179,11 @@ export function MarqueeBadge({
 				paint(position + pixels);
 			},
 		};
-		const observer = new ResizeObserver(measure);
+		let measureFrame = 0;
+		const observer = new ResizeObserver(() => {
+			cancelAnimationFrame(measureFrame);
+			measureFrame = requestAnimationFrame(measure);
+		});
 		observer.observe(source);
 		observer.observe(control);
 		control.addEventListener("pointerdown", down);
@@ -195,6 +199,7 @@ export function MarqueeBadge({
 			disposed = true;
 			freeze();
 			observer.disconnect();
+			cancelAnimationFrame(measureFrame);
 			controller.current = null;
 			control.removeEventListener("pointerdown", down);
 			control.removeEventListener("pointermove", move);

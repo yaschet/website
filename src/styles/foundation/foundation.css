@@ -846,83 +846,84 @@
 	}
 }
 
-/* Foundation scroll surfaces use a quiet, borderless scrollbar. The track is
- * transparent so it never creates a second frame around a card or panel; the
- * square thumb is the only visible affordance and remains operable in every
- * theme. Standards properties cover Firefox and WebKit rules provide the
- * matching geometry in Chromium/Safari. */
-html,
-body,
-.yaschet,
-.yaschet * {
-	scrollbar-color: var(--foundation-scrollbar-thumb) var(--foundation-scrollbar-track);
-	scrollbar-width: thin;
-}
-
-/* Chromium now supports the standard properties too. Non-auto values suppress
- * the authored pseudo-elements, including their square geometry. Keep the
- * standards fallback for Firefox; let the WebKit family own its whole track. */
-@supports selector(::-webkit-scrollbar) {
+@media (hover: hover) and (pointer: fine) {
+	/* Desktop scroll surfaces use a transparent track and square thumb. Touch
+	 * devices retain native overlay scrollbars so WebKit does not reserve a
+	 * gutter. Firefox uses the standard properties; Chromium/Safari use the
+	 * matching pseudo-element geometry. */
 	html,
 	body,
 	.yaschet,
 	.yaschet * {
-		scrollbar-color: auto;
-		scrollbar-width: auto;
+		scrollbar-color: var(--foundation-scrollbar-thumb) var(--foundation-scrollbar-track);
+		scrollbar-width: thin;
 	}
-}
 
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-.yaschet::-webkit-scrollbar,
-.yaschet *::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
-}
+	/* Chromium now supports the standard properties too. Non-auto values suppress
+	 * the authored pseudo-elements, including their square geometry. Keep the
+	 * standards fallback for Firefox; let the WebKit family own its whole track. */
+	@supports selector(::-webkit-scrollbar) {
+		html,
+		body,
+		.yaschet,
+		.yaschet * {
+			scrollbar-color: auto;
+			scrollbar-width: auto;
+		}
+	}
 
-html::-webkit-scrollbar-track,
-body::-webkit-scrollbar-track,
-.yaschet::-webkit-scrollbar-track,
-.yaschet *::-webkit-scrollbar-track {
-	background: var(--foundation-scrollbar-track);
-}
+	html::-webkit-scrollbar,
+	body::-webkit-scrollbar,
+	.yaschet::-webkit-scrollbar,
+	.yaschet *::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
 
-html::-webkit-scrollbar-thumb,
-body::-webkit-scrollbar-thumb,
-.yaschet::-webkit-scrollbar-thumb,
-.yaschet *::-webkit-scrollbar-thumb {
-	background: var(--foundation-scrollbar-thumb);
-	border: 0;
-	border-radius: 0;
-}
+	html::-webkit-scrollbar-track,
+	body::-webkit-scrollbar-track,
+	.yaschet::-webkit-scrollbar-track,
+	.yaschet *::-webkit-scrollbar-track {
+		background: var(--foundation-scrollbar-track);
+	}
 
-html::-webkit-scrollbar-thumb:hover,
-body::-webkit-scrollbar-thumb:hover,
-.yaschet::-webkit-scrollbar-thumb:hover,
-.yaschet *::-webkit-scrollbar-thumb:hover {
-	background: var(--foundation-scrollbar-thumb-hover);
-}
+	html::-webkit-scrollbar-thumb,
+	body::-webkit-scrollbar-thumb,
+	.yaschet::-webkit-scrollbar-thumb,
+	.yaschet *::-webkit-scrollbar-thumb {
+		background: var(--foundation-scrollbar-thumb);
+		border: 0;
+		border-radius: 0;
+	}
 
-html::-webkit-scrollbar-thumb:active,
-body::-webkit-scrollbar-thumb:active,
-.yaschet::-webkit-scrollbar-thumb:active,
-.yaschet *::-webkit-scrollbar-thumb:active {
-	background: var(--foundation-scrollbar-thumb-active);
-}
+	html::-webkit-scrollbar-thumb:hover,
+	body::-webkit-scrollbar-thumb:hover,
+	.yaschet::-webkit-scrollbar-thumb:hover,
+	.yaschet *::-webkit-scrollbar-thumb:hover {
+		background: var(--foundation-scrollbar-thumb-hover);
+	}
 
-html::-webkit-scrollbar-corner,
-body::-webkit-scrollbar-corner,
-.yaschet::-webkit-scrollbar-corner,
-.yaschet *::-webkit-scrollbar-corner {
-	background: transparent;
-}
+	html::-webkit-scrollbar-thumb:active,
+	body::-webkit-scrollbar-thumb:active,
+	.yaschet::-webkit-scrollbar-thumb:active,
+	.yaschet *::-webkit-scrollbar-thumb:active {
+		background: var(--foundation-scrollbar-thumb-active);
+	}
 
-@media (forced-colors: active) {
-	html,
-	body,
-	.yaschet,
-	.yaschet * {
-		scrollbar-color: auto;
+	html::-webkit-scrollbar-corner,
+	body::-webkit-scrollbar-corner,
+	.yaschet::-webkit-scrollbar-corner,
+	.yaschet *::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+
+	@media (forced-colors: active) {
+		html,
+		body,
+		.yaschet,
+		.yaschet * {
+			scrollbar-color: auto;
+		}
 	}
 }
 
