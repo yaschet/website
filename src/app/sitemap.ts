@@ -1,13 +1,15 @@
 import type { MetadataRoute } from "next";
+import { IS_PREVIEW_DEPLOYMENT, SITE_URL } from "@/src/constants/site";
 import { getAllPosts, getListedPublicProjectSummaries } from "@/src/content/registry";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+	if (IS_PREVIEW_DEPLOYMENT) return [];
 	const [allProjects, allPosts] = await Promise.all([
 		getListedPublicProjectSummaries(),
 		getAllPosts(),
 	]);
 	// Base URL for the production site
-	const baseUrl = "https://yaschet.dev";
+	const baseUrl = SITE_URL;
 
 	// 1. Core Pages (Static)
 	const coreRoutes = ["", "/about", "/case-studies", "/blog", "/contact"].map((route) => ({

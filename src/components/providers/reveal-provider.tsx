@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import type React from "react";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 /**
  * Motion environment context.
@@ -10,12 +10,12 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
  * The old phased reveal orchestration is intentionally retired.
  * `phase` remains for compatibility with existing component props, but the
  * actual source of truth is:
- * - motion environment (`normal`, `reduced-motion`, `automation`)
+ * - motion environment (`normal`, `reduced-motion`)
  * - current route identity (`entryKey`)
  * - whether a client-side route entry should animate
  */
 export type RevealPhase = 0 | 1 | 2 | 3;
-export type MotionEnvironment = "normal" | "reduced-motion" | "automation";
+export type MotionEnvironment = "normal" | "reduced-motion";
 
 export interface RevealContextType {
 	entryKey: string;
@@ -47,30 +47,16 @@ export function useRevealState(): RevealContextType {
 	);
 }
 
-function detectAutomation() {
-	if (typeof navigator === "undefined") return false;
-
-	const userAgent = navigator.userAgent ?? "";
-	return (
-		navigator.webdriver ||
-		/HeadlessChrome|Playwright|Puppeteer|puppeteer|playwright|webdriver/i.test(userAgent)
-	);
-}
-
 export function RevealProvider({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
-	const [isAutomation, setIsAutomation] = useState(detectAutomation);
+	// Browser capabilities are resolved after hydration so the first render matches the server.
 	const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-	const [isHydrated, setIsHydrated] = useState(false);
-	const previousPathRef = useRef<string>(pathname ?? "initial");
-
-	useEffect(() => {
-		setIsAutomation(detectAutomation());
-	}, []);
-
-	useEffect(() => {
-		setIsHydrated(true);
-	}, []);
+	const [entry, setEntry] = useState({ pathname, hasNavigated: false });
+	// Resolve entry before committing children, never after already-painted text.
+	// Returning to the initial URL is still a new entry.
+	if (entry.pathname !== pathname) {
+		setEntry({ pathname, hasNavigated: true });
+	}
 
 	useEffect(() => {
 		if (typeof window === "undefined" || !("matchMedia" in window)) return;
@@ -88,18 +74,11 @@ export function RevealProvider({ children }: { children: React.ReactNode }) {
 		};
 	}, []);
 
-	useEffect(() => {
-		if (!pathname) return;
-		previousPathRef.current = pathname;
-	}, [pathname]);
-
-	const environment: MotionEnvironment = isAutomation
-		? "automation"
-		: prefersReducedMotion
-			? "reduced-motion"
-			: "normal";
-	const entryKey = pathname ?? previousPathRef.current;
-	const shouldAnimateEntry = isHydrated && entryKey !== previousPathRef.current;
+	const environment: MotionEnvironment = prefersReducedMotion ? "reduced-motion" : "normal";
+	const entryKey = pathname ?? "initial";
+	// Preference changes cancel active motion; re-enabling motion must not replay
+	// content the visitor has already read. Entry hooks check the live preference.
+	const shouldAnimateEntry = entry.hasNavigated;
 	const forceRevealed = environment !== "normal" || !shouldAnimateEntry;
 
 	return (

@@ -1,9 +1,14 @@
 "use client";
 
-import { Check, Copy, WarningCircle } from "@phosphor-icons/react";
-import { useCallback, useState } from "react";
+import {
+	RiCheckLine as Check,
+	RiFileCopyLine as Copy,
+	RiErrorWarningLine as WarningCircle,
+} from "@remixicon/react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/src/components/ui/button";
-import { Spinner } from "@/src/components/ui/spinner";
+import { StateSwap } from "@/src/components/ui/state-swap";
+import { writeClipboardText } from "@/src/lib/clipboard";
 import { cn } from "@/src/lib/index";
 
 interface CopyResourceButtonProps {
@@ -11,42 +16,12 @@ interface CopyResourceButtonProps {
 	label: string;
 	copiedLabel?: string;
 	className?: string;
-	variant?: "button" | "badge";
+	variant?: "button" | "inline";
 }
 
 type CopyState = "idle" | "loading" | "copied" | "error";
 
-async function writeTextToClipboard(text: string) {
-	try {
-		await navigator.clipboard.writeText(text);
-		return;
-	} catch (_error) {
-		const textarea = document.createElement("textarea");
-		textarea.value = text;
-		textarea.setAttribute("readonly", "");
-		textarea.style.position = "fixed";
-		textarea.style.top = "0";
-		textarea.style.left = "-9999px";
-		document.body.appendChild(textarea);
-		textarea.select();
-
-		try {
-			const copied = document.execCommand("copy");
-			if (!copied) {
-				throw new Error("Clipboard fallback failed.");
-			}
-		} finally {
-			document.body.removeChild(textarea);
-		}
-	}
-}
-
-/**
- * Copies a fetched text resource to the clipboard without shipping the resource in client JS.
- *
- * @param props - Resource URL and button labels.
- * @returns A button with loading, copied, and error states.
- */
+/** Copies a text resource on intent, with cancellable fetching and continuous state feedback. */
 export function CopyResourceButton({
 	href,
 	label,
@@ -55,67 +30,93 @@ export function CopyResourceButton({
 	variant = "button",
 }: CopyResourceButtonProps) {
 	const [state, setState] = useState<CopyState>("idle");
+	const request = useRef<AbortController | null>(null);
+	const reset = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	const handleCopy = useCallback(async () => {
-		if (state === "loading") return;
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Resource identity changes must cancel pending work and reset feedback.
+	useEffect(() => {
+		setState("idle");
+		return () => {
+			request.current?.abort();
+			request.current = null;
+			if (reset.current) clearTimeout(reset.current);
+		};
+	}, [href]);
 
+	const handleCopy = async () => {
+		if (request.current) return;
+		if (reset.current) clearTimeout(reset.current);
+		const controller = new AbortController();
+		request.current = controller;
 		setState("loading");
-
 		try {
 			const response = await fetch(href, {
-				headers: {
-					Accept: "text/markdown,text/plain;q=0.9,*/*;q=0.1",
-				},
+				headers: { Accept: "text/markdown,text/plain;q=0.9,*/*;q=0.1" },
+				signal: controller.signal,
 			});
-
-			if (!response.ok) {
-				throw new Error(`Failed to fetch ${href}`);
+			if (!response.ok) throw new Error("Resource unavailable");
+			const text = await response.text();
+			if (controller.signal.aborted) return;
+			await writeClipboardText(text);
+			if (!controller.signal.aborted) setState("copied");
+		} catch {
+			if (!controller.signal.aborted) setState("error");
+		} finally {
+			if (!controller.signal.aborted) {
+				request.current = null;
+				reset.current = setTimeout(() => setState("idle"), 2500);
 			}
-
-			const markdown = await response.text();
-			await writeTextToClipboard(markdown);
-			setState("copied");
-			window.setTimeout(() => setState("idle"), 2000);
-		} catch (_error) {
-			setState("error");
-			window.setTimeout(() => setState("idle"), 2500);
 		}
-	}, [href, state]);
+	};
 
-	const isLoading = state === "loading";
-	const isCopied = state === "copied";
-	const isError = state === "error";
-	const visibleLabel = isLoading ? "Copying" : isCopied ? copiedLabel : isError ? "Retry" : label;
-	const isBadge = variant === "badge";
-
+	const visibleLabel =
+		state === "loading"
+			? "Copying"
+			: state === "copied"
+				? copiedLabel
+				: state === "error"
+					? "Retry copying"
+					: label;
 	return (
-		<Button
-			type="button"
-			size={isBadge ? "xs" : "sm"}
-			variant="outlined"
-			color="default"
-			onClick={handleCopy}
-			disabled={isLoading}
-			aria-live="polite"
-			className={cn(
-				isBadge
-					? "h-[var(--portfolio-badge-height)] border-surface-200/80 bg-white/95 px-[var(--portfolio-badge-inset)] shadow-lg shadow-surface-900/5 dark:border-surface-800/80 dark:bg-surface-950/95 dark:shadow-surface-950/50"
-					: "min-w-[8.5rem]",
-				className,
-			)}
-		>
-			{isLoading ? (
-				<Spinner size="xs" color="default" />
-			) : isCopied ? (
-				<Check size={14} weight="bold" />
-			) : isError ? (
-				<WarningCircle size={14} weight="bold" />
-			) : (
-				<Copy size={14} weight="bold" />
-			)}
-			<span className={cn(isBadge && "inline-block min-w-[13ch] text-left")}>
-				{visibleLabel}
+		<>
+			<Button
+				type="button"
+				variant={variant === "inline" ? "plain" : "outlined"}
+				color="default"
+				onClick={handleCopy}
+				loading={state === "loading"}
+				aria-label={visibleLabel}
+				className={cn(className)}
+				icon={
+					<StateSwap
+						value={state === "loading" ? "idle" : state}
+						items={{
+							idle: <Copy size={16} />,
+							copied: <Check size={16} />,
+							error: <WarningCircle size={16} />,
+						}}
+					/>
+				}
+			>
+				<StateSwap
+					kind="text"
+					sizing="content"
+					value={state}
+					items={{
+						idle: label,
+						loading: "Copying",
+						copied: copiedLabel,
+						error: "Retry copying",
+					}}
+				/>
+			</Button>
+			<span role="status" className="sr-only">
+				{state === "copied"
+					? "Copied to clipboard."
+					: state === "error"
+						? "Could not copy. Please try again."
+						: ""}
 			</span>
-		</Button>
+		</>
 	);
 }

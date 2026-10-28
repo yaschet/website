@@ -10,8 +10,10 @@ export default defineConfig({
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
+	// Full interaction journeys include several settled animations on shared CI runners.
+	timeout: process.env.CI ? 60_000 : 30_000,
 	workers: process.env.CI ? 1 : 2,
-	reporter: "list",
+	reporter: process.env.CI ? [["list", { printFailuresInline: true }], ["github"]] : "list",
 	use: {
 		baseURL,
 		trace: "on-first-retry",

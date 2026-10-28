@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { IconChamber } from "@/src/components/ui/icon-chamber";
 import { cn } from "@/src/lib/utils";
 
 interface EditorialEmptyStateProps {
@@ -23,10 +24,19 @@ export function EditorialEmptyState({
 	return (
 		<div className={cn("portfolio-box-pad", className)}>
 			<div className="portfolio-stack-group mx-auto w-full max-w-[32rem] items-center justify-center text-center">
-				{icon && <div className="portfolio-icon-plate rounded-(--radius)">{icon}</div>}
+				{icon && (
+					<IconChamber
+						size="default"
+						color="secondary"
+						aria-hidden="true"
+						className="[&_svg:not([class*='size-'])]:size-5 [&_svg]:size-5"
+					>
+						{icon}
+					</IconChamber>
+				)}
 
 				{eyebrow && (
-					<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+					<p className="portfolio-kicker text-surface-600 dark:text-surface-400">
 						{eyebrow}
 					</p>
 				)}
@@ -43,7 +53,7 @@ export function EditorialEmptyState({
 				{actions && <div className="portfolio-control-row justify-center">{actions}</div>}
 
 				{note && (
-					<p className="portfolio-body-xs max-w-[28rem] text-surface-500 dark:text-surface-500">
+					<p className="portfolio-body-xs max-w-[28rem] text-surface-600 dark:text-surface-400">
 						{note}
 					</p>
 				)}

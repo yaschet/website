@@ -1,79 +1,85 @@
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type React from "react";
-import { useEffect, useRef } from "react";
-import { SwissGridProvider, useSwissGrid } from "./swiss-grid-canvas";
+import { ButtonLink } from "./button-link";
+import { SwissGridProvider, SwissGridSection } from "./swiss-grid-canvas";
 
 /**
  * Canvas-based grid overlay for layout visualization.
  */
-const meta: Meta<typeof SwissGridProvider> = {
-	title: "Visuals/SwissGrid",
+const meta = {
+	id: "experiments-swissgridcanvas",
+	title: "Lab/Swiss Grid Canvas",
 	component: SwissGridProvider,
 	tags: ["autodocs"],
+	args: { children: null, dashSize: 9, gapSize: 7 },
+	argTypes: {
+		children: { control: false, table: { disable: true } },
+		dashSize: { control: { type: "range", min: 3, max: 17, step: 2 } },
+		gapSize: { control: { type: "range", min: 3, max: 17, step: 2 } },
+	},
 	parameters: {
 		layout: "fullscreen",
 		docs: {
 			description: {
 				component:
-					"Mathematical grid system that calculates exact intersection points to avoid sub-pixel blurring. Features dynamic registration for boundary reinforcements.",
+					"A retained canvas-grid experiment with three registered sections on one centered content rail. Canvas coordinates belong to this example, including inside Docs. The public portfolio uses the server-rendered SwissGridBox instead.",
 			},
 		},
 	},
-};
+} satisfies Meta<typeof SwissGridProvider>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/**
- * Internal helper for demonstration purposes.
- */
-const GridSection = ({
-	id,
-	children,
-	className,
-}: {
-	id: string;
-	children: React.ReactNode;
-	className?: string;
-}) => {
-	const { registerSection, unregisterSection } = useSwissGrid();
-	const ref = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		if (ref.current) {
-			registerSection(id, ref.current);
-		}
-		return () => unregisterSection(id);
-	}, [id, registerSection, unregisterSection]);
-
-	return (
-		<div ref={ref} className={className}>
-			{children}
-		</div>
-	);
-};
-
 export const Default: Story = {
-	render: () => (
-		<SwissGridProvider>
-			<div className="relative flex min-h-screen flex-col gap-20 bg-surface-50 p-10 dark:bg-surface-950">
-				<GridSection
-					id="hero"
-					className="flex h-64 items-center justify-center border-transparent border-b"
-				>
-					<h1 className="font-bold text-4xl">Hero Section</h1>
-				</GridSection>
-				<GridSection
-					id="content"
-					className="flex h-96 items-center justify-center border-transparent border-b"
-				>
-					<p className="text-xl">Content Section with Grid Intersections</p>
-				</GridSection>
-				<GridSection id="footer" className="flex h-40 items-center justify-center">
-					<p>Footer Section</p>
-				</GridSection>
-			</div>
-		</SwissGridProvider>
+	render: (args) => (
+		<div className="workshop-stage">
+			<SwissGridProvider {...args}>
+				<div className="workshop-grid-content">
+					<SwissGridSection id="grid-hero">
+						<div className="workshop-grid-column portfolio-box-pad portfolio-stack-related">
+							<p className="portfolio-kicker">Portfolio layout</p>
+							<h1 className="portfolio-case-study-title portfolio-capsize-case-title text-balance">
+								Aligned by one grid.
+							</h1>
+							<p className="portfolio-reading-copy text-muted-foreground">
+								Three content sections share the same outer edge and inner reading
+								rail. The canvas registers their actual boundaries as the content
+								reflows.
+							</p>
+						</div>
+					</SwissGridSection>
+					<SwissGridSection id="grid-content">
+						<div className="workshop-grid-column portfolio-box-pad grid gap-5 sm:grid-cols-2">
+							<div className="portfolio-stack-tight">
+								<h2 className="portfolio-detail-title">A shared content rail.</h2>
+								<p className="portfolio-body-sm text-muted-foreground">
+									Headings, copy and actions start at the same inset in every
+									section.
+								</p>
+							</div>
+							<div className="portfolio-stack-tight">
+								<h2 className="portfolio-detail-title">Content sets the height.</h2>
+								<p className="portfolio-body-sm text-muted-foreground">
+									Columns stack on phones. Their edges stay registered without
+									fixed-height placeholders.
+								</p>
+							</div>
+						</div>
+					</SwissGridSection>
+					<SwissGridSection id="grid-footer">
+						<div className="workshop-grid-column portfolio-box-pad flex flex-wrap items-center justify-between gap-5">
+							<p className="portfolio-body-sm text-muted-foreground">
+								From structure to shipped work.
+							</p>
+							<ButtonLink href="/case-studies" variant="outline">
+								Case studies <ArrowRightIcon weight="bold" />
+							</ButtonLink>
+						</div>
+					</SwissGridSection>
+				</div>
+			</SwissGridProvider>
+		</div>
 	),
 };

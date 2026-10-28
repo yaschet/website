@@ -1,0 +1,32 @@
+/* Neutral badges must remain a visible material on both Canvas and Card.
+ * The ordinary secondary-soft role equals Card in Dark; it cannot own this
+ * small, self-contained label. Keep semantic colors and plain badges intact. */
+.yaschet
+[data-slot="badge"][data-appearance="soft"]:is(
+	[data-color="default"],
+	[data-color="primary"],
+	[data-color="secondary"]
+) {
+	--badge-neutral-surface: var(--foundation-secondary-soft-hover);
+	background-color: var(--badge-neutral-surface);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.yaschet
+		[data-slot="badge"][data-appearance="soft"][data-interactive]:is(
+			[data-color="default"],
+			[data-color="primary"],
+			[data-color="secondary"]
+		):hover {
+		background-color: color-mix(in oklab, var(--foreground) 4%, var(--badge-neutral-surface));
+	}
+}
+
+.yaschet
+	[data-slot="badge"][data-appearance="soft"][data-interactive]:is(
+		[data-color="default"],
+		[data-color="primary"],
+		[data-color="secondary"]
+	):active {
+	background-color: color-mix(in oklab, var(--foreground) 8%, var(--badge-neutral-surface));
+}

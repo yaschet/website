@@ -1,6 +1,7 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { PostContentRSC } from "@/src/components/content/post-content-rsc";
+import { SITE_URL } from "@/src/constants/site";
 import { getAllPosts, getPostBySlug } from "@/src/content/registry";
 
 interface PostPageProps {
@@ -57,7 +58,7 @@ async function getPostMetadata(slug: string): Promise<Metadata> {
 			title: `${post.title} | Yassine Chettouch`,
 			description: post.description,
 			type: "article",
-			url: `https://yaschet.dev/blog/${post.slug}`,
+			url: `${SITE_URL}/blog/${post.slug}`,
 			images: [
 				{
 					url: ogImage,
@@ -92,18 +93,18 @@ export default async function PostPage({ params }: PostPageProps) {
 		"@type": "BlogPosting",
 		headline: post.title,
 		description: post.description,
-		image: "https://yaschet.dev/images/og-image.png",
+		image: `${SITE_URL}/images/og-image.png`,
 		datePublished: post.date,
 		dateModified: post.date,
 		author: {
 			"@type": "Person",
 			name: "Yassine Chettouch",
-			url: "https://yaschet.dev",
+			url: SITE_URL,
 		},
 		publisher: {
 			"@type": "Person",
 			name: "Yassine Chettouch",
-			url: "https://yaschet.dev",
+			url: SITE_URL,
 		},
 	};
 

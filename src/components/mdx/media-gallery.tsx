@@ -64,6 +64,7 @@ export function MediaGallery({
 				showCounter={itemCount > 1}
 				onIndexChange={setActiveIndex}
 				className={className}
+				prioritizeFirstImage={false}
 				expandable
 				sizes="(max-width: 768px) 100vw, 768px"
 				quality={75}
@@ -71,7 +72,7 @@ export function MediaGallery({
 
 			{/* Caption */}
 			{currentCaption && (
-				<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
+				<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-600 text-xs dark:text-surface-400">
 					{currentCaption}
 				</figcaption>
 			)}

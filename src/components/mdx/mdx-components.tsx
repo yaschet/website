@@ -56,6 +56,7 @@ export function H1({ className, ...props }: ComponentPropsWithoutRef<"h1">) {
 export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 	return (
 		<h2
+			tabIndex={-1}
 			className={cn("group relative", "font-medium", "text-foreground", className)}
 			{...props}
 		/>
@@ -68,6 +69,7 @@ export function H2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
 export function H3({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
 	return (
 		<h3
+			tabIndex={-1}
 			className={cn("group relative", "font-semibold", "text-foreground", className)}
 			{...props}
 		/>
@@ -123,8 +125,10 @@ export function A({ className, ...props }: ComponentPropsWithoutRef<"a">) {
 	if (isAnchor) {
 		return (
 			<a
+				href={props.href}
+				aria-label={`Link to ${props.href?.slice(1).replace(/-/g, " ") ?? "section"}`}
 				className={cn(
-					"absolute top-1/2 -left-6 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100",
+					"absolute top-1/2 -left-5 flex size-4 -translate-y-1/2 items-center justify-center opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100",
 					"text-muted-foreground no-underline hover:text-foreground",
 					className,
 				)}
@@ -173,7 +177,7 @@ export function OL({ className, ...props }: ComponentPropsWithoutRef<"ol">) {
 			className={cn(
 				"portfolio-body-lg list-outside list-decimal pl-8",
 				"text-foreground",
-				"marker:font-mono marker:text-surface-500 dark:marker:text-surface-400",
+				"marker:text-surface-500 dark:marker:text-surface-400",
 				className,
 			)}
 			style={ARTICLE_FLOW_STYLE}
@@ -305,9 +309,15 @@ export function Table({ className, ...props }: ComponentPropsWithoutRef<"table">
 	return (
 		<div
 			data-breakout="true"
-			className="media-breakout mb-(--portfolio-space-group) w-full overflow-x-auto"
+			className="media-breakout mb-(--portfolio-space-group) w-full overflow-x-auto border border-border"
 		>
-			<table className={cn("w-full border-collapse text-sm", className)} {...props} />
+			<table
+				className={cn(
+					"w-full table-fixed border-collapse text-[14px]/6 [overflow-wrap:anywhere]",
+					className,
+				)}
+				{...props}
+			/>
 		</div>
 	);
 }
@@ -345,8 +355,8 @@ export function TH({ className, ...props }: ComponentPropsWithoutRef<"th">) {
 	return (
 		<th
 			className={cn(
-				"py-3 text-left align-bottom",
-				"font-medium font-mono text-xs uppercase tracking-widest",
+				"p-4 text-left align-bottom",
+				"font-medium text-[13px]/5",
 				"text-surface-600 dark:text-surface-400",
 				className,
 			)}
@@ -359,7 +369,12 @@ export function TH({ className, ...props }: ComponentPropsWithoutRef<"th">) {
  * Table Data Cell
  */
 export function TD({ className, ...props }: ComponentPropsWithoutRef<"td">) {
-	return <td className={cn("py-3 align-top text-foreground", className)} {...props} />;
+	return (
+		<td
+			className={cn("border-border border-t p-4 align-top text-foreground", className)}
+			{...props}
+		/>
+	);
 }
 
 /**

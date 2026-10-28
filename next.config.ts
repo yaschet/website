@@ -1,5 +1,6 @@
 import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
+import { IS_PREVIEW_DEPLOYMENT } from "./src/constants/site";
 
 const nextConfig: NextConfig = {
 	reactCompiler: true,
@@ -36,8 +37,8 @@ const nextConfig: NextConfig = {
 	},
 
 	cacheComponents: true,
-	// Preserve existing link behavior until partial prefetching has a navigation audit.
-	partialPrefetching: false,
+	// Reuse route shells; article links additionally prefetch their cached URL content.
+	partialPrefetching: true,
 
 	experimental: {
 		serverActions: { bodySizeLimit: "16kb" },
@@ -86,6 +87,9 @@ const nextConfig: NextConfig = {
 			{
 				source: "/(.*)",
 				headers: [
+					...(IS_PREVIEW_DEPLOYMENT
+						? [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }]
+						: []),
 					{
 						key: "X-Content-Type-Options",
 						value: "nosniff",

@@ -1,3 +1,10 @@
+"use client";
+import {
+	RiArrowLeftSLine as CaretLeft,
+	RiArrowRightSLine as CaretRight,
+	RiPlayLine as Play,
+} from "@remixicon/react";
+
 /**
  * ImageGallery - Shared rich media gallery.
  *
@@ -8,11 +15,6 @@
  * @public
  */
 
-"use client";
-
-import { CaretLeft } from "@phosphor-icons/react/dist/ssr/CaretLeft";
-import { CaretRight } from "@phosphor-icons/react/dist/ssr/CaretRight";
-import { Play } from "@phosphor-icons/react/dist/ssr/Play";
 import { motion, useReducedMotion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
@@ -340,7 +342,21 @@ export function ImageGallery({
 
 	const handleKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLDivElement>) => {
-			if (!enableKeyboard) return;
+			if (
+				!enableKeyboard ||
+				event.defaultPrevented ||
+				event.altKey ||
+				event.ctrlKey ||
+				event.metaKey
+			)
+				return;
+			if (
+				event.target instanceof Element &&
+				event.target.closest(
+					"[data-portfolio-video], [data-player-interactive], input, textarea, select, [contenteditable=true], [role=menu], [role=slider]",
+				)
+			)
+				return;
 
 			if (event.key === "ArrowRight") {
 				event.preventDefault();
@@ -354,7 +370,11 @@ export function ImageGallery({
 				return;
 			}
 
-			if ((event.key === "Enter" || event.key === " ") && expandable) {
+			if (
+				(event.key === "Enter" || event.key === " ") &&
+				expandable &&
+				event.target === event.currentTarget
+			) {
 				const currentItem = galleryItems[activeIndex];
 				if (currentItem?.kind === "image") {
 					event.preventDefault();
@@ -567,11 +587,7 @@ export function ImageGallery({
 														: "Play video"
 												}
 											>
-												<Play
-													size={22}
-													weight="fill"
-													className="-translate-x-0.5"
-												/>
+												<Play size={22} className="-translate-x-0.5" />
 												<span className="font-mono font-semibold text-sm uppercase tracking-[0.12em]">
 													{item.duration
 														? `Play · ${item.duration}`
@@ -602,7 +618,8 @@ export function ImageGallery({
 												current === index ? null : current,
 											)
 										}
-										onClick={() => {
+										onClick={(event) => {
+											event.currentTarget.focus({ preventScroll: true });
 											setActiveIndex(index);
 											setIsLightboxOpen(true);
 										}}
@@ -656,7 +673,7 @@ export function ImageGallery({
 									"pointer-events-auto opacity-100",
 							)}
 						>
-							<CaretLeft size={18} weight="bold" />
+							<CaretLeft size={18} />
 						</motion.button>
 
 						<motion.button
@@ -685,7 +702,7 @@ export function ImageGallery({
 									"pointer-events-auto opacity-100",
 							)}
 						>
-							<CaretRight size={18} weight="bold" />
+							<CaretRight size={18} />
 						</motion.button>
 					</>
 				)}
@@ -737,6 +754,7 @@ export function ImageGallery({
 					onOpenChange={setIsLightboxOpen}
 					open={isLightboxOpen}
 					quality={quality}
+					returnFocusRef={enableKeyboard ? outerRef : undefined}
 					sizes="95vw"
 				/>
 			)}

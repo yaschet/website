@@ -1,27 +1,23 @@
 "use client";
+import {
+	RiFullscreenExitLine as ArrowsInIcon,
+	RiFullscreenLine as ArrowsOutIcon,
+	RiPauseLine as PauseIcon,
+	RiPlayLine as PlayIcon,
+	RiVolumeUpLine as SpeakerHighIcon,
+	RiVolumeDownLine as SpeakerLowIcon,
+	RiVolumeMuteLine as SpeakerSimpleSlashIcon,
+	RiCloseLine as XIcon,
+} from "@remixicon/react";
 
 import "@mux/mux-video";
 import type MuxVideoElement from "@mux/mux-video";
-import { ArrowsInIcon } from "@phosphor-icons/react/dist/ssr/ArrowsIn";
-import { ArrowsOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowsOut";
-import { PauseIcon } from "@phosphor-icons/react/dist/ssr/Pause";
-import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
-import { SpeakerHighIcon } from "@phosphor-icons/react/dist/ssr/SpeakerHigh";
-import { SpeakerLowIcon } from "@phosphor-icons/react/dist/ssr/SpeakerLow";
-import { SpeakerSimpleSlashIcon } from "@phosphor-icons/react/dist/ssr/SpeakerSimpleSlash";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import type { CSSProperties, KeyboardEvent, MouseEvent, WheelEvent } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu";
+import { StateSwap } from "@/src/components/ui/state-swap";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { applyEdgeResistance, cn, springs, tweens } from "@/src/lib/index";
 import {
@@ -29,6 +25,8 @@ import {
 	PORTFOLIO_VIDEO_ACTIVE_EVENT,
 	type PortfolioVideoActiveEventDetail,
 } from "@/src/lib/portfolio-video-sync";
+import { GALLERY_CHROME_BUTTON_CLASS_NAME } from "./gallery-chrome";
+import { VideoSettingsMenu } from "./video-settings-menu";
 
 type PortfolioMuxVideoVariant = "gallery" | "lightbox" | "article";
 
@@ -90,23 +88,9 @@ const PLAYBACK_RATE_OPTIONS = [
 
 let nextPortfolioMuxVideoId = 0;
 
-const PLAYER_BUTTON_CLASS_NAME = cn(
-	"flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-none border-none bg-surface-950 px-3 text-white",
-	"disabled:pointer-events-none disabled:opacity-35",
-	"focus-visible:outline-none",
-	"hover:bg-surface-800",
-);
-
-const PLAYER_ICON_BUTTON_CLASS_NAME = cn(
-	"flex h-10 w-10 items-center justify-center rounded-none border-none bg-surface-950 text-white",
-	"disabled:pointer-events-none disabled:opacity-35",
-	"focus-visible:outline-none",
-	"hover:bg-surface-800",
-);
-
-const PLAYER_TIME_DISPLAY_CLASS_NAME = cn(
-	"pointer-events-auto inline-flex h-10 cursor-default items-center whitespace-nowrap rounded-none border-none bg-surface-950 px-3 font-mono text-[10px] text-white uppercase tracking-[0.22em]",
-);
+const PLAYER_ICON_BUTTON_CLASS_NAME = cn(GALLERY_CHROME_BUTTON_CLASS_NAME, "border-0");
+const PLAYER_TIME_DISPLAY_CLASS_NAME =
+	"pointer-events-auto inline-flex h-[var(--portfolio-control-default)] cursor-default items-center whitespace-nowrap bg-surface-950 px-3 font-sans text-xs text-surface-50 tabular-nums";
 
 function formatPlaybackTime(value: number, mode: "floor" | "ceil" = "floor") {
 	if (!Number.isFinite(value) || value <= 0) {
@@ -281,18 +265,6 @@ function getPlaybackRateLabel(value: number) {
 	return PLAYBACK_RATE_OPTIONS.find((option) => option.value === value)?.label ?? `${value}x`;
 }
 
-function getVolumeIcon(isMuted: boolean, volume: number) {
-	if (isMuted || volume <= 0.01) {
-		return SpeakerSimpleSlashIcon;
-	}
-
-	if (volume < 0.5) {
-		return SpeakerLowIcon;
-	}
-
-	return SpeakerHighIcon;
-}
-
 function pauseNativeMediaElement(media: HTMLMediaElement) {
 	try {
 		media.pause();
@@ -383,75 +355,25 @@ export function PortfolioMuxVideo({
 	const posterSrc = useMemo(() => getPosterSrc(poster), [poster]);
 	const resolvedPlaybackSrc = useMemo(() => getMuxStreamSrc(playbackId), [playbackId]);
 	const menuOpen = openMenu !== null;
-	const hasQualityMenu = qualityOptions.length > 2;
+	const hasQualityMenu = qualityOptions.length > 1;
 	const playedPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0;
 	const volumePercent = Math.min(Math.max(volume * 100, 0), 100);
 	const rateLabel = getPlaybackRateLabel(playbackRate);
 	const activeQualityOption = qualityOptions.find((option) => option.value === qualityValue);
 	const qualityLabel = activeQualityOption?.triggerLabel ?? activeQualityOption?.label ?? "Auto";
-	const VolumeIcon = getVolumeIcon(isMuted, volume);
+	const volumeState = isMuted || volume <= 0.01 ? "muted" : volume < 0.5 ? "low" : "high";
 	const controlsInteractiveClassName = controlsVisible
 		? "pointer-events-auto"
 		: "pointer-events-none";
 	const showTimelineBuffering = isActive && hasStartedPlayback && isBuffering && !isSeeking;
-	const qualityTriggerLabel =
-		qualityValue === "auto"
-			? {
-					mode: "auto" as const,
-					label: "AUTO",
-					resolved: resolvedQualityLabel,
-					chipLabel: resolvedQualityChipLabel,
-				}
-			: {
-					mode: "manual" as const,
-					label: qualityLabel.toUpperCase(),
-					chipLabel: activeQualityOption?.chipLabel ?? null,
-				};
 	const isCompactLayout = playerWidth > 0 && playerWidth < 760;
-	const isTightLayout = playerWidth > 0 && playerWidth < 560;
 	const isUltraCompactLayout = playerWidth > 0 && playerWidth < 430;
 	const showInlineVolume = !isCompactLayout && !isCoarsePointer;
-	const compactQualityTriggerLabel =
-		qualityValue === "auto" ? (resolvedQualityLabel ?? "AUTO") : qualityLabel.toUpperCase();
-	const showQualityChipInTrigger = !isTightLayout && qualityTriggerLabel.chipLabel;
-	const showResolvedQualityInTrigger =
-		!isTightLayout &&
-		qualityTriggerLabel.mode === "auto" &&
-		Boolean(qualityTriggerLabel.resolved);
-	const qualityMenuContentClassName = cn(
-		"w-auto min-w-0 rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
-	);
-	const rateMenuContentClassName = cn(
-		"rounded-none border-[color:var(--portfolio-player-hairline)] bg-surface-950 p-1 text-surface-50 shadow-none",
-		isCompactLayout ? "min-w-28" : "min-w-36",
-	);
-	const qualityTriggerClassName = cn(
-		PLAYER_BUTTON_CLASS_NAME,
-		isUltraCompactLayout
-			? "min-w-[3.5rem] px-1.5 font-mono text-[8.5px] uppercase tracking-[0.12em]"
-			: isCompactLayout
-				? "min-w-[4.25rem] px-2 font-mono text-[9px] uppercase tracking-[0.16em]"
-				: "min-w-21 justify-center font-mono text-[10px] uppercase tracking-[0.22em]",
-	);
-	const rateTriggerClassName = cn(
-		PLAYER_BUTTON_CLASS_NAME,
-		isUltraCompactLayout
-			? "min-w-[2.75rem] px-1.5 font-mono text-[8.5px] uppercase tabular-nums tracking-[0.12em]"
-			: isCompactLayout
-				? "min-w-[3.5rem] px-2 font-mono text-[9px] uppercase tabular-nums tracking-[0.16em]"
-				: "min-w-[4.75rem] justify-center gap-0 px-3 font-mono text-[10px] uppercase tabular-nums tracking-[0.22em]",
-	);
-	const iconButtonClassName = cn(
-		PLAYER_ICON_BUTTON_CLASS_NAME,
-		isUltraCompactLayout ? "h-8 w-8" : isCompactLayout && "h-9 w-9",
-	);
+	const iconButtonClassName = PLAYER_ICON_BUTTON_CLASS_NAME;
 	const timeDisplayClassName = cn(
 		PLAYER_TIME_DISPLAY_CLASS_NAME,
-		isUltraCompactLayout
-			? "h-8 border-l px-1.5 text-[8.5px] tracking-[0.08em]"
-			: isCompactLayout
-				? "h-9 border-l px-2 text-[9px] tracking-[0.14em]"
-				: "border-l pl-3",
+		"border-l",
+		isCompactLayout ? "px-2" : "pl-3",
 	);
 	const timeDisplayText = isCompactLayout
 		? `${formatPlaybackTime(currentTime)}/${formatPlaybackTime(duration, "ceil")}`
@@ -1618,7 +1540,13 @@ export function PortfolioMuxVideo({
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent<HTMLDivElement>) => {
 			const target = event.target as HTMLElement | null;
-			if (menuOpen) {
+			if (
+				event.defaultPrevented ||
+				event.altKey ||
+				event.ctrlKey ||
+				event.metaKey ||
+				menuOpen
+			) {
 				return;
 			}
 
@@ -1697,185 +1625,54 @@ export function PortfolioMuxVideo({
 		],
 	);
 
-	const renderQualityMenuRow = useCallback(
-		({
-			active: rowActive,
-			chipLabel,
-			detailLabel,
-			resolutionLabel,
-		}: {
-			active: boolean;
-			chipLabel?: string;
-			detailLabel?: string;
-			resolutionLabel: string;
-		}) => (
-			<span className="grid w-full min-w-0 grid-cols-[2px_minmax(0,1fr)_3.25rem] items-center gap-2">
-				<span
-					aria-hidden
-					className={cn(
-						"h-4 w-[2px] self-center bg-white",
-						rowActive ? "opacity-100" : "opacity-0",
-					)}
-				/>
-				<span className="flex min-w-0 items-center gap-1.5">
-					<span className="shrink-0 text-left font-mono text-[10px] uppercase tabular-nums leading-none tracking-[0.18em]">
-						{resolutionLabel}
-					</span>
-					{detailLabel ? (
-						<span className="truncate text-left font-mono text-[10px] text-white/50 uppercase tabular-nums leading-none tracking-[0.18em]">
-							{detailLabel}
-						</span>
-					) : null}
-				</span>
-				{chipLabel ? (
-					<span className="inline-flex h-5 w-[3.25rem] items-center justify-center justify-self-end border border-white/20 px-1.5 font-mono text-[9px] text-white/70 uppercase tabular-nums leading-none tracking-[0.12em]">
-						{chipLabel}
-					</span>
-				) : (
-					<span aria-hidden className="block h-5 w-[3.25rem] justify-self-end" />
-				)}
-			</span>
-		),
-		[],
-	);
-
-	const renderSimpleMenuRow = useCallback(
-		({ active: rowActive, label }: { active: boolean; label: string }) => (
-			<span className="inline-grid w-max max-w-full grid-cols-[2px_max-content] items-center gap-2.5">
-				<span
-					aria-hidden
-					className={cn(
-						"h-4 w-[2px] self-center bg-white",
-						rowActive ? "opacity-100" : "opacity-0",
-					)}
-				/>
-				<span className="truncate text-left font-mono text-[10px] uppercase tabular-nums leading-none tracking-[0.18em]">
-					{label}
-				</span>
-			</span>
-		),
-		[],
-	);
-
 	const qualityControl = hasQualityMenu ? (
-		<DropdownMenu
-			size="sm"
+		<VideoSettingsMenu
+			kind="quality"
+			label="Select video quality"
+			triggerLabel={qualityValue === "auto" ? "Auto" : qualityLabel}
+			value={qualityValue}
+			options={qualityOptions.map((option) =>
+				option.value === "auto"
+					? {
+							...option,
+							detailLabel: resolvedQualityLabel ?? undefined,
+							chipLabel: resolvedQualityChipLabel ?? undefined,
+						}
+					: option,
+			)}
 			open={openMenu === "quality"}
-			onOpenChange={(open) => setOpenMenu(open ? "quality" : null)}
-		>
-			<DropdownMenuTrigger asChild>
-				<button
-					type="button"
-					className={qualityTriggerClassName}
-					data-player-interactive
-					aria-label="Select video quality"
-				>
-					<span className="flex items-center gap-2">
-						<span className="flex items-center gap-2">
-							<span>
-								{isTightLayout
-									? compactQualityTriggerLabel
-									: qualityTriggerLabel.label}
-							</span>
-							{showResolvedQualityInTrigger ? (
-								<span className="text-white/50">
-									· {qualityTriggerLabel.resolved}
-								</span>
-							) : null}
-						</span>
-						{showQualityChipInTrigger ? (
-							<span className="inline-flex h-5 min-w-[34px] items-center justify-center border border-white/18 px-1.5 font-mono text-[9px] text-white/70 uppercase leading-none tracking-[0.12em]">
-								{qualityTriggerLabel.chipLabel}
-							</span>
-						) : null}
-					</span>
-				</button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent
-				align="end"
-				side="top"
-				sideOffset={8}
-				collisionPadding={12}
-				data-player-interactive
-				className={qualityMenuContentClassName}
-			>
-				<DropdownMenuRadioGroup value={qualityValue} onValueChange={handleQualityChange}>
-					{qualityOptions.map((option) => (
-						<DropdownMenuRadioItem
-							key={option.value}
-							value={option.value}
-							hideIndicator
-							disableIndicatorPadding
-							className={cn(
-								"h-9 rounded-none px-3 text-white/70 outline-none",
-								"hover:bg-white/6 hover:text-white focus:bg-white/6 focus:text-white data-[highlighted]:bg-white/6 data-[highlighted]:text-white",
-								"data-[state=checked]:bg-white/10 data-[state=checked]:font-semibold data-[state=checked]:text-white",
-								"data-[state=checked]:data-[highlighted]:bg-white/14 data-[state=checked]:focus:bg-white/14 data-[state=checked]:hover:bg-white/14",
-							)}
-						>
-							{renderQualityMenuRow({
-								active: option.value === qualityValue,
-								detailLabel: option.detailLabel,
-								chipLabel: option.chipLabel,
-								resolutionLabel: option.resolutionLabel ?? option.label,
-							})}
-						</DropdownMenuRadioItem>
-					))}
-				</DropdownMenuRadioGroup>
-			</DropdownMenuContent>
-		</DropdownMenu>
+			onOpenChange={(open) => {
+				setOpenMenu(open ? "quality" : null);
+				if (open) {
+					clearControlsTimeout();
+					setControlsVisible(true);
+				}
+			}}
+			onValueChange={handleQualityChange}
+			container={isFullscreen || variant === "lightbox" ? containerRef.current : undefined}
+		/>
 	) : null;
-
 	const rateControl = (
-		<DropdownMenu
-			size="sm"
+		<VideoSettingsMenu
+			kind="speed"
+			label="Select playback speed"
+			triggerLabel={rateLabel}
+			value={String(playbackRate)}
+			options={PLAYBACK_RATE_OPTIONS.map((option) => ({
+				...option,
+				value: String(option.value),
+			}))}
 			open={openMenu === "rate"}
-			onOpenChange={(open) => setOpenMenu(open ? "rate" : null)}
-		>
-			<DropdownMenuTrigger asChild>
-				<button
-					type="button"
-					className={rateTriggerClassName}
-					data-player-interactive
-					aria-label="Select playback speed"
-				>
-					{rateLabel}
-				</button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent
-				align="end"
-				side="top"
-				sideOffset={8}
-				collisionPadding={12}
-				data-player-interactive
-				className={rateMenuContentClassName}
-			>
-				<DropdownMenuRadioGroup
-					value={String(playbackRate)}
-					onValueChange={handlePlaybackRateChange}
-				>
-					{PLAYBACK_RATE_OPTIONS.map((option) => (
-						<DropdownMenuRadioItem
-							key={option.value}
-							value={String(option.value)}
-							hideIndicator
-							disableIndicatorPadding
-							className={cn(
-								"h-9 rounded-none px-3 text-white/70 outline-none",
-								"hover:bg-white/6 hover:text-white focus:bg-white/6 focus:text-white data-[highlighted]:bg-white/6 data-[highlighted]:text-white",
-								"data-[state=checked]:bg-white/10 data-[state=checked]:font-semibold data-[state=checked]:text-white",
-								"data-[state=checked]:data-[highlighted]:bg-white/14 data-[state=checked]:focus:bg-white/14 data-[state=checked]:hover:bg-white/14",
-							)}
-						>
-							{renderSimpleMenuRow({
-								active: option.value === playbackRate,
-								label: option.label,
-							})}
-						</DropdownMenuRadioItem>
-					))}
-				</DropdownMenuRadioGroup>
-			</DropdownMenuContent>
-		</DropdownMenu>
+			onOpenChange={(open) => {
+				setOpenMenu(open ? "rate" : null);
+				if (open) {
+					clearControlsTimeout();
+					setControlsVisible(true);
+				}
+			}}
+			onValueChange={handlePlaybackRateChange}
+			container={isFullscreen || variant === "lightbox" ? containerRef.current : undefined}
+		/>
 	);
 
 	const fullscreenControl = (
@@ -1890,11 +1687,10 @@ export function PortfolioMuxVideo({
 				void toggleFullscreen();
 			}}
 		>
-			{isFullscreen ? (
-				<ArrowsInIcon size={18} weight="bold" />
-			) : (
-				<ArrowsOutIcon size={18} weight="bold" />
-			)}
+			<StateSwap
+				value={isFullscreen ? "full" : "inline"}
+				items={{ full: <ArrowsInIcon size={16} />, inline: <ArrowsOutIcon size={16} /> }}
+			/>
 		</button>
 	);
 	const controlsPanelClassName = cn(
@@ -1921,6 +1717,8 @@ export function PortfolioMuxVideo({
 				isFullscreen && "fixed inset-0 z-50 m-0 rounded-none",
 				className,
 			)}
+			data-portfolio-video
+			data-motion-input={isFocusVisibleWithin ? "keyboard" : "pointer"}
 			role="application"
 			aria-label="Video player"
 			onClick={handleRootClick}
@@ -1937,6 +1735,11 @@ export function PortfolioMuxVideo({
 				}
 			}}
 			onKeyDown={handleKeyDown}
+			onKeyDownCapture={() => {
+				setIsFocusVisibleWithin(true);
+				setControlsVisible(true);
+				clearControlsTimeout();
+			}}
 			onPointerDownCapture={() => {
 				setIsFocusVisibleWithin(false);
 			}}
@@ -1948,8 +1751,7 @@ export function PortfolioMuxVideo({
 			onPointerLeave={() => {
 				if (!canHover) return;
 				setIsPointerInside(false);
-				clearControlsTimeout();
-				setControlsVisible(false);
+				hideControlsImmediately();
 			}}
 			onPointerMove={() => {
 				if (!canHover) return;
@@ -2023,7 +1825,7 @@ export function PortfolioMuxVideo({
 							void handleExitSurface();
 						}}
 					>
-						<XIcon size={18} weight="bold" />
+						<XIcon size={16} />
 					</button>
 				</motion.div>
 			) : null}
@@ -2111,7 +1913,7 @@ export function PortfolioMuxVideo({
 
 					<div
 						className={cn(
-							"flex items-center justify-between gap-3",
+							"flex flex-wrap items-center justify-between gap-3",
 							isCompactLayout && "gap-2",
 							isUltraCompactLayout && "gap-1.5",
 						)}
@@ -2134,15 +1936,13 @@ export function PortfolioMuxVideo({
 									void togglePlayback();
 								}}
 							>
-								{isPlaying ? (
-									<PauseIcon size={18} weight="fill" />
-								) : (
-									<PlayIcon
-										size={18}
-										weight="fill"
-										className="-translate-x-[0.75px]"
-									/>
-								)}
+								<StateSwap
+									value={isPlaying ? "playing" : "paused"}
+									items={{
+										playing: <PauseIcon size={16} />,
+										paused: <PlayIcon size={16} />,
+									}}
+								/>
 							</button>
 
 							<button
@@ -2156,7 +1956,14 @@ export function PortfolioMuxVideo({
 									toggleMute();
 								}}
 							>
-								<VolumeIcon size={18} weight="fill" />
+								<StateSwap
+									value={volumeState}
+									items={{
+										muted: <SpeakerSimpleSlashIcon size={16} />,
+										low: <SpeakerLowIcon size={16} />,
+										high: <SpeakerHighIcon size={16} />,
+									}}
+								/>
 							</button>
 
 							{showInlineVolume ? (

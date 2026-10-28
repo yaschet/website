@@ -1,172 +1,148 @@
-/**
- * Storybook for the Swiss Design Toast component (Sonner).
- *
- * @remarks
- * Demonstrates the "Swiss Design" aesthetics:
- * - 0px Radius ("The Blade")
- * - No Shadows (Depth via Border/Contrast)
- * - Uppercase Bold Titles
- * - Monospace Descriptions
- * - Regular Weight Icons
- */
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { useCallback, useEffect, useState } from "react";
+import { expect, waitFor, within } from "storybook/test";
+import { SinglePreviewDocsPage } from "../../../.storybook/workshop-docs";
+import { Button } from "./button";
+import { createToastManager, Toaster } from "./sonner";
 
-import type { Meta, StoryObj } from "@storybook/react";
-import { toast } from "sonner";
-import { Button } from "@/src/components/ui/button";
-import { Toaster } from "@/src/components/ui/sonner";
-
-// Wrapper component to trigger toasts
-const ToastDemo = ({ action }: { action: () => void }) => {
+type ToastKind = "message" | "success" | "error" | "warning" | "info";
+function ToastExample({
+	kind = "message",
+	title = "Draft saved",
+	description,
+	action = false,
+}: {
+	kind?: ToastKind;
+	title?: string;
+	description?: string;
+	action?: boolean;
+}) {
+	const [manager] = useState(() => createToastManager());
+	const [preview, setPreview] = useState<HTMLDivElement | null>(null);
+	const [result, setResult] = useState("No action taken");
+	const show = useCallback(() => {
+		manager.add({
+			id: "example-notification",
+			title,
+			type: kind,
+			description,
+			timeout: 0,
+			...(action
+				? {
+						actionProps: {
+							children: "Undo",
+							onClick: () => {
+								setResult("Example change undone");
+								manager.close("example-notification");
+							},
+						},
+					}
+				: {}),
+		});
+	}, [manager, kind, title, description, action]);
+	useEffect(() => {
+		show();
+		return () => manager.close();
+	}, [manager, show]);
 	return (
-		<div className="flex flex-col items-center justify-center gap-4 p-8">
-			<Button onClick={action}>Trigger Toast</Button>
-			<Toaster />
+		<div
+			ref={setPreview}
+			data-toast-preview=""
+			className="relative min-h-64 w-full max-w-xl p-4 [contain:layout]"
+		>
+			<div className="flex flex-wrap items-center gap-3">
+				<Button variant="soft" onClick={show}>
+					Show notification
+				</Button>
+				{action && (
+					<p role="status" className="portfolio-body-sm">
+						{result}
+					</p>
+				)}
+			</div>
+			<Toaster toastManager={manager} container={preview} />
 		</div>
 	);
-};
-
-const meta: Meta<typeof Toaster> = {
-	title: "UI/Toaster",
-	component: Toaster,
+}
+const meta = {
+	id: "primitives-toaster",
+	title: "Components/Feedback/Toasts",
+	component: ToastExample,
 	tags: ["autodocs"],
 	parameters: {
-		layout: "centered",
+		layout: "fullscreen",
 		docs: {
+			page: SinglePreviewDocsPage,
 			description: {
 				component:
-					"An opinionated, high-performance toast notification system inspired by Swiss Design patterns. Features 0px radius, high contrast, and architectural typography.",
+					"Base UI toast behavior with Yaschet's padded notification heading: matching 40px icon and soft dismiss chambers, centered 14/20 title and 12/16 supporting text, and 16px insets and gaps. Each preview owns an isolated manager and portal host. No requests are sent.",
 			},
 		},
 	},
-	decorators: [
-		(Story) => (
-			<div className="relative flex min-h-[300px] min-w-[600px] items-center justify-center border border-surface-200 bg-surface-50 dark:border-surface-800 dark:bg-surface-950">
-				<Story />
-			</div>
-		),
-	],
-};
-
+} satisfies Meta<typeof ToastExample>;
 export default meta;
-
-type Story = StoryObj<typeof Toaster>;
-
-/**
- * The standard toast notification. Useful for simple feedback.
- */
+type Story = StoryObj<typeof meta>;
 export const Default: Story = {
-	render: () => <ToastDemo action={() => toast("Operation completed.")} />,
+	args: { description: "You can keep editing before sending." },
 };
-
-/**
- * Toast with a description. Uses the Monospace font for data-heavy context.
- */
-export const WithDescription: Story = {
-	render: () => (
-		<ToastDemo
-			action={() =>
-				toast("File Uploaded", {
-					description: "IMG_2049.jpg (4.2MB) has been processed.",
-				})
-			}
-		/>
-	),
-};
-
-/**
- * Success state. Uses "Regular" weight CheckIcon and success semantic colors.
- */
 export const Success: Story = {
-	render: () => (
-		<ToastDemo
-			action={() =>
-				toast.success("Deployment Successful", {
-					description: "Production build v4.2.0 is now live.",
-				})
-			}
-		/>
-	),
+	args: { kind: "success", title: "Message sent", description: "Thanks for getting in touch." },
 };
-
-/**
- * Error state. Uses "Regular" weight WarningDiamondIcon and destructive semantic colors.
- */
 export const ErrorState: Story = {
-	render: () => (
-		<ToastDemo
-			action={() =>
-				toast.error("Connection Failed", {
-					description: "Could not resolve hostname 'api.production'.",
-				})
-			}
-		/>
-	),
+	args: {
+		kind: "error",
+		title: "Message not sent",
+		description: "Your draft is safe. Try again shortly.",
+	},
 };
-
-/**
- * Warning state. Uses "Regular" weight ExclamationMarkIcon and warning semantic colors.
- */
 export const Warning: Story = {
-	render: () => (
-		<ToastDemo
-			action={() =>
-				toast.warning("High Memory Usage", {
-					description: "Process 8021 is consuming 85% RAM.",
-				})
-			}
-		/>
-	),
+	args: {
+		kind: "warning",
+		title: "Check your message",
+		description: "Add an email address so I can reply.",
+	},
 };
-
-/**
- * Info state. Uses "Regular" weight InfoIcon and info semantic colors.
- */
 export const Info: Story = {
-	render: () => (
-		<ToastDemo
-			action={() =>
-				toast.info("Update Available", {
-					description: "A new version of the system is ready to install.",
-				})
-			}
-		/>
-	),
+	args: {
+		kind: "info",
+		title: "Draft restored",
+		description: "Continue from where you left off.",
+	},
 };
-
-/**
- * Action toast. Includes a button for user interaction.
- */
 export const WithAction: Story = {
-	render: () => (
-		<ToastDemo
-			action={() =>
-				toast("Undo Delete", {
-					description: "Project 'Falcon' has been moved to trash.",
-					action: {
-						label: "Undo",
-						onClick: () => {
-							// Handle undo
-						},
-					},
-				})
-			}
-		/>
-	),
+	args: { action: true, title: "Draft cleared", description: "Restore this example draft." },
+	play: async ({ canvasElement, userEvent }) => {
+		const document = within(canvasElement.ownerDocument.body);
+		await userEvent.click(await document.findByRole("button", { name: "Undo" }));
+		await expect(document.getByRole("status")).toHaveTextContent("Example change undone");
+		await waitFor(() =>
+			expect(
+				canvasElement.ownerDocument.querySelector('[data-slot="toast"]'),
+			).not.toBeInTheDocument(),
+		);
+	},
 };
-
-/**
- * Promise toast. Automatically transitions from Loading -> Success/Error.
- */
-export const PromiseToast: Story = {
-	render: () => (
-		<ToastDemo
-			action={() =>
-				toast.promise(() => new Promise((resolve) => setTimeout(resolve, 2000)), {
-					loading: "Compiling assets...",
-					success: "Compilation finished in 2.1s",
-					error: "Compilation failed",
-				})
-			}
-		/>
-	),
+export const LongMessage: Story = {
+	args: {
+		kind: "error",
+		title: "Message not sent",
+		description:
+			"Your message could not be delivered right now. Your draft is still available, so you can try again shortly without writing it again.",
+	},
+};
+export const TitleOnly: Story = { args: { title: "Saved" } };
+export const Dismiss: Story = {
+	play: async ({ canvasElement, userEvent }) => {
+		const close = canvasElement.ownerDocument.querySelector<HTMLButtonElement>(
+			'[data-slot="toast-close"]',
+		);
+		if (!close) throw new Error("Toast close control must be rendered");
+		await expect(close).toBeVisible();
+		await userEvent.click(close);
+		await waitFor(() =>
+			expect(
+				canvasElement.ownerDocument.querySelector('[data-slot="toast"]'),
+			).not.toBeInTheDocument(),
+		);
+	},
 };

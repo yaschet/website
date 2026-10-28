@@ -33,9 +33,7 @@ export function PageIntro({
 		>
 			{eyebrow && (
 				<Reveal delay={revealSequence.eyebrow}>
-					<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
-						{eyebrow}
-					</p>
+					<p className="portfolio-kicker text-muted-foreground">{eyebrow}</p>
 				</Reveal>
 			)}
 
@@ -43,7 +41,7 @@ export function PageIntro({
 				<HeadingReveal
 					as="h1"
 					delay={revealSequence.heading}
-					className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100"
+					className="portfolio-hero-title portfolio-capsize-hero text-[32px] text-foreground leading-[40px] sm:text-[48px] sm:leading-[56px] min-[360px]:text-[36px] min-[360px]:leading-[44px]"
 				>
 					{title}
 				</HeadingReveal>
@@ -51,7 +49,7 @@ export function PageIntro({
 				{description && (
 					<Reveal delay={revealSequence.body}>
 						<ProseContainer className={cn(isCentered && "mx-auto")}>
-							<p className="portfolio-body-lg text-surface-600 dark:text-surface-400">
+							<p className="portfolio-intro-copy text-muted-foreground">
 								{description}
 							</p>
 						</ProseContainer>

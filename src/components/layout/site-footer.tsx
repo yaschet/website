@@ -25,7 +25,7 @@ export function SiteFooter() {
 									</span>
 									<a
 										href="mailto:hello@yaschet.dev"
-										className="portfolio-caption font-medium text-surface-500 transition-colors hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50"
+										className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50"
 									>
 										hello@yaschet.dev
 									</a>
@@ -37,6 +37,7 @@ export function SiteFooter() {
 										aria-label="Social Links"
 									>
 										<Link
+											transitionTypes={["navigation"]}
 											href="https://linkedin.com/in/yassinechettouch"
 											target="_blank"
 											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
@@ -44,6 +45,7 @@ export function SiteFooter() {
 											LinkedIn
 										</Link>
 										<Link
+											transitionTypes={["navigation"]}
 											href="https://github.com/yaschet"
 											target="_blank"
 											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
@@ -51,6 +53,7 @@ export function SiteFooter() {
 											GitHub
 										</Link>
 										<Link
+											transitionTypes={["navigation"]}
 											href="https://x.com/yaschett"
 											target="_blank"
 											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
@@ -60,6 +63,7 @@ export function SiteFooter() {
 									</nav>
 									<div>
 										<Link
+											transitionTypes={["navigation"]}
 											href="https://github.com/yaschet/website"
 											target="_blank"
 											rel="noreferrer"
@@ -71,7 +75,7 @@ export function SiteFooter() {
 								</div>
 							</div>
 
-							<p className="portfolio-body-xs max-w-[72ch] text-surface-500 dark:text-surface-400">
+							<p className="portfolio-body-xs max-w-[72ch] text-surface-600 dark:text-surface-400">
 								<span className="font-medium text-surface-700 dark:text-surface-300">
 									Colophon.
 								</span>{" "}

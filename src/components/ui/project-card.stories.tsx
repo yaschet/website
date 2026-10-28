@@ -6,7 +6,8 @@ import { ProjectCard } from "./project-card";
  * Project showcase card for portfolio listings.
  */
 const meta: Meta<typeof ProjectCard> = {
-	title: "Components/ProjectCard",
+	id: "experiments-projectcard",
+	title: "Lab/Alternative Project Card",
 	component: ProjectCard,
 	tags: ["autodocs"],
 	parameters: {
@@ -27,7 +28,7 @@ const meta: Meta<typeof ProjectCard> = {
 	],
 	argTypes: {
 		project: {
-			description: "Contentlayer Project document.",
+			description: "Public project metadata.",
 			table: { category: "Data" },
 		},
 		className: {
@@ -42,26 +43,26 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const mockProject = {
-	title: "Verto — Financial OS",
+	title: "Verto",
 	description:
-		"A high-performance trading platform built for institutional grade execution. Focusing on latency reduction and geometric clarity.",
-	date: "2024-05-15",
-	tags: ["fintech"],
+		"Architecture of a proprietary AI-powered translation engine designed for high-volume document pipelines.",
+	date: "2026-01-26",
+	tags: ["document translation"],
 	urlPath: "/case-studies/verto",
-	tech: ["Next.js", "TypeScript", "Tailwind v4", "Framer Motion", "Rust"],
+	tech: ["Next.js 16", "TypeScript", "Supabase", "OpenAI", "PostgreSQL"],
 	featured: true,
 	hideCoverGallery: false,
 	listed: true,
-	cardState: "public" as const,
+	cardState: "public",
 	id: "project:verto",
 	slug: "verto",
 	readingTime: 6,
 	Content: () => null,
-};
+} satisfies ProjectEntry;
 
 export const Featured: Story = {
 	args: {
-		project: mockProject as ProjectEntry,
+		project: mockProject,
 	},
 };
 
@@ -72,6 +73,6 @@ export const Standard: Story = {
 			featured: false,
 			title: "Swiss Grid System",
 			tech: ["Canvas API", "Physics", "React"],
-		} as ProjectEntry,
+		},
 	},
 };

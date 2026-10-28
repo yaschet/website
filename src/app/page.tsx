@@ -1,13 +1,11 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { Briefcase } from "@phosphor-icons/react/dist/ssr/Briefcase";
-import Link from "next/link";
 import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-work-callout";
 import { PageContainer } from "@/src/components/layout/containers";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
 import { SiteHero } from "@/src/components/layout/site-hero";
-import { Button } from "@/src/components/ui/button";
+import { ButtonLink } from "@/src/components/ui/button-link";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
@@ -28,18 +26,16 @@ function HomeClosingCta() {
 			>
 				View selected work.
 			</h2>
-			<Button
-				asChild
+			<ButtonLink
+				href="/case-studies"
 				size="md"
 				variant="solid"
 				color="default"
 				className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
+				icon={<ArrowRightIcon className="size-4" weight="bold" />}
 			>
-				<Link href="/case-studies">
-					Case Studies
-					<ArrowRightIcon className="size-4" weight="bold" />
-				</Link>
-			</Button>
+				Case studies
+			</ButtonLink>
 		</InstrumentActionBand>
 	);
 }
@@ -51,10 +47,8 @@ export default async function Home() {
 	const hasFeaturedProjects = featuredProjects.length > 0;
 
 	return (
-		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+		<div className="flex flex-1 flex-col text-foreground selection:bg-foreground selection:text-background">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
-				<SiteHeader />
-
 				{/* Box 1: Profile + Hero — two rows, one shared border */}
 				<PageContainer>
 					<SwissGridBox>
@@ -69,59 +63,31 @@ export default async function Home() {
 
 				{/* Box 2: Selected Work */}
 				<PageContainer className="mt-10">
-					<SwissGridBox className="!bg-surface-50 dark:!bg-surface-900/80">
-						<SwissGridRow>
-							{hasFeaturedProjects ? (
-								<div className="portfolio-box-pad">
-									<div className="portfolio-stack-group">
-										{featuredProjects.map((project, i) =>
-											i === 0 ? (
-												<div
-													key={project.id}
-													className="w-full"
-													id={`project-${i + 1}`}
-												>
-													<ProjectCardGallery
-														index={`0${i + 1}`}
-														title={project.title}
-														description={project.description}
-														href={project.urlPath}
-														tags={project.tech ?? []}
-														items={getProjectCoverMedia(project)}
-														prioritizeFirstImage={true}
-														isPrivate={
-															project.cardState === "coming-soon"
-														}
-														date={
-															project.date
-																? new Date(
-																		project.date,
-																	).toLocaleDateString("en-US", {
-																		month: "long",
-																		year: "numeric",
-																	})
-																: undefined
-														}
-														imageTreatment="disciplined"
-														imageAspectRatio="16/9"
-													/>
-												</div>
-											) : (
-												<ScrollReveal
-													key={project.id}
-													phase={3}
-													delay={i * 0.05}
-													className="w-full"
-												>
-													<div id={`project-${i + 1}`}>
+					<section
+						aria-labelledby={hasFeaturedProjects ? "selected-work-heading" : undefined}
+					>
+						<SwissGridBox>
+							<SwissGridRow>
+								{hasFeaturedProjects ? (
+									<div className="portfolio-box-pad">
+										<div className="portfolio-stack-group">
+											<h2
+												id="selected-work-heading"
+												className="portfolio-kicker text-muted-foreground"
+											>
+												Selected work
+											</h2>
+											{featuredProjects.map((project, i) => {
+												const card = (
+													<div key={project.id} id={`project-${i + 1}`}>
 														<ProjectCardGallery
-															index={`0${i + 1}`}
+															index={String(i + 1).padStart(2, "0")}
 															title={project.title}
 															description={project.description}
 															href={project.urlPath}
 															tags={project.tech ?? []}
 															items={getProjectCoverMedia(project)}
-															prioritizeFirstImage={false}
+															prioritizeFirstImage={i === 0}
 															isPrivate={
 																project.cardState === "coming-soon"
 															}
@@ -134,6 +100,7 @@ export default async function Home() {
 																			{
 																				month: "long",
 																				year: "numeric",
+																				timeZone: "UTC",
 																			},
 																		)
 																	: undefined
@@ -142,34 +109,46 @@ export default async function Home() {
 															imageAspectRatio="16/9"
 														/>
 													</div>
-												</ScrollReveal>
-											),
-										)}
+												);
+												return i === 0 ? (
+													card
+												) : (
+													<ScrollReveal
+														key={project.id}
+														phase={3}
+														delay={i * 0.05}
+														className="w-full"
+													>
+														{card}
+													</ScrollReveal>
+												);
+											})}
+										</div>
 									</div>
-								</div>
-							) : (
-								<ScrollReveal phase={3} className="w-full">
-									<EditorialEmptyState
-										eyebrow="Selected Work"
-										icon={
-											<Briefcase
-												className="size-[var(--portfolio-icon-sm)] opacity-80"
-												weight="regular"
-											/>
-										}
-										title="No case studies listed."
-										description="The public archive is currently unlisted."
-									/>
-								</ScrollReveal>
-							)}
-						</SwissGridRow>
+								) : (
+									<ScrollReveal phase={3} className="w-full">
+										<EditorialEmptyState
+											eyebrow="Selected work"
+											icon={
+												<Briefcase
+													className="size-[var(--portfolio-icon-sm)] opacity-80"
+													weight="regular"
+												/>
+											}
+											title="No case studies listed."
+											description="The public archive is currently unlisted."
+										/>
+									</ScrollReveal>
+								)}
+							</SwissGridRow>
 
-						<SwissGridRow>
-							<ScrollReveal phase={3} className="w-full">
-								<ConfidentialWorkCallout />
-							</ScrollReveal>
-						</SwissGridRow>
-					</SwissGridBox>
+							<SwissGridRow>
+								<ScrollReveal phase={3} className="w-full">
+									<ConfidentialWorkCallout />
+								</ScrollReveal>
+							</SwissGridRow>
+						</SwissGridBox>
+					</section>
 				</PageContainer>
 
 				{/* Box 4: Closing CTA */}

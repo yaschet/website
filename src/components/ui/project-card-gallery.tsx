@@ -1,25 +1,30 @@
+"use client";
+import { RiArrowRightUpLine as ArrowUpRight, RiLockLine as Lock } from "@remixicon/react";
+
 /**
  * Project card with rich media gallery and split navigation zones.
  *
  * @public
  */
 
-"use client";
-
-import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
-import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
-import { Play } from "@phosphor-icons/react/dist/ssr/Play";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
-import Link from "next/link";
 import type { ComponentType } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { buttonVariants } from "@/src/components/ui/button-styles";
+import { GalleryPlayButton } from "@/src/components/ui/gallery-play-button";
 import type { MediaGalleryProps } from "@/src/components/ui/media-gallery";
+import { PortfolioLink as Link } from "@/src/components/ui/portfolio-link";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
+import { Badge } from "./badge";
 
 type MediaGalleryComponent = ComponentType<MediaGalleryProps>;
+
+// PageContainer caps at 1024px; its gutters and the listing inset own the remaining width.
+const PROJECT_PREVIEW_SIZES =
+	"(min-width: 1024px) 904px, (min-width: 640px) calc(100vw - 120px), calc(100vw - 80px)";
 
 interface ProjectCardGalleryProps {
 	title: string;
@@ -133,25 +138,24 @@ export function ProjectCardGallery({
 
 	return (
 		<article
+			aria-label={title}
+			data-slot="project-card"
 			className={cn(
-				"group w-full overflow-hidden rounded-[var(--radius)]",
-				"border border-surface-200/80 bg-white shadow-[0_1px_1px_rgba(15,23,42,0.03),0_10px_24px_rgba(15,23,42,0.05)]",
-				"transition-[border-color,box-shadow] duration-200 hover:border-surface-300 hover:shadow-[0_6px_16px_rgba(15,23,42,0.07),0_16px_34px_rgba(15,23,42,0.06)]",
-				"dark:border-surface-800 dark:bg-surface-950 dark:shadow-[0_1px_0_rgba(255,255,255,0.03),0_14px_32px_rgba(0,0,0,0.42)] dark:hover:border-surface-700 dark:hover:shadow-[0_1px_0_rgba(255,255,255,0.04),0_18px_40px_rgba(0,0,0,0.5)]",
+				"portfolio-project-card group w-full min-w-0 overflow-hidden bg-[var(--portfolio-panel)] text-card-foreground",
 				className,
 			)}
 		>
 			{hasGalleryItems ? (
 				<div
+					data-slot="project-preview"
 					className={cn(
 						"relative overflow-hidden",
-						imageTreatment === "disciplined" && [
-							"shadow-[inset_0_-1px_0_rgba(15,23,42,0.08)] dark:shadow-[inset_0_-1px_0_rgba(248,250,252,0.08)]",
-						],
+						imageTreatment === "disciplined" && "portfolio-project-preview",
 					)}
-					onPointerEnter={triggerRichMediaLoad}
-					onFocusCapture={triggerRichMediaLoad}
-					onTouchStartCapture={triggerRichMediaLoad}
+					onPointerEnter={(event) => {
+						if (event.pointerType === "mouse") triggerRichMediaLoad();
+					}}
+					onTouchStartCapture={fallbackPlaybackId ? undefined : triggerRichMediaLoad}
 				>
 					{shouldLoadRichMedia && RichMediaGallery ? (
 						<RichMediaGallery
@@ -167,20 +171,20 @@ export function ProjectCardGallery({
 							expandable={false}
 							enableHoverPreview={enableHoverPreview}
 							requestedPlaybackId={requestedPlaybackId}
-							className="border-0 border-surface-200 border-b dark:border-surface-800"
-							sizes="(max-width: 768px) 100vw, (max-width: 1400px) calc(100vw - 8rem), 1280px"
+							className="border-0"
+							sizes={PROJECT_PREVIEW_SIZES}
 							quality={mediaQuality}
 						/>
 					) : fallbackMedia ? (
 						<div
-							className="relative aspect-[16/9] w-full overflow-hidden border-0 border-surface-200 border-b bg-surface-100 dark:border-surface-800 dark:bg-surface-900"
+							className="relative aspect-[16/9] w-full overflow-hidden bg-muted"
 							aria-busy={isRichMediaLoading || undefined}
 						>
 							<Image
 								src={fallbackMedia.src}
 								alt={fallbackMedia.alt}
 								fill
-								sizes="(max-width: 768px) 100vw, (max-width: 1400px) calc(100vw - 8rem), 1280px"
+								sizes={PROJECT_PREVIEW_SIZES}
 								className="pointer-events-none select-none object-cover"
 								placeholder={
 									typeof fallbackMedia.src === "string" ? "empty" : "blur"
@@ -203,13 +207,11 @@ export function ProjectCardGallery({
 										aria-hidden
 									/>
 									<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-[var(--portfolio-control-pad-default)]">
-										<button
-											type="button"
-											className={cn(
-												"pointer-events-auto inline-flex h-[var(--portfolio-control-default)] items-center gap-2 border border-white/12 bg-black/92 px-[var(--portfolio-control-pad-default)] text-white shadow-[0_10px_30px_rgba(0,0,0,0.18)] backdrop-blur-md",
-												"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-												"hover:border-white/18 hover:bg-black/84",
-											)}
+										<GalleryPlayButton
+											loading={
+												isRichMediaLoading && requestedPlaybackId !== null
+											}
+											duration={fallbackMedia.duration}
 											onClick={(event) => {
 												event.preventDefault();
 												event.stopPropagation();
@@ -217,33 +219,7 @@ export function ProjectCardGallery({
 												setRequestedPlaybackId(fallbackPlaybackId);
 												triggerRichMediaLoad();
 											}}
-											aria-label={
-												fallbackMedia.duration
-													? `Play video, duration ${fallbackMedia.duration}`
-													: "Play video"
-											}
-										>
-											{isRichMediaLoading ? (
-												<span
-													className="size-[14px] animate-spin rounded-full border border-white/30 border-t-white"
-													aria-hidden="true"
-												/>
-											) : (
-												<Play size={14} weight="fill" />
-											)}
-											<span className="portfolio-control-label">Play</span>
-											{fallbackMedia.duration ? (
-												<>
-													<span
-														aria-hidden
-														className="h-3 w-px self-center bg-white/16"
-													/>
-													<span className="portfolio-chip-label text-white/72 tabular-nums">
-														{fallbackMedia.duration}
-													</span>
-												</>
-											) : null}
-										</button>
+										/>
 									</div>
 								</>
 							)}
@@ -251,74 +227,85 @@ export function ProjectCardGallery({
 					) : null}
 					{isPrivate && (
 						<div className="absolute inset-0 z-20 flex items-center justify-center bg-surface-50/10 backdrop-blur-3xl transition-all duration-200 dark:bg-surface-900/40">
-							<div className="portfolio-chip border-surface-200/20 bg-surface-50/10 backdrop-blur-md dark:border-surface-800/20 dark:bg-surface-900/10">
-								<Lock
-									weight="fill"
-									className="size-3 text-surface-900 opacity-60 dark:text-surface-100"
-								/>
+							<Badge variant="soft">
+								<Lock className="size-3 text-surface-900 opacity-60 dark:text-surface-100" />
 								<span className="text-surface-900 opacity-80 dark:text-surface-100">
-									Coming Soon
+									Coming soon
 								</span>
-							</div>
+							</Badge>
 						</div>
 					)}
 				</div>
 			) : (
 				<section
-					className="relative aspect-[16/9] w-full overflow-hidden bg-surface-100 dark:bg-surface-800"
+					className="relative aspect-[16/9] w-full overflow-hidden bg-muted"
 					aria-label="No preview available"
 				>
 					<div className="flex h-full w-full items-center justify-center">
-						<span className="portfolio-kicker text-surface-400">No Preview</span>
+						<span className="portfolio-kicker text-muted-foreground">
+							No preview available
+						</span>
 					</div>
 				</section>
 			)}
 
-			<div className="portfolio-box-pad portfolio-stack-group">
-				<div className="portfolio-stack-related">
+			<div data-slot="project-copy" className="portfolio-project-copy">
+				<div className="portfolio-card-copy">
 					<div className="flex items-center justify-between gap-[var(--portfolio-space-2)]">
-						<span className="portfolio-kicker text-surface-500 dark:text-surface-400">
+						<span className="portfolio-kicker text-muted-foreground tabular-nums">
 							{index}
 						</span>
 						{date && (
-							<span className="portfolio-kicker text-surface-500 dark:text-surface-400">
+							<span className="portfolio-kicker text-right text-muted-foreground tabular-nums">
 								{date}
 							</span>
 						)}
 					</div>
 
-					<div className="flex flex-col items-start gap-[var(--portfolio-space-2)]">
+					<div>
 						{isPrivate ? (
-							<h3 className="portfolio-heading-sm portfolio-capsize-heading-sm text-surface-900 dark:text-surface-50">
+							<h3 className="portfolio-project-title portfolio-capsize-project-title">
 								{title}
 							</h3>
 						) : (
 							<Link
+								transitionTypes={["navigation"]}
 								href={href}
-								className="block w-full text-surface-900 transition-colors hover:text-surface-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-900/15 focus-visible:ring-offset-2 dark:text-surface-50 dark:focus-visible:ring-surface-50/20 dark:hover:text-white"
+								prefetch={true}
+								className="portfolio-project-link group/project-link"
 							>
-								<span className="flex w-full items-center justify-between gap-[var(--portfolio-space-group)]">
-									<h3 className="portfolio-heading-sm portfolio-capsize-heading-sm">
-										{title}
-									</h3>
-									<span className="mt-0.5 flex h-10 min-w-10 items-center justify-center bg-surface-900 text-surface-50 transition-[background-color,color,transform] duration-200 group-hover:bg-surface-800 dark:bg-surface-50 dark:text-surface-950 dark:group-hover:bg-surface-200">
-										<ArrowUpRight weight="bold" className="size-4" />
-									</span>
+								<h3 className="portfolio-project-title portfolio-capsize-project-title min-w-0">
+									{title}
+								</h3>
+								<span
+									data-project-action=""
+									data-slot="button"
+									data-appearance="solid"
+									data-color="default"
+									data-size="icon"
+									aria-hidden="true"
+									className={buttonVariants({
+										variant: "solid",
+										size: "icon",
+										className: "group-hover/project-link:bg-primary-hover",
+									})}
+								>
+									<ArrowUpRight className="size-4" aria-hidden="true" />
 								</span>
 							</Link>
 						)}
 					</div>
 				</div>
 
-				<p className="portfolio-body-sm line-clamp-2 text-surface-600 dark:text-surface-400">
-					{description}
-				</p>
+				<p className="portfolio-body-sm text-muted-foreground">{description}</p>
 
 				{(challenge || solution) && (
 					<div className="portfolio-stack-group">
 						{challenge && (
 							<div className="portfolio-card-copy">
-								<h4 className="portfolio-kicker text-surface-400">Challenge</h4>
+								<h4 className="portfolio-kicker text-surface-600 dark:text-surface-400">
+									Challenge
+								</h4>
 								<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
 									{challenge}
 								</p>
@@ -326,7 +313,9 @@ export function ProjectCardGallery({
 						)}
 						{solution && (
 							<div className="portfolio-card-copy">
-								<h4 className="portfolio-kicker text-surface-400">Solution</h4>
+								<h4 className="portfolio-kicker text-surface-600 dark:text-surface-400">
+									Solution
+								</h4>
 								<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
 									{solution}
 								</p>
@@ -335,13 +324,20 @@ export function ProjectCardGallery({
 					</div>
 				)}
 
-				<div className="flex flex-wrap gap-[var(--portfolio-space-tight)]">
-					{tags.map((tag) => (
-						<span key={`${index}-tag-${tag}`} className="portfolio-chip">
-							{tag}
-						</span>
-					))}
-				</div>
+				{tags.length > 0 && (
+					<ul aria-label="Technologies" className="flex min-w-0 flex-wrap gap-2">
+						{tags.map((tag) => (
+							<li key={`${index}-tag-${tag}`} className="min-w-0 max-w-full">
+								<Badge
+									variant="outline"
+									className="h-auto min-h-7 max-w-full whitespace-normal break-words py-1.5 text-left"
+								>
+									{tag}
+								</Badge>
+							</li>
+						))}
+					</ul>
+				)}
 			</div>
 		</article>
 	);

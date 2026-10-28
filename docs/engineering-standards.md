@@ -36,7 +36,7 @@ Validate Server Action input independently of UI state. Public contact submissio
 
 ## Public And Design Boundaries
 
-The website and private application have independent source, dependency, and release boundaries. Never import private UI packages, records, or local sibling paths. A future shared package must contain only reviewed public brand assets/tokens, have a versioned contract, and justify maintenance through real consumers. Do not create one simply to make different products look identical.
+The website and private application have independent source, dependency, and release boundaries. Never import private UI packages, records, or local sibling paths. The owner-authorized Foundation copy is locally owned and documented in `foundation-provenance.md`. No shared package is part of this implementation. Any future package needs an explicit version contract and separate review.
 
 Keep generated output, environment files, private keys, and research captures out of Git. Review media for publication rights and private information. The filename/import checker is narrow; repository-host secret scanning and public diff review remain necessary.
 
@@ -53,11 +53,18 @@ Keep generated output, environment files, private keys, and research captures ou
 | `pnpm test:unit` | Contact security policy and installed-adapter tests with intercepted transports |
 | `pnpm test:e2e` | Browser/HTTP checks against a built production server |
 | `pnpm build-storybook` | Component workshop compilation |
+| `pnpm test:storybook` | Chromium story interactions/accessibility in both themes, then built-Docs layout checks |
 | `pnpm quality` | Complete release-candidate sequence |
 
 Local tests can reuse a server; CI starts a fresh production server. CI uses an inert build-only email-key fixture, never production email credentials. Tests must not submit a deliverable contact message. Endpoint checks do not prove email delivery. Lab LCP/CLS checks are regression signals, not field Core Web Vitals or a complete accessibility audit.
 
 The checked-in Quality workflow runs on PRs and pushes to main/staging branch names. Its presence does not enable branch protection or prove a staging deployment exists. Dependabot proposes reviewed updates. Before release inspect actual protection, checks, deployment mapping, public diff, and preview behavior. Preserve an identifiable rollback commit and report deployed status separately.
+
+CI runs source/dependency checks, each production-browser project, and Storybook
+on separate runners. Each browser job builds the same candidate and uses one
+Playwright worker. Storybook covers both themes and built Docs. The required
+`quality` job aggregates those results and fails if any job fails, is cancelled,
+or is skipped; parallel execution does not reduce the `pnpm quality` coverage.
 
 The workflow also runs a separate Gitleaks secret-scan job with full checkout
 history. PR comments and finding-artifact uploads are disabled. Secret scanners
@@ -67,3 +74,5 @@ Host branch protection must require the relevant checks before they gate merges.
 Follow `docs/version-control.md` for scoped conventional commit/PR titles,
 factual descriptions, branch names, and coherent checkpoints. Local hooks and
 CI check syntax; review must still assess the meaning and evidence.
+
+See `docs/storybook.md` for workshop authoring, isolation, and coverage boundaries.

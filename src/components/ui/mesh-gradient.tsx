@@ -87,11 +87,11 @@ export function MeshGradient({ className = "", children }: MeshGradientProps) {
 		if (!canvas || !container) return;
 		const ctx = canvas.getContext("2d", { alpha: true });
 		if (!ctx) return;
-		const dpr = window.devicePixelRatio || 1;
+		const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 		const rect = container.getBoundingClientRect();
-		const drawHeight = Math.max(rect.height, window.innerHeight * 1.2);
-		canvas.width = rect.width * dpr;
-		canvas.height = drawHeight * dpr;
+		const drawHeight = rect.height;
+		canvas.width = Math.round(rect.width * dpr);
+		canvas.height = Math.round(drawHeight * dpr);
 		ctx.scale(dpr, dpr);
 		ctx.clearRect(0, 0, rect.width, drawHeight);
 		// CRT grid settings
@@ -111,12 +111,21 @@ export function MeshGradient({ className = "", children }: MeshGradientProps) {
 	}, [isDark]);
 
 	useEffect(() => {
-		if (mounted) requestAnimationFrame(drawDots);
+		const container = containerRef.current;
+		if (!mounted || !container) return;
+		let frame = 0;
+		const scheduleDraw = () => {
+			cancelAnimationFrame(frame);
+			frame = requestAnimationFrame(drawDots);
+		};
+		const observer = new ResizeObserver(scheduleDraw);
+		observer.observe(container);
+		scheduleDraw();
+		return () => {
+			observer.disconnect();
+			cancelAnimationFrame(frame);
+		};
 	}, [mounted, drawDots]);
-	useEffect(() => {
-		window.addEventListener("resize", drawDots);
-		return () => window.removeEventListener("resize", drawDots);
-	}, [drawDots]);
 
 	// Reveal animation
 	const isEnabled = phase >= 1 && mounted && !!containerBounds;
@@ -125,6 +134,7 @@ export function MeshGradient({ className = "", children }: MeshGradientProps) {
 		<MeshGradientContext.Provider value={contextValue}>
 			<motion.div
 				ref={containerRef}
+				data-mesh-gradient=""
 				initial={{ opacity: 0 }}
 				animate={isEnabled ? { opacity: 1 } : { opacity: 0 }}
 				transition={springs.ambient}

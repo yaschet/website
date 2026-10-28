@@ -1,5 +1,5 @@
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import Link from "next/link";
+import { PortfolioLink as Link } from "@/src/components/ui/portfolio-link";
 import type { ProjectEntry } from "@/src/content/types";
 import { cn } from "@/src/lib/index";
 
@@ -17,7 +17,7 @@ import { cn } from "@/src/lib/index";
  * ```
  *
  * @param props - Component properties.
- * @param props.project - Contentlayer Project document.
+ * @param props.project - Public project metadata.
  * @param props.className - Optional additional CSS classes.
  * @returns A linked card element with project information.
  *
@@ -31,7 +31,9 @@ interface ProjectCardProps {
 export function ProjectCard({ project, className }: ProjectCardProps) {
 	return (
 		<Link
+			transitionTypes={["navigation"]}
 			href={project.urlPath}
+			prefetch={true}
 			className={cn(
 				"group relative block border-2 border-surface-200 bg-surface-100 transition-all duration-200 hover:border-surface-900 dark:border-surface-800 dark:bg-surface-950 dark:hover:border-surface-100",
 				className,
@@ -41,14 +43,14 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 			<div className="p-6">
 				{/* Date & Tags */}
 				<div className="mb-4 flex items-center gap-4">
-					<time className="font-mono text-surface-400 text-xs tabular-nums dark:text-surface-500">
+					<time className="font-mono text-surface-600 text-xs tabular-nums dark:text-surface-400">
 						{new Date(project.date).toLocaleDateString("en-US", {
 							year: "numeric",
 							month: "short",
 						})}
 					</time>
 					{project.featured && (
-						<span className="border border-primary-500 px-2 py-0.5 font-mono text-[10px] text-primary-500 uppercase tracking-wider">
+						<span className="border border-primary-500 px-2 py-0.5 font-mono text-[10px] text-primary-600 uppercase tracking-wider dark:text-primary-400">
 							Featured
 						</span>
 					)}
@@ -76,7 +78,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 							</span>
 						))}
 						{project.tech.length > 4 && (
-							<span className="flex items-center px-2 py-1 font-mono text-[10px] text-surface-400">
+							<span className="flex items-center px-2 py-1 font-mono text-[10px] text-surface-600 dark:text-surface-400">
 								+{project.tech.length - 4} more
 							</span>
 						)}
@@ -84,7 +86,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 				)}
 
 				{/* Read More Link */}
-				<div className="flex items-center gap-2 font-mono text-surface-500 text-xs uppercase tracking-wider transition-colors group-hover:text-surface-900 dark:text-surface-400 dark:group-hover:text-surface-100">
+				<div className="flex items-center gap-2 font-mono text-surface-600 text-xs uppercase tracking-wider transition-colors group-hover:text-surface-900 dark:text-surface-400 dark:group-hover:text-surface-100">
 					<span>View Case Study</span>
 					<ArrowRight
 						className="transition-transform group-hover:translate-x-1"
