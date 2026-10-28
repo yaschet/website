@@ -146,15 +146,28 @@ for (const theme of ["light", "dark"]) {
 		await page.evaluate(() => document.fonts.ready);
 		const button = page.locator('[data-slot="button"]').first();
 		const before = await button.evaluate((node) => node.clientWidth);
-		await button.click();
-		const samples = await button.evaluate(async (node) => {
-			const widths: number[] = [];
-			for (let index = 0; index < 24; index++) {
-				await new Promise(requestAnimationFrame);
-				widths.push(node.clientWidth);
-			}
-			return widths;
+		// Attach before the click: a busy runner can finish a short transition before
+		// Playwright returns from its click action and starts a second evaluation.
+		await button.evaluate((node) => {
+			node.addEventListener(
+				"click",
+				() => {
+					const widths: number[] = [];
+					const sample = () => {
+						widths.push(node.clientWidth);
+						if (widths.length < 24) requestAnimationFrame(sample);
+						else node.dataset.widthSamples = JSON.stringify(widths);
+					};
+					requestAnimationFrame(sample);
+				},
+				{ once: true },
+			);
 		});
+		await button.click();
+		await expect(button).toHaveAttribute("data-width-samples");
+		const samples: number[] = JSON.parse(
+			(await button.getAttribute("data-width-samples")) ?? "[]",
+		);
 		const end = samples.at(-1) ?? before;
 		expect(end).toBeGreaterThan(before);
 		expect(samples.some((width) => width > before && width < end)).toBe(true);

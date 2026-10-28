@@ -156,6 +156,7 @@ test("keyboard and reduced motion cancel entry without hiding text", async ({ pa
 	await page.emulateMedia({ reducedMotion: "no-preference" });
 	await page.goto("/");
 	const nav = page.getByRole("navigation", { name: "Main navigation" });
+	await expect(nav.getByRole("button", { name: /^Theme: Switch/ })).toBeVisible();
 	await nav.getByRole("link", { name: "About", exact: true }).focus();
 	await page.keyboard.press("Enter");
 	await expect(page).toHaveURL(/\/about$/);
