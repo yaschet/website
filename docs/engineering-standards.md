@@ -60,6 +60,12 @@ Local tests can reuse a server; CI starts a fresh production server. CI uses an 
 
 The checked-in Quality workflow runs on PRs and pushes to main/staging branch names. Its presence does not enable branch protection or prove a staging deployment exists. Dependabot proposes reviewed updates. Before release inspect actual protection, checks, deployment mapping, public diff, and preview behavior. Preserve an identifiable rollback commit and report deployed status separately.
 
+CI runs source/dependency checks, each production-browser project, and Storybook
+on separate runners. Each browser job builds the same candidate and uses one
+Playwright worker. Storybook covers both themes and built Docs. The required
+`quality` job aggregates those results and fails if any job fails, is cancelled,
+or is skipped; parallel execution does not reduce the `pnpm quality` coverage.
+
 The workflow also runs a separate Gitleaks secret-scan job with full checkout
 history. PR comments and finding-artifact uploads are disabled. Secret scanners
 detect known patterns; they do not prove the absence of private information.
