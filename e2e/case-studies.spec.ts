@@ -21,6 +21,10 @@ for (const theme of ["light", "dark"] as const) {
 			await expect(page.locator("article")).toHaveCount(1);
 			await expect(page.getByRole("list", { name: "Engine Stack" })).toBeVisible();
 			const copy = page.getByRole("button", { name: "Copy Markdown", exact: true });
+			await expect(copy.locator('.t-state-label[data-sizing="content"]')).toHaveAttribute(
+				"data-measured",
+				"true",
+			);
 			expect((await copy.boundingBox())?.height).toBe(40);
 			const typography = await page.locator("article").evaluate((node) => {
 				const elements = [node, ...node.querySelectorAll("h2, h3, p, figcaption")];
@@ -261,6 +265,9 @@ for (const theme of ["light", "dark"] as const) {
 		await page.setViewportSize({ width: 320, height: 844 });
 		await page.goto("/case-studies/verto");
 		await expect(page.getByRole("heading", { level: 1, name: "Verto" })).toBeVisible();
+		await expect(
+			page.locator('.portfolio-case-study-meta-row .t-state-label[data-sizing="content"]'),
+		).toHaveAttribute("data-measured", "true");
 		await expect(page.getByRole("list", { name: "Engine Stack" })).toBeVisible();
 		expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
 			true,
@@ -276,6 +283,9 @@ for (const theme of ["light", "dark"] as const) {
 		).toBe(true);
 		await page.setViewportSize({ width: 1600, height: 900 });
 		await page.goto("/case-studies/clearway-phoenix");
+		await expect(
+			page.locator('.portfolio-case-study-meta-row .t-state-label[data-sizing="content"]'),
+		).toHaveAttribute("data-measured", "true");
 		await page.locator("article h2[id]").first().scrollIntoViewIfNeeded();
 		const rail = page.getByRole("navigation", { name: "On this page", exact: true });
 		await expect(rail).toBeVisible();
