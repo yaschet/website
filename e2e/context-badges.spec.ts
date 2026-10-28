@@ -107,7 +107,7 @@ for (const theme of ["light", "dark"] as const) {
 			const footer = node.querySelector(".portfolio-context-panel-footer");
 			if (!heading || !footer) throw new Error("Missing panel bands");
 			const close = heading.querySelector("button");
-			const arrow = footer.querySelector(".portfolio-context-panel-action-icon");
+			const arrow = footer.querySelector(".foundation-button-icon-space");
 			if (!close || !arrow) throw new Error("Missing panel chambers");
 			return {
 				headingHeight: heading.getBoundingClientRect().height,

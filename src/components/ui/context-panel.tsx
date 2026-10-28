@@ -197,16 +197,11 @@ export function ContextPanel({
 								href="/contact"
 								variant="plain"
 								className="portfolio-context-panel-action"
+								icon={<RiArrowRightLine />}
 								data-press-motion="surface"
 								onClick={() => setOpen(false)}
 							>
-								<span>{action}</span>
-								<span
-									className="portfolio-context-panel-action-icon"
-									aria-hidden="true"
-								>
-									<RiArrowRightLine />
-								</span>
+								{action}
 							</ButtonLink>
 						</div>
 					</Popover.Popup>
