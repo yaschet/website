@@ -9,6 +9,7 @@ test.describe("Sitemap route and lab performance checks", () => {
 		browserName,
 	}) => {
 		test.setTimeout(180_000);
+		test.skip(process.env.VERCEL_ENV === "preview", "Preview deployments omit the sitemap.");
 		// 1. Fetch Sitemap
 		// biome-ignore lint/suspicious/noConsole: Test output
 		console.log(`🗺️  Fetching sitemap from ${BASE_URL}/sitemap.xml ...`);

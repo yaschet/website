@@ -5,14 +5,14 @@ import { cn } from "@/lib/utils";
  * SwissGridBox
  *
  * Server-first structural wrapper for the portfolio's boxed layout.
- * The dashed perimeter is pure CSS so it exists on first paint.
+ * The solid device-pixel perimeter exists on first paint.
  */
 export function SwissGridBox({ children, className }: { children: ReactNode; className?: string }) {
 	return (
 		<div
 			className={cn(
 				"portfolio-grid-frame relative w-full overflow-hidden",
-				"bg-white transition-colors dark:bg-surface-900/80",
+				"bg-[var(--portfolio-panel)] text-card-foreground",
 				className,
 			)}
 		>

@@ -1,6 +1,7 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { ProjectContentRSC } from "@/src/components/content/project-content-rsc";
+import { SITE_URL } from "@/src/constants/site";
 import {
 	getPublicProjectBySlug,
 	getPublicProjectSummaries,
@@ -70,7 +71,7 @@ async function getProjectMetadata(slug: string): Promise<Metadata> {
 			title: `${project.title} | Yassine Chettouch`,
 			description: project.description,
 			type: "article",
-			url: `https://yaschet.dev/case-studies/${project.slug}`,
+			url: `${SITE_URL}/case-studies/${project.slug}`,
 			images: [
 				{
 					url: ogImage,
@@ -111,21 +112,19 @@ export default async function CaseStudyPage({ params }: ProjectPageProps) {
 				getProjectCoverMedia(project),
 				project.coverImages,
 			);
-			return asset
-				? `https://yaschet.dev${asset}`
-				: "https://yaschet.dev/images/og-image.png";
+			return asset ? `${SITE_URL}${asset}` : `${SITE_URL}/images/og-image.png`;
 		})(),
 		datePublished: project.date,
 		dateModified: project.date,
 		author: {
 			"@type": "Person",
 			name: "Yassine Chettouch",
-			url: "https://yaschet.dev",
+			url: SITE_URL,
 		},
 		publisher: {
 			"@type": "Person",
 			name: "Yassine Chettouch",
-			url: "https://yaschet.dev",
+			url: SITE_URL,
 		},
 		keywords: [...(projectData.tech ?? []), ...(projectData.stack ?? [])].join(", "),
 	};

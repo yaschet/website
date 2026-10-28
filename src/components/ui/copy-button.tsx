@@ -1,65 +1,83 @@
 "use client";
 
-import { Check, Copy } from "@phosphor-icons/react";
-import { useCallback, useState } from "react";
+import {
+	RiCheckLine as Check,
+	RiFileCopyLine as Copy,
+	RiErrorWarningLine as WarningCircle,
+} from "@remixicon/react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/src/components/ui/button";
-import { Spinner } from "@/src/components/ui/spinner";
-import { cn } from "@/src/lib/index";
+import { StateSwap } from "@/src/components/ui/state-swap";
+import { writeClipboardText } from "@/src/lib/clipboard";
 
 interface CopyButtonProps {
 	text: string;
 	className?: string;
 }
 
+/** A visible, fixed-size code utility; pending feedback follows the real clipboard operation. */
 export function CopyButton({ text, className }: CopyButtonProps) {
-	const [copied, setCopied] = useState(false);
-	const [loading, setLoading] = useState(false);
-
-	const handleCopy = useCallback(async () => {
-		if (loading || copied) return;
-
-		setLoading(true);
-
-		// Artificial delay to provide "Interaction Engineered" feedback
-		// Making the action feel weighted and confirmed.
-		await new Promise((resolve) => setTimeout(resolve, 300));
-
+	const [state, setState] = useState<"idle" | "loading" | "copied" | "error">("idle");
+	const pending = useRef(false);
+	const mounted = useRef(true);
+	const reset = useRef<ReturnType<typeof setTimeout> | null>(null);
+	useEffect(() => {
+		mounted.current = true;
+		return () => {
+			mounted.current = false;
+			if (reset.current) clearTimeout(reset.current);
+		};
+	}, []);
+	const handleCopy = async () => {
+		if (pending.current) return;
+		pending.current = true;
+		if (reset.current) clearTimeout(reset.current);
+		setState("loading");
 		try {
-			await navigator.clipboard.writeText(text);
-			setCopied(true);
-			setTimeout(() => {
-				setCopied(false);
-			}, 2000);
-		} catch (_error) {
-			// Silent fail on clipboard errors for production
+			await writeClipboardText(text);
+			if (mounted.current) setState("copied");
+		} catch {
+			if (mounted.current) setState("error");
 		} finally {
-			setLoading(false);
+			pending.current = false;
+			if (mounted.current) reset.current = setTimeout(() => setState("idle"), 2500);
 		}
-	}, [text, loading, copied]);
-
+	};
 	return (
-		<Button
-			variant="plain"
-			size="icon-sm"
-			color="default"
-			onClick={handleCopy}
-			disabled={loading}
-			className={cn(
-				"absolute top-2 right-2 z-10",
-				"opacity-0 transition-opacity duration-200 group-hover:opacity-100",
-				"bg-surface-50/80 backdrop-blur dark:bg-surface-800/80",
-				loading && "opacity-100",
-				className,
-			)}
-			aria-label={loading ? "Copying..." : copied ? "Copied!" : "Copy code"}
-		>
-			{loading ? (
-				<Spinner size="xs" color="default" className="opacity-70" />
-			) : copied ? (
-				<Check size={14} weight="bold" className="text-success-500" />
-			) : (
-				<Copy size={14} weight="bold" className="text-muted-foreground" />
-			)}
-		</Button>
+		<>
+			<Button
+				variant="soft"
+				size="icon"
+				color="secondary"
+				onClick={handleCopy}
+				loading={state === "loading"}
+				className={className}
+				aria-label={
+					state === "loading"
+						? "Copying code"
+						: state === "copied"
+							? "Code copied"
+							: state === "error"
+								? "Retry copying code"
+								: "Copy code"
+				}
+			>
+				<StateSwap
+					value={state === "loading" ? "idle" : state}
+					items={{
+						idle: <Copy size={16} />,
+						copied: <Check size={16} />,
+						error: <WarningCircle size={16} />,
+					}}
+				/>
+			</Button>
+			<span role="status" className="sr-only">
+				{state === "copied"
+					? "Code copied to clipboard."
+					: state === "error"
+						? "Could not copy code. Please try again."
+						: ""}
+			</span>
+		</>
 	);
 }

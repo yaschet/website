@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ContactForm } from "@/src/components/forms/contact-form";
+import { ContactMethods } from "@/src/components/content/contact-methods";
+import { ContactMessage } from "@/src/components/forms/contact-message";
 import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
-import { Button } from "@/src/components/ui/button";
 import { DeferredInstrumentField } from "@/src/components/ui/deferred-instrument-field";
 import {
 	INSTRUMENT_DOT_RADIUS,
@@ -24,68 +22,10 @@ export const metadata: Metadata = {
 	},
 };
 
-const CONTACT_METHODS = [
-	{
-		kicker: "Email",
-		title: "hello@yaschet.dev",
-		description: "Best for project scope and retainers.",
-		actions: [
-			{
-				label: "Email",
-				href: "mailto:hello@yaschet.dev",
-				variant: "solid" as const,
-				color: "primary" as const,
-			},
-		],
-	},
-	{
-		kicker: "Schedule",
-		title: "Intro call",
-		description: "Quick fit check before a deeper conversation.",
-		actions: [
-			{
-				label: "Book a call",
-				href: "https://cal.com/yassinechettouch/15min",
-				variant: "soft" as const,
-				color: "default" as const,
-				target: "_blank" as const,
-			},
-		],
-	},
-	{
-		kicker: "Presence",
-		title: "Public profiles",
-		description: "Background, shipped work, and recent activity.",
-		actions: [
-			{
-				label: "LinkedIn",
-				href: "https://linkedin.com/in/yassinechettouch",
-				variant: "soft" as const,
-				color: "default" as const,
-				target: "_blank" as const,
-			},
-			{
-				label: "GitHub",
-				href: "https://github.com/yaschet",
-				variant: "soft" as const,
-				color: "default" as const,
-				target: "_blank" as const,
-			},
-			{
-				label: "X",
-				href: "https://x.com/yaschett",
-				variant: "soft" as const,
-				color: "default" as const,
-				target: "_blank" as const,
-			},
-		],
-	},
-] as const;
-
 function ContactInstrumentPlane() {
 	return (
 		<div className="absolute inset-0" aria-hidden="true">
-			<div className="pointer-events-none absolute inset-0 bg-white dark:bg-surface-900/80" />
+			<div className="pointer-events-none absolute inset-0 bg-[var(--portfolio-panel)]" />
 			<DeferredInstrumentField
 				className="pointer-events-none opacity-100 dark:opacity-100"
 				interactive
@@ -103,10 +43,8 @@ function ContactInstrumentPlane() {
 
 export default function ContactPage() {
 	return (
-		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+		<div className="flex flex-1 flex-col text-foreground selection:bg-foreground selection:text-background">
 			<main className="relative z-10 flex flex-1 flex-col">
-				<SiteHeader />
-
 				{/* Header */}
 				<section id="contact-header" className="relative w-full">
 					<section className="w-full">
@@ -120,7 +58,7 @@ export default function ContactPage() {
 										<ContactInstrumentPlane />
 										<div className="portfolio-box-pad relative z-[1]">
 											<PageIntro
-												eyebrow="CONTACT"
+												eyebrow="Contact"
 												title="Let’s talk."
 												description="Internal systems, workflow software, and customer-facing products where clear interfaces sit on top of heavy logic."
 											/>
@@ -129,12 +67,12 @@ export default function ContactPage() {
 								</SwissGridRow>
 								<SwissGridRow>
 									<div className="portfolio-box-pad">
-										<ProseContainer className="portfolio-prose">
+										<ProseContainer className="portfolio-contact-context">
 											<div className="portfolio-card-copy">
-												<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+												<h2 className="portfolio-detail-title text-foreground">
 													Engagement
 												</h2>
-												<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+												<p className="portfolio-detail-copy text-muted-foreground">
 													Retainer engagements start at
 													<strong className="font-medium text-surface-900 dark:text-surface-100">
 														{" "}
@@ -149,14 +87,14 @@ export default function ContactPage() {
 												</p>
 											</div>
 											<div className="portfolio-card-copy">
-												<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
+												<h2 className="portfolio-detail-title text-foreground">
 													Process
 												</h2>
-												<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+												<p className="portfolio-detail-copy text-muted-foreground">
 													Most work starts with a short paid diagnostic or
 													a tightly scoped first build.
 												</p>
-												<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
+												<p className="portfolio-detail-copy text-muted-foreground">
 													Based in Rabat, Morocco, working with clients
 													worldwide. Most collaboration runs async, with
 													strong live overlap across EU, UK, Gulf, and US
@@ -170,48 +108,7 @@ export default function ContactPage() {
 								</SwissGridRow>
 								<SwissGridRow>
 									<div className="portfolio-box-pad">
-										<div className="grid gap-[var(--portfolio-space-section)] md:grid-cols-3">
-											{CONTACT_METHODS.map((method) => (
-												<div
-													key={method.kicker}
-													className="portfolio-stack-group min-h-[calc(var(--portfolio-grid-step)*9)] justify-between"
-												>
-													<div className="portfolio-card-copy">
-														<p className="portfolio-kicker text-surface-500 dark:text-surface-400">
-															{method.kicker}
-														</p>
-														<h2 className="portfolio-body-lg font-medium text-surface-900 dark:text-surface-100">
-															{method.title}
-														</h2>
-														<p className="portfolio-body-sm text-surface-600 dark:text-surface-400">
-															{method.description}
-														</p>
-													</div>
-													<div className="portfolio-control-row">
-														{method.actions.map((action) => (
-															<Button
-																key={action.label}
-																asChild
-																size="md"
-																variant={action.variant}
-																color={action.color}
-															>
-																<Link
-																	href={action.href}
-																	target={
-																		"target" in action
-																			? action.target
-																			: undefined
-																	}
-																>
-																	{action.label}
-																</Link>
-															</Button>
-														))}
-													</div>
-												</div>
-											))}
-										</div>
+										<ContactMethods />
 									</div>
 								</SwissGridRow>
 							</SwissGridBox>
@@ -227,7 +124,7 @@ export default function ContactPage() {
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
-											<ContactForm />
+											<ContactMessage />
 										</div>
 									</SwissGridRow>
 								</SwissGridBox>

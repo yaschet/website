@@ -27,7 +27,7 @@ test.describe("AI-readable Markdown surfaces", () => {
 
 		const body = await response.text();
 		const markdownLinks = Array.from(
-			body.matchAll(/\]\(https:\/\/yaschet\.dev\/case-studies\/([^)]+)\.md\)/g),
+			body.matchAll(/\]\(https:\/\/yaschet\.com\/case-studies\/([^)]+)\.md\)/g),
 		).map((match) => match[1]);
 
 		expect(markdownLinks.length).toBeGreaterThan(0);
@@ -42,7 +42,7 @@ test.describe("AI-readable Markdown surfaces", () => {
 
 			const body = await caseStudyResponse.text();
 			expect(body).toMatch(/^# /);
-			expect(body).toContain(`Canonical URL: https://yaschet.dev/case-studies/${slug}`);
+			expect(body).toContain(`Canonical URL: https://yaschet.com/case-studies/${slug}`);
 			expect(body).not.toContain("export const metadata");
 			expect(body).not.toMatch(/^<[A-Z][A-Za-z0-9]*\b/m);
 		}

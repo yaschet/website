@@ -1,0 +1,1119 @@
+/*
+ * Yaschet Foundation motion tokens.
+ *
+ * These semantic values follow the transitions.dev motion scale. Components
+ * consume the tokens below through state attributes; no component owns a raw
+ * duration, scale, or easing value for these transition families.
+ */
+:root {
+	--duration-stagger: 40ms;
+	--duration-micro: 80ms;
+	--duration-quick: 150ms;
+	--duration-fast: 250ms;
+	--duration-medium: 350ms;
+	--duration-slow: 400ms;
+	--duration-very-slow: 500ms;
+
+	--ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-in-out: ease-in-out;
+	--ease-out: ease-out;
+	--ease-linear: linear;
+
+	--distance-micro: 4px;
+	--distance-small: 6px;
+	--distance-base: 8px;
+	--distance-medium: 12px;
+	--distance-large: 30px;
+
+	--scale-large: 0.96;
+	--scale-medium: 0.97;
+	--scale-small: 0.98;
+	--scale-tiny: 0.99;
+
+	--blur-small: 2px;
+	--blur-medium: 3px;
+	--blur-large: 8px;
+
+	/* Interruptible container resize (transitions.dev card-resize family). */
+	--resize-dur: 300ms;
+	--resize-ease: var(--ease-smooth-out);
+
+	/* Menu dropdown */
+	--dropdown-open-dur: var(--duration-fast);
+	--dropdown-close-dur: var(--duration-quick);
+	--dropdown-pre-scale: var(--scale-medium);
+	--dropdown-closing-scale: var(--scale-tiny);
+	--dropdown-open-blur: var(--blur-small);
+	--dropdown-close-blur: 1px;
+	--dropdown-ease: var(--ease-smooth-out);
+
+	/* Modal open / close */
+	--modal-open-dur: var(--duration-fast);
+	--modal-close-dur: var(--duration-quick);
+	--modal-scale: var(--scale-small);
+	--modal-scale-close: var(--scale-small);
+	--modal-ease: var(--ease-smooth-out);
+	--overlay-backdrop-blur: 4px;
+
+	/* Icon swap */
+	--icon-swap-dur: var(--duration-fast);
+	--icon-swap-blur: var(--blur-small);
+	--icon-swap-start-scale: 0.25;
+	--icon-swap-ease: var(--ease-in-out);
+
+	/* Panel reveal */
+	--panel-open-dur: var(--duration-slow);
+	--panel-close-dur: var(--duration-medium);
+	--panel-ease: var(--ease-smooth-out);
+
+	/* Tooltip open / close */
+	--tt-in-dur: var(--duration-fast);
+	--tt-out-dur: var(--duration-quick);
+	--tt-scale: 0.94;
+	--tt-distance: 8px;
+	--tt-in-ease: var(--ease-smooth-out);
+	--tt-out-ease: var(--ease-smooth-out);
+	--tt-travel-dur: var(--duration-fast);
+	--tt-content-dur: var(--duration-quick);
+
+	/* Accordion expand */
+	--acc-expand: var(--duration-fast);
+	--acc-collapse: var(--duration-fast);
+	--acc-chevron: var(--duration-fast);
+	--acc-ease: var(--ease-smooth-out);
+
+	/* Toast open / close */
+	--toast-open: var(--duration-medium);
+	--toast-close: var(--duration-quick);
+	--toast-distance: 16px;
+	--toast-blur: var(--blur-small);
+	--toast-scale: var(--scale-medium);
+	--toast-ease: var(--ease-smooth-out);
+
+	/* Checkbox check */
+	--check-box: var(--duration-quick);
+	/* Preserve the existing 200/80/120ms checkbox feel in one CSS owner. */
+	--check-draw: 200ms;
+	--check-delay: var(--duration-micro);
+	--check-uncheck: 120ms;
+	--check-ease: var(--ease-smooth-out);
+
+	/* Toggle / switch */
+	--toggle-dur: var(--duration-quick);
+	--toggle-ease: var(--ease-smooth-out);
+
+	/* Tabs sliding */
+	--tabs-dur: var(--duration-fast);
+	--tabs-state-dur: var(--duration-quick);
+	--tabs-ease: var(--ease-smooth-out);
+
+	/* Frequent pointer navigation: shorter than selected-tab travel. */
+	--hover-layout-dur: var(--duration-quick);
+	--hover-layout-enter-dur: var(--duration-quick);
+	--hover-layout-exit-dur: var(--duration-micro);
+	--hover-layout-ease: var(--ease-smooth-out);
+
+	/* Skeleton and progress */
+	--pulse-dur: 1000ms;
+	--pulse-min: 0.5;
+	--progress-dur: var(--duration-fast);
+	--progress-ease: var(--ease-smooth-out);
+
+	/* Avatar group hover */
+	--avatar-lift: -4px;
+	--avatar-dur: 320ms;
+	--avatar-scale: 1.05;
+	--avatar-falloff: 0.45;
+	--avatar-ease-in: var(--ease-smooth-out);
+	--avatar-ease-out: cubic-bezier(0.34, 3.85, 0.64, 1);
+
+	/* General pressable state changes. */
+	--interactive-dur: var(--duration-quick);
+	--interactive-ease: var(--ease-smooth-out);
+	--press-dur: var(--duration-micro);
+	--press-scale: 0.985;
+	--press-opacity: 0.88;
+
+	/* Quiet, in-place feedback. Never delays a request or an accessible state. */
+	--feedback-dur: var(--duration-quick);
+	--text-swap-dur: var(--duration-quick);
+	--shake-distance: 4px;
+	--shake-overshoot: 2px;
+	--shake-dur-a: var(--duration-micro);
+	--shake-dur-b: 60ms;
+	--shake-ease: var(--ease-smooth-out);
+}
+
+.t-interactive {
+	transition-property: color, background-color, border-color, box-shadow, opacity;
+	transition-duration: var(--interactive-dur);
+	transition-timing-function: var(--interactive-ease);
+}
+
+/* Pressables compress around their own center. They never move the baseline or
+ * alter popup anchor geometry. */
+.t-pressable {
+	transform: scale(1);
+	transform-origin: center;
+	transition:
+		color var(--interactive-dur) var(--interactive-ease),
+		background-color var(--interactive-dur) var(--interactive-ease),
+		border-color var(--interactive-dur) var(--interactive-ease),
+		box-shadow var(--interactive-dur) var(--interactive-ease),
+		opacity var(--press-dur) var(--ease-smooth-out),
+		transform var(--press-dur) var(--ease-smooth-out);
+}
+
+.t-pressable:active:not(:disabled):not([aria-haspopup]) {
+	transform: scale(var(--press-scale));
+	opacity: var(--press-opacity);
+}
+
+/* Edge-attached controls keep their rails fixed; only their surface responds. */
+.t-pressable[data-press-motion="surface"] {
+	--press-scale: 1;
+	--press-opacity: 1;
+}
+
+/* Menu dropdown: origin-aware, fast in, faster out. */
+.t-dropdown {
+	transform-origin: var(--transform-origin, bottom center);
+	translate: var(--popup-edge-nudge-x, 0) var(--popup-edge-nudge-y, 0);
+	transform: scale(var(--dropdown-pre-scale));
+	filter: blur(var(--dropdown-open-blur));
+	opacity: 0;
+	pointer-events: none;
+	animation: none;
+	transition:
+		transform var(--dropdown-open-dur) var(--dropdown-ease),
+		filter var(--dropdown-open-dur) var(--dropdown-ease),
+		opacity var(--dropdown-open-dur) var(--dropdown-ease);
+	will-change: transform, filter, opacity;
+}
+
+.t-dropdown[data-open] {
+	transform: scale(1);
+	filter: blur(0);
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.t-dropdown[data-starting-style] {
+	transform: scale(var(--dropdown-pre-scale));
+	filter: blur(var(--dropdown-open-blur));
+	opacity: 0;
+}
+
+.t-dropdown[data-closed],
+.t-dropdown[data-ending-style] {
+	transform: scale(var(--dropdown-closing-scale));
+	filter: blur(var(--dropdown-close-blur));
+	opacity: 0;
+	pointer-events: none;
+	animation: none;
+	transition:
+		transform var(--dropdown-close-dur) var(--dropdown-ease),
+		filter var(--dropdown-close-dur) var(--dropdown-ease),
+		opacity var(--dropdown-close-dur) var(--dropdown-ease);
+}
+
+/* Modal: centered scale-up with a quiet, faster close. */
+.t-modal {
+	transform-origin: center;
+	transform: scale(var(--modal-scale));
+	opacity: 0;
+	pointer-events: none;
+	animation: none;
+	transition:
+		transform var(--modal-open-dur) var(--modal-ease),
+		opacity var(--modal-open-dur) var(--modal-ease);
+	will-change: transform, opacity;
+}
+
+.t-modal[data-open] {
+	transform: scale(1);
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.t-modal[data-starting-style] {
+	transform: scale(var(--modal-scale));
+	opacity: 0;
+}
+
+.t-modal[data-closed],
+.t-modal[data-ending-style] {
+	transform: scale(var(--modal-scale-close));
+	opacity: 0;
+	pointer-events: none;
+	animation: none;
+	transition:
+		transform var(--modal-close-dur) var(--modal-ease),
+		opacity var(--modal-close-dur) var(--modal-ease);
+}
+
+/* Disclosure chevrons communicate popup state without moving the trigger. */
+.t-menu-chevron {
+	transform: rotate(0deg);
+	transition: transform var(--icon-swap-dur) var(--icon-swap-ease);
+}
+
+[data-slot="dropdown-menu-trigger"][data-popup-open] .t-menu-chevron,
+[data-slot="dropdown-menu-trigger"][aria-expanded="true"] .t-menu-chevron {
+	transform: rotate(180deg);
+}
+
+.t-modal-backdrop {
+	--backdrop-open-dur: var(--modal-open-dur);
+	--backdrop-close-dur: var(--modal-close-dur);
+	--backdrop-ease: var(--modal-ease);
+}
+
+.t-panel-backdrop,
+.t-drawer-backdrop {
+	--backdrop-open-dur: var(--panel-open-dur);
+	--backdrop-close-dur: var(--panel-close-dur);
+	--backdrop-ease: var(--panel-ease);
+}
+
+/* Blur belongs to the page behind the surface, never to its moving text.
+ * Transition the actual filter as well as tint, including WebKit's lane. */
+.t-modal-backdrop,
+.t-panel-backdrop,
+.t-drawer-backdrop {
+	opacity: 1;
+	-webkit-backdrop-filter: blur(var(--overlay-backdrop-blur));
+	backdrop-filter: blur(var(--overlay-backdrop-blur));
+	transition:
+		opacity var(--backdrop-open-dur) var(--backdrop-ease),
+		backdrop-filter var(--backdrop-open-dur) var(--backdrop-ease),
+		-webkit-backdrop-filter var(--backdrop-open-dur) var(--backdrop-ease);
+}
+
+:is(.t-modal-backdrop, .t-panel-backdrop, .t-drawer-backdrop):is(
+	[data-starting-style],
+	[data-ending-style],
+	[data-closed]
+) {
+	opacity: 0;
+	-webkit-backdrop-filter: blur(0px);
+	backdrop-filter: blur(0px);
+}
+
+:is(.t-modal-backdrop, .t-panel-backdrop, .t-drawer-backdrop):is(
+	[data-ending-style],
+	[data-closed]
+) {
+	pointer-events: none;
+	transition-duration: var(--backdrop-close-dur);
+}
+
+/* One transform owns the complete edge-to-edge journey. Individual translate
+ * utilities previously snapped because only transform was being transitioned. */
+.t-panel {
+	transform: translate3d(0, 0, 0);
+	transition: transform var(--panel-open-dur) var(--panel-ease);
+	will-change: transform;
+}
+
+.t-panel[data-side="right"] {
+	--panel-closed-transform: translate3d(calc(100% + 24px), 0, 0);
+}
+.t-panel[data-side="left"] {
+	--panel-closed-transform: translate3d(calc(-100% - 24px), 0, 0);
+}
+.t-panel[data-side="bottom"] {
+	--panel-closed-transform: translate3d(0, calc(100% + 24px), 0);
+}
+.t-panel[data-side="top"] {
+	--panel-closed-transform: translate3d(0, calc(-100% - 24px), 0);
+}
+
+.t-panel[data-starting-style],
+.t-panel[data-ending-style],
+.t-panel[data-closed] {
+	transform: var(--panel-closed-transform);
+}
+
+.t-panel[data-ending-style],
+.t-panel[data-closed] {
+	transition-duration: var(--panel-close-dur);
+}
+
+/* Drawer keeps Base UI's drag, snap and nesting transforms. Only its clocks
+ * are shared with sheets; pointer tracking must remain immediate. */
+.t-drawer {
+	transition:
+		transform var(--panel-open-dur) var(--panel-ease),
+		height var(--panel-open-dur) var(--panel-ease);
+}
+
+.t-drawer-backdrop[data-snap-points] {
+	--drawer-overlay-min-opacity: 0.5;
+}
+.t-drawer-backdrop:not([data-starting-style], [data-ending-style], [data-closed]) {
+	opacity: max(var(--drawer-overlay-min-opacity, 0), calc(1 - var(--drawer-swipe-progress, 0)));
+	-webkit-backdrop-filter: blur(
+		calc(var(--overlay-backdrop-blur) * (1 - clamp(0, var(--drawer-swipe-progress, 0), 1)))
+	);
+	backdrop-filter: blur(
+		calc(var(--overlay-backdrop-blur) * (1 - clamp(0, var(--drawer-swipe-progress, 0), 1)))
+	);
+}
+.t-drawer:is([data-swiping], [data-nested-drawer-swiping]),
+.t-drawer-backdrop[data-swiping] {
+	transition-duration: 0s;
+}
+.t-drawer[data-ending-style],
+.t-drawer-backdrop[data-ending-style] {
+	transition-duration: calc(var(--panel-close-dur) * var(--drawer-swipe-strength, 1));
+}
+
+/* TooltipSurface owns reversible native animations; Base UI waits for their
+ * real completion before unmounting. Never layer CSS transitions over them. */
+.t-tt {
+	transform-origin: var(--transform-origin, 50% 100%);
+	opacity: 0;
+	pointer-events: none;
+	animation: none;
+	transition: none;
+}
+
+.t-tt[data-open],
+.t-tt[data-state="delayed-open"] {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.t-tt[data-closed],
+.t-tt[data-ending-style] {
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* One workspace hint travels between native Base UI anchors. Position belongs
+ * to the positioner; dimensions belong to the shell; copy never scales. */
+.t-tt-shared-positioner {
+	width: var(--positioner-width);
+	height: var(--positioner-height);
+	transition: transform var(--tt-travel-dur) var(--tt-in-ease);
+}
+.t-tt.t-tt-shared-popup {
+	display: block;
+	width: var(--popup-width, auto);
+	height: var(--popup-height, auto);
+	transition:
+		width var(--tt-travel-dur) var(--tt-in-ease),
+		height var(--tt-travel-dur) var(--tt-in-ease);
+}
+.t-tt-shared-viewport {
+	position: relative;
+	overflow: clip;
+}
+.t-tt-shared-viewport > [data-current],
+.t-tt-shared-viewport > [data-previous] {
+	display: flex;
+	width: max-content;
+	max-width: calc(20rem - 24px);
+	align-items: center;
+	gap: 8px;
+	transition: opacity var(--tt-content-dur) var(--tt-in-ease);
+}
+.t-tt-shared-viewport > [data-current][data-starting-style],
+.t-tt-shared-viewport > [data-previous][data-ending-style] {
+	opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+	.t-tt-shared-positioner,
+	.t-tt.t-tt-shared-popup,
+	.t-tt-shared-viewport > [data-current],
+	.t-tt-shared-viewport > [data-previous] {
+		transition: none;
+	}
+}
+
+/* Accordion: grid rows eliminate JS height measurement and keep the content
+ * clipped while the panel settles. */
+.t-acc-panel {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows var(--acc-collapse) var(--acc-ease);
+}
+
+.t-acc[data-open] .t-acc-panel {
+	grid-template-rows: 1fr;
+	transition-duration: var(--acc-expand);
+}
+
+.t-acc-panel-inner {
+	overflow: hidden;
+	opacity: 0;
+	filter: blur(var(--blur-small));
+	transition:
+		opacity var(--acc-collapse) var(--acc-ease),
+		filter var(--acc-collapse) var(--acc-ease);
+}
+
+.t-acc[data-open] .t-acc-panel-inner {
+	opacity: 1;
+	filter: blur(0);
+	transition-duration: var(--acc-expand);
+}
+
+.t-acc-chevron {
+	transform: scaleY(1);
+	transform-origin: center;
+	transition: transform var(--acc-chevron) var(--acc-ease);
+}
+
+.t-acc[data-open] .t-acc-chevron {
+	transform: scaleY(-1);
+}
+
+.t-acc-chevron path {
+	vector-effect: non-scaling-stroke;
+}
+
+/* Toast: keep the primitive's stack and swipe transforms, but use the
+ * transitions.dev open/close clocks and cross-blur for the outer surface. */
+.t-toast {
+	transition:
+		transform var(--toast-open) var(--toast-ease),
+		opacity var(--toast-open) var(--toast-ease),
+		filter var(--toast-open) var(--toast-ease);
+	filter: blur(0);
+}
+
+.t-toast[data-starting-style] {
+	filter: blur(var(--toast-blur));
+	opacity: 0;
+}
+
+.t-toast[data-ending-style] {
+	filter: blur(var(--toast-blur));
+	opacity: 0;
+	transition-duration: var(--toast-close);
+}
+
+/* Normalized SVG pathLength=1 makes the stroke independent of icon geometry.
+ * Kept-mounted paths reverse naturally when the user toggles mid-transition. */
+.t-check {
+	transform: scale(1);
+	transition:
+		background-color var(--check-box) var(--check-ease),
+		box-shadow var(--check-box) var(--check-ease),
+		transform var(--press-dur) var(--ease-smooth-out);
+}
+
+.t-check:active:not([data-disabled]):not(:focus-visible) {
+	transform: scale(var(--press-scale));
+}
+
+.t-check [data-slot="checkbox-indicator"] :is(path, line) {
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	opacity: 0;
+	transition:
+		stroke-dashoffset var(--check-uncheck) var(--check-ease),
+		opacity var(--check-uncheck) var(--check-ease);
+}
+
+.t-check:is([data-checked], [data-indeterminate]) [data-slot="checkbox-indicator"] :is(path, line) {
+	stroke-dashoffset: 0;
+	opacity: 1;
+	transition:
+		stroke-dashoffset var(--check-draw) var(--check-ease) var(--check-delay),
+		opacity var(--check-draw) var(--check-ease) var(--check-delay);
+}
+
+/* Switch: the track owns only its color clock. The component's Motion layout
+ * spring moves the thumb and expands it under press without positional math. */
+.t-toggle {
+	transition:
+		background-color var(--toggle-dur) var(--toggle-ease),
+		box-shadow var(--toggle-dur) var(--toggle-ease);
+}
+
+/* Shared hover background: beUI interaction, Foundation geometry and
+ * transitions.dev clocks. Selection and link activation are never animated. */
+.shared-layout-bg {
+	position: relative;
+	isolation: isolate;
+}
+
+.shared-layout-bg-content {
+	position: relative;
+	z-index: 1;
+}
+
+.t-shared-layout-bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 0;
+	width: 0;
+	height: 0;
+	border-radius: 0;
+	pointer-events: none;
+	background: var(--hover-layout-surface, var(--foundation-secondary-soft-hover));
+	opacity: 0;
+	transition:
+		opacity var(--hover-layout-exit-dur) var(--ease-linear),
+		transform var(--hover-layout-dur) var(--hover-layout-ease),
+		width var(--hover-layout-dur) var(--hover-layout-ease),
+		height var(--hover-layout-dur) var(--hover-layout-ease);
+}
+
+.shared-layout-bg[data-hover-ready="true"] > .t-shared-layout-bg {
+	opacity: 1;
+	transition:
+		opacity var(--hover-layout-enter-dur) var(--ease-linear),
+		transform var(--hover-layout-dur) var(--hover-layout-ease),
+		width var(--hover-layout-dur) var(--hover-layout-ease),
+		height var(--hover-layout-dur) var(--hover-layout-ease);
+}
+
+.shared-layout-bg[data-hover-disabled="true"] > .t-shared-layout-bg {
+	opacity: 0;
+}
+
+/* Tabs sliding: both filled and line variants use one measured indicator.
+ * Trigger hover is quicker than indicator travel so pointer feedback is never
+ * held hostage by the selection animation. */
+.t-tabs-list {
+	position: relative;
+}
+
+.t-tabs-pill,
+.t-tabs-hover {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 0;
+	width: var(--tabs-indicator-width, 0px);
+	height: var(--tabs-indicator-height, 0px);
+	pointer-events: none;
+	background: var(--foundation-surface);
+	transform: translate3d(var(--tabs-indicator-x, 0px), var(--tabs-indicator-y, 0px), 0);
+	transition:
+		transform var(--tabs-dur) var(--tabs-ease),
+		width var(--tabs-dur) var(--tabs-ease),
+		height var(--tabs-dur) var(--tabs-ease),
+		opacity var(--tabs-state-dur) var(--tabs-ease);
+	will-change: transform, width, height;
+}
+
+.t-tabs-pill {
+	z-index: 1;
+}
+.t-tabs-hover {
+	z-index: 0;
+	opacity: 0;
+	background: var(--foundation-primary-soft-hover);
+}
+.t-tabs-hover[data-visible="true"] {
+	opacity: 1;
+}
+.t-tabs-list > [data-slot="tabs-trigger"]:active:not(:disabled):not([aria-disabled="true"]) {
+	background: var(--foundation-primary-soft-active);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.t-tabs-hover {
+		transition: none;
+	}
+}
+
+.t-tabs-list[data-variant="line"][data-orientation="horizontal"] .t-tabs-pill {
+	top: auto;
+	bottom: 0;
+	width: var(--tabs-indicator-width, 0px);
+	height: 2px;
+	background: var(--foundation-primary);
+	transform: translate3d(var(--tabs-indicator-x, 0px), 0, 0);
+}
+
+.t-tabs-list[data-variant="line"][data-orientation="vertical"] .t-tabs-pill {
+	top: 0;
+	right: 0;
+	left: auto;
+	width: 2px;
+	height: var(--tabs-indicator-height, 0px);
+	background: var(--foundation-primary);
+	transform: translate3d(0, var(--tabs-indicator-y, 0px), 0);
+}
+
+.t-tabs-list > [data-slot="tabs-trigger"] {
+	z-index: 2;
+	transition:
+		color var(--tabs-state-dur) var(--tabs-ease),
+		background-color var(--tabs-state-dur) var(--tabs-ease),
+		box-shadow var(--tabs-state-dur) var(--tabs-ease);
+}
+
+/* Skeleton: the primitive is a single shaped placeholder, so its own opacity
+ * pulses until a consuming surface replaces it with real content. */
+.t-skeleton {
+	animation: t-skeleton-pulse var(--pulse-dur) var(--ease-linear) infinite;
+}
+
+@keyframes t-skeleton-pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: var(--pulse-min);
+	}
+}
+
+/* An opt-in steady silhouette. Only the restrained highlight travels; the
+ * geometry and base opacity never breathe or flash. */
+.t-skeleton-shimmer {
+	position: relative;
+	overflow: hidden;
+	--skeleton-sweep-duration: 2400ms;
+	--skeleton-sweep-ink: color-mix(in oklab, var(--foundation-ink, currentColor) 5%, transparent);
+}
+.t-skeleton-shimmer::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		90deg,
+		transparent 15%,
+		var(--skeleton-sweep-ink) 50%,
+		transparent 85%
+	);
+	transform: translateX(-100%);
+	animation: t-skeleton-sweep var(--skeleton-sweep-duration) var(--ease-linear) infinite;
+}
+@keyframes t-skeleton-sweep {
+	0%,
+	15% {
+		transform: translateX(-100%);
+	}
+	75%,
+	100% {
+		transform: translateX(100%);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.t-skeleton-shimmer::after {
+		animation: none;
+	}
+}
+
+/* Progress: width is the one intentional layout interpolation in a progress
+ * indicator; the duration remains short and tokenized. */
+.t-progress-indicator {
+	transition: width var(--progress-dur) var(--progress-ease);
+}
+
+/* Avatar group: the root component writes per-neighbor shift variables on
+ * hover, producing the skill's distance-falloff comb interaction. */
+.t-avatar-group > [data-slot="avatar"] {
+	transform-origin: center;
+	transform: translateY(var(--shift, 0px)) scale(var(--scale-active, 1));
+	transition: transform var(--avatar-dur) var(--avatar-ease-in);
+	will-change: transform;
+}
+
+/* Icon swap: both icons occupy one slot and cross-fade in place. */
+.t-icon-swap {
+	position: relative;
+	display: inline-grid;
+}
+
+.t-icon-swap .t-icon {
+	grid-area: 1 / 1;
+	transition:
+		opacity var(--icon-swap-dur) var(--icon-swap-ease),
+		filter var(--icon-swap-dur) var(--icon-swap-ease),
+		transform var(--icon-swap-dur) var(--icon-swap-ease);
+	will-change: opacity, filter, transform;
+}
+
+.t-icon-swap .t-icon[data-icon="a"],
+.t-icon-swap .t-icon[data-icon="b"] {
+	opacity: 1;
+	filter: blur(0);
+	transform: scale(1);
+}
+
+.t-icon-swap .t-icon[data-icon="b"] {
+	opacity: 0;
+	filter: blur(var(--icon-swap-blur));
+	transform: scale(var(--icon-swap-start-scale));
+}
+
+.t-icon-swap[data-state="a"] .t-icon[data-icon="a"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="b"] {
+	opacity: 1;
+	filter: blur(0);
+	transform: scale(1);
+}
+
+.t-icon-swap[data-state="a"] .t-icon[data-icon="b"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="a"] {
+	opacity: 0;
+	filter: blur(var(--icon-swap-blur));
+	transform: scale(var(--icon-swap-start-scale));
+}
+
+/* Accordion uses aria-expanded on the trigger as its state source. */
+[data-slot="accordion-trigger"][aria-expanded="true"]
+	.t-icon-swap[data-icon-swap="accordion"]
+	.t-icon[data-icon="a"] {
+	opacity: 0;
+	filter: blur(var(--icon-swap-blur));
+	transform: scale(var(--icon-swap-start-scale));
+}
+
+[data-slot="accordion-trigger"][aria-expanded="true"]
+	.t-icon-swap[data-icon-swap="accordion"]
+	.t-icon[data-icon="b"] {
+	opacity: 1;
+	filter: blur(0);
+	transform: scale(1);
+}
+
+.t-input.is-shaking {
+	animation: t-input-shake calc(var(--shake-dur-a) * 2 + var(--shake-dur-b) * 2) linear;
+}
+
+@keyframes t-input-shake {
+	0% {
+		transform: translateX(0);
+		animation-timing-function: var(--shake-ease);
+	}
+	28.57% {
+		transform: translateX(var(--shake-distance));
+		animation-timing-function: var(--shake-ease);
+	}
+	57.14% {
+		transform: translateX(calc(var(--shake-distance) * -1));
+		animation-timing-function: var(--shake-ease);
+	}
+	78.57% {
+		transform: translateX(var(--shake-overshoot));
+		animation-timing-function: var(--shake-ease);
+	}
+	100% {
+		transform: translateX(0);
+	}
+}
+
+/* Theme is a document-level material swap, never hundreds of independently
+ * interpolated borders, backgrounds and control states. The guard lasts through
+ * the first new-theme paint and also covers portals and pseudo-element frames.
+ * Icon layers only animate opacity/filter/transform, so their StateSwap stays live. */
+:root[data-theme-updating="true"],
+:root[data-theme-updating="true"] *:not(.t-icon),
+:root[data-theme-updating="true"] *::before,
+:root[data-theme-updating="true"] *::after {
+	/* biome-ignore lint/complexity/noImportantStyles: The atomic paint guard must override component and inline transitions for two frames. */
+	transition: none !important;
+}
+
+.portfolio-theme-surface {
+	position: relative;
+	z-index: 0;
+	display: flow-root;
+	min-block-size: 100svh;
+	background: var(--portfolio-canvas);
+}
+
+/* Scope navigation below the persistent header and dock. Native old/new images
+ * supply the departure and arrival. No DOM clones,
+ * frozen router contexts, height interpolation or full-document snapshots. */
+.portfolio-scene {
+	position: relative;
+	z-index: 0;
+	display: flow-root;
+	background: var(--portfolio-canvas);
+}
+
+.portfolio-scene[data-route-transition]::view-transition {
+	pointer-events: none;
+}
+
+.portfolio-scene[data-route-transition]::view-transition-group(root) {
+	animation: none;
+}
+
+.portfolio-scene[data-route-transition]::view-transition-old(root),
+.portfolio-scene[data-route-transition]::view-transition-new(root) {
+	height: auto;
+	mix-blend-mode: normal;
+	transform-origin: top center;
+}
+
+.portfolio-scene[data-route-transition]::view-transition-old(root) {
+	animation: portfolio-route-out var(--duration-quick) var(--ease-smooth-out) both;
+}
+
+.portfolio-scene[data-route-transition]::view-transition-new(root) {
+	animation: portfolio-route-in var(--duration-fast) var(--ease-smooth-out) both;
+}
+
+.portfolio-scene::view-transition-group(.portfolio-entry-heading),
+.portfolio-scene::view-transition-group(.portfolio-entry-copy) {
+	animation: none;
+}
+
+.portfolio-scene::view-transition-new(.portfolio-entry-heading),
+.portfolio-scene::view-transition-new(.portfolio-entry-copy) {
+	animation: portfolio-copy-in var(--duration-fast) var(--ease-smooth-out) both;
+	animation-delay: var(--entry-delay, 0ms);
+	mix-blend-mode: normal;
+}
+
+.portfolio-scene::view-transition-new(.portfolio-entry-heading) {
+	animation-name: portfolio-title-in;
+}
+
+.portfolio-scene::view-transition-group(.portfolio-entry-delay-0) {
+	--entry-delay: 0ms;
+}
+.portfolio-scene::view-transition-group(.portfolio-entry-delay-1) {
+	--entry-delay: 20ms;
+}
+.portfolio-scene::view-transition-group(.portfolio-entry-delay-2) {
+	--entry-delay: 40ms;
+}
+.portfolio-scene::view-transition-group(.portfolio-entry-delay-3) {
+	--entry-delay: 60ms;
+}
+.portfolio-scene::view-transition-group(.portfolio-entry-delay-4) {
+	--entry-delay: 80ms;
+}
+.portfolio-scene::view-transition-group(.portfolio-entry-delay-5) {
+	--entry-delay: 100ms;
+}
+.portfolio-scene::view-transition-group(.portfolio-entry-delay-6) {
+	--entry-delay: 120ms;
+}
+
+@keyframes portfolio-title-in {
+	from {
+		opacity: 0;
+		filter: blur(var(--blur-medium));
+		transform: translateY(var(--distance-small));
+	}
+	to {
+		opacity: 1;
+		filter: blur(0);
+		transform: translateY(0);
+	}
+}
+
+@keyframes portfolio-copy-in {
+	from {
+		opacity: 0;
+		transform: translateY(var(--distance-small));
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes portfolio-route-out {
+	to {
+		opacity: 0;
+		transform: translateY(calc(-1 * var(--distance-micro)));
+	}
+}
+
+@keyframes portfolio-route-in {
+	from {
+		opacity: 0;
+		transform: translateY(var(--distance-base));
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* The element scope owns its native snapshot below the live dock. Older engines
+ * apply the same material animation to the document root. */
+:root[data-theme-transition="true"]::view-transition-group(root),
+:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition-group(root) {
+	animation: none;
+}
+
+:root[data-theme-transition="true"]::view-transition-old(root),
+:root[data-theme-transition="true"]::view-transition-new(root),
+:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition-old(root),
+:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition-new(root) {
+	animation-duration: 240ms;
+	animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	mix-blend-mode: normal;
+}
+
+/* Keep the old snapshot opaque beneath the new one: no exposed backing paint. */
+:root[data-theme-transition="true"]::view-transition-old(root),
+:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition-old(root) {
+	animation-name: none;
+}
+
+:root[data-theme-transition="true"]::view-transition-new(root),
+:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition-new(root) {
+	animation-name: theme-surface-in;
+}
+
+:root[data-theme-transition="true"]::view-transition,
+:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition {
+	pointer-events: none;
+}
+
+@keyframes theme-surface-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+:root[data-theme-input="keyboard"] .theme-toggle .t-icon {
+	transition: none;
+}
+
+.t-state-label {
+	display: inline-grid;
+}
+
+.t-state-label > span,
+.t-state-label > [data-status-copy] {
+	grid-area: 1 / 1;
+	opacity: 0;
+	transition: opacity var(--text-swap-dur) var(--ease-in-out);
+}
+
+.t-state-label > [data-active="true"] {
+	opacity: 1;
+}
+
+/* Active-copy width is measured on state/font changes, never per animation frame.
+ * Layers keep the existing crossfade and do not scale the text while resizing. */
+.t-state-label[data-sizing="content"] {
+	position: relative;
+	display: inline-block;
+	height: 1lh;
+	overflow: clip;
+	vertical-align: middle;
+	transition: width var(--resize-dur) var(--resize-ease);
+}
+.t-state-label[data-sizing="content"] > span {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: max-content;
+	white-space: nowrap;
+	transform: translateX(-50%);
+}
+.t-state-label[data-sizing="content"]:not([data-measured]) > [data-active="true"] {
+	position: relative;
+}
+
+.t-icon-swap .t-icon[data-active="true"] {
+	opacity: 1;
+	filter: blur(0);
+	transform: scale(1);
+}
+
+.t-icon-swap .t-icon[data-active="false"] {
+	opacity: 0;
+	filter: blur(var(--icon-swap-blur));
+	transform: scale(var(--icon-swap-start-scale));
+}
+
+.t-icon-swap .t-icon[data-active="false"] [data-slot="spinner"] {
+	animation-play-state: paused;
+}
+
+.t-feedback {
+	opacity: 0;
+	visibility: hidden;
+	transition:
+		opacity var(--feedback-dur) var(--ease-smooth-out),
+		visibility 0s linear var(--feedback-dur);
+}
+
+.t-feedback[data-visible="true"] {
+	opacity: 1;
+	visibility: visible;
+	transition-delay: 0s;
+}
+
+/* Keyboard state changes are immediate; pointer gestures keep their feedback. */
+.t-pressable:focus-visible,
+.t-check:focus-visible,
+.t-check:focus-visible [data-slot="checkbox-indicator"] :is(path, line),
+[data-motion-input="keyboard"] :is(.t-interactive, .t-pressable, .t-check, .t-icon, .t-feedback),
+[data-motion-input="keyboard"] .t-check [data-slot="checkbox-indicator"] :is(path, line),
+[data-motion-input="keyboard"] .t-state-label > span,
+[data-motion-input="keyboard"] .t-state-label[data-sizing="content"],
+[data-motion-input="keyboard"] .t-state-label > [data-status-copy] {
+	transition: none;
+}
+
+.t-pressable:focus-visible:active:not(:disabled),
+[data-motion-input="keyboard"] .t-pressable:active:not(:disabled),
+[data-motion-input="keyboard"] .t-check:active:not([data-disabled]) {
+	transform: none;
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.t-input.is-shaking {
+		animation: none;
+		transform: none;
+	}
+	.t-dropdown,
+	.t-modal,
+	.t-modal-backdrop,
+	.t-menu-chevron,
+	.t-icon-swap .t-icon,
+	.t-panel,
+	.t-panel-backdrop,
+	.t-drawer,
+	.t-drawer-backdrop,
+	[data-slot="drawer-content"],
+	[data-slot="drawer-swipe-handle"],
+	.t-tt,
+	.t-acc-panel,
+	.t-acc-panel-inner,
+	.t-acc-chevron,
+	.t-toast,
+	.t-check,
+	.t-check [data-slot="checkbox-indicator"] :is(path, line),
+	.t-feedback,
+	.t-state-label > span,
+	.t-state-label[data-sizing="content"],
+	.t-state-label > [data-status-copy],
+	.t-check .t-check-mark svg path,
+	.t-toggle-thumb,
+	.t-tabs-pill,
+	.t-shared-layout-bg,
+	.t-tabs-list > [data-slot="tabs-trigger"],
+	.t-progress-indicator,
+	.t-avatar-group > [data-slot="avatar"],
+	.t-interactive,
+	.t-pressable {
+		transition: none;
+	}
+	.t-pressable,
+	.t-check {
+		transform: none;
+	}
+	.t-skeleton {
+		animation: none;
+	}
+	[data-slot="spinner"] {
+		animation: none;
+	}
+}

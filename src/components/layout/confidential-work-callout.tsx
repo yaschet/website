@@ -3,24 +3,31 @@ import { cn } from "@/src/lib/utils";
 
 interface ConfidentialWorkCalloutProps {
 	className?: string;
+	/** Use level two when the note is a standalone section. */
+	headingLevel?: 2 | 3;
 }
 
-export function ConfidentialWorkCallout({ className }: ConfidentialWorkCalloutProps) {
+export function ConfidentialWorkCallout({
+	className,
+	headingLevel = 3,
+}: ConfidentialWorkCalloutProps) {
+	const Heading = headingLevel === 2 ? "h2" : "h3";
 	return (
 		<div className={cn("portfolio-box-pad", className)}>
 			<div className="portfolio-callout">
-				<p className="portfolio-kicker text-surface-600 dark:text-surface-400">
-					Confidential Work
-				</p>
-				<p className="portfolio-body-sm portfolio-callout-copy text-surface-600 dark:text-surface-400">
+				<Heading className="font-medium text-base text-foreground leading-6">
+					Confidential work
+				</Heading>
+				<p className="portfolio-body-sm portfolio-callout-copy text-muted-foreground">
 					Other work spans legal translation, education, onboarding, operations, and
 					reconciliation. Most of it is private. Happy to discuss it{" "}
 					<Link
+						transitionTypes={["navigation"]}
 						href="/contact"
-						className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-4 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
+						className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
 					>
 						in a call
-					</Link>{" "}
+					</Link>
 					.
 				</p>
 			</div>

@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
+import { IS_PREVIEW_DEPLOYMENT, SITE_URL } from "@/src/constants/site";
 import "./globals.css";
 
 import RootProvider from "@components/providers/root-provider";
 import { fontVariables } from "@/lib/fonts";
+import { PortfolioScene } from "@/src/components/layout/portfolio-scene";
 import { PortfolioTypeStyles } from "@/src/components/layout/portfolio-type-styles";
+import { SiteHeader } from "@/src/components/layout/site-header";
 
 export const metadata: Metadata = {
-	metadataBase: new URL("https://yaschet.dev"),
+	metadataBase: new URL(SITE_URL),
 	title: {
 		default: "Yassine Chettouch — Software Engineer",
 		template: "%s | Yassine Chettouch",
@@ -38,17 +41,17 @@ export const metadata: Metadata = {
 		title: "Yassine Chettouch — Software Engineer",
 		description:
 			"Building systems that scale and experiences that convert. High-performance execution for ambitious products.",
-		url: "https://yaschet.dev",
+		url: SITE_URL,
 		siteName: "Yassine Chettouch",
 		locale: "en_US",
 		type: "website",
 	},
 	robots: {
-		index: true,
-		follow: true,
+		index: !IS_PREVIEW_DEPLOYMENT,
+		follow: !IS_PREVIEW_DEPLOYMENT,
 		googleBot: {
-			index: true,
-			follow: true,
+			index: !IS_PREVIEW_DEPLOYMENT,
+			follow: !IS_PREVIEW_DEPLOYMENT,
 			"max-video-preview": -1,
 			"max-image-preview": "large",
 			"max-snippet": -1,
@@ -68,7 +71,7 @@ const personSchema = {
 	name: "Yassine Chettouch",
 	alternateName: "yaschet",
 	jobTitle: "Software Engineer",
-	url: "https://yaschet.dev",
+	url: SITE_URL,
 	sameAs: [
 		"https://x.com/yaschett",
 		"https://github.com/yaschet",
@@ -109,7 +112,7 @@ export default function RootLayout({
 		<html
 			suppressHydrationWarning
 			lang="en"
-			className={fontVariables}
+			className={`${fontVariables} yaschet`}
 			data-scroll-behavior="smooth"
 		>
 			<head>
@@ -131,10 +134,13 @@ export default function RootLayout({
 				/>
 			</head>
 			<body
-				className="relative min-h-screen text-surface-900 antialiased dark:text-surface-50"
+				className="relative min-h-screen text-foreground antialiased"
 				suppressHydrationWarning={true}
 			>
-				<RootProvider>{children}</RootProvider>
+				<RootProvider>
+					<SiteHeader />
+					<PortfolioScene>{children}</PortfolioScene>
+				</RootProvider>
 			</body>
 		</html>
 	);

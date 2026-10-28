@@ -1,69 +1,64 @@
+/// <reference types="vite/client" />
 import { withThemeByClassName } from "@storybook/addon-themes";
 import type { Preview } from "@storybook/nextjs-vite";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "next-themes";
-import { RevealProvider } from "../src/components/providers/reveal-provider";
-import { fontVariables } from "../src/lib/fonts";
+import { useGlobals } from "storybook/preview-api";
+import { PortfolioTypeStyles } from "../src/components/layout/portfolio-type-styles";
+import { WorkshopDocsContainer, WorkshopDocsPage } from "./workshop-docs";
+import { WorkshopProviders } from "./workshop-providers";
+import "@fontsource-variable/space-grotesk";
+import "@fontsource/space-mono/400.css";
+import "@fontsource/space-mono/700.css";
 import "../src/app/globals.css";
+import "./workshop.css";
 
-const queryClient = new QueryClient();
+const defaultTheme = import.meta.env.VITE_STORYBOOK_THEME === "light" ? "light" : "dark";
 
 const preview: Preview = {
+	initialGlobals: { theme: defaultTheme },
 	parameters: {
-		controls: {
-			matchers: {
-				color: /(background|color)$/i,
-				date: /Date$/i,
-			},
-		},
-		backgrounds: {
-			default: "dark",
-			values: [
-				{
-					name: "light",
-					value: "#F9FAFB", // gray-50
-				},
-				{
-					name: "dark",
-					value: "#030712", // gray-950 (Tailwind v4 default black is deep)
-				},
-				{
-					name: "swiss-void",
-					value: "#000000",
-				},
-				{
-					name: "blueprint",
-					value: "#0A0A0A",
-				},
-			],
-		},
+		nextjs: { appDirectory: true },
+		controls: { matchers: { color: /(background|color)$/i } },
+		backgrounds: { disable: true },
+		a11y: { test: "error" },
 		docs: {
-			toc: true, // Table of contents for the docs
+			toc: true,
+			container: WorkshopDocsContainer,
+			page: WorkshopDocsPage,
+			story: { inline: true },
+		},
+		options: {
+			storySort: {
+				order: [
+					"Overview",
+					"Foundation",
+					["Brand Overview", "Colors", "Typography", "Spacing", "Motion"],
+					"Components",
+					["Actions", "Feedback", "Forms", "Overlays", "Navigation", "Media", "Content"],
+					"Pages",
+					["Case Study", "Loading", "Error", "Not Found"],
+					"Lab",
+				],
+			},
 		},
 	},
-
 	decorators: [
-		(Story) => (
-			<QueryClientProvider client={queryClient}>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-					<RevealProvider>
-						<div
-							className={`min-h-full p-8 text-surface-900 antialiased transition-colors duration-300 dark:text-surface-50 ${fontVariables}`}
-						>
-							<Story />
-						</div>
-					</RevealProvider>
-				</ThemeProvider>
-			</QueryClientProvider>
-		),
-		withThemeByClassName({
-			themes: {
-				light: "light",
-				dark: "dark",
-			},
-			defaultTheme: "dark",
-		}),
+		(Story, context) => {
+			const [, updateGlobals] = useGlobals();
+			return (
+				<WorkshopProviders
+					key={context.id}
+					storyId={context.id}
+					theme={context.globals.theme}
+					onThemeChange={(theme) => updateGlobals({ theme })}
+				>
+					<div className="workshop-canvas">
+						<PortfolioTypeStyles />
+						<Story />
+					</div>
+				</WorkshopProviders>
+			);
+		},
+		withThemeByClassName({ themes: { light: "light", dark: "dark" }, defaultTheme }),
 	],
 };
-
 export default preview;

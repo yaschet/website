@@ -1,0 +1,112 @@
+/* Local copies of the same brand fonts keep workshop review independent of a CDN. */
+:root {
+	--font-app-sans: "Space Grotesk Variable", sans-serif;
+	--font-app-mono: "Space Mono", monospace;
+}
+
+/* Workshop framing uses the same runtime tokens as the public website. */
+.workshop-canvas {
+	min-width: 0;
+	color: var(--foreground);
+	font-family: var(--font-sans);
+}
+
+/* A containing block demonstrates fixed navigation without a second document. */
+.workshop-viewport {
+	contain: layout;
+}
+
+/* Fullscreen examples still own equal clearance outside their composition. */
+.workshop-stage {
+	--workshop-preview-inset: var(--portfolio-space-2);
+	padding: var(--workshop-preview-inset);
+}
+
+.workshop-page-frame {
+	position: relative;
+	min-height: 520px;
+	max-width: 1024px;
+	margin-inline: auto;
+	background: var(--app-background);
+}
+
+/* Route height and fixed overlays belong to this demonstration viewport. */
+.workshop-route-state > div,
+.workshop-page-frame .portfolio-page-loading {
+	min-height: inherit;
+}
+.workshop-page-frame:has(.portfolio-site-header) .portfolio-page-loading {
+	min-height: calc(520px - var(--portfolio-header-height) - var(--portfolio-nav-clearance));
+}
+
+/* The grid's 17px corner marks receive 10px of clearance at each outer edge. */
+.workshop-grid-content {
+	padding-block: 10px;
+}
+
+.workshop-grid-column {
+	width: calc(100% - 20px);
+	max-width: 768px;
+	margin-inline: auto;
+	background: var(--portfolio-panel);
+}
+
+@media (min-width: 640px) {
+	.workshop-stage {
+		--workshop-preview-inset: var(--portfolio-space-4);
+	}
+}
+
+/* Component canvases reserve a scrollbar lane only when content needs it. */
+html.yaschet {
+	scrollbar-gutter: auto;
+}
+
+html.yaschet,
+.sb-show-main,
+.sbdocs-wrapper {
+	background: var(--app-background);
+}
+
+.sbdocs-content {
+	color: var(--foreground);
+}
+
+/* Let the document scroll once; previews must not become miniature viewports. */
+.sbdocs-wrapper {
+	padding: 40px 30px;
+}
+
+.sbdocs-content {
+	min-width: 0;
+}
+
+/* Natural-height previews use the document's scroll, including at fractional zoom.
+ * Code blocks and other intentional viewports retain their own overflow rules. */
+.sbdocs-content .docs-story {
+	overflow: visible;
+}
+
+.workshop-api {
+	margin-block-start: 40px;
+	border-block-start: 1px solid var(--app-field-border);
+	padding-block-start: 20px;
+}
+
+.workshop-api summary {
+	cursor: pointer;
+	font-weight: 600;
+}
+
+@media (max-width: 600px) {
+	.sbdocs-wrapper {
+		padding: 30px 20px;
+	}
+}
+
+/* Match the production header gutter on all four sides, including below the hero. */
+.workshop-context-page {
+	padding-bottom: var(--portfolio-space-related);
+	max-width: 1024px;
+	margin-inline: auto;
+}

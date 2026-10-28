@@ -1,21 +1,29 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { WorkshopPagePreview } from "../../.storybook/page-preview";
 import NotFound from "./not-found";
 
-const meta: Meta<typeof NotFound> = {
-	title: "App Shell/Not Found",
+const meta = {
+	title: "Pages/Not Found",
 	component: NotFound,
 	parameters: {
 		layout: "fullscreen",
 		docs: {
 			description: {
 				component:
-					"404 state using the 'Swiss Sandwich' grid layout. Ensures full-height grid containment.",
+					"The current 404 route in a padded preview viewport. The route itself remains a work in progress.",
 			},
 		},
 	},
-};
+	decorators: [
+		(Story) => (
+			<WorkshopPagePreview routeState>
+				<Story />
+			</WorkshopPagePreview>
+		),
+	],
+} satisfies Meta<typeof NotFound>;
 
 export default meta;
-type Story = StoryObj<typeof NotFound>;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};

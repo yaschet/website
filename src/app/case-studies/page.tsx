@@ -1,13 +1,11 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { Briefcase } from "@phosphor-icons/react/dist/ssr/Briefcase";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-work-callout";
 import { PageContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
-import { Button } from "@/src/components/ui/button";
+import { ButtonLink } from "@/src/components/ui/button-link";
 import { CopyResourceButton } from "@/src/components/ui/copy-resource-button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
@@ -18,6 +16,7 @@ import {
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import { SITE_URL } from "@/src/constants/site";
 import { getListedPublicProjectSummaries } from "@/src/content/registry";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
@@ -32,7 +31,7 @@ export const metadata: Metadata = {
 		title: "Case Studies | Yassine Chettouch",
 		description:
 			"Selected case studies in product engineering, systems work, and shipped software.",
-		url: "https://yaschet.dev/case-studies",
+		url: `${SITE_URL}/case-studies`,
 		type: "website",
 	},
 };
@@ -44,13 +43,11 @@ export default async function CaseStudiesPage() {
 	const hasProjects = projects.length > 0;
 
 	return (
-		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+		<div className="flex flex-1 flex-col text-foreground selection:bg-foreground selection:text-background">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
-				<SiteHeader />
-
 				<section id="projects-list" className="w-full">
 					<PageContainer className="portfolio-section-top">
-						<SwissGridBox className="!bg-surface-50 dark:!bg-surface-900/80">
+						<SwissGridBox>
 							<SwissGridRow>
 								<div className="portfolio-box-pad">
 									<PageIntro
@@ -170,7 +167,7 @@ export default async function CaseStudiesPage() {
 								<SwissGridBox>
 									{hasProjects && (
 										<SwissGridRow>
-											<ConfidentialWorkCallout />
+											<ConfidentialWorkCallout headingLevel={2} />
 										</SwissGridRow>
 									)}
 									<SwissGridRow>
@@ -184,21 +181,21 @@ export default async function CaseStudiesPage() {
 											>
 												View engineering philosophy.
 											</h2>
-											<Button
-												asChild
+											<ButtonLink
+												href="/about"
 												size="md"
 												variant="solid"
 												color="default"
 												className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
-											>
-												<Link href="/about">
-													About
+												icon={
 													<ArrowRightIcon
 														className="size-4"
 														weight="bold"
 													/>
-												</Link>
-											</Button>
+												}
+											>
+												About
+											</ButtonLink>
 										</InstrumentActionBand>
 									</SwissGridRow>
 								</SwissGridBox>

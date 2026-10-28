@@ -5,7 +5,8 @@ import { Badge } from "./badge";
  * Compact semantic indicator for categorization and status labeling.
  */
 const meta: Meta<typeof Badge> = {
-	title: "Primitives/Badge",
+	id: "primitives-badge",
+	title: "Components/Feedback/Badge",
 	component: Badge,
 	tags: ["autodocs"],
 	parameters: {

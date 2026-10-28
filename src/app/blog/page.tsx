@@ -1,12 +1,10 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { FileText } from "@phosphor-icons/react/dist/ssr/FileText";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
-import { Button } from "@/src/components/ui/button";
+import { ButtonLink } from "@/src/components/ui/button-link";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
@@ -32,28 +30,24 @@ function BlogClosingCta() {
 			>
 				See shipped work.
 			</h2>
-			<Button
-				asChild
+			<ButtonLink
+				href="/case-studies"
 				size="md"
 				variant="solid"
 				color="default"
 				className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
+				icon={<ArrowRightIcon className="size-4" weight="bold" />}
 			>
-				<Link href="/case-studies">
-					Case Studies
-					<ArrowRightIcon className="size-4" weight="bold" />
-				</Link>
-			</Button>
+				Case Studies
+			</ButtonLink>
 		</InstrumentActionBand>
 	);
 }
 
 export default function BlogPage() {
 	return (
-		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+		<div className="flex flex-1 flex-col text-foreground selection:bg-foreground selection:text-background">
 			<main className="relative z-10 flex flex-1 flex-col">
-				<SiteHeader />
-
 				{/* 2. CONTENT CELL */}
 				<section id="blog-content" className="w-full">
 					<PageContainer className="portfolio-section-top">

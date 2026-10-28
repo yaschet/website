@@ -1,0 +1,2015 @@
+/* Yaschet-owned Foundation port. See docs/foundation-provenance.md. */
+@theme inline {
+	--font-sans: var(--font-app-sans, "Space Grotesk Variable"), "Space Grotesk", sans-serif;
+	--font-heading: var(--font-sans);
+	--font-mono: var(--font-app-mono, "Space Mono"), ui-monospace, monospace;
+	--breakpoint-3xl: 1600px;
+	--breakpoint-4xl: 2000px;
+
+	/*
+   * Semantic utility contract consumed by every Foundation component.
+   */
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary-hover: var(--foundation-primary-hover);
+	--color-primary-active: var(--foundation-primary-active);
+	--color-primary-soft: var(--foundation-primary-soft);
+	--color-primary-soft-hover: var(--foundation-primary-soft-hover);
+	--color-primary-soft-active: var(--foundation-primary-soft-active);
+	--color-primary-ink: var(--foundation-primary-ink);
+	--color-primary-line: var(--foundation-primary-line);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-secondary-solid: var(--foundation-secondary);
+	--color-secondary-solid-foreground: var(--foundation-secondary-foreground);
+	--color-secondary-hover: var(--foundation-secondary-hover);
+	--color-secondary-active: var(--foundation-secondary-active);
+	--color-secondary-soft: var(--foundation-secondary-soft);
+	--color-secondary-soft-hover: var(--foundation-secondary-soft-hover);
+	--color-secondary-soft-active: var(--foundation-secondary-soft-active);
+	--color-secondary-ink: var(--foundation-secondary-ink);
+	--color-secondary-line: var(--foundation-secondary-line);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-well: var(--foundation-well);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-accent-hover: var(--foundation-accent-hover);
+	--color-accent-active: var(--foundation-accent-active);
+	--color-accent-solid: var(--foundation-accent-solid);
+	--color-accent-solid-foreground: var(--foundation-accent-solid-foreground);
+	--color-accent-solid-hover: var(--foundation-accent-solid-hover);
+	--color-accent-solid-active: var(--foundation-accent-solid-active);
+	--color-accent-soft: var(--foundation-accent-soft);
+	--color-accent-soft-hover: var(--foundation-accent-soft-hover);
+	--color-accent-soft-active: var(--foundation-accent-soft-active);
+	--color-accent-ink: var(--foundation-accent-ink);
+	--color-accent-line: var(--foundation-accent-line);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-destructive-hover: var(--foundation-danger-hover);
+	--color-destructive-active: var(--foundation-danger-active);
+	--color-destructive-soft: var(--foundation-danger-soft);
+	--color-destructive-soft-hover: var(--foundation-danger-soft-hover);
+	--color-destructive-soft-active: var(--foundation-danger-soft-active);
+	--color-destructive-ink: var(--foundation-danger-ink);
+	--color-destructive-line: var(--foundation-danger-line);
+	--color-success: var(--foundation-success, var(--status-stable, var(--success)));
+	--color-success-foreground: var(
+		--foundation-success-foreground,
+		var(--status-stable-ink, var(--success-foreground))
+	);
+	--color-success-hover: var(--foundation-success-hover);
+	--color-success-active: var(--foundation-success-active);
+	--color-success-soft: var(--foundation-success-soft);
+	--color-success-soft-hover: var(--foundation-success-soft-hover);
+	--color-success-soft-active: var(--foundation-success-soft-active);
+	--color-success-ink: var(--foundation-success-ink);
+	--color-success-line: var(--foundation-success-line);
+	--color-warning: var(--foundation-warning, var(--status-watch, var(--warning)));
+	--color-warning-foreground: var(
+		--foundation-warning-foreground,
+		var(--status-watch-ink, var(--warning-foreground))
+	);
+	--color-warning-hover: var(--foundation-warning-hover);
+	--color-warning-active: var(--foundation-warning-active);
+	--color-warning-soft: var(--foundation-warning-soft);
+	--color-warning-soft-hover: var(--foundation-warning-soft-hover);
+	--color-warning-soft-active: var(--foundation-warning-soft-active);
+	--color-warning-ink: var(--foundation-warning-ink);
+	--color-warning-line: var(--foundation-warning-line);
+	--color-info: var(--foundation-info, var(--status-weak, var(--info)));
+	--color-info-foreground: var(
+		--foundation-info-foreground,
+		var(--status-weak-ink, var(--info-foreground))
+	);
+	--color-info-hover: var(--foundation-info-hover);
+	--color-info-active: var(--foundation-info-active);
+	--color-info-soft: var(--foundation-info-soft);
+	--color-info-soft-hover: var(--foundation-info-soft-hover);
+	--color-info-soft-active: var(--foundation-info-soft-active);
+	--color-info-ink: var(--foundation-info-ink);
+	--color-info-line: var(--foundation-info-line);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-control-surface: var(--foundation-control-surface);
+	--color-ring: var(--ring);
+
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-3-track: var(--foundation-chart-3-track);
+	--color-chart-3-line: var(--foundation-chart-3-line);
+	--color-chart-3-label: var(--foundation-chart-3-label);
+	--color-chart-3-low: var(--foundation-chart-3-low);
+	--color-chart-3-mid: var(--foundation-chart-3-mid);
+	--color-chart-3-high: var(--foundation-chart-3-high);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+
+	/* Yaschet radius scale. Zero is the current Foundation baseline. */
+	--radius-sm: calc(var(--radius) * 0.6);
+	--radius-md: calc(var(--radius) * 0.8);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) * 1.4);
+	--radius-2xl: calc(var(--radius) * 1.8);
+	--radius-3xl: calc(var(--radius) * 2.2);
+	--radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+	/*
+   * Foundation type and control geometry. The primitive ladder is hand-picked
+   * for a comfortable product interface; semantic roles alias it so component code
+   * never invents intermediate sizes. These are not theme colors, so light,
+   * dark, and portalled surfaces share one scale.
+   */
+	--foundation-font-size-100: 11px;
+	--foundation-font-size-200: 12px;
+	--foundation-font-size-300: 13px;
+	--foundation-font-size-400: 14px;
+	--foundation-font-size-500: 15px;
+	--foundation-font-size-550: 16px;
+	--foundation-font-size-600: 18px;
+	--foundation-font-size-700: 24px;
+	--foundation-font-size-800: 30px;
+	--foundation-font-size-900: 36px;
+	--foundation-type-page-title-size: var(--foundation-font-size-700);
+	--foundation-type-page-title-leading: 32px;
+	--foundation-type-section-title-size: var(--foundation-font-size-550);
+	--foundation-type-section-title-leading: 24px;
+	--foundation-type-metric-size: var(--foundation-font-size-700);
+	--foundation-type-metric-leading: 28px;
+	--foundation-type-body-size: var(--foundation-font-size-400);
+	--foundation-type-body-leading: 20px;
+	--foundation-type-body-reading-leading: 24px;
+	--foundation-type-description-size: var(--foundation-font-size-400);
+	--foundation-type-description-leading: 20px;
+	--foundation-type-card-title-size: var(--foundation-font-size-550);
+	--foundation-type-card-title-leading: 24px;
+	--foundation-type-control-size: var(--foundation-font-size-400);
+	--foundation-type-control-leading: 20px;
+	--foundation-type-control-compact-size: var(--foundation-font-size-200);
+	--foundation-type-control-compact-leading: 16px;
+	--foundation-type-label-size: var(--foundation-font-size-300);
+	--foundation-type-label-leading: 20px;
+	--foundation-type-table-size: var(--foundation-font-size-400);
+	--foundation-type-table-leading: 20px;
+	--foundation-type-meta-size: var(--foundation-font-size-200);
+	--foundation-type-meta-leading: 16px;
+	--foundation-type-menu-label-size: var(--foundation-font-size-100);
+	--foundation-type-menu-label-leading: 16px;
+	--foundation-type-chip-size: var(--foundation-font-size-100);
+	--foundation-type-chip-leading: 16px;
+	--foundation-control-height-xs: 28px;
+	--foundation-control-height-sm: 36px;
+	--foundation-control-height-md: 40px;
+	--foundation-control-height-lg: 44px;
+	--foundation-control-height-xl: 48px;
+	--foundation-control-icon-size-xl: 20px;
+	--foundation-status-inset: 16px;
+	--foundation-status-icon-size: var(--foundation-control-icon-size-xl);
+	--foundation-status-icon-inset: calc(
+		(var(--foundation-control-height-xl) - var(--foundation-status-icon-size)) /
+		2
+	);
+	--foundation-menu-item-height: 32px;
+	--foundation-table-cell-pad-x: 8px;
+	--foundation-scrollbar-size: 6px;
+	--foundation-scrollbar-gap: 4px;
+
+	/*
+   * Foundation consumes the same semantic source as the owned Yaschet
+   * themes. The fallbacks keep this file standalone, while the aliases let
+   * light/dark/variant records update Foundation without a second palette.
+   */
+	--background: var(--canvas, oklch(1 0 0));
+	--foreground: var(--ink, oklch(0.141 0.005 285.823));
+	--card: var(--surface, oklch(1 0 0));
+	--card-foreground: var(--ink, oklch(0.141 0.005 285.823));
+	--popover: var(--surface, oklch(1 0 0));
+	--popover-foreground: var(--ink, oklch(0.141 0.005 285.823));
+	--primary: var(--ink, oklch(0.21 0.006 285.885));
+	--primary-foreground: var(--canvas, oklch(0.985 0 0));
+	--secondary: var(--surface-raised, oklch(0.967 0.001 286.375));
+	--secondary-foreground: var(--ink, oklch(0.21 0.006 285.885));
+	--muted: var(--surface-raised, oklch(0.967 0.001 286.375));
+	--muted-foreground: var(--text-muted, oklch(0.552 0.016 285.938));
+	--accent: var(--surface-raised, oklch(0.967 0.001 286.375));
+	--accent-foreground: var(--ink, oklch(0.21 0.006 285.885));
+	--destructive: var(--danger-intense, oklch(0.577 0.245 27.325));
+	--success: var(--status-stable, var(--text-muted, oklch(0.552 0.016 285.938)));
+	--success-foreground: var(--status-stable-ink, var(--canvas, oklch(0.985 0 0)));
+	--warning: var(--status-watch, oklch(0.7 0.18 70));
+	--warning-foreground: var(--status-watch-ink, var(--ink, oklch(0.21 0.006 285.885)));
+	--info: var(--status-weak, oklch(0.62 0.16 220));
+	--info-foreground: var(--status-weak-ink, var(--ink, oklch(0.21 0.006 285.885)));
+	--border: var(--line, oklch(0.92 0.004 286.32));
+	--input: var(--line, oklch(0.92 0.004 286.32));
+	--ring: var(--line-strong, oklch(0.705 0.015 286.067));
+	--foundation-control-surface: var(--surface-raised, oklch(0.967 0.001 286.375));
+	--foundation-scrollbar-track: transparent;
+	--foundation-scrollbar-thumb: var(--line-strong, oklch(0.705 0.015 286.067));
+	--foundation-scrollbar-thumb-hover: var(--ink, oklch(0.274 0.006 286.033));
+	--foundation-scrollbar-thumb-active: var(--ink, oklch(0.141 0.005 285.823));
+	--chart-1: var(--status-stable, oklch(0.871 0.006 286.286));
+	--chart-2: var(--status-weak, oklch(0.552 0.016 285.938));
+	--chart-3: var(--status-watch, oklch(0.442 0.017 285.786));
+	--chart-4: var(--status-urgent, oklch(0.37 0.013 285.805));
+	--chart-5: var(--ink, oklch(0.274 0.006 286.033));
+	--radius: 0;
+	--sidebar: var(--sidebar-canvas, oklch(0.985 0 0));
+	--sidebar-foreground: var(--sidebar-ink, var(--ink, oklch(0.141 0.005 285.823)));
+	--sidebar-primary: var(--sidebar-active, var(--ink, oklch(0.21 0.006 285.885)));
+	--sidebar-primary-foreground: var(--sidebar-active-ink, var(--canvas, oklch(0.985 0 0)));
+	--sidebar-accent: var(--sidebar-hover, var(--surface-raised, oklch(0.967 0.001 286.375)));
+	--sidebar-accent-foreground: var(--sidebar-ink, var(--ink, oklch(0.21 0.006 285.885)));
+	--sidebar-border: var(--line, oklch(0.92 0.004 286.32));
+	--sidebar-ring: var(--line-strong, oklch(0.705 0.015 286.067));
+}
+
+.dark {
+	/* Dark mode keeps the same semantic aliases; the selected dark variant owns values. */
+	--background: var(--canvas, oklch(0.141 0.005 285.823));
+	--foreground: var(--ink, oklch(0.985 0 0));
+	--card: var(--surface, oklch(0.21 0.006 285.885));
+	--card-foreground: var(--ink, oklch(0.985 0 0));
+	--popover: var(--surface, oklch(0.21 0.006 285.885));
+	--popover-foreground: var(--ink, oklch(0.985 0 0));
+	--primary: var(--ink, oklch(0.92 0.004 286.32));
+	--primary-foreground: var(--canvas, oklch(0.21 0.006 285.885));
+	--secondary: var(--surface-raised, oklch(0.274 0.006 286.033));
+	--secondary-foreground: var(--ink, oklch(0.985 0 0));
+	--muted: var(--surface-raised, oklch(0.274 0.006 286.033));
+	--muted-foreground: var(--text-muted, oklch(0.705 0.015 286.067));
+	--accent: var(--surface-raised, oklch(0.274 0.006 286.033));
+	--accent-foreground: var(--ink, oklch(0.985 0 0));
+	--destructive: var(--danger-intense, oklch(0.704 0.191 22.216));
+	--success: var(--status-stable, oklch(0.871 0.006 286.286));
+	--success-foreground: var(--status-stable-ink, var(--canvas, oklch(0.21 0.006 285.885)));
+	--warning: var(--status-watch, oklch(0.76 0.18 70));
+	--warning-foreground: var(--status-watch-ink, var(--ink, oklch(0.985 0 0)));
+	--info: var(--status-weak, oklch(0.72 0.16 220));
+	--info-foreground: var(--status-weak-ink, var(--ink, oklch(0.985 0 0)));
+	--border: var(--line, oklch(1 0 0 / 10%));
+	--input: var(--line, oklch(1 0 0 / 15%));
+	--ring: var(--line-strong, oklch(0.552 0.016 285.938));
+	--chart-1: var(--status-stable, oklch(0.871 0.006 286.286));
+	--chart-2: var(--status-weak, oklch(0.552 0.016 285.938));
+	--chart-3: var(--status-watch, oklch(0.442 0.017 285.786));
+	--chart-4: var(--status-urgent, oklch(0.37 0.013 285.805));
+	--chart-5: var(--ink, oklch(0.274 0.006 286.033));
+	--sidebar: var(--sidebar-canvas, oklch(0.21 0.006 285.885));
+	--sidebar-foreground: var(--sidebar-ink, var(--ink, oklch(0.985 0 0)));
+	--sidebar-primary: var(--sidebar-active, var(--ink, oklch(0.92 0.004 286.32)));
+	--sidebar-primary-foreground: var(
+		--sidebar-active-ink,
+		var(--canvas, oklch(0.21 0.006 285.885))
+	);
+	--sidebar-accent: var(--sidebar-hover, var(--surface-raised, oklch(0.274 0.006 286.033)));
+	--sidebar-accent-foreground: var(--sidebar-ink, var(--ink, oklch(0.985 0 0)));
+	--sidebar-border: var(--line, oklch(1 0 0 / 10%));
+	--sidebar-ring: var(--line-strong, oklch(0.552 0.016 285.938));
+}
+
+/*
+ * Tailwind v4 OKLCH family aliases remain available as the neutral ink/action
+ * and reference catalog. Foundation owns the runtime material and semantic
+ * ramps below so the product palette can evolve without changing components.
+ */
+:root {
+	--palette-white: var(--color-white);
+	--palette-black: var(--color-black);
+
+	/*
+   * Light structural material. Hue 230 is held across the ramp; chroma remains
+   * far below the Info family so these read as mineral whites, not blue state.
+   */
+	--palette-mineral-0: var(--palette-white);
+	--palette-mineral-50: oklch(99% 0.002 230);
+	--palette-mineral-100: oklch(97.8% 0.004 230);
+	--palette-mineral-200: oklch(95.8% 0.006 230);
+	--palette-mineral-300: oklch(93% 0.008 230);
+	--palette-mineral-400: oklch(89% 0.01 230);
+	--palette-mineral-500: oklch(80% 0.012 230);
+	--palette-mineral-600: oklch(66% 0.014 230);
+	--palette-mineral-700: oklch(55% 0.014 230);
+	--palette-mineral-800: oklch(44% 0.012 230);
+
+	/*
+   * Yaschet signal ramps. Hue anchors are adapted from the supplied beUI
+   * palette, then expanded into complete OKLCH scales for shared component
+   * states. Violet is intentionally not a Foundation semantic family.
+   */
+	--palette-signal-accent-50: oklch(98% 0.04 145);
+	--palette-signal-accent-100: oklch(95% 0.08 145);
+	--palette-signal-accent-200: oklch(90% 0.12 145);
+	--palette-signal-accent-300: oklch(85% 0.18 145);
+	--palette-signal-accent-400: oklch(80% 0.22 145);
+	--palette-signal-accent-500: oklch(70% 0.22 145);
+	--palette-signal-accent-600: oklch(60% 0.2 145);
+	--palette-signal-accent-700: oklch(52% 0.18 145);
+	--palette-signal-accent-800: oklch(44% 0.15 145);
+	--palette-signal-accent-900: oklch(34% 0.12 145);
+	--palette-signal-accent-950: oklch(25% 0.1 145);
+
+	--palette-signal-success-50: oklch(98% 0.02 155);
+	--palette-signal-success-100: oklch(95% 0.04 155);
+	--palette-signal-success-200: oklch(90% 0.07 155);
+	--palette-signal-success-300: oklch(82% 0.12 155);
+	--palette-signal-success-400: oklch(72% 0.18 155);
+	--palette-signal-success-500: oklch(64% 0.2 155);
+	--palette-signal-success-600: oklch(56% 0.2 155);
+	--palette-signal-success-700: oklch(48% 0.18 155);
+	--palette-signal-success-800: oklch(40% 0.15 155);
+	--palette-signal-success-900: oklch(32% 0.12 155);
+	--palette-signal-success-950: oklch(24% 0.1 155);
+
+	--palette-signal-warning-50: oklch(98% 0.02 75);
+	--palette-signal-warning-100: oklch(95% 0.04 75);
+	--palette-signal-warning-200: oklch(90% 0.07 75);
+	--palette-signal-warning-300: oklch(83% 0.12 75);
+	--palette-signal-warning-400: oklch(78% 0.18 75);
+	--palette-signal-warning-500: oklch(68% 0.19 75);
+	--palette-signal-warning-600: oklch(60% 0.19 75);
+	--palette-signal-warning-700: oklch(52% 0.18 75);
+	--palette-signal-warning-800: oklch(44% 0.16 75);
+	--palette-signal-warning-900: oklch(34% 0.13 75);
+	--palette-signal-warning-950: oklch(25% 0.1 75);
+
+	--palette-signal-info-50: oklch(98% 0.02 220);
+	--palette-signal-info-100: oklch(95% 0.04 220);
+	--palette-signal-info-200: oklch(90% 0.07 220);
+	--palette-signal-info-300: oklch(82% 0.12 220);
+	--palette-signal-info-400: oklch(72% 0.18 220);
+	--palette-signal-info-500: oklch(63% 0.2 220);
+	--palette-signal-info-600: oklch(52% 0.18 220);
+	--palette-signal-info-700: oklch(46% 0.17 220);
+	--palette-signal-info-800: oklch(40% 0.15 220);
+	--palette-signal-info-900: oklch(32% 0.12 220);
+	--palette-signal-info-950: oklch(24% 0.1 220);
+
+	--palette-signal-danger-50: oklch(98% 0.02 25);
+	--palette-signal-danger-100: oklch(95% 0.04 25);
+	--palette-signal-danger-200: oklch(90% 0.07 25);
+	--palette-signal-danger-300: oklch(82% 0.12 25);
+	--palette-signal-danger-400: oklch(72% 0.22 25);
+	--palette-signal-danger-500: oklch(64% 0.22 25);
+	--palette-signal-danger-600: oklch(56% 0.22 25);
+	--palette-signal-danger-700: oklch(48% 0.2 25);
+	--palette-signal-danger-800: oklch(40% 0.16 25);
+	--palette-signal-danger-900: oklch(32% 0.13 25);
+	--palette-signal-danger-950: oklch(24% 0.1 25);
+
+	/*
+   * Chart colors are a separate role. They share luminance and chroma so a
+   * series set stays clean and balanced instead of inheriting semantic state
+   * depths intended for buttons and badges.
+   */
+	--palette-chart-1-400: oklch(72% 0.18 235);
+	--palette-chart-2-400: oklch(72% 0.18 195);
+	--palette-chart-3-400: oklch(72% 0.16 175);
+	--palette-chart-4-400: oklch(72% 0.22 25);
+	--palette-chart-5-400: oklch(80% 0.22 145);
+	--palette-chart-1: var(--palette-chart-1-400);
+	--palette-chart-2: var(--palette-chart-2-400);
+	--palette-chart-3: var(--palette-chart-3-400);
+	--palette-chart-4: var(--palette-chart-4-400);
+	--palette-chart-5: var(--palette-chart-5-400);
+	--palette-chart-3-track-light: oklch(96% 0.025 175);
+	--palette-chart-3-line-light: oklch(89% 0.06 175);
+	--palette-chart-3-track-dark: oklch(26% 0.04 175);
+	--palette-chart-3-line-dark: oklch(42% 0.08 175);
+	--palette-chart-3-label-light: oklch(98% 0.018 175);
+	--palette-chart-3-label-dark: oklch(30% 0.03 175);
+	--palette-chart-3-low: oklch(82% 0.12 175);
+	--palette-chart-3-mid: oklch(72% 0.16 175);
+	--palette-chart-3-high: oklch(62% 0.18 175);
+
+	--palette-neutral-50: var(--color-zinc-50);
+	--palette-neutral-100: var(--color-zinc-100);
+	--palette-neutral-200: var(--color-zinc-200);
+	--palette-neutral-300: var(--color-zinc-300);
+	--palette-neutral-400: var(--color-zinc-400);
+	--palette-neutral-500: var(--color-zinc-500);
+	--palette-neutral-600: var(--color-zinc-600);
+	--palette-neutral-700: var(--color-zinc-700);
+	--palette-neutral-800: var(--color-zinc-800);
+	--palette-neutral-900: var(--color-zinc-900);
+	--palette-neutral-925: color-mix(
+		in oklab,
+		var(--palette-neutral-900) 50%,
+		var(--palette-neutral-950)
+	);
+	--palette-neutral-950: var(--color-zinc-950);
+
+	--palette-accent-50: var(--color-lime-50);
+	--palette-accent-100: var(--color-lime-100);
+	--palette-accent-200: var(--color-lime-200);
+	--palette-accent-300: var(--color-lime-300);
+	--palette-accent-400: var(--color-lime-400);
+	--palette-accent-500: var(--color-lime-500);
+	--palette-accent-600: var(--color-lime-600);
+	--palette-accent-700: var(--color-lime-700);
+	--palette-accent-800: var(--color-lime-800);
+	--palette-accent-900: var(--color-lime-900);
+	--palette-accent-950: var(--color-lime-950);
+
+	--palette-success-50: var(--color-emerald-50);
+	--palette-success-100: var(--color-emerald-100);
+	--palette-success-200: var(--color-emerald-200);
+	--palette-success-300: var(--color-emerald-300);
+	--palette-success-400: var(--color-emerald-400);
+	--palette-success-500: var(--color-emerald-500);
+	--palette-success-600: var(--color-emerald-600);
+	--palette-success-700: var(--color-emerald-700);
+	--palette-success-800: var(--color-emerald-800);
+	--palette-success-900: var(--color-emerald-900);
+	--palette-success-950: var(--color-emerald-950);
+
+	--palette-warning-50: var(--color-amber-50);
+	--palette-warning-100: var(--color-amber-100);
+	--palette-warning-200: var(--color-amber-200);
+	--palette-warning-300: var(--color-amber-300);
+	--palette-warning-400: var(--color-amber-400);
+	--palette-warning-500: var(--color-amber-500);
+	--palette-warning-600: var(--color-amber-600);
+	--palette-warning-700: var(--color-amber-700);
+	--palette-warning-800: var(--color-amber-800);
+	--palette-warning-900: var(--color-amber-900);
+	--palette-warning-950: var(--color-amber-950);
+
+	--palette-info-50: var(--color-blue-50);
+	--palette-info-100: var(--color-blue-100);
+	--palette-info-200: var(--color-blue-200);
+	--palette-info-300: var(--color-blue-300);
+	--palette-info-400: var(--color-blue-400);
+	--palette-info-500: var(--color-blue-500);
+	--palette-info-600: var(--color-blue-600);
+	--palette-info-700: var(--color-blue-700);
+	--palette-info-800: var(--color-blue-800);
+	--palette-info-900: var(--color-blue-900);
+	--palette-info-950: var(--color-blue-950);
+
+	--palette-danger-50: var(--color-red-50);
+	--palette-danger-100: var(--color-red-100);
+	--palette-danger-200: var(--color-red-200);
+	--palette-danger-300: var(--color-red-300);
+	--palette-danger-400: var(--color-red-400);
+	--palette-danger-500: var(--color-red-500);
+	--palette-danger-600: var(--color-red-600);
+	--palette-danger-700: var(--color-red-700);
+	--palette-danger-800: var(--color-red-800);
+	--palette-danger-900: var(--color-red-900);
+	--palette-danger-950: var(--color-red-950);
+}
+
+/*
+ * Yaschet Foundation palette — an owned geometric instrument system.
+ * Luminous mineral-white surfaces carry Light hierarchy; Zinc carries neutral
+ * ink/actions and Dark hierarchy; owned signal ramps carry semantic state.
+ * Electric colors are reserved for action, selection, and explicit semantic
+ * state. Structural focus remains neutral and high-contrast. It is intentionally
+ * scoped to `.yaschet` so Legacy retains its existing theme contract.
+ */
+:root:not(.dark) {
+	--palette-mineral-100: oklch(98.5% 0 0);
+	--palette-mineral-200: oklch(97% 0 0);
+	--palette-mineral-300: oklch(95.5% 0 0);
+	--palette-mineral-400: oklch(92.5% 0 0);
+	--foundation-canvas: var(--palette-mineral-50);
+	--foundation-surface: var(--palette-mineral-0);
+	--foundation-surface-raised: var(--palette-mineral-100);
+	--foundation-surface-soft: var(--palette-mineral-50);
+	--foundation-ink: var(--palette-neutral-950);
+	--foundation-muted: var(--palette-neutral-600);
+	--foundation-faint: var(--palette-neutral-500);
+	--foundation-line: var(--palette-mineral-300);
+	--foundation-line-strong: var(--palette-mineral-500);
+	--foundation-control-line: var(--foundation-line);
+	--foundation-control-line-hover: var(--palette-mineral-400);
+	--foundation-control-line-active: var(--palette-mineral-400);
+	--foundation-control-surface: color-mix(
+		in oklab,
+		var(--palette-mineral-100) 50%,
+		var(--palette-mineral-200)
+	);
+	--foundation-empty-surface: var(--foundation-control-surface);
+	--foundation-scrollbar-track: transparent;
+	--foundation-scrollbar-thumb: color-mix(in oklab, var(--palette-neutral-400) 70%, transparent);
+	--foundation-scrollbar-thumb-hover: var(--palette-neutral-400);
+	--foundation-scrollbar-thumb-active: var(--palette-neutral-500);
+	--foundation-focus: var(--palette-neutral-950);
+	--foundation-menu-hover: var(--palette-mineral-100);
+	--foundation-chart-grid: var(--palette-mineral-200);
+	--foundation-chart-3-track: var(--palette-chart-3-track-light);
+	--foundation-chart-3-line: var(--palette-chart-3-line-light);
+	--foundation-chart-3-label: var(--palette-chart-3-label-light);
+	--foundation-chart-3-low: var(--palette-chart-3-low);
+	--foundation-chart-3-mid: var(--palette-chart-3-mid);
+	--foundation-chart-3-high: var(--palette-chart-3-high);
+	--foundation-well: var(--foundation-surface-raised);
+	--foundation-hairline: 1px;
+	--foundation-sidebar: var(--palette-mineral-50);
+	--foundation-primary: var(--palette-neutral-950);
+	--foundation-primary-foreground: var(--palette-white);
+	--foundation-primary-hover: var(--palette-neutral-800);
+	--foundation-primary-active: var(--palette-neutral-700);
+	--foundation-primary-soft: var(--palette-mineral-100);
+	--foundation-primary-soft-hover: var(--palette-mineral-200);
+	--foundation-primary-soft-active: var(--palette-mineral-300);
+	--foundation-primary-ink: var(--palette-neutral-950);
+	--foundation-primary-line: var(--foundation-control-line);
+	--foundation-primary-line-hover: var(--foundation-control-line-hover);
+	--foundation-primary-line-active: var(--foundation-control-line-active);
+	--foundation-secondary: var(--palette-neutral-600);
+	--foundation-secondary-foreground: var(--palette-white);
+	--foundation-secondary-hover: var(--palette-neutral-700);
+	--foundation-secondary-active: var(--palette-neutral-800);
+	--foundation-secondary-soft: var(--palette-mineral-100);
+	--foundation-secondary-soft-hover: var(--palette-mineral-200);
+	--foundation-secondary-soft-active: var(--palette-mineral-300);
+	--foundation-secondary-ink: var(--palette-neutral-700);
+	--foundation-secondary-line: var(--foundation-control-line);
+	--foundation-secondary-line-hover: var(--foundation-control-line-hover);
+	--foundation-secondary-line-active: var(--foundation-control-line-active);
+	--foundation-card-padding: 16px;
+	--foundation-card-padding-sm: 12px;
+	--foundation-popup-shadow: 0 16px 40px rgb(0 0 0 / 0.12);
+	--foundation-accent: var(--palette-signal-accent-400);
+	--foundation-accent-foreground: var(--palette-signal-accent-950);
+	--foundation-accent-hover: var(--palette-signal-accent-500);
+	--foundation-accent-active: var(--palette-signal-accent-600);
+	--foundation-accent-solid: var(--palette-signal-accent-700);
+	--foundation-accent-solid-foreground: var(--palette-white);
+	--foundation-accent-solid-hover: var(--palette-signal-accent-800);
+	--foundation-accent-solid-active: var(--palette-signal-accent-900);
+	--foundation-accent-soft: var(--palette-signal-accent-100);
+	--foundation-accent-soft-hover: var(--palette-signal-accent-200);
+	--foundation-accent-soft-active: var(--palette-signal-accent-300);
+	--foundation-accent-ink: var(--palette-signal-accent-800);
+	--foundation-accent-line: var(--palette-signal-accent-200);
+	--foundation-accent-line-hover: var(--palette-signal-accent-300);
+	--foundation-accent-line-active: var(--palette-signal-accent-400);
+	--foundation-success: var(--palette-signal-success-700);
+	--foundation-success-foreground: var(--palette-white);
+	--foundation-success-hover: var(--palette-signal-success-800);
+	--foundation-success-active: var(--palette-signal-success-900);
+	--foundation-success-soft: var(--palette-signal-success-100);
+	--foundation-success-soft-hover: var(--palette-signal-success-200);
+	--foundation-success-soft-active: var(--palette-signal-success-300);
+	--foundation-success-ink: var(--palette-signal-success-800);
+	--foundation-success-line: var(--palette-signal-success-200);
+	--foundation-success-line-hover: var(--palette-signal-success-300);
+	--foundation-success-line-active: var(--palette-signal-success-400);
+	--foundation-warning: var(--palette-signal-warning-700);
+	--foundation-warning-foreground: var(--palette-white);
+	--foundation-warning-hover: var(--palette-signal-warning-800);
+	--foundation-warning-active: var(--palette-signal-warning-900);
+	--foundation-warning-soft: var(--palette-signal-warning-100);
+	--foundation-warning-soft-hover: var(--palette-signal-warning-200);
+	--foundation-warning-soft-active: var(--palette-signal-warning-300);
+	--foundation-warning-ink: var(--palette-signal-warning-800);
+	--foundation-warning-line: var(--palette-signal-warning-200);
+	--foundation-warning-line-hover: var(--palette-signal-warning-300);
+	--foundation-warning-line-active: var(--palette-signal-warning-400);
+	--foundation-info: var(--palette-signal-info-600);
+	--foundation-info-foreground: var(--palette-white);
+	--foundation-info-hover: var(--palette-signal-info-700);
+	--foundation-info-active: var(--palette-signal-info-800);
+	--foundation-info-soft: var(--palette-signal-info-100);
+	--foundation-info-soft-hover: var(--palette-signal-info-200);
+	--foundation-info-soft-active: var(--palette-signal-info-300);
+	--foundation-info-ink: var(--palette-signal-info-800);
+	--foundation-info-line: var(--palette-signal-info-200);
+	--foundation-info-line-hover: var(--palette-signal-info-300);
+	--foundation-info-line-active: var(--palette-signal-info-400);
+	--foundation-danger: var(--palette-signal-danger-600);
+	--foundation-danger-foreground: var(--palette-white);
+	--foundation-danger-hover: var(--palette-signal-danger-700);
+	--foundation-danger-active: var(--palette-signal-danger-800);
+	--foundation-danger-soft: var(--palette-signal-danger-100);
+	--foundation-danger-soft-hover: var(--palette-signal-danger-200);
+	--foundation-danger-soft-active: var(--palette-signal-danger-300);
+	--foundation-danger-ink: var(--palette-signal-danger-800);
+	--foundation-danger-line: var(--palette-signal-danger-200);
+	--foundation-danger-line-hover: var(--palette-signal-danger-300);
+	--foundation-danger-line-active: var(--palette-signal-danger-400);
+
+	--background: var(--foundation-canvas);
+	--foreground: var(--foundation-ink);
+	--card: var(--foundation-surface);
+	--card-foreground: var(--foundation-ink);
+	--popover: var(--foundation-surface);
+	--popover-foreground: var(--foundation-ink);
+	--primary: var(--foundation-primary);
+	--primary-foreground: var(--foundation-primary-foreground);
+	--secondary: var(--foundation-surface-raised);
+	--secondary-foreground: var(--foundation-ink);
+	--muted: var(--foundation-surface-raised);
+	--muted-foreground: var(--foundation-muted);
+	--accent: var(--foundation-accent);
+	--accent-foreground: var(--foundation-accent-foreground);
+	--destructive: var(--foundation-danger);
+	--destructive-foreground: var(--foundation-danger-foreground);
+	--success: var(--foundation-success);
+	--success-foreground: var(--foundation-success-foreground);
+	--warning: var(--foundation-warning);
+	--warning-foreground: var(--foundation-warning-foreground);
+	--info: var(--foundation-info);
+	--info-foreground: var(--foundation-info-foreground);
+	--border: var(--foundation-line);
+	--input: var(--foundation-control-line);
+	--ring: var(--foundation-focus);
+	--chart-1: var(--palette-chart-1);
+	--chart-2: var(--palette-chart-2);
+	--chart-3: var(--palette-chart-3);
+	--chart-4: var(--palette-chart-4);
+	--chart-5: var(--palette-chart-5);
+	--sidebar: var(--foundation-sidebar);
+	--sidebar-foreground: var(--foundation-ink);
+	--sidebar-primary: var(--foundation-primary);
+	--sidebar-primary-foreground: var(--foundation-primary-foreground);
+	--sidebar-accent: var(--foundation-surface-raised);
+	--sidebar-accent-foreground: var(--foundation-ink);
+	--sidebar-border: var(--foundation-line);
+	--sidebar-ring: var(--foundation-line-strong);
+}
+
+:root.dark {
+	/* Give the canvas room above the deeper input fill without raising controls. */
+	--foundation-canvas: var(--palette-neutral-925);
+	--foundation-surface: var(--palette-neutral-900);
+	--foundation-surface-raised: var(--palette-neutral-800);
+	--foundation-surface-soft: var(--palette-neutral-900);
+	--foundation-ink: var(--palette-neutral-50);
+	--foundation-muted: var(--palette-neutral-400);
+	--foundation-faint: var(--palette-neutral-500);
+	--foundation-line: var(--palette-neutral-800);
+	--foundation-line-strong: var(--palette-neutral-600);
+	--foundation-control-line: var(--foundation-line);
+	--foundation-control-line-hover: var(--palette-neutral-700);
+	--foundation-control-line-active: var(--palette-neutral-600);
+	--foundation-control-surface: var(--palette-neutral-950);
+	--foundation-empty-surface: color-mix(
+		in oklab,
+		var(--foundation-surface) 75%,
+		var(--foundation-control-surface)
+	);
+	--foundation-scrollbar-track: transparent;
+	--foundation-scrollbar-thumb: var(--palette-neutral-700);
+	--foundation-scrollbar-thumb-hover: var(--palette-neutral-600);
+	--foundation-scrollbar-thumb-active: var(--palette-neutral-500);
+	--foundation-focus: var(--palette-neutral-50);
+	--foundation-menu-hover: var(--palette-neutral-800);
+	--foundation-chart-grid: var(--palette-neutral-800);
+	--foundation-chart-3-track: var(--palette-chart-3-track-dark);
+	--foundation-chart-3-line: var(--palette-chart-3-line-dark);
+	--foundation-chart-3-label: var(--palette-chart-3-label-dark);
+	--foundation-chart-3-low: var(--palette-chart-3-low);
+	--foundation-chart-3-mid: var(--palette-chart-3-mid);
+	--foundation-chart-3-high: var(--palette-chart-3-high);
+	--foundation-well: var(--foundation-surface-raised);
+	--foundation-hairline: 1px;
+	--foundation-sidebar: var(--palette-neutral-950);
+	--foundation-primary: var(--palette-neutral-50);
+	--foundation-primary-foreground: var(--palette-neutral-950);
+	--foundation-primary-hover: var(--palette-neutral-200);
+	--foundation-primary-active: var(--palette-neutral-300);
+	--foundation-primary-soft: var(--palette-neutral-900);
+	--foundation-primary-soft-hover: var(--palette-neutral-800);
+	--foundation-primary-soft-active: var(--palette-neutral-700);
+	--foundation-primary-ink: var(--palette-neutral-50);
+	--foundation-primary-line: var(--foundation-control-line);
+	--foundation-primary-line-hover: var(--foundation-control-line-hover);
+	--foundation-primary-line-active: var(--foundation-control-line-active);
+	--foundation-secondary: var(--palette-neutral-300);
+	--foundation-secondary-foreground: var(--palette-neutral-950);
+	--foundation-secondary-hover: var(--palette-neutral-200);
+	--foundation-secondary-active: var(--palette-neutral-100);
+	--foundation-secondary-soft: var(--palette-neutral-900);
+	--foundation-secondary-soft-hover: var(--palette-neutral-800);
+	--foundation-secondary-soft-active: var(--palette-neutral-700);
+	--foundation-secondary-ink: var(--palette-neutral-300);
+	--foundation-secondary-line: var(--foundation-control-line);
+	--foundation-secondary-line-hover: var(--foundation-control-line-hover);
+	--foundation-secondary-line-active: var(--foundation-control-line-active);
+	--foundation-card-padding: 16px;
+	--foundation-card-padding-sm: 12px;
+	--foundation-popup-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
+	--foundation-accent: var(--palette-signal-accent-400);
+	--foundation-accent-foreground: var(--palette-signal-accent-950);
+	--foundation-accent-hover: var(--palette-signal-accent-500);
+	--foundation-accent-active: var(--palette-signal-accent-600);
+	--foundation-accent-solid: var(--palette-signal-accent-700);
+	--foundation-accent-solid-foreground: var(--palette-white);
+	--foundation-accent-solid-hover: var(--palette-signal-accent-800);
+	--foundation-accent-solid-active: var(--palette-signal-accent-900);
+	--foundation-accent-soft: var(--palette-signal-accent-950);
+	--foundation-accent-soft-hover: var(--palette-signal-accent-900);
+	--foundation-accent-soft-active: var(--palette-signal-accent-800);
+	--foundation-accent-ink: var(--palette-signal-accent-300);
+	--foundation-accent-line: var(--palette-signal-accent-800);
+	--foundation-accent-line-hover: var(--palette-signal-accent-700);
+	--foundation-accent-line-active: var(--palette-signal-accent-600);
+	--foundation-success: var(--palette-signal-success-700);
+	--foundation-success-foreground: var(--palette-white);
+	--foundation-success-hover: var(--palette-signal-success-800);
+	--foundation-success-active: var(--palette-signal-success-900);
+	--foundation-success-soft: var(--palette-signal-success-950);
+	--foundation-success-soft-hover: var(--palette-signal-success-900);
+	--foundation-success-soft-active: var(--palette-signal-success-800);
+	--foundation-success-ink: var(--palette-signal-success-300);
+	--foundation-success-line: var(--palette-signal-success-800);
+	--foundation-success-line-hover: var(--palette-signal-success-700);
+	--foundation-success-line-active: var(--palette-signal-success-600);
+	--foundation-warning: var(--palette-signal-warning-700);
+	--foundation-warning-foreground: var(--palette-white);
+	--foundation-warning-hover: var(--palette-signal-warning-800);
+	--foundation-warning-active: var(--palette-signal-warning-900);
+	--foundation-warning-soft: var(--palette-signal-warning-950);
+	--foundation-warning-soft-hover: var(--palette-signal-warning-900);
+	--foundation-warning-soft-active: var(--palette-signal-warning-800);
+	--foundation-warning-ink: var(--palette-signal-warning-300);
+	--foundation-warning-line: var(--palette-signal-warning-800);
+	--foundation-warning-line-hover: var(--palette-signal-warning-700);
+	--foundation-warning-line-active: var(--palette-signal-warning-600);
+	--foundation-info: var(--palette-signal-info-600);
+	--foundation-info-foreground: var(--palette-white);
+	--foundation-info-hover: var(--palette-signal-info-700);
+	--foundation-info-active: var(--palette-signal-info-800);
+	--foundation-info-soft: var(--palette-signal-info-950);
+	--foundation-info-soft-hover: var(--palette-signal-info-900);
+	--foundation-info-soft-active: var(--palette-signal-info-800);
+	--foundation-info-ink: var(--palette-signal-info-300);
+	--foundation-info-line: var(--palette-signal-info-800);
+	--foundation-info-line-hover: var(--palette-signal-info-700);
+	--foundation-info-line-active: var(--palette-signal-info-600);
+	--foundation-danger: var(--palette-signal-danger-600);
+	--foundation-danger-foreground: var(--palette-white);
+	--foundation-danger-hover: var(--palette-signal-danger-700);
+	--foundation-danger-active: var(--palette-signal-danger-800);
+	--foundation-danger-soft: var(--palette-signal-danger-950);
+	--foundation-danger-soft-hover: var(--palette-signal-danger-900);
+	--foundation-danger-soft-active: var(--palette-signal-danger-800);
+	--foundation-danger-ink: var(--palette-signal-danger-300);
+	--foundation-danger-line: var(--palette-signal-danger-800);
+	--foundation-danger-line-hover: var(--palette-signal-danger-700);
+	--foundation-danger-line-active: var(--palette-signal-danger-600);
+
+	--background: var(--foundation-canvas);
+	--foreground: var(--foundation-ink);
+	--card: var(--foundation-surface);
+	--card-foreground: var(--foundation-ink);
+	--popover: var(--foundation-surface);
+	--popover-foreground: var(--foundation-ink);
+	--primary: var(--foundation-primary);
+	--primary-foreground: var(--foundation-primary-foreground);
+	--secondary: var(--foundation-surface-raised);
+	--secondary-foreground: var(--foundation-ink);
+	--muted: var(--foundation-surface-raised);
+	--muted-foreground: var(--foundation-muted);
+	--accent: var(--foundation-accent);
+	--accent-foreground: var(--foundation-accent-foreground);
+	--destructive: var(--foundation-danger);
+	--destructive-foreground: var(--foundation-danger-foreground);
+	--success: var(--foundation-success);
+	--success-foreground: var(--foundation-success-foreground);
+	--warning: var(--foundation-warning);
+	--warning-foreground: var(--foundation-warning-foreground);
+	--info: var(--foundation-info);
+	--info-foreground: var(--foundation-info-foreground);
+	--border: var(--foundation-line);
+	--input: var(--foundation-control-line);
+	--ring: var(--foundation-focus);
+	--chart-1: var(--palette-chart-1);
+	--chart-2: var(--palette-chart-2);
+	--chart-3: var(--palette-chart-3);
+	--chart-4: var(--palette-chart-4);
+	--chart-5: var(--palette-chart-5);
+	--sidebar: var(--foundation-sidebar);
+	--sidebar-foreground: var(--foundation-ink);
+	--sidebar-primary: var(--foundation-primary);
+	--sidebar-primary-foreground: var(--foundation-primary-foreground);
+	--sidebar-accent: var(--foundation-surface-raised);
+	--sidebar-accent-foreground: var(--foundation-ink);
+	--sidebar-border: var(--foundation-line);
+	--sidebar-ring: var(--foundation-line-strong);
+}
+
+/* Keep invalid controls hue-consistent: danger uses its own surface and ink,
+ * never a primary/semantic fill with a contradictory red outline. */
+.yaschet [data-slot="button"][aria-invalid="true"] {
+	border-color: transparent;
+	background: var(--foundation-control-invalid-surface);
+	color: var(--foundation-danger-ink);
+}
+
+@media (min-resolution: 2dppx) {
+	:root:not(.dark),
+	:root.dark,
+	:root:not(.dark),
+	:root.dark {
+		--foundation-hairline: 0.5px;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+		font-synthesis-weight: none;
+		text-rendering: optimizeLegibility;
+	}
+	html {
+		@apply font-sans;
+	}
+	.cn-font-heading {
+		@apply font-heading;
+	}
+}
+
+/* Foundation scroll surfaces use a quiet, borderless scrollbar. The track is
+ * transparent so it never creates a second frame around a card or panel; the
+ * square thumb is the only visible affordance and remains operable in every
+ * theme. Standards properties cover Firefox and WebKit rules provide the
+ * matching geometry in Chromium/Safari. */
+html,
+body,
+.yaschet,
+.yaschet * {
+	scrollbar-color: var(--foundation-scrollbar-thumb) var(--foundation-scrollbar-track);
+	scrollbar-width: thin;
+}
+
+/* Chromium now supports the standard properties too. Non-auto values suppress
+ * the authored pseudo-elements, including their square geometry. Keep the
+ * standards fallback for Firefox; let the WebKit family own its whole track. */
+@supports selector(::-webkit-scrollbar) {
+	html,
+	body,
+	.yaschet,
+	.yaschet * {
+		scrollbar-color: auto;
+		scrollbar-width: auto;
+	}
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.yaschet::-webkit-scrollbar,
+.yaschet *::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+.yaschet::-webkit-scrollbar-track,
+.yaschet *::-webkit-scrollbar-track {
+	background: var(--foundation-scrollbar-track);
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+.yaschet::-webkit-scrollbar-thumb,
+.yaschet *::-webkit-scrollbar-thumb {
+	background: var(--foundation-scrollbar-thumb);
+	border: 0;
+	border-radius: 0;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+.yaschet::-webkit-scrollbar-thumb:hover,
+.yaschet *::-webkit-scrollbar-thumb:hover {
+	background: var(--foundation-scrollbar-thumb-hover);
+}
+
+html::-webkit-scrollbar-thumb:active,
+body::-webkit-scrollbar-thumb:active,
+.yaschet::-webkit-scrollbar-thumb:active,
+.yaschet *::-webkit-scrollbar-thumb:active {
+	background: var(--foundation-scrollbar-thumb-active);
+}
+
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner,
+.yaschet::-webkit-scrollbar-corner,
+.yaschet *::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+@media (forced-colors: active) {
+	html,
+	body,
+	.yaschet,
+	.yaschet * {
+		scrollbar-color: auto;
+	}
+}
+
+/* Base UI ScrollArea owns its scrollbar UI. Keep the native bar fully removed
+ * inside its viewport so the global native-scrollbar baseline cannot reserve a
+ * second gutter behind the authored track. */
+.yaschet .base-ui-disable-scrollbar {
+	scrollbar-width: none;
+}
+
+.yaschet .base-ui-disable-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+.cn-menu-target [data-slot$="-item"]:focus,
+.cn-menu-target [data-slot$="-item"][data-highlighted],
+.cn-menu-target [data-slot$="-trigger"]:focus,
+.cn-menu-target [data-slot$="-trigger"][data-open] {
+	background: var(--foundation-menu-hover);
+	color: var(--foreground);
+}
+
+/* Yaschet helpers used by the Foundation overview and menu components. */
+.yaschet {
+	/* Web composition uses whitespace between independent modules and hairlines
+   * only inside connected controls/data. The legacy PDF-derived 2px join stays
+   * outside Foundation. */
+	--join-gap: 1px;
+	--foundation-preview-gap: 12px;
+	--foundation-preview-gap-md: 16px;
+	--foundation-preview-gap-xl: 24px;
+
+	.cn-calendar-dropdown-root {
+		@apply has-focus:border-ring border-input has-focus:ring-ring/50 rounded-none border has-focus:ring-1;
+	}
+
+	.cn-calendar-caption-label {
+		@apply h-6 rounded-none pr-1 pl-1.5;
+	}
+
+	.cn-input-otp {
+		@apply gap-2;
+	}
+
+	/*
+   * Registry components flatten the ordered cn-label/cn-field-label and
+   * cn-item-group rules into utilities. Restore the official cascade so the
+   * composed FieldLabel and explicit ItemGroup gap overrides remain exact.
+   */
+	[data-slot="label"],
+	[data-slot="field-label"][class~="group/field-label"] {
+		@apply leading-none;
+	}
+
+	[data-slot="field-label"][class~="group/field-label"] > [data-slot="field"].pb-2\.5 {
+		@apply pb-2.5;
+	}
+
+	[data-slot="item-group"].gap-0 {
+		@apply gap-0;
+	}
+
+	.cn-menu-translucent {
+		@apply animate-none! relative bg-popover **:data-[slot$=-trigger]:focus:bg-muted **:data-[slot$=-trigger]:aria-expanded:bg-muted! **:data-[variant=destructive]:focus:bg-destructive-soft! **:data-[variant=destructive]:focus:text-destructive-ink! **:data-[variant=destructive]:**:text-destructive-ink!;
+	}
+
+	.cn-menu-translucent [data-slot$="-item"]:focus,
+	.cn-menu-translucent [data-slot$="-item"][data-highlighted] {
+		background: var(--foundation-menu-hover);
+		color: var(--foreground);
+	}
+
+	.cn-menu-translucent-aria {
+		@apply **:data-[slot$=-item]:data-focused:bg-foreground/10;
+	}
+}
+
+/* Portalled Foundation surfaces cannot inherit selector scope from `.yaschet`.
+ * Their tokens resolve from the themed document root instead. A real inset
+ * border owns the clipping edge, so item hover fills and dividers cannot paint
+ * over it. */
+.cn-menu-target {
+	box-sizing: border-box;
+	border: var(--foundation-hairline, 1px) solid var(--border);
+	background-clip: padding-box;
+	box-shadow: var(--foundation-popup-shadow);
+}
+
+.cn-menu-target [data-slot$="-item"],
+.cn-menu-target [data-slot$="-sub-trigger"] {
+	min-height: var(--foundation-menu-item-height);
+	height: var(--foundation-menu-item-height);
+	font-size: var(--foundation-type-control-size);
+	line-height: var(--foundation-type-control-leading);
+}
+
+.cn-menu-target [data-slot$="-label"] {
+	font-size: var(--foundation-type-menu-label-size);
+	line-height: var(--foundation-type-menu-label-leading);
+}
+
+/* Rich select rows size to their icon chamber plus equal vertical insets. */
+.cn-menu-target [data-slot="select-item"] {
+	height: auto;
+	padding-block: 8px;
+}
+
+.cn-menu-target [data-slot$="-separator"] {
+	height: var(--foundation-hairline, 1px);
+	background: var(--border);
+	opacity: 1;
+}
+
+.cn-menu-target [data-variant="destructive"] {
+	background: var(--foundation-danger-soft);
+	color: var(--foundation-danger-ink);
+}
+
+.cn-menu-target [data-variant="destructive"]:focus,
+.cn-menu-target [data-variant="destructive"][data-highlighted] {
+	background: var(--foundation-danger-soft-hover);
+	color: var(--foundation-danger-ink);
+}
+
+.cn-menu-target [data-variant="destructive"]:active {
+	background: var(--foundation-danger-soft-active);
+}
+
+.cn-modal-target {
+	box-sizing: border-box;
+	border: var(--foundation-hairline, 1px) solid var(--border);
+	box-shadow: var(--foundation-popup-shadow);
+}
+
+/* A Foundation border is one device pixel. This removes the optical mismatch
+ * between utility borders, component separators, and inset component frames. */
+.yaschet :where(.border) {
+	border-width: var(--foundation-hairline, 1px);
+}
+
+.yaschet :where(.border-x) {
+	border-inline-width: var(--foundation-hairline, 1px);
+}
+
+.yaschet :where(.border-y) {
+	border-block-width: var(--foundation-hairline, 1px);
+}
+
+.yaschet :where(.border-t) {
+	border-top-width: var(--foundation-hairline, 1px);
+}
+
+.yaschet :where(.border-r) {
+	border-right-width: var(--foundation-hairline, 1px);
+}
+
+.yaschet :where(.border-b) {
+	border-bottom-width: var(--foundation-hairline, 1px);
+}
+
+.yaschet :where(.border-l) {
+	border-left-width: var(--foundation-hairline, 1px);
+}
+
+/* Surface and form geometry use device-pixel hairlines at rest. Focus is a
+ * separate, neutral 2px inset state and never borrows the electric accent. */
+.yaschet [data-slot="card"][data-perimeter="hairline"] {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--border);
+}
+
+/* Empty states are a shared inset surface, not input wells or improvised cards.
+ * Use the same perimeter material as Card without consuming the content inset. */
+.yaschet [data-slot="empty"][data-surface="inset"] {
+	background: var(--foundation-empty-surface);
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--border);
+}
+.yaschet [data-slot="empty"][data-surface="inset"] [data-slot="empty-icon"][data-variant="icon"] {
+	background: var(--card);
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--border);
+}
+
+.yaschet [data-slot="card-header"][data-seam="hairline"] {
+	border-block-end: var(--foundation-hairline, 1px) solid var(--border);
+}
+
+.yaschet [data-slot="card-footer"][data-seam="hairline"] {
+	border-block-start: var(--foundation-hairline, 1px) solid var(--border);
+}
+
+.yaschet [data-slot="scroll-area-scrollbar"] [data-slot="scroll-area-thumb"] {
+	background: var(--foundation-scrollbar-thumb);
+}
+
+.yaschet [data-slot="scroll-area-scrollbar"][data-hovering] [data-slot="scroll-area-thumb"] {
+	background: var(--foundation-scrollbar-thumb-hover);
+}
+
+.yaschet [data-slot="scroll-area-scrollbar"][data-scrolling] [data-slot="scroll-area-thumb"] {
+	background: var(--foundation-scrollbar-thumb-active);
+}
+
+.yaschet [data-slot="alert"] {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--border);
+}
+
+.yaschet [data-slot="alert"][data-appearance="chamber"] {
+	--alert-content-surface: var(--foundation-secondary-soft);
+	--alert-chamber-surface: var(--foundation-secondary-soft-hover);
+	background: var(--alert-content-surface);
+	box-shadow: none;
+}
+
+.yaschet [data-slot="alert"][data-appearance="chamber"][data-variant="destructive"] {
+	--alert-content-surface: var(--foundation-danger-soft);
+	--alert-chamber-surface: var(--foundation-danger-soft-hover);
+}
+
+.yaschet [data-slot="alert"][data-appearance="chamber"][data-variant="success"] {
+	--alert-content-surface: var(--foundation-success-soft);
+	--alert-chamber-surface: var(--foundation-success-soft-hover);
+}
+
+.yaschet [data-slot="alert"][data-appearance="chamber"][data-variant="warning"] {
+	--alert-content-surface: var(--foundation-warning-soft);
+	--alert-chamber-surface: var(--foundation-warning-soft-hover);
+}
+
+.yaschet [data-slot="alert"][data-appearance="chamber"][data-variant="info"] {
+	--alert-content-surface: var(--foundation-info-soft);
+	--alert-chamber-surface: var(--foundation-info-soft-hover);
+}
+
+.yaschet [data-slot="badge"][data-chamber] > [data-slot="icon-chamber"] {
+	display: grid;
+	place-items: center;
+	width: 28px;
+	height: 28px;
+	min-width: 28px;
+	min-height: 28px;
+	aspect-ratio: 1;
+	flex: none;
+	color: inherit;
+	background: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.yaschet
+	:is([data-slot="select-trigger"], [data-slot="button"])[aria-invalid="true"]
+	[data-slot="icon-chamber"] {
+	background: var(--foundation-control-invalid-chamber);
+	color: var(--foundation-danger-ink);
+}
+
+.yaschet [data-slot="alert"][data-appearance="chamber"] > [data-slot="icon-chamber"] {
+	grid-column: 1;
+	grid-row: 1 / span 2;
+	align-self: stretch;
+	align-items: flex-start;
+	width: 44px;
+	height: 100%;
+	min-height: 44px;
+	aspect-ratio: auto;
+	padding-block: 12px;
+	background: var(--alert-chamber-surface);
+	color: inherit;
+}
+
+.yaschet [data-slot="alert"][data-appearance="chamber"] > [data-slot="icon-chamber"] > svg {
+	width: 20px;
+	height: 20px;
+}
+
+/* Text: 16 + 16 + 16 = 48. Icon: 14 + 20 + 14 = 48.
+ * Their first-line centers coincide; additional lines never recenter the icon. */
+.yaschet .status-display {
+	min-height: var(--foundation-control-height-xl);
+	grid-template-columns: var(--foundation-control-height-xl) minmax(0, 1fr);
+}
+
+.yaschet [data-slot="alert"].status-display > [data-slot="icon-chamber"] {
+	width: var(--foundation-control-height-xl);
+	height: 100%;
+	min-height: var(--foundation-control-height-xl);
+	align-self: stretch;
+	align-items: flex-start;
+	padding-block: var(--foundation-status-icon-inset);
+}
+
+.status-display-icons,
+.status-display-icons .t-icon > :is(svg, span) {
+	width: var(--foundation-status-icon-size);
+	height: var(--foundation-status-icon-size);
+}
+
+:root:not(.dark) [data-slot="alert"] .status-display-copy {
+	color: var(--foundation-ink);
+}
+
+.yaschet [data-slot="alert"].status-display[data-appearance="chamber"] > .status-display-copy {
+	position: relative;
+	align-self: start;
+	min-width: 0;
+	padding: var(--foundation-status-inset);
+	font-size: var(--foundation-type-meta-size);
+	line-height: var(--foundation-type-meta-leading);
+	font-weight: var(--font-weight-medium, 500);
+	overflow-wrap: anywhere;
+}
+
+.status-display-copy > [data-status-copy][data-active="false"] {
+	position: absolute;
+	inset: var(--foundation-status-inset);
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.status-display-copy > [data-status-copy][data-has-title="true"] {
+	font-weight: var(--font-weight-normal, 400);
+}
+
+.status-display-title {
+	display: block;
+	margin-bottom: 4px;
+	font-size: var(--foundation-type-label-size);
+	line-height: var(--foundation-type-meta-leading);
+	font-weight: var(--font-weight-medium, 500);
+	letter-spacing: normal;
+}
+
+.yaschet
+	[data-slot="alert"][data-appearance="chamber"]:not(:has(> [data-slot="alert-title"]))
+	> [data-slot="icon-chamber"] {
+	grid-row: 1;
+}
+
+.yaschet
+	[data-slot="alert"][data-appearance="chamber"]
+	:is([data-slot="alert-description"], [data-slot="alert-title"]) {
+	grid-column: 2;
+	align-self: center;
+	padding: 12px;
+	color: inherit;
+}
+
+.yaschet
+	[data-slot="alert"][data-appearance="chamber"]:has(> [data-slot="alert-description"])
+	> [data-slot="alert-title"] {
+	padding-bottom: 0;
+}
+
+.yaschet
+	[data-slot="alert"][data-appearance="chamber"]:has(> [data-slot="alert-title"])
+	> [data-slot="alert-description"] {
+	padding-top: 4px;
+}
+
+/* Two joined chambers. The icon chamber is a square. The text chamber is
+ * exactly one line plus the same inset on every side, so it gloves the words. */
+.yaschet [data-slot="badge"][data-chamber] {
+	height: auto;
+	align-items: stretch;
+	gap: 0;
+	padding: 0;
+	border-width: 0;
+	font-size: var(--foundation-type-meta-size);
+	line-height: 16px;
+	font-weight: 500;
+}
+
+.yaschet [data-slot="badge"][data-chamber] > [data-slot="icon-chamber"] svg {
+	display: block;
+	width: 16px;
+	height: 16px;
+}
+
+.yaschet [data-slot="badge"][data-chamber] > [data-slot="badge-label"] {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: max-content;
+	height: 28px;
+	margin: 0;
+	padding: 6px;
+	line-height: 16px;
+}
+
+/* Loading is an active operation, not an unavailable action. Keep its contrast. */
+.yaschet [data-slot="button"][aria-busy="true"] {
+	opacity: 1;
+}
+
+/* A solid control's global focus ink can equal its fill. Its readable label
+ * color also gives the inset focus indicator reliable local contrast. */
+.yaschet
+:is(
+	[data-slot="button"],
+	[data-slot="dropdown-menu-trigger"],
+	[data-slot="menubar-trigger"]
+)[data-appearance="solid"]:focus-visible {
+	box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.yaschet [data-slot="separator"][data-orientation="horizontal"] {
+	height: var(--foundation-hairline, 1px);
+}
+
+.yaschet [data-slot="separator"][data-orientation="vertical"] {
+	width: var(--foundation-hairline, 1px);
+}
+
+.yaschet [data-slot="checkbox"] {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--input);
+}
+
+.yaschet [data-slot="checkbox"]:hover:not([data-disabled], [data-checked], [data-indeterminate]) {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-hover);
+}
+
+.yaschet
+	[data-slot="checkbox"]:active:not([data-disabled], [data-checked], [data-indeterminate]):not(
+		:focus-visible
+	) {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-active);
+}
+
+.yaschet [data-slot="checkbox"]:is([data-checked], [data-indeterminate]) {
+	box-shadow: none;
+}
+
+.yaschet [data-slot="checkbox"]:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--ring);
+}
+
+.yaschet [data-slot="checkbox"]:is([data-checked], [data-indeterminate]):focus-visible {
+	box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.yaschet [data-slot="radio-group-item"] {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--input);
+}
+
+.yaschet [data-slot="radio-group-item"]:hover:not([data-disabled], [data-checked]) {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-hover);
+}
+
+.yaschet
+	[data-slot="radio-group-item"]:active:not([data-disabled], [data-checked]):not(:focus-visible) {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-active);
+}
+
+.yaschet [data-slot="radio-group-item"][data-checked] {
+	box-shadow: none;
+}
+
+.yaschet [data-slot="radio-group-item"]:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--ring);
+}
+
+.yaschet [data-slot="radio-group-item"][data-checked]:focus-visible {
+	box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.yaschet
+	:is(
+		[data-slot="button"],
+		[data-slot="dropdown-menu-trigger"],
+		[data-slot="menubar-trigger"],
+		[data-slot="badge"]
+	)[data-appearance="outline"] {
+	--control-line: var(--foundation-primary-line);
+	--control-line-hover: var(--foundation-primary-line-hover);
+	--control-line-active: var(--foundation-primary-line-active);
+	--control-focus: var(--ring);
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--control-line);
+}
+
+.yaschet
+	:is(
+		[data-slot="button"],
+		[data-slot="dropdown-menu-trigger"],
+		[data-slot="menubar-trigger"],
+		[data-slot="badge"]
+	)[data-appearance="outline"][data-color="secondary"] {
+	--control-line: var(--foundation-secondary-line);
+	--control-line-hover: var(--foundation-secondary-line-hover);
+	--control-line-active: var(--foundation-secondary-line-active);
+}
+
+.yaschet
+	:is(
+		[data-slot="button"],
+		[data-slot="dropdown-menu-trigger"],
+		[data-slot="menubar-trigger"],
+		[data-slot="badge"]
+	)[data-appearance="outline"][data-color="accent"] {
+	--control-line: var(--foundation-accent-line);
+	--control-line-hover: var(--foundation-accent-line-hover);
+	--control-line-active: var(--foundation-accent-line-active);
+}
+
+.yaschet
+	:is(
+		[data-slot="button"],
+		[data-slot="dropdown-menu-trigger"],
+		[data-slot="menubar-trigger"],
+		[data-slot="badge"]
+	)[data-appearance="outline"][data-color="success"] {
+	--control-line: var(--foundation-success-line);
+	--control-line-hover: var(--foundation-success-line-hover);
+	--control-line-active: var(--foundation-success-line-active);
+}
+
+.yaschet
+	:is(
+		[data-slot="button"],
+		[data-slot="dropdown-menu-trigger"],
+		[data-slot="menubar-trigger"],
+		[data-slot="badge"]
+	)[data-appearance="outline"][data-color="warning"] {
+	--control-line: var(--foundation-warning-line);
+	--control-line-hover: var(--foundation-warning-line-hover);
+	--control-line-active: var(--foundation-warning-line-active);
+}
+
+.yaschet
+	:is(
+		[data-slot="button"],
+		[data-slot="dropdown-menu-trigger"],
+		[data-slot="menubar-trigger"],
+		[data-slot="badge"]
+	)[data-appearance="outline"][data-color="info"] {
+	--control-line: var(--foundation-info-line);
+	--control-line-hover: var(--foundation-info-line-hover);
+	--control-line-active: var(--foundation-info-line-active);
+}
+
+.yaschet
+	:is(
+		[data-slot="button"],
+		[data-slot="dropdown-menu-trigger"],
+		[data-slot="menubar-trigger"],
+		[data-slot="badge"]
+	)[data-appearance="outline"][data-color="destructive"] {
+	--control-line: var(--foundation-danger-line);
+	--control-line-hover: var(--foundation-danger-line-hover);
+	--control-line-active: var(--foundation-danger-line-active);
+}
+
+.yaschet
+	:is(
+		[data-slot="button"],
+		[data-slot="dropdown-menu-trigger"],
+		[data-slot="menubar-trigger"]
+	)[data-appearance="outline"]:hover:not(:disabled, [data-disabled]):not(:focus-visible) {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--control-line-hover);
+}
+
+.yaschet
+	:is(
+		[data-slot="button"],
+		[data-slot="dropdown-menu-trigger"],
+		[data-slot="menubar-trigger"]
+	)[data-appearance="outline"]:active:not(:disabled, [data-disabled]):not(:focus-visible) {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--control-line-active);
+}
+
+.yaschet
+	:is(
+		[data-slot="button"],
+		[data-slot="dropdown-menu-trigger"],
+		[data-slot="menubar-trigger"],
+		[data-slot="badge"]
+	)[data-appearance="outline"]:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--control-focus);
+}
+
+.yaschet :is([data-slot="toggle"], [data-slot="toggle-group-item"])[data-variant="outline"] {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-primary-line);
+}
+
+.yaschet
+	:is([data-slot="toggle"], [data-slot="toggle-group-item"])[data-variant="outline"]:hover:not(
+		:disabled,
+		[data-disabled]
+	):not(:focus-visible) {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-primary-line-hover);
+}
+
+.yaschet
+	:is([data-slot="toggle"], [data-slot="toggle-group-item"])[data-variant="outline"]:active:not(
+		:disabled,
+		[data-disabled]
+	):not(:focus-visible) {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-primary-line-active);
+}
+
+.yaschet
+	:is(
+		[data-slot="toggle"],
+		[data-slot="toggle-group-item"]
+	)[data-variant="outline"]:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--ring);
+}
+
+.yaschet
+	[data-slot="toggle-group"][data-spacing="0"]
+	> [data-slot="toggle-group-item"]:not(:focus-visible) {
+	box-shadow: none;
+}
+
+.yaschet
+	[data-slot="toggle-group"][data-spacing="0"]
+	> [data-slot="toggle-group-item"]:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--ring);
+}
+
+/* Connected controls are one physical box: an actual parent border, clipped
+ * child surfaces, and actual internal borders. No overlay approximates the
+ * perimeter, and pressed children never scale away from it. */
+.yaschet [data-slot="button-group"] {
+	--button-group-line: var(--input);
+	box-sizing: border-box;
+	position: relative;
+	isolation: isolate;
+	gap: 0;
+	border: var(--foundation-hairline, 1px) solid var(--button-group-line);
+	overflow: clip;
+}
+
+.yaschet [data-slot="button-group"]:hover {
+	--button-group-line: var(--foundation-control-line-hover);
+}
+
+.yaschet [data-slot="button-group"]:has(.t-pressable:active) {
+	--button-group-line: var(--foundation-control-line-active);
+}
+
+.yaschet
+	[data-slot="button-group"][data-orientation="horizontal"]:has(
+		> [data-size="xs"],
+		> [data-size="icon-xs"]
+	) {
+	height: var(--foundation-control-height-xs);
+}
+
+.yaschet
+	[data-slot="button-group"][data-orientation="horizontal"]:has(
+		> [data-size="sm"],
+		> [data-size="icon-sm"]
+	) {
+	height: var(--foundation-control-height-sm);
+}
+
+.yaschet
+	[data-slot="button-group"][data-orientation="horizontal"]:has(
+		> [data-size="default"],
+		> [data-size="icon"]
+	) {
+	height: var(--foundation-control-height-md);
+}
+
+.yaschet
+	[data-slot="button-group"][data-orientation="horizontal"]:has(
+		> [data-size="lg"],
+		> [data-size="icon-lg"]
+	) {
+	height: var(--foundation-control-height-lg);
+}
+
+.yaschet [data-slot="button-group"] > [data-slot]:not([data-slot="button-group-separator"]) {
+	position: relative;
+	border-width: 0;
+	background-clip: padding-box;
+}
+
+.yaschet
+	[data-slot="button-group"][data-orientation="horizontal"]
+	> [data-slot]:not([data-slot="button-group-separator"]) {
+	height: 100%;
+}
+
+.yaschet [data-slot="button-group"] > [data-appearance="outline"]:not(:focus-visible) {
+	box-shadow: none;
+}
+
+.yaschet [data-slot="button-group"] .t-pressable:active:not(:disabled) {
+	transform: none;
+	opacity: 1;
+}
+
+.yaschet
+	[data-slot="button-group"][data-orientation="horizontal"]
+	> [data-slot]:not([data-slot="button-group-separator"])
+	+ [data-slot]:not([data-slot="button-group-separator"]) {
+	border-inline-start: var(--foundation-hairline, 1px) solid var(--button-group-line);
+}
+
+.yaschet
+	[data-slot="button-group"][data-orientation="vertical"]
+	> [data-slot]:not([data-slot="button-group-separator"])
+	+ [data-slot]:not([data-slot="button-group-separator"]) {
+	border-block-start: var(--foundation-hairline, 1px) solid var(--button-group-line);
+}
+
+.yaschet [data-slot="button-group-separator"] {
+	background: var(--button-group-line, var(--input));
+}
+
+/* Paint only the autofilled interior. Native autofill background colors can
+ * be UA-important; an inset fill covers them without disabling autofill or
+ * delaying theme changes. The shared perimeter is always the first shadow.
+ * Forced colors keeps the platform's own autofill treatment. */
+.yaschet {
+	--foundation-control-invalid-surface: color-mix(
+		in oklab,
+		var(--foundation-control-surface) 70%,
+		var(--foundation-danger-soft)
+	);
+	--foundation-control-invalid-chamber: color-mix(
+		in oklab,
+		var(--foundation-control-surface) 35%,
+		var(--foundation-danger-soft)
+	);
+}
+
+@media (forced-colors: none) {
+	.yaschet
+		input:is([data-slot="input"], [data-slot="input-group-control"]):is(
+			:autofill,
+			:-webkit-autofill
+		) {
+		--foundation-autofill-paint: inset 0 0 0 1000px
+			var(--foundation-control-fill, var(--foundation-control-surface));
+		/* Include the separator only when filled; ordinary frames stay unchanged. */
+		--foundation-autofill-underlay: , var(--foundation-autofill-paint);
+		-webkit-text-fill-color: var(--foreground);
+		caret-color: var(--foreground);
+	}
+}
+
+.yaschet
+	:is(
+		[data-slot="input"],
+		[data-slot="textarea"],
+		[data-slot="select-trigger"],
+		[data-slot="native-select"]
+	) {
+	border-color: transparent;
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--input)
+		var(--foundation-autofill-underlay,);
+}
+
+.yaschet
+	:is(
+		[data-slot="input"],
+		[data-slot="textarea"],
+		[data-slot="select-trigger"],
+		[data-slot="native-select"]
+	):hover:not(:disabled, [data-disabled], [aria-invalid="true"]):not(:focus-visible) {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-hover)
+		var(--foundation-autofill-underlay,);
+}
+
+.yaschet
+	:is(
+		[data-slot="input"],
+		[data-slot="textarea"],
+		[data-slot="select-trigger"],
+		[data-slot="native-select"]
+	):active:not(:disabled, [data-disabled], [aria-invalid="true"]):not(:focus-visible) {
+	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-active)
+		var(--foundation-autofill-underlay,);
+}
+
+.yaschet
+	:is(
+		[data-slot="input"],
+		[data-slot="textarea"],
+		[data-slot="select-trigger"],
+		[data-slot="native-select"]
+	):focus-visible {
+	box-shadow: inset 0 0 0 2px var(--ring) var(--foundation-autofill-underlay,);
+}
+
+/* Invalid overrides both rest and focus. Never let a neutral focus ring hide
+ * the error state declared by the actual form control. */
+.yaschet
+:is(
+	[data-slot="input"],
+	[data-slot="textarea"],
+	[data-slot="select-trigger"],
+	[data-slot="native-select"]
+)[aria-invalid="true"] {
+	--foundation-control-fill: var(--foundation-control-invalid-surface);
+	background: var(--foundation-control-fill);
+	color: var(--foreground);
+	box-shadow: inset 0 0 0 2px var(--foundation-danger-ink) var(--foundation-autofill-underlay,);
+}
+
+/* A field remains readable; tint its material and adornments, not the entered
+ * value. Error text and aria-invalid carry meaning independently of color. */
+.yaschet :is([data-slot="input"], [data-slot="textarea"])[aria-invalid="true"]::placeholder,
+.yaschet
+	[data-slot="input-group"]:is([aria-invalid="true"], :has([aria-invalid="true"]))
+	[data-slot="input-group-control"]::placeholder {
+	color: color-mix(in oklab, var(--foundation-danger-ink) 65%, var(--muted-foreground));
+}
+
+.yaschet [data-slot="input-group"] {
+	--input-group-line: var(--input);
+	--input-group-stroke: var(--foundation-hairline, 1px);
+	--input-group-adornment: var(--muted-foreground);
+	--input-group-action-hover: var(--primary-soft-hover);
+	position: relative;
+	isolation: isolate;
+	box-sizing: border-box;
+	border-width: 0;
+	box-shadow: none;
+	overflow: clip;
+}
+
+/* One continuous frame, above every child background, including the action
+ * chambers. It cannot intercept clicks or be covered by a focused button. */
+.yaschet [data-slot="input-group"]::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	pointer-events: none;
+	box-shadow: inset 0 0 0 var(--input-group-stroke) var(--input-group-line);
+	transition: box-shadow var(--interactive-dur) var(--interactive-ease);
+}
+
+.yaschet
+	[data-slot="input-group"]:hover:not(:focus-within):not([aria-invalid="true"]):not(
+		:has(:disabled, [data-disabled], [aria-invalid="true"])
+	) {
+	--input-group-line: var(--foundation-control-line-hover);
+}
+
+.yaschet
+	[data-slot="input-group"]:has([data-slot="input-group-control"]:active):not(:focus-within):not(
+		[aria-invalid="true"]
+	):not(:has(:disabled, [data-disabled], [aria-invalid="true"])) {
+	--input-group-line: var(--foundation-control-line-active);
+}
+
+.yaschet [data-slot="input-group"]:focus-within {
+	--input-group-line: var(--ring);
+	--input-group-stroke: 2px;
+	--input-group-adornment: var(--foreground);
+}
+
+.yaschet [data-slot="input-group"][aria-invalid="true"],
+.yaschet [data-slot="input-group"]:has([aria-invalid="true"]) {
+	--foundation-control-fill: var(--foundation-control-invalid-surface);
+	--input-group-line: var(--foundation-danger-ink);
+	--input-group-stroke: 2px;
+	--input-group-adornment: var(--foundation-danger-ink);
+	--input-group-action-hover: var(--foundation-danger-soft);
+	background: var(--foundation-control-fill);
+	color: var(--foreground);
+}
+
+.yaschet [data-slot="input-group-addon"][data-variant="chamber"] {
+	position: relative;
+}
+
+.yaschet
+	[data-slot="input-group"]:is([aria-invalid="true"], :has([aria-invalid="true"]))
+	[data-slot="input-group-addon"][data-variant="chamber"] {
+	background: var(--foundation-control-invalid-chamber);
+}
+
+.yaschet [data-slot="input-group"] [data-slot="input-group-control"] {
+	border: 0;
+	box-shadow: var(--foundation-autofill-paint, none);
+	outline: none;
+}
+
+.yaschet [data-slot="input-group"] [data-input-group-action] {
+	height: 100%;
+	align-self: stretch;
+	border: 0;
+	box-shadow: none;
+	background-clip: padding-box;
+}
+
+.yaschet [data-slot="input-group"] [data-input-group-action][data-size^="icon"] {
+	width: auto;
+	aspect-ratio: 1;
+	padding: 0;
+}
+
+.yaschet [data-slot="input-group"] [data-input-group-action][data-appearance="plain"] {
+	color: var(--input-group-adornment);
+	background: transparent;
+}
+
+.yaschet
+	[data-slot="input-group"]
+	[data-input-group-action][data-appearance="plain"]:hover:not(:disabled, [data-disabled]) {
+	background: var(--input-group-action-hover);
+}
+
+.yaschet [data-slot="input-group"] [data-slot="input-group-addon"] {
+	color: var(--input-group-adornment);
+}
+
+.yaschet [data-slot="input-group"] [data-slot="input-group-text"] {
+	color: inherit;
+}
+
+.yaschet [data-slot="input-group"] [data-input-group-action]:focus-visible {
+	outline: 2px solid var(--ring);
+	outline-offset: -4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.yaschet [data-slot="input-group"]::after {
+		transition: none;
+	}
+}
+
+.yaschet [data-motion-input="keyboard"] [data-slot="input-group"]::after {
+	transition: none;
+}
+
+.yaschet
+	[data-slot="input-group"]
+	> [data-slot="input-group-addon"][data-align="inline-start"][data-variant="plain"]:not(
+		:has([data-input-group-action])
+	)
+	+ [data-slot="input-group-control"] {
+	padding-inline-start: 0;
+}
+
+.yaschet
+	[data-slot="input-group"]:has(
+		> [data-slot="input-group-addon"][data-align="inline-end"][data-variant="plain"]:not(
+				:has([data-input-group-action])
+			)
+	)
+	> [data-slot="input-group-control"] {
+	padding-inline-end: 0;
+}
+
+/* Partitions are explicit, never inferred from a utility button. A chamber's
+ * painted separator follows the frame width without shifting content. */
+.yaschet [data-slot="input-group-addon"][data-variant="chamber"][data-align^="inline"]::before {
+	content: "";
+	position: absolute;
+	inset-block: 0;
+	width: var(--input-group-stroke);
+	background: var(--input-group-line);
+	pointer-events: none;
+	transition:
+		width var(--interactive-dur) var(--interactive-ease),
+		background-color var(--interactive-dur) var(--interactive-ease);
+}
+
+.yaschet
+	[data-slot="input-group-addon"][data-variant="chamber"][data-align="inline-start"]::before {
+	inset-inline-end: 0;
+}
+
+.yaschet [data-slot="input-group-addon"][data-variant="chamber"][data-align="inline-end"]::before {
+	inset-inline-start: 0;
+}
+
+.yaschet [data-slot="input-group"] > [data-slot="input-group-addon"]:has(> button) {
+	align-self: stretch;
+	padding: 0;
+}
+
+.yaschet [data-slot="input-group"] > [data-slot="input-group-addon"] > button {
+	height: 100%;
+	border-width: 0;
+	background-clip: padding-box;
+}
+
+.yaschet [data-slot="input-group"] > [data-slot="input-group-addon"] > button[data-size^="icon"] {
+	width: auto;
+	aspect-ratio: 1;
+}
+
+.yaschet [data-slot="input-group"] .t-pressable:active:not(:disabled) {
+	transform: none;
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.yaschet [data-slot="input-group-addon"][data-variant="chamber"]::before {
+		transition: none;
+	}
+}
+
+.yaschet
+	[data-motion-input="keyboard"]
+	[data-slot="input-group-addon"][data-variant="chamber"]::before {
+	transition: none;
+}
+
+.yaschet .recharts-surface:focus {
+	outline: none;
+}
+
+.yaschet .recharts-surface:focus-visible {
+	border-radius: 0;
+	outline: 2px solid var(--ring);
+	outline-offset: -2px;
+}
+
+/* Approved light refinement, 2026-09-07. Page/white sidebar and ALL dark
+ * tokens remain unchanged. Neutral control shades are defined with the light surface roles above.
+ * Semantic text, soft surfaces, and vivid data marks have separate roles. */
+:root:not(.dark) {
+	--palette-mineral-500: oklch(80% 0 0);
+	--chart-1: oklch(70% 0.18 242);
+	--chart-2: oklch(80% 0.16 80);
+	--chart-3: oklch(73% 0.19 35);
+	--foundation-success: #007256;
+	--foundation-success-ink: #007256;
+	--foundation-success-soft: #dffff2;
+	--foundation-success-cell: #f3fff9;
+	--foundation-success-soft-hover: color-mix(in oklab, #dffff2 96%, #007256);
+	--foundation-success-soft-active: color-mix(in oklab, #dffff2 92%, #007256);
+	--foundation-success-interaction-ink: color-mix(in oklab, #007256 85%, #09090b);
+	--foundation-warning: #916600;
+	--foundation-warning-ink: #916600;
+	--foundation-warning-soft: #fff1cf;
+	--foundation-warning-cell: #fffbf2;
+	--foundation-warning-soft-hover: color-mix(in oklab, #fff1cf 96%, #916600);
+	--foundation-warning-soft-active: color-mix(in oklab, #fff1cf 92%, #916600);
+	--foundation-warning-interaction-ink: color-mix(in oklab, #916600 85%, #09090b);
+	--foundation-info: #006fa8;
+	--foundation-info-ink: #006fa8;
+	--foundation-info-soft: #e5f7ff;
+	--foundation-info-cell: #f6fbff;
+	--foundation-info-soft-hover: color-mix(in oklab, #e5f7ff 96%, #006fa8);
+	--foundation-info-soft-active: color-mix(in oklab, #e5f7ff 92%, #006fa8);
+	--foundation-info-interaction-ink: color-mix(in oklab, #006fa8 85%, #09090b);
+	--foundation-danger: #b31d3a;
+	--foundation-danger-ink: #b31d3a;
+	--foundation-danger-soft: #ffe8ee;
+	--foundation-danger-cell: #fff7fa;
+	--foundation-danger-soft-hover: color-mix(in oklab, #ffe8ee 96%, #b31d3a);
+	--foundation-danger-soft-active: color-mix(in oklab, #ffe8ee 92%, #b31d3a);
+	--foundation-danger-interaction-ink: color-mix(in oklab, #b31d3a 85%, #09090b);
+}
+
+:root:not(.dark) [data-slot="alert"][data-appearance="chamber"][data-variant="success"] {
+	--alert-content-surface: var(--foundation-success-cell);
+	--alert-chamber-surface: var(--foundation-success-soft);
+}
+:root:not(.dark)
+	[data-slot="button"][data-color="success"][data-appearance="soft"]:is(:hover, :active) {
+	color: var(--foundation-success-interaction-ink);
+}
+
+:root:not(.dark) [data-slot="alert"][data-appearance="chamber"][data-variant="warning"] {
+	--alert-content-surface: var(--foundation-warning-cell);
+	--alert-chamber-surface: var(--foundation-warning-soft);
+}
+:root:not(.dark)
+	[data-slot="button"][data-color="warning"][data-appearance="soft"]:is(:hover, :active) {
+	color: var(--foundation-warning-interaction-ink);
+}
+
+:root:not(.dark) [data-slot="alert"][data-appearance="chamber"][data-variant="info"] {
+	--alert-content-surface: var(--foundation-info-cell);
+	--alert-chamber-surface: var(--foundation-info-soft);
+}
+:root:not(.dark)
+	[data-slot="button"][data-color="info"][data-appearance="soft"]:is(:hover, :active) {
+	color: var(--foundation-info-interaction-ink);
+}
+
+:root:not(.dark) [data-slot="alert"][data-appearance="chamber"][data-variant="destructive"] {
+	--alert-content-surface: var(--foundation-danger-cell);
+	--alert-chamber-surface: var(--foundation-danger-soft);
+}
+:root:not(.dark)
+	[data-slot="button"][data-color="destructive"][data-appearance="soft"]:is(:hover, :active) {
+	color: var(--foundation-danger-interaction-ink);
+}
+
+:root:not(.dark) [data-slot="alert"][data-variant="destructive"] .status-display-title {
+	color: var(--foundation-danger-ink);
+}

@@ -1,23 +1,19 @@
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import Link from "next/link";
-import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
+import { CaseStudyFacts, CaseStudyHeader } from "@/src/components/content/case-study-summary";
+import { ModuleContainer, PageContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
-import { Button } from "@/src/components/ui/button";
-import { CopyResourceButton } from "@/src/components/ui/copy-resource-button";
-import { HeadingReveal } from "@/src/components/ui/heading-reveal";
+import { ButtonLink } from "@/src/components/ui/button-link";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
 import { MediaGallery } from "@/src/components/ui/media-gallery";
-import { Reveal, revealSequence, ScrollReveal } from "@/src/components/ui/reveal";
+import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { ProjectEntry } from "@/src/content/types";
-import { formatDate } from "@/src/lib/format-date";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 interface ProjectContentProps {
@@ -31,58 +27,15 @@ function ProjectMasthead({
 	project: ProjectEntry;
 	galleryItems: ReturnType<typeof getProjectCoverMedia>;
 }) {
-	const projectLede = project.subtitle ?? project.description;
-
 	return (
 		<div className="w-full">
-			<div className="portfolio-stack-group">
-				<div className="portfolio-case-study-hero">
-					<Reveal delay={revealSequence.backLink}>
-						<Link href="/case-studies" className="portfolio-case-study-back">
-							{"<- Case Studies"}
-						</Link>
-					</Reveal>
-
-					<Reveal delay={revealSequence.kicker}>
-						<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
-							Case study · {formatDate(project.date)}
-						</p>
-					</Reveal>
-
-					<div className="flex flex-col items-center">
-						<HeadingReveal
-							as="h1"
-							delay={revealSequence.headingLate}
-							className="portfolio-masthead-title text-foreground"
-						>
-							{project.title}
-						</HeadingReveal>
-
-						<Reveal delay={revealSequence.bodyLate}>
-							<ProseContainer className="portfolio-case-study-lede">
-								<p className="m-0">{projectLede}</p>
-							</ProseContainer>
-						</Reveal>
-					</div>
-
-					<Reveal delay={revealSequence.meta}>
-						<div className="portfolio-case-study-meta-row">
-							<span className="portfolio-case-study-meta-item">
-								{project.readingTime} min read
-							</span>
-							<span aria-hidden="true" className="portfolio-case-study-meta-dot">
-								·
-							</span>
-							<CopyResourceButton
-								href={`/case-studies/${project.slug}.md`}
-								label="Copy Markdown"
-								copiedLabel="Copied Markdown"
-								variant="inline"
-							/>
-						</div>
-					</Reveal>
-				</div>
-			</div>
+			<CaseStudyHeader
+				title={project.title}
+				description={project.subtitle ?? project.description}
+				date={project.date}
+				readingTime={project.readingTime}
+				markdownHref={`/case-studies/${project.slug}.md`}
+			/>
 
 			{galleryItems.length > 0 && !project.hideCoverGallery && (
 				<div className="mt-[var(--portfolio-space-4)]">
@@ -118,10 +71,8 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 	const projectStackLabel = project.stack?.length ? "Engine Stack" : "Technologies";
 
 	return (
-		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+		<div className="flex flex-1 flex-col text-foreground selection:bg-foreground selection:text-background">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
-				<SiteHeader />
-
 				<section id="project-main" className="w-full">
 					<PageContainer className="portfolio-section-top">
 						<SwissGridBox>
@@ -139,72 +90,37 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 								<Reveal phase={2} delay={0.04} className="w-full">
 									<div className="portfolio-box-pad">
 										<ModuleContainer className="portfolio-stack-related">
-											<div className="portfolio-project-facts">
-												{projectFacts.map((fact) => (
-													<div
-														key={fact.label}
-														className="portfolio-project-fact"
-													>
-														<span className="portfolio-meta-label text-muted-foreground">
-															{fact.label}
-														</span>
-														<span className="portfolio-meta-value text-foreground">
-															{fact.value}
-														</span>
-													</div>
-												))}
-												{projectStack.length > 0 && (
-													<div className="portfolio-project-fact portfolio-project-fact-stack">
-														<span className="portfolio-meta-label text-muted-foreground">
-															{projectStackLabel}
-														</span>
-														<div className="flex flex-wrap gap-(--portfolio-space-tight)">
-															{projectStack.map((item) => (
-																<span
-																	key={item}
-																	className="portfolio-chip"
-																>
-																	{item}
-																</span>
-															))}
-														</div>
-													</div>
-												)}
-											</div>
+											<CaseStudyFacts
+												facts={projectFacts}
+												stack={projectStack}
+												stackLabel={projectStackLabel}
+											/>
 
 											{(project.url || project.github) && (
 												<div className="portfolio-control-row">
 													{project.url && (
-														<Button
-															asChild
+														<ButtonLink
 															size="md"
 															variant="outlined"
 															color="default"
+															href={project.url}
+															target="_blank"
+															rel="noopener noreferrer"
 														>
-															<a
-																href={project.url}
-																target="_blank"
-																rel="noopener noreferrer"
-															>
-																Visit Site
-															</a>
-														</Button>
+															Visit Site
+														</ButtonLink>
 													)}
 													{project.github && (
-														<Button
-															asChild
+														<ButtonLink
 															size="md"
 															variant="outlined"
 															color="default"
+															href={project.github}
+															target="_blank"
+															rel="noopener noreferrer"
 														>
-															<a
-																href={project.github}
-																target="_blank"
-																rel="noopener noreferrer"
-															>
-																View Code
-															</a>
-														</Button>
+															View Code
+														</ButtonLink>
 													)}
 												</div>
 											)}
@@ -243,18 +159,18 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 											>
 												Building something similar?
 											</h2>
-											<Button
-												asChild
+											<ButtonLink
 												size="md"
 												variant="solid"
 												color="default"
 												className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
-											>
-												<Link href="/contact">
-													Email
+												href="/contact"
+												icon={
 													<ArrowRight className="size-4" weight="bold" />
-												</Link>
-											</Button>
+												}
+											>
+												Email
+											</ButtonLink>
 										</InstrumentActionBand>
 									</SwissGridRow>
 								</SwissGridBox>

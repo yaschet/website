@@ -26,7 +26,13 @@
 		"lineWidth": 100,
 		"attributePosition": "auto"
 	},
-	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -56,6 +62,11 @@
 			"jsxQuoteStyle": "double",
 			"trailingCommas": "all",
 			"semicolons": "always"
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
 		}
 	}
 }

@@ -1,0 +1,307 @@
+/* Portfolio compatibility aliases. Foundation owns all control/material values. */
+:root {
+	--portfolio-control-compact: var(--foundation-control-height-sm);
+	--portfolio-control-default: var(--foundation-control-height-md);
+	--portfolio-control-prominent: var(--foundation-control-height-xl);
+	--portfolio-control-sm: var(--foundation-control-height-sm);
+	--portfolio-control-md: var(--foundation-control-height-md);
+	--portfolio-control-lg: var(--foundation-control-height-lg);
+	--portfolio-control-xl: var(--foundation-control-height-xl);
+	--portfolio-icon-touch: var(--foundation-control-height-xl);
+	--portfolio-badge-height: var(--foundation-control-height-md);
+	--portfolio-control-gap: 8px;
+	--portfolio-control-pad-compact: 12px;
+	--portfolio-control-pad-default: 12px;
+	--portfolio-control-pad-prominent: 16px;
+	--text-control: var(--foundation-type-control-size);
+	--text-control--line-height: var(--foundation-type-control-leading);
+}
+
+/* Standalone semantic controls inherit the same document theme as popup portals. */
+.foundation-input-reveal {
+	height: 100%;
+	width: auto;
+}
+.foundation-input-reveal:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--ring);
+}
+.yaschet [data-slot="label"] {
+	line-height: var(--foundation-type-label-leading);
+}
+
+:root:not(.dark),
+:root.dark {
+	--surface: var(--foundation-canvas);
+}
+
+/* Transparent warning controls need the deeper existing ink on the portfolio canvas. */
+:root:not(.dark)
+:is([data-slot="badge"], [data-slot="button"])[data-color="warning"][data-appearance="plain"] {
+	color: var(--foundation-warning-interaction-ink);
+}
+
+/* Floating notifications share the modal heading's paired, padded chambers. */
+.yaschet [data-slot="toast"] {
+	border-width: var(--foundation-hairline);
+	border-color: var(--border);
+	box-shadow: var(--foundation-popup-shadow);
+	--toast-open: 250ms;
+	--toast-close: 150ms;
+	--toast-blur: 0px;
+}
+.foundation-notification-heading {
+	display: grid;
+	grid-template-columns: 40px minmax(0, 1fr) 40px;
+	align-items: center;
+	gap: 16px;
+	padding: 16px;
+}
+.toast-title {
+	font-size: var(--foundation-type-body-size);
+	line-height: var(--foundation-type-body-leading);
+	font-weight: 500;
+	letter-spacing: normal;
+}
+.toast-description {
+	font-size: var(--foundation-type-meta-size);
+	line-height: var(--foundation-type-meta-leading);
+	font-weight: 400;
+	letter-spacing: normal;
+	color: var(--muted-foreground);
+}
+.toast-action {
+	grid-column: 2;
+	justify-self: start;
+}
+/* Password controls use one frame, with a full-height square utility chamber. */
+.foundation-password-field {
+	--field-height: var(--foundation-control-height-md);
+}
+.foundation-password-field[data-size="xs"] {
+	--field-height: var(--foundation-control-height-xs);
+}
+.foundation-password-field[data-size="sm"] {
+	--field-height: var(--foundation-control-height-sm);
+}
+.foundation-password-field[data-size="lg"] {
+	--field-height: var(--foundation-control-height-lg);
+}
+.foundation-password-field:is([data-size="xl"], [data-size="onboarding"]) {
+	--field-height: var(--foundation-control-height-xl);
+}
+.foundation-password-field [data-slot="input-group-control"] {
+	padding-inline-end: calc(var(--field-height) + 12px);
+}
+.yaschet .foundation-password-field .foundation-input-reveal {
+	width: var(--field-height);
+}
+.foundation-password-field[data-motion-input="keyboard"]::after,
+.foundation-password-field[data-motion-input="keyboard"] .t-icon-swap > svg {
+	transition: none;
+}
+/* Buttons share Foundation materials. Feedback compresses the control, never
+ * fades its readable ink. Press is quicker than release and can be interrupted. */
+[data-slot="button"].t-pressable {
+	--press-opacity: 1;
+	--press-dur: var(--duration-quick);
+	--button-glyph-size: 16px;
+}
+[data-slot="button"].t-pressable:active:not([aria-disabled="true"]) {
+	--interactive-dur: var(--duration-micro);
+	--press-dur: var(--duration-micro);
+}
+[data-slot="button"].t-pressable[aria-disabled="true"] {
+	--press-scale: 1;
+}
+[data-slot="button"][data-loading] {
+	cursor: progress;
+}
+[data-slot="button"][data-motion-input="keyboard"] {
+	transition: none;
+}
+[data-slot="button"]:is([data-size="xs"], [data-size="sm"], [data-size="icon-xs"]) {
+	--button-glyph-size: 14px;
+}
+
+/* One real glyph chamber. Width and its adjoining gap collapse together; there
+ * is no empty counterweight on the opposite side of the label. */
+.foundation-button-pending {
+	display: inline-flex;
+	align-items: center;
+	gap: 0;
+}
+.foundation-button-pending-copy {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--button-content-gap);
+}
+.foundation-button-icon-space {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 0;
+	height: var(--button-glyph-size);
+	margin-inline-end: 0;
+	transition:
+		width var(--resize-dur) var(--resize-ease),
+		margin-inline-start var(--resize-dur) var(--resize-ease),
+		margin-inline-end var(--resize-dur) var(--resize-ease);
+}
+.foundation-button-icon.t-icon-swap {
+	width: var(--button-glyph-size);
+	height: var(--button-glyph-size);
+}
+:where(.foundation-button-pending[data-has-icon], [data-loading] .foundation-button-pending)
+	> .foundation-button-icon-space {
+	width: var(--button-glyph-size);
+	margin-inline-end: var(--button-content-gap);
+}
+:where(.foundation-button-pending[data-icon-position="end"]) > .foundation-button-icon-space {
+	order: 1;
+	margin-inline-end: 0;
+}
+:where(
+		.foundation-button-pending[data-icon-position="end"][data-has-icon],
+		[data-loading] .foundation-button-pending[data-icon-position="end"]
+	)
+	> .foundation-button-icon-space {
+	margin-inline-start: var(--button-content-gap);
+}
+:where(.foundation-button-pending[data-icon-only]) > .foundation-button-icon-space {
+	margin-inline: 0;
+}
+.foundation-button-icon > .t-icon > [data-slot="spinner"] {
+	animation-play-state: paused;
+}
+[data-loading] .foundation-button-icon > .t-icon > [data-slot="spinner"] {
+	animation-play-state: running;
+}
+:where([data-motion-input="keyboard"]) .foundation-button-icon-space,
+.t-toast[data-motion-input="keyboard"],
+.t-toast[data-motion-input="keyboard"] [data-slot="toast-content"] {
+	transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-slot="button"].t-pressable {
+		--press-scale: 1;
+		transition: none;
+	}
+	.foundation-button-icon-space,
+	.t-toast [data-slot="toast-content"] {
+		transition: none;
+	}
+}
+
+/* Portfolio accent is neutral in every surface, portal and native control. */
+:root,
+:root.dark {
+	--foundation-accent: var(--foundation-primary);
+	--foundation-accent-foreground: var(--foundation-primary-foreground);
+	--foundation-accent-hover: var(--foundation-primary-hover);
+	--foundation-accent-active: var(--foundation-primary-active);
+	--foundation-accent-solid: var(--foundation-primary);
+	--foundation-accent-solid-foreground: var(--foundation-primary-foreground);
+	--foundation-accent-solid-hover: var(--foundation-primary-hover);
+	--foundation-accent-solid-active: var(--foundation-primary-active);
+	--foundation-accent-soft: var(--foundation-primary-soft);
+	--foundation-accent-soft-hover: var(--foundation-primary-soft-hover);
+	--foundation-accent-soft-active: var(--foundation-primary-soft-active);
+	--foundation-accent-ink: var(--foundation-primary-ink);
+	--foundation-accent-line: var(--foundation-primary-line);
+	--foundation-accent-line-hover: var(--foundation-primary-line-hover);
+	--foundation-accent-line-active: var(--foundation-primary-line-active);
+	--accent: var(--foundation-accent);
+	--accent-foreground: var(--foundation-accent-foreground);
+	--accent-color-500: var(--foundation-accent);
+	accent-color: var(--foundation-accent);
+}
+:root {
+	--accent-color-50: var(--palette-neutral-50);
+}
+:root {
+	--accent-color-100: var(--palette-neutral-100);
+}
+:root {
+	--accent-color-200: var(--palette-neutral-200);
+}
+:root {
+	--accent-color-300: var(--palette-neutral-300);
+}
+:root {
+	--accent-color-400: var(--palette-neutral-400);
+}
+:root {
+	--accent-color-600: var(--palette-neutral-600);
+}
+:root {
+	--accent-color-700: var(--palette-neutral-700);
+}
+:root {
+	--accent-color-800: var(--palette-neutral-800);
+}
+:root {
+	--accent-color-900: var(--palette-neutral-900);
+}
+:root {
+	--accent-color-950: var(--palette-neutral-950);
+}
+
+::selection {
+	background: var(--foundation-primary);
+	color: var(--foundation-primary-foreground);
+}
+
+/* Inverted editorial bands need a complete material, including hover and press. */
+.portfolio-inverse-button {
+	--primary: var(--palette-neutral-50);
+	--primary-foreground: var(--palette-neutral-950);
+	--foundation-primary-hover: var(--palette-neutral-200);
+	--foundation-primary-active: var(--palette-neutral-300);
+	--foundation-primary-soft: var(--palette-neutral-800);
+	--foundation-primary-soft-hover: var(--palette-neutral-700);
+	--foundation-primary-soft-active: var(--palette-neutral-600);
+	--foundation-primary-ink: var(--palette-neutral-50);
+}
+.dark .portfolio-inverse-button {
+	--primary: var(--palette-neutral-950);
+	--primary-foreground: var(--palette-neutral-50);
+	--foundation-primary-hover: var(--palette-neutral-800);
+	--foundation-primary-active: var(--palette-neutral-700);
+	--foundation-primary-soft: var(--palette-neutral-100);
+	--foundation-primary-soft-hover: var(--palette-neutral-200);
+	--foundation-primary-soft-active: var(--palette-neutral-300);
+	--foundation-primary-ink: var(--palette-neutral-950);
+}
+
+/* Player controls and their portalled popups keep a dark material in both themes. */
+.portfolio-media-material {
+	color-scheme: dark;
+	--foreground: var(--palette-neutral-50);
+	--muted-foreground: var(--palette-neutral-400);
+	--popover: var(--palette-neutral-900);
+	--popover-foreground: var(--palette-neutral-50);
+	--border: var(--palette-neutral-700);
+	--ring: var(--palette-neutral-50);
+	--foundation-primary-ink: var(--palette-neutral-50);
+	--foundation-primary-soft: var(--palette-neutral-950);
+	--foundation-primary-soft-hover: var(--palette-neutral-800);
+	--foundation-primary-soft-active: var(--palette-neutral-700);
+	--foundation-menu-hover: var(--palette-neutral-800);
+	--foundation-control-line-hover: var(--palette-neutral-600);
+	--foundation-popup-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
+}
+.video-setting-trigger {
+	gap: 8px;
+}
+.video-setting-chevron {
+	transition: transform var(--duration-quick) var(--ease-smooth-out);
+}
+.video-setting-trigger[aria-expanded="true"] .video-setting-chevron {
+	transform: rotate(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+	.video-setting-chevron {
+		transition: none;
+	}
+}

@@ -1,7 +1,6 @@
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { Clock } from "@phosphor-icons/react/dist/ssr/Clock";
-import Link from "next/link";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
@@ -14,6 +13,7 @@ import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
+import { PortfolioLink as Link } from "@/src/components/ui/portfolio-link";
 import { Reveal, revealSequence, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { PostEntry } from "@/src/content/types";
@@ -44,6 +44,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 										<ModuleContainer className="portfolio-stack-group">
 											<Reveal delay={revealSequence.backLink}>
 												<Link
+													transitionTypes={["navigation"]}
 													href="/blog"
 													className="portfolio-back-link portfolio-kicker"
 												>
@@ -137,7 +138,10 @@ export function PostContentRSC({ post }: PostContentProps) {
 														INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS
 													}
 												>
-													<Link href="/contact">
+													<Link
+														transitionTypes={["navigation"]}
+														href="/contact"
+													>
 														Discuss
 														<ArrowRight
 															className="size-4"

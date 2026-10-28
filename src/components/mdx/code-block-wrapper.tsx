@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import { CopyButton } from "@/src/components/ui/copy-button";
 import { cn } from "@/src/lib/index";
 
@@ -16,20 +15,23 @@ export function CodeBlockWrapper({
 	className,
 	...props
 }: CodeBlockWrapperProps) {
-	const preRef = useRef<HTMLPreElement>(null);
-
 	return (
 		<div
 			data-breakout="true"
-			className="media-breakout group relative mb-(--portfolio-space-group)"
+			className={cn(
+				"media-breakout mb-(--portfolio-space-group) overflow-hidden border border-border bg-[var(--portfolio-code-surface)]",
+				className,
+			)}
 		>
+			<div className="flex items-center justify-between gap-4 border-border border-b p-3">
+				<span className="font-medium text-[13px]/5 text-muted-foreground">Code</span>
+				<CopyButton text={rawCode} />
+			</div>
 			<pre
-				ref={preRef}
 				className={cn(
-					"code-block-pre overflow-x-auto border border-border p-4",
-					"font-mono text-sm leading-relaxed",
-					"bg-surface-50 dark:bg-surface-950",
-					className,
+					"code-block-pre m-0 overflow-x-auto p-4",
+					"font-mono text-[13px]/5",
+					"bg-[var(--portfolio-code-surface)]",
 				)}
 				{...props}
 			>
@@ -39,7 +41,6 @@ export function CodeBlockWrapper({
 					dangerouslySetInnerHTML={{ __html: highlightedHtml }}
 				/>
 			</pre>
-			<CopyButton text={rawCode} className="absolute top-2 right-2" />
 		</div>
 	);
 }

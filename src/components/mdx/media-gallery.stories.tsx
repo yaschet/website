@@ -11,13 +11,11 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { MediaGallery } from "./media-gallery";
 
 const meta: Meta<typeof MediaGallery> = {
-	title: "MDX/MediaGallery",
+	id: "components-media-mediagallery",
+	title: "Components/Media/Media Gallery",
 	component: MediaGallery,
 	parameters: {
 		layout: "padded",
-		backgrounds: {
-			default: "light",
-		},
 	},
 	argTypes: {
 		images: {
@@ -49,10 +47,10 @@ type Story = StoryObj<typeof MediaGallery>;
 export const Default: Story = {
 	args: {
 		images: [
-			"/images/verto/hero-dashboard.jpg",
-			"/images/verto/hero-editor.jpg",
-			"/images/verto/hero-translation.jpg",
-			"/images/verto/hero-billing.jpg",
+			"/images/verto/dashboard-page.png",
+			"/images/verto/review-editor.png",
+			"/images/verto/new-translation-page.png",
+			"/images/verto/billing-page.png",
 		],
 		caption: "Verto Platform Overview",
 	},
@@ -65,15 +63,11 @@ export const Default: Story = {
 export const WithPerImageCaptions: Story = {
 	args: {
 		images: [
-			"/images/verto/architecture-overview.jpg",
-			"/images/verto/document-pipeline.jpg",
-			"/images/verto/credit-system.jpg",
+			"/images/verto/dashboard-page.png",
+			"/images/verto/pipeline-processing.png",
+			"/images/verto/billing-page.png",
 		],
-		captions: [
-			"System Architecture Overview",
-			"Document Processing Pipeline",
-			"Credit-Based Billing System",
-		],
+		captions: ["Dashboard overview", "Document Processing Pipeline", "Billing overview"],
 	},
 };
 
@@ -83,7 +77,7 @@ export const WithPerImageCaptions: Story = {
  */
 export const FixedAspectRatio: Story = {
 	args: {
-		images: ["/images/verto/hero-dashboard.jpg", "/images/verto/hero-editor.jpg"],
+		images: ["/images/verto/dashboard-page.png", "/images/verto/review-editor.png"],
 		aspectRatio: "16/9",
 		caption: "Fixed 16:9 aspect ratio",
 	},
@@ -94,7 +88,7 @@ export const FixedAspectRatio: Story = {
  */
 export const SingleImage: Story = {
 	args: {
-		images: ["/images/verto/hero-dashboard.jpg"],
+		images: ["/images/verto/dashboard-page.png"],
 		caption: "Single image - no arrows shown",
 	},
 };
@@ -104,34 +98,28 @@ export const SingleImage: Story = {
  */
 export const SquareAspect: Story = {
 	args: {
-		images: ["/images/verto/hero-dashboard.jpg", "/images/verto/hero-editor.jpg"],
+		images: ["/images/verto/dashboard-page.png", "/images/verto/review-editor.png"],
 		aspectRatio: "1/1",
 		caption: "Square aspect ratio gallery",
 	},
 };
 
-/**
- * Dark mode variant.
- */
-export const DarkMode: Story = {
+/** The same inline player and image navigation used in case studies. */
+export const VideoAndImage: Story = {
 	args: {
-		images: [
-			"/images/verto/hero-dashboard.jpg",
-			"/images/verto/hero-editor.jpg",
-			"/images/verto/hero-translation.jpg",
+		items: [
+			{
+				kind: "mux-video",
+				playbackId: "WNddSfv9LgR1KV01uf3sL02o02Lc9COwBWyr8rp7dsnceI",
+				poster: "/images/verto/dashboard-page.png",
+				title: "Verto walkthrough",
+			},
+			{
+				kind: "image",
+				src: "/images/verto/review-editor.png",
+				alt: "Verto review editor",
+			},
 		],
-		caption: "Dark mode gallery",
+		caption: "Verto walkthrough and review editor",
 	},
-	parameters: {
-		backgrounds: {
-			default: "dark",
-		},
-	},
-	decorators: [
-		(Story) => (
-			<div className="dark bg-surface-950 p-8">
-				<Story />
-			</div>
-		),
-	],
 };

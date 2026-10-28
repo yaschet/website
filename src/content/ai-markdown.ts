@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/src/constants/site";
 import "server-only";
 
 import { promises as fs } from "node:fs";
@@ -8,7 +9,6 @@ import {
 } from "@/src/content/registry";
 import type { ProjectSummaryEntry } from "@/src/content/types";
 
-const SITE_URL = "https://yaschet.dev";
 const PROJECTS_DIR = path.join(process.cwd(), "content", "projects");
 
 interface ProjectMarkdownEntry extends ProjectSummaryEntry {

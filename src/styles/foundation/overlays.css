@@ -1,0 +1,193 @@
+/* Shared Sharp overlay geometry. Motion remains owned by motion.css. */
+.foundation-dialog[data-size] {
+	--overlay-width: 480px;
+	inset-inline: 16px;
+	margin-inline: auto;
+	width: auto;
+	max-width: var(--overlay-width);
+	translate: 0 -50%;
+	border: var(--foundation-hairline) solid var(--border);
+}
+.foundation-dialog[data-size="sm"] {
+	--overlay-width: 384px;
+}
+.foundation-dialog[data-size="lg"] {
+	--overlay-width: 640px;
+}
+.foundation-sheet[data-side="right"],
+.foundation-sheet[data-side="left"] {
+	--overlay-width: 480px;
+	inset-inline: 0;
+	width: auto;
+	max-width: var(--overlay-width);
+	height: 100dvh;
+	overflow: hidden;
+}
+.foundation-sheet[data-side="right"] {
+	margin-left: auto;
+}
+.foundation-sheet[data-side="left"] {
+	margin-right: auto;
+}
+.foundation-sheet[data-size="sm"] {
+	--overlay-width: 384px;
+}
+.foundation-sheet[data-size="lg"] {
+	--overlay-width: 640px;
+}
+.foundation-sheet[data-sidebar] {
+	--overlay-width: var(--sidebar-width);
+}
+.foundation-sheet[data-side="top"],
+.foundation-sheet[data-side="bottom"] {
+	max-height: calc(100dvh - 32px);
+	overflow: hidden;
+}
+.foundation-overlay-header {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	gap: 16px;
+	min-width: 0;
+	text-align: left;
+}
+.foundation-overlay-heading-copy {
+	display: grid;
+	align-content: center;
+	gap: 4px;
+	min-height: 40px;
+	flex: 1;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+.foundation-overlay-icon {
+	border: var(--foundation-hairline) solid var(--border);
+}
+.foundation-overlay-close {
+	border: var(--foundation-hairline) solid var(--border);
+	z-index: 1;
+}
+.foundation-drawer .foundation-overlay-header {
+	border-bottom: 1px solid var(--border);
+}
+
+.foundation-sheet > .foundation-overlay-header,
+.foundation-dialog[data-framed] > .foundation-overlay-header {
+	border-bottom: 1px solid var(--border);
+}
+
+.foundation-drawer[data-close-button="true"] .foundation-overlay-header {
+	padding-right: 72px;
+}
+
+.foundation-dialog[data-close-button="true"] > .foundation-overlay-header {
+	padding-right: 56px;
+}
+.foundation-sheet[data-close-button="true"] > .foundation-overlay-header {
+	padding-right: 72px;
+}
+.foundation-overlay-body {
+	display: grid;
+	align-content: start;
+	gap: 16px;
+	min-height: 0;
+	min-width: 0;
+	flex: 1;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: 16px;
+}
+.foundation-dialog[data-framed] {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	overflow: hidden;
+	padding: 0;
+}
+.foundation-dialog[data-framed] > .foundation-overlay-header {
+	padding: 16px;
+}
+.foundation-dialog[data-framed][data-close-button="true"] > .foundation-overlay-header {
+	padding-right: 72px;
+}
+
+.foundation-sheet [data-slot="sheet-footer"],
+.foundation-dialog[data-framed] [data-slot="dialog-footer"] {
+	flex-shrink: 0;
+	margin: 0;
+	border-top: 1px solid var(--border);
+	padding: 16px;
+	background: var(--background);
+}
+.foundation-alert-footer {
+	margin: 0 -16px -16px;
+	padding: 16px;
+	border-top: 1px solid var(--border);
+	background: var(--background);
+}
+/* Preserve existing media-slot compositions alongside the new icon prop. */
+.foundation-overlay-heading-copy:has(> [data-slot="alert-dialog-media"]) {
+	grid-template-columns: 40px minmax(0, 1fr);
+	column-gap: 16px;
+}
+.foundation-overlay-heading-copy > [data-slot="alert-dialog-media"] {
+	grid-row: 1 / span 2;
+	width: 40px;
+	height: 40px;
+	margin: 0;
+}
+.foundation-overlay-heading-copy:has(> [data-slot="alert-dialog-media"])
+	> :not([data-slot="alert-dialog-media"]) {
+	grid-column: 2;
+}
+.foundation-drawer {
+	--overlay-width: 480px;
+}
+.foundation-drawer[data-size="sm"] {
+	--overlay-width: 384px;
+}
+.foundation-drawer[data-size="lg"] {
+	--overlay-width: 640px;
+}
+.foundation-drawer[data-swipe-axis="x"] {
+	width: min(var(--overlay-width), 100%);
+}
+.foundation-drawer[data-swipe-axis="y"] {
+	max-width: var(--overlay-width);
+	margin-inline: auto;
+}
+
+.foundation-drawer[data-swipe-direction="down"]:has(> [data-slot="drawer-swipe-handle"])
+	.foundation-overlay-close {
+	top: 28px;
+}
+.foundation-drawer [data-slot="drawer-footer"] {
+	border-top: 1px solid var(--border);
+	background: var(--background);
+}
+
+/* The close control participates in the header row, including wrapped copy. */
+.foundation-dialog:not([data-framed])[data-close-button="true"]:has(> [data-slot="dialog-header"]) {
+	grid-template-columns: minmax(0, 1fr) 40px;
+	column-gap: 16px;
+}
+.foundation-dialog:not([data-framed])[data-close-button="true"]:has(> [data-slot="dialog-header"])
+	> * {
+	grid-column: 1 / -1;
+}
+.foundation-dialog:not([data-framed])[data-close-button="true"] > .foundation-overlay-header {
+	grid-column: 1;
+	grid-row: 1;
+	padding-right: 0;
+}
+.foundation-dialog:not([data-framed]):has(> [data-slot="dialog-header"])
+	> .foundation-overlay-close {
+	position: static;
+	grid-column: 2;
+	grid-row: 1;
+	align-self: center;
+}
+.foundation-dialog[data-motion-input="keyboard"],
+.t-modal-backdrop[data-motion-input="keyboard"] {
+	transition: none;
+}

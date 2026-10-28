@@ -1,14 +1,15 @@
 "use client";
 
-import { ArrowRight } from "@phosphor-icons/react";
+import { RiArrowRightLine as ArrowRight } from "@remixicon/react";
 import { useForm } from "@tanstack/react-form";
-import { type ChangeEvent, useRef } from "react";
-import { toast } from "sonner";
+import { type ChangeEvent, useId, useRef } from "react";
 import { submitContactForm } from "@/src/app/actions/contact";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/form/input";
 import { Label } from "@/src/components/ui/form/label";
 import { Textarea } from "@/src/components/ui/form/textarea";
+import { toast } from "@/src/components/ui/sonner";
+import { StateSwap } from "@/src/components/ui/state-swap";
 import { type ContactFormValues, contactSchema } from "@/src/lib/schemas/contact";
 
 interface ContactField {
@@ -20,6 +21,8 @@ interface ContactField {
 	handleBlur: () => void;
 	handleChange: (value: string) => void;
 }
+
+const submitLabels = { idle: "Send message", pending: "Sending message" };
 
 function fieldError(error: unknown): string {
 	if (typeof error === "string") return error;
@@ -40,7 +43,9 @@ function FormField({
 	placeholder,
 	type = "text",
 	isTextArea = false,
+	id,
 }: {
+	id: string;
 	field: ContactField;
 	label: string;
 	placeholder: string;
@@ -49,7 +54,7 @@ function FormField({
 }) {
 	const hasError = field.state.meta.isTouched && field.state.meta.errors.length > 0;
 	const controlProps = {
-		id: field.name,
+		id,
 		name: field.name,
 		value: field.state.value,
 		onBlur: field.handleBlur,
@@ -58,28 +63,27 @@ function FormField({
 		placeholder,
 		hasError,
 		"aria-invalid": hasError,
-		"aria-describedby": hasError ? `${field.name}-error` : undefined,
+		"aria-describedby": hasError ? `${id}-error` : undefined,
+		"aria-required": true,
+		autoComplete: field.name === "name" || field.name === "email" ? field.name : undefined,
 		maxLength: { name: 100, email: 254, subject: 200, message: 2000 }[field.name],
 	};
 
 	return (
-		<div className="group portfolio-stack-tight">
+		<div className="portfolio-form-field group">
 			<Label
-				htmlFor={field.name}
-				className="portfolio-kicker block text-surface-400 transition-colors group-focus-within:text-surface-900 dark:text-surface-500 dark:group-focus-within:text-surface-100"
+				htmlFor={id}
+				className="text-muted-foreground group-focus-within:text-foreground"
 			>
 				{label}
 			</Label>
 			{isTextArea ? (
-				<Textarea {...controlProps} />
+				<Textarea {...controlProps} className="min-h-40" />
 			) : (
 				<Input {...controlProps} type={type} size="md" />
 			)}
 			{hasError && (
-				<p
-					id={`${field.name}-error`}
-					className="portfolio-caption font-medium text-destructive"
-				>
+				<p id={`${id}-error`} className="font-sans text-destructive-ink text-xs leading-4">
 					{fieldError(field.state.meta.errors[0])}
 				</p>
 			)}
@@ -91,6 +95,7 @@ function FormField({
  * Retains failed drafts and a stable retry identifier. No automatic write retries.
  */
 export function ContactForm() {
+	const instanceId = useId();
 	const website = useRef<HTMLInputElement>(null);
 	const submissionId = useRef<string | null>(null);
 	const submissionPending = useRef(false);
@@ -106,18 +111,24 @@ export function ContactForm() {
 					submissionId: submissionId.current,
 				});
 				if (result.success) {
-					toast.success("Message Sent", {
+					toast.add({
+						type: "success",
+						title: "Message sent",
 						description: "I'll get back to you as soon as possible.",
 					});
 					form.reset();
 					submissionId.current = null;
 				} else {
-					toast.error("Failed to Send", {
+					toast.add({
+						type: "error",
+						title: "Failed to send",
 						description: result.error,
 					});
 				}
 			} catch (_error) {
-				toast.error("Error", {
+				toast.add({
+					type: "error",
+					title: "Error",
 					description: "An unexpected error occurred. Please try again.",
 				});
 			}
@@ -129,6 +140,7 @@ export function ContactForm() {
 
 	return (
 		<form
+			aria-label="Send a message"
 			onSubmit={async (e) => {
 				e.preventDefault();
 				e.stopPropagation();
@@ -141,13 +153,13 @@ export function ContactForm() {
 					submissionPending.current = false;
 				}
 			}}
-			className="portfolio-stack-section"
+			className="portfolio-contact-form"
 		>
 			<div hidden aria-hidden="true">
-				<label htmlFor="contact-website">Website</label>
+				<label htmlFor={`${instanceId}-website`}>Website</label>
 				<input
 					ref={website}
-					id="contact-website"
+					id={`${instanceId}-website`}
 					name="website"
 					type="text"
 					tabIndex={-1}
@@ -155,14 +167,22 @@ export function ContactForm() {
 					maxLength={200}
 				/>
 			</div>
-			<div className="grid gap-[var(--portfolio-space-section)] sm:grid-cols-2">
+			<div className="portfolio-contact-identity">
 				<form.Field name="name">
-					{(field) => <FormField field={field} label="Name" placeholder="John Doe" />}
+					{(field) => (
+						<FormField
+							id={`${instanceId}-name`}
+							field={field}
+							label="Name"
+							placeholder="Your name"
+						/>
+					)}
 				</form.Field>
 
 				<form.Field name="email">
 					{(field) => (
 						<FormField
+							id={`${instanceId}-email`}
 							field={field}
 							label="Email"
 							placeholder="email@domain.com"
@@ -174,13 +194,24 @@ export function ContactForm() {
 
 			<form.Field name="subject">
 				{(field) => (
-					<FormField field={field} label="Subject" placeholder="General Inquiry" />
+					<FormField
+						id={`${instanceId}-subject`}
+						field={field}
+						label="Subject"
+						placeholder="What would you like to discuss?"
+					/>
 				)}
 			</form.Field>
 
 			<form.Field name="message">
 				{(field) => (
-					<FormField field={field} label="Message" placeholder="Message" isTextArea />
+					<FormField
+						id={`${instanceId}-message`}
+						field={field}
+						label="Message"
+						placeholder="Tell me a little about your project or question."
+						isTextArea
+					/>
 				)}
 			</form.Field>
 
@@ -198,16 +229,17 @@ export function ContactForm() {
 						color="primary"
 						disabled={!canSubmit || isSubmitting}
 						loading={isSubmitting}
-						className="w-full sm:w-auto"
+						icon={<ArrowRight aria-hidden="true" />}
+						iconPosition="end"
+						aria-label={isSubmitting ? submitLabels.pending : submitLabels.idle}
+						className="w-full justify-self-start sm:w-auto"
 					>
-						{isSubmitting ? (
-							"TRANSMITTING..."
-						) : (
-							<>
-								SEND MESSAGE
-								<ArrowRight className="size-4" weight="bold" />
-							</>
-						)}
+						<StateSwap
+							kind="text"
+							sizing="content"
+							value={isSubmitting ? "pending" : "idle"}
+							items={submitLabels}
+						/>
 					</Button>
 				)}
 			</form.Subscribe>

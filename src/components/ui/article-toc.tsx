@@ -1,38 +1,23 @@
-/**
- * Architectural navigation sidebar for long-form content.
- *
- * @remarks
- * Engineered for high-readability in technical documentation. Features:
- * - Dynamic heading extraction (h2, h3) with coordinate synchronization.
- * - Continuous tracking based on scroll velocity and position.
- * - Typographic active state contrast (monochromatic Swiss standard).
- * - Automatic image-load detection for coordinate recalculation.
- * - Responsive mobile drawer fallback.
- *
- * @example
- * ```tsx
- * <ArticleTOC contentSelector="article" />
- * ```
- *
- * @public
- */
-
 "use client";
 
-import { List, X } from "@phosphor-icons/react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useCallback, useEffect, useState } from "react";
-import { cn, springs } from "@/src/lib/index";
-
-// ═══════════════════════════════════════════════════════════════════════════
-// TYPES
-// ═══════════════════════════════════════════════════════════════════════════
+import { List } from "@phosphor-icons/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button } from "@/src/components/ui/button";
+import {
+	Dialog,
+	DialogBody,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/src/components/ui/dialog";
+import { cn } from "@/src/lib/index";
 
 interface HeadingMeta {
 	id: string;
 	text: string;
 	level: number;
-	/** Absolute top position from document top */
 	offsetTop: number;
 }
 
@@ -41,318 +26,144 @@ interface ArticleTOCProps {
 	className?: string;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
+/** Article navigation with a wide-screen reading rail and a focus-managed contents dialog. */
 export function ArticleTOC({ contentSelector = "article", className }: ArticleTOCProps) {
 	const [headings, setHeadings] = useState<HeadingMeta[]>([]);
 	const [activeIndex, setActiveIndex] = useState(0);
-	const [mounted, setMounted] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
-	const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-	// Reduced motion preference
-	const prefersReducedMotion = useReducedMotion();
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Mount Guard
-	// ─────────────────────────────────────────────────────────────────────────
+	const [open, setOpen] = useState(false);
+	const destination = useRef<HTMLElement | null>(null);
 
 	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Extract Headings with Positions
-	// ─────────────────────────────────────────────────────────────────────────
-
-	const calculateHeadingPositions = useCallback(() => {
-		if (!mounted) return;
-
 		const content = document.querySelector(contentSelector);
 		if (!content) return;
 
-		const headingElements = content.querySelectorAll("h2, h3");
-		const extracted: HeadingMeta[] = [];
-
-		headingElements.forEach((heading) => {
-			const id = heading.id;
-			const text = heading.textContent?.replace(/#$/, "").trim() || "";
-			const level = parseInt(heading.tagName.charAt(1), 10);
-
-			if (id && text) {
-				const rect = heading.getBoundingClientRect();
-				const offsetTop = rect.top + window.scrollY;
-				extracted.push({ id, text, level, offsetTop });
-			}
-		});
-
-		setHeadings(extracted);
-	}, [contentSelector, mounted]);
-
-	// Initial calculation + recalculate on resize
-	useEffect(() => {
-		calculateHeadingPositions();
-
-		const handleResize = () => calculateHeadingPositions();
-		window.addEventListener("resize", handleResize);
-		return () => window.removeEventListener("resize", handleResize);
-	}, [calculateHeadingPositions]);
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Dynamic Content Handling (images loading, etc.)
-	// ─────────────────────────────────────────────────────────────────────────
-
-	useEffect(() => {
-		if (!mounted) return;
-
-		// Recalculate after images load (they shift content)
-		const images = document.querySelectorAll("article img");
-		let loadedCount = 0;
-		const totalImages = images.length;
-
-		if (totalImages === 0) return;
-
-		const handleImageLoad = () => {
-			loadedCount++;
-			if (loadedCount === totalImages) {
-				// All images loaded, recalculate positions
-				calculateHeadingPositions();
-			}
+		const measure = () => {
+			setHeadings(
+				Array.from(content.querySelectorAll<HTMLElement>("h2[id], h3[id]"), (heading) => ({
+					id: heading.id,
+					text: heading.textContent?.trim() ?? "",
+					level: Number(heading.tagName[1]),
+					offsetTop: heading.getBoundingClientRect().top + window.scrollY,
+				})),
+			);
 		};
-
-		images.forEach((img) => {
-			if ((img as HTMLImageElement).complete) {
-				loadedCount++;
-			} else {
-				img.addEventListener("load", handleImageLoad);
-				img.addEventListener("error", handleImageLoad);
-			}
-		});
-
-		// If all images were already loaded
-		if (loadedCount === totalImages) {
-			calculateHeadingPositions();
-		}
-
+		measure();
+		const observer = new ResizeObserver(measure);
+		observer.observe(content);
+		window.addEventListener("resize", measure);
 		return () => {
-			images.forEach((img) => {
-				img.removeEventListener("load", handleImageLoad);
-				img.removeEventListener("error", handleImageLoad);
-			});
+			observer.disconnect();
+			window.removeEventListener("resize", measure);
 		};
-	}, [mounted, calculateHeadingPositions]);
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Continuous Active Section Tracking
-	// ─────────────────────────────────────────────────────────────────────────
+	}, [contentSelector]);
 
 	useEffect(() => {
-		if (!mounted || headings.length === 0) return;
-
-		const handleScroll = () => {
-			const currentScrollY = window.scrollY;
-			const scrollOffset = currentScrollY + 120; // Account for sticky header
-
-			let newActiveIndex = 0;
+		const trackSection = () => {
+			let index = 0;
 			for (let i = headings.length - 1; i >= 0; i--) {
-				if (scrollOffset >= headings[i].offsetTop) {
-					newActiveIndex = i;
+				if (window.scrollY + 120 >= headings[i].offsetTop) {
+					index = i;
 					break;
 				}
 			}
-
-			setActiveIndex(newActiveIndex);
-			setIsVisible(currentScrollY > 200);
+			setActiveIndex(index);
+			setIsVisible(window.scrollY > 200);
 		};
+		trackSection();
+		window.addEventListener("scroll", trackSection, { passive: true });
+		return () => window.removeEventListener("scroll", trackSection);
+	}, [headings]);
 
-		window.addEventListener("scroll", handleScroll, { passive: true });
-		handleScroll(); // Initial call
+	const navigate = useCallback((heading: HTMLElement) => {
+		window.history.pushState(null, "", `#${encodeURIComponent(heading.id)}`);
+		heading.focus({ preventScroll: true });
+		heading.scrollIntoView({
+			behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+				? "instant"
+				: "smooth",
+			block: "start",
+		});
+	}, []);
 
-		return () => window.removeEventListener("scroll", handleScroll);
-	}, [mounted, headings]);
+	if (!headings.length) return null;
 
-	// ─────────────────────────────────────────────────────────────────────────
-	// Navigate to Heading
-	// ─────────────────────────────────────────────────────────────────────────
-
-	const scrollToHeading = (id: string) => {
-		const element = document.getElementById(id);
-		if (element) {
-			const offset = 100;
-			const top = element.getBoundingClientRect().top + window.scrollY - offset;
-			window.scrollTo({
-				top,
-				behavior: prefersReducedMotion ? "auto" : "smooth",
-			});
-			setIsMobileOpen(false);
-		}
-	};
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Keyboard Navigation
-	// ─────────────────────────────────────────────────────────────────────────
-
-	const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
-		if (e.key === "ArrowDown" && index < headings.length - 1) {
-			e.preventDefault();
-			const nextButton = document.querySelector(
-				`[data-toc-index="${index + 1}"]`,
-			) as HTMLButtonElement;
-			nextButton?.focus();
-		} else if (e.key === "ArrowUp" && index > 0) {
-			e.preventDefault();
-			const prevButton = document.querySelector(
-				`[data-toc-index="${index - 1}"]`,
-			) as HTMLButtonElement;
-			prevButton?.focus();
-		}
-	};
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Animation Variants (respect reduced motion)
-	// ─────────────────────────────────────────────────────────────────────────
-
-	const containerVariants = prefersReducedMotion
-		? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
-		: {
-				hidden: { opacity: 0, x: -16 },
-				visible: { opacity: 1, x: 0 },
-			};
-
-	const mobileVariants = prefersReducedMotion
-		? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
-		: {
-				hidden: { opacity: 0, y: 8 },
-				visible: { opacity: 1, y: 0 },
-			};
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Render
-	// ─────────────────────────────────────────────────────────────────────────
-
-	if (!mounted || headings.length === 0) return null;
-
-	const TOCList = ({ isMobile = false }: { isMobile?: boolean }) => (
-		<ul className="flex flex-col">
-			{headings.map(({ id, text, level }, index) => {
-				const isActive = index === activeIndex;
-
-				return (
-					<li key={id}>
-						<button
-							type="button"
-							data-toc-index={index}
-							onClick={() => scrollToHeading(id)}
-							onKeyDown={(e) => handleKeyDown(e, index)}
-							className={cn(
-								"block w-full py-1.5 text-left font-mono text-xs transition-colors duration-150",
-								isMobile ? "max-w-full" : "max-w-[180px] truncate",
-								level === 3 && "pl-3",
-								isActive
-									? "font-medium text-surface-950 dark:text-surface-50"
-									: "text-surface-400 hover:text-surface-600 dark:text-surface-500 dark:hover:text-surface-300",
-							)}
-						>
-							{text}
-						</button>
-					</li>
-				);
-			})}
-		</ul>
+	const links = (
+		<ol className="portfolio-contents-list">
+			{headings.map(({ id, text, level }, index) => (
+				<li key={id}>
+					<a
+						href={`#${id}`}
+						aria-current={index === activeIndex ? "location" : undefined}
+						data-level={level}
+						onClick={(event) => {
+							if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+								return;
+							const heading = document.getElementById(id);
+							if (!heading) return;
+							event.preventDefault();
+							if (open) {
+								destination.current = heading;
+								setOpen(false);
+							} else {
+								navigate(heading);
+							}
+						}}
+					>
+						{text}
+					</a>
+				</li>
+			))}
+		</ol>
 	);
 
 	return (
 		<>
-			{/* Desktop TOC */}
-			<motion.nav
-				initial="hidden"
-				animate={isVisible ? "visible" : "hidden"}
-				variants={containerVariants}
-				transition={prefersReducedMotion ? { duration: 0 } : springs.responsive}
-				className={cn(
-					"fixed top-1/2 left-8 z-40 hidden -translate-y-1/2 xl:block",
-					className,
-				)}
-				aria-label="Table of contents"
-			>
-				<div className="mb-3 font-mono text-[10px] text-surface-400 uppercase tracking-widest dark:text-surface-500">
-					On this page
-				</div>
-				<TOCList />
-			</motion.nav>
-
-			{/* Mobile TOC Button */}
-			<AnimatePresence>
+			{isVisible && (
+				<nav className={cn("portfolio-contents-rail", className)} aria-label="On this page">
+					<p className="portfolio-kicker mb-3 text-muted-foreground">On this page</p>
+					{links}
+				</nav>
+			)}
+			<Dialog open={open} onOpenChange={setOpen}>
 				{isVisible && (
-					<motion.button
-						type="button"
-						initial={{ opacity: 0, scale: 0.9 }}
-						animate={{ opacity: 1, scale: 1 }}
-						exit={{ opacity: 0, scale: 0.9 }}
-						transition={prefersReducedMotion ? { duration: 0 } : springs.snappy}
-						onClick={() => setIsMobileOpen(true)}
-						className={cn(
-							"fixed right-6 bottom-6 z-40 flex size-12 items-center justify-center xl:hidden",
-							"border border-surface-200 bg-white dark:border-surface-700 dark:bg-surface-900",
-							"shadow-lg",
-						)}
-						aria-label="Open table of contents"
+					<DialogTrigger
+						data-slot="button"
+						render={
+							<Button
+								variant="outlined"
+								size="icon-xl"
+								color="default"
+								className="portfolio-contents-trigger min-[96rem]:hidden"
+								aria-label="Open table of contents"
+							/>
+						}
 					>
-						<List size={20} weight="bold" />
-					</motion.button>
+						<List size={16} />
+					</DialogTrigger>
 				)}
-			</AnimatePresence>
-
-			{/* Mobile TOC Drawer */}
-			<AnimatePresence>
-				{isMobileOpen && (
-					<>
-						{/* Backdrop */}
-						<motion.div
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							exit={{ opacity: 0 }}
-							transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-							className="fixed inset-0 z-50 bg-black/50 xl:hidden"
-							onClick={() => setIsMobileOpen(false)}
-						/>
-
-						{/* Drawer */}
-						<motion.nav
-							initial="hidden"
-							animate="visible"
-							exit="hidden"
-							variants={mobileVariants}
-							transition={prefersReducedMotion ? { duration: 0 } : springs.responsive}
-							className={cn(
-								"fixed right-0 bottom-0 left-0 z-50 max-h-[70vh] overflow-y-auto xl:hidden",
-								"border-surface-200 border-t bg-white p-6 dark:border-surface-700 dark:bg-surface-900",
-							)}
-							aria-label="Table of contents"
-						>
-							<div className="mb-4 flex items-center justify-between">
-								<span className="font-mono text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-									On this page
-								</span>
-								<button
-									type="button"
-									onClick={() => setIsMobileOpen(false)}
-									className="flex size-8 items-center justify-center text-surface-500 hover:text-surface-900 dark:hover:text-surface-100"
-									aria-label="Close"
-								>
-									<X size={18} weight="bold" />
-								</button>
-							</div>
-							<TOCList isMobile />
-						</motion.nav>
-					</>
-				)}
-			</AnimatePresence>
+				<DialogContent
+					framed
+					finalFocus={() => {
+						const heading = destination.current;
+						if (!heading) return true;
+						destination.current = null;
+						// Let the focus scope remove document inertness before focusing the heading.
+						queueMicrotask(() => navigate(heading));
+						return false;
+					}}
+				>
+					<DialogHeader icon={<List />}>
+						<DialogTitle>On this page</DialogTitle>
+						<DialogDescription>Jump to a section of this article.</DialogDescription>
+					</DialogHeader>
+					<DialogBody>
+						<nav aria-label="Article sections">{links}</nav>
+					</DialogBody>
+				</DialogContent>
+			</Dialog>
 		</>
 	);
 }
 
-// Re-export for backwards compatibility
 export { ArticleTOC as ReadingBracket };

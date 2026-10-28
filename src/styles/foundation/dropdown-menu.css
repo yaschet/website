@@ -1,0 +1,381 @@
+/* Shared described menus: one measured row grid, including portalled submenus. */
+.cn-menu-target[data-size="lg"] {
+	--foundation-menu-item-height: 56px;
+	max-width: calc(100vw - 32px);
+}
+/* Described copy follows the shared type scale, which may be taller than the
+ * icon. Size the row from that content, never squeeze it into the old height. */
+.cn-menu-target[data-size="lg"] :is([role^="menuitem"], [role="option"]) {
+	height: auto;
+	padding-block: 12px;
+}
+.cn-menu-target.t-dropdown {
+	--dropdown-open-blur: 0px;
+	--dropdown-open-dur: 150ms;
+	--dropdown-close-dur: 80ms;
+	--dropdown-close-blur: 0px;
+}
+.cn-menu-target[data-motion-input="keyboard"] {
+	transition: none;
+}
+.cn-menu-target [data-slot="dropdown-menu-item-content"] {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	min-width: 0;
+}
+.cn-menu-target .dropdown-menu-icon[data-slot="icon-chamber"] {
+	--menu-icon-rest: var(--foundation-menu-hover);
+	--menu-icon-engaged: var(--foundation-primary-soft-active);
+	--menu-icon-ink: var(--foundation-secondary-ink);
+	--menu-icon-engaged-ink: var(--foundation-primary-ink);
+	--menu-icon-line: var(--border);
+	--menu-icon-engaged-line: var(--foundation-control-line-hover);
+	width: 32px;
+	height: 32px;
+	background: var(--menu-icon-rest);
+	color: var(--menu-icon-ink);
+	border: var(--foundation-hairline, 1px) solid var(--menu-icon-line);
+	transition:
+		background-color var(--check-uncheck) var(--check-ease),
+		color var(--check-uncheck) var(--check-ease),
+		border-color var(--check-uncheck) var(--check-ease);
+}
+.cn-menu-target .dropdown-menu-icon svg {
+	width: 16px;
+	height: 16px;
+}
+/* Signal chambers keep their own hue; ordinary navigation stays monochrome. */
+.cn-menu-target .dropdown-menu-icon[data-color="accent"] {
+	--menu-icon-rest: var(--foundation-accent-soft);
+	--menu-icon-engaged: var(--foundation-accent-soft-hover);
+	--menu-icon-ink: var(--foundation-accent-ink);
+	--menu-icon-engaged-ink: var(--foundation-accent-ink);
+	--menu-icon-line: var(--foundation-accent-line);
+	--menu-icon-engaged-line: var(--foundation-accent-line-hover);
+}
+.cn-menu-target .dropdown-menu-icon[data-color="success"] {
+	--menu-icon-rest: var(--foundation-success-soft);
+	--menu-icon-engaged: var(--foundation-success-soft-hover);
+	--menu-icon-ink: var(--foundation-success-ink);
+	--menu-icon-engaged-ink: var(--foundation-success-ink);
+	--menu-icon-line: var(--foundation-success-line);
+	--menu-icon-engaged-line: var(--foundation-success-line-hover);
+}
+.cn-menu-target .dropdown-menu-icon[data-color="warning"] {
+	--menu-icon-rest: var(--foundation-warning-soft);
+	--menu-icon-engaged: var(--foundation-warning-soft-hover);
+	--menu-icon-ink: var(--foundation-warning-ink);
+	--menu-icon-engaged-ink: var(--foundation-warning-ink);
+	--menu-icon-line: var(--foundation-warning-line);
+	--menu-icon-engaged-line: var(--foundation-warning-line-hover);
+}
+.cn-menu-target .dropdown-menu-icon[data-color="info"] {
+	--menu-icon-rest: var(--foundation-info-soft);
+	--menu-icon-engaged: var(--foundation-info-soft-hover);
+	--menu-icon-ink: var(--foundation-info-ink);
+	--menu-icon-engaged-ink: var(--foundation-info-ink);
+	--menu-icon-line: var(--foundation-info-line);
+	--menu-icon-engaged-line: var(--foundation-info-line-hover);
+}
+.cn-menu-target .dropdown-menu-icon[data-color="destructive"] {
+	--menu-icon-rest: var(--foundation-danger-soft);
+	--menu-icon-engaged: var(--foundation-danger-soft-hover);
+	--menu-icon-ink: var(--foundation-danger-ink);
+	--menu-icon-engaged-ink: var(--foundation-danger-ink);
+	--menu-icon-line: var(--foundation-danger-line);
+	--menu-icon-engaged-line: var(--foundation-danger-line-hover);
+}
+.cn-menu-target
+	:is([role^="menuitem"], [role="option"]):is(
+		[data-highlighted],
+		:is([aria-checked="true"], [aria-selected="true"]),
+		[aria-expanded="true"]
+	)
+	.dropdown-menu-icon {
+	background: var(--menu-icon-engaged);
+	color: var(--menu-icon-engaged-ink);
+	border-color: var(--menu-icon-engaged-line);
+	transition-duration: var(--duration-quick);
+}
+.cn-menu-target
+	:is([role^="menuitem"], [role="option"]):is(
+		[aria-checked="true"],
+		[aria-selected="true"]
+	)[data-highlighted]
+	.dropdown-menu-icon {
+	background: color-mix(in oklab, var(--menu-icon-engaged) 95%, var(--menu-icon-engaged-ink));
+}
+.cn-menu-target
+	:is([role^="menuitem"], [role="option"]):is(:active, [data-menu-pressed]):not([data-disabled])
+	.dropdown-menu-icon {
+	background: color-mix(in oklab, var(--menu-icon-engaged) 88%, var(--menu-icon-engaged-ink));
+	transition-duration: 0ms;
+}
+.dropdown-menu-copy {
+	display: grid;
+	gap: 2px;
+	min-width: 0;
+	text-align: start;
+}
+.dropdown-menu-title {
+	font-size: var(--foundation-type-control-size);
+	line-height: var(--foundation-type-control-leading);
+	font-weight: 500;
+}
+.dropdown-menu-description {
+	font-size: var(--foundation-type-meta-size);
+	line-height: var(--foundation-type-meta-leading);
+	color: var(--muted-foreground);
+}
+.dropdown-menu-copy > :is(.dropdown-menu-title, .dropdown-menu-description) {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+.cn-menu-target[data-size="lg"] [data-slot="dropdown-menu-label"] {
+	padding: 12px;
+	font-size: var(--foundation-type-label-size);
+	line-height: var(--foundation-type-label-leading);
+	font-weight: 500;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+/* The popup border is the physical clipping edge. Only its highlighted row
+ * delegates paint to this measured surface; selection and disabled rows do not. */
+.dropdown-menu-feedback {
+	position: relative;
+	isolation: isolate;
+	width: 100%;
+}
+.dropdown-menu-feedback-content {
+	position: relative;
+	z-index: 1;
+}
+.dropdown-menu-underlay {
+	position: absolute;
+	inset: 0 auto auto 0;
+	z-index: 0;
+	width: 0;
+	height: 0;
+	pointer-events: none;
+	opacity: 0;
+	background: var(--foundation-menu-hover);
+	transition:
+		transform var(--hover-layout-dur) var(--hover-layout-ease),
+		opacity var(--hover-layout-exit-dur) var(--ease-linear),
+		background-color var(--duration-quick) var(--ease-smooth-out);
+}
+.dropdown-menu-feedback[data-underlay-ready="true"] > .dropdown-menu-underlay {
+	opacity: 1;
+}
+.dropdown-menu-feedback[data-underlay-tone="selected"] > .dropdown-menu-underlay {
+	background: var(--foundation-primary-soft-hover);
+}
+.dropdown-menu-feedback[data-underlay-tone="destructive"] > .dropdown-menu-underlay {
+	background: var(--foundation-danger-soft-hover);
+}
+.cn-menu-target .dropdown-menu-feedback :is([role^="menuitem"], [role="option"]) {
+	position: relative;
+	cursor: pointer;
+	transition: background-color var(--duration-quick) var(--ease-smooth-out);
+}
+.cn-menu-target
+	.dropdown-menu-feedback
+	:is([role^="menuitem"], [role="option"]):is([aria-checked="true"], [aria-selected="true"]) {
+	background: color-mix(in oklab, var(--foundation-primary-soft) 40%, var(--popover));
+}
+.cn-menu-target
+	.dropdown-menu-feedback
+	:is([role^="menuitem"], [role="option"]):is(
+		[aria-checked="true"],
+		[aria-selected="true"]
+	)[data-highlighted] {
+	background: var(--foundation-primary-soft-hover);
+}
+.cn-menu-target
+	.dropdown-menu-feedback
+	:is([role^="menuitem"], [role="option"])[data-menu-underlay-active] {
+	background: transparent;
+}
+.cn-menu-target
+	.dropdown-menu-feedback
+	:is([role^="menuitem"], [role="option"]):is([data-disabled], [aria-disabled="true"]) {
+	cursor: default;
+	background: transparent;
+}
+.cn-menu-target
+	.dropdown-menu-feedback
+	:is([role^="menuitem"], [role="option"]):is(:active, [data-menu-pressed]):not(
+		[data-disabled]
+	):not([aria-disabled="true"]) {
+	background: var(--foundation-secondary-soft-active);
+	transition-duration: 0ms;
+}
+.cn-menu-target
+	.dropdown-menu-feedback
+	:is([role^="menuitem"], [role="option"]):is([aria-checked="true"], [aria-selected="true"]):is(
+		:active,
+		[data-menu-pressed]
+	) {
+	background: var(--foundation-primary-soft-active);
+}
+.cn-menu-target
+	.dropdown-menu-feedback
+	:is([role^="menuitem"], [role="option"])[data-variant="destructive"]:is(
+		:active,
+		[data-menu-pressed]
+	) {
+	background: var(--foundation-danger-soft-active);
+}
+.cn-menu-target :is([role^="menuitem"], [role="option"]) [data-slot="dropdown-menu-item-content"] {
+	transform-origin: center;
+	transition: transform var(--press-dur) var(--ease-smooth-out);
+}
+.cn-menu-target
+	:is([role^="menuitem"], [role="option"]):is(:active, [data-menu-pressed]):not([data-disabled])
+	[data-slot="dropdown-menu-item-content"] {
+	transform: scale(0.985);
+}
+
+/* Every choice reserves the same square. The marker remains mounted so rapid
+ * selection reverses its transition, without a loose tick or a shifting label. */
+.cn-menu-target
+:is(
+	[data-slot="dropdown-menu-checkbox-item"],
+	[data-slot="dropdown-menu-radio-item"],
+	[data-slot="select-item"]
+) {
+	padding-inline-end: 48px;
+}
+.cn-menu-target .dropdown-menu-selection {
+	position: absolute;
+	inset-inline-end: var(--foundation-menu-selection-inset, 12px);
+	display: grid;
+	place-items: center;
+	width: 24px;
+	height: 24px;
+	pointer-events: none;
+	background: var(--foundation-menu-hover);
+	border: var(--foundation-hairline, 1px) solid var(--border);
+	color: var(--foundation-primary-ink);
+	transition:
+		background-color var(--check-uncheck) var(--check-ease),
+		border-color var(--check-uncheck) var(--check-ease);
+}
+.cn-menu-target :is([role^="menuitem"], [role="option"])[data-highlighted] .dropdown-menu-selection,
+.cn-menu-target .dropdown-menu-selection:is([data-checked], [data-selected]) {
+	background: var(--foundation-primary-soft-active);
+	border-color: var(--foundation-control-line-hover);
+	transition-duration: var(--check-box);
+}
+.cn-menu-target
+	:is([role^="menuitem"], [role="option"]):is(:active, [data-menu-pressed]):not([data-disabled])
+	.dropdown-menu-selection {
+	background: color-mix(
+		in oklab,
+		var(--foundation-primary-soft-active) 88%,
+		var(--foundation-primary-ink)
+	);
+	transition-duration: 0ms;
+}
+.cn-menu-target .dropdown-menu-selection svg {
+	width: 12px;
+	height: 12px;
+}
+.dropdown-menu-selection svg path {
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	opacity: 0;
+	transition:
+		stroke-dashoffset var(--check-uncheck) var(--check-ease),
+		opacity var(--check-uncheck) var(--check-ease);
+}
+.dropdown-menu-selection:is([data-checked], [data-selected]) svg path {
+	stroke-dashoffset: 0;
+	opacity: 1;
+	transition:
+		stroke-dashoffset var(--check-draw) var(--check-ease) var(--check-delay),
+		opacity var(--check-draw) var(--check-ease) var(--check-delay);
+}
+/* The container is square; the selection mark need not be another filled box.
+ * Reuse the check-draw motion, leaving the selected row visually lighter. */
+.cn-menu-target [data-slot="dropdown-menu-radio-item-indicator"] svg {
+	width: 16px;
+	height: 16px;
+}
+.cn-menu-target
+	.dropdown-menu-feedback[data-motion-input="keyboard"]
+	:is(
+		.dropdown-menu-underlay,
+		:is([role^="menuitem"], [role="option"]),
+		.dropdown-menu-icon,
+		.dropdown-menu-selection,
+		.dropdown-menu-selection *,
+		[data-slot="dropdown-menu-item-content"]
+	) {
+	transition: none;
+}
+.cn-menu-target
+	.dropdown-menu-feedback[data-motion-input="keyboard"]
+	:is([role^="menuitem"], [role="option"])
+	[data-slot="dropdown-menu-item-content"] {
+	transform: none;
+}
+.cn-menu-target .dropdown-menu-feedback[data-motion-input="touch"] .dropdown-menu-underlay {
+	transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	.cn-menu-target
+		:is(
+			.dropdown-menu-underlay,
+			:is([role^="menuitem"], [role="option"]),
+			.dropdown-menu-icon,
+			.dropdown-menu-selection,
+			.dropdown-menu-selection *,
+			[data-slot="dropdown-menu-item-content"]
+		) {
+		transition: none;
+	}
+	.cn-menu-target [data-slot="dropdown-menu-item-content"] {
+		transform: none;
+	}
+}
+
+/* Video settings use the comfortable control height and the same selection chamber. */
+.cn-menu-target[data-video-settings] {
+	--foundation-menu-item-height: 40px;
+	--foundation-menu-selection-inset: 8px;
+}
+.cn-menu-target[data-video-settings] [role="menuitemradio"] {
+	min-height: var(--foundation-control-height-md);
+	padding-block: 8px;
+}
+.cn-menu-target[data-video-settings] [data-slot="dropdown-menu-label"] {
+	padding: 12px;
+	font-size: var(--foundation-type-label-size);
+	line-height: var(--foundation-type-label-leading);
+	font-weight: 500;
+	color: var(--muted-foreground);
+}
+.video-setting-option {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-width: 0;
+	width: 100%;
+	font-variant-numeric: tabular-nums;
+}
+.video-setting-meta {
+	font-size: var(--foundation-type-meta-size);
+	line-height: var(--foundation-type-meta-leading);
+	font-weight: 400;
+	color: var(--muted-foreground);
+}
+
+.cn-menu-target[data-video-settings] .dropdown-menu-copy {
+	flex: 1;
+}

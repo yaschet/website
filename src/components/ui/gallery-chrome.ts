@@ -1,23 +1,12 @@
-import { cn } from "@/src/lib/index";
+/** Opaque inverse controls stay legible over changing media in either page theme. */
+export const GALLERY_CHROME_ICON_SIZE = 16;
 
-export const GALLERY_CHROME_ICON_SIZE = 18;
+export const GALLERY_CHROME_BUTTON_CLASS_NAME =
+	"inline-flex size-[var(--portfolio-control-default)] shrink-0 items-center justify-center rounded-none border border-surface-700 bg-surface-950 text-surface-50 transition-colors duration-150 hover:bg-surface-800 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-surface-50 focus-visible:duration-0 disabled:pointer-events-none disabled:opacity-30 motion-reduce:transition-none";
 
-export const GALLERY_CHROME_BUTTON_CLASS_NAME = cn(
-	"inline-flex h-10 w-10 items-center justify-center rounded-none border border-white/12 bg-black/92 text-white backdrop-blur-md",
-	"shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition-[background-color,border-color,color,opacity,transform,box-shadow] duration-150",
-	"hover:border-white/18 hover:bg-black/84",
-	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-	"disabled:pointer-events-none disabled:opacity-30",
-);
+export const GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME = "size-[var(--portfolio-control-prominent)]";
 
-export const GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME = "h-11 w-11";
+export const GALLERY_CHROME_META_CHIP_CLASS_NAME =
+	"inline-flex h-[var(--portfolio-control-default)] items-center justify-center rounded-none border border-surface-700 bg-surface-950 px-3 text-surface-50";
 
-export const GALLERY_CHROME_META_CHIP_CLASS_NAME = cn(
-	"inline-flex h-10 items-center justify-center rounded-none border border-white/12 bg-black/92 px-3 text-white backdrop-blur-md",
-	"shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition-[background-color,border-color,color,opacity,transform,box-shadow] duration-150",
-	"hover:border-white/18 hover:bg-black/84",
-	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-);
-
-export const GALLERY_CHROME_COUNTER_CLASS_NAME =
-	"font-mono text-[10px] uppercase tabular-nums tracking-[0.22em] text-white/80";
+export const GALLERY_CHROME_COUNTER_CLASS_NAME = "font-sans text-xs tabular-nums";

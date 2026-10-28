@@ -8,6 +8,7 @@ import {
 	OG_SIZE,
 	sharedGridStyles,
 } from "@/lib/og";
+import { SITE_HOSTNAME } from "@/src/constants/site";
 
 // export const runtime = "edge";
 
@@ -149,7 +150,7 @@ export default async function Image() {
 							color: OG_COLORS.surface900,
 						}}
 					>
-						yaschet.dev
+						{SITE_HOSTNAME}
 					</div>
 					<div
 						style={{

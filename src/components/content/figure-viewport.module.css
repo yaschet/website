@@ -1,0 +1,116 @@
+.root {
+	min-width: 0;
+	max-width: 832px;
+	margin-inline: auto;
+}
+.toolbar {
+	border: 0;
+	margin: 0;
+	min-width: 0;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 0 0 16px;
+}
+.zoomControls,
+.actions {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+.toolbar button {
+	background: var(--foundation-surface);
+	box-shadow: none;
+}
+.toolbar button[aria-pressed="true"] {
+	background: var(--foundation-info-soft);
+	color: var(--foundation-info-ink);
+}
+.percentage {
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 40px;
+	color: var(--foundation-ink);
+	font-size: 13px;
+	line-height: 20px;
+	font-variant-numeric: tabular-nums;
+}
+.viewport {
+	position: relative;
+	overflow: hidden;
+	isolation: isolate;
+	width: 100%;
+	aspect-ratio: var(--canvas-ratio);
+	min-height: 320px;
+	max-height: 640px;
+	background: var(--foundation-canvas);
+	outline: none;
+	touch-action: auto;
+}
+.viewport:focus-visible {
+	outline: none;
+	box-shadow: inset 0 0 0 2px var(--foundation-focus);
+}
+.viewport[data-drag="true"] {
+	touch-action: none;
+	cursor: grab;
+	user-select: none;
+}
+.viewport[data-drag="true"]:active {
+	cursor: grabbing;
+}
+.artboard {
+	position: absolute;
+	top: 0;
+	left: 0;
+	transform-origin: 0 0;
+	transition: transform var(--tabs-dur) var(--tabs-ease);
+}
+[data-motion-input="keyboard"] .artboard,
+.viewport[data-direct="true"] .artboard {
+	transition: none;
+}
+.help {
+	margin: 12px 0 0;
+	font-size: 13px;
+	line-height: 20px;
+	color: var(--foundation-muted);
+}
+@container case-study-diagram (max-width: 863px) {
+	.root {
+		max-width: 384px;
+	}
+	.viewport {
+		aspect-ratio: auto;
+		height: var(--canvas-compact-height);
+		min-height: 0;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.artboard {
+		transition: none;
+	}
+}
+@media (forced-colors: active) {
+	.viewport,
+	.toolbar button {
+		outline: 1px solid CanvasText;
+	}
+}
+
+.toolbar button:hover:not(:disabled) {
+	background: var(--foundation-secondary-soft-hover);
+}
+.toolbar button[aria-pressed="true"]:hover {
+	background: var(--foundation-info-soft-hover);
+}
+.toolbar button:focus-visible {
+	outline: none;
+	box-shadow: inset 0 0 0 2px var(--foundation-focus);
+}
+.viewport[data-manipulating="true"] .artboard {
+	will-change: transform;
+}
