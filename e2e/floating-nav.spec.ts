@@ -11,6 +11,8 @@ for (const theme of ["light", "dark"] as const) {
 		const home = nav.getByRole("link", { name: "Home", exact: true });
 		await expect(home).toBeVisible();
 		await expect(nav).toHaveCSS("opacity", "1");
+		// The dock is server-rendered; wait for its client handlers before hovering.
+		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
 		const colors = await nav.evaluate((node) => {
 			const context = document.createElement("canvas").getContext("2d");
 			if (!context) throw new Error("Missing color test context");
@@ -87,6 +89,27 @@ for (const theme of ["light", "dark"] as const) {
 			})
 			.toBeLessThan(1);
 		await page.screenshot({ path: testInfo.outputPath(`navigation-${theme}.png`) });
+		await shell?.dispose();
+	});
+
+	test(`dock theme boundary, reopening and keyboard focus stay coherent in ${theme}`, async ({
+		page,
+	}, testInfo) => {
+		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
+		await page.goto("/");
+		const nav = page.getByRole("navigation", { name: "Main navigation" });
+		const home = nav.getByRole("link", { name: "Home", exact: true });
+		const contact = nav.getByRole("link", { name: "Contact", exact: true });
+		await expect(nav).toHaveCSS("opacity", "1");
+		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
+		await home.hover();
+		const tooltip = page.getByRole("tooltip");
+		await expect(tooltip).toHaveAccessibleName("Home");
+		const shell = await tooltip.elementHandle();
+		await contact.hover();
+		await expect(tooltip).toHaveAccessibleName("Contact");
+		const dockBox = await nav.boundingBox();
 		await tooltip.hover();
 		// A pointer can cross the trigger gap and read the hint without losing it.
 		await page.waitForTimeout(180);
