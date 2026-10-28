@@ -148,10 +148,10 @@ for (const theme of ["light", "dark"] as const) {
 		}
 	});
 
-	test(`Copy Markdown reserves geometry and uses Foundation feedback in ${theme}`, async ({
+	test(`Copy Markdown resizes smoothly and uses Foundation feedback in ${theme}`, async ({
 		page,
 	}, testInfo) => {
-		await page.emulateMedia({ colorScheme: theme });
+		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.addInitScript(() =>
 			Object.defineProperty(navigator, "clipboard", {
@@ -159,8 +159,23 @@ for (const theme of ["light", "dark"] as const) {
 				value: { writeText: () => Promise.resolve() },
 			}),
 		);
+		// Resource content and HTTP delivery have separate coverage; keep motion checks deterministic.
+		await page.route("**/case-study-markdown/clearway-phoenix", (route) =>
+			route.fulfill({ contentType: "text/markdown", body: "# Copy feedback verification\n" }),
+		);
 		await page.goto("/case-studies/clearway-phoenix");
 		const copy = page.getByRole("button", { name: "Copy Markdown", exact: true });
+		await page.evaluate(() => document.fonts.ready);
+		const label = page.locator(
+			'.portfolio-case-study-meta-row .t-state-label[data-sizing="content"]',
+		);
+		await expect(label).toHaveAttribute("data-measured", "true");
+		await expect(label).toHaveCSS("transition-property", "width");
+		expect(
+			await label.evaluate((node) =>
+				Number.parseFloat(getComputedStyle(node).transitionDuration),
+			),
+		).toBeGreaterThan(0);
 		const before = await copy.boundingBox();
 		await expect(page.locator(".portfolio-case-study-meta-item")).toHaveCSS(
 			"min-height",
@@ -169,20 +184,34 @@ for (const theme of ["light", "dark"] as const) {
 		await copy.click();
 		const copied = page.getByRole("button", { name: "Copied Markdown", exact: true });
 		await expect(copied).toBeVisible();
-		expect((await copied.boundingBox())?.width).toBe(before?.width);
 		expect((await copied.boundingBox())?.height).toBe(before?.height);
-		await expect(copied.locator('.t-icon[data-active="true"]')).toHaveCount(1);
-		await expect(copied.locator('.t-state-label > [data-active="true"]')).toHaveText(
-			"Copied Markdown",
-		);
+		const activeLabel = copied.locator('.t-state-label > [data-active="true"]');
+		await expect(activeLabel).toHaveText("Copied Markdown");
+		await expect
+			.poll(async () =>
+				Math.abs(
+					((await label.boundingBox())?.width ?? 0) -
+						((await activeLabel.boundingBox())?.width ?? 0),
+				),
+			)
+			.toBeLessThan(1);
+		const insets = await copied.evaluate((node) => {
+			const outer = node.getBoundingClientRect();
+			const inner = node.querySelector(".foundation-button-pending")?.getBoundingClientRect();
+			return inner ? [inner.left - outer.left, outer.right - inner.right] : [];
+		});
+		expect(insets).toHaveLength(2);
+		expect(insets[0]).toBeCloseTo(insets[1], 0);
+		const stateIcon = copied.locator(".foundation-button-icon .t-icon-swap");
+		await expect(stateIcon.locator(':scope > .t-icon[data-active="true"]')).toHaveCount(1);
 		await expect
 			.poll(() =>
-				copied
-					.locator('.t-icon[data-active="true"]')
+				stateIcon
+					.locator(':scope > .t-icon[data-active="true"]')
 					.evaluate((node) => getComputedStyle(node).opacity),
 			)
 			.toBe("1");
-		await expect(copied.locator('.t-icon[data-active="false"]').first()).toHaveCSS(
+		await expect(stateIcon.locator(':scope > .t-icon[data-active="false"]').first()).toHaveCSS(
 			"opacity",
 			"0",
 		);
@@ -195,7 +224,7 @@ for (const theme of ["light", "dark"] as const) {
 		await copy.press("Enter");
 		await expect(copied).toBeVisible();
 		await expect(copied).toHaveAttribute("data-motion-input", "keyboard");
-		await expect(copied.locator('.t-icon[data-active="true"]')).toHaveCSS(
+		await expect(stateIcon.locator(':scope > .t-icon[data-active="true"]')).toHaveCSS(
 			"transition-duration",
 			"0s",
 		);
