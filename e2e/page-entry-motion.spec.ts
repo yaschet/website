@@ -71,14 +71,16 @@ for (const theme of ["light", "dark"] as const) {
 		await expect(heading).toBeVisible();
 		await expect
 			.poll(() =>
-				page.evaluate(
-					() =>
-						window.portfolioEntrySamples.filter(
-							(sample) => sample.id === "portfolio-entry-heading",
-						).length,
-				),
+				page.evaluate(() => ({
+					headings: window.portfolioEntrySamples.filter(
+						(sample) => sample.id === "portfolio-entry-heading",
+					).length,
+					copy: window.portfolioEntrySamples.some(
+						(sample) => sample.id === "portfolio-entry-copy",
+					),
+				})),
 			)
-			.toBe(3);
+			.toEqual({ headings: 3, copy: true });
 		const samples = await page.evaluate(() => window.portfolioEntrySamples);
 		const words = samples.filter((sample) => sample.id === "portfolio-entry-heading");
 		expect(words[1].delay).toBeGreaterThan(words[0].delay);
@@ -124,18 +126,22 @@ for (const theme of ["light", "dark"] as const) {
 		});
 		await nav.getByRole("link", { name: "Home", exact: true }).click();
 		await expect(page).toHaveURL(/\/$/);
-		await expect(
-			page.getByRole("heading", { name: "Complex systems, clean interfaces.", exact: true }),
-		).toBeVisible();
+		const homeHeading = page.getByRole("heading", {
+			name: "Complex systems, clean interfaces.",
+			exact: true,
+		});
+		await expect(homeHeading).toBeVisible();
+		const homeWordCount = await homeHeading.locator("[data-heading-word]").count();
 		await expect
 			.poll(() =>
-				page.evaluate(() =>
-					window.portfolioEntrySamples.some(
-						(sample) => sample.id === "portfolio-entry-heading",
-					),
+				page.evaluate(
+					() =>
+						window.portfolioEntrySamples.filter(
+							(sample) => sample.id === "portfolio-entry-heading",
+						).length,
 				),
 			)
-			.toBe(true);
+			.toBe(homeWordCount);
 		const homeWords = await page.evaluate(() =>
 			window.portfolioEntrySamples.filter(
 				(sample) => sample.id === "portfolio-entry-heading",

@@ -5,7 +5,15 @@ for (const theme of ["light", "dark"] as const) {
 		page,
 	}, testInfo) => {
 		const errors: string[] = [];
+		const prefetched = new Set<string>();
 		page.on("pageerror", (error) => errors.push(error.message));
+		page.on("response", async (response) => {
+			const url = new URL(response.url());
+			if (url.searchParams.has("_rsc") && response.ok()) {
+				await response.finished();
+				prefetched.add(url.pathname);
+			}
+		});
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.addInitScript(() => {
 			type Surface = HTMLElement & { startViewTransition?: Document["startViewTransition"] };
@@ -13,7 +21,11 @@ for (const theme of ["light", "dark"] as const) {
 			const start = prototype.startViewTransition;
 			if (!start) return;
 			prototype.startViewTransition = function (update) {
-				const previous = this.querySelector("h1")?.textContent;
+				// Next retains inactive Activity trees; sample the visible route only.
+				const activeHeading = () =>
+					[...this.querySelectorAll("h1")].find((node) => node.getClientRects().length)
+						?.textContent;
+				const previous = activeHeading();
 				const transition = start.call(this, update);
 				if (!this.classList.contains("portfolio-scene")) return transition;
 				void transition.ready
@@ -31,7 +43,7 @@ for (const theme of ["light", "dark"] as const) {
 						const next = getComputedStyle(this, "::view-transition-new(root)");
 						document.documentElement.dataset.routeCapture = JSON.stringify({
 							previous,
-							current: this.querySelector("h1")?.textContent,
+							current: activeHeading(),
 							exit: old.animationName,
 							enter: next.animationName,
 							exitDuration: old.animationDuration,
@@ -48,26 +60,43 @@ for (const theme of ["light", "dark"] as const) {
 								.sort((a, b) => Number(a) - Number(b)),
 						});
 					})
-					.catch(() => {});
+					.catch((error) => {
+						document.documentElement.dataset.routeCapture = JSON.stringify({
+							error: error instanceof Error ? error.message : String(error),
+						});
+					});
 				return transition;
 			};
 		});
-		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
+		await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
 		await page.goto("/");
 		const nav = page.getByRole("navigation", { name: "Main navigation" });
 		const scene = page.locator(".portfolio-scene");
+		test.skip(
+			!(await scene.evaluate((node) => "startViewTransition" in node)),
+			"Element-scoped capture is unavailable; fallback navigation is covered separately.",
+		);
+		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
+		await expect.poll(() => prefetched.has("/about"), { timeout: 15000 }).toBe(true);
 		const dock = await nav.elementHandle();
 		const header = await page.locator("#header").elementHandle();
 		// Prime both destinations, then observe the real warm navigation.
 		await nav.getByRole("link", { name: "About", exact: true }).click();
 		await expect(page).toHaveURL(/\/about$/);
+		await expect(page.getByRole("heading", { name: "How I work.", exact: true })).toBeVisible();
 		await nav.getByRole("link", { name: "Home", exact: true }).click();
 		await expect(page).toHaveURL(/\/$/);
-		await page.emulateMedia({ reducedMotion: "reduce" });
+		await expect(
+			page.getByRole("heading", { name: "Complex systems, clean interfaces.", exact: true }),
+		).toBeVisible();
+		await page.evaluate(() => document.fonts.ready);
 		await expect(scene).not.toHaveAttribute("data-route-transition");
 		await page.emulateMedia({ reducedMotion: "no-preference" });
 		await page.evaluate(() => {
 			delete document.documentElement.dataset.routeCapture;
+			return new Promise<void>((resolve) => {
+				requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+			});
 		});
 		await nav.getByRole("link", { name: "About", exact: true }).click();
 		await expect(page).toHaveURL(/\/about$/);
