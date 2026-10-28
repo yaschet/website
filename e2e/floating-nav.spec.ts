@@ -1,9 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 for (const theme of ["light", "dark"] as const) {
-	test(`Inverse dock and a single moving tooltip stay coherent in ${theme}`, async ({
-		page,
-	}, testInfo) => {
+	test(`inverse dock materials and hover planes stay coherent in ${theme}`, async ({ page }) => {
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
 		await page.goto("/");
@@ -37,10 +35,6 @@ for (const theme of ["light", "dark"] as const) {
 				.locator(".portfolio-nav-underlay-clip")
 				.evaluate((node) => getComputedStyle(node).overflow),
 		).toBe("hidden");
-		await home.hover();
-		const tooltip = page.getByRole("tooltip");
-		await expect(tooltip).toHaveAccessibleName("Home");
-		const shell = await tooltip.elementHandle();
 		const contact = nav.getByRole("link", { name: "Contact", exact: true });
 		// Interrupt hover travel; both planes always stay below every glyph.
 		for (const link of [contact, home, contact, home, contact]) {
@@ -60,6 +54,21 @@ for (const theme of ["light", "dark"] as const) {
 			expect(geometry.hit).toBe(true);
 			expect(Number(geometry.layer)).toBeGreaterThan(Number(geometry.plane));
 		}
+	});
+
+	test(`a single moving tooltip keeps dock geometry in ${theme}`, async ({ page }, testInfo) => {
+		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
+		await page.goto("/");
+		const nav = page.getByRole("navigation", { name: "Main navigation" });
+		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
+		const home = nav.getByRole("link", { name: "Home", exact: true });
+		const contact = nav.getByRole("link", { name: "Contact", exact: true });
+		await home.hover();
+		const tooltip = page.getByRole("tooltip");
+		await expect(tooltip).toHaveAccessibleName("Home");
+		const shell = await tooltip.elementHandle();
+		await contact.hover();
 		await expect(tooltip).toHaveAccessibleName("Contact");
 		await expect(page.locator('[role="tooltip"]')).toHaveCount(1);
 		expect(

@@ -47,6 +47,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
 		await page.goto("/");
 		const nav = page.getByRole("navigation", { name: "Main navigation" });
+		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
 		const about = nav.getByRole("link", { name: "About", exact: true });
 		const contact = nav.getByRole("link", { name: "Contact", exact: true });
 		const home = nav.getByRole("link", { name: "Home", exact: true });
@@ -91,6 +92,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
 		await page.goto("/");
 		const nav = page.getByRole("navigation", { name: "Main navigation" });
+		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
 		const dockNode = await nav.elementHandle();
 		const boxes = await nav.locator("a,button").evaluateAll((nodes) =>
 			nodes.map((node) => {
