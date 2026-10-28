@@ -2,7 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import { type ReactNode, useEffect, useLayoutEffect, useRef } from "react";
-import { cancelRouteTransition, commitRouteTransition } from "@/src/lib/route-transition";
+import {
+	cancelRouteTransition,
+	commitRouteTransition,
+	supersedeRouteTransition,
+} from "@/src/lib/route-transition";
 
 /** Only route content participates in the page handoff; persistent chrome sits outside. */
 export function PortfolioScene({ children }: { children: ReactNode }) {
@@ -56,15 +60,15 @@ export function PortfolioScene({ children }: { children: ReactNode }) {
 		preference.addEventListener("change", cancelRouteTransition);
 		document.addEventListener("pointerdown", pointer, true);
 		document.addEventListener("keydown", keyboard, true);
-		window.addEventListener("popstate", cancelRouteTransition);
+		window.addEventListener("popstate", supersedeRouteTransition);
 		window.addEventListener("wheel", cancelRouteTransition, { passive: true });
 		window.addEventListener("touchmove", cancelRouteTransition, { passive: true });
 		return () => {
-			cancelRouteTransition();
+			supersedeRouteTransition();
 			preference.removeEventListener("change", cancelRouteTransition);
 			document.removeEventListener("pointerdown", pointer, true);
 			document.removeEventListener("keydown", keyboard, true);
-			window.removeEventListener("popstate", cancelRouteTransition);
+			window.removeEventListener("popstate", supersedeRouteTransition);
 			window.removeEventListener("wheel", cancelRouteTransition);
 			window.removeEventListener("touchmove", cancelRouteTransition);
 		};

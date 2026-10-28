@@ -13,6 +13,7 @@ interface RouteHandoff {
 
 let active: RouteHandoff | undefined;
 let generation = 0;
+let navigationRevision = 0;
 
 /** Prepare after the route's layout/scroll commit, including restored Activity trees. */
 function prepareRouteCopy(surface: HTMLElement, transition: ViewTransition) {
@@ -61,6 +62,12 @@ export function cancelRouteTransition() {
 	delete handoff.surface.dataset.routeTransition;
 }
 
+/** History navigation supersedes any link still waiting for its capture callback. */
+export function supersedeRouteTransition() {
+	navigationRevision++;
+	cancelRouteTransition();
+}
+
 /** The layout acknowledges the actual route commit, including a real Suspense fallback. */
 export function commitRouteTransition(path: string) {
 	if (!active) return;
@@ -78,6 +85,7 @@ export function commitRouteTransition(path: string) {
  * Return false to retain the unmodified Link path on unsupported/input-sensitive paths.
  */
 export function startRouteTransition(href: string, navigate: () => void): boolean {
+	const revision = ++navigationRevision;
 	cancelRouteTransition();
 	const surface = document.querySelector<RouteSurface>(".portfolio-scene");
 	const destination = new URL(href, location.href);
@@ -111,14 +119,16 @@ export function startRouteTransition(href: string, navigate: () => void): boolea
 	surface.dataset.routeTransition = "true";
 	let navigated = false;
 	const update = () => {
-		// A newer click can supersede us before the browser invokes this callback.
-		if (active !== handoff) return Promise.resolve();
+		// Theme, scroll or an earlier route commit can cancel only the visual
+		// capture. Drop this link only when a newer navigation intent replaces it.
+		if (revision !== navigationRevision) return Promise.resolve();
 		if (!navigated) {
 			navigated = true;
-			deadline = window.setTimeout(() => {
-				handoff.transition?.skipTransition();
-				release();
-			}, 150);
+			if (active === handoff)
+				deadline = window.setTimeout(() => {
+					handoff.transition?.skipTransition();
+					release();
+				}, 150);
 			navigate();
 		}
 		return committed.then(() => {

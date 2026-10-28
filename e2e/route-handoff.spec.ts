@@ -1,4 +1,32 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+/** Hold the first native callback so interruption happens before router dispatch. */
+async function deferRouteCapture(page: Page) {
+	await page.addInitScript(() => {
+		type Surface = HTMLElement & {
+			startViewTransition?: (update: () => void | Promise<void>) => ViewTransition;
+		};
+		const prototype = HTMLElement.prototype as Surface;
+		const start = prototype.startViewTransition;
+		let held = false;
+		if (!start) return;
+		prototype.startViewTransition = function (update) {
+			if (held || !this.classList.contains("portfolio-scene"))
+				return start.call(this, update);
+			held = true;
+			return start.call(this, async () => {
+				document.documentElement.dataset.routeUpdateHeld = "true";
+				await new Promise<void>((resolve) => {
+					document.addEventListener("release-route-update", () => resolve(), {
+						once: true,
+					});
+				});
+				await update();
+				document.documentElement.dataset.routeUpdateReleased = "true";
+			});
+		};
+	});
+}
 
 for (const theme of ["light", "dark"] as const) {
 	test(`outgoing and incoming pages share a scoped handoff in ${theme}`, async ({
@@ -133,6 +161,63 @@ for (const theme of ["light", "dark"] as const) {
 		await expect(scene).not.toHaveAttribute("data-route-transition");
 		await page.goBack();
 		await expect(page).toHaveURL(/\/about$/);
+		expect(errors).toEqual([]);
+	});
+
+	test(`a theme change preserves a link awaiting capture in ${theme}`, async ({ page }) => {
+		const errors: string[] = [];
+		page.on("pageerror", (error) => errors.push(error.message));
+		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+		await deferRouteCapture(page);
+		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
+		await page.goto("/");
+		const scene = page.locator(".portfolio-scene");
+		test.skip(
+			!(await scene.evaluate((node) => "startViewTransition" in node)),
+			"Element-scoped capture is unavailable; fallback navigation is covered separately.",
+		);
+		const nav = page.getByRole("navigation", { name: "Main navigation" });
+		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
+		await nav.getByRole("link", { name: "About", exact: true }).click();
+		await expect(page.locator("html")).toHaveAttribute("data-route-update-held", "true");
+		await nav.getByRole("button", { name: /^Theme:/ }).click();
+		await page.evaluate(() => document.dispatchEvent(new Event("release-route-update")));
+		await expect(page.locator("html")).toHaveAttribute("data-route-update-released", "true");
+		await expect(page).toHaveURL(/\/about$/);
+		await expect(scene).not.toHaveAttribute("data-route-transition");
+		expect(errors).toEqual([]);
+	});
+}
+
+for (const interruption of ["newer link", "history navigation"] as const) {
+	test(`a ${interruption} supersedes a link awaiting capture`, async ({ page }) => {
+		const errors: string[] = [];
+		page.on("pageerror", (error) => errors.push(error.message));
+		await deferRouteCapture(page);
+		await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+		await page.goto("/");
+		const scene = page.locator(".portfolio-scene");
+		test.skip(
+			!(await scene.evaluate((node) => "startViewTransition" in node)),
+			"Element-scoped capture is unavailable; fallback navigation is covered separately.",
+		);
+		const nav = page.getByRole("navigation", { name: "Main navigation" });
+		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
+		if (interruption === "history navigation") {
+			await nav.getByRole("link", { name: "About", exact: true }).click();
+			await expect(page).toHaveURL(/\/about$/);
+			await expect(page.locator("main:visible h1")).toBeVisible();
+		}
+		await page.emulateMedia({ reducedMotion: "no-preference" });
+		await nav.getByRole("link", { name: "Contact", exact: true }).click();
+		await expect(page.locator("html")).toHaveAttribute("data-route-update-held", "true");
+		if (interruption === "newer link")
+			await nav.getByRole("link", { name: "About", exact: true }).click();
+		else await page.goBack();
+		await page.evaluate(() => document.dispatchEvent(new Event("release-route-update")));
+		await expect(page.locator("html")).toHaveAttribute("data-route-update-released", "true");
+		await expect(page).toHaveURL(interruption === "newer link" ? /\/about$/ : /\/$/);
+		await expect(scene).not.toHaveAttribute("data-route-transition");
 		expect(errors).toEqual([]);
 	});
 }
