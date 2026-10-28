@@ -26,60 +26,69 @@ async function material(control: Locator) {
 }
 
 for (const theme of ["light", "dark"] as const) {
-	test(`CTA and media materials retain readable hover and press states in ${theme}`, async ({
-		page,
-	}, info) => {
-		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
-		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
-		await page.goto("/");
-		const actions = [
-			page.getByRole("link", { name: "Case studies", exact: true }).first(),
-			page.getByRole("link", { name: "Email", exact: true }).first(),
-			page.getByRole("button", { name: "Play 1:40 video", exact: true }),
-			page.locator(".portfolio-inverse-button").first(),
-		];
-		for (const action of actions) {
-			// Hover retries if the poster upgrades to its deferred gallery during the scroll.
-			await action.hover();
-			await page.mouse.move(0, 0);
+	for (const group of ["primary", "media and inverted"] as const) {
+		test(`${group} materials retain readable hover and press states in ${theme}`, async ({
+			page,
+		}, info) => {
+			await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+			await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
+			await page.goto("/");
+			const actions =
+				group === "primary"
+					? [
+							page.getByRole("link", { name: "Case studies", exact: true }).first(),
+							page.getByRole("link", { name: "Email", exact: true }).first(),
+						]
+					: [
+							page.getByRole("button", { name: "Play 1:40 video", exact: true }),
+							page.locator(".portfolio-inverse-button").first(),
+						];
+			for (const action of actions) {
+				// Hover retries if the poster upgrades to its deferred gallery during the scroll.
+				await action.hover();
+				await page.mouse.move(0, 0);
+				await expect
+					.poll(async () => (await material(action)).contrast)
+					.toBeGreaterThanOrEqual(4.5);
+				await action.hover();
+				await expect
+					.poll(async () => (await material(action)).contrast)
+					.toBeGreaterThanOrEqual(4.5);
+				await page.mouse.down();
+				await expect
+					.poll(async () => (await material(action)).contrast)
+					.toBeGreaterThanOrEqual(4.5);
+				await page.mouse.move(0, 0);
+				await page.mouse.up();
+			}
+			await page.screenshot({ path: info.outputPath(`controls-${group}-${theme}.png`) });
+			if (group === "primary") return;
+			const progress = page.locator('[data-slot="reading-progress"]');
+			await expect(progress).toHaveCount(1);
+			const progressColor = await progress.evaluate(
+				(node) => getComputedStyle(node).backgroundColor,
+			);
+			expect(progressColor).toBe(
+				await page.locator("body").evaluate((node) => getComputedStyle(node).color),
+			);
 			await expect
-				.poll(async () => (await material(action)).contrast)
-				.toBeGreaterThanOrEqual(4.5);
-			await action.hover();
-			await expect
-				.poll(async () => (await material(action)).contrast)
-				.toBeGreaterThanOrEqual(4.5);
-			await page.mouse.down();
-			await expect
-				.poll(async () => (await material(action)).contrast)
-				.toBeGreaterThanOrEqual(4.5);
-			await page.mouse.move(0, 0);
-			await page.mouse.up();
-		}
-		await page.screenshot({ path: info.outputPath(`cta-${theme}.png`) });
-		const progress = page.locator('[data-slot="reading-progress"]');
-		await expect(progress).toHaveCount(1);
-		const progressColor = await progress.evaluate(
-			(node) => getComputedStyle(node).backgroundColor,
-		);
-		expect(progressColor).toBe(
-			await page.locator("body").evaluate((node) => getComputedStyle(node).color),
-		);
-		await expect
-			.poll(() =>
-				progress.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).a),
-			)
-			.toBeGreaterThan(0);
-		await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
-			"content",
-			"https://yaschet.com",
-		);
-		await page.evaluate(() => scrollTo(0, 0));
-		await page.screenshot({ path: info.outputPath(`hero-${theme}.png`) });
-		expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
-			true,
-		);
-	});
+				.poll(() =>
+					progress.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).a),
+				)
+				.toBeGreaterThan(0);
+			await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+				"content",
+				"https://yaschet.com",
+			);
+			await page.evaluate(() => {
+				scrollTo({ top: 0, behavior: "instant" });
+			});
+			await page.screenshot({ path: info.outputPath(`hero-${theme}.png`) });
+			expect(
+				await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+			).toBe(true);
+		});
+	}
 
 	test(`a slow real link uses the shared spinner without losing balanced padding in ${theme}`, async ({
 		page,
