@@ -160,6 +160,7 @@ test("keyboard and reduced motion cancel entry without hiding text", async ({ pa
 	await nav.getByRole("link", { name: "About", exact: true }).focus();
 	await page.keyboard.press("Enter");
 	await expect(page).toHaveURL(/\/about$/);
+	await expect(page.locator("main:visible h1")).toHaveAttribute("data-entry-kind", "heading");
 	const entryCount = () =>
 		page.evaluate(
 			() =>
@@ -171,9 +172,13 @@ test("keyboard and reduced motion cancel entry without hiding text", async ({ pa
 	await page.emulateMedia({ reducedMotion: "reduce" });
 	await nav.getByRole("link", { name: "Contact", exact: true }).click();
 	await expect(page).toHaveURL(/\/contact$/);
+	const contactHeading = page.locator("main:visible h1");
+	// A committed URL can precede hydration of streamed copy. Exercise the
+	// current page's entry hook before changing the motion preference.
+	await expect(contactHeading).toHaveAttribute("data-entry-kind", "heading");
 	expect(await entryCount()).toBe(0);
-	await expect(page.locator("h1 [data-heading-word]").first()).toHaveCSS("opacity", "1");
-	await expect(page.locator("h1 [data-heading-word]").first()).toHaveCSS("filter", "none");
+	await expect(contactHeading.locator("[data-heading-word]").first()).toHaveCSS("opacity", "1");
+	await expect(contactHeading.locator("[data-heading-word]").first()).toHaveCSS("filter", "none");
 	await page.emulateMedia({ reducedMotion: "no-preference" });
 	await page.evaluate(
 		() =>
