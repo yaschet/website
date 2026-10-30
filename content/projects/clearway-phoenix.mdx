@@ -1,291 +1,193 @@
 export const metadata = {
-	title: "Program Matching Engine",
-	description:
-		"Solo-built operational rebuild for a study-abroad consultancy: schema redesign, AI-powered ETL, and explainable ranking across 33,612 spreadsheet rows.",
-	subtitle:
-		"The original matching workflow broke in live advising calls. I rebuilt it into three connected systems: a normalized schema, a resumable AI import pipeline, and an explainable matching engine advisors could trust during real student calls.",
-	date: "2025-06-08",
-	role: "Sole Engineer (Architecture, Backend, Frontend, DevOps, QA)",
-	domain: "Education Operations / Internal Tools",
-	stack: [
-		"Laravel 11",
-		"PHP 8.3",
-		"Livewire 3",
-		"MariaDB",
-		"Redis",
-		"MeiliSearch",
-		"OpenAI",
-		"Laravel Excel",
-		"Pest",
+	"title": "University Program Matching",
+	"description": "Help study-abroad advisors find suitable programs, understand each match and build a student shortlist.",
+	"subtitle": "Help study-abroad advisors find suitable programs, understand each match and build a student shortlist.",
+	"date": "2025-06-08",
+	"tags": [
+		"Program matching",
+		"AI-assisted ETL",
+		"Internal tools"
 	],
-	coverImages: [
-		"/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png",
-		"/images/clearway-phoenix/phase-1/01-programs-table.png",
-		"/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png",
-		"/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png",
-		"/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png",
-	],
-	coverMedia: [
-		{
-			kind: "mux-video",
-			playbackId: "jzmky2yBDeGf9P9n6PKf01C2ExZIxog5mGMSwaX9TkY00",
-			poster: "/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png",
-			title: "Program Matching Engine",
-			alt: "Program Matching Engine demo poster showing semantic search and explainable match scoring",
-			caption:
-				"Semantic search, explainable match scoring, and the assignment workflow used by advisors.",
-			duration: "1:40",
-			metadata: {
-				video_title:
-					"Program Matching Engine - AI-Powered University Search for Study Abroad Advisors",
-				video_id: "xtTqif1ocZV012eqCH1t28701lO2y00t01NNirLbyIidmJA",
-			},
-		},
-		{
-			kind: "image",
-			src: "/images/clearway-phoenix/phase-1/01-programs-table.png",
-			alt: "Phoenix programs table",
-		},
-		{
-			kind: "image",
-			src: "/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png",
-			alt: "Phoenix ETL archive dashboard hero",
-		},
-		{
-			kind: "image",
-			src: "/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png",
-			alt: "Phoenix explainable match score positive breakdown",
-		},
-		{
-			kind: "image",
-			src: "/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png",
-			alt: "Phoenix assigned programs workflow",
-		},
-	],
-	tech: [
+	"role": "Sole engineer",
+	"status": "Delivered · February–June 2025",
+	"domain": "Study-abroad advising",
+	"stack": [
 		"Laravel",
+		"PHP",
 		"Livewire",
-		"MariaDB",
+		"Alpine.js",
+		"MySQL",
 		"Redis",
 		"MeiliSearch",
-		"OpenAI",
-		"Laravel Excel",
+		"OpenAI"
+	],
+	"tech": [
+		"Laravel",
+		"PHP",
+		"Livewire",
 		"Alpine.js",
-		"ETL",
-		"Semantic Search",
+		"MySQL",
+		"Redis",
+		"MeiliSearch",
+		"OpenAI"
 	],
-	seoKeywords: [
-		"Internal tools",
-		"Operational software",
-		"AI ETL",
-		"Semantic matching",
-		"Program recommendations",
-		"Study abroad software",
-		"Explainable scoring",
-		"System design",
+	"featured": true,
+	"sortOrder": 1,
+	"listed": true,
+	"image": "/images/clearway-phoenix/phoenix-film-poster.jpg",
+	"coverImages": [
+		"/images/clearway-phoenix/phoenix-film-poster.jpg"
 	],
-	featured: true,
-	listed: true,
-	status: "Shipped / In Active Use",
-	sortOrder: 1,
+	"coverMedia": [
+		{
+			"kind": "mux-video",
+			"playbackId": "002wHjSdVlFlojAAcI2q6HMRjSgcHejVR3LZ1y8KbWJo",
+			"poster": "/images/clearway-phoenix/phoenix-film-poster.jpg",
+			"title": "University Program Matching — Walkthrough",
+			"alt": "Help study-abroad advisors find suitable programs, understand each match and build a student shortlist.",
+			"caption": "University Program Matching",
+			"duration": "1:40",
+			"metadata": {
+				"video_title": "University Program Matching — Walkthrough",
+				"video_id": "ADqScPNcxmVG01yCz4E37NU01kYUi01Z01tLmseJ5n8G4gg"
+			}
+		}
+	]
 };
 
-The original matching workflow broke in live advising calls. Advisors were cross-referencing spreadsheet rows by hand, keyword filters missed relevant programs, and core eligibility rules lived in notes fields. I rebuilt that workflow into three connected systems: a 30-table schema, a resumable AI import pipeline, and an explainable matching engine that ranked 19,299 programs in under a second. The result was not a prettier dashboard; it was a workflow advisors could trust during real student calls.
+The agency had spreadsheets full of university programs. Its advisors still had to work out which ones suited each student, weighing grades, entry conditions, fees and scholarships together.
 
-*Client name and public URLs changed for confidentiality. Architecture, decisions, and metrics are real.*
+I built Phoenix to connect that catalog to the student's profile. Advisors can find relevant programs, inspect the reasons behind a match and save a shortlist to the student's record.
 
-## Why the design looked like this
+I was the sole engineer responsible for the data model, import pipeline, matching logic, interface and deployment.
 
-Three early decisions shaped everything that followed.
+## Make Admission Conditions Usable
 
-**Embeddings stayed on program rows** instead of moving to separate vector infrastructure. The dataset was 19,299 programs — large enough to need semantic search, small enough that a dedicated vector database would have added operational complexity without proportional gain. MeiliSearch handled hybrid search with embeddings stored alongside relational data, which kept the deployment surface small and the query path fast.
+A scholarship condition written in a spreadsheet cell is useful to someone reading it. To evaluate it against a student's grades, the system needs to know which program it applies to and what the condition requires.
 
-**Ordered sheet processing preceded inserts.** The spreadsheets contained cross-sheet foreign keys: programs referenced universities, scholarships referenced programs. Importing them out of order would have broken referential integrity silently. The pipeline enforced a strict stage sequence — universities first, then accommodations, then programs, then scholarships — with legacy ID maps persisted between stages to resolve foreign keys that did not yet exist in the new schema.
-
-**Explainability was non-negotiable**, even though a black-box scorer would have been faster to ship. Advisors needed to defend recommendations in live calls with students and parents. A green score without reasoning would not survive that conversation. So the scoring engine exposed every factor — grade fit, major alignment, scholarship potential, deadline proximity, semantic relevance — as individual line items with positive and negative breakdowns.
-
-## Rebuilding the data model
-
-The first decision was sequencing. I did not start by importing data. I started by building the place that data needed to live.
-
-The legacy system was too flat to support intelligent matching. Critical business rules lived inside notes fields: nationality restrictions, scholarship variants, language thresholds, fee structures, and accommodation details. That makes data display possible, but it makes reasoning impossible.
-
-The rules were not simply a data-import problem. They had to be understood before they could be modeled — two weeks of reading scholarship eligibility rules, nationality restrictions, and language thresholds that lived inside notes fields before any schema work could start.
-
-So the first pass rebuilt the foundation as a normalized schema across universities, programs, scholarships, locations, and reference data. The goal was not elegance for its own sake. The goal was queryability. If a future recommendation engine needed to reason about grade requirements, scholarship coverage, or field alignment, those things had to exist as real structured relationships first.
-
-| Decision | Why it mattered |
-| --- | --- |
-| 30-table normalized schema | Turned notes-field chaos into data the platform could actually query, filter, and score. |
-| Major categories | Gave the future matching engine a structural relevance axis beyond raw keywords. |
-| Typed pivots for requirements | Kept thresholds on the actual relationship where they belonged. |
-| Embeddings stored on program rows | Avoided premature vector infrastructure while preserving semantic capability. |
-| AI autofill in admin forms | Reduced dependency on manual operator discipline during ongoing maintenance. |
-
-The first pass also had to be usable by a non-technical team. That meant the work did not stop at migrations and models. It expanded into a full Livewire CRUD system for programs, universities, settings, language templates, scholarship types, and supporting reference entities. The system had to make clean data easier to enter than dirty data.
+I modeled universities, programs, scholarships, accommodations and requirements as related records. Grade thresholds became explicit program requirements. Staff can maintain them through forms and detail views, so changing an admission condition does not depend on another spreadsheet import.
 
 <Image
-  src="/images/clearway-phoenix/phase-1/01-programs-table.png"
-  alt="Programs table backed by the normalized program schema."
-  priority={true}
+	src="/images/clearway-phoenix/phase-1/01-programs-table.png"
+	alt="University programs in the catalog maintenance interface."
+	width={3200}
+	height={1800}
 />
 
-What mattered most here was judgment, not volume. The difficult part was not creating many tables. The difficult part was deciding what deserved first-class structure and what should remain derived or auxiliary.
+<Image
+	src="/images/clearway-phoenix/phase-1/03-programs-modal-grade-requirements.png"
+	alt="Structured grade requirements for a university program."
+	width={3200}
+	height={1800}
+/>
 
-## Making the import resilient
+<Image
+	src="/images/clearway-phoenix/phase-1/05-universities-table.png"
+	alt="University records in the academic catalog."
+	width={3200}
+	height={1800}
+/>
 
-The schema in place changed the next problem, but it did not remove it. The agency's spreadsheets were not clean exports. They were the operating system: inconsistent, human-written, partially structured, and constantly changing.
+<Image
+	src="/images/clearway-phoenix/phase-1/09-university-detail-overview.png"
+	alt="University details connected to the program catalog."
+	width={3200}
+	height={1800}
+/>
+
+<Image
+	src="/images/clearway-phoenix/phase-1/13-settings-scholarship-types-categories.png"
+	alt="Scholarship types and categories maintained by agency staff."
+	width={3200}
+	height={1800}
+/>
+
+## Recover An Interrupted Import
+
+The spreadsheets referenced one another. I made the importer follow those dependencies, creating universities before their programs and scholarships, and mapping the old IDs to the new records.
+
+AI handles the inconsistent cells, with validation before the results enter the database. I added content-hash caching to reuse unchanged transformations and checkpoints to preserve progress. Temporary failures have bounded retries; failed rows remain available for investigation.
+
+An interrupted run can therefore resume its unfinished work while retaining what has already been processed.
 
 <Video
-	playbackId="jV98n3wHiD2wuEPf1ldpdK1sumV7klWyon6OtIdYRsw"
-	poster="/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png"
+	playbackId="kJTw38g10201L1Ahz4jYM401rX00SFvJ01Se94llaIV3olPc"
+	poster="/images/clearway-phoenix/etl-film-poster.jpg"
+	duration="0:20"
 	loop={false}
 	muted={false}
-	caption="The Phoenix import pipeline running as an operator-grade ETL workflow with state, retries, and cost visibility."
+	caption="Resumable AI-assisted spreadsheet import."
 	metadata={{
-		video_title:
-			"AI-Powered ETL Pipeline - Turning Messy Spreadsheets into a Queryable Database",
-		video_id: "uW77A02svNCBHvN02ZG1vu01MmZKnWl01Ci00pSti01kCK00JM",
+		video_title: "AI-Assisted Spreadsheet Import",
+		video_id: "bZDHMdqeNo64z313wZnxESau1gTCEfRPah4AIsfTt3A",
 	}}
 />
 
-That made manual migration the wrong answer. The problem was not moving rows from one database to another. The problem was reconstructing meaning from natural-language spreadsheet cells and landing that meaning inside a relational model without losing resumability or operational control.
+*The 20-second film shows the importer through an accelerated demonstration replay.*
 
-The pipeline processes all four sheets in sequence and persists progress after every row. If a long-running import dies, it resumes from the last checkpoint instead of replaying the entire job. Every AI transformation is cached by row hash, which is why repeated imports of unchanged data do not keep re-spending API cost.
-
-| ETL metric | Value |
-| --- | --- |
-| Universities | 175 |
-| Accommodations | 590 |
-| Programs | 19,299 |
-| Scholarships | 13,548 |
-| OpenAI calls on the completed run | 16,363 |
-| Token volume | 36.4M in / 9.3M out |
-| Cache hits | 21,073 |
-| Automated retries handled | 640 |
-| Completed run cost | $11.05 |
-
-```text
-Excel sheets
-  -> ordered import stages
-  -> AI row transformation
-  -> JSON validation
-  -> FK resolution through legacy ID maps
-  -> batched inserts
-  -> state persistence + resume
-  -> retry-failures for isolated recovery
-```
-
-The important part was not "AI was used." The important part was how the pipeline was engineered around AI unreliability:
-
-- ordered sheet processing preserved cross-sheet foreign key integrity
-- content-hash caching controlled cost across reruns
-- resumable sessions made overnight debugging survivable
-- non-retriable failures were isolated instead of poisoning the full run
-- a dense terminal dashboard made reliability, cost, throughput, and failure modes visible while the job was still running
+The terminal shows the current stage, throughput, failures and cost information, giving the operator a way to see where a run stands and what needs attention.
 
 <Image
-  src="/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png"
-  alt="Completed ETL dashboard with stage rail, reliability panels, and final cost."
+	src="/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png"
+	alt="Import dashboard showing stages, failures and cost information."
+	width={3200}
+	height={1800}
 />
-
-By this point, the hard part was no longer CRUD screens. It was resumability, foreign-key recovery, API cost control, and score explanations that held up in live calls.
-
-## From search to assignment
-
-The matching engine made the previous work visible. A better schema and a better import pipeline only mattered if advisors could now make better placement decisions in real time.
-
-The matching engine uses a layered architecture:
-
-1. MeiliSearch narrows the candidate set with hybrid search.
-2. The scoring engine ranks programs against the active student profile.
-3. The UI exposes the ranking, the explanation, and the post-match workflow in one operating surface.
-
-That architecture existed because V1 had already failed. A literal keyword calculator could never be enough for a domain where adjacent concepts matter. Semantic relevance had to be part of the engine, but it also had to stay explainable enough for live advisor conversations.
-
-| Matching layer | Purpose |
-| --- | --- |
-| Hybrid search | Surface relevant candidates from 19,299 programs without exact-keyword dependence. |
-| 13-factor scoring model | Rank candidates with weighted business and eligibility logic. |
-| Explainability panel | Show why a recommendation scored well or poorly. |
-| 18-status assignment lifecycle | Carry the workflow forward after discovery into actual placement operations. |
-
-The final score blended academic fit, major alignment, scholarship potential, ranking, speed, deadlines, seat availability, semantic relevance, and other placement signals. The key product decision was that the score could not act like a black box. A green score without reasoning would not survive a real advisor call.
-
-```text
-final score
-  = weighted criteria total / weighted maximum
-  + profile completeness bonus
-
-where the engine can also apply explicit penalties
-for grade blockers, weak alignment, or other critical failures
-```
 
 <Image
-  src="/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png"
-  alt="Positive score breakdown with explainable reasoning per factor."
+	src="/images/clearway-phoenix/phase-2/p2-02-editorial-dashboard-angle.png"
+	alt="Import run status in the terminal dashboard."
+	width={3200}
+	height={1800}
 />
 
-The result was not just a recommendation engine. It was an advisor console that could move from search, to ranking, to assignment, to follow-through without losing context.
-
-## Verification and hardening
-
-The ETL could not be tested by running it — each full run took hours, consumed real API spend, and failed silently on edge cases that only surfaced at scale. I used Pest with AI-generated edge-case scenarios to simulate failure modes before running the full pipeline: malformed rows, missing foreign keys, API rate-limit cascades, and partial sheet failures.
-
-Three areas required dedicated verification:
-
-- **ETL row-to-row mappings.** Every AI transformation was validated against expected output schemas. Rows that produced invalid JSON were caught before insert, isolated, and flagged for manual review instead of poisoning the import.
-- **Scoring calibration.** The 13-factor model was tested against advisor expectations: known-good matches had to score high, known-bad matches had to score low, and edge cases had to produce explainable middle scores instead of false confidence.
-- **Resumability under failure.** The pipeline was deliberately crashed at different stages to verify that checkpoint recovery produced the same final state as an uninterrupted run. Without this, overnight imports that died at 10% completion would have replayed hours of work and re-spent API cost.
-
-Weeks of test-first iteration, not live-run iteration.
-
-## Results
-
-| Before | After |
-| --- | --- |
-| Advisors manually cross-referenced spreadsheets for hours per student | Advisors received ranked recommendations in under one second |
-| Data lived in notes fields and inconsistent cells | Data landed in a structured schema built for filtering and scoring |
-| Matching logic was shallow and literal | Matching combined semantic search with explainable weighted ranking |
-| Recommendation quality was opaque | Every score exposed its reasoning, penalties, and strengths |
-| Work stopped at discovery | Assigned programs entered a tracked lifecycle with prioritization and status changes |
-
-The CEO approved payment immediately after the end-to-end demo and moved straight into scoping the next phase.
-
-## Takeaway
-
-Phoenix is the strongest example of the kind of engineering work I want more of: rebuilding brittle operations at the data-model layer, engineering the reliability around messy inputs, and shipping the final surface as a usable product instead of a technical demo.
-
-It was not one feature. It was a sequence of architectural decisions that had to hold together under real operational pressure.
-
-<Gallery
-	images={[
-		"/images/clearway-phoenix/phase-1/01-programs-table.png",
-		"/images/clearway-phoenix/phase-1/03-programs-modal-grade-requirements.png",
-		"/images/clearway-phoenix/phase-1/05-universities-table.png",
-		"/images/clearway-phoenix/phase-1/09-university-detail-overview.png",
-		"/images/clearway-phoenix/phase-1/13-settings-scholarship-types-categories.png",
-		"/images/clearway-phoenix/phase-2/p2-02-editorial-dashboard-angle.png",
-		"/images/clearway-phoenix/phase-2/p2-03-editorial-signal-detail.png",
-		"/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png",
-		"/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png",
-		"/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png",
-		"/images/clearway-phoenix/phase-3/p3-04-critical-score-breakdown.png",
-		"/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png",
-	]}
-	captions={[
-		"Programs table backed by the normalized program schema.",
-		"Program grade requirements modeled as structured relationships.",
-		"Universities table surfacing data that used to live in notes fields.",
-		"University detail page proving the schema could support a rich read surface.",
-		"Scholarship types and categories turned free-text awards into structured records.",
-		"Dashboard angle view of the full run state.",
-		"Signal detail view showing the operator-grade telemetry.",
-		"Completed ETL dashboard with stage rail, reliability panels, and final cost.",
-		"Semantic query for machine learning returning live matches.",
-		"Positive score breakdown with explainable reasoning.",
-		"Critical score breakdown exposing penalties and blockers.",
-		"Assigned programs workflow extending matching into operations.",
-	]}
-	caption="The complete surface: schema, ETL, and matching across all three phases."
+<Image
+	src="/images/clearway-phoenix/phase-2/p2-03-editorial-signal-detail.png"
+	alt="Detailed progress and failure information for an import run."
+	width={3200}
+	height={1800}
 />
+
+## Explain Why A Program Fits
+
+I separated finding relevant programs from evaluating their suitability. Semantic matching helps discover related fields of study that an exact keyword can miss. The scoring layer then compares those candidates with the student's profile.
+
+Alongside MeiliSearch, the matching system uses 13 weighted criteria, including grades, field of study, scholarships, deadlines and available places. Each score has a visible breakdown, with critical conditions flagged alongside it. An advisor can examine a promising result and understand what is helping or hurting the match.
+
+<Image
+	src="/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png"
+	alt="A machine-learning search returning related university programs."
+	width={3200}
+	height={1800}
+/>
+
+<Image
+	src="/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png"
+	alt="A program score broken down by matching criterion."
+	width={3200}
+	height={1800}
+/>
+
+<Image
+	src="/images/clearway-phoenix/phase-3/p3-04-critical-score-breakdown.png"
+	alt="Critical conditions shown alongside a program's score."
+	width={3200}
+	height={1800}
+/>
+
+The advisor makes the recommendation. Assigning a program saves its priority and application status on the student's record, carrying the decision into the agency's next steps.
+
+<Image
+	src="/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png"
+	alt="Programs assigned to a student with priority and status."
+	width={3200}
+	height={1800}
+/>
+
+## Keep The Shortlist In The Agency's Workflow
+
+I delivered Phoenix inside the agency's Laravel platform, using the customer and academic records staff already worked with. Its later student portal writes extracted grades into those same records.
+
+Staff can maintain the catalog, recover an import and follow a recommendation through to assignment. When a program scores well, the advisor has the underlying conditions and score breakdown available before deciding to put it on a student's shortlist.
+
+*Clearway is an anonymized client identity. The films and screenshots use synthetic records and prepared replay data; displayed totals, timings and costs describe the demonstration.*

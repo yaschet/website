@@ -53,3 +53,6 @@ next-env.d.ts
 /storybook-static/
 /output/
 /.firecrawl/
+
+# Local editorial snapshots are not public case-study sources.
+/content/archive/

@@ -1,0 +1,71 @@
+export const metadata = {
+	"title": "Agency CRM & Billing",
+	"description": "Manage student cases, invoices and payments together, with balances and statuses derived from the records.",
+	"subtitle": "Manage student cases, invoices and payments together, with balances and statuses derived from the records.",
+	"date": "2026-10-30",
+	"tags": [
+		"ERP",
+		"Customer operations",
+		"Invoicing"
+	],
+	"role": "Sole engineer",
+	"status": "Delivered",
+	"domain": "Study-abroad operations",
+	"stack": [
+		"Laravel",
+		"PHP",
+		"Livewire",
+		"Alpine.js",
+		"MySQL",
+		"Redis",
+		"MeiliSearch"
+	],
+	"tech": [
+		"Laravel",
+		"PHP",
+		"Livewire",
+		"Alpine.js",
+		"MySQL",
+		"Redis",
+		"MeiliSearch"
+	],
+	"featured": true,
+	"sortOrder": 4,
+	"listed": true
+};
+
+A student's application and payment history belong to the same case. Staff at a study-abroad agency need to see which documents are outstanding, who is responsible and what the student still owes.
+
+I built the CRM and billing platform that connects those records. It became the foundation for the agency's university-matching system and student application portal, with all three using the same customer record.
+
+As the sole engineer, I owned customer management, academic data, billing rules, staff permissions and the interfaces used to manage them.
+
+## Keep One Student Record Across The Workflow
+
+I made the customer record the common reference for identity details, documents, grades, the assigned advisor and selected programs.
+
+The student portal writes application details and extracted grades into it. The matching system reads those grades and saves program assignments back to the same student. Each interface extends a record staff already know.
+
+That choice also set a constraint for new work: each addition had to respect the fields, permissions and business rules already used by the agency.
+
+## Derive Invoice Balances From Payments
+
+An invoice's status needs to agree with its payments. I tied invoices to their service items, discounts and payment entries, then calculated the paid and remaining amounts from those records. The same logic derives whether an invoice is unpaid, partially paid, paid or overdue, while preserving cancellations.
+
+Receipts use the related invoice, customer and company details. Expense records and staff workflows sit alongside the billing work.
+
+Staff can follow a payment back to its invoice and customer, with the displayed balance grounded in the entries behind it.
+
+## Keep Access Tied To Responsibility
+
+Consultants see their assigned customers; managers see the records they manage. I applied those scopes to the queries that return customer data as well as to the interface, keeping access tied to responsibility.
+
+Staff also maintain the universities, programs, scholarships and accommodations used by the matching system. The catalog and the customer workflow share the same operations platform.
+
+## Extend The Platform Without Splitting The Records
+
+Delivered as Clearway ERP, this platform handles the agency's customer and financial operations. Phoenix adds program discovery and matching; the student portal adds guided intake and document collection.
+
+Those later products inherit the customer relationships and access rules already in place. The same student can move from document collection to program selection and billing without being recreated for each tool.
+
+*Clearway is an anonymized client identity. The ERP, student portal and program-matching system were built for the same agency.*
