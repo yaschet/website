@@ -21,6 +21,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { GalleryPlayButton } from "@/src/components/ui/gallery-play-button";
 import { PortfolioMuxVideo } from "@/src/components/ui/portfolio-mux-video";
 import { StateSwap } from "@/src/components/ui/state-swap";
+import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { cn, springs } from "@/src/lib/index";
 import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
@@ -66,6 +67,7 @@ export function MediaVideo({
 	// True Lazy Load: Only inject <source> when near viewport
 	const [shouldLoad, setShouldLoad] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const visible = useAnimationVisibility(containerRef);
 
 	const clearHoverPreview = useCallback(() => {
 		if (hoverPreviewTimeoutRef.current !== null) {
@@ -74,6 +76,13 @@ export function MediaVideo({
 		}
 		setHoverPreviewActive(false);
 	}, []);
+
+	useEffect(() => {
+		if (visible) return;
+		clearHoverPreview();
+		videoRef.current?.pause();
+		setIsPlaying(false);
+	}, [visible, clearHoverPreview]);
 
 	const armHoverPreview = useCallback(() => {
 		if (

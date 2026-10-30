@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { ProjectContentRSC } from "@/src/components/content/project-content-rsc";
 import { SITE_URL } from "@/src/constants/site";
 import {
-	getPublicProjectBySlug,
 	getPublicProjectSummaries,
 	getPublicProjectSummaryBySlug,
-} from "@/src/content/registry";
+} from "@/src/content/project-summaries";
+import { getPublicProjectBySlug } from "@/src/content/registry";
 import { getFirstPresentableMediaAsset, getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 interface ProjectPageProps {

@@ -8,7 +8,6 @@
 	--portfolio-control-lg: var(--foundation-control-height-lg);
 	--portfolio-control-xl: var(--foundation-control-height-xl);
 	--portfolio-icon-touch: var(--foundation-control-height-xl);
-	--portfolio-badge-height: var(--foundation-control-height-md);
 	--portfolio-control-gap: 8px;
 	--portfolio-control-pad-compact: 12px;
 	--portfolio-control-pad-default: 12px;
@@ -45,7 +44,7 @@
 	border-width: var(--foundation-hairline);
 	border-color: var(--border);
 	box-shadow: var(--foundation-popup-shadow);
-	--toast-open: 250ms;
+	--toast-open: var(--duration-fast);
 	--toast-close: 150ms;
 	--toast-blur: 0px;
 }
@@ -171,9 +170,15 @@
 :where(.foundation-button-pending[data-icon-only]) > .foundation-button-icon-space {
 	margin-inline: 0;
 }
+[data-active="false"] [data-slot="spinner"],
 .foundation-button-icon > .t-icon > [data-slot="spinner"] {
 	animation-play-state: paused;
 }
+.portfolio-action-link .foundation-button-icon [data-slot="spinner"] {
+	max-width: var(--button-glyph-size);
+	max-height: var(--button-glyph-size);
+}
+
 [data-loading] .foundation-button-icon > .t-icon > [data-slot="spinner"] {
 	animation-play-state: running;
 }
@@ -189,6 +194,126 @@
 	}
 	.foundation-button-icon-space,
 	.t-toast [data-slot="toast-content"] {
+		transition: none;
+	}
+}
+
+/* Editorial action: a fixed label frame and a true square glyph chamber.
+ * LinkFeedback still owns the spinner independently of the hover reel. */
+[data-slot="button"].portfolio-action-link {
+	gap: 0;
+	padding: 0;
+}
+.portfolio-action-link > [data-slot="link-feedback"],
+.portfolio-action-link .foundation-button-pending {
+	height: 100%;
+}
+.portfolio-action-link .foundation-button-pending-copy {
+	padding-inline: 12px;
+}
+.portfolio-action-link .foundation-button-icon-space {
+	align-self: stretch;
+	aspect-ratio: 1;
+	width: auto;
+	height: auto;
+	margin-inline: 0;
+	background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.portfolio-action-link .foundation-button-icon.t-icon-swap {
+	width: 100%;
+	height: 100%;
+}
+
+/* The action's two text layers share their measured grid cell. Character
+ * transforms do not resize the control or disturb its original inline padding. */
+.portfolio-action-reel-label,
+.portfolio-action-reel-icon {
+	display: grid;
+	place-items: center;
+}
+.portfolio-action-reel-label {
+	line-height: 20px;
+}
+.portfolio-action-reel-label > span,
+.portfolio-action-reel-icon > span {
+	grid-area: 1 / 1;
+}
+.portfolio-action-reel-icon {
+	/* Clip at the chamber's edges, not at the glyph's bounds. A glyph-sized
+	 * aperture makes both arrows disappear halfway through their exchange. */
+	width: 100%;
+	height: 100%;
+	overflow: clip;
+}
+.portfolio-action-reel-icon > span {
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+}
+.portfolio-action-link {
+	overflow: clip;
+}
+/* Immediate access paths expose a resting layer instead of fighting inline
+ * animation styles. It shares the same grid cell and never resizes the link. */
+[data-action-rest] {
+	visibility: hidden;
+}
+.portfolio-action-link:not([data-action-ready]) [data-action-rest],
+.portfolio-action-link:focus-visible [data-action-rest] {
+	visibility: visible;
+}
+.portfolio-action-link:not([data-action-ready]) [data-action-reel],
+.portfolio-action-link:focus-visible [data-action-reel] {
+	visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+	[data-action-rest] {
+		visibility: visible;
+	}
+	[data-action-reel] {
+		visibility: hidden;
+	}
+}
+
+/* A project caption's directional reel is independent of the hero text reel. */
+.portfolio-reel-icon {
+	--reel-x: 20px;
+	--reel-y: 0px;
+	display: grid;
+	place-items: center;
+	overflow: clip;
+	width: var(--button-glyph-size, 16px);
+	height: var(--button-glyph-size, 16px);
+}
+.portfolio-reel-icon[data-direction="up-right"] {
+	--reel-y: -20px;
+}
+.portfolio-reel-icon > span {
+	grid-area: 1 / 1;
+	transition:
+		transform var(--duration-fast) var(--ease-smooth-out),
+		opacity var(--duration-fast) var(--ease-smooth-out);
+}
+.portfolio-reel-icon > [data-reel-in] {
+	opacity: 0;
+	transform: translate(calc(-1 * var(--reel-x)), calc(-1 * var(--reel-y)));
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+	.portfolio-project-link:hover:not(:focus-visible):not(:has([data-loading])) [data-reel-out] {
+		opacity: 0;
+		transform: translate(var(--reel-x), var(--reel-y));
+	}
+	.portfolio-project-link:hover:not(:focus-visible):not(:has([data-loading])) [data-reel-in] {
+		opacity: 1;
+		transform: translate(0, 0);
+	}
+}
+.portfolio-project-link:focus-visible :is([data-reel-out], [data-reel-in]) {
+	transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	.portfolio-reel-icon > span {
 		transition: none;
 	}
 }
@@ -303,5 +428,31 @@
 @media (prefers-reduced-motion: reduce) {
 	.video-setting-chevron {
 		transition: none;
+	}
+}
+
+/* Touch input type stays readable without iOS focus zoom. Geometry remains explicit. */
+@media (hover: none), (pointer: coarse) {
+	.yaschet
+		:is(
+			[data-slot="input"],
+			[data-slot="textarea"],
+			[data-slot="input-group-control"],
+			[data-slot="native-select"]
+		) {
+		font-size: 16px;
+	}
+}
+
+/* Native tap paint is replaced by the existing pressed/focus materials. */
+.yaschet :is(button, a, input, textarea, select, [role="button"]) {
+	-webkit-tap-highlight-color: transparent;
+}
+.yaschet :is(button, [role="button"], [data-slot="button"]) {
+	user-select: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-slot="spinner"] {
+		animation: none;
 	}
 }

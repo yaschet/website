@@ -1,284 +1,98 @@
 export const metadata = {
-	title: "Verto",
-	description:
-		"Architecture of a proprietary AI-powered translation engine designed for high-volume document pipelines.",
-	date: "2026-01-26",
-	role: "Lead Software Engineer (End-to-End)",
-	stack: [
-		"Next.js 16 (Server Actions)",
-		"Trigger.dev (Durable Execution)",
-		"Supabase (RLS & Realtime)",
-		"OpenAI Vision Models",
-		"PostgreSQL (Double-Entry Ledger)",
+	"title": "Document Translation With Editable Tables",
+	"description": "Translate scanned documents into editable Google Docs, preserving tables, headings and reading direction.",
+	"subtitle": "Translate scanned documents into editable Google Docs, preserving tables, headings and reading direction.",
+	"date": "2026-01-26",
+	"tags": [
+		"Document AI",
+		"Translation",
+		"SaaS"
+	],
+	"role": "Designed and built end to end",
+	"status": "Personal project · Released January 2026",
+	"domain": "Document translation",
+	"stack": [
+		"Next.js",
 		"TypeScript",
-	],
-	coverImages: [
-		"/images/verto/review-editor.png",
-		"/images/verto/new-translation-page.png",
-		"/images/verto/dashboard-page.png",
-		"/images/verto/translations-page.png",
-		"/images/verto/translation-details-page.png",
-		"/images/verto/landing-page-blur.png",
-	],
-	coverMedia: [
-		{
-			kind: "mux-video",
-			playbackId: "WNddSfv9LgR1KV01uf3sL02o02Lc9COwBWyr8rp7dsnceI",
-			poster: "/images/verto/review-editor.png",
-			title: "Verto: Vision-First Translation",
-			alt: "Verto demo poster showing the review editor interface",
-			caption:
-				"Production workflow: From scanned document upload to native Google Docs reconstruction.",
-			duration: "1:30",
-			metadata: {
-				video_title: "Verto: Vision-First Translation",
-				video_id: "T2CAe4uR6BgTs2WIapkK02NeVIlZCi8EjICYe00cDmnbc",
-			},
-		},
-		{
-			kind: "image",
-			src: "/images/verto/new-translation-page.png",
-			alt: "Verto new translation workflow",
-		},
-		{
-			kind: "image",
-			src: "/images/verto/dashboard-page.png",
-			alt: "Verto dashboard page",
-		},
-		{
-			kind: "image",
-			src: "/images/verto/translations-page.png",
-			alt: "Verto translations page",
-		},
-		{
-			kind: "image",
-			src: "/images/verto/translation-details-page.png",
-			alt: "Verto translation details page",
-		},
-		{
-			kind: "image",
-			src: "/images/verto/landing-page-blur.png",
-			alt: "Verto landing page blur treatment",
-		},
-	],
-	tech: [
-		"Next.js 16",
-		"OpenAI",
+		"Supabase/PostgreSQL",
 		"Trigger.dev",
-		"Stripe",
-		"Supabase",
-		"Google Cloud",
+		"OpenAI",
 		"Tiptap",
+		"Google Docs API"
+	],
+	"tech": [
+		"Next.js",
 		"TypeScript",
+		"Supabase/PostgreSQL",
+		"Trigger.dev",
+		"OpenAI",
+		"Tiptap",
+		"Google Docs API"
 	],
-	seoKeywords: [
-		"Radix UI",
-		"shadcn/ui",
-		"Recharts",
-		"React-PDF",
-		"framer-motion",
-		"Zod",
-		"React Server Components",
-		"PostgreSQL",
+	"featured": true,
+	"sortOrder": 2,
+	"listed": true,
+	"image": "/images/verto/verto-film-poster.jpg",
+	"coverImages": [
+		"/images/verto/verto-film-poster.jpg"
 	],
-	featured: true,
-	listed: true,
-	status: "Production-Ready / IP Asset",
-	sortOrder: 2,
+	"coverMedia": [
+		{
+			"kind": "mux-video",
+			"playbackId": "yiAwSuxIOVkCUZemf5jOzwfqwG01lH46A2GjtF8moZ8Q",
+			"poster": "/images/verto/verto-film-poster.jpg",
+			"title": "Document Translation With Editable Tables — Walkthrough",
+			"alt": "Translate scanned documents into editable Google Docs, preserving tables, headings and reading direction.",
+			"caption": "Document Translation With Editable Tables",
+			"duration": "1:40",
+			"metadata": {
+				"video_title": "Document Translation With Editable Tables — Walkthrough",
+				"video_id": "8OgGATpayBhBcIsWjODyVzAblZeyA521hHwGEmJtnvY"
+			}
+		}
+	]
 };
 
-## 01. The Problem
+A translator needs to deliver a document someone can use. With a scanned financial report, that means checking the figures and preserving the tables as well as translating the words.
 
-The global translation industry has a hidden technical debt: **Layout Entropy**.
+I built Verto around that handoff: a photographed report becomes a translation you can review beside the original and open in Google Docs with editable tables. The film follows an English financial report into Japanese, ending inside the same $179,000 table cell in the finished document.
 
-Standard OCR tools (AWS Textract, Tesseract) treat documents as unstructured "bags of words." While they extract text efficiently, they fail to preserve layout topology—breaking tables, merging headers, and displacing stamps.
+Verto is a personal product designed for translation agencies. I owned the interface, document model, processing pipeline, export generation and account operations.
 
-Sworn translators save 60 minutes on translation but lose 45 minutes *per document* manually reconstructing formatting in Microsoft Word.
+## Preserve Structure Through Review
 
-**The Solution:** I architected **Verto**, a proprietary reconstruction engine. It does not just "read" text; it rebuilds the document's DOM with high structural fidelity in native Google Docs.
+The source stays beside the translated document while the translator works. They can compare figures, correct wording and merge or split table cells without leaving the review workspace.
 
-<Image
-  src="/images/verto/review-editor.png"
-  alt="Verto Review Editor Interface showing side-by-side comparison"
-  caption="The Verto Editor: A side-by-side verification environment ensuring near-perfect layout fidelity on supported document classes."
-  priority={true}
-/>
+I chose a structured document model for paragraphs, headings and table cells, including their row and column spans. The editor, checking pass and export generator work from that structure. A correction has a defined place in the document, and the export can recreate a table as editable cells.
 
----
+Names follow an explicit preservation policy. In the Japanese example, the company and personal names stay in Latin script, letting the reviewer compare them directly with the source.
 
-## 02. Architecture
+## Check Against The Original
 
-The system is designed as an event-driven, stateful reconstruction pipeline. It prioritizes **Durable Execution** over simple request/response cycles.
+The pipeline produces a structured translation from the page images, then runs a separate checking pass against the original. That pass looks for issues such as missed content and table misalignment, storing its corrections and processing details for review.
 
-```mermaid
-graph LR
-    subgraph "The Edge (Next.js)"
-        User[User Upload] --> Auth[Identity & Security]
-    end
+The translator still reviews the result beside its source before delivery. The automated check and the editing workspace are two parts of the same review process.
 
-    subgraph "The Brain (Trigger.dev)"
-        Orch[Orchestrator] --> Vision[Agent 1: Builder]
-        Vision --> Context{Rolling Context}
-        Context --> Vision
-        Vision --> Audit[Agent 2: Auditor]
-        Audit -- "Fail" --> Vision
-        Audit -- "Pass" --> Compiler[Google Docs Compiler]
-    end
+## Carry Context Across A Long Document
 
-    subgraph "The State (Supabase)"
-        DB[(Ledger & Data)]
-        Storage[Artifact Storage]
-    end
+Processing a long report in batches creates a continuity problem: later sections need the names, terminology and structure established earlier. I pass those entities and term choices between batches, together with recent headings and a summary of the document so far.
 
-    Auth --> Orch
-    Compiler --> Storage
-    Compiler --> DB
+For Arabic, reading direction also has to survive the handoff. The document model and export logic handle right-to-left text and table-cell order, carrying those decisions into the delivered file.
 
-```
+## Generate A Native Google Doc
 
-### A. The Auditor
+I built the Google Docs generator around the same document model used for review. It maps paragraphs, headings, tables, headers and footers into native Google Docs operations.
 
-Generating JSON is easy; guaranteeing legal accuracy is hard. I implemented an **Adversarial Verification Loop** (Agent 2) that challenges the output of the reconstruction engine (Agent 1).
+Merged cells made that mapping more involved. The generator reconstructs the full table grid, tracks row and column spans, then creates and merges the cells at their correct positions. Right-to-left tables also require the cell order to be handled explicitly.
 
-1. **Agent 1 (Builder)**: Generates the document DOM based on visual input.
-2. **Agent 2 (Auditor)**: Performs geometric and visual consistency checks against the source image.
-3. **The Loop**: If the Auditor detects a missing stamp or misaligned table border, it rejects the batch and forces a regeneration with higher attention weights on the failed region.
+The result is a document the translator can continue working in. The film closes by clicking into a real Google Docs table cell and using Tab to move between cells. The generation workflow also supports DOCX and PDF, with agency branding and certification text.
 
-**Result:** A self-correcting pipeline that prioritizes accuracy over speed, crucial for the "Sworn Translation" market.
+## Keep The Agency Workflow Around The Document
 
-### B. The Google Docs Bridge
+Translation and generation run as background tasks with saved stages and failure details. Users can leave the page and return to the completed result for review and export.
 
-The Google Docs API allows for programmatic document creation but requires strictly ordered `batchUpdate` requests. It does not accept HTML or raw text dumps.
+Client records, translation history and credit transactions keep each job connected to the agency's work. Usage and refunds remain on the ledger; branding settings control the logo, stamp and certification text on delivered documents.
 
-I engineered a custom **Intermediate Representation (IR)** mapper (`GoogleDocsMapper`) that translates the AI's ProseMirror AST into specific Google Docs operations.
+The document structure carries through every handoff, from interpretation to checking, human review and export. A translator can finish the job in Google Docs with the tables still available to edit.
 
-**Core Challenge: Virtual Grid Calculation**
-Google Docs tables cannot be pasted; they must be constructed cell-by-cell. To handle complex legal tables with merged cells (`rowspan`/`colspan`), the system must "simulate" the table in memory before writing it.
-
-```typescript
-// src/lib/google-docs/mapper/virtual-grid.ts
-// Complexity: O(n*m) where n=rows, m=cols.
-
-// Core Logic: Resolving the Virtual Grid for Table Reconstruction
-// This ensures high structural fidelity for complex legal tables.
-
-for (let r = 0; r < node.content.length; r++) {
-    for (const cell of row.content) {
-        // Check collision with previous rowspan/colspan
-        while (grid[r] && grid[r][c]) {
-            c++;
-        }
-        // Register span for later API merge requests
-        if (colspan > 1 || rowspan > 1) {
-            spanMap.set(`${r},${c}`, { row: r, col: c, rowspan, colspan });
-        }
-    }
-}
-
-```
-
-<Gallery
-images={[
-"/images/verto/dashboard-page.png",
-"/images/verto/new-translation-page.png",
-"/images/verto/translations-page.png",
-"/images/verto/landing-page-blur.png",
-]}
-captions={[
-"Executive Metrics: Aggregated volume, revenue, and efficiency stats.",
-"Ingestion Wizard: Auto-detection of source language and layout types.",
-"Global Queue: Real-time status tracking for concurrent translation jobs.",
-"Public Gateway: Converting visitors with 'Language Barrier' value prop.",
-]}
-caption="The Core Platform: High-fidelity interfaces for management and ingestion."
-/>
-
-### C. Processing Pipeline
-
-Processing 50+ page discovery files exceeds standard context windows. I implemented a **Rolling Context State Machine** that passes a `BatchContext` object between execution steps, enforcing semantic consistency across the entire file lifecycle.
-
-The compute layer runs on **Trigger.dev** to achieve **Durable Execution**. If a job fails on Page 45, the system resumes from the last committed checkpoint rather than restarting.
-
-<Gallery
-images={[
-"/images/verto/translation-details-page.png",
-"/images/verto/pipeline-processing.png",
-"/images/verto/templates-page.png",
-]}
-captions={[
-"Job Inspector: Detailed metadata, token usage, and quality scores (95/100).",
-"Job Visualization: Step-by-step progress from AI Vision to Google Docs Reconstruction (95% Confidence).",
-"Schema Library: Pre-defined templates for standardized legal docs (e.g., Certificates).",
-]}
-caption="Process & Structure: Visualizing the deep-learning reconstruction pipeline."
-/>
-
----
-
-## 03. Infrastructure
-
-### The Double-Entry Ledger
-
-To handle the "Per-Page" credit system, I rejected simple database increments. I implemented a **Double-Entry Ledger** in PostgreSQL.
-
-* **ACID Compliance:** Every credit consumption is a transaction row, not a field update.
-* **Race Condition Proof:** This architecture guarantees financial accuracy even when multiple heavy documents finish processing simultaneously.
-
-<Gallery
-images={[
-"/images/verto/billing-page.png",
-"/images/verto/transactions-filter-panel.png",
-"/images/verto/top-up-page.png",
-"/images/verto/customers-page.png",
-"/images/verto/account-page.png",
-]}
-captions={[
-"Client Portal: Usage tracking and consumption history.",
-"Ledger Filters: Granular audit tools for transaction types (Purchase vs Consumption).",
-"Credit Procurement: Tiered purchasing similar to API quota management.",
-"Tenant Manager: User administration and organization roles.",
-"Identity Management: Profile settings and MFA configuration.",
-]}
-caption="Admin & Operations: Zero-leakage credit management and security infrastructure."
-/>
-
----
-
-## 04. Capability
-
-Verto is fully functional and architected to solve the "Layout Entropy" problem for real-world legal documents. It is currently available as a white-label engine for translation agencies.
-
-| Metric | Standard OCR | Verto Engine |
-| --- | --- | --- |
-| **Table Accuracy** | < 60% (Breaks on merges) | **High Fidelity (Virtual Grid Verified)** |
-| **Formatting Time** | 45 Minutes / Doc | **< 2 Minutes (Review Only)** |
-| **Job Completion Rate** | ~85% (Timeouts on large files) | **99.9% (Durable Execution)** |
-| **Output** | Static PDF | **Native, Editable Google Doc** |
-
----
-
-## 05. Tech Stack
-
-This platform required a deep integration of Event-Driven Architecture and Modern Frontend Constraints.
-
-| Domain | Core Stack | Key Libraries & Patterns |
-| :--- | :--- | :--- |
-| **Frontend** | **Next.js 16** | React Server Components, Server Actions, Edge Runtime. |
-| **UI System** | **Tailwind v4** | `shadcn/ui` (Radix Primitives), `framer-motion` (Layout Constraints), `sonner` (Toast System). |
-| **Editor** | **Tiptap** | Headless ProseMirror implementation with Custom Node Views (React NodeView). |
-| **State** | **TanStack Query** | Optimistic UI updates synchronized via Supabase Realtime (WebSockets). |
-| **Compute** | **Trigger.dev** | Long-running background jobs (24h max duration) on dedicated containers. |
-| **Validation** | **Zod** | Strict schema validation for AI Structured Outputs (`openai.responses`). |
-| **Data Viz** | **Recharts** | Interactive credit consumption and burn-down analytics. |
-| **PDF Engine** | **React-PDF** | Virtualized PDF rendering with `react-window` for large legal files. |
-| **Payments** | **Stripe** | Webhook-driven Ledger synchronization with Idempotency keys. |
-
----
-
-## 06. Thesis
-
-Verto proves that solving "Layout Entropy" requires treating documents as **Stateful Systems**, not static assets.
-
-The value isn't in the AI model (which is a commodity); it is in the **Bridge** that makes that model compatible with the rigid constraints of the real world (Google Docs, Legal Compliance, Auditors).
-
-This project wasn't just about building a translation tool; it was about engineering a **Visual Compiler** that turns raw pixels into structured, legally binding data.
+*Verto is a personal project. The film uses synthetic agency records and existing completed translations; it demonstrates the workflow rather than live processing speed or customer adoption.*

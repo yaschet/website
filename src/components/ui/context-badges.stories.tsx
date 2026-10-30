@@ -17,7 +17,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"A 40px rail with 20px gaps, one quiet frame and one chamber seam. The flag fills its square inside an even hairline frame. Hover changes the joined surface; focus previews context, and tap or click pins it. Panels have contrasting 44px header and action bands, continuous record surfaces, and single horizontal separators. Touch uses a 150ms fade; keyboard and reduced motion remain immediate. Phones use two equal badges above sentence-case highlights. Escape, outside press or scrolling dismisses a panel.",
+					"Compact 28px frames share 12/16px labels and one 20px spacing value between frames, between mobile rows and above and below the rail. Internal label padding and frame height remain independent. The row gap keeps 44px hit areas separate. The flag fills its square inside an even hairline frame. Hover changes the joined surface; focus previews context, and tap or click pins it. Panels have contrasting 44px header and action bands, continuous record surfaces, and single horizontal separators. Touch uses a 150ms fade; keyboard and reduced motion remain immediate. Phones use two equal badges above uppercase highlights. Escape, outside press or scrolling dismisses a panel.",
 			},
 		},
 	},
@@ -62,14 +62,14 @@ function HeaderAboveHero({ viewerTimeZone }: { viewerTimeZone?: string }) {
 export const Location: Story = {
 	render: () => (
 		<div className="p-5">
-			<LocationBadge className="w-[180px]" />
+			<LocationBadge className="w-[var(--portfolio-badge-width)]" />
 		</div>
 	),
 };
 export const Time: Story = {
 	render: () => (
 		<div className="p-5">
-			<TimeBadge className="w-[180px]" />
+			<TimeBadge className="w-[var(--portfolio-badge-width)]" />
 		</div>
 	),
 };
@@ -78,7 +78,7 @@ export const LocationDetails: Story = {
 	name: "Location details",
 	render: () => (
 		<div className="p-5">
-			<LocationBadge className="w-[180px]" />
+			<LocationBadge className="w-[var(--portfolio-badge-width)]" />
 		</div>
 	),
 	play: async ({ canvas, canvasElement, viewMode }) => {
@@ -120,7 +120,7 @@ export const TimeComparison: Story = {
 	render: ({ viewerTimeZone = "America/New_York" }) => (
 		<div className="p-5">
 			<TimeBadge
-				className="w-[180px]"
+				className="w-[var(--portfolio-badge-width)]"
 				viewerTimeZone={viewerTimeZone}
 				viewerTimeZoneSource="override"
 			/>

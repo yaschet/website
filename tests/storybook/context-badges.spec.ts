@@ -30,8 +30,8 @@ for (const theme of ["light", "dark"]) {
 					};
 				});
 				expect(framing).toEqual({
-					height: 40,
-					width: 180,
+					height: 28,
+					width: 160,
 					padding: "20px",
 					top: 20,
 					bottom: 20,

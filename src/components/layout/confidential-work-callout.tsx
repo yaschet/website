@@ -13,18 +13,23 @@ export function ConfidentialWorkCallout({
 }: ConfidentialWorkCalloutProps) {
 	const Heading = headingLevel === 2 ? "h2" : "h3";
 	return (
-		<div className={cn("portfolio-box-pad", className)}>
-			<div className="portfolio-callout">
-				<Heading className="font-medium text-base text-foreground leading-6">
+		<div
+			className={cn(
+				"portfolio-project-card portfolio-confidential-work w-full min-w-0 bg-[var(--portfolio-panel)] text-card-foreground",
+				className,
+			)}
+		>
+			<div className="portfolio-project-copy portfolio-project-overview portfolio-confidential-note">
+				<Heading className="portfolio-project-title portfolio-capsize-project-title min-w-0">
 					Confidential work
 				</Heading>
-				<p className="portfolio-body-sm portfolio-callout-copy text-muted-foreground">
+				<p className="portfolio-project-description portfolio-body-sm text-muted-foreground">
 					Other work spans legal translation, education, onboarding, operations, and
 					reconciliation. Most of it is private. Happy to discuss it{" "}
 					<Link
 						transitionTypes={["navigation"]}
 						href="/contact"
-						className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+						className="portfolio-confidential-link font-medium text-foreground underline underline-offset-4"
 					>
 						in a call
 					</Link>

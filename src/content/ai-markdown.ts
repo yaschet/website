@@ -1,4 +1,4 @@
-import { SITE_URL } from "@/src/constants/site";
+import { SITE_DESCRIPTION, SITE_ROLE, SITE_URL } from "@/src/constants/site";
 import "server-only";
 
 import { promises as fs } from "node:fs";
@@ -6,7 +6,7 @@ import path from "node:path";
 import {
 	getListedPublicProjectSummaries,
 	getPublicProjectSummaryBySlug,
-} from "@/src/content/registry";
+} from "@/src/content/project-summaries";
 import type { ProjectSummaryEntry } from "@/src/content/types";
 
 const PROJECTS_DIR = path.join(process.cwd(), "content", "projects");
@@ -315,7 +315,7 @@ export async function getPortfolioMarkdown() {
 	const lines = [
 		"# Yassine Chettouch Portfolio",
 		"",
-		"> Software engineer based in Rabat, Morocco. I build full-stack systems, AI-assisted workflows, internal tools, and high-performance product experiences.",
+		`> ${SITE_DESCRIPTION} Based in Rabat, Morocco.`,
 		"",
 		`Canonical URL: ${SITE_URL}`,
 		`Case studies index: ${SITE_URL}/case-studies`,
@@ -323,7 +323,7 @@ export async function getPortfolioMarkdown() {
 		"",
 		"## Profile",
 		"",
-		"- Full-stack software engineer working across frontend, backend, data, AI, payments, deployment, and product systems.",
+		"- Full-stack product engineer working across frontend, backend, data, AI, payments, deployment, and product systems.",
 		"- Strongest in ambiguous product and operations problems where architecture, interface quality, and reliability all matter.",
 		"- Uses AI coding agents for scaffolding, refactors, tests, and codebase reading while keeping architecture, verification, and quality decisions human-owned.",
 		"",
@@ -380,7 +380,7 @@ export async function getLlmsTxt() {
 	const lines = [
 		"# Yassine Chettouch",
 		"",
-		"> Software engineer portfolio covering full-stack systems, AI-assisted workflows, internal tools, and product engineering case studies.",
+		`> ${SITE_ROLE} portfolio covering SaaS, e-commerce, applied AI workflows and production software.`,
 		"",
 		"This file is a curated index for AI agents and LLM-assisted comparison. It complements the human website and sitemap; it is not a crawler permissions file.",
 		"",

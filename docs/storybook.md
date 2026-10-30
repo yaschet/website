@@ -199,8 +199,10 @@ including uncut text, equal contact-action baselines and submit widths.
 `Components / Navigation / Context Rail` previews the production records treatment above
 its real hero. New York, Dubai and Pacific time stories default to a 390px
 viewport; Controls select nine markets. The shared panel uses 44px square control
-chambers, uniform fact-row surfaces and a 150ms touch fade. Badges remain 40px;
-keyboard and reduced motion remain immediate. There is no fixture-only styling
+chambers, uniform fact-row surfaces and a 150ms touch fade. Badges use compact
+28px frames, shared 20px horizontal/row gaps and outer clearance, 44px hit areas,
+uppercase highlights and one-step clock carries. Keyboard and reduced motion
+remain immediate. There is no fixture-only styling
 or alternate treatment. San Francisco shares the `America/Los_Angeles` timezone,
 labeled "Pacific time" without changing its date-aware offset calculation.
 Browser checks cover both themes at 320px and 390px, with previous and next
@@ -212,3 +214,9 @@ Use `pnpm storybook` when editing the live local workshop on port 6006. Serving
 modules. Static builds are for isolated verification or publication. ContextBadges
 owns its mobile market stories and the above-hero example; the complete composition
 keeps a 20px outer gutter, including below the hero.
+
+Article Blocks exercise the production MDX code and table renderers independently
+of authored case-study copy. Browser checks cover token contrast, exact clipboard
+content, horizontal overflow and uniform table insets at phone and desktop widths
+in both themes. A test-only Markdown Flowchart story retains coverage for fenced
+Mermaid compatibility; it stays outside the public catalog of authored diagrams.

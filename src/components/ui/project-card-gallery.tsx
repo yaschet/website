@@ -11,10 +11,11 @@ import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import type { ComponentType } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { buttonVariants } from "@/src/components/ui/button-styles";
 import { GalleryPlayButton } from "@/src/components/ui/gallery-play-button";
+import { LinkFeedback } from "@/src/components/ui/link-feedback";
 import type { MediaGalleryProps } from "@/src/components/ui/media-gallery";
 import { PortfolioLink as Link } from "@/src/components/ui/portfolio-link";
+import { ReelIcon } from "@/src/components/ui/reel";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
@@ -22,9 +23,8 @@ import { Badge } from "./badge";
 
 type MediaGalleryComponent = ComponentType<MediaGalleryProps>;
 
-// PageContainer caps at 1024px; its gutters and the listing inset own the remaining width.
-const PROJECT_PREVIEW_SIZES =
-	"(min-width: 1024px) 904px, (min-width: 640px) calc(100vw - 120px), calc(100vw - 80px)";
+// Full-width cards share PageContainer's 1024px cap and 20px page gutters.
+const PROJECT_PREVIEW_SIZES = "(min-width: 1024px) 984px, calc(100vw - 40px)";
 
 interface ProjectCardGalleryProps {
 	title: string;
@@ -136,12 +136,103 @@ export function ProjectCardGallery({
 		};
 	}, [RichMediaGallery, hasInlineVideo, shouldLoadRichMedia]);
 
+	const heading = (
+		<>
+			<h3 className="portfolio-project-title portfolio-capsize-project-title min-w-0">
+				{title}
+			</h3>
+			{!isPrivate && (
+				<span data-project-action="" aria-hidden="true">
+					<LinkFeedback
+						iconOnly
+						icon={
+							<ReelIcon direction="up-right">
+								<ArrowUpRight className="size-4" />
+							</ReelIcon>
+						}
+					/>
+				</span>
+			)}
+		</>
+	);
+	const caption = (
+		<>
+			<div data-slot="project-overview" className="portfolio-project-overview">
+				<div className="portfolio-project-identity">
+					{isPrivate ? (
+						<div className="portfolio-project-heading">{heading}</div>
+					) : (
+						<Link
+							transitionTypes={["navigation"]}
+							href={href}
+							prefetch={true}
+							className="portfolio-project-heading portfolio-project-link"
+						>
+							{heading}
+						</Link>
+					)}
+				</div>
+
+				<div className="portfolio-project-details">
+					<div className="portfolio-project-summary">
+						<p className="portfolio-project-description portfolio-body-sm text-muted-foreground">
+							{description}
+						</p>
+						{challenge && (
+							<div className="portfolio-card-copy">
+								<h4 className="portfolio-kicker text-surface-600 dark:text-surface-400">
+									Challenge
+								</h4>
+								<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
+									{challenge}
+								</p>
+							</div>
+						)}
+						{solution && (
+							<div className="portfolio-card-copy">
+								<h4 className="portfolio-kicker text-surface-600 dark:text-surface-400">
+									Solution
+								</h4>
+								<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
+									{solution}
+								</p>
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
+
+			<div className="portfolio-project-footer">
+				<div className="portfolio-project-metadata text-muted-foreground tabular-nums">
+					<span>{index}</span>
+					{date && <span>{date}</span>}
+				</div>
+				{tags.length > 0 && (
+					<ul
+						aria-label="Technologies"
+						className="portfolio-project-technologies text-muted-foreground"
+					>
+						{tags.map((tag) => (
+							<li
+								key={`${index}-tag-${tag}`}
+								className="portfolio-project-technology"
+							>
+								{tag}
+							</li>
+						))}
+					</ul>
+				)}
+			</div>
+		</>
+	);
+
 	return (
 		<article
 			aria-label={title}
 			data-slot="project-card"
+			data-navigable={!isPrivate || undefined}
 			className={cn(
-				"portfolio-project-card group w-full min-w-0 overflow-hidden bg-[var(--portfolio-panel)] text-card-foreground",
+				"portfolio-project-card group w-full min-w-0 bg-[var(--portfolio-panel)] text-card-foreground",
 				className,
 			)}
 		>
@@ -250,94 +341,7 @@ export function ProjectCardGallery({
 			)}
 
 			<div data-slot="project-copy" className="portfolio-project-copy">
-				<div className="portfolio-card-copy">
-					<div className="flex items-center justify-between gap-[var(--portfolio-space-2)]">
-						<span className="portfolio-kicker text-muted-foreground tabular-nums">
-							{index}
-						</span>
-						{date && (
-							<span className="portfolio-kicker text-right text-muted-foreground tabular-nums">
-								{date}
-							</span>
-						)}
-					</div>
-
-					<div>
-						{isPrivate ? (
-							<h3 className="portfolio-project-title portfolio-capsize-project-title">
-								{title}
-							</h3>
-						) : (
-							<Link
-								transitionTypes={["navigation"]}
-								href={href}
-								prefetch={true}
-								className="portfolio-project-link group/project-link"
-							>
-								<h3 className="portfolio-project-title portfolio-capsize-project-title min-w-0">
-									{title}
-								</h3>
-								<span
-									data-project-action=""
-									data-slot="button"
-									data-appearance="solid"
-									data-color="default"
-									data-size="icon"
-									aria-hidden="true"
-									className={buttonVariants({
-										variant: "solid",
-										size: "icon",
-										className: "group-hover/project-link:bg-primary-hover",
-									})}
-								>
-									<ArrowUpRight className="size-4" aria-hidden="true" />
-								</span>
-							</Link>
-						)}
-					</div>
-				</div>
-
-				<p className="portfolio-body-sm text-muted-foreground">{description}</p>
-
-				{(challenge || solution) && (
-					<div className="portfolio-stack-group">
-						{challenge && (
-							<div className="portfolio-card-copy">
-								<h4 className="portfolio-kicker text-surface-600 dark:text-surface-400">
-									Challenge
-								</h4>
-								<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
-									{challenge}
-								</p>
-							</div>
-						)}
-						{solution && (
-							<div className="portfolio-card-copy">
-								<h4 className="portfolio-kicker text-surface-600 dark:text-surface-400">
-									Solution
-								</h4>
-								<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
-									{solution}
-								</p>
-							</div>
-						)}
-					</div>
-				)}
-
-				{tags.length > 0 && (
-					<ul aria-label="Technologies" className="flex min-w-0 flex-wrap gap-2">
-						{tags.map((tag) => (
-							<li key={`${index}-tag-${tag}`} className="min-w-0 max-w-full">
-								<Badge
-									variant="outline"
-									className="h-auto min-h-7 max-w-full whitespace-normal break-words py-1.5 text-left"
-								>
-									{tag}
-								</Badge>
-							</li>
-						))}
-					</ul>
-				)}
+				{caption}
 			</div>
 		</article>
 	);

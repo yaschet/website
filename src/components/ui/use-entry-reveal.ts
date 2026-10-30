@@ -8,12 +8,16 @@ import { getRouteTransition } from "@/src/lib/route-transition";
 /**
  * Animate route-entry copy, leaving server HTML and resting layout intact.
  * Delays are in seconds. The live-DOM fallback animates visible copy only;
- * scoped snapshots own their title/copy groups and frame handoff separately.
+ * viewport transitions own their title/copy groups and frame handoff separately.
  * Navigation, keyboard input and reduced motion cancel every owned animation.
  */
 export function useEntryReveal(
 	ref: RefObject<HTMLElement | null>,
-	{ delay = 0, heading = false }: { delay?: number; heading?: boolean } = {},
+	{
+		delay = 0,
+		heading = false,
+		effect = "rise",
+	}: { delay?: number; heading?: boolean; effect?: "rise" | "resolve" } = {},
 ) {
 	const { entryKey, shouldAnimateEntry } = useRevealState();
 	const identity = useId();
@@ -24,6 +28,7 @@ export function useEntryReveal(
 			element.dataset.entryKind = heading ? "heading" : "copy";
 			element.dataset.entryDelay = String(delay);
 			element.dataset.entryIdentity = identity;
+			element.dataset.entryEffect = effect;
 		}
 		const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 		if (
@@ -37,20 +42,63 @@ export function useEntryReveal(
 		if (bounds.bottom <= 0 || bounds.top >= window.innerHeight) return;
 		const words = heading ? element.querySelectorAll<HTMLElement>("[data-heading-word]") : [];
 		const targets = words.length ? Array.from(words) : [element];
-		const lead = Math.min(Math.max(delay, 0), heading ? 0.04 : 0.12);
-		if (getRouteTransition()) return;
+		const lead = effect === "resolve" ? 0 : Math.min(Math.max(delay, 0), heading ? 0.04 : 0.12);
+		const transition = getRouteTransition();
+		if (transition && effect !== "resolve") return;
+		let cancelled = false;
+		const resolveLayers = element.querySelectorAll<HTMLElement>(
+			"[data-resolve-sharp], [data-resolve-front]",
+		);
+		if (effect === "resolve" && resolveLayers.length) {
+			const animations = Array.from(resolveLayers, (layer) => {
+				const timing = getComputedStyle(
+					layer.parentElement?.closest("[data-heading-word]") ?? element,
+				);
+				const animation = layer.animate(
+					[{ maskPosition: "100% 0%" }, { maskPosition: "0% 0%" }],
+					{
+						duration: Number.parseFloat(timing.getPropertyValue("--resolve-duration")),
+						delay: Number.parseFloat(timing.getPropertyValue("--resolve-delay")),
+						easing: "linear",
+						fill: "backwards",
+					},
+				);
+				animation.id = "portfolio-entry-heading";
+				if (transition) animation.pause();
+				return animation;
+			});
+			const play = () => {
+				if (!cancelled) for (const animation of animations) animation.play();
+			};
+			// A native capture suspends paints. Keep this reveal live and start its
+			// front only when capture finishes, rather than freezing a blurred image.
+			if (transition) void transition.ready.then(play, play);
+			const cancel = () => {
+				cancelled = true;
+				for (const animation of animations) animation.cancel();
+			};
+			reducedMotion.addEventListener("change", cancel);
+			document.addEventListener("keydown", cancel, true);
+			return () => {
+				cancel();
+				reducedMotion.removeEventListener("change", cancel);
+				document.removeEventListener("keydown", cancel, true);
+			};
+		}
 
 		const animations = targets.map((target, index) => {
 			const animation = target.animate(
 				[
 					{
 						opacity: heading ? 0.25 : 0.6,
-						transform: `translateY(${distances.small}px)`,
+						...(effect === "rise"
+							? { transform: `translateY(${distances.small}px)` }
+							: {}),
 						...(heading ? { filter: blur.subtle } : {}),
 					},
 					{
 						opacity: 1,
-						transform: "translateY(0)",
+						...(effect === "rise" ? { transform: "translateY(0)" } : {}),
 						...(heading ? { filter: blur.none } : {}),
 					},
 				],
@@ -74,5 +122,5 @@ export function useEntryReveal(
 			reducedMotion.removeEventListener("change", cancel);
 			document.removeEventListener("keydown", cancel, true);
 		};
-	}, [ref, entryKey, shouldAnimateEntry, delay, heading, identity]);
+	}, [ref, entryKey, shouldAnimateEntry, delay, heading, effect, identity]);
 }

@@ -1,5 +1,8 @@
+"use client";
+
 import { RiLoaderLine } from "@remixicon/react";
-import type { ComponentProps } from "react";
+import { type ComponentProps, useCallback, useRef } from "react";
+import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
 import { cn } from "@/src/lib/index";
 
 const sizes = { xs: 16, sm: 20, md: 24, lg: 32, xl: 48 } as const;
@@ -27,16 +30,33 @@ export function Spinner({
 	size = "xs",
 	color = "default",
 	style,
+	ref,
 	...props
 }: SpinnerProps) {
+	const element = useRef<SVGSVGElement>(null);
+	const visible = useAnimationVisibility(element);
+	const attach = useCallback(
+		(node: SVGSVGElement | null) => {
+			element.current = node;
+			if (typeof ref === "function") return ref(node);
+			if (ref) ref.current = node;
+		},
+		[ref],
+	);
 	const pixels = typeof size === "number" ? size : sizes[size];
 	return (
 		<RiLoaderLine
+			ref={attach}
 			data-slot="spinner"
 			role="status"
 			aria-label="Loading"
 			className={cn("animate-spin", colors[color], className)}
-			style={{ width: pixels, height: pixels, ...style }}
+			style={{
+				width: pixels,
+				height: pixels,
+				...style,
+				animationPlayState: visible ? undefined : "paused",
+			}}
 			{...props}
 		/>
 	);

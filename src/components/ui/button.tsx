@@ -140,7 +140,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 			</Comp>
 		);
 
-		if (showTooltip && tooltipContent) {
+		if (
+			showTooltip &&
+			tooltipContent &&
+			!isDisabled &&
+			props["aria-disabled"] !== true &&
+			props["aria-disabled"] !== "true"
+		) {
 			return (
 				<TooltipProvider delayDuration={tooltipDelayDuration}>
 					<Tooltip>

@@ -353,17 +353,36 @@
     gap: var(--portfolio-space-major) !important;
   }
 
-  .portfolio-callout {
-    display: flex  !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: var(--portfolio-space-related) !important;
-    text-align: center !important;
-  }
-
   .portfolio-callout-copy {
     max-width: 32rem !important;
+  }
+
+  .portfolio-confidential-note {
+    text-align: start;
+  }
+
+  .portfolio-confidential-note p {
+    text-wrap: pretty;
+  }
+
+  .portfolio-confidential-link {
+    white-space: nowrap;
+    text-decoration-color: var(--muted-foreground);
+  }
+
+  .portfolio-confidential-link:is(:active, :focus-visible) {
+    text-decoration-color: currentColor;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .portfolio-confidential-link:hover {
+      text-decoration-color: currentColor;
+    }
+  }
+
+  .portfolio-confidential-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--portfolio-panel), 0 0 0 4px currentColor;
   }
 
   .portfolio-card-copy {
@@ -378,33 +397,166 @@
   }
 
   .portfolio-project-card {
-    border: var(--foundation-hairline) solid var(--border);
+    --project-inset: var(--portfolio-space-related);
+    position: relative;
+    border: var(--foundation-hairline) solid var(--portfolio-project-line);
   }
 
   .portfolio-project-preview {
-    border-bottom: var(--foundation-hairline) solid var(--border);
+    border-bottom: var(--foundation-hairline) solid var(--portfolio-project-line);
   }
 
   .portfolio-project-copy {
-    display: flex;
-    flex-direction: column;
-    gap: var(--portfolio-space-related);
-    padding: var(--portfolio-space-related);
+    --text-body-sm--line-height: 22px;
+    container: project-caption / inline-size;
+    position: relative;
     overflow-wrap: anywhere;
+    color: inherit;
+    background-color: var(--portfolio-project-surface);
+    text-decoration: none;
+  }
+
+  .portfolio-project-overview {
+    display: grid;
+    gap: var(--portfolio-space-related);
+    padding: var(--project-inset);
+  }
+
+  .portfolio-project-identity {
+    display: grid;
+    gap: var(--portfolio-space-tight);
+  }
+
+  .portfolio-project-metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--portfolio-space-related);
+    font-size: var(--text-body-xs);
+    line-height: var(--text-body-xs--line-height);
+  }
+
+  .portfolio-project-footer {
+    display: grid;
+    align-items: first baseline;
+    gap: var(--portfolio-space-tight) var(--portfolio-space-group);
+    padding: var(--portfolio-space-related) var(--project-inset);
+    border-top: var(--foundation-hairline) solid var(--portfolio-project-line);
+    background-color: var(--portfolio-project-detail-surface);
+  }
+
+  .portfolio-project-details,
+  .portfolio-project-summary {
+    display: grid;
+    gap: var(--portfolio-space-related);
+    min-width: 0;
   }
 
   .portfolio-project-link {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--foundation-control-height-md);
-    align-items: center;
-    gap: var(--portfolio-space-related);
     color: inherit;
+    text-decoration: none;
     outline: none;
   }
 
-  .portfolio-project-link:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 4px;
+  .portfolio-project-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .portfolio-project-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--foundation-control-height-md);
+    align-items: center;
+    gap: var(--portfolio-space-tight);
+  }
+
+  .portfolio-project-card:not([data-navigable]) .portfolio-project-heading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .portfolio-project-description {
+    max-width: 65ch;
+  }
+
+  /* This chamber belongs to the title link, rather than being a nested button. */
+  .portfolio-project-link [data-project-action] {
+    --button-glyph-size: 16px;
+    display: grid;
+    place-items: center;
+    width: var(--foundation-control-height-md);
+    height: var(--foundation-control-height-md);
+    color: var(--foundation-secondary-ink);
+    background-color: var(--foundation-secondary-soft);
+    box-shadow: inset 0 0 0 var(--foundation-hairline) var(--foundation-control-line);
+    transition:
+      color var(--duration-quick) var(--ease-smooth-out),
+      background-color var(--duration-quick) var(--ease-smooth-out),
+      box-shadow var(--duration-quick) var(--ease-smooth-out),
+      transform var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  .portfolio-project-link:focus-visible::after {
+    box-shadow: inset 0 0 0 2px var(--foreground);
+  }
+
+  .portfolio-project-link:focus-visible [data-project-action] {
+    transform: none;
+    transition: none;
+  }
+
+  .portfolio-project-card:has(.portfolio-project-link:focus-visible) {
+    border-color: var(--foundation-control-line-active);
+    transition: none;
+  }
+
+  .portfolio-project-technologies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px var(--portfolio-space-tight);
+    align-content: start;
+    font-size: var(--text-body-xs);
+    line-height: var(--text-body-xs--line-height);
+  }
+
+  .portfolio-project-technologies li {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .portfolio-project-technology {
+    overflow-wrap: anywhere;
+  }
+
+  .portfolio-project-technology:not(:last-child)::after {
+    content: ",";
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .portfolio-project-card[data-navigable] {
+      transition: border-color var(--duration-quick) var(--ease-smooth-out);
+    }
+
+    .portfolio-project-card:has(.portfolio-project-link:hover) {
+      border-color: var(--portfolio-project-line-hover);
+    }
+
+    .portfolio-project-link:hover [data-project-action] {
+      color: var(--foundation-primary-foreground);
+      background-color: var(--foundation-primary);
+      box-shadow: inset 0 0 0 var(--foundation-hairline) var(--foundation-primary);
+    }
+
+    .portfolio-project-card:has(.portfolio-project-link:focus-visible) {
+      transition: none;
+    }
+
+  }
+
+  .portfolio-project-link:active [data-project-action] {
+    color: var(--foundation-primary-foreground);
+    background-color: var(--foundation-primary-active);
+    transform: scale(var(--scale-medium));
+    transition-duration: var(--duration-micro);
   }
 
   .portfolio-project-title {
@@ -413,9 +565,37 @@
     text-wrap: balance;
   }
 
+  @container project-caption (min-width: 42rem) {
+    .portfolio-project-footer:has(.portfolio-project-technologies) {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .portfolio-project-footer .portfolio-project-technologies {
+      justify-content: end;
+    }
+  }
+
   @media (min-width: 40rem) {
+    .portfolio-project-card {
+      --project-inset: var(--portfolio-space-group);
+    }
+
     .portfolio-project-copy {
-      padding: var(--portfolio-space-group);
+      --text-body-sm--line-height: 24px;
+    }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .portfolio-project-card[data-navigable],
+    .portfolio-project-link [data-project-action] {
+      transition: none;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .portfolio-project-link:is(:hover, :active) [data-project-action] {
+        transform: none;
+      }
     }
   }
 
@@ -438,26 +618,34 @@
     transition: color 150ms ease-out !important;
   }
 
-  .portfolio-back-link:hover {
-    color: var(--surface-900) !important;
+  @media (hover: hover) and (pointer: fine) {
+    .portfolio-back-link:hover {
+      color: var(--surface-900) !important;
+    }
   }
 
   .dark .portfolio-back-link {
     color: var(--surface-400) !important;
   }
 
-  .dark .portfolio-back-link:hover {
-    color: var(--surface-100) !important;
+  @media (hover: hover) and (pointer: fine) {
+    .dark .portfolio-back-link:hover {
+      color: var(--surface-100) !important;
+    }
   }
 
-  .portfolio-surface-card:hover {
-    border-color: var(--surface-200) !important;
-    background-color: color-mix(in oklab, var(--surface-50) 50%, transparent) !important;
+  @media (hover: hover) and (pointer: fine) {
+    .portfolio-surface-card:hover {
+      border-color: var(--surface-200) !important;
+      background-color: color-mix(in oklab, var(--surface-50) 50%, transparent) !important;
+    }
   }
 
-  .dark .portfolio-surface-card:hover {
-    border-color: var(--surface-800) !important;
-    background-color: color-mix(in oklab, var(--surface-900) 30%, transparent) !important;
+  @media (hover: hover) and (pointer: fine) {
+    .dark .portfolio-surface-card:hover {
+      border-color: var(--surface-800) !important;
+      background-color: color-mix(in oklab, var(--surface-900) 30%, transparent) !important;
+    }
   }
 
   .portfolio-control-row {
@@ -747,14 +935,21 @@
     padding-left: 24px;
   }
 
-  .portfolio-contents-list a:is(:hover, [aria-current="location"]) {
+  .portfolio-contents-list a[aria-current="location"] {
     color: var(--foreground);
     background: var(--secondary);
   }
 
+  @media (hover: hover) and (pointer: fine) {
+    .portfolio-contents-list a:hover {
+      color: var(--foreground);
+      background: var(--secondary);
+    }
+  }
+
   .portfolio-contents-list a:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: -2px;
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--ring);
   }
 
   @media (min-width: 96rem) {
@@ -812,8 +1007,8 @@
   }
 
   .portfolio-article :is(h1, h2, h3, h4):focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 4px;
+    outline: none;
+    box-shadow: 0 0 0 2px var(--portfolio-panel, var(--background)), 0 0 0 4px var(--ring);
   }
 
   .portfolio-article > h1 {
@@ -1022,6 +1217,8 @@ html {
     "kern" 1,
     "liga" 1,
     "calt" 1;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -1091,8 +1288,8 @@ body {
   }
 
   :focus-visible {
-    outline: 2px solid var(--foreground);
-    outline-offset: 4px;
+    outline: none;
+    box-shadow: 0 0 0 2px var(--portfolio-panel, var(--background)), 0 0 0 4px var(--foreground);
   }
 }
 
@@ -1115,6 +1312,12 @@ button path {
 .portfolio-grid-frame {
   position: relative;
   isolation: isolate;
+}
+
+.portfolio-hero-frame {
+  --portfolio-panel: var(--portfolio-hero-surface);
+  --instrument-field-bg-boxed: var(--portfolio-hero-surface);
+  --portfolio-chrome-hairline: var(--portfolio-hero-line);
 }
 
 .portfolio-solid-frame::after,
@@ -1190,19 +1393,25 @@ pre[data-theme] {
   transform: translateX(-4px);
 }
 
-h2:hover .anchor,
-h3:hover .anchor,
-h4:hover .anchor {
-  opacity: 1;
-  transform: translateX(0);
+@media (hover: hover) and (pointer: fine) {
+  h2:hover .anchor,
+  h3:hover .anchor,
+  h4:hover .anchor {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.anchor:hover {
-  color: var(--surface-950);
+@media (hover: hover) and (pointer: fine) {
+  .anchor:hover {
+    color: var(--surface-950);
+  }
 }
 
-.dark .anchor:hover {
-  color: var(--surface-50);
+@media (hover: hover) and (pointer: fine) {
+  .dark .anchor:hover {
+    color: var(--surface-50);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1264,12 +1473,10 @@ h4:hover .anchor {
 
 .animate-data-plane-drift-a {
   animation: data-plane-drift-a 22s ease-in-out infinite alternate;
-  will-change: transform;
 }
 
 .animate-data-plane-drift-b {
   animation: data-plane-drift-b 28s ease-in-out infinite alternate;
-  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1454,10 +1661,18 @@ pre {
   animation: ants-x-subtle 2.3s linear infinite;
 }
 
-/* Only desktop scrollbars reserve layout space; touch browsers retain their
-   native overlay scrollbars. Foundation owns scrollbar colors and geometry. */
+/* Keep the desktop scroll box present on short pages too: custom WebKit
+   scrollbars can otherwise ignore the stable gutter when there is no overflow.
+   Touch browsers retain their native overlay scrollbars. */
 @media (hover: hover) and (pointer: fine) {
   html {
+    overflow-y: scroll;
     scrollbar-gutter: stable;
   }
+}
+
+/* Keyboard access to an anchor must not depend on hover. */
+.anchor:focus-visible {
+  opacity: 1;
+  transform: none;
 }

@@ -4,6 +4,7 @@ import { XLogoIcon } from "@phosphor-icons/react/dist/ssr/XLogo";
 import Image from "next/image";
 import avatarImage from "@/public/images/avatar.png";
 import { ButtonLink } from "@/src/components/ui/button-link";
+import { SITE_ROLE } from "@/src/constants/site";
 
 export function ProfileSection() {
 	const socialLinks = [
@@ -36,7 +37,7 @@ export function ProfileSection() {
 								Yassine Chettouch
 							</p>
 							<p className="portfolio-masthead-role text-surface-600 dark:text-surface-400">
-								Software Engineer
+								{SITE_ROLE}
 							</p>
 						</div>
 					</div>

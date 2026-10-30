@@ -76,3 +76,4 @@ factual descriptions, branch names, and coherent checkpoints. Local hooks and
 CI check syntax; review must still assess the meaning and evidence.
 
 See `docs/storybook.md` for workshop authoring, isolation, and coverage boundaries.
+See `docs/performance.md` for loading boundaries, production measurement, and JavaScript budgets.

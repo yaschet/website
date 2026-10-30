@@ -14,10 +14,11 @@ import {
 } from "@/src/components/ui/instrument-action-band-theme";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import { SITE_DESCRIPTION } from "@/src/constants/site";
 
 export const metadata: Metadata = {
 	title: "About",
-	description: "Software Engineer based in Rabat, Morocco.",
+	description: `${SITE_DESCRIPTION} Based in Rabat, Morocco.`,
 	alternates: {
 		canonical: "/about",
 	},

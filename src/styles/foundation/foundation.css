@@ -1338,8 +1338,11 @@
 	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--input);
 }
 
-.yaschet [data-slot="checkbox"]:hover:not([data-disabled], [data-checked], [data-indeterminate]) {
-	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-hover);
+@media (hover: hover) and (pointer: fine) {
+	.yaschet
+		[data-slot="checkbox"]:hover:not([data-disabled], [data-checked], [data-indeterminate]) {
+		box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-hover);
+	}
 }
 
 .yaschet
@@ -1365,8 +1368,10 @@
 	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--input);
 }
 
-.yaschet [data-slot="radio-group-item"]:hover:not([data-disabled], [data-checked]) {
-	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-hover);
+@media (hover: hover) and (pointer: fine) {
+	.yaschet [data-slot="radio-group-item"]:hover:not([data-disabled], [data-checked]) {
+		box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-hover);
+	}
 }
 
 .yaschet
@@ -1472,13 +1477,15 @@
 	--control-line-active: var(--foundation-danger-line-active);
 }
 
-.yaschet
-	:is(
-		[data-slot="button"],
-		[data-slot="dropdown-menu-trigger"],
-		[data-slot="menubar-trigger"]
-	)[data-appearance="outline"]:hover:not(:disabled, [data-disabled]):not(:focus-visible) {
-	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--control-line-hover);
+@media (hover: hover) and (pointer: fine) {
+	.yaschet
+		:is(
+			[data-slot="button"],
+			[data-slot="dropdown-menu-trigger"],
+			[data-slot="menubar-trigger"]
+		)[data-appearance="outline"]:hover:not(:disabled, [data-disabled]):not(:focus-visible) {
+		box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--control-line-hover);
+	}
 }
 
 .yaschet
@@ -1504,12 +1511,14 @@
 	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-primary-line);
 }
 
-.yaschet
-	:is([data-slot="toggle"], [data-slot="toggle-group-item"])[data-variant="outline"]:hover:not(
-		:disabled,
-		[data-disabled]
-	):not(:focus-visible) {
-	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-primary-line-hover);
+@media (hover: hover) and (pointer: fine) {
+	.yaschet
+		:is(
+			[data-slot="toggle"],
+			[data-slot="toggle-group-item"]
+		)[data-variant="outline"]:hover:not(:disabled, [data-disabled]):not(:focus-visible) {
+		box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-primary-line-hover);
+	}
 }
 
 .yaschet
@@ -1553,8 +1562,10 @@
 	overflow: clip;
 }
 
-.yaschet [data-slot="button-group"]:hover {
-	--button-group-line: var(--foundation-control-line-hover);
+@media (hover: hover) and (pointer: fine) {
+	.yaschet [data-slot="button-group"]:hover {
+		--button-group-line: var(--foundation-control-line-hover);
+	}
 }
 
 .yaschet [data-slot="button-group"]:has(.t-pressable:active) {
@@ -1676,15 +1687,17 @@
 		var(--foundation-autofill-underlay,);
 }
 
-.yaschet
-	:is(
-		[data-slot="input"],
-		[data-slot="textarea"],
-		[data-slot="select-trigger"],
-		[data-slot="native-select"]
-	):hover:not(:disabled, [data-disabled], [aria-invalid="true"]):not(:focus-visible) {
-	box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-hover)
-		var(--foundation-autofill-underlay,);
+@media (hover: hover) and (pointer: fine) {
+	.yaschet
+		:is(
+			[data-slot="input"],
+			[data-slot="textarea"],
+			[data-slot="select-trigger"],
+			[data-slot="native-select"]
+		):hover:not(:disabled, [data-disabled], [aria-invalid="true"]):not(:focus-visible) {
+		box-shadow: inset 0 0 0 var(--foundation-hairline, 1px) var(--foundation-control-line-hover)
+			var(--foundation-autofill-underlay,);
+	}
 }
 
 .yaschet
@@ -1757,11 +1770,13 @@
 	transition: box-shadow var(--interactive-dur) var(--interactive-ease);
 }
 
-.yaschet
-	[data-slot="input-group"]:hover:not(:focus-within):not([aria-invalid="true"]):not(
-		:has(:disabled, [data-disabled], [aria-invalid="true"])
-	) {
-	--input-group-line: var(--foundation-control-line-hover);
+@media (hover: hover) and (pointer: fine) {
+	.yaschet
+		[data-slot="input-group"]:hover:not(:focus-within):not([aria-invalid="true"]):not(
+			:has(:disabled, [data-disabled], [aria-invalid="true"])
+		) {
+		--input-group-line: var(--foundation-control-line-hover);
+	}
 }
 
 .yaschet
@@ -1823,10 +1838,12 @@
 	background: transparent;
 }
 
-.yaschet
-	[data-slot="input-group"]
-	[data-input-group-action][data-appearance="plain"]:hover:not(:disabled, [data-disabled]) {
-	background: var(--input-group-action-hover);
+@media (hover: hover) and (pointer: fine) {
+	.yaschet
+		[data-slot="input-group"]
+		[data-input-group-action][data-appearance="plain"]:hover:not(:disabled, [data-disabled]) {
+		background: var(--input-group-action-hover);
+	}
 }
 
 .yaschet [data-slot="input-group"] [data-slot="input-group-addon"] {
@@ -1838,8 +1855,8 @@
 }
 
 .yaschet [data-slot="input-group"] [data-input-group-action]:focus-visible {
-	outline: 2px solid var(--ring);
-	outline-offset: -4px;
+	outline: none;
+	box-shadow: inset 0 0 0 2px var(--ring);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1933,8 +1950,8 @@
 
 .yaschet .recharts-surface:focus-visible {
 	border-radius: 0;
-	outline: 2px solid var(--ring);
-	outline-offset: -2px;
+	outline: none;
+	box-shadow: inset 0 0 0 2px var(--ring);
 }
 
 /* Approved light refinement, 2026-09-07. Page/white sidebar and ALL dark
@@ -1979,36 +1996,52 @@
 	--alert-content-surface: var(--foundation-success-cell);
 	--alert-chamber-surface: var(--foundation-success-soft);
 }
-:root:not(.dark)
-	[data-slot="button"][data-color="success"][data-appearance="soft"]:is(:hover, :active) {
+:root:not(.dark) [data-slot="button"][data-color="success"][data-appearance="soft"]:active {
 	color: var(--foundation-success-interaction-ink);
+}
+@media (hover: hover) and (pointer: fine) {
+	:root:not(.dark) [data-slot="button"][data-color="success"][data-appearance="soft"]:hover {
+		color: var(--foundation-success-interaction-ink);
+	}
 }
 
 :root:not(.dark) [data-slot="alert"][data-appearance="chamber"][data-variant="warning"] {
 	--alert-content-surface: var(--foundation-warning-cell);
 	--alert-chamber-surface: var(--foundation-warning-soft);
 }
-:root:not(.dark)
-	[data-slot="button"][data-color="warning"][data-appearance="soft"]:is(:hover, :active) {
+:root:not(.dark) [data-slot="button"][data-color="warning"][data-appearance="soft"]:active {
 	color: var(--foundation-warning-interaction-ink);
+}
+@media (hover: hover) and (pointer: fine) {
+	:root:not(.dark) [data-slot="button"][data-color="warning"][data-appearance="soft"]:hover {
+		color: var(--foundation-warning-interaction-ink);
+	}
 }
 
 :root:not(.dark) [data-slot="alert"][data-appearance="chamber"][data-variant="info"] {
 	--alert-content-surface: var(--foundation-info-cell);
 	--alert-chamber-surface: var(--foundation-info-soft);
 }
-:root:not(.dark)
-	[data-slot="button"][data-color="info"][data-appearance="soft"]:is(:hover, :active) {
+:root:not(.dark) [data-slot="button"][data-color="info"][data-appearance="soft"]:active {
 	color: var(--foundation-info-interaction-ink);
+}
+@media (hover: hover) and (pointer: fine) {
+	:root:not(.dark) [data-slot="button"][data-color="info"][data-appearance="soft"]:hover {
+		color: var(--foundation-info-interaction-ink);
+	}
 }
 
 :root:not(.dark) [data-slot="alert"][data-appearance="chamber"][data-variant="destructive"] {
 	--alert-content-surface: var(--foundation-danger-cell);
 	--alert-chamber-surface: var(--foundation-danger-soft);
 }
-:root:not(.dark)
-	[data-slot="button"][data-color="destructive"][data-appearance="soft"]:is(:hover, :active) {
+:root:not(.dark) [data-slot="button"][data-color="destructive"][data-appearance="soft"]:active {
 	color: var(--foundation-danger-interaction-ink);
+}
+@media (hover: hover) and (pointer: fine) {
+	:root:not(.dark) [data-slot="button"][data-color="destructive"][data-appearance="soft"]:hover {
+		color: var(--foundation-danger-interaction-ink);
+	}
 }
 
 :root:not(.dark) [data-slot="alert"][data-variant="destructive"] .status-display-title {

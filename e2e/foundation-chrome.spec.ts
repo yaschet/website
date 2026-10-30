@@ -20,26 +20,45 @@ for (const theme of ["light", "dark"] as const) {
 				item.getBoundingClientRect(),
 			);
 			const row = node.querySelector(".portfolio-context-rail");
-			const gap = row ? getComputedStyle(row).gap : "";
+			const columnGap = row ? getComputedStyle(row).columnGap : "";
+			const rowGap = row ? getComputedStyle(row).rowGap : "";
 			const card = document
 				.querySelector("main .portfolio-grid-frame")
 				?.getBoundingClientRect();
 			return {
 				heights: badges.map((item) => item.height),
 				chambers: chambers.map((item) => [item.width, item.height]),
-				gap,
+				columnGap,
+				rowGap,
+				topClearance:
+					Math.min(...badges.map((item) => item.top)) - node.getBoundingClientRect().top,
 				clearance: card ? card.top - Math.max(...badges.map((item) => item.bottom)) : null,
 				widths: [badges[0]?.width, badges[2]?.width],
 			};
 		});
-		expect(geometry.heights).toEqual([40, 40, 40]);
+		expect(geometry.heights).toEqual([28, 28, 28]);
 		expect(geometry.chambers).toEqual([
-			[40, 40],
-			[40, 40],
+			[28, 28],
+			[28, 28],
 		]);
 		expect(geometry.widths[0]).toBe(geometry.widths[1]);
-		expect(geometry.gap).toBe("20px");
+		expect(geometry.columnGap).toBe("20px");
+		expect(geometry.rowGap).toBe("20px");
+		expect(geometry.topClearance).toBeCloseTo(20, 1);
 		expect(geometry.clearance).toBeCloseTo(20, 1);
+		expect(Number.parseFloat(geometry.columnGap)).toBeCloseTo(geometry.topClearance, 1);
+		expect(Number.parseFloat(geometry.rowGap)).toBeCloseTo(geometry.clearance ?? -1, 1);
+		const badges = header.locator(".portfolio-context-badge");
+		for (const badge of await badges.all()) {
+			await expect(badge).toHaveCSS("font-size", "12px");
+			await expect(badge).toHaveCSS("line-height", "16px");
+			const hitArea = await badge.evaluate((node) => {
+				const style = getComputedStyle(node, "::before");
+				return node.getBoundingClientRect().height - Number.parseFloat(style.top) * 2;
+			});
+			expect(hitArea).toBe(44);
+		}
+		await expect(header.locator(".portfolio-marquee")).toHaveCSS("text-transform", "uppercase");
 
 		const materials = await page.locator("html").evaluate((root) => {
 			const style = getComputedStyle(root);
@@ -131,8 +150,8 @@ for (const theme of ["light", "dark"] as const) {
 			.poll(() => originalTrack?.evaluate((node) => node.getAnimations().length))
 			.toBe(0);
 		await expect(page.locator(".portfolio-clock-digit > span").first()).toHaveCSS(
-			"transition-duration",
-			"0s",
+			"animation-name",
+			"none",
 		);
 		await expect(page.locator('[data-slot="toast"]')).toHaveCount(0);
 		await originalHeader?.dispose();

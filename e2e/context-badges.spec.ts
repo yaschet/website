@@ -78,20 +78,20 @@ for (const theme of ["light", "dark"] as const) {
 		expect(geometry.left).toBeCloseTo(before?.x ?? 0, 1);
 		const flag = await location.locator("svg").boundingBox();
 		const chamber = await location.locator(".portfolio-context-chamber").boundingBox();
-		expect(chamber?.width).toBe(40);
-		expect(chamber?.height).toBe(40);
+		expect(chamber?.width).toBe(28);
+		expect(chamber?.height).toBe(28);
 		const frame = await location
 			.locator(".portfolio-context-chamber")
 			.evaluate((node) => Number.parseFloat(getComputedStyle(node).paddingLeft));
 		expect(frame).toBeGreaterThan(0);
 		expect(frame).toBeLessThanOrEqual(1);
-		expect(flag?.width).toBe(40 - 2 * frame);
-		expect(flag?.height).toBe(40 - 2 * frame);
+		expect(flag?.width).toBe(28 - 2 * frame);
+		expect(flag?.height).toBe(28 - 2 * frame);
 		for (const inset of [
 			(flag?.x ?? 0) - (chamber?.x ?? 0),
 			(flag?.y ?? 0) - (chamber?.y ?? 0),
-			(chamber?.x ?? 0) + 40 - (flag?.x ?? 0) - (flag?.width ?? 0),
-			(chamber?.y ?? 0) + 40 - (flag?.y ?? 0) - (flag?.height ?? 0),
+			(chamber?.x ?? 0) + 28 - (flag?.x ?? 0) - (flag?.width ?? 0),
+			(chamber?.y ?? 0) + 28 - (flag?.y ?? 0) - (flag?.height ?? 0),
 		])
 			expect(inset).toBeCloseTo(frame, 4);
 		const seam = await location.locator(".portfolio-context-chamber").evaluate((node) => ({
@@ -214,6 +214,9 @@ test("hover preview stays reachable, activation pins, and keyboard restores focu
 }) => {
 	test.skip(isMobile, "Hover and hardware keyboard are exercised on desktop");
 	await page.goto("/");
+	// Hover events are not replayed if they arrive before the header hydrates.
+	await expect(page.getByRole("timer")).toHaveAccessibleName(/^Current time/);
+	await page.evaluate(() => document.fonts.ready);
 	const location = page.getByRole("button", { name: "About my location: Rabat, Morocco" });
 	const panel = page.getByRole("dialog", { name: "Working together" });
 	await location.hover();
@@ -235,9 +238,13 @@ test("hover preview stays reachable, activation pins, and keyboard restores focu
 	await expect(panel).toBeVisible();
 	await expect(panel).toHaveCSS("transition-duration", "0s");
 	await expect(location).toBeFocused();
-	expect(await location.evaluate((node) => getComputedStyle(node, "::after").outlineWidth)).toBe(
-		"2px",
-	);
+	const focus = await location.evaluate((node) => {
+		const style = getComputedStyle(node, "::after");
+		return { outline: style.outlineStyle, shadow: style.boxShadow };
+	});
+	expect(focus.outline).toBe("none");
+	expect(focus.shadow).toContain("inset");
+	expect(focus.shadow).toContain("0px 0px 0px 2px");
 	await page.keyboard.press("Enter");
 	await expect(panel).toBeVisible();
 	await page.keyboard.press("Tab");
@@ -255,9 +262,52 @@ test("hover preview stays reachable, activation pins, and keyboard restores focu
 	await expect(panel).toBeVisible();
 	await expect(panel).toHaveCSS("transition-duration", "0s");
 	await expect(page.locator(".portfolio-clock-digit > span").first()).toHaveCSS(
-		"transition-duration",
-		"0s",
+		"animation-name",
+		"none",
 	);
 	await page.mouse.wheel(0, 400);
 	await expect(panel).not.toBeVisible();
 });
+
+for (const theme of ["light", "dark"] as const) {
+	test(`clock carries advance one step without resizing in ${theme}`, async ({ page }) => {
+		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
+		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+		await page.clock.setFixedTime(new Date("2026-10-28T08:59:59Z"));
+		await page.goto("/");
+		const timer = page.getByRole("timer");
+		const reels = timer.locator(".portfolio-clock-digit > span");
+		await expect(timer).toHaveAccessibleName(/:59:59 in Rabat/);
+		await page.evaluate(() => document.fonts.ready);
+		const before = await timer.boundingBox();
+		await expect(reels.first()).toHaveCSS("animation-name", "none");
+
+		await page.clock.setFixedTime(new Date("2026-10-28T09:00:00Z"));
+		await expect(timer).toHaveAccessibleName(/:00:00 in Rabat/);
+		const carry = await reels.evaluateAll((nodes) =>
+			nodes.slice(-4).map((node) => ({
+				digits: [...node.children].map((cell) => cell.getAttribute("data-digit")),
+				animation: getComputedStyle(node).animationName,
+				duration: getComputedStyle(node).animationDuration,
+			})),
+		);
+		expect(carry.map((column) => column.digits)).toEqual([
+			["5", "0"],
+			["9", "0"],
+			["5", "0"],
+			["9", "0"],
+		]);
+		for (const column of carry) {
+			expect(column.animation).toBe("portfolio-clock-step");
+			expect(column.duration).toBe("0.18s");
+		}
+		expect(await timer.boundingBox()).toEqual(before);
+
+		await page.emulateMedia({ reducedMotion: "reduce" });
+		await page.clock.setFixedTime(new Date("2026-10-28T09:00:01Z"));
+		await expect(timer).toHaveAccessibleName(/:00:01 in Rabat/);
+		for (const reel of await reels.all()) {
+			await expect(reel).toHaveCSS("animation-name", "none");
+		}
+	});
+}

@@ -65,6 +65,10 @@ function FormField({
 		"aria-invalid": hasError,
 		"aria-describedby": hasError ? `${id}-error` : undefined,
 		"aria-required": true,
+		required: true,
+		minLength: { name: 2, email: 1, subject: 5, message: 10 }[field.name],
+		spellCheck: field.name === "subject" || field.name === "message",
+		autoCapitalize: field.name === "email" ? "none" : undefined,
 		autoComplete: field.name === "name" || field.name === "email" ? field.name : undefined,
 		maxLength: { name: 100, email: 254, subject: 200, message: 2000 }[field.name],
 	};

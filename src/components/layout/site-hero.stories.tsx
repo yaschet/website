@@ -9,15 +9,25 @@ const meta = {
 	title: "Components/Content/Site Hero",
 	component: SiteHero,
 	tags: ["autodocs"],
-	parameters: { layout: "fullscreen" },
+	parameters: {
+		layout: "fullscreen",
+		docs: {
+			description: {
+				component:
+					"The production hero. A soft sharp/blur boundary travels through the title in reading order without moving its geometry. The primary link uses a staggered character reel and an independent arrow exchange inside a square chamber. Pending feedback stays centered. Pointer motion is interruptible; keyboard, touch and reduced motion keep the resting control immediate. See docs/design-system.md for the motion and geometry contracts.",
+			},
+		},
+	},
 	decorators: [
 		(Story) => (
-			<div className="mx-auto max-w-7xl">
-				<SwissGridBox>
-					<SwissGridRow>
-						<Story />
-					</SwissGridRow>
-				</SwissGridBox>
+			<div className="workshop-stage">
+				<div className="mx-auto max-w-5xl">
+					<SwissGridBox className="portfolio-hero-frame">
+						<SwissGridRow>
+							<Story />
+						</SwissGridRow>
+					</SwissGridBox>
+				</div>
 			</div>
 		),
 	],

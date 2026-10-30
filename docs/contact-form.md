@@ -69,6 +69,14 @@ Set these server-only variables for each environment that should deliver mail:
 - `CONTACT_RATE_LIMIT_SALT`: stable random secret of at least 32 characters;
   generate with `openssl rand -hex 32` and store in environment settings.
 
+The server sends from `Yaschet <contact@mail.yaschet.com>` to the public contact
+address, `hello@yaschet.com`. The recipient, footer and Contact page share
+`SITE_EMAIL` in `src/constants/site.ts`. Verify `mail.yaschet.com` in Resend and
+confirm that `hello@yaschet.com` is a receiving mailbox or an alias to the owner's
+inbox before releasing this domain migration. Keep the root domain's Google
+Workspace MX records intact; the transactional sender uses its own subdomain.
+Local adapter tests intercept email transport and do not establish live delivery.
+
 Use a dedicated database or reviewed namespace and keep preview/production
 quotas independent. The key prefix is `website:contact:v1:*`. Do not put any of
 these values in `NEXT_PUBLIC_*`, screenshots, commit messages, or documentation.

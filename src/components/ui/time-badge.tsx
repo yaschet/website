@@ -1,9 +1,10 @@
 "use client";
 
 import { RiTimeLine } from "@remixicon/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ContextPanel } from "@/src/components/ui/context-panel";
 import { RollingTime } from "@/src/components/ui/rolling-time";
+import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
 import { cn } from "@/src/lib/index";
 import {
 	createTimeZoneClockSnapshot,
@@ -16,7 +17,7 @@ import {
 const timeZone = "Africa/Casablanca";
 type Snapshot = ReturnType<typeof createTimeZoneClockSnapshot>;
 
-/** Hidden tabs stop ticking; hydration and resuming reveal the current value without rolling. */
+/** Hidden or off-screen clocks stop ticking; hydration and resuming reveal the current value without rolling. */
 export function TimeBadge({
 	className,
 	viewerTimeZone,
@@ -26,13 +27,15 @@ export function TimeBadge({
 	viewerTimeZone?: string | null;
 	viewerTimeZoneSource?: ViewerTimeZoneSource | null;
 }) {
+	const readout = useRef<HTMLSpanElement>(null);
+	const visible = useAnimationVisibility(readout);
 	const [{ snapshot, instant, viewer }, setClock] = useState<{
 		snapshot: Snapshot | null;
 		instant: boolean;
 		viewer: ResolvedViewerTimeZone;
 	}>({ snapshot: null, instant: true, viewer: { timeZone: null, source: null } });
 	useEffect(() => {
-		let interval: ReturnType<typeof setInterval> | undefined;
+		if (!visible) return;
 		const update = (instant = false) => {
 			let deviceTimeZone: string | undefined;
 			try {
@@ -54,19 +57,10 @@ export function TimeBadge({
 				viewer,
 			});
 		};
-		const syncVisibility = () => {
-			clearInterval(interval);
-			if (document.hidden) return;
-			update(true);
-			interval = setInterval(() => update(), 1000);
-		};
-		syncVisibility();
-		document.addEventListener("visibilitychange", syncVisibility);
-		return () => {
-			clearInterval(interval);
-			document.removeEventListener("visibilitychange", syncVisibility);
-		};
-	}, [viewerTimeZone, viewerTimeZoneSource]);
+		update(true);
+		const interval = setInterval(() => update(), 1000);
+		return () => clearInterval(interval);
+	}, [viewerTimeZone, viewerTimeZoneSource, visible]);
 
 	const time = snapshot?.time ?? null;
 	const differentDate =
@@ -106,6 +100,7 @@ export function TimeBadge({
 				<RiTimeLine className="size-4" />
 			</span>
 			<span
+				ref={readout}
 				className="portfolio-context-label"
 				role="timer"
 				aria-live="off"

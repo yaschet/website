@@ -35,7 +35,7 @@ for (const theme of ["light", "dark"] as const) {
 						for (const animation of document.getAnimations()) {
 							if (
 								animation instanceof CSSAnimation &&
-								animation.animationName === "theme-surface-in"
+								animation.animationName === "theme-surface-out"
 							) {
 								animation.pause();
 								animation.currentTime = 120;
@@ -43,7 +43,6 @@ for (const theme of ["light", "dark"] as const) {
 						}
 						const root = document.documentElement;
 						const source = scope instanceof Document ? root : scope;
-						const next = getComputedStyle(source, "::view-transition-new(root)");
 						const previous = getComputedStyle(source, "::view-transition-old(root)");
 						const nav = document.querySelector('[aria-label="Main navigation"]');
 						const interactive = [...(nav?.querySelectorAll("a,button") ?? [])].every(
@@ -59,11 +58,11 @@ for (const theme of ["light", "dark"] as const) {
 						);
 						root.dataset.themeCapture = JSON.stringify({
 							dark: root.classList.contains("dark"),
-							animation: next.animationName,
-							duration: next.animationDuration,
-							previousAnimation: previous.animationName,
-							previousOpacity: previous.opacity,
-							blend: next.mixBlendMode,
+							animation: previous.animationName,
+							duration: previous.animationDuration,
+							fill: previous.animationFillMode,
+							capturedName: getComputedStyle(root).viewTransitionName,
+							blend: previous.mixBlendMode,
 							interactive,
 							scope: scope instanceof Document ? "document" : "element",
 						});
@@ -89,25 +88,17 @@ for (const theme of ["light", "dark"] as const) {
 		const capture = JSON.parse((await root.getAttribute("data-theme-capture")) ?? "{}");
 		expect(capture).toEqual({
 			dark: theme === "light",
-			animation: "theme-surface-in",
+			animation: "theme-surface-out",
 			duration: "0.24s",
-			previousAnimation: "none",
-			previousOpacity: "1",
+			fill: "both",
+			capturedName: "none",
 			blend: "normal",
-			interactive: capture.scope === "element",
-			scope: capture.scope,
+			interactive: true,
+			scope: "document",
 		});
 		await expect(root).toHaveAttribute("data-theme-commit-guard", "true");
 		await expect(root).toHaveAttribute("data-theme-icon-motion", /opacity.*transform/);
 		await page.screenshot({ path: test.info().outputPath("theme-midpoint.png") });
-		await page.evaluate(() => {
-			for (const animation of document.getAnimations())
-				if (
-					animation instanceof CSSAnimation &&
-					animation.animationName === "theme-surface-in"
-				)
-					animation.finish();
-		});
 		await nav.getByRole("link", { name: "About", exact: true }).hover();
 		await expect(page.getByRole("tooltip")).toHaveAccessibleName("About");
 		await nav.getByRole("link", { name: "About", exact: true }).click();
@@ -150,17 +141,9 @@ for (const theme of ["light", "dark"] as const) {
 		await page.emulateMedia({ reducedMotion: "no-preference", colorScheme: theme });
 		await page.goto("/case-studies/clearway-phoenix");
 		const scroll = await page.evaluate(() => {
-			type ThemeScope = {
-				startViewTransition?: (update: () => void) => ViewTransition;
-			};
-			const surface = document.querySelector<HTMLElement>(".portfolio-theme-surface") as
-				| (HTMLElement & ThemeScope)
-				| null;
-			const scope: ThemeScope = surface?.startViewTransition ? surface : document;
-			const start = scope.startViewTransition;
-			if (!start) throw new Error("Native capture is unavailable in this test browser");
-			scope.startViewTransition = (update) => {
-				const transition = start.call(scope, update);
+			const start = document.startViewTransition.bind(document);
+			document.startViewTransition = (update) => {
+				const transition = start(update);
 				void transition.ready
 					.then(() => {
 						document.documentElement.dataset.articleThemeCapture = "ready";
@@ -185,7 +168,52 @@ for (const theme of ["light", "dark"] as const) {
 	});
 }
 
-test("older engines retain the native document crossfade", async ({ page }) => {
+for (const action of ["scroll", "resize"] as const) {
+	test(`new ${action} intent dismisses the outgoing theme snapshot`, async ({
+		page,
+		isMobile,
+	}) => {
+		await page.addInitScript(() => {
+			localStorage.setItem("theme", "light");
+			const start = document.startViewTransition.bind(document);
+			document.startViewTransition = (update) => {
+				const transition = start(update);
+				void transition.ready
+					.then(() => {
+						for (const animation of document.getAnimations())
+							if (
+								animation instanceof CSSAnimation &&
+								animation.animationName === "theme-surface-out"
+							)
+								animation.pause();
+						document.documentElement.dataset.snapshotReady = "true";
+					})
+					.catch(() => {});
+				return transition;
+			};
+		});
+		await page.emulateMedia({ reducedMotion: "no-preference", colorScheme: "light" });
+		await page.goto("/");
+		await page.getByRole("button", { name: /^Theme:/ }).click();
+		const root = page.locator("html");
+		await expect(root).toHaveAttribute("data-snapshot-ready", "true");
+		await expect(root).toHaveAttribute("data-theme-transition", "true");
+		if (action === "scroll") {
+			// Mobile WebKit has no wheel input; an actual scroll still exercises dismissal.
+			if (isMobile) await page.evaluate(() => scrollBy({ top: 200, behavior: "instant" }));
+			else await page.mouse.wheel(0, 200);
+		} else {
+			const viewport = page.viewportSize();
+			if (!viewport) throw new Error("The resize check requires a fixed viewport");
+			await page.setViewportSize({ ...viewport, height: viewport.height - 40 });
+		}
+		await expect(root).not.toHaveAttribute("data-theme-transition");
+		await expect(root).not.toHaveAttribute("data-theme-updating");
+		await expect(root).toHaveClass(/\bdark\b/);
+	});
+}
+
+test("native theme capture does not depend on the element API", async ({ page }) => {
 	await page.addInitScript(() => {
 		localStorage.setItem("theme", "light");
 		Object.defineProperty(HTMLElement.prototype, "startViewTransition", {
@@ -199,7 +227,7 @@ test("older engines retain the native document crossfade", async ({ page }) => {
 				.then(() => {
 					document.documentElement.dataset.documentThemeAnimation = getComputedStyle(
 						document.documentElement,
-						"::view-transition-new(root)",
+						"::view-transition-old(root)",
 					).animationName;
 				})
 				.catch(() => {});
@@ -211,7 +239,7 @@ test("older engines retain the native document crossfade", async ({ page }) => {
 	await page.getByRole("button", { name: /^Theme:/ }).click();
 	await expect(page.locator("html")).toHaveAttribute(
 		"data-document-theme-animation",
-		"theme-surface-in",
+		"theme-surface-out",
 	);
 	await expect(page.locator("html")).toHaveClass(/\bdark\b/);
 	await expect(page.locator("html")).not.toHaveAttribute("data-theme-transition");

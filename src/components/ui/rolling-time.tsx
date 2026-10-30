@@ -1,6 +1,7 @@
-import type { CSSProperties } from "react";
+"use client";
 
-const digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+import { useState } from "react";
+
 const places = [
 	"hour-tens",
 	"hour-ones",
@@ -12,7 +13,7 @@ const places = [
 	"second-ones",
 ];
 
-/** Office's masked digit columns, adapted to stable HH:MM:SS positions without a render loop. */
+/** Each changed column advances one masked step, including carries such as 59 → 00. */
 export function RollingTime({
 	value,
 	instant = false,
@@ -20,6 +21,14 @@ export function RollingTime({
 	value: string | null;
 	instant?: boolean;
 }) {
+	const [frame, setFrame] = useState({ current: value, previous: value });
+	// Retain the preceding value in the same commit, without an effect or animation loop.
+	if (frame.current !== value) {
+		setFrame({ current: value, previous: frame.current });
+	}
+	const previous = frame.previous ?? value;
+	const animate = value !== null && frame.previous !== null && !instant;
+
 	return (
 		<span
 			className="portfolio-clock-readout"
@@ -36,10 +45,14 @@ export function RollingTime({
 						</span>
 					) : (
 						<span key={places[index]} className="portfolio-clock-digit">
-							<span style={{ "--clock-digit": Number(character) } as CSSProperties}>
-								{digits.map((digit) => (
-									<i key={digit} data-digit={digit} />
-								))}
+							<span
+								key={character}
+								data-rolling={
+									(animate && previous?.[index] !== character) || undefined
+								}
+							>
+								<i data-digit={previous?.[index] ?? character} />
+								<i data-digit={character} />
 							</span>
 						</span>
 					),

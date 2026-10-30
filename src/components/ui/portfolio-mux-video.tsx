@@ -1,4 +1,6 @@
 "use client";
+
+import type MuxVideoElement from "@mux/mux-video";
 import {
 	RiFullscreenExitLine as ArrowsInIcon,
 	RiFullscreenLine as ArrowsOutIcon,
@@ -9,15 +11,13 @@ import {
 	RiVolumeMuteLine as SpeakerSimpleSlashIcon,
 	RiCloseLine as XIcon,
 } from "@remixicon/react";
-
-import "@mux/mux-video";
-import type MuxVideoElement from "@mux/mux-video";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import type { CSSProperties, KeyboardEvent, MouseEvent, WheelEvent } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { StateSwap } from "@/src/components/ui/state-swap";
+import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { applyEdgeResistance, cn, springs, tweens } from "@/src/lib/index";
 import {
@@ -291,7 +291,36 @@ function pauseMuxMediaElement(media: MuxVideoElement, options?: { unload?: boole
 	}
 }
 
-export function PortfolioMuxVideo({
+/** Register the playback engine on mount, so route prefetching stays lightweight. */
+export function PortfolioMuxVideo(props: PortfolioMuxVideoProps) {
+	const [runtimeReady, setRuntimeReady] = useState(false);
+	const [runtimeError, setRuntimeError] = useState<Error | null>(null);
+
+	useEffect(() => {
+		let cancelled = false;
+		void import("@mux/mux-video").then(
+			() => {
+				if (!cancelled) setRuntimeReady(true);
+			},
+			(cause: unknown) => {
+				if (!cancelled)
+					setRuntimeError(
+						cause instanceof Error
+							? cause
+							: new Error("Could not load video playback."),
+					);
+			},
+		);
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	if (runtimeError) throw runtimeError;
+	return runtimeReady ? <PortfolioMuxVideoPlayer {...props} /> : null;
+}
+
+function PortfolioMuxVideoPlayer({
 	playbackId,
 	poster,
 	metadata,
@@ -308,6 +337,7 @@ export function PortfolioMuxVideo({
 	const pathname = usePathname();
 	const mediaRef = useRef<MuxVideoElement | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const visible = useAnimationVisibility(containerRef);
 	const volumeControlHoverRef = useRef(false);
 	const hideControlsTimeoutRef = useRef<number | null>(null);
 	const suppressNextRootClickRef = useRef(false);
@@ -423,6 +453,10 @@ export function PortfolioMuxVideo({
 		setOpenMenu(null);
 		setControlsVisible(true);
 	}, []);
+
+	useEffect(() => {
+		if (!visible && isPlaying) stopPlayback();
+	}, [visible, isPlaying, stopPlayback]);
 
 	const handleExitSurface = useCallback(async () => {
 		stopPlayback();

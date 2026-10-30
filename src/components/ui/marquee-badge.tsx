@@ -53,6 +53,7 @@ export function MarqueeBadge({
 		let frame = 0;
 		let drag: Drag | null = null;
 		let disposed = false;
+		let inView = true;
 		const wrap = (value: number) => (width > 0 ? -(((-value % width) + width) % width) : 0);
 		const paint = (value: number) => {
 			position = wrap(value);
@@ -79,11 +80,12 @@ export function MarqueeBadge({
 				);
 				auto.currentTime = (position / AUTO_SPEED) * 1000;
 			}
-			if (stopped.current || document.hidden) auto.pause();
+			if (stopped.current || document.hidden || !inView) auto.pause();
 			else auto.play();
 		};
 		const sync = () => {
-			if (reduced.matches || (frame && (document.hidden || stopped.current))) freeze();
+			if (reduced.matches || (frame && (document.hidden || !inView || stopped.current)))
+				freeze();
 			play();
 		};
 		const measure = () => {
@@ -96,7 +98,7 @@ export function MarqueeBadge({
 			play();
 		};
 		const coast = (velocity: number) => {
-			if (reduced.matches || document.hidden || Math.abs(velocity) < 20) {
+			if (reduced.matches || document.hidden || !inView || Math.abs(velocity) < 20) {
 				play();
 				return;
 			}
@@ -186,6 +188,11 @@ export function MarqueeBadge({
 		});
 		observer.observe(source);
 		observer.observe(control);
+		const visibilityObserver = new IntersectionObserver(([entry]) => {
+			inView = entry?.isIntersecting ?? false;
+			sync();
+		});
+		visibilityObserver.observe(control);
 		control.addEventListener("pointerdown", down);
 		control.addEventListener("pointermove", move);
 		control.addEventListener("pointerup", finish);
@@ -199,6 +206,7 @@ export function MarqueeBadge({
 			disposed = true;
 			freeze();
 			observer.disconnect();
+			visibilityObserver.disconnect();
 			cancelAnimationFrame(measureFrame);
 			controller.current = null;
 			control.removeEventListener("pointerdown", down);

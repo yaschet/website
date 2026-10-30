@@ -5,9 +5,14 @@ import { defineConfig } from "vitest/config";
 
 /** Runs the actual stories in Chromium; contact transport stays workshop-only. */
 export default defineConfig({
-	// The full article story imports MDX renderers; prebundle them before the test iframe mounts.
+	// Prebundle the article renderers and hero motion before the test iframe mounts.
 	optimizeDeps: {
-		include: ["@phosphor-icons/react/dist/ssr/MagnifyingGlassPlus", "mermaid", "sugar-high"],
+		include: [
+			"@phosphor-icons/react/dist/ssr/MagnifyingGlassPlus",
+			"mermaid",
+			"sugar-high",
+			"motion/react",
+		],
 	},
 	plugins: [
 		storybookTest({ configDir: fileURLToPath(new URL("./.storybook", import.meta.url)) }),
