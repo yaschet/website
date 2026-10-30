@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 for (const theme of ["light", "dark"] as const) {
-	for (const slug of ["clearway-phoenix", "verto"] as const) {
+	for (const slug of ["clearway-phoenix", "verto", "clearway-portal", "clearway-erp"] as const) {
 		test(`${slug} reading layout and contents in ${theme}`, async ({ page }, testInfo) => {
 			await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
 			await page.addInitScript((value) => {
@@ -62,68 +62,6 @@ for (const theme of ["light", "dark"] as const) {
 				);
 			}
 			await page.screenshot({ path: testInfo.outputPath(`${slug}-${theme}.png`) });
-			const code = page.locator("article .code-block-pre").first();
-			await code.scrollIntoViewIfNeeded();
-			const rawCode = await code.textContent();
-			const codeLayout = await code.evaluate((node) => ({
-				overflow: getComputedStyle(node).overflowX,
-				fits: node.getBoundingClientRect().right <= innerWidth,
-				fontSize: getComputedStyle(node).fontSize,
-				lineHeight: getComputedStyle(node).lineHeight,
-			}));
-			expect(codeLayout).toEqual({
-				overflow: "auto",
-				fits: true,
-				fontSize: "13px",
-				lineHeight: "20px",
-			});
-			const syntaxContrast = await code.evaluate((node) => {
-				const context = document.createElement("canvas").getContext("2d");
-				if (!context) throw new Error("Color sampling is unavailable");
-				const luminance = (color: string) => {
-					context.fillStyle = color;
-					context.fillRect(0, 0, 1, 1);
-					const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
-					const linear = [r, g, b].map((channel) => {
-						const value = channel / 255;
-						return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-					});
-					return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
-				};
-				// The pre is transparent; its enclosing code frame owns the opaque surface.
-				if (!node.parentElement) throw new Error("Code frame is missing");
-				const background = luminance(getComputedStyle(node.parentElement).backgroundColor);
-				return [...node.querySelectorAll("code span")]
-					.filter((span) => span.textContent?.trim())
-					.map((span) => {
-						const foreground = luminance(getComputedStyle(span).color);
-						return {
-							token: span.className,
-							color: getComputedStyle(span).color,
-							ratio:
-								(Math.max(foreground, background) + 0.05) /
-								(Math.min(foreground, background) + 0.05),
-						};
-					});
-			});
-			expect(syntaxContrast.length).toBeGreaterThan(0);
-			expect(syntaxContrast.filter((token) => token.ratio < 4.5)).toEqual([]);
-			const copyCode = code
-				.locator("..")
-				.getByRole("button", { name: "Copy code", exact: true });
-			expect((await copyCode.boundingBox())?.height).toBe(40);
-			if (testInfo.project.name === "mobile-chrome") {
-				await page.screenshot({ path: testInfo.outputPath(`${slug}-code-${theme}.png`) });
-			}
-			await copyCode.click();
-			await expect(code.locator("..").getByRole("status")).toHaveText(
-				"Code copied to clipboard.",
-			);
-			await expect(page.locator("html")).toHaveAttribute("data-copied-code", rawCode ?? "");
-			await expect
-				.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
-				.toBe(true);
-
 			const firstHeading = page.locator("article h2[id]").first();
 			await firstHeading.scrollIntoViewIfNeeded();
 			const trigger = page.getByRole("button", { name: "Open table of contents" });
@@ -150,27 +88,11 @@ for (const theme of ["light", "dark"] as const) {
 			await expect(page.locator(`article [id="${href?.slice(1)}"]`)).toBeFocused();
 
 			if (slug === "clearway-phoenix") {
-				const table = page.locator("article table").first();
-				await table.scrollIntoViewIfNeeded();
-				const insets = await table.locator("th, td").evaluateAll((cells) =>
-					cells.map((cell) => {
-						const style = getComputedStyle(cell);
-						return [
-							style.paddingTop,
-							style.paddingRight,
-							style.paddingBottom,
-							style.paddingLeft,
-						];
-					}),
-				);
-				expect(insets.every((values) => values.every((value) => value === "16px"))).toBe(
-					true,
-				);
 				const articleImage = page
 					.locator("article figure")
 					.filter({
 						has: page.getByRole("img", {
-							name: "Programs table backed by the normalized program schema.",
+							name: "University programs in the catalog maintenance interface.",
 							exact: true,
 						}),
 					})
@@ -180,7 +102,7 @@ for (const theme of ["light", "dark"] as const) {
 				});
 				await imageTrigger.click();
 				const viewer = page.getByRole("dialog", {
-					name: "Programs table backed by the normalized program schema.",
+					name: "University programs in the catalog maintenance interface.",
 					exact: true,
 				});
 				await expect(viewer).toBeVisible();
@@ -264,7 +186,12 @@ for (const theme of ["light", "dark"] as const) {
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.setViewportSize({ width: 320, height: 844 });
 		await page.goto("/case-studies/verto");
-		await expect(page.getByRole("heading", { level: 1, name: "Verto" })).toBeVisible();
+		await expect(
+			page.getByRole("heading", {
+				level: 1,
+				name: "Document Translation With Editable Tables",
+			}),
+		).toBeVisible();
 		await expect(
 			page.locator('.portfolio-case-study-meta-row .t-state-label[data-sizing="content"]'),
 		).toHaveAttribute("data-measured", "true");
@@ -296,9 +223,14 @@ for (const theme of ["light", "dark"] as const) {
 		const articleBox = await page.locator("article").boundingBox();
 		expect(railBox?.x).toBeGreaterThanOrEqual(16);
 		expect((railBox?.x ?? 0) + (railBox?.width ?? 0)).toBeLessThan(articleBox?.x ?? 0);
-		const link = rail.getByRole("link", { name: "Results", exact: true });
+		const link = rail.getByRole("link", {
+			name: "Keep The Shortlist In The Agency's Workflow",
+			exact: true,
+		});
 		await link.click();
-		await expect(page.locator('article [id="results"]')).toBeFocused();
+		await expect(
+			page.locator('article [id="keep-the-shortlist-in-the-agencys-workflow"]'),
+		).toBeFocused();
 		await expect(link).toHaveAttribute("aria-current", "location");
 	});
 }

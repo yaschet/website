@@ -271,12 +271,12 @@ for (const theme of ["light", "dark"] as const) {
 				await nav.getByRole("link", { name: "Home", exact: true }).click();
 				await expect(page).toHaveURL(/\/$/);
 				await page
-					.getByRole("link", { name: "Program Matching Engine", exact: true })
+					.getByRole("link", { name: "University Program Matching", exact: true })
 					.click();
 				await expect(page).toHaveURL(/\/case-studies\/clearway-phoenix$/);
 				await expect(
 					page.getByRole("heading", {
-						name: "Program Matching Engine",
+						name: "University Program Matching",
 						exact: true,
 						level: 1,
 					}),

@@ -149,7 +149,10 @@ test("a case study is prefetched with its content and back restores the listing"
 	});
 	await page.goto("/");
 	await page.evaluate(() => document.fonts.ready);
-	const card = page.getByRole("link", { name: "Verto", exact: true });
+	const card = page.getByRole("link", {
+		name: "Document Translation With Editable Tables",
+		exact: true,
+	});
 	await card.scrollIntoViewIfNeeded();
 	await expect.poll(() => prefetched.has("/case-studies/verto"), { timeout: 15000 }).toBe(true);
 	const scroll = await page.evaluate(() => window.scrollY);
@@ -159,7 +162,10 @@ test("a case study is prefetched with its content and back restores the listing"
 	await card.click();
 	await expect(page).toHaveURL(/\/case-studies\/verto$/);
 	await expect(
-		page.locator("main:visible").getByRole("heading", { name: "Verto", exact: true }),
+		page.locator("main:visible").getByRole("heading", {
+			name: "Document Translation With Editable Tables",
+			exact: true,
+		}),
 	).toBeVisible();
 	await page.goBack();
 	await expect(page).toHaveURL(/\/$/);

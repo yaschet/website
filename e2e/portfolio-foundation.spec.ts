@@ -277,9 +277,12 @@ for (const theme of ["light", "dark"] as const) {
 		try {
 			await page.goto("/");
 			const copy = page
-				.getByRole("article", { name: "Program Matching Engine", exact: true })
+				.getByRole("article", { name: "University Program Matching", exact: true })
 				.locator('[data-slot="project-copy"]');
-			const link = copy.getByRole("link", { name: "Program Matching Engine", exact: true });
+			const link = copy.getByRole("link", {
+				name: "University Program Matching",
+				exact: true,
+			});
 			await link.scrollIntoViewIfNeeded();
 			const before = await copy.boundingBox();
 			await link.click();
@@ -297,12 +300,12 @@ for (const theme of ["light", "dark"] as const) {
 				Math.abs(chamber.y + chamber.height / 2 - spinner.y - spinner.height / 2),
 			).toBeLessThan(0.5);
 			expect(await copy.boundingBox()).toEqual(before);
-			await expect(link).toHaveAccessibleName("Program Matching Engine");
+			await expect(link).toHaveAccessibleName("University Program Matching");
 		} finally {
 			releaseRequest();
 		}
 		await expect(
-			page.getByRole("heading", { level: 1, name: "Program Matching Engine" }),
+			page.getByRole("heading", { level: 1, name: "University Program Matching" }),
 		).toBeVisible();
 	});
 }

@@ -34,7 +34,10 @@ for (const theme of ["light", "dark"] as const) {
 		await page.locator('a[data-slot="button"][href="/case-studies"]').click();
 		await expect(page).toHaveURL(/\/case-studies$/);
 		await expect(page.locator('a[data-slot="button"][href="/about"]')).toBeVisible();
-		const card = page.getByRole("article", { name: "Program Matching Engine", exact: true });
+		const card = page.getByRole("article", {
+			name: "University Program Matching",
+			exact: true,
+		});
 		const play = card.getByRole("button", { name: "Play 1:40 video", exact: true });
 		await expect(play).toBeEnabled();
 		if (testInfo.project.use.hasTouch) await play.tap();
