@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IS_PREVIEW_DEPLOYMENT, SITE_URL } from "@/src/constants/site";
+import { IS_PREVIEW_DEPLOYMENT, SITE_DESCRIPTION, SITE_ROLE, SITE_URL } from "@/src/constants/site";
 import "./globals.css";
 
 import RootProvider from "@components/providers/root-provider";
@@ -11,12 +11,13 @@ import { SiteHeader } from "@/src/components/layout/site-header";
 export const metadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
 	title: {
-		default: "Yassine Chettouch — Software Engineer",
+		default: `Yassine Chettouch — ${SITE_ROLE}`,
 		template: "%s | Yassine Chettouch",
 	},
-	description:
-		"Building systems that scale and experiences that convert. High-performance execution for ambitious products.",
+	description: SITE_DESCRIPTION,
 	keywords: [
+		SITE_ROLE,
+		"Applied AI",
 		"Software Engineer",
 		"Senior Software Engineer",
 		"Design Systems",
@@ -38,9 +39,8 @@ export const metadata: Metadata = {
 		canonical: "/",
 	},
 	openGraph: {
-		title: "Yassine Chettouch — Software Engineer",
-		description:
-			"Building systems that scale and experiences that convert. High-performance execution for ambitious products.",
+		title: `Yassine Chettouch — ${SITE_ROLE}`,
+		description: SITE_DESCRIPTION,
 		url: SITE_URL,
 		siteName: "Yassine Chettouch",
 		locale: "en_US",
@@ -70,7 +70,7 @@ const personSchema = {
 	"@type": "Person",
 	name: "Yassine Chettouch",
 	alternateName: "yaschet",
-	jobTitle: "Software Engineer",
+	jobTitle: SITE_ROLE,
 	url: SITE_URL,
 	sameAs: [
 		"https://x.com/yaschett",

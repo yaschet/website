@@ -8,7 +8,7 @@ import {
 	OG_SIZE,
 	sharedGridStyles,
 } from "@/lib/og";
-import { SITE_HOSTNAME } from "@/src/constants/site";
+import { SITE_HOSTNAME, SITE_ROLE } from "@/src/constants/site";
 
 // export const runtime = "edge";
 
@@ -84,7 +84,7 @@ export default async function Image() {
 								letterSpacing: "0.08em",
 							}}
 						>
-							Software Engineer
+							{SITE_ROLE}
 						</div>
 					</div>
 				</div>

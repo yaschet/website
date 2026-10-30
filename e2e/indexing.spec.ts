@@ -1,5 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+test("public contact links use the current Yaschet email domain", async ({ request }) => {
+	for (const path of ["/", "/contact"]) {
+		const response = await request.get(path);
+		expect(response.ok()).toBeTruthy();
+		const html = await response.text();
+		const links = [...html.matchAll(/href="mailto:([^"]+)"/g)].map((match) => match[1]);
+		expect(links.length).toBeGreaterThan(0);
+		for (const email of links) expect(email).toBe("hello@yaschet.com");
+	}
+});
+
 test("deployment indexing policy covers pages, assets, robots and sitemap", async ({ request }) => {
 	const preview = process.env.VERCEL_ENV === "preview";
 	const home = await request.get("/");

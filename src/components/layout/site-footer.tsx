@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
 import { ShellReveal } from "@/src/components/ui/reveal";
+import { SITE_EMAIL } from "@/src/constants/site";
 
 /**
  * SiteFooter component.
@@ -24,10 +25,10 @@ export function SiteFooter() {
 										© 2026 Yassine Chettouch
 									</span>
 									<a
-										href="mailto:hello@yaschet.dev"
+										href={`mailto:${SITE_EMAIL}`}
 										className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50"
 									>
-										hello@yaschet.dev
+										{SITE_EMAIL}
 									</a>
 								</div>
 

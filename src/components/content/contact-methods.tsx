@@ -1,14 +1,15 @@
 import { ButtonLink } from "@/src/components/ui/button-link";
+import { SITE_EMAIL } from "@/src/constants/site";
 
 const CONTACT_METHODS = [
 	{
 		kicker: "Email",
-		title: "hello@yaschet.dev",
+		title: SITE_EMAIL,
 		description: "Best for project scope and retainers.",
 		actions: [
 			{
 				label: "Email",
-				href: "mailto:hello@yaschet.dev",
+				href: `mailto:${SITE_EMAIL}`,
 				variant: "solid" as const,
 				color: "primary" as const,
 			},

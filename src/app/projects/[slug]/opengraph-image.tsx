@@ -8,8 +8,8 @@ import {
 	OG_SIZE,
 	sharedGridStyles,
 } from "@/lib/og";
-import { SITE_HOSTNAME } from "@/src/constants/site";
-import { getPublicProjectSummaryBySlug } from "@/src/content/registry";
+import { SITE_HOSTNAME, SITE_ROLE } from "@/src/constants/site";
+import { getPublicProjectSummaryBySlug } from "@/src/content/project-summaries";
 
 // export const runtime = "edge";
 
@@ -96,7 +96,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								letterSpacing: "0.08em",
 							}}
 						>
-							Product Engineer
+							{SITE_ROLE}
 						</div>
 					</div>
 				</div>

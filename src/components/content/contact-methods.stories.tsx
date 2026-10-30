@@ -23,7 +23,7 @@ export const Default: Story = {
 	play: async ({ canvas }) => {
 		await expect(canvas.getByRole("link", { name: "Email" })).toHaveAttribute(
 			"href",
-			"mailto:hello@yaschet.dev",
+			"mailto:hello@yaschet.com",
 		);
 		for (const link of canvas.getAllByRole("link")) {
 			await expect(link).toHaveAttribute("data-slot", "button");
