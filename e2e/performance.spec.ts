@@ -32,7 +32,7 @@ test.describe("Sitemap route and lab performance checks", () => {
 		// 3. Iterate & Test Each Route
 		for (const url of urls) {
 			// Convert absolute production URL back to local relative path
-			// e.g. https://www.yaschet.dev/about -> /about
+			// e.g. https://www.yaschet.com/about -> /about
 			const relativePath = new URL(url).pathname;
 
 			if (/\.[a-z0-9]+$/i.test(relativePath) && !relativePath.endsWith(".html")) {

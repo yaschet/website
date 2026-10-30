@@ -92,7 +92,7 @@
 
 	/* Checkbox check */
 	--check-box: var(--duration-quick);
-	/* Preserve the existing 200/80/120ms checkbox feel in one CSS owner. */
+	/* Deliberate stroke delay follows the initial check surface response. */
 	--check-draw: 200ms;
 	--check-delay: var(--duration-micro);
 	--check-uncheck: 120ms;
@@ -188,7 +188,6 @@
 		transform var(--dropdown-open-dur) var(--dropdown-ease),
 		filter var(--dropdown-open-dur) var(--dropdown-ease),
 		opacity var(--dropdown-open-dur) var(--dropdown-ease);
-	will-change: transform, filter, opacity;
 }
 
 .t-dropdown[data-open] {
@@ -227,7 +226,6 @@
 	transition:
 		transform var(--modal-open-dur) var(--modal-ease),
 		opacity var(--modal-open-dur) var(--modal-ease);
-	will-change: transform, opacity;
 }
 
 .t-modal[data-open] {
@@ -313,7 +311,6 @@
 .t-panel {
 	transform: translate3d(0, 0, 0);
 	transition: transform var(--panel-open-dur) var(--panel-ease);
-	will-change: transform;
 }
 
 .t-panel[data-side="right"] {
@@ -600,7 +597,6 @@
 		width var(--tabs-dur) var(--tabs-ease),
 		height var(--tabs-dur) var(--tabs-ease),
 		opacity var(--tabs-state-dur) var(--tabs-ease);
-	will-change: transform, width, height;
 }
 
 .t-tabs-pill {
@@ -716,46 +712,52 @@
 	transform-origin: center;
 	transform: translateY(var(--shift, 0px)) scale(var(--scale-active, 1));
 	transition: transform var(--avatar-dur) var(--avatar-ease-in);
-	will-change: transform;
 }
 
 /* Icon swap: both icons occupy one slot and cross-fade in place. */
 .t-icon-swap {
 	position: relative;
 	display: inline-grid;
+	place-items: center;
 }
 
-.t-icon-swap .t-icon {
+.t-icon-swap > .t-icon {
+	display: grid;
 	grid-area: 1 / 1;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
+	line-height: 0;
 	transition:
 		opacity var(--icon-swap-dur) var(--icon-swap-ease),
 		filter var(--icon-swap-dur) var(--icon-swap-ease),
 		transform var(--icon-swap-dur) var(--icon-swap-ease);
-	will-change: opacity, filter, transform;
 }
 
-.t-icon-swap .t-icon[data-icon="a"],
-.t-icon-swap .t-icon[data-icon="b"] {
+.t-icon-swap > .t-icon[data-icon="a"],
+.t-icon-swap > .t-icon[data-icon="b"] {
 	opacity: 1;
 	filter: blur(0);
 	transform: scale(1);
 }
 
-.t-icon-swap .t-icon[data-icon="b"] {
+.t-icon-swap > .t-icon[data-icon="b"] {
 	opacity: 0;
 	filter: blur(var(--icon-swap-blur));
 	transform: scale(var(--icon-swap-start-scale));
 }
 
-.t-icon-swap[data-state="a"] .t-icon[data-icon="a"],
-.t-icon-swap[data-state="b"] .t-icon[data-icon="b"] {
+.t-icon-swap[data-state="a"] > .t-icon[data-icon="a"],
+.t-icon-swap[data-state="b"] > .t-icon[data-icon="b"] {
 	opacity: 1;
 	filter: blur(0);
 	transform: scale(1);
 }
 
-.t-icon-swap[data-state="a"] .t-icon[data-icon="b"],
-.t-icon-swap[data-state="b"] .t-icon[data-icon="a"] {
+.t-icon-swap[data-state="a"] > .t-icon[data-icon="b"],
+.t-icon-swap[data-state="b"] > .t-icon[data-icon="a"] {
 	opacity: 0;
 	filter: blur(var(--icon-swap-blur));
 	transform: scale(var(--icon-swap-start-scale));
@@ -764,7 +766,7 @@
 /* Accordion uses aria-expanded on the trigger as its state source. */
 [data-slot="accordion-trigger"][aria-expanded="true"]
 	.t-icon-swap[data-icon-swap="accordion"]
-	.t-icon[data-icon="a"] {
+	> .t-icon[data-icon="a"] {
 	opacity: 0;
 	filter: blur(var(--icon-swap-blur));
 	transform: scale(var(--icon-swap-start-scale));
@@ -772,7 +774,7 @@
 
 [data-slot="accordion-trigger"][aria-expanded="true"]
 	.t-icon-swap[data-icon-swap="accordion"]
-	.t-icon[data-icon="b"] {
+	> .t-icon[data-icon="b"] {
 	opacity: 1;
 	filter: blur(0);
 	transform: scale(1);
@@ -824,9 +826,8 @@
 	background: var(--portfolio-canvas);
 }
 
-/* Scope navigation below the persistent header and dock. Native old/new images
- * supply the departure and arrival. No DOM clones,
- * frozen router contexts, height interpolation or full-document snapshots. */
+/* Route DOM stays mounted normally. Native route captures are viewport-sized;
+ * capturing this full-height element can resample or clip long case studies. */
 .portfolio-scene {
 	position: relative;
 	z-index: 0;
@@ -834,64 +835,134 @@
 	background: var(--portfolio-canvas);
 }
 
-.portfolio-scene[data-route-transition]::view-transition {
+:root[data-route-transition]::view-transition {
 	pointer-events: none;
 }
 
-.portfolio-scene[data-route-transition]::view-transition-group(root) {
+:root[data-route-transition="true"] {
+	view-transition-name: none;
+}
+
+:root[data-route-transition]::view-transition-group(root) {
 	animation: none;
 }
 
-.portfolio-scene[data-route-transition]::view-transition-old(root),
-.portfolio-scene[data-route-transition]::view-transition-new(root) {
-	height: auto;
+:root[data-route-transition]::view-transition-old(*),
+:root[data-route-transition]::view-transition-new(*) {
+	height: 100%;
+	/* A snapshot is a replaced image. Never resample it to the next page's box. */
+	object-fit: none;
+	object-position: left top;
 	mix-blend-mode: normal;
-	transform-origin: top center;
 }
 
-.portfolio-scene[data-route-transition]::view-transition-old(root) {
+:root[data-route-transition]::view-transition-old(root) {
 	animation: portfolio-route-out var(--duration-quick) var(--ease-smooth-out) both;
 }
 
-.portfolio-scene[data-route-transition]::view-transition-new(root) {
-	animation: portfolio-route-in var(--duration-fast) var(--ease-smooth-out) both;
-}
-
-.portfolio-scene::view-transition-group(.portfolio-entry-heading),
-.portfolio-scene::view-transition-group(.portfolio-entry-copy) {
+:root[data-route-transition]::view-transition-group(.portfolio-entry-heading),
+:root[data-route-transition]::view-transition-group(.portfolio-entry-copy) {
 	animation: none;
 }
 
-.portfolio-scene::view-transition-new(.portfolio-entry-heading),
-.portfolio-scene::view-transition-new(.portfolio-entry-copy) {
+:root[data-route-transition]::view-transition-new(.portfolio-entry-heading),
+:root[data-route-transition]::view-transition-new(.portfolio-entry-copy) {
 	animation: portfolio-copy-in var(--duration-fast) var(--ease-smooth-out) both;
 	animation-delay: var(--entry-delay, 0ms);
 	mix-blend-mode: normal;
 }
 
-.portfolio-scene::view-transition-new(.portfolio-entry-heading) {
+:root[data-route-transition]::view-transition-new(.portfolio-entry-heading) {
 	animation-name: portfolio-title-in;
 }
 
-.portfolio-scene::view-transition-group(.portfolio-entry-delay-0) {
+/* Both reveal layers share one fixed word box; no glyph or frame is scaled. */
+.portfolio-resolve-word {
+	--resolve-feather: 3em;
+	position: relative;
+	display: inline-block;
+	max-width: 100%;
+}
+[data-resolve-sharp],
+[data-resolve-front] {
+	display: inline-block;
+	mask-repeat: no-repeat;
+	mask-size: calc(200% + var(--resolve-feather)) 100%;
+	mask-position: 0% 0%;
+}
+[data-resolve-sharp] {
+	mask-image: linear-gradient(
+		to right,
+		#000 calc(50% - var(--resolve-feather) / 2),
+		transparent calc(50% + var(--resolve-feather) / 2)
+	);
+}
+[data-resolve-front]::before {
+	content: attr(data-resolve-text);
+}
+[data-resolve-fog] {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	filter: blur(0.3em);
+}
+[data-resolve-front] {
+	mask-image: linear-gradient(
+		to right,
+		transparent calc(50% - var(--resolve-feather) / 2),
+		#000 50%,
+		transparent calc(50% + var(--resolve-feather) / 2)
+	);
+}
+/* First-paint CSS owns initial entry, so hydration never hides painted copy. */
+@media (prefers-reduced-motion: no-preference) {
+	[data-resolve-initial] :is([data-resolve-sharp], [data-resolve-front]) {
+		transition: mask-position var(--resolve-duration) linear var(--resolve-delay);
+	}
+	@starting-style {
+		[data-resolve-initial] :is([data-resolve-sharp], [data-resolve-front]) {
+			mask-position: 100% 0%;
+		}
+	}
+}
+[data-navigation-input="keyboard"]
+	[data-resolve-initial]
+	:is([data-resolve-sharp], [data-resolve-front]) {
+	transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-resolve-sharp] {
+		mask-image: none;
+	}
+	[data-resolve-fog] {
+		display: none;
+	}
+}
+@supports not (mask-image: linear-gradient(#000, transparent)) {
+	[data-resolve-fog] {
+		display: none;
+	}
+}
+
+:root[data-route-transition]::view-transition-group(.portfolio-entry-delay-0) {
 	--entry-delay: 0ms;
 }
-.portfolio-scene::view-transition-group(.portfolio-entry-delay-1) {
+:root[data-route-transition]::view-transition-group(.portfolio-entry-delay-1) {
 	--entry-delay: 20ms;
 }
-.portfolio-scene::view-transition-group(.portfolio-entry-delay-2) {
+:root[data-route-transition]::view-transition-group(.portfolio-entry-delay-2) {
 	--entry-delay: 40ms;
 }
-.portfolio-scene::view-transition-group(.portfolio-entry-delay-3) {
+:root[data-route-transition]::view-transition-group(.portfolio-entry-delay-3) {
 	--entry-delay: 60ms;
 }
-.portfolio-scene::view-transition-group(.portfolio-entry-delay-4) {
+:root[data-route-transition]::view-transition-group(.portfolio-entry-delay-4) {
 	--entry-delay: 80ms;
 }
-.portfolio-scene::view-transition-group(.portfolio-entry-delay-5) {
+:root[data-route-transition]::view-transition-group(.portfolio-entry-delay-5) {
 	--entry-delay: 100ms;
 }
-.portfolio-scene::view-transition-group(.portfolio-entry-delay-6) {
+:root[data-route-transition]::view-transition-group(.portfolio-entry-delay-6) {
 	--entry-delay: 120ms;
 }
 
@@ -922,59 +993,41 @@
 @keyframes portfolio-route-out {
 	to {
 		opacity: 0;
-		transform: translateY(calc(-1 * var(--distance-micro)));
 	}
 }
 
-@keyframes portfolio-route-in {
-	from {
-		opacity: 0;
-		transform: translateY(var(--distance-base));
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+/* Capture the outgoing viewport, then leave the new document uncaptured and
+ * interactive. A full-height element snapshot can clip at deep scroll positions. */
+:root[data-theme-transition="true"] {
+	view-transition-name: none;
 }
 
-/* The element scope owns its native snapshot below the live dock. Older engines
- * apply the same material animation to the document root. */
-:root[data-theme-transition="true"]::view-transition-group(root),
-:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition-group(root) {
+:root[data-theme-transition="true"]::view-transition-group(root) {
 	animation: none;
 }
 
-:root[data-theme-transition="true"]::view-transition-old(root),
-:root[data-theme-transition="true"]::view-transition-new(root),
-:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition-old(root),
-:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition-new(root) {
+:root[data-theme-transition="true"]::view-transition-old(root) {
+	height: auto;
+	object-fit: none;
+	object-position: left top;
+	animation-name: theme-surface-out;
 	animation-duration: 240ms;
 	animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	/* Hold transparency through native teardown so the old bitmap cannot repaint. */
+	animation-fill-mode: both;
 	mix-blend-mode: normal;
 }
 
-/* Keep the old snapshot opaque beneath the new one: no exposed backing paint. */
-:root[data-theme-transition="true"]::view-transition-old(root),
-:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition-old(root) {
-	animation-name: none;
-}
-
-:root[data-theme-transition="true"]::view-transition-new(root),
-:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition-new(root) {
-	animation-name: theme-surface-in;
-}
-
-:root[data-theme-transition="true"]::view-transition,
-:root[data-theme-transition="true"] .portfolio-theme-surface::view-transition {
+:root[data-theme-transition="true"]::view-transition {
 	pointer-events: none;
 }
 
-@keyframes theme-surface-in {
+@keyframes theme-surface-out {
 	from {
-		opacity: 0;
+		opacity: 1;
 	}
 	to {
-		opacity: 1;
+		opacity: 0;
 	}
 }
 
@@ -1019,13 +1072,13 @@
 	position: relative;
 }
 
-.t-icon-swap .t-icon[data-active="true"] {
+.t-icon-swap > .t-icon[data-active="true"] {
 	opacity: 1;
 	filter: blur(0);
 	transform: scale(1);
 }
 
-.t-icon-swap .t-icon[data-active="false"] {
+.t-icon-swap > .t-icon[data-active="false"] {
 	opacity: 0;
 	filter: blur(var(--icon-swap-blur));
 	transform: scale(var(--icon-swap-start-scale));

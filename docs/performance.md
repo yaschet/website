@@ -1,51 +1,61 @@
-# Performance Engineering Guide
+# Performance
 
-We use a standardized performance infrastructure to prevent regressions in production.
+Measure the production build with a cold browser cache. Development includes
+compilation, diagnostics and hot reload; its timings do not represent delivery.
+The performance tests run in the existing Quality browser jobs.
 
-## 1. CI Enforcement (Prevention)
+## Loading boundaries
 
-We enforce hard limits on performance metrics using **Playwright**. This runs in a headless browser and measures real Web Vitals.
+- Listing routes import `src/content/project-summaries.ts`. It reads validated
+  metadata without importing the MDX module graph. `src/content/registry.ts` owns
+  full article loading; keep it out of listing routes.
+- Keep Next.js route prefetching enabled. Prefetching an article must not
+  download or initialize its playback engine or diagram renderer. Those libraries
+  load from their mounted client components. Video streams wait for playback
+  intent; a poster remains visible while the engine loads.
+- Server-render headings, prose and the first project poster. Preserve image
+  dimensions and responsive sources. Do not hide primary content behind an
+  entrance animation, a client fetch or a whole-page loading screen.
+- Effects already pause outside their observation region and honor reduced
+  motion. Profile shaders on real devices before increasing their resolution or
+  complexity. A headless software renderer cannot establish GPU frame rates.
 
-### Command
-```bash
-pnpm test:e2e
+## Regression budgets
+
+`e2e/script-budget.spec.ts` checks fresh visits to Home and Case Studies after
+idle enhancements and automatic prefetching settle. Same-origin JavaScript must
+stay below **550 KiB compressed** and **1.7 MiB decoded**. It also checks that
+prefetching does not register the video engine or request a video stream.
+These are local regression budgets, not industry thresholds or total-page size.
+Review added functionality and its import graph before raising them.
+
+The existing `e2e/performance.spec.ts` checks public routes for lab LCP below
+2.5 seconds and observed layout shift below 0.1. Run against a retained production
+build with one worker, for example:
+
+```sh
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:3100 pnpm exec playwright test \
+  e2e/script-budget.spec.ts e2e/performance.spec.ts --project=mobile-chrome --workers=1
 ```
-*   **Prerequisite**: Run `pnpm build` first.
-*   **What it does**: Checks `LCP < 2.5s` and `CLS < 0.1` on key routes.
-*   **When to run**: Before every push.
 
-## 2. Bundle Analysis
+For comparisons, hold viewport, device scale, cache state, network and CPU
+throttling constant; run at least three samples and report the median. Distinguish
+JavaScript bytes, render timing and interaction latency: fewer bytes alone do not
+prove better LCP or INP. Do not promise a fixed frame rate across devices.
 
-We visualize the JavaScript bundle to ensure no heavy dependencies (like `moment.js` or full `lodash`) are included.
+## Bundle analysis and field data
 
-### Command
-```bash
-pnpm analyze
-```
-*   **What it does**: Opens an interactive treemap in your browser.
-*   **What to look for**:
-    *   **Large Blocks**: Heavy libraries.
-    *   **Duplicate Packages**: Different versions of the same lib.
-    *   **Unexpected Code**: Server code leaking into the client bundle.
+The installed Next.js CLI provides `pnpm exec next analyze` for the Turbopack
+module graph. Inspect unexpected client imports, large libraries and duplicate
+dependencies. Verify the resulting network transfers in a production browser;
+an import that leaves initial HTML can still download during route prefetching.
 
-## 3. Development Monitoring
+Vercel Speed Insights collects production field data. Assess LCP, INP and CLS at
+the 75th percentile, separately for mobile and desktop. The good thresholds are
+2.5 seconds, 200 milliseconds and 0.1 respectively. Local browser tests cannot
+establish field Core Web Vitals or conversion improvements.
 
-While developing, we inject a real-time HUD to warn you if you break thresholds.
-
-### Usage
-1.  Run `pnpm build && pnpm start` (Production Simulation).
-2.  Browse your site.
-3.  **Watch the toast notifications**:
-    *   ✅ **Green**: All good.
-    *   ⚠️ **Yellow**: Borderline.
-    *   🚨 **Red**: You broke the 2.5s LCP limit.
-
----
-
-## Performance Thresholds (Google Core Web Vitals)
-
-| Metric | Good (Target) | Poor (Fail) | What it measures |
-| :--- | :--- | :--- | :--- |
-| **LCP** | < 2.5s | > 4.0s | **Loading Speed** (Largest Content) |
-| **INP** | < 200ms | > 500ms | **Interactivity** (Click delay) |
-| **CLS** | < 0.1 | > 0.25 | **Visual Stability** (Jumping content) |
+References: [Next.js production checklist](https://nextjs.org/docs/app/guides/production-checklist),
+[lazy loading](https://nextjs.org/docs/app/guides/lazy-loading),
+[package bundling](https://nextjs.org/docs/app/guides/package-bundling),
+[Core Web Vitals](https://web.dev/articles/vitals).

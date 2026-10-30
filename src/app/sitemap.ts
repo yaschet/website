@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { IS_PREVIEW_DEPLOYMENT, SITE_URL } from "@/src/constants/site";
-import { getAllPosts, getListedPublicProjectSummaries } from "@/src/content/registry";
+import { getListedPublicProjectSummaries } from "@/src/content/project-summaries";
+import { getAllPosts } from "@/src/content/registry";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	if (IS_PREVIEW_DEPLOYMENT) return [];

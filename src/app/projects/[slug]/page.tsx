@@ -1,5 +1,5 @@
 import { permanentRedirect } from "next/navigation";
-import { getPublicProjectSummaries } from "@/src/content/registry";
+import { getPublicProjectSummaries } from "@/src/content/project-summaries";
 
 interface ProjectPageProps {
 	params: Promise<{

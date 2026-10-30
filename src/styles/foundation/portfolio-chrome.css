@@ -1,12 +1,13 @@
 /* Portfolio composition; all material, geometry and interaction values belong to Foundation. */
 .portfolio-site-header {
-	padding-block: var(--portfolio-space-related);
+	padding-block: var(--portfolio-context-clearance);
 }
 .portfolio-context-rail {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	align-items: center;
-	gap: var(--portfolio-space-related);
+	column-gap: var(--portfolio-context-gap);
+	row-gap: var(--portfolio-context-row-gap);
 }
 .portfolio-context-badge {
 	--context-line: var(--border);
@@ -20,7 +21,13 @@
 	border: 0;
 	border-radius: 0;
 	padding: 0;
-	font: 400 13px / 20px var(--font-sans);
+	font: 400 12px / 16px var(--font-sans);
+}
+/* The compact frame stays 28px; its invisible hit area remains 44px high. */
+.portfolio-context-badge::before {
+	position: absolute;
+	inset: calc((var(--portfolio-badge-height) - 44px) / 2) 0;
+	content: "";
 }
 .portfolio-context-badge::after {
 	position: absolute;
@@ -36,18 +43,12 @@
 		background-color var(--duration-micro) var(--ease-smooth-out),
 		color var(--duration-micro) var(--ease-smooth-out);
 }
-/* Preserve the 40px visible rail, with a 44px touch target. */
-.portfolio-context-trigger::before {
-	position: absolute;
-	inset: -2px 0;
-	content: "";
-}
 .portfolio-context-trigger:focus-visible {
 	outline: none;
 }
 .portfolio-context-trigger:focus-visible::after {
-	outline: 2px solid var(--ring);
-	outline-offset: -3px;
+	outline: none;
+	box-shadow: inset 0 0 0 2px var(--ring);
 }
 @media (hover: hover) and (pointer: fine) {
 	.portfolio-context-trigger:hover {
@@ -209,8 +210,8 @@
 	}
 }
 .portfolio-context-chamber > svg {
-	width: 16px;
-	height: 16px;
+	width: 14px;
+	height: 14px;
 }
 .portfolio-context-label {
 	display: flex;
@@ -232,13 +233,16 @@
 	cursor: grab;
 	touch-action: pan-y pinch-zoom;
 	user-select: none;
+	font-weight: 500;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
 }
 .portfolio-marquee[data-dragging="true"] {
 	cursor: grabbing;
 }
 .portfolio-marquee:focus-visible {
-	outline: 2px solid var(--ring);
-	outline-offset: -2px;
+	outline: none;
+	box-shadow: inset 0 0 0 2px var(--ring);
 }
 .portfolio-marquee-window {
 	display: flex;
@@ -289,39 +293,49 @@
 }
 .portfolio-clock-digits {
 	display: inline-flex;
-	height: 20px;
+	height: 16px;
 	align-items: flex-start;
 }
 .portfolio-clock-digit {
 	display: inline-block;
-	width: 9px;
+	width: 8px;
 	box-sizing: content-box;
 	padding-block: 2px;
 	margin-block: -2px;
-	height: 20px;
+	height: 16px;
 	overflow: hidden;
 	mask-image: linear-gradient(
 		to bottom,
 		transparent,
-		#000 3px,
-		#000 calc(100% - 3px),
+		#000 2px,
+		#000 calc(100% - 2px),
 		transparent
 	);
 }
 .portfolio-clock-digit > span {
 	display: flex;
 	flex-direction: column;
-	transform: translateY(calc(var(--clock-digit) * -10%));
-	transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+	transform: translateY(-50%);
+}
+.portfolio-clock-digit > [data-rolling] {
+	animation: portfolio-clock-step 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+@keyframes portfolio-clock-step {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(-50%);
+	}
 }
 .portfolio-clock-digit i {
 	flex: none;
-	height: 20px;
-	line-height: 20px;
+	height: 16px;
+	line-height: 16px;
 	font-style: normal;
 	text-align: center;
 }
-/* Decorative reels must not contribute all ten digits to the button's visible label. */
+/* Decorative reels must not contribute either digit to the button's visible label. */
 .portfolio-clock-digit i::before {
 	content: attr(data-digit);
 }
@@ -336,7 +350,7 @@
 	visibility: hidden;
 }
 .portfolio-clock-readout[data-instant] .portfolio-clock-digit > span {
-	transition: none;
+	animation: none;
 }
 @media (min-width: 40rem) {
 	.portfolio-context-rail {
@@ -358,8 +372,8 @@
 	}
 }
 @media (prefers-reduced-motion: reduce) {
-	.portfolio-clock-digit > span {
-		transition: none;
+	.portfolio-clock-readout .portfolio-clock-digit > span {
+		animation: none;
 	}
 }
 

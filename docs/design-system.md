@@ -40,13 +40,14 @@ palette in global CSS.
 | Spacing | 10px rhythm; 20px structural step; named 10 / 20 / 30 / 40 / 80px roles |
 | Controls | 28 / 36 / 40 / 44 / 48px Foundation scale; 32px compact / 40px video menu rows |
 | Color | OKLCH primitives and light/dark semantic roles; neutral editorial hierarchy |
-| Depth | Tonal planes and keylines; editorial keylines; Foundation popup depth only where it separates overlays |
+| Depth | Flat editorial planes and hairlines; restrained popup depth |
 | Focus | Neutral 2px inset control focus; native fallback for other interactive content |
 | Motion | Stable control geometry; contained press feedback; owned overlay focus and dismissal; shared motion presets and reduced-motion support |
 
 Hairlines and small optical clearances are separate measurements, not a second
 spacing system. Functional focus rings, autofill paint, and inset keylines may
-use CSS shadow mechanics; they must not introduce decorative elevation.
+use CSS shadow mechanics. Editorial surfaces and project cards remain flat during
+interaction; their keylines and action materials communicate state.
 Avoid vibrant or multi-color gradients. Restrained monochromatic background
 fields are permitted and must not obscure essential content.
 
@@ -97,6 +98,8 @@ clearance. Base UI retains focus ownership and dismissal.
 Default 40px buttons use equal 12px horizontal insets and 8px icon gaps. The
 `icon` slot owns one glyph chamber, at `iconPosition="start"` or `"end"`.
 Loading replaces that glyph with the Foundation spinner using `StateSwap`.
+Each icon layer fills the same centered grid cell, including nested state swaps;
+inline text baselines must not add height to the glyph chamber.
 Text-only actions expand one chamber and its adjoining gap over the 300ms
 resize token; neither a hidden counterweight nor a second spinner is added.
 Slots inherit the size's own glyph and gap, including 14px compact glyphs.
@@ -116,9 +119,6 @@ when the state changes or unmounts, and does no per-frame React work. The defaul
 `sizing="stable"` remains available where a fixed rail needs its longest label.
 Contact uses the same text transition and replaces its trailing arrow with the
 spinner; Copy Markdown uses this shared path for progress, success and retry.
-These interaction details are informed by [Devouring Details](https://devouringdetails.com/system/button)
-and [Rauno's interaction-design essay](https://rauno.me/craft/interaction-design).
-They do not introduce another palette, shape system, sounds or pressure gestures.
 Password fields use the owned
 input-group frame around both the text field and a square, full-height reveal
 control; masking changes immediately and the icon swap respects keyboard and
@@ -144,8 +144,9 @@ fullscreen exits, then the dialog closes. Player sliders and nested controls
 retain their arrow keys. The zoom gesture engine is a separate component.
 
 `Badge` has four treatments: opaque `solid`, tinted `soft`, keyline
-`outlined`, and text-only `plain`. Technology chips use the lighter keyline
-treatment. Its `interactive` flag provides appearance only; callers still own
+`outlined`, and text-only `plain`. Project technology metadata uses a plain
+reading list rather than badge controls. The badge `interactive` flag provides
+appearance only; callers still own
 semantic controls and keyboard behavior.
 
 Forms use labeled inputs, associated validation messages, explicit pending
@@ -158,18 +159,92 @@ fonts, tokens, and layout roles; it is not a parallel implementation.
 
 ## Homepage And Project Listings
 
-The homepage keeps its editorial frame and authored project claims. Its hero
+The homepage keeps its proof-first sequence and authored project claims. Its hero
 uses 32/40px type on compact phones, 36/44px from 360px, and 48/56px from
 640px, with matching Capsize
 metrics. The decorative field stays subordinate to the reading layer.
-The selected-work section introduces the project headings in the document outline.
+The joined profile and hero own one density-aware perimeter. Their dedicated
+surface stays white in light mode and uses Neutral 925 in dark mode, between
+the Neutral 900 canvas and Neutral 950 project panels. Mineral 400 / Neutral 700
+keylines define the complete plane against bright full-bleed previews. The
+field and its fallback inherit that same surface; outer rails, content insets,
+and media dimensions remain fixed.
+The selected-work section retains a visually hidden heading for the document outline.
+Project cards use the same full content width as the hero and closing CTA.
+Only the page gutters surround them; there is no additional listing inset or
+connecting frame. A 40px canvas gap separates the cards. No visible section label
+or introductory band displaces the first preview.
 
-Project cards use the Foundation card surface and density-aware hairline. The
-preview owns one bottom boundary, including after the deferred gallery mounts.
-Copy has equal 20px insets on phones and 30px from 640px, with 20px between
-content groups. Titles use 24/32px and 28/36px respectively. A native title link
-contains the centered 40px action chamber; it remains one keyboard stop.
+Project cards use locally owned surface roles from the Foundation neutral palette
+and a density-aware Neutral 300/700 perimeter. The preview owns one bottom
+boundary, including after the deferred gallery mounts. The content panel is
+white in Light and Neutral 925 in Dark. Its title and explanation share equal
+20px insets on phones and 30px from 640px, with a 20px gap. Titles use 24/32px
+and 28/36px respectively. A full-width technical footer uses Mineral 200 in
+Light and Neutral 950 in Dark, separated by one hairline. It keeps the same
+horizontal text rails and 20px block insets: index and date at the start,
+technologies at the end when the caption has at least 672px available.
+Narrower captions stack those groups with
+a 10px gap. All footer copy uses quiet 13/20px type. One native title
+link extends its hit area across the caption, with a centered 40px action
+chamber beside the title. It remains one keyboard stop; descriptions and
+technology lists retain their own reading semantics.
 Descriptions remain complete, and technology lists wrap without clipping.
+Description leading is 22px on phones and 24px from 640px. Technology names
+remain a semantic, comma-separated reading list in 13/20px type. A 10px horizontal
+gap separates names, with 4px between wrapped lines. There are no badge fills,
+extra insets or individual hover, press or keyboard states; long names reflow
+rather than clip. The preview, title and explanation retain the visual emphasis.
+
+Cards stay on their plane with one structural hairline and no blurred shadow,
+lift or media zoom. Hovering the caption strengthens that hairline and changes
+only the square action to the primary neutral material. Its arrow exits towards
+the destination as an identical arrow enters the same clipped 16px frame.
+Hovering the preview does not advertise navigation. The 40px action chamber
+rests in Foundation's soft neutral material with an inset hairline. Pointer press compresses
+only that chamber. A delayed navigation uses the existing LinkFeedback icon
+swap without changing its dimensions or accessible name. Keyboard focus adds
+an immediate contrasting 2px inset caption frame. Reduced
+motion removes the reel and compression. The gallery remains a separate
+interaction; the card is not a second, nested navigation target. Restricted
+cards do not advertise navigation.
+
+The hero's `ArrowButtonLink` composes the existing `ButtonLink` and pending
+feedback. Its 40px frame holds a label with 12px inline insets and a square,
+slightly inset-tone arrow chamber. On pointer hover,
+characters rotate around X, travel one third of an em and blur by one twelfth
+of an em. Characters use a stiffness-250, damping-30 spring, a 50ms forward
+stagger and a 100ms incoming lead. The return reads right to left with 60ms
+outgoing and 50ms incoming offsets. The arrow uses its own stiffness-320,
+damping-30 spring and travels 80% of its chamber. Its clipping aperture is the
+whole chamber, preserving visible travel throughout the exchange. Both tracks
+retarget from their current position on pointer exit without a busy lock or
+queued replay. The hero's deliberate display choreography is separate from
+immediate surface and press feedback. Distances adapt to our 14px type and
+40px chamber while retaining Yaschet's sharp geometry and monochrome materials.
+Only the visual layers move;
+the label is announced once, and the control never changes width or height.
+Keyboard focus is immediate. Touch and reduced motion keep the resting label
+and arrow; pending navigation retains the existing centered spinner and material.
+
+The hero title reveals text through a moving sharp/blur boundary. Stable
+word boxes hold a sharp layer and an aria-hidden blurred frontier, with a 3em
+feather and 0.3em blur. Their masks travel in reading order at a 45ms character
+cadence, including spaces; word boundaries preserve natural line wrapping.
+Initial HTML uses `@starting-style`, so hydration never hides already-painted
+copy. Route entry animates the same live masks after native capture is ready,
+rather than flattening the two layers into a snapshot. There is no title
+translation, scale or frame animation. Reduced motion and keyboard navigation
+show clear text immediately; theme changes do not replay entry.
+
+Confidential work is a standalone card with the original paragraph and inline
+“in a call” contact link. It shares the project cards' full-width rails, surface,
+hairline, title scale and equal 20px/30px content insets. The title and explanation
+remain stacked on one left rail at every width, with the same 20px content gap
+and readable description measure. A 40px canvas gap separates this box from its
+neighbors; no divider or surrounding frame joins them. The inline link
+keeps a visible underline and immediate keyboard focus. No separate button
+competes with the homepage's hero and footer CTA areas.
 
 Both the initial poster and enhanced gallery use `GalleryPlayButton`: the same
 48px inverse Foundation control, 16px play/loader slot, 14/20px sans-serif label
@@ -315,25 +390,29 @@ Escape, scrolling, viewport changes, hidden tabs and obscured anchors dismiss it
 Touch taps do not open hover hints.
 
 The root layout owns the single SiteHeader. Route content must not render a
-second header. Its location, highlights and clock are 40px high, with 40px square
-chambers, 16px glyphs and 13/20px Space Grotesk labels. The flag fills its
-chamber inside an equal hairline inset on all four sides. The badge perimeter
+second header. Badge and marquee frames are 28px tall. One shared 20px spacing
+token sets horizontal gaps, mobile row gaps and clearance above and below the
+rail. The gap between badges must equal the gap from the rail to the first page
+frame. Internal label padding and frame height remain independent. These are
+local design decisions, not a universal ratio. Location and clock use 28px square
+chambers, 14px glyphs and 12/16px Space Grotesk labels.
+The flag fills its chamber inside an equal hairline inset on all four sides. The badge perimeter
 owns its top, bottom and left frame; the chamber seam owns its right frame.
 There is no additional flag border or empty inset.
-Inter-item gaps and the clearance to the first content frame are both 20px.
-Desktop gives location and time equal 180px widths; phones keep these equal on
+Desktop gives location and time equal 160px widths; phones keep these equal on
 the first row and put highlights on the second. Compact phones shorten the
 location label to Rabat instead of compressing its chamber or overflowing.
 
-The 40px height is twice the 20px composition gap. Each 16px clock glyph has
-12px clearance inside its square; 20px label line-height leaves 10px above and
-below. Label insets are at least 12px. One outer perimeter and one chamber seam
-share the same quiet hairline. The chamber has no competing border or separate
+Each 14px clock glyph has 7px clearance inside its square; 16px label line-height
+leaves 6px above and below. Label insets are 10px. One outer perimeter and one
+chamber seam share the same quiet hairline. The chamber has no competing border or separate
 fill: hover strengthens the entire joined surface to primary-soft; open uses
 primary-soft-hover and press uses primary-soft-active. The line never brightens
 on hover. A neutral 2px inset focus frame is reserved for keyboard use. The flag
-keeps its own colors, clear of the frame. Hit areas extend 2px above and below
-the visible badge, giving 44px.
+keeps its own colors, clear of the frame. All three hit areas extend 8px above
+and below the visible badge, giving 44px without enlarging its frame. On phones,
+the 20px row gap leaves 4px between these hit areas. Horizontal page gutters
+stay aligned to the hero; the context rail does not change editorial spacing.
 
 Location and time open non-modal context dialogs: 300px wide, bounded by 16px
 viewport clearance, 8px below their trigger and aligned to its outside edge.
@@ -381,11 +460,11 @@ timezone regression tests before release. Missing zones or out-of-range dates
 show unavailable, never an invented zero offset. Explicit preview overrides take
 precedence, then device timezone, then estimated request timezone.
 
-The marquee keeps its compositor animation through route navigation. Sentence
-case avoids shouting over the heading. Copy names client work already described
+The marquee keeps its compositor animation through route navigation. Uppercase
+12/16px medium labels use 0.04em tracking. Copy names client work already described
 in the hero: internal tools, billing systems, document workflows and AI integration.
 It stays muted and secondary to proof and the primary hero action; no extra pill
-frames or uppercase technology inventory. Every label-to-dot and dot-to-label gap,
+frames or added technology inventory. Every label-to-dot and dot-to-label gap,
 including the repeating seam, is 16px. Autoplay travels at 24px/s. Dragging maps
 1:1 to horizontal movement; release settles with exponential velocity decay
 over at most 700ms, then resumes at the current position. Vertical touch scrolling
@@ -394,8 +473,11 @@ Activation toggles a persistent pause; keyboard focus pauses reading, and arrow
 keys move 80px and retain a pause. Hover alone does not stop the track. Hidden
 documents pause both marquee and clock work. Reduced motion disables autoplay,
 inertia and rolling digits while preserving manual stepping and dragging.
-Clock digits reuse the Foundation's fixed columns, feathered mask and 180ms
-easing; initial hydration reveals the current value without rolling from zero.
+Clock digits use fixed columns, a feathered mask and 180ms smooth-out easing.
+Only changed digits move, one outgoing-to-incoming step even at 59 → 00;
+the clock never scrubs through intermediate numbers. Initial hydration and
+resuming a hidden tab reveal the current value immediately. The two-cell reels
+animate only transforms, with no per-frame React updates or idle animation loop.
 
 StateSwap keeps icon and label layers mounted. Stable sizing reserves the
 largest state; content sizing transitions to the active text's natural width.
@@ -436,41 +518,64 @@ and essential actions remain available with reduced motion.
 ## Portfolio navigation and loading
 
 The root keeps one header and one floating dock mounted, preserving the marquee's
-position and pause state. Eligible pointer navigation uses an element-scoped View
-Transition on PortfolioScene: the outgoing page yields over 150ms/4px while the
-incoming frame settles over 250ms/8px. The page's canvas remains behind both images.
-No document-wide route capture, cloned React trees or frozen router contexts are used.
+position and pause state. Eligible pointer navigation uses a viewport-sized document
+View Transition: the outgoing viewport fades over 150ms above the live incoming
+page. The destination frame is never captured or resized.
+Never capture the full-height PortfolioScene: a long case study changing into a
+short page can stretch its captured raster or lose the scrolled portion entirely.
+Viewport snapshots retain their natural pixel size and top-left alignment, with
+`height: 100%` and `object-fit: none`. Never stretch snapshots or translate the whole page frame;
+movement belongs to the individual title and copy groups.
+The persistent header, dock and tooltip remain mounted. Their old appearance
+stays in the outgoing viewport bitmap; extracting and hiding it would leave blank
+areas above the live page. Their incoming DOM stays uncaptured, preserving pointer
+input through the non-intercepting overlay. Capturing an incoming control prevents
+native hit testing even when the overlay ignores input.
+Desktop keeps its vertical scroll box on short pages as well as long ones, so
+custom scrollbars cannot change the content width or rewrap text during navigation.
+No cloned React trees or frozen router contexts are used.
 
-Visible titles get separate native word groups with a 3px blur and a 20ms stagger;
-supporting copy and controls get their own groups. Delays cap at 120ms, keeping the
+Visible titles enter over 250ms in separate native word groups with a 3px blur and a 20ms stagger;
+supporting copy gets its own groups. Controls, forms and media remain uncaptured
+and interactive. Delays cap at 120ms, keeping the
 sequence within 370ms. Groups are prepared after Next's route layout and scroll
 commit, so returning to a retained page gets the same treatment as its first entry.
+Use a task checkpoint here, never await an animation frame inside the document
+update callback: capture suspends rendering until that callback resolves.
 Capturing one image of an already-blurred heading would freeze that intermediate
 frame; native text groups avoid that defect. Temporary capture names are removed
 when the handoff finishes or is interrupted.
 
 PortfolioLink retains Next Link's prefetching and browser semantics. Its onNavigate
-adapter starts the scoped capture, then calls the public router inside a React
+adapter starts the viewport capture, then calls the public router inside a React
 transition. LinkFeedback combines that transition's pending state with native
 useLinkStatus. No outgoing-animation timer delays the router. A visible Suspense
 fallback immediately abandons capture; otherwise a request still waiting after
 150ms abandons it so Next's live loading UI can take over.
-New navigation, theme changes, scroll input, keyboard input and reduced motion
+New navigation, theme changes, scroll input, viewport resizing, keyboard input and reduced motion
 interrupt the snapshot without cancelling Next's navigation.
+Rendered-pixel regressions leave a real case study for Home and About from the top,
+middle and footer in both themes and mobile. Stable live-DOM rectangles alone do
+not establish that a native snapshot is undistorted.
 
-Unsupported engines and browser history use the live-DOM entry path: an opaque
-frame settles over 250ms/8px, titles clear from a 4px blur, and supporting copy follows.
+Unsupported engines and browser history use the live-DOM entry path: the frame stays
+stationary and opaque, titles clear from a 4px blur, and supporting copy follows.
 Initial HTML stays readable before hydration. Keyboard and reduced-motion paths
 remain immediate. Geometry and semantic markup stay identical on mobile and desktop.
 Browser automation exercises the same production motion as visitors.
 
-Theme changes separately use the native View Transition API. Where supported,
-[element-scoped capture](https://developer.chrome.com/docs/css-ui/view-transitions/element-scoped-view-transitions)
-on one full-width, viewport-filling surface includes the background, header and
-content while keeping the dock and tooltip live above it. Older engines use the
-document API's full-page snapshot, including the dock. The old theme stays opaque beneath
-the new snapshot's 240ms fade, avoiding an exposed backing color. Component CSS
-transitions are suppressed through the first new-theme paint; the theme glyph
+Theme changes separately use the native document View Transition API. Capture only
+the outgoing viewport, then remove the root's capture name inside the update callback.
+The old image fades out over 240ms above the live new theme and holds its final
+transparent frame until native teardown. Without that fill, the old bitmap can
+reappear before removal. Regression checks record unpaused rendered frames through
+teardown in both directions; stable DOM rectangles and paused midpoint captures
+alone cannot detect a color reversal. This composition keeps the dock
+interactive and bounds the bitmap to the viewport, including at the footer of long
+pages. Do not capture the full scrolling element: its raster can clip or rescale
+at deep scroll positions. Snapshot groups never interpolate dimensions or transform
+the page. Scroll, resize and new pointer or keyboard input interrupt the fade.
+Component CSS transitions are suppressed through the first new-theme paint; the theme glyph
 retains shared StateSwap motion. Rapid requests supersede the previous snapshot
 and alternate against the requested destination. A rejected capture still applies
 the requested theme without an unhandled error. Keyboard, reduced motion,

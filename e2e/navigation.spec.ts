@@ -16,13 +16,12 @@ for (const theme of ["light", "dark"] as const) {
 		});
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.addInitScript(() => {
-			type Surface = HTMLElement & { startViewTransition?: Document["startViewTransition"] };
-			const prototype = HTMLElement.prototype as Surface;
-			const start = prototype.startViewTransition;
+			const start = document.startViewTransition;
 			if (start)
-				prototype.startViewTransition = function (update) {
-					const transition = start.call(this, update);
-					if (this.classList.contains("portfolio-scene"))
+				document.startViewTransition = (update) => {
+					const route = Boolean(document.documentElement.dataset.routeTransition);
+					const transition = start.call(document, update);
+					if (route)
 						void transition.ready
 							.then(() => {
 								document.documentElement.dataset.pageTransitionCount = String(
@@ -34,15 +33,6 @@ for (const theme of ["light", "dark"] as const) {
 							.catch(() => {});
 					return transition;
 				};
-			const animate = Element.prototype.animate;
-			Element.prototype.animate = function (keyframes, options) {
-				if (this.classList.contains("portfolio-scene")) {
-					document.documentElement.dataset.pageTransitionCount = String(
-						Number(document.documentElement.dataset.pageTransitionCount ?? 0) + 1,
-					);
-				}
-				return animate.call(this, keyframes, options);
-			};
 		});
 
 		await page.emulateMedia({ reducedMotion: "no-preference", colorScheme: theme });
@@ -111,6 +101,7 @@ for (const theme of ["light", "dark"] as const) {
 				Number(await page.locator("html").getAttribute("data-page-transition-count")),
 			)
 			.toBeGreaterThan(0);
+		await expect(page.locator("html")).not.toHaveAttribute("data-route-transition");
 		await expect(nav).toHaveCSS("view-transition-name", "none");
 		await expect(header).toHaveCSS("view-transition-name", "none");
 		await page.goBack();

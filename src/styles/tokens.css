@@ -915,17 +915,33 @@
 	--portfolio-nav-inset: var(--portfolio-space-tight); /* Shared dock, hint inset and gap. */
 	--portfolio-avatar-size: calc(var(--portfolio-rhythm) * 6); /* 60px */
 	--portfolio-masthead-avatar-size: calc(var(--portfolio-rhythm) * 7); /* 70px */
-	--portfolio-badge-height: var(--portfolio-control-default);
-	--portfolio-badge-width: 180px;
-	--portfolio-badge-inset: 12px;
+	--portfolio-context-gap: 20px;
+	--portfolio-context-row-gap: var(--portfolio-context-gap);
+	--portfolio-context-clearance: var(--portfolio-context-gap);
+	--portfolio-badge-height: 28px;
+	--portfolio-badge-width: 160px;
+	--portfolio-badge-inset: 10px;
 	--portfolio-status-insignia-size: var(--portfolio-control-default);
 	--portfolio-icon-touch: var(--portfolio-control-default);
 	--portfolio-icon-sm: 1rem; /* 16px control glyph, independent of hit area */
 	--portfolio-header-height: calc(
 		var(--portfolio-badge-height) +
-		var(--portfolio-space-related) *
+		var(--portfolio-context-clearance) *
 		2
 	);
+}
+
+@media (max-width: 39.999rem) {
+	:root {
+		/* Two compact rows; hit areas remain separate across the row gap. */
+		--portfolio-header-height: calc(
+			var(--portfolio-badge-height) *
+			2 +
+			var(--portfolio-context-row-gap) +
+			var(--portfolio-context-clearance) *
+			2
+		);
+	}
 }
 
 @media (max-width: 40rem) {
@@ -948,6 +964,12 @@
 :root {
 	--portfolio-canvas: var(--palette-mineral-300);
 	--portfolio-panel: var(--palette-mineral-0);
+	--portfolio-project-surface: var(--palette-mineral-0);
+	--portfolio-project-detail-surface: var(--palette-mineral-200);
+	--portfolio-project-line: var(--palette-neutral-300);
+	--portfolio-project-line-hover: var(--palette-neutral-400);
+	--portfolio-hero-surface: var(--palette-mineral-0);
+	--portfolio-hero-line: var(--palette-mineral-400);
 	--portfolio-code-surface: var(--palette-mineral-100);
 	--app-background: var(--portfolio-canvas);
 	--instrument-field-bg-auto: var(--portfolio-canvas);
@@ -957,6 +979,12 @@
 :root.dark {
 	--portfolio-canvas: var(--palette-neutral-900);
 	--portfolio-panel: var(--palette-neutral-950);
+	--portfolio-project-surface: var(--palette-neutral-925);
+	--portfolio-project-detail-surface: var(--palette-neutral-950);
+	--portfolio-project-line: var(--palette-neutral-700);
+	--portfolio-project-line-hover: var(--palette-neutral-600);
+	--portfolio-hero-surface: var(--palette-neutral-925);
+	--portfolio-hero-line: var(--palette-neutral-700);
 	--portfolio-code-surface: var(--palette-neutral-925);
 }
 

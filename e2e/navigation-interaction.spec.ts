@@ -4,6 +4,14 @@ for (const theme of ["light", "dark"] as const) {
 	test(`navigation and theme changes accept hover without an extra click in ${theme}`, async ({
 		page,
 	}) => {
+		const prefetched = new Set<string>();
+		page.on("response", async (response) => {
+			const url = new URL(response.url());
+			if (url.searchParams.has("_rsc") && response.ok()) {
+				await response.finished();
+				prefetched.add(url.pathname);
+			}
+		});
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.addInitScript(() => {
 			const sample = (surface: HTMLElement) => {
@@ -26,23 +34,16 @@ for (const theme of ["light", "dark"] as const) {
 					Number(document.documentElement.dataset.liveTransitionSamples ?? 0) + 1,
 				);
 			};
-			type Surface = HTMLElement & { startViewTransition?: Document["startViewTransition"] };
-			const prototype = HTMLElement.prototype as Surface;
-			const start = prototype.startViewTransition;
+			const start = document.startViewTransition;
 			if (start)
-				prototype.startViewTransition = function (update) {
-					const transition = start.call(this, update);
-					if (this.classList.contains("portfolio-scene"))
-						void transition.ready.then(() => sample(this)).catch(() => {});
+				document.startViewTransition = (update) => {
+					const route = Boolean(document.documentElement.dataset.routeTransition);
+					const transition = start.call(document, update);
+					const surface = document.querySelector<HTMLElement>(".portfolio-scene");
+					if (route && surface)
+						void transition.ready.then(() => sample(surface)).catch(() => {});
 					return transition;
 				};
-			const animate = Element.prototype.animate;
-			Element.prototype.animate = function (keyframes, options) {
-				const animation = animate.call(this, keyframes, options);
-				if (this instanceof HTMLElement && this.classList.contains("portfolio-scene"))
-					void animation.ready.then(() => sample(this as HTMLElement)).catch(() => {});
-				return animation;
-			};
 		});
 		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
 		await page.goto("/");
@@ -51,6 +52,9 @@ for (const theme of ["light", "dark"] as const) {
 		const about = nav.getByRole("link", { name: "About", exact: true });
 		const contact = nav.getByRole("link", { name: "Contact", exact: true });
 		const home = nav.getByRole("link", { name: "Home", exact: true });
+		// A cold request may correctly abandon capture after the pending deadline.
+		// Wait for Next's real prefetch so this check exercises an active handoff.
+		await expect.poll(() => prefetched.has("/about"), { timeout: 15000 }).toBe(true);
 		await about.click();
 		await expect(page).toHaveURL(/\/about$/);
 		await expect(page.locator("html")).toHaveAttribute("data-live-transition-hits", "true");

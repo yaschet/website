@@ -15,7 +15,7 @@ import {
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
-import { getListedPublicProjectSummaries } from "@/src/content/registry";
+import { getListedPublicProjectSummaries } from "@/src/content/project-summaries";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 function HomeClosingCta() {
@@ -51,7 +51,7 @@ export default async function Home() {
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
 				{/* Box 1: Profile + Hero — two rows, one shared border */}
 				<PageContainer>
-					<SwissGridBox>
+					<SwissGridBox className="portfolio-hero-frame">
 						<SwissGridRow>
 							<ProfileSection />
 						</SwissGridRow>
@@ -66,88 +66,74 @@ export default async function Home() {
 					<section
 						aria-labelledby={hasFeaturedProjects ? "selected-work-heading" : undefined}
 					>
-						<SwissGridBox>
-							<SwissGridRow>
-								{hasFeaturedProjects ? (
-									<div className="portfolio-box-pad">
-										<div className="portfolio-stack-group">
-											<h2
-												id="selected-work-heading"
-												className="portfolio-kicker text-muted-foreground"
-											>
-												Selected work
-											</h2>
-											{featuredProjects.map((project, i) => {
-												const card = (
-													<div key={project.id} id={`project-${i + 1}`}>
-														<ProjectCardGallery
-															index={String(i + 1).padStart(2, "0")}
-															title={project.title}
-															description={project.description}
-															href={project.urlPath}
-															tags={project.tech ?? []}
-															items={getProjectCoverMedia(project)}
-															prioritizeFirstImage={i === 0}
-															isPrivate={
-																project.cardState === "coming-soon"
-															}
-															date={
-																project.date
-																	? new Date(
-																			project.date,
-																		).toLocaleDateString(
-																			"en-US",
-																			{
-																				month: "long",
-																				year: "numeric",
-																				timeZone: "UTC",
-																			},
-																		)
-																	: undefined
-															}
-															imageTreatment="disciplined"
-															imageAspectRatio="16/9"
-														/>
-													</div>
-												);
-												return i === 0 ? (
-													card
-												) : (
-													<ScrollReveal
-														key={project.id}
-														phase={3}
-														delay={i * 0.05}
-														className="w-full"
-													>
-														{card}
-													</ScrollReveal>
-												);
-											})}
+						{hasFeaturedProjects && (
+							<h2 id="selected-work-heading" className="sr-only">
+								Selected work
+							</h2>
+						)}
+						<div className="portfolio-stack-section">
+							{hasFeaturedProjects ? (
+								featuredProjects.map((project, i) => {
+									const card = (
+										<div key={project.id} id={`project-${i + 1}`}>
+											<ProjectCardGallery
+												index={String(i + 1).padStart(2, "0")}
+												title={project.title}
+												description={project.description}
+												href={project.urlPath}
+												tags={project.tech ?? []}
+												items={getProjectCoverMedia(project)}
+												prioritizeFirstImage={i === 0}
+												isPrivate={project.cardState === "coming-soon"}
+												date={
+													project.date
+														? new Date(project.date).toLocaleDateString(
+																"en-US",
+																{
+																	month: "long",
+																	year: "numeric",
+																	timeZone: "UTC",
+																},
+															)
+														: undefined
+												}
+												imageTreatment="disciplined"
+												imageAspectRatio="16/9"
+											/>
 										</div>
-									</div>
-								) : (
-									<ScrollReveal phase={3} className="w-full">
-										<EditorialEmptyState
-											eyebrow="Selected work"
-											icon={
-												<Briefcase
-													className="size-[var(--portfolio-icon-sm)] opacity-80"
-													weight="regular"
-												/>
-											}
-											title="No case studies listed."
-											description="The public archive is currently unlisted."
-										/>
-									</ScrollReveal>
-								)}
-							</SwissGridRow>
-
-							<SwissGridRow>
+									);
+									return i === 0 ? (
+										card
+									) : (
+										<ScrollReveal
+											key={project.id}
+											phase={3}
+											delay={i * 0.05}
+											className="w-full"
+										>
+											{card}
+										</ScrollReveal>
+									);
+								})
+							) : (
 								<ScrollReveal phase={3} className="w-full">
-									<ConfidentialWorkCallout />
+									<EditorialEmptyState
+										eyebrow="Selected work"
+										icon={
+											<Briefcase
+												className="size-[var(--portfolio-icon-sm)] opacity-80"
+												weight="regular"
+											/>
+										}
+										title="No case studies listed."
+										description="The public archive is currently unlisted."
+									/>
 								</ScrollReveal>
-							</SwissGridRow>
-						</SwissGridBox>
+							)}
+							<ScrollReveal phase={3} className="w-full">
+								<ConfidentialWorkCallout />
+							</ScrollReveal>
+						</div>
 					</section>
 				</PageContainer>
 

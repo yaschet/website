@@ -3,18 +3,15 @@ import { expect, type Page, test } from "@playwright/test";
 /** Hold the first native callback so interruption happens before router dispatch. */
 async function deferRouteCapture(page: Page) {
 	await page.addInitScript(() => {
-		type Surface = HTMLElement & {
-			startViewTransition?: (update: () => void | Promise<void>) => ViewTransition;
-		};
-		const prototype = HTMLElement.prototype as Surface;
-		const start = prototype.startViewTransition;
+		const start = document.startViewTransition;
 		let held = false;
 		if (!start) return;
-		prototype.startViewTransition = function (update) {
-			if (held || !this.classList.contains("portfolio-scene"))
-				return start.call(this, update);
+		document.startViewTransition = (update) => {
+			if (typeof update !== "function") return start.call(document, update);
+			if (held || !document.documentElement.dataset.routeTransition)
+				return start.call(document, update);
 			held = true;
-			return start.call(this, async () => {
+			return start.call(document, async () => {
 				document.documentElement.dataset.routeUpdateHeld = "true";
 				await new Promise<void>((resolve) => {
 					document.addEventListener("release-route-update", () => resolve(), {
@@ -29,7 +26,7 @@ async function deferRouteCapture(page: Page) {
 }
 
 for (const theme of ["light", "dark"] as const) {
-	test(`outgoing and incoming pages share a scoped handoff in ${theme}`, async ({
+	test(`outgoing viewport fades above the interactive destination in ${theme}`, async ({
 		page,
 	}, testInfo) => {
 		const errors: string[] = [];
@@ -44,18 +41,20 @@ for (const theme of ["light", "dark"] as const) {
 		});
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.addInitScript(() => {
-			type Surface = HTMLElement & { startViewTransition?: Document["startViewTransition"] };
-			const prototype = HTMLElement.prototype as Surface;
-			const start = prototype.startViewTransition;
+			const start = document.startViewTransition;
 			if (!start) return;
-			prototype.startViewTransition = function (update) {
+			document.startViewTransition = (update) => {
 				// Next retains inactive Activity trees; sample the visible route only.
 				const activeHeading = () =>
-					[...this.querySelectorAll("h1")].find((node) => node.getClientRects().length)
-						?.textContent;
+					[...document.querySelectorAll(".portfolio-scene h1")].find(
+						(node) => node.getClientRects().length,
+					)?.textContent;
 				const previous = activeHeading();
-				const transition = start.call(this, update);
-				if (!this.classList.contains("portfolio-scene")) return transition;
+				const chromeCapturedSeparately = [
+					...document.querySelectorAll("#header, .portfolio-nav, .portfolio-tooltip"),
+				].some((node) => getComputedStyle(node).viewTransitionName !== "none");
+				const transition = start.call(document, update);
+				if (!document.documentElement.dataset.routeTransition) return transition;
 				void transition.ready
 					.then(() => {
 						for (const animation of document.getAnimations()) {
@@ -67,18 +66,40 @@ for (const theme of ["light", "dark"] as const) {
 								animation.currentTime = 60;
 							}
 						}
-						const old = getComputedStyle(this, "::view-transition-old(root)");
-						const next = getComputedStyle(this, "::view-transition-new(root)");
+						const old = getComputedStyle(
+							document.documentElement,
+							"::view-transition-old(root)",
+						);
+						const animations = document.getAnimations();
+						const nav = document.querySelector('[aria-label="Main navigation"]');
 						document.documentElement.dataset.routeCapture = JSON.stringify({
 							previous,
 							current: activeHeading(),
+							chromeCapturedSeparately,
 							exit: old.animationName,
-							enter: next.animationName,
 							exitDuration: old.animationDuration,
-							enterDuration: next.animationDuration,
-							blend: next.mixBlendMode,
-							titleDelays: document
-								.getAnimations()
+							exitFit: old.objectFit,
+							exitTransform: old.transform,
+							blend: old.mixBlendMode,
+							incomingCapture: getComputedStyle(document.documentElement)
+								.viewTransitionName,
+							incomingFrameAnimated: animations.some(
+								(animation) =>
+									animation instanceof CSSAnimation &&
+									animation.animationName === "portfolio-route-in",
+							),
+							controlsInteractive: [
+								...(nav?.querySelectorAll("a,button") ?? []),
+							].every((node) => {
+								const box = node.getBoundingClientRect();
+								return node.contains(
+									document.elementFromPoint(
+										box.x + box.width / 2,
+										box.y + box.height / 2,
+									),
+								);
+							}),
+							titleDelays: animations
 								.filter(
 									(animation) =>
 										animation instanceof CSSAnimation &&
@@ -99,10 +120,9 @@ for (const theme of ["light", "dark"] as const) {
 		await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
 		await page.goto("/");
 		const nav = page.getByRole("navigation", { name: "Main navigation" });
-		const scene = page.locator(".portfolio-scene");
 		test.skip(
-			!(await scene.evaluate((node) => "startViewTransition" in node)),
-			"Element-scoped capture is unavailable; fallback navigation is covered separately.",
+			!(await page.evaluate(() => Boolean(document.startViewTransition))),
+			"Native viewport capture is unavailable; fallback navigation is covered separately.",
 		);
 		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
 		await expect.poll(() => prefetched.has("/about"), { timeout: 15000 }).toBe(true);
@@ -118,7 +138,7 @@ for (const theme of ["light", "dark"] as const) {
 			page.getByRole("heading", { name: "Complex systems, clean interfaces.", exact: true }),
 		).toBeVisible();
 		await page.evaluate(() => document.fonts.ready);
-		await expect(scene).not.toHaveAttribute("data-route-transition");
+		await expect(page.locator("html")).not.toHaveAttribute("data-route-transition");
 		await page.emulateMedia({ reducedMotion: "no-preference" });
 		await page.evaluate(() => {
 			delete document.documentElement.dataset.routeCapture;
@@ -135,11 +155,15 @@ for (const theme of ["light", "dark"] as const) {
 		expect(capture).toEqual({
 			previous: "Complex systems, clean interfaces.",
 			current: "How I work.",
+			chromeCapturedSeparately: false,
 			exit: "portfolio-route-out",
-			enter: "portfolio-route-in",
 			exitDuration: "0.15s",
-			enterDuration: "0.25s",
+			exitFit: "none",
+			exitTransform: "none",
 			blend: "normal",
+			incomingCapture: "none",
+			incomingFrameAnimated: false,
+			controlsInteractive: true,
 			titleDelays: [0, 20, 40],
 		});
 		expect(
@@ -150,6 +174,20 @@ for (const theme of ["light", "dark"] as const) {
 		expect(await header?.evaluate((node) => node === document.getElementById("header"))).toBe(
 			true,
 		);
+		// Destination actions must also stay live while the copy animation is paused.
+		await nav.getByRole("link", { name: "Case Studies", exact: true }).click();
+		await expect(page).toHaveURL(/\/case-studies$/);
+		const copy = page.getByRole("button", { name: "Copy Portfolio", exact: true });
+		await expect(copy).toBeVisible();
+		await expect(page.locator("html")).toHaveAttribute("data-route-transition", "true");
+		expect(
+			await copy.evaluate((node) => {
+				const box = node.getBoundingClientRect();
+				return node.contains(
+					document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2),
+				);
+			}),
+		).toBe(true);
 		await page.screenshot({ path: testInfo.outputPath(`route-handoff-${theme}.png`) });
 		// Interrupt the paused native transition with a real hover and another click.
 		await nav.getByRole("link", { name: "Contact", exact: true }).hover();
@@ -158,9 +196,9 @@ for (const theme of ["light", "dark"] as const) {
 		await nav.getByRole("link", { name: "Contact", exact: true }).click();
 		await expect(page).toHaveURL(/\/contact$/);
 		await nav.getByRole("button", { name: /^Theme:/ }).click();
-		await expect(scene).not.toHaveAttribute("data-route-transition");
+		await expect(page.locator("html")).not.toHaveAttribute("data-route-transition");
 		await page.goBack();
-		await expect(page).toHaveURL(/\/about$/);
+		await expect(page).toHaveURL(/\/case-studies$/);
 		expect(errors).toEqual([]);
 	});
 
@@ -171,10 +209,9 @@ for (const theme of ["light", "dark"] as const) {
 		await deferRouteCapture(page);
 		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
 		await page.goto("/");
-		const scene = page.locator(".portfolio-scene");
 		test.skip(
-			!(await scene.evaluate((node) => "startViewTransition" in node)),
-			"Element-scoped capture is unavailable; fallback navigation is covered separately.",
+			!(await page.evaluate(() => Boolean(document.startViewTransition))),
+			"Native viewport capture is unavailable; fallback navigation is covered separately.",
 		);
 		const nav = page.getByRole("navigation", { name: "Main navigation" });
 		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
@@ -184,7 +221,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.evaluate(() => document.dispatchEvent(new Event("release-route-update")));
 		await expect(page.locator("html")).toHaveAttribute("data-route-update-released", "true");
 		await expect(page).toHaveURL(/\/about$/);
-		await expect(scene).not.toHaveAttribute("data-route-transition");
+		await expect(page.locator("html")).not.toHaveAttribute("data-route-transition");
 		expect(errors).toEqual([]);
 	});
 }
@@ -196,10 +233,9 @@ for (const interruption of ["newer link", "history navigation"] as const) {
 		await deferRouteCapture(page);
 		await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
 		await page.goto("/");
-		const scene = page.locator(".portfolio-scene");
 		test.skip(
-			!(await scene.evaluate((node) => "startViewTransition" in node)),
-			"Element-scoped capture is unavailable; fallback navigation is covered separately.",
+			!(await page.evaluate(() => Boolean(document.startViewTransition))),
+			"Native viewport capture is unavailable; fallback navigation is covered separately.",
 		);
 		const nav = page.getByRole("navigation", { name: "Main navigation" });
 		await expect(nav.getByRole("button", { name: /^Theme: Switch to/ })).toBeVisible();
@@ -217,28 +253,26 @@ for (const interruption of ["newer link", "history navigation"] as const) {
 		await page.evaluate(() => document.dispatchEvent(new Event("release-route-update")));
 		await expect(page.locator("html")).toHaveAttribute("data-route-update-released", "true");
 		await expect(page).toHaveURL(interruption === "newer link" ? /\/about$/ : /\/$/);
-		await expect(scene).not.toHaveAttribute("data-route-transition");
+		await expect(page.locator("html")).not.toHaveAttribute("data-route-transition");
 		expect(errors).toEqual([]);
 	});
 }
 
 for (const failure of ["unsupported", "throw", "reject"] as const) {
-	test(`route navigation survives ${failure} scoped capture`, async ({ page }) => {
+	test(`route navigation survives ${failure} viewport capture`, async ({ page }) => {
 		const errors: string[] = [];
 		page.on("pageerror", (error) => errors.push(error.message));
 		await page.addInitScript((mode) => {
-			type Surface = HTMLElement & { startViewTransition?: Document["startViewTransition"] };
-			const prototype = HTMLElement.prototype as Surface;
 			if (mode === "unsupported") {
-				prototype.startViewTransition = undefined;
+				Object.defineProperty(document, "startViewTransition", { value: undefined });
 				return;
 			}
-			const original = prototype.startViewTransition;
-			prototype.startViewTransition = function (update) {
+			const original = document.startViewTransition;
+			document.startViewTransition = (update) => {
 				if (mode === "throw")
 					throw new DOMException("Snapshot capture failed", "InvalidStateError");
-				if (!original) throw new Error("Missing scoped API");
-				const transition = original.call(this, update);
+				if (!original) throw new Error("Missing native API");
+				const transition = original.call(document, update);
 				transition.skipTransition();
 				return transition;
 			};
@@ -250,7 +284,7 @@ for (const failure of ["unsupported", "throw", "reject"] as const) {
 		await expect(page.getByRole("heading", { name: "How I work.", exact: true })).toBeVisible();
 		await nav.getByRole("link", { name: "Contact", exact: true }).click();
 		await expect(page).toHaveURL(/\/contact$/);
-		await expect(page.locator(".portfolio-scene")).not.toHaveAttribute("data-route-transition");
+		await expect(page.locator("html")).not.toHaveAttribute("data-route-transition");
 		expect(errors).toEqual([]);
 	});
 }

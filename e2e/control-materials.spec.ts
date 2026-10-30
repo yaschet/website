@@ -26,7 +26,7 @@ async function material(control: Locator) {
 }
 
 for (const theme of ["light", "dark"] as const) {
-	for (const group of ["primary", "media and inverted"] as const) {
+	for (const group of ["primary", "projects", "media and inverted"] as const) {
 		test(`${group} materials retain readable hover and press states in ${theme}`, async ({
 			page,
 		}, info) => {
@@ -39,10 +39,12 @@ for (const theme of ["light", "dark"] as const) {
 							page.getByRole("link", { name: "Case studies", exact: true }).first(),
 							page.getByRole("link", { name: "Email", exact: true }).first(),
 						]
-					: [
-							page.getByRole("button", { name: "Play 1:40 video", exact: true }),
-							page.locator(".portfolio-inverse-button").first(),
-						];
+					: group === "projects"
+						? [page.locator("[data-project-action]").first()]
+						: [
+								page.getByRole("button", { name: "Play 1:40 video", exact: true }),
+								page.locator(".portfolio-inverse-button").first(),
+							];
 			for (const action of actions) {
 				// Hover retries if the poster upgrades to its deferred gallery during the scroll.
 				await action.hover();
@@ -62,7 +64,7 @@ for (const theme of ["light", "dark"] as const) {
 				await page.mouse.up();
 			}
 			await page.screenshot({ path: info.outputPath(`controls-${group}-${theme}.png`) });
-			if (group === "primary") return;
+			if (group !== "media and inverted") return;
 			const progress = page.locator('[data-slot="reading-progress"]');
 			await expect(progress).toHaveCount(1);
 			const progressColor = await progress.evaluate(
@@ -89,6 +91,43 @@ for (const theme of ["light", "dark"] as const) {
 			).toBe(true);
 		});
 	}
+
+	test(`a slow project link keeps its title and square action stable in ${theme}`, async ({
+		page,
+	}) => {
+		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+		let release = () => {};
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		await page.route("**/*", async (route) => {
+			const url = new URL(route.request().url());
+			if (!url.pathname.startsWith("/case-studies/") || !url.searchParams.has("_rsc"))
+				return route.continue();
+			if (route.request().headers()["next-router-prefetch"]) return route.abort();
+			await gate;
+			await route.continue();
+		});
+		await page.goto("/");
+		const link = page.getByRole("article").first().getByRole("link");
+		const action = link.locator("[data-project-action]");
+		const title = await link.getByRole("heading", { level: 3 }).innerText();
+		const href = await link.getAttribute("href");
+		const initial = await action.boundingBox();
+		try {
+			await link.click();
+			await expect(link.locator("[data-loading]")).toHaveCount(1);
+			await expect(link.locator('[aria-busy="true"]')).toHaveCount(1);
+			await expect(link).toHaveAccessibleName(title);
+			const pending = await action.boundingBox();
+			expect(pending?.width).toBe(initial?.width);
+			expect(pending?.height).toBe(initial?.height);
+		} finally {
+			release();
+		}
+		await expect(page).toHaveURL(new URL(href ?? "", page.url()).href);
+		await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+	});
 
 	test(`a slow real link uses the shared spinner without losing balanced padding in ${theme}`, async ({
 		page,

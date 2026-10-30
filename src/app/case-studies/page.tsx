@@ -17,7 +17,7 @@ import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import { SITE_URL } from "@/src/constants/site";
-import { getListedPublicProjectSummaries } from "@/src/content/registry";
+import { getListedPublicProjectSummaries } from "@/src/content/project-summaries";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 export const metadata: Metadata = {
@@ -164,41 +164,41 @@ export default async function CaseStudiesPage() {
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
 							<PageContainer className="portfolio-section-loose">
-								<SwissGridBox>
-									{hasProjects && (
+								<div className="portfolio-stack-section">
+									{hasProjects && <ConfidentialWorkCallout headingLevel={2} />}
+									<SwissGridBox>
 										<SwissGridRow>
-											<ConfidentialWorkCallout headingLevel={2} />
+											<InstrumentActionBand
+												fieldSpeed={0.28}
+												fieldVariant="terrain"
+												tone="inverted"
+											>
+												<h2
+													className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
+												>
+													View engineering philosophy.
+												</h2>
+												<ButtonLink
+													href="/about"
+													size="md"
+													variant="solid"
+													color="default"
+													className={
+														INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS
+													}
+													icon={
+														<ArrowRightIcon
+															className="size-4"
+															weight="bold"
+														/>
+													}
+												>
+													About
+												</ButtonLink>
+											</InstrumentActionBand>
 										</SwissGridRow>
-									)}
-									<SwissGridRow>
-										<InstrumentActionBand
-											fieldSpeed={0.28}
-											fieldVariant="terrain"
-											tone="inverted"
-										>
-											<h2
-												className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
-											>
-												View engineering philosophy.
-											</h2>
-											<ButtonLink
-												href="/about"
-												size="md"
-												variant="solid"
-												color="default"
-												className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
-												icon={
-													<ArrowRightIcon
-														className="size-4"
-														weight="bold"
-													/>
-												}
-											>
-												About
-											</ButtonLink>
-										</InstrumentActionBand>
-									</SwissGridRow>
-								</SwissGridBox>
+									</SwissGridBox>
+								</div>
 							</PageContainer>
 						</section>
 					</ScrollReveal>

@@ -22,8 +22,8 @@ for (const theme of ["light", "dark"] as const) {
 		await page.addInitScript(() => {
 			window.portfolioEntrySamples = [];
 			window.freezePortfolioEntry = false;
-			// Exercise the live-DOM fallback independently of native scoped handoffs.
-			Object.defineProperty(HTMLElement.prototype, "startViewTransition", {
+			// Exercise the live-DOM fallback independently of native viewport handoffs.
+			Object.defineProperty(document, "startViewTransition", {
 				value: undefined,
 				configurable: true,
 			});
@@ -88,6 +88,8 @@ for (const theme of ["light", "dark"] as const) {
 		expect(words.every((sample) => sample.properties.includes("filter"))).toBe(true);
 		expect(samples.every((sample) => sample.duration + sample.delay <= 370)).toBe(true);
 		expect(samples.some((sample) => sample.id === "portfolio-entry-copy")).toBe(true);
+		expect(samples.some((sample) => sample.id === "portfolio-entry-frame")).toBe(false);
+		await expect(page.locator(".portfolio-scene")).toHaveCSS("transform", "none");
 		await expect(page.locator(".portfolio-scene")).toHaveCSS("opacity", "1");
 		await expect(page.locator(".portfolio-theme-surface")).toHaveCSS("opacity", "1");
 		const during = await heading.boundingBox();
@@ -123,6 +125,7 @@ for (const theme of ["light", "dark"] as const) {
 		// Returning to the initial URL must animate too, with the same accessible title.
 		await page.evaluate(() => {
 			window.portfolioEntrySamples = [];
+			window.freezePortfolioEntry = true;
 		});
 		await nav.getByRole("link", { name: "Home", exact: true }).click();
 		await expect(page).toHaveURL(/\/$/);
@@ -141,13 +144,38 @@ for (const theme of ["light", "dark"] as const) {
 						).length,
 				),
 			)
-			.toBe(homeWordCount);
+			.toBe(homeWordCount * 2);
 		const homeWords = await page.evaluate(() =>
 			window.portfolioEntrySamples.filter(
 				(sample) => sample.id === "portfolio-entry-heading",
 			),
 		);
-		expect(homeWords[1].delay).toBeGreaterThan(homeWords[0].delay);
+		expect(homeWords[2].delay).toBeGreaterThan(homeWords[0].delay);
+		expect(homeWords.every((sample) => sample.properties.includes("maskPosition"))).toBe(true);
+		expect(homeWords.every((sample) => !sample.properties.includes("transform"))).toBe(true);
+		const homeFrame = await homeHeading.boundingBox();
+		for (const time of [350, 850]) {
+			await page.evaluate((time) => {
+				for (const animation of document.getAnimations())
+					if (animation.id === "portfolio-entry-heading") animation.currentTime = time;
+			}, time);
+			await page.screenshot({
+				path: testInfo.outputPath(`hero-reveal-${theme}-${time}ms.png`),
+			});
+			expect(await homeHeading.boundingBox()).toEqual(homeFrame);
+		}
+		await page.evaluate(() => {
+			for (const animation of document.getAnimations())
+				if (animation.id.startsWith("portfolio-entry-")) animation.finish();
+		});
+		await expect(homeHeading.locator("[data-resolve-sharp]").last()).toHaveCSS(
+			"mask-position",
+			/^(?:0%|0px) (?:0%|0px)$/,
+		);
+		expect(await homeHeading.boundingBox()).toEqual(homeFrame);
+		expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+			true,
+		);
 		expect(errors).toEqual([]);
 	});
 }

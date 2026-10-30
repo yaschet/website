@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, waitFor } from "storybook/test";
+import { expect, waitFor, within } from "storybook/test";
+import { ConfidentialWorkCallout } from "../layout/confidential-work-callout";
 import { ProjectCardGallery } from "./project-card-gallery";
 
 const publicImages = ["/images/verto/review-editor.png", "/images/verto/dashboard-page.png"];
@@ -14,7 +15,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"The production project card. Public work has a media preview and case-study link. Missing media and restricted work are separate fallback states. Long metadata checks wrapping with a real public preview.",
+					"The production project card: a title, square navigation chamber and explanation share an evenly padded content panel. A quieter full-width surface groups index, date and technologies below it. Both panels use aligned text rails and one structural hairline at each boundary. The native title link extends across the caption; media controls remain separate. Long metadata checks wrapping with a real public preview.",
 			},
 		},
 	},
@@ -75,5 +76,49 @@ export const LongMetadata: Story = {
 			"Observability",
 			"OpenTelemetryInstrumentation",
 		],
+	},
+};
+
+export const InContext: Story = {
+	args: {
+		images: publicImages,
+		tags: [
+			"Next.js 16",
+			"OpenAI",
+			"Trigger.dev",
+			"Stripe",
+			"Supabase",
+			"Google Cloud",
+			"Tiptap",
+			"TypeScript",
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: "The homepage work list at full content width. Each project and the vertical confidential-work card own the same surface, hairline and equal caption insets. A 40px canvas gap separates the cards; no connecting frame or extra listing inset surrounds them.",
+			},
+		},
+	},
+	render: (args) => (
+		<div className="portfolio-stack-section">
+			<ProjectCardGallery {...args} />
+			<ConfidentialWorkCallout />
+		</div>
+	),
+	play: async ({ canvas }) => {
+		await expect(canvas.getByRole("link", { name: /^Verto$/ })).toHaveAttribute(
+			"href",
+			"/case-studies/verto",
+		);
+		const note = canvas.getByRole("heading", { name: "Confidential work" });
+		await expect(note).toBeVisible();
+		const continuation = note.parentElement;
+		if (!continuation) throw new Error("Missing private-work continuation");
+		await expect(within(continuation).getByRole("link", { name: "in a call" })).toHaveAttribute(
+			"href",
+			"/contact",
+		);
+		await expect(within(continuation).queryByRole("button")).toBeNull();
 	},
 };
