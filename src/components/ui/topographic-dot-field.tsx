@@ -4,6 +4,7 @@ import { useReducedMotion } from "framer-motion";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useRevealState } from "@/src/components/providers/reveal-provider";
+import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
 import { tweens } from "@/src/lib/index";
 import {
 	computeGridAxis,
@@ -954,7 +955,8 @@ export function InstrumentField({
 	const { environment } = useRevealState();
 	const [documentIsDark, setDocumentIsDark] = useState(false);
 	const [isCanvasReady, setIsCanvasReady] = useState(false);
-	const [isInViewport, setIsInViewport] = useState(surface !== "band");
+	const isInViewport = useAnimationVisibility(containerRef);
+	const [lightweight, setLightweight] = useState(false);
 	const [paletteSignature, setPaletteSignature] = useState("");
 	const [isThemeReady, setIsThemeReady] = useState(false);
 	const [metrics, setMetrics] = useState<Metrics>({
@@ -964,7 +966,7 @@ export function InstrumentField({
 		step: typeof step === "number" ? step : 18,
 		width: 0,
 	});
-	const shouldFreezeField = environment !== "normal" || shouldReduceMotion;
+	const shouldFreezeField = environment !== "normal" || shouldReduceMotion || lightweight;
 
 	useEffect(() => {
 		let cancelled = false;
@@ -1033,27 +1035,28 @@ export function InstrumentField({
 	}, []);
 
 	useEffect(() => {
-		if (typeof window === "undefined") return;
+		const hints = navigator as Navigator & {
+			deviceMemory?: number;
+			connection?: EventTarget & { saveData?: boolean; effectiveType?: string };
+		};
+		const syncBudget = () => {
+			setLightweight(
+				hints.connection?.saveData === true ||
+					["slow-2g", "2g"].includes(hints.connection?.effectiveType ?? "") ||
+					(hints.deviceMemory !== undefined && hints.deviceMemory <= 4) ||
+					(hints.hardwareConcurrency > 0 && hints.hardwareConcurrency <= 4),
+			);
+		};
+		syncBudget();
+		hints.connection?.addEventListener("change", syncBudget);
+		return () => hints.connection?.removeEventListener("change", syncBudget);
+	}, []);
 
-		const container = containerRef.current;
-		if (!container || !("IntersectionObserver" in window)) return;
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				const nextIsInViewport = entry?.isIntersecting ?? false;
-				setIsInViewport(nextIsInViewport);
-				if (!nextIsInViewport) {
-					mouseRef.current.targetStrength = 0;
-					mouseRef.current.currentStrength = 0;
-				}
-			},
-			{ rootMargin: surface === "band" ? "320px 0px" : "160px 0px" },
-		);
-
-		observer.observe(container);
-
-		return () => observer.disconnect();
-	}, [surface]);
+	useEffect(() => {
+		if (isInViewport) return;
+		mouseRef.current.targetStrength = 0;
+		mouseRef.current.currentStrength = 0;
+	}, [isInViewport]);
 
 	useEffect(() => {
 		const container = containerRef.current;
@@ -1132,7 +1135,7 @@ export function InstrumentField({
 
 		const updateMetrics = () => {
 			const rect = container.getBoundingClientRect();
-			const dpr = Math.min(window.devicePixelRatio || 1, 2);
+			const dpr = Math.min(window.devicePixelRatio || 1, lightweight ? 1 : 2);
 			const nextStep = Math.max(1, resolveLength(container, step, 18));
 			const nextMinInset = Math.max(0, resolveLength(container, minInset, 12));
 			const nextWidth = Math.round(rect.width);
@@ -1164,7 +1167,7 @@ export function InstrumentField({
 			observer.disconnect();
 			window.removeEventListener("resize", updateMetrics);
 		};
-	}, [minInset, step]);
+	}, [minInset, step, lightweight]);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -1415,6 +1418,7 @@ export function InstrumentField({
 	return (
 		<div
 			ref={containerRef}
+			aria-hidden="true"
 			className={cn(
 				className,
 				"pointer-events-none absolute inset-0 overflow-hidden transition-[background-color]",

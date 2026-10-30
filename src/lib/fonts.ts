@@ -12,7 +12,7 @@ export const fontSans = Space_Grotesk({
 	subsets: ["latin"],
 	display: "swap",
 	variable: "--font-app-sans",
-	weight: ["300", "400", "500", "600", "700"],
+	weight: ["400", "500", "600", "700"],
 	// Fallback stack
 	fallback: ["system-ui", "-apple-system", "Helvetica Neue", "Arial", "sans-serif"],
 });
