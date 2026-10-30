@@ -283,8 +283,10 @@ for (const theme of ["light", "dark"] as const) {
 				name: "University Program Matching",
 				exact: true,
 			});
-			await link.scrollIntoViewIfNeeded();
+			// Pointer actions retry if streamed content is replaced during hydration.
+			await link.hover();
 			const before = await copy.boundingBox();
+			if (!before) throw new Error("Missing project caption before navigation");
 			await link.click();
 			const feedback = link.locator('[data-slot="link-feedback"][data-loading]');
 			await expect(feedback).toBeVisible();

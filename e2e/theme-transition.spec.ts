@@ -169,7 +169,10 @@ for (const theme of ["light", "dark"] as const) {
 }
 
 for (const action of ["scroll", "resize"] as const) {
-	test(`new ${action} intent dismisses the outgoing theme snapshot`, async ({ page }) => {
+	test(`new ${action} intent dismisses the outgoing theme snapshot`, async ({
+		page,
+		isMobile,
+	}) => {
 		await page.addInitScript(() => {
 			localStorage.setItem("theme", "light");
 			const start = document.startViewTransition.bind(document);
@@ -195,8 +198,11 @@ for (const action of ["scroll", "resize"] as const) {
 		const root = page.locator("html");
 		await expect(root).toHaveAttribute("data-snapshot-ready", "true");
 		await expect(root).toHaveAttribute("data-theme-transition", "true");
-		if (action === "scroll") await page.mouse.wheel(0, 200);
-		else {
+		if (action === "scroll") {
+			// Mobile WebKit has no wheel input; an actual scroll still exercises dismissal.
+			if (isMobile) await page.evaluate(() => scrollBy({ top: 200, behavior: "instant" }));
+			else await page.mouse.wheel(0, 200);
+		} else {
 			const viewport = page.viewportSize();
 			if (!viewport) throw new Error("The resize check requires a fixed viewport");
 			await page.setViewportSize({ ...viewport, height: viewport.height - 40 });

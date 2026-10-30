@@ -238,9 +238,13 @@ test("hover preview stays reachable, activation pins, and keyboard restores focu
 	await expect(panel).toBeVisible();
 	await expect(panel).toHaveCSS("transition-duration", "0s");
 	await expect(location).toBeFocused();
-	expect(await location.evaluate((node) => getComputedStyle(node, "::after").outlineWidth)).toBe(
-		"2px",
-	);
+	const focus = await location.evaluate((node) => {
+		const style = getComputedStyle(node, "::after");
+		return { outline: style.outlineStyle, shadow: style.boxShadow };
+	});
+	expect(focus.outline).toBe("none");
+	expect(focus.shadow).toContain("inset");
+	expect(focus.shadow).toContain("0px 0px 0px 2px");
 	await page.keyboard.press("Enter");
 	await expect(panel).toBeVisible();
 	await page.keyboard.press("Tab");

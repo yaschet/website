@@ -33,6 +33,8 @@ for (const theme of ["light", "dark"] as const) {
 			await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 			await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
 			await page.goto("/");
+			const playButtons = page.getByRole("button", { name: /^Play .+ video$/ });
+			if (group === "media and inverted") await expect(playButtons.first()).toBeVisible();
 			const actions =
 				group === "primary"
 					? [
@@ -42,7 +44,7 @@ for (const theme of ["light", "dark"] as const) {
 					: group === "projects"
 						? [page.locator("[data-project-action]").first()]
 						: [
-								page.getByRole("button", { name: "Play 1:40 video", exact: true }),
+								...(await playButtons.all()),
 								page.locator(".portfolio-inverse-button").first(),
 							];
 			for (const action of actions) {
@@ -113,15 +115,19 @@ for (const theme of ["light", "dark"] as const) {
 		const action = link.locator("[data-project-action]");
 		const title = await link.getByRole("heading", { level: 3 }).innerText();
 		const href = await link.getAttribute("href");
+		await link.hover();
+		await expect(action).toBeVisible();
 		const initial = await action.boundingBox();
+		if (!initial) throw new Error("Missing project action before navigation");
 		try {
 			await link.click();
 			await expect(link.locator("[data-loading]")).toHaveCount(1);
 			await expect(link.locator('[aria-busy="true"]')).toHaveCount(1);
 			await expect(link).toHaveAccessibleName(title);
 			const pending = await action.boundingBox();
-			expect(pending?.width).toBe(initial?.width);
-			expect(pending?.height).toBe(initial?.height);
+			if (!pending) throw new Error("Missing project action during navigation");
+			expect(pending.width).toBe(initial.width);
+			expect(pending.height).toBe(initial.height);
 		} finally {
 			release();
 		}
