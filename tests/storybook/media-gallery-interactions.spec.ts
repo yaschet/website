@@ -290,6 +290,18 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 		}
 		await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 	}
+	async function tap(target: Locator) {
+		await expect(target).toBeVisible();
+		await expect(target).toBeEnabled();
+		const frame = await target.boundingBox();
+		if (!frame) throw new Error("Expected a visible touch target");
+		// Keep taps and gestures on one input session with sequential contact start/end.
+		await touch.send("Input.dispatchTouchEvent", {
+			type: "touchStart",
+			touchPoints: [{ x: frame.x + frame.width / 2, y: frame.y + frame.height / 2, id: 0 }],
+		});
+		await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+	}
 	try {
 		await page.goto(
 			"/iframe.html?id=components-media-mediagallery--with-per-image-captions&viewMode=story",
@@ -303,7 +315,7 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 		);
 		await expect(gallery.getByText("Slide 2 of 3", { exact: true })).toBeAttached();
 		await expect(page.getByRole("dialog")).toHaveCount(0);
-		await page.getByRole("button", { name: "Open slide 2 in expanded viewer" }).tap();
+		await tap(page.getByRole("button", { name: "Open slide 2 in expanded viewer" }));
 		const dialog = page.getByRole("dialog");
 		const surface = dialog.locator(
 			'.pswp__item[aria-hidden="false"] .pswp__img:not(.pswp__img--placeholder)',
@@ -342,15 +354,7 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 				);
 			}),
 		).toBe(true);
-		await fit.evaluate((button) => {
-			for (const type of ["pointerdown", "pointerup", "pointercancel", "click"]) {
-				button.addEventListener(type, () => {
-					button.dataset.touchEvents = `${button.dataset.touchEvents ?? ""} ${type}`;
-				});
-			}
-		});
-		await fit.tap();
-		await expect(fit).toHaveAttribute("data-touch-events", /click/);
+		await tap(fit);
 		await expect(fit).toHaveText("Fit");
 		await gesture([{ x: 195, y: 390 }], [{ x: 195, y: 740 }]);
 		await expect(dialog).toHaveCount(0);

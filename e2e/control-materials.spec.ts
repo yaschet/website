@@ -162,8 +162,7 @@ for (const theme of ["light", "dark"] as const) {
 		});
 		await page.goto("/about");
 		const link = page.getByRole("link", { name: "Discuss a project", exact: true });
-		await expect(link).toBeVisible();
-		await link.scrollIntoViewIfNeeded();
+		await link.click({ trial: true });
 		const initial = await link.boundingBox();
 		try {
 			await link.click();
