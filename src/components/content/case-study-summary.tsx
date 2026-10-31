@@ -1,10 +1,12 @@
 import { RiArrowLeftLine as ArrowLeft, RiTimeLine } from "@remixicon/react";
-import { Badge } from "@/src/components/ui/badge";
 import { ButtonLink } from "@/src/components/ui/button-link";
 import { CopyResourceButton } from "@/src/components/ui/copy-resource-button";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
+import { ProjectTechnologyRail } from "@/src/components/ui/project-technology-rail";
+import { ReelIcon } from "@/src/components/ui/reel";
 import { Reveal, revealSequence } from "@/src/components/ui/reveal";
 import { formatDate } from "@/src/lib/format-date";
+import styles from "./case-study-summary.module.css";
 
 interface CaseStudyHeaderProps {
 	title: string;
@@ -23,45 +25,53 @@ export function CaseStudyHeader({
 	markdownHref,
 }: CaseStudyHeaderProps) {
 	return (
-		<header className="portfolio-case-study-hero">
-			<Reveal delay={revealSequence.backLink}>
+		<header className={styles.header}>
+			<Reveal delay={revealSequence.backLink} className={styles.toolbar}>
 				<ButtonLink
 					href="/case-studies"
-					variant="plain"
+					variant="outlined"
 					color="secondary"
-					icon={<ArrowLeft size={16} />}
+					className="portfolio-action-link"
+					data-reel-trigger=""
+					icon={
+						<ReelIcon direction="left" blur className="portfolio-action-reel-icon">
+							<ArrowLeft size={16} />
+						</ReelIcon>
+					}
 					iconPosition="start"
 				>
 					Case studies
 				</ButtonLink>
-			</Reveal>
-			<Reveal delay={revealSequence.kicker}>
-				<p className="portfolio-kicker text-muted-foreground">
-					Case study · <time dateTime={date}>{formatDate(date)}</time>
-				</p>
-			</Reveal>
-			<HeadingReveal
-				as="h1"
-				delay={revealSequence.headingLate}
-				className="portfolio-case-study-title portfolio-capsize-case-title text-foreground"
-			>
-				{title}
-			</HeadingReveal>
-			<Reveal delay={revealSequence.bodyLate}>
-				<p className="portfolio-case-study-lede">{description}</p>
-			</Reveal>
-			<Reveal delay={revealSequence.meta}>
-				<div className="portfolio-case-study-meta-row">
-					<span className="portfolio-case-study-meta-item">
-						<RiTimeLine aria-hidden="true" className="size-4 shrink-0" />
-						{readingTime} min read
-					</span>
-					<CopyResourceButton
-						href={markdownHref}
-						label="Copy Markdown"
-						copiedLabel="Copied Markdown"
-					/>
+				<div className={styles.publication}>
+					<span>Case study</span>
+					<time dateTime={date}>{formatDate(date)}</time>
 				</div>
+			</Reveal>
+			<div className={styles.introduction}>
+				<HeadingReveal
+					as="h1"
+					delay={revealSequence.heading}
+					className={`${styles.title} portfolio-capsize-hero`}
+				>
+					{title}
+				</HeadingReveal>
+				<Reveal delay={revealSequence.body}>
+					<p className={styles.lede}>{description}</p>
+				</Reveal>
+			</div>
+			<Reveal delay={revealSequence.meta} className={styles.metaRow}>
+				<span className={styles.metaItem}>
+					<span className={styles.metaIcon}>
+						<RiTimeLine aria-hidden="true" className="size-4" />
+					</span>
+					<span className={styles.metaLabel}>{readingTime} min read</span>
+				</span>
+				<CopyResourceButton
+					href={markdownHref}
+					label="Copy Markdown"
+					copiedLabel="Copied Markdown"
+					className={`portfolio-action-link ${styles.copyAction}`}
+				/>
 			</Reveal>
 		</header>
 	);
@@ -71,38 +81,42 @@ interface CaseStudyFactsProps {
 	facts: { label: string; value: string }[];
 	stack: string[];
 	stackLabel: string;
+	projectTitle: string;
+	stackHighlights?: readonly string[];
 }
 
-/** Project context uses one outer inset and semantic, wrapping fact/value pairs. */
-export function CaseStudyFacts({ facts, stack, stackLabel }: CaseStudyFactsProps) {
+/** Equal fact cells and the card's production technology rail share one full-width summary. */
+export function CaseStudyFacts({
+	facts,
+	stack,
+	stackLabel,
+	projectTitle,
+	stackHighlights,
+}: CaseStudyFactsProps) {
 	return (
-		<dl className="portfolio-project-facts" data-columns={Math.min(facts.length, 3)}>
-			{facts.map(({ label, value }) => (
-				<div key={label} className="portfolio-project-fact">
-					<dt>{label}</dt>
-					<dd>{value}</dd>
-				</div>
-			))}
-			{stack.length > 0 && (
-				<div className="portfolio-project-fact portfolio-project-fact-stack">
-					<dt>{stackLabel}</dt>
-					<dd>
-						<ul className="portfolio-project-stack" aria-label={stackLabel}>
-							{stack.map((item) => (
-								<li key={item}>
-									<Badge
-										variant="outline"
-										color="secondary"
-										className="h-auto min-h-7 max-w-full whitespace-normal py-[5px] text-left [overflow-wrap:anywhere]"
-									>
-										{item}
-									</Badge>
-								</li>
-							))}
-						</ul>
-					</dd>
-				</div>
+		<section className={styles.summary} aria-label="Project details">
+			{facts.length > 0 && (
+				<dl
+					className={`portfolio-project-facts ${styles.facts}`}
+					data-columns={Math.min(facts.length, 3)}
+				>
+					{facts.map(({ label, value }) => (
+						<div key={label} className={`portfolio-project-fact ${styles.fact}`}>
+							<dt>{label}</dt>
+							<dd>{value}</dd>
+						</div>
+					))}
+				</dl>
 			)}
-		</dl>
+			{stack.length > 0 && (
+				<section aria-label={stackLabel}>
+					<ProjectTechnologyRail
+						technologies={stack}
+						highlights={stackHighlights}
+						projectTitle={projectTitle}
+					/>
+				</section>
+			)}
+		</section>
 	);
 }

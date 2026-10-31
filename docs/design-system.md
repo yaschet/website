@@ -143,9 +143,93 @@ viewer. Nested menus consume Escape before
 fullscreen exits, then the dialog closes. Player sliders and nested controls
 retain their arrow keys. The zoom gesture engine is a separate component.
 
+The expanded gallery keeps square geometry throughout. Header and footer are
+attached full-width regions with sharp edges and a single complete 1px perimeter. All four
+content insets are 24px (16px on mobile, 8px in short landscape), with 48px
+icon/action chambers. Mobile prioritizes a two-line title within the same 48px
+row and omits the visible description to keep the header's insets equal.
+The viewer covers the full viewport, including the page's reserved scrollbar
+gutter, while keeping the article's width and scroll position stable underneath.
+Previous and next sit at the artwork's left and right, centered within its stage;
+on narrow screens their protected glass surfaces overlap the media edges to
+preserve viewing space. The footer contains only the centered preview strip and
+is omitted for a single item. Image zoom sits in a separate centered control
+above the footer, with simple minus/fit/plus actions and equal separation from
+the artwork and footer. Video uses that space for its native media instead.
+Previews use consistent 88×64px frames (72×56px on mobile) and 12px gaps. Keep
+the original thumbnail colors, with no gray wells or opacity wash. A single 2px
+ink frame belongs to the displayed item; never sweep a filled selection block
+beneath unrelated previews. Keep title and description
+separate, omit decorative dividers and visible slide counters, and preserve the
+main media's native aspect ratio when video metadata arrives.
+
+The gallery is a scoped glass exception to opaque media chrome. White and black
+anchor the stage. One stationary 96×54px canvas blends actual media light in 240ms,
+in premultiplied linear color. A new selection starts from the currently painted
+light, including an interrupted blend. Diffuse the light at its 96×54px resolution
+with three separable box passes approximating an 80 CSS-pixel Gaussian spread;
+do not re-filter the full viewport on every light update. Blend already diffused
+linear light so retargeting does not progressively blur the field. Never attach light or opaque background
+planes to traveling artwork; the same field stays behind the media and glass.
+There is no procedural drift or per-item color preset;
+achromatic content is removed so a white interface cannot wash the stage gray.
+Reuse the decoded image already on stage instead of delaying its light for a
+second thumbnail request. Only the poster fallback makes a small image request.
+Video light follows `requestVideoFrameCallback`, with a frame-aware animation
+fallback, rather than a wall-clock sampling interval. Pause, visibility, seek,
+slide changes and disposal cancel or refresh the same frame loop. Anonymous
+video requests allow sampling; unreadable streams retain their poster light.
+Reduced motion uses the poster. The light spill uses 18% strength in light and
+38% in dark. Header, footer, zoom and side controls share a 48px backdrop blur,
+without shadows, bevels or grain. Every region keeps a complete, single 1px perimeter. Never feather the panes
+or add gradient masks, bevels or a second outline.
+White at 78% density and black at 64% density reveal defocused media. Dark glass
+reduces backdrop exposure to 30% before compositing to protect contrast over
+bright zoomed artwork.
+Matching tonal wells hold the header icon and close glyph. Close and zoom keep
+their glyphs centered, with shared hover/press feedback; directional navigation
+uses the same full-chamber ReelIcon as the hero CTA. Zoom uses persistent decimal
+reels with an interruptible 180ms transition inside a fixed-width control; the
+percent sign stays still. Deliberate selections prepare the destination's responsive
+image and decode it before changing the displayed item. Hover intent and keyboard
+focus prepare the same bounded PhotoSwipe cache; never load the whole gallery at
+full size. Reserve 25% resolution headroom for the first zoom step.
+Images retain their exact decoded candidate during departure; only video stills
+and ambient fields use canvases. A sine ease-in-out traversal takes
+`clamp(220, round(200 + viewportWidth / 18), 280)` milliseconds for
+both adjacent and distant selections, following index direction without displaying
+intermediate items. Retargeting flattens only the visible scene pieces and keeps
+the most recent destination. Carry screen velocity into a retargeted traversal;
+reverse by braking rather than resetting velocity or instantly changing direction.
+All artwork stays opaque, within a clipped viewport.
+The incoming and outgoing animations share a resolved document-timeline start,
+never the unresolved start time of a pending animation. Horizontal Gaussian
+exposure follows the travel curve's instantaneous derivative at the same
+animation time, approximating a 5.2ms shutter with a maximum 16px sigma, and
+clears at rest. This is a directional Gaussian approximation, not temporal
+accumulation or a neuroscience-validated model. The filter is updated directly;
+never write an inherited root CSS variable each frame for instrumentation. Apply it only to artwork, not the full stage or ambient field;
+do not switch on a fixed blur independent of velocity. Native swipes and pinch stay under
+PhotoSwipe's gesture engine. Drag position follows the pointer directly; release
+uses its critically damped spring (natural frequency 30, damping ratio 1), carrying
+release velocity. Its duration depends on remaining distance and velocity, not
+the click-navigation duration. Grabbing arriving artwork transfers its current
+screen offset to the gesture engine before pointer tracking starts; never snap
+the artwork to center first. Player inputs and gallery controls keep their own
+interaction and do not cancel an in-flight selection.
+The preview strip keeps native touch scrolling. Its centering uses an
+interruptible, critically damped spring; hover moves only the image
+inside its fixed hit area. Hover, press, keyboard focus and delayed preparation
+feedback remain distinct. Exposure follows scroll velocity and is capped at 1.5px.
+Keyboard and reduced-motion paths retain immediate geometry changes.
+Disabled controls mute their glyph while preserving their protective surface.
+Verify text and enabled controls at 7:1 or better against black and white media
+at enlarged zoom, including backdrop exposure in the composite, in both themes.
+Reduced motion keeps a still ambient frame and immediate controls.
+
 `Badge` has four treatments: opaque `solid`, tinted `soft`, keyline
-`outlined`, and text-only `plain`. Project technology metadata uses a plain
-reading list rather than badge controls. The badge `interactive` flag provides
+`outlined`, and text-only `plain`. Project technology metadata uses a joined
+logo rail and a complete text list rather than badge controls. The badge `interactive` flag provides
 appearance only; callers still own
 semantic controls and keyboard behavior.
 
@@ -177,29 +261,108 @@ or introductory band displaces the first preview.
 
 Project cards use locally owned surface roles from the Foundation neutral palette
 and a density-aware Neutral 300/700 perimeter. The preview owns one bottom
-boundary, including after the deferred gallery mounts. The content panel is
+boundary, including after the deferred gallery mounts. Cards without assigned
+media render only the content and technology footer, with no empty preview panel.
+The content panel is
 white in Light and Neutral 925 in Dark. Its title and explanation share equal
 20px insets on phones and 30px from 640px, with a 20px gap. Titles use 24/32px
-and 28/36px respectively. A full-width technical footer uses Mineral 200 in
-Light and Neutral 950 in Dark, separated by one hairline. It keeps the same
-horizontal text rails and 20px block insets: index and date at the start,
-technologies at the end when the caption has at least 672px available.
-Narrower captions stack those groups with
-a 10px gap. All footer copy uses quiet 13/20px type. One native title
-link extends its hit area across the caption, with a centered 40px action
-chamber beside the title. It remains one keyboard stop; descriptions and
-technology lists retain their own reading semantics.
-Descriptions remain complete, and technology lists wrap without clipping.
-Description leading is 22px on phones and 24px from 640px. Technology names
-remain a semantic, comma-separated reading list in 13/20px type. A 10px horizontal
-gap separates names, with 4px between wrapped lines. There are no badge fills,
-extra insets or individual hover, press or keyboard states; long names reflow
-rather than clip. The preview, title and explanation retain the visual emphasis.
+and 28/36px respectively. Authored project overviews place ownership and delivery
+status beneath the title in a quiet 13/20px line. Two short paragraphs explain
+the previous problem and what was built, with 10px between them; the contribution
+uses the stronger text role. These statements come from the case-study MDX,
+without inferred results or metrics. Delivery periods remain distinct from article
+publication dates. Cards without an overview retain the index/date metadata and
+single-description fallback. One native title
+link extends its hit area across the overview, with a centered 40px action
+chamber beside the title. The footer remains a separate interaction zone.
+Overview paragraphs remain complete, with 22px leading on phones and 24px from 640px.
+
+`ProjectTechnologyRail` owns the full-width 64px footer, using Mineral 200 in
+Light and Neutral 950 in Dark. One top hairline and joined vertical seams define
+six logo cells when the caption is at least 640px wide, and three below
+that width. The disclosure shares their column grid: all seven desktop cells or
+four compact cells have equal widths and a fixed 64px height, with the same 8px
+insets, 28px symbol chamber, caption styling and resting surface as the logo
+cells. Its grid symbol and “Stack” caption identify the complete technology list;
+hover, press, open and keyboard focus supply its interactive states without
+changing geometry.
+Its accessible name and popup heading include the technology count. It exposes the complete
+stack immediately, keeping the rail's core-first order before the supporting technologies.
+Every technology uses one symbol above one 12/16px name
+caption, with a shared 28px square chamber and 4px gap. Full-name wordmarks are
+excluded: PHP uses the letter-free elephant, MySQL its dolphin and Stripe its
+single-letter symbol. Captions never disappear to accommodate different artwork.
+Supabase and PostgreSQL occupy separate cells. Original proportions, centered
+view boxes and reviewed optical sizes balance dense and thin symbols without
+stretching. Unknown marks keep the same caption baseline and reserve the chamber
+without inventing a logo. Asset sources and licensing live in
+`docs/technology-assets.md`.
+
+The shared top hairline is painted above the cells, so disclosure hover and open
+fills cannot erase it. Interactive states preserve the cell seams and geometry.
+
+Three core technologies lead the first frame and remain fixed on desktop.
+The final three desktop cells exchange supporting technologies as one ordered
+window. Compact rails exchange all three cells, starting with the same core
+technologies. Each new window follows the authored supporting order, wrapping
+without duplicating a technology within the frame. If every technology already
+fits, the rail stays still. The full stack is available from the final disclosure cell
+without waiting for an exchange or adding another footer row.
+Project highlights are presentation data, included only when they
+exist in the authored stack. Windows advance every 2.2 seconds: a contained 400ms
+fade, 6px vertical travel and 2px blur, phased by 50ms from the rightmost changing
+cell inward. The final cell settles 500ms into the cycle, leaving 1.7 seconds
+with every symbol at rest. This cadence is a presentation choice, not a claim
+about attention spans. No card dimensions
+animate. Hover, keyboard focus and opening the disclosure pause rotation; its
+pause control can retain that state after dismissal. An exchange already
+underway settles before holding. Offscreen and
+hidden-document rails stop their timer and CSS motion, then resume the remaining
+hold. Reduced motion uses a static strip. A stable
+semantic text list exposes the full stack to assistive technology independently
+of the decorative exchanges. The disclosure follows the context-panel structure:
+a filled header with matching 40px symbol and close chambers, a flush two-column
+stack grid, and a separate full-width rotation control when cells can rotate and
+motion is available.
+The header keeps its equal 12px insets. The grid meets the panel edges without a
+second frame or surrounding inset. Each cell has equal 12px insets and a 40px square symbol chamber separated from
+the name by 12px. The chambers match the header icon and close control; the first
+column names align with the header title. The artwork retains its reviewed
+optical size and center. A subtle
+chamber fill separates it from the name surface. Colored panel symbols reuse
+the local vectors with source-backed colors, adjusted for contrast in each
+theme; neutral brands stay neutral. The rail is monochrome at rest. Each reviewed
+technology is a native link to a curated official product or project landing
+page, opening in a new tab with an accessible announcement. Destinations explain
+the product's value to visitors; API references and implementation guides are
+excluded. Unknown fixture names remain unlinked. Pointer hover reveals reviewed
+brand color over a neutral cell fill in 140ms; panel symbol wells receive a
+restrained brand tint. Hover-out settles in 180ms. Press deepens the fill in
+80ms and compresses only the glyph to 0.96; the chamber stays fixed. Keyboard
+focus inverts the existing cell surface and ink, without adding a second ring
+or changing the hairlines. Reduced motion makes these changes immediate. Hover, focus and
+touch press hold the rail's timer so a link cannot change destination during an
+interaction. Shared hairline
+seams define chamber, column and row joins once. Perimeters use inset frames
+with the same hairline token as the drawn seams, avoiding native border
+rounding differences at fractional zoom. These lines paint above every cell
+fill and keep their color and thickness during hover, press and keyboard focus.
+An odd last item completes the final row; names wrap and rows grow together
+when needed. The header, close and rotation footer retain their geometry. In a
+short viewport, only the grid scrolls; the frame, header and footer stay fixed.
+The panel aligns to the card edge and cannot exceed its width. Its frame fades
+in over 250ms without scale, travel or blur. Only the text and glyphs reveal
+with 4px travel, 2px blur and 220ms movement; row pairs follow at 24ms intervals,
+capped at 72ms. Interruptible CSS transitions retarget from the current state.
+Dismissal removes the stagger, settling the content in 120ms and the frame in
+150ms. Reduced motion removes these transitions. Close and Escape return focus
+to the disclosure cell.
+The preview, title and explanation retain the visual emphasis.
 
 Cards stay on their plane with one structural hairline and no blurred shadow,
 lift or media zoom. Hovering the caption strengthens that hairline and changes
 only the square action to the primary neutral material. Its arrow exits towards
-the destination as an identical arrow enters the same clipped 16px frame.
+the destination as an identical arrow enters the same full square chamber.
 Hovering the preview does not advertise navigation. The 40px action chamber
 rests in Foundation's soft neutral material with an inset hairline. Pointer press compresses
 only that chamber. A delayed navigation uses the existing LinkFeedback icon
@@ -211,17 +374,24 @@ cards do not advertise navigation.
 
 The hero's `ArrowButtonLink` composes the existing `ButtonLink` and pending
 feedback. Its 40px frame holds a label with 12px inline insets and a square,
-slightly inset-tone arrow chamber. On pointer hover,
-characters rotate around X, travel one third of an em and blur by one twelfth
-of an em. Characters use a stiffness-250, damping-30 spring, a 50ms forward
-stagger and a 100ms incoming lead. The return reads right to left with 60ms
-outgoing and 50ms incoming offsets. The arrow uses its own stiffness-320,
-damping-30 spring and travels 80% of its chamber. Its clipping aperture is the
-whole chamber, preserving visible travel throughout the exchange. Both tracks
-retarget from their current position on pointer exit without a busy lock or
-queued replay. The hero's deliberate display choreography is separate from
-immediate surface and press feedback. Distances adapt to our 14px type and
-40px chamber while retaining Yaschet's sharp geometry and monochrome materials.
+slightly inset-tone arrow chamber. On pointer hover, characters roll through a
+clipped 20px text window with a 60-degree tilt and 2px blur. Both text layers stay
+opaque, so the exchange reads as continuous travel rather than a fade. Text and
+arrow share one 520ms finish: each character travels for 400ms within a bounded
+120ms stagger, regardless of label length. Entry runs in reading order; exit
+mirrors that order with the same duration and symmetric easing. Interrupted
+transitions retarget their current position without queued replay. CSS transitions
+own the decorative exchange without React hover state or per-frame JavaScript.
+The arrow travels 80% of its full chamber; the clipping aperture preserves
+visible travel throughout the exchange. `arrowDirection="right" | "left" | "up-right" | "down"`
+matches glyph and trajectory; `arrowBlur={false}` removes only the arrow blur.
+Project actions reuse the same `ReelIcon`, with rightward, leftward or diagonal
+travel across 80% of their full square chamber. Clip at the chamber perimeter,
+never at the glyph's bounds, and keep the pending spinner centered at glyph size.
+Its owning control declares
+`data-reel-trigger`. The hero's display choreography remains separate from
+immediate surface and press feedback, retaining Yaschet's sharp geometry and
+monochrome materials.
 Only the visual layers move;
 the label is announced once, and the control never changes width or height.
 Keyboard focus is immediate. Touch and reduced motion keep the resting label
@@ -254,19 +424,24 @@ zoom, shadow, blur or spinner recipe.
 
 ## Case-Study Reading
 
-Case-study introductions use the production `CaseStudyHeader`: 32/40px titles
-on phones and 36/44px from 640px, with matching Capsize metrics. The label,
-title, description and utility row have separate 20px group spacing. Descriptions
-use 16/28px and 18/32px reading type. Dates and reading time use Space Grotesk;
-the 40px Markdown action reserves its label width across pending and completion.
-Resource loading begins on activation and exposes a recoverable error.
+Case-study introductions use the production `CaseStudyHeader`. One outer inset
+owns all four sides: 20px on phones and 32px from 640px. The toolbar, introduction
+and utilities share that content edge, with 24px between groups. The back link
+uses the existing directional reel and square glyph chamber. Publication metadata
+is a compact label/date pair. Descriptions use 16/26px and 18/30px reading type.
+Reading time is a passive 40px framed display; Copy Markdown is a separate 40px
+Foundation outline action with the same chamber geometry. Loading begins only on
+activation and retains pending, success and recoverable-error feedback.
 
-`CaseStudyFacts` owns semantic fact/value pairs and the wrapping technology list.
-Labels use 13/20px, values 14/24px and an 8px label/value gap. Facts stack on
-phones; from 768px, available facts fill one, two or three equal columns, with
-30px column gaps and 24px row gaps. The stack spans the row. Its badges may grow
-and wrap instead of clipping long names. The surrounding editorial section owns
-the outer inset and boundary.
+`CaseStudyFacts` owns semantic fact/value pairs above `ProjectTechnologyRail`.
+Phones use aligned label/value rows with equal 20px insets. From 768px, available
+facts fill one, two or three equal columns, each with 24px on all four sides and
+an 8px label/value gap. Labels use 13/20px medium, values 14/20px on phones and
+16/24px medium on desktop. Content wraps without clipping or shrinking the type.
+The full-width 64px technology footer reuses the cards' actual logo, rotation,
+reference-link and Stack-popover implementation, including equal-width cells,
+project-specific highlights, pause-on-interaction and reduced motion. No separate
+text stack or second animation implementation is maintained.
 
 Article copy uses 16/28px on phones and 18/32px from 640px. Section headings use
 20/28px and 24/32px, with whole-pixel spacing and a 100px anchor clearance.
@@ -312,12 +487,39 @@ associated with their inputs. Draft retention, duplicate-submit guarding,
 idempotent retry and server abuse controls remain in place. Real-page checks
 stop at validation; submission states use the isolated Storybook action mock.
 
+## Actions And Destinations
+
+An action's label describes its destination. `Email` opens `mailto:`,
+`Book a call` opens the shared scheduling URL, and project enquiries lead to
+`/contact` with `Discuss a project`. Booking is an option, not a required step.
+
+| Page | Reading or discovery action | Closing action |
+| --- | --- | --- |
+| Home | View my work, scrolling to the first project | Book a call |
+| About | Read the engineering principles | Discuss a project |
+| Case Studies | Open an individual case study | Discuss a project |
+| Case study | Read the evidence and play its media | Discuss a project |
+| Blog | Read a published article when available | View case studies |
+| Blog post | Read the article | Get in touch |
+| Contact | Choose message, email, or scheduling | Send message submits the form |
+
+The hero and closing navigation actions use `ArrowButtonLink`: one shared
+character reel, square glyph chamber, pending feedback and focus treatment.
+The glyph follows the destination: down for an in-page section, right for a
+page, and up-right for scheduling in a new tab. Appearance expresses priority;
+the secondary hero action remains outline. Playback and form submission keep
+their existing Foundation controls, with action-specific glyphs and feedback.
+
+Fragment-only links use browser fragment navigation rather than a route
+transition. Repeating the current fragment scrolls again without reloading or
+adding duplicate history entries. CSS owns smooth scrolling and reduced motion.
+
 ## Listing Pages
 
 Blog empty states use the Foundation `IconChamber`: 40px square, a centered
 20px glyph and 10px clear space on every side. Caller-provided icon sizes do
 not change that geometry. Closing navigation on Blog and Case Studies uses
-native `ButtonLink` anchors with the existing action-band treatment.
+`ArrowButtonLink` anchors with the existing action-band treatment.
 
 Deferred project video previews must retain the first keyboard or touch
 activation. Focus alone does not replace the poster button; touch waits for

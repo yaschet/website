@@ -14,6 +14,11 @@
 	--duration-slow: 400ms;
 	--duration-very-slow: 500ms;
 
+	/* Directional action reels share a bounded finish, including the text stagger. */
+	--action-reel-dur: 520ms;
+	--action-reel-stagger: 120ms;
+	--action-reel-ease: cubic-bezier(0.65, 0, 0.35, 1);
+
 	--ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
 	--ease-in-out: ease-in-out;
 	--ease-out: ease-out;

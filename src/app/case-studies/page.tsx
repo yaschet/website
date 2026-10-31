@@ -1,11 +1,10 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { Briefcase } from "@phosphor-icons/react/dist/ssr/Briefcase";
 import type { Metadata } from "next";
 import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-work-callout";
 import { PageContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { ButtonLink } from "@/src/components/ui/button-link";
+import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
 import { CopyResourceButton } from "@/src/components/ui/copy-resource-button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
@@ -18,6 +17,7 @@ import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import { SITE_URL } from "@/src/constants/site";
 import { getListedPublicProjectSummaries } from "@/src/content/project-summaries";
+import { getProjectTechnologyHighlights } from "@/src/content/project-technology-highlights";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 export const metadata: Metadata = {
@@ -81,8 +81,14 @@ export default async function CaseStudiesPage() {
 															index={String(i + 1).padStart(2, "0")}
 															title={project.title}
 															description={project.description}
+															overview={project.overview}
+															role={project.role}
+															status={project.status}
 															href={project.urlPath}
 															tags={project.tech ?? []}
+															technologyHighlights={getProjectTechnologyHighlights(
+																project.slug,
+															)}
 															items={getProjectCoverMedia(project)}
 															prioritizeFirstImage={true}
 															isPrivate={
@@ -114,8 +120,14 @@ export default async function CaseStudiesPage() {
 															index={String(i + 1).padStart(2, "0")}
 															title={project.title}
 															description={project.description}
+															overview={project.overview}
+															role={project.role}
+															status={project.status}
 															href={project.urlPath}
 															tags={project.tech ?? []}
+															technologyHighlights={getProjectTechnologyHighlights(
+																project.slug,
+															)}
 															items={getProjectCoverMedia(project)}
 															prioritizeFirstImage={false}
 															isPrivate={
@@ -176,25 +188,18 @@ export default async function CaseStudiesPage() {
 												<h2
 													className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 												>
-													View engineering philosophy.
+													Have a project in mind?
 												</h2>
-												<ButtonLink
-													href="/about"
-													size="md"
+												<ArrowButtonLink
+													href="/contact"
 													variant="solid"
 													color="default"
 													className={
 														INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS
 													}
-													icon={
-														<ArrowRightIcon
-															className="size-4"
-															weight="bold"
-														/>
-													}
 												>
-													About
-												</ButtonLink>
+													Discuss a project
+												</ArrowButtonLink>
 											</InstrumentActionBand>
 										</SwissGridRow>
 									</SwissGridBox>

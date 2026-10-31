@@ -1,12 +1,11 @@
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { Clock } from "@phosphor-icons/react/dist/ssr/Clock";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
+import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
-import { Button } from "@/src/components/ui/button";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
@@ -129,26 +128,16 @@ export function PostContentRSC({ post }: PostContentProps) {
 												>
 													Have thoughts on this?
 												</h2>
-												<Button
-													asChild
-													size="md"
+												<ArrowButtonLink
+													href="/contact"
 													variant="solid"
 													color="default"
 													className={
 														INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS
 													}
 												>
-													<Link
-														transitionTypes={["navigation"]}
-														href="/contact"
-													>
-														Discuss
-														<ArrowRight
-															className="size-4"
-															weight="bold"
-														/>
-													</Link>
-												</Button>
+													Get in touch
+												</ArrowButtonLink>
 											</ModuleContainer>
 										</InstrumentActionBand>
 									</SwissGridRow>

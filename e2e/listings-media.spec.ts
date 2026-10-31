@@ -33,7 +33,9 @@ for (const theme of ["light", "dark"] as const) {
 			.toEqual({ frame: [40, 40], glyph: [20, 20], insets: [10, 10, 10, 10] });
 		await page.locator('a[data-slot="button"][href="/case-studies"]').click();
 		await expect(page).toHaveURL(/\/case-studies$/);
-		await expect(page.locator('a[data-slot="button"][href="/about"]')).toBeVisible();
+		await expect(
+			page.getByRole("link", { name: "Discuss a project", exact: true }),
+		).toHaveAttribute("href", "/contact");
 		const card = page.getByRole("article", {
 			name: "University Program Matching",
 			exact: true,

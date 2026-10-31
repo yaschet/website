@@ -1,5 +1,12 @@
 import { expect, test } from "@playwright/test";
 
+// Geometry and navigation do not need a software-rendered decorative shader.
+test.use({
+	launchOptions: async ({ browserName }, use) => {
+		await use(browserName === "chromium" ? { args: ["--disable-webgl"] } : {});
+	},
+});
+
 for (const theme of ["light", "dark"] as const) {
 	test(`About and Contact retain their hierarchy and geometry in ${theme}`, async ({ page }) => {
 		await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
@@ -27,7 +34,7 @@ for (const theme of ["light", "dark"] as const) {
 			}),
 		).toBe(1);
 
-		await page.getByRole("link", { name: "Email", exact: true }).click();
+		await page.getByRole("link", { name: "Discuss a project", exact: true }).click();
 		await expect(page).toHaveURL(/\/contact$/);
 		await expect(page.getByRole("heading", { name: "Let’s talk.", level: 1 })).toBeVisible();
 		const form = page.getByRole("form", { name: "Send a message" });

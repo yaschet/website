@@ -185,9 +185,11 @@ for (const theme of ["light", "dark"] as const) {
 		await page.goto("/case-studies/clearway-phoenix");
 		const copy = page.getByRole("button", { name: "Copy Markdown", exact: true });
 		await page.evaluate(() => document.fonts.ready);
-		const label = page.locator(
-			'.portfolio-case-study-meta-row .t-state-label[data-sizing="content"]',
-		);
+		const label = page
+			.getByRole("button", {
+				name: /^(Copy Markdown|Copying|Copied Markdown|Retry copying)$/,
+			})
+			.locator('.t-state-label[data-sizing="content"]');
 		await expect(label).toHaveAttribute("data-measured", "true");
 		await expect(label).toHaveCSS("transition-property", "width");
 		expect(
@@ -196,10 +198,7 @@ for (const theme of ["light", "dark"] as const) {
 			),
 		).toBeGreaterThan(0);
 		const before = await copy.boundingBox();
-		await expect(page.locator(".portfolio-case-study-meta-item")).toHaveCSS(
-			"min-height",
-			"40px",
-		);
+		await expect(page.getByText(/^\d+ min read$/).locator("..")).toHaveCSS("height", "40px");
 		await copy.click();
 		const copied = page.getByRole("button", { name: "Copied Markdown", exact: true });
 		await expect(copied).toBeVisible();

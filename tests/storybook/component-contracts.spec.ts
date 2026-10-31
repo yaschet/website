@@ -115,7 +115,7 @@ for (const theme of ["light", "dark"]) {
 			await page.goto(
 				`/iframe.html?id=components-media-mediagallery--video-and-image&viewMode=story&globals=theme:${theme}`,
 			);
-			const gallery = page.locator('[aria-roledescription="carousel"]');
+			const gallery = page.locator('[aria-roledescription="carousel"]').first();
 			await page.getByRole("button", { name: "Play video", exact: true }).click();
 			const slider = page.getByRole("slider", { name: "Seek video" });
 			await slider.focus();
@@ -133,7 +133,7 @@ for (const theme of ["light", "dark"]) {
 			await page.goto(
 				`/iframe.html?id=components-media-mediagallery--default&viewMode=story&globals=theme:${theme}`,
 			);
-			const gallery = page.locator('[aria-roledescription="carousel"]');
+			const gallery = page.locator('[aria-roledescription="carousel"]').first();
 			await page.getByRole("button", { name: "Open slide 1 in expanded viewer" }).click();
 			const dialog = page.getByRole("dialog");
 			const close = dialog.getByRole("button", { name: "Close expanded viewer" });

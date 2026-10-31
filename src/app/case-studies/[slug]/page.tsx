@@ -1,6 +1,7 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { ProjectContentRSC } from "@/src/components/content/project-content-rsc";
+import { PageGalleryScope } from "@/src/components/ui/page-gallery-scope";
 import { SITE_URL } from "@/src/constants/site";
 import {
 	getPublicProjectSummaries,
@@ -136,7 +137,9 @@ export default async function CaseStudyPage({ params }: ProjectPageProps) {
 				// biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is trusted
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
 			/>
-			<ProjectContentRSC project={project} />
+			<PageGalleryScope>
+				<ProjectContentRSC project={project} />
+			</PageGalleryScope>
 		</>
 	);
 }

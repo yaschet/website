@@ -1,8 +1,8 @@
 import { SiteHeroField } from "@/src/components/layout/site-hero-field";
 import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
-import { ButtonLink } from "@/src/components/ui/button-link";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { Reveal, revealSequence } from "@/src/components/ui/reveal";
+import { SITE_BOOKING_URL } from "@/src/constants/site";
 
 const HERO_COLUMN_MAX_WIDTH = "calc(var(--portfolio-grid-step) * 50)";
 const HERO_BODY_MAX_WIDTH = "58ch";
@@ -44,12 +44,18 @@ export function SiteHero() {
 					</div>
 					<Reveal delay={revealSequence.controls}>
 						<div className="portfolio-control-row pointer-events-auto">
-							<ArrowButtonLink href="/case-studies" variant="solid">
-								Case studies
+							<ArrowButtonLink
+								href={SITE_BOOKING_URL}
+								variant="solid"
+								arrowDirection="up-right"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Book a call
 							</ArrowButtonLink>
-							<ButtonLink href="/contact" variant="outline">
-								Email
-							</ButtonLink>
+							<ArrowButtonLink href="#work" variant="outline" arrowDirection="down">
+								View my work
+							</ArrowButtonLink>
 						</div>
 					</Reveal>
 				</div>

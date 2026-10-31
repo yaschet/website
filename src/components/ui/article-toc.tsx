@@ -1,18 +1,10 @@
 "use client";
 
-import { List } from "@phosphor-icons/react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { RiCloseLine, RiListCheck2 } from "@remixicon/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button } from "@/src/components/ui/button";
-import {
-	Dialog,
-	DialogBody,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/src/components/ui/dialog";
 import { cn } from "@/src/lib/index";
+import styles from "./article-toc.module.css";
 
 interface HeadingMeta {
 	id: string;
@@ -20,25 +12,24 @@ interface HeadingMeta {
 	level: number;
 	offsetTop: number;
 }
-
 interface ArticleTOCProps {
 	contentSelector?: string;
 	className?: string;
 }
 
-/** Article navigation with a wide-screen reading rail and a focus-managed contents dialog. */
+/** Quiet reading rail on wide screens and an accessible contents sheet on smaller screens. */
 export function ArticleTOC({ contentSelector = "article", className }: ArticleTOCProps) {
 	const [headings, setHeadings] = useState<HeadingMeta[]>([]);
 	const [activeIndex, setActiveIndex] = useState(0);
-	const [isVisible, setIsVisible] = useState(false);
+	const [visible, setVisible] = useState(false);
 	const [open, setOpen] = useState(false);
-	const destination = useRef<HTMLElement | null>(null);
+	const [instant, setInstant] = useState(false);
+	const destination = useRef<{ heading: HTMLElement; instant: boolean } | null>(null);
 
 	useEffect(() => {
 		const content = document.querySelector(contentSelector);
 		if (!content) return;
-
-		const measure = () => {
+		const measure = () =>
 			setHeadings(
 				Array.from(content.querySelectorAll<HTMLElement>("h2[id], h3[id]"), (heading) => ({
 					id: heading.id,
@@ -47,7 +38,6 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 					offsetTop: heading.getBoundingClientRect().top + window.scrollY,
 				})),
 			);
-		};
 		measure();
 		const observer = new ResizeObserver(measure);
 		observer.observe(content);
@@ -59,37 +49,39 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 	}, [contentSelector]);
 
 	useEffect(() => {
-		const trackSection = () => {
+		const track = () => {
 			let index = 0;
 			for (let i = headings.length - 1; i >= 0; i--) {
-				if (window.scrollY + 120 >= headings[i].offsetTop) {
+				if (window.scrollY + 140 >= headings[i].offsetTop) {
 					index = i;
 					break;
 				}
 			}
 			setActiveIndex(index);
-			setIsVisible(window.scrollY > 200);
+			setVisible(window.scrollY > 200);
 		};
-		trackSection();
-		window.addEventListener("scroll", trackSection, { passive: true });
-		return () => window.removeEventListener("scroll", trackSection);
+		track();
+		window.addEventListener("scroll", track, { passive: true });
+		return () => window.removeEventListener("scroll", track);
 	}, [headings]);
 
-	const navigate = useCallback((heading: HTMLElement) => {
-		window.history.pushState(null, "", `#${encodeURIComponent(heading.id)}`);
+	const navigate = useCallback((heading: HTMLElement, keyboard = false) => {
+		const hash = `#${encodeURIComponent(heading.id)}`;
+		if (window.location.hash !== hash) window.history.pushState(null, "", hash);
+		if (!heading.hasAttribute("tabindex")) heading.tabIndex = -1;
 		heading.focus({ preventScroll: true });
 		heading.scrollIntoView({
-			behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-				? "instant"
-				: "smooth",
+			behavior:
+				keyboard || window.matchMedia("(prefers-reduced-motion: reduce)").matches
+					? "instant"
+					: "smooth",
 			block: "start",
 		});
 	}, []);
 
 	if (!headings.length) return null;
-
 	const links = (
-		<ol className="portfolio-contents-list">
+		<ol className={styles.list}>
 			{headings.map(({ id, text, level }, index) => (
 				<li key={id}>
 					<a
@@ -103,65 +95,86 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 							if (!heading) return;
 							event.preventDefault();
 							if (open) {
-								destination.current = heading;
+								destination.current = { heading, instant: event.detail === 0 };
+								setInstant(event.detail === 0);
 								setOpen(false);
-							} else {
-								navigate(heading);
-							}
+							} else navigate(heading, event.detail === 0);
 						}}
 					>
-						{text}
+						<span className={styles.number} aria-hidden="true">
+							{String(index + 1).padStart(2, "0")}
+						</span>
+						<span>{text}</span>
 					</a>
 				</li>
 			))}
 		</ol>
 	);
-
 	return (
 		<>
-			{isVisible && (
-				<nav className={cn("portfolio-contents-rail", className)} aria-label="On this page">
-					<p className="portfolio-kicker mb-3 text-muted-foreground">On this page</p>
-					{links}
-				</nav>
-			)}
-			<Dialog open={open} onOpenChange={setOpen}>
-				{isVisible && (
-					<DialogTrigger
-						data-slot="button"
-						render={
-							<Button
-								variant="outlined"
-								size="icon-xl"
-								color="default"
-								className="portfolio-contents-trigger min-[96rem]:hidden"
-								aria-label="Open table of contents"
-							/>
-						}
-					>
-						<List size={16} />
-					</DialogTrigger>
-				)}
-				<DialogContent
-					framed
-					finalFocus={() => {
-						const heading = destination.current;
-						if (!heading) return true;
-						destination.current = null;
-						// Let the focus scope remove document inertness before focusing the heading.
-						queueMicrotask(() => navigate(heading));
-						return false;
-					}}
+			<nav
+				className={cn(styles.rail, className)}
+				aria-label="On this page"
+				data-visible={visible}
+				aria-hidden={!visible}
+				inert={!visible}
+			>
+				<p className={styles.label}>
+					On this page{" "}
+					<span>
+						{String(activeIndex + 1).padStart(2, "0")} /{" "}
+						{String(headings.length).padStart(2, "0")}
+					</span>
+				</p>
+				{links}
+			</nav>
+			<Dialog.Root open={open} onOpenChange={setOpen}>
+				<Dialog.Trigger
+					className={styles.trigger}
+					data-visible={visible}
+					inert={!visible}
+					tabIndex={visible ? 0 : -1}
+					aria-label="Open table of contents"
+					onClick={(event) => setInstant(event.detail === 0)}
 				>
-					<DialogHeader icon={<List />}>
-						<DialogTitle>On this page</DialogTitle>
-						<DialogDescription>Jump to a section of this article.</DialogDescription>
-					</DialogHeader>
-					<DialogBody>
+					<RiListCheck2 size={18} />
+					<span>Contents</span>
+					<span className={styles.triggerCount}>
+						{String(activeIndex + 1).padStart(2, "0")} /{" "}
+						{String(headings.length).padStart(2, "0")}
+					</span>
+				</Dialog.Trigger>
+				<Dialog.Portal>
+					<Dialog.Overlay className={styles.overlay} data-instant={instant} />
+					<Dialog.Content
+						className={styles.sheet}
+						data-instant={instant}
+						onEscapeKeyDown={() => setInstant(true)}
+						onCloseAutoFocus={(event) => {
+							const target = destination.current;
+							if (!target) return;
+							event.preventDefault();
+							destination.current = null;
+							queueMicrotask(() => navigate(target.heading, target.instant));
+						}}
+					>
+						<div className={styles.sheetHeader}>
+							<Dialog.Title className={styles.sheetTitle}>On this page</Dialog.Title>
+							<Dialog.Close
+								className={styles.close}
+								aria-label="Close table of contents"
+								onClick={(event) => setInstant(event.detail === 0)}
+							>
+								<RiCloseLine size={20} />
+							</Dialog.Close>
+						</div>
+						<Dialog.Description className="sr-only">
+							Choose a section to continue reading.
+						</Dialog.Description>
 						<nav aria-label="Article sections">{links}</nav>
-					</DialogBody>
-				</DialogContent>
-			</Dialog>
+					</Dialog.Content>
+				</Dialog.Portal>
+			</Dialog.Root>
 		</>
 	);
 }

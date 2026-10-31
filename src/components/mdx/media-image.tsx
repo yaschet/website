@@ -6,6 +6,7 @@ import { resolveAsset } from "@/src/lib/assets";
 interface MediaImageProps {
 	src: string;
 	alt?: string;
+	title?: string;
 	width?: number;
 	height?: number;
 	caption?: string;
@@ -17,6 +18,7 @@ interface MediaImageProps {
 export function MediaImage({
 	src,
 	alt = "",
+	title,
 	width,
 	height,
 	caption,
@@ -31,7 +33,7 @@ export function MediaImage({
 	return (
 		<figure data-breakout="true" className="media-breakout mb-(--portfolio-space-group)">
 			<MediaGallery
-				items={[{ kind: "image", src: asset, alt, caption: caption ?? alt }]}
+				items={[{ kind: "image", src: asset, alt, title, caption: caption ?? alt }]}
 				altPrefix={alt || "Case-study image"}
 				aspectRatio={ratio}
 				showArrows={false}

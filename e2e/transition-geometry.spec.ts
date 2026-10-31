@@ -71,8 +71,19 @@ for (const theme of ["light", "dark"] as const) {
 				await page.goto(route);
 				await expect(page.getByRole("button", { name: /^Theme: Switch/ })).toBeVisible();
 				await page.evaluate(() => document.fonts.ready);
+				// Establish the scrolled precondition after streaming and scroll restoration.
+				await expect
+					.poll(() =>
+						page.evaluate(() => {
+							scrollTo({
+								top: document.documentElement.scrollHeight,
+								behavior: "instant",
+							});
+							return scrollY;
+						}),
+					)
+					.toBeGreaterThan(500);
 				const expected = await page.evaluate(() => {
-					scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
 					const surface = document.querySelector(".portfolio-theme-surface");
 					if (!surface) throw new Error("The portfolio surface is missing");
 					const markers = [

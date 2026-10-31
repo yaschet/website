@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/src/components/ui/button-link";
-import { SITE_EMAIL } from "@/src/constants/site";
+import { SITE_BOOKING_URL, SITE_EMAIL } from "@/src/constants/site";
 
 const CONTACT_METHODS = [
 	{
@@ -22,7 +22,7 @@ const CONTACT_METHODS = [
 		actions: [
 			{
 				label: "Book a call",
-				href: "https://cal.com/yassinechettouch/15min",
+				href: SITE_BOOKING_URL,
 				variant: "soft" as const,
 				color: "default" as const,
 				target: "_blank" as const,

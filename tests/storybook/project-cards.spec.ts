@@ -18,9 +18,9 @@ for (const theme of ["light", "dark"]) {
 				const action = node.querySelector("[data-project-action]");
 				const description = copy?.querySelector(".portfolio-project-description");
 				const metadata = copy?.querySelector(".portfolio-project-metadata");
-				const technologies = copy?.querySelector(".portfolio-project-technologies");
+				const technologies = copy?.querySelector('[data-slot="project-technology-rail"]');
 				const overview = copy?.querySelector('[data-slot="project-overview"]');
-				const footer = copy?.querySelector(".portfolio-project-footer");
+				const solution = copy?.querySelector('[data-slot="project-solution"]');
 				if (
 					!copy ||
 					!title ||
@@ -29,7 +29,7 @@ for (const theme of ["light", "dark"]) {
 					!metadata ||
 					!technologies ||
 					!overview ||
-					!footer
+					!solution
 				)
 					throw new Error("Incomplete project card");
 				const t = title.getBoundingClientRect(),
@@ -38,7 +38,8 @@ for (const theme of ["light", "dark"]) {
 				const summary = description.getBoundingClientRect();
 				const list = technologies.getBoundingClientRect();
 				const insets = getComputedStyle(overview);
-				const footerBox = footer.getBoundingClientRect();
+				const footerBox = technologies.getBoundingClientRect();
+				const solutionBox = solution.getBoundingClientRect();
 				return {
 					width: a.width,
 					height: a.height,
@@ -46,7 +47,7 @@ for (const theme of ["light", "dark"]) {
 					clamp: getComputedStyle(description).webkitLineClamp,
 					overflow: document.documentElement.scrollWidth > innerWidth,
 					metadataBelowTitle: metadata.getBoundingClientRect().top >= t.bottom,
-					stacked: list.top >= summary.bottom,
+					stacked: list.top >= solutionBox.bottom && solutionBox.top >= summary.bottom,
 					insets: [
 						insets.paddingTop,
 						insets.paddingRight,
@@ -56,15 +57,19 @@ for (const theme of ["light", "dark"]) {
 					footerRails: [footerBox.left - c.left, footerBox.right - c.right],
 					distinctSurfaces:
 						getComputedStyle(copy).backgroundColor !==
-						getComputedStyle(footer).backgroundColor,
-					technologiesFit: [...node.querySelectorAll("li")].every((technology) => {
-						const r = technology.getBoundingClientRect();
-						return (
-							r.left >= c.left &&
-							r.right <= c.right &&
-							technology.scrollWidth <= technology.clientWidth + 1
-						);
-					}),
+						getComputedStyle(technologies).backgroundColor,
+					technologiesFit: [
+						...technologies.querySelectorAll(".portfolio-technology-cell"),
+					]
+						.filter((technology) => getComputedStyle(technology).display !== "none")
+						.every((technology) => {
+							const r = technology.getBoundingClientRect();
+							return (
+								r.left >= c.left &&
+								r.right <= c.right &&
+								technology.scrollWidth <= technology.clientWidth + 1
+							);
+						}),
 				};
 			});
 			expect(layout.width).toBe(40);

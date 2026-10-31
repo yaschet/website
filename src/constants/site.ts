@@ -1,6 +1,7 @@
 export const SITE_URL = "https://yaschet.com";
 export const SITE_HOSTNAME = "yaschet.com";
 export const SITE_EMAIL = "hello@yaschet.com";
+export const SITE_BOOKING_URL = "https://cal.com/yassinechettouch/15min";
 export const SITE_ROLE = "Product Engineer";
 export const SITE_DESCRIPTION =
 	"Full-stack product engineer specializing in applied AI. I build and improve SaaS and e-commerce products.";

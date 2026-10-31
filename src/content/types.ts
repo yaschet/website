@@ -12,6 +12,7 @@ const galleryImageItemSchema = z.object({
 	kind: z.literal("image"),
 	src: z.string(),
 	alt: z.string().optional(),
+	title: z.string().optional(),
 	caption: z.string().optional(),
 });
 
@@ -40,9 +41,15 @@ export const postMetadataSchema = z.object({
 	published: z.boolean().default(true),
 });
 
+const projectOverviewSchema = z.object({
+	problem: z.string().trim().min(1),
+	solution: z.string().trim().min(1),
+});
+
 export const projectMetadataSchema = z.object({
 	title: z.string(),
 	description: z.string(),
+	overview: projectOverviewSchema.optional(),
 	subtitle: z.string().optional(),
 	date: z.string(),
 	tags: z.array(z.string()).default([]),
@@ -66,6 +73,7 @@ export const projectMetadataSchema = z.object({
 
 export type PostMetadata = z.infer<typeof postMetadataSchema>;
 export type ProjectMetadata = z.infer<typeof projectMetadataSchema>;
+export type ProjectOverview = z.infer<typeof projectOverviewSchema>;
 export type GalleryMediaItem = z.infer<typeof galleryMediaItemSchema>;
 export type MuxVideoMetadata = z.infer<typeof muxVideoMetadataSchema>;
 
