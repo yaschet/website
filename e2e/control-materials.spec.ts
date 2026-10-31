@@ -106,6 +106,7 @@ for (const theme of ["light", "dark"] as const) {
 	test(`a slow project link keeps its title and square action stable in ${theme}`, async ({
 		page,
 	}) => {
+		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		let release = () => {};
 		const gate = new Promise<void>((resolve) => {
@@ -120,23 +121,38 @@ for (const theme of ["light", "dark"] as const) {
 			await route.continue();
 		});
 		await page.goto("/");
-		const link = page.getByRole("article").first().locator("a.portfolio-project-link");
+		const copy = page.getByRole("article").first().locator('[data-slot="project-copy"]');
+		const link = copy.locator("a.portfolio-project-link");
 		const action = link.locator("[data-project-action]");
 		const title = await link.getByRole("heading", { level: 3 }).innerText();
 		const href = await link.getAttribute("href");
-		await link.hover();
+		await link.click({ trial: true });
 		await expect(action).toBeVisible();
 		const initial = await action.boundingBox();
+		const initialCopy = await copy.boundingBox();
 		if (!initial) throw new Error("Missing project action before navigation");
+		if (!initialCopy) throw new Error("Missing project caption before navigation");
 		try {
 			await link.click();
-			await expect(link.locator("[data-loading]")).toHaveCount(1);
+			const feedback = link.locator('[data-slot="link-feedback"][data-loading]');
+			await expect(feedback).toBeVisible();
 			await expect(link.locator('[aria-busy="true"]')).toHaveCount(1);
 			await expect(link).toHaveAccessibleName(title);
 			const pending = await action.boundingBox();
+			const spinner = await feedback.locator('[data-slot="spinner"]').boundingBox();
 			if (!pending) throw new Error("Missing project action during navigation");
+			if (!spinner) throw new Error("Missing project navigation spinner");
 			expect(pending.width).toBe(initial.width);
 			expect(pending.height).toBe(initial.height);
+			expect(spinner.width).toBe(16);
+			expect(spinner.height).toBe(16);
+			expect(
+				Math.abs(pending.x + pending.width / 2 - spinner.x - spinner.width / 2),
+			).toBeLessThan(0.5);
+			expect(
+				Math.abs(pending.y + pending.height / 2 - spinner.y - spinner.height / 2),
+			).toBeLessThan(0.5);
+			expect(await copy.boundingBox()).toEqual(initialCopy);
 		} finally {
 			release();
 		}

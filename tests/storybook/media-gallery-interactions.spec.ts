@@ -270,15 +270,29 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 	});
 	const page = await context.newPage();
 	const touch = await context.newCDPSession(page);
-	async function swipe(from: { x: number; y: number }, to: { x: number; y: number }) {
-		// Use the native gesture scheduler and end without a fling before the next tap.
-		await touch.send("Input.synthesizeScrollGesture", {
-			...from,
-			xDistance: to.x - from.x,
-			yDistance: to.y - from.y,
-			preventFling: true,
-			gestureSourceType: "touch",
+	async function gesture(from: { x: number; y: number }[], to: { x: number; y: number }[]) {
+		const points = (positions: { x: number; y: number }[]) =>
+			positions.map((point, id) => ({ ...point, id, radiusX: 5, radiusY: 5, force: 1 }));
+		await touch.send("Input.dispatchTouchEvent", {
+			type: "touchStart",
+			touchPoints: points(from),
 		});
+		// Frame-paced contacts exercise native scrolling and the viewer's pointer handling.
+		// Hold the final position before lifting so this gesture ends without a fling.
+		for (let frame = 1; frame <= 17; frame++) {
+			await page.evaluate(() => new Promise(requestAnimationFrame));
+			const progress = Math.min(frame / 12, 1);
+			await touch.send("Input.dispatchTouchEvent", {
+				type: "touchMove",
+				touchPoints: points(
+					from.map((point, index) => ({
+						x: point.x + (to[index].x - point.x) * progress,
+						y: point.y + (to[index].y - point.y) * progress,
+					})),
+				),
+			});
+		}
+		await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 	}
 	async function tap(target: Locator) {
 		await target.tap({ trial: true });
@@ -296,11 +310,14 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 			"/iframe.html?id=components-media-mediagallery--with-per-image-captions&viewMode=story",
 		);
 		const gallery = page.locator('[aria-roledescription="carousel"]');
+		await page.getByRole("button", { name: "Open slide 1 in expanded viewer" }).tap({
+			trial: true,
+		});
 		const frame = await gallery.boundingBox();
 		if (!frame) throw new Error("Expected the inline gallery");
-		await swipe(
-			{ x: 300, y: frame.y + frame.height / 2 },
-			{ x: 80, y: frame.y + frame.height / 2 },
+		await gesture(
+			[{ x: 300, y: frame.y + frame.height / 2 }],
+			[{ x: 80, y: frame.y + frame.height / 2 }],
 		);
 		await expect(gallery.getByText("Slide 2 of 3", { exact: true })).toBeAttached();
 		await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -311,12 +328,16 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 		);
 		await expect(surface).toBeVisible();
 		await expect(dialog).toHaveAttribute("data-gallery-state", "open");
-		await touch.send("Input.synthesizePinchGesture", {
-			x: 195,
-			y: 390,
-			scaleFactor: 2.5,
-			gestureSourceType: "touch",
-		});
+		await gesture(
+			[
+				{ x: 155, y: 390 },
+				{ x: 235, y: 390 },
+			],
+			[
+				{ x: 95, y: 390 },
+				{ x: 295, y: 390 },
+			],
+		);
 		await expect
 			.poll(async () =>
 				Number.parseInt(
@@ -325,7 +346,7 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 				),
 			)
 			.toBeGreaterThan(190);
-		await swipe({ x: 220, y: 390 }, { x: 100, y: 390 });
+		await gesture([{ x: 220, y: 390 }], [{ x: 100, y: 390 }]);
 		await expect(dialog).toHaveAccessibleName("Document Processing Pipeline");
 		const fit = dialog.getByRole("button", { name: "Reset zoom to fit" });
 		expect(
@@ -341,7 +362,7 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 		).toBe(true);
 		await tap(fit);
 		await expect(fit).toHaveText("Fit");
-		await swipe({ x: 195, y: 390 }, { x: 195, y: 740 });
+		await gesture([{ x: 195, y: 390 }], [{ x: 195, y: 740 }]);
 		await expect(dialog).toHaveCount(0);
 		await expect(gallery).toBeFocused();
 	} finally {
