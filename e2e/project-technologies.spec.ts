@@ -346,7 +346,10 @@ for (const theme of ["light", "dark"] as const) {
 		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.goto("/");
-		const project = page.getByRole("article").first();
+		const project = page.getByRole("article", {
+			name: "Document Translation With Editable Tables",
+			exact: true,
+		});
 		const rail = project.locator('[data-slot="project-technology-rail"]');
 		await rail.scrollIntoViewIfNeeded();
 		const openai = rail.getByRole("link", { name: /^OpenAI:/ });
@@ -400,7 +403,7 @@ for (const theme of ["light", "dark"] as const) {
 			"href",
 			"https://openai.com/api/",
 		);
-		await expect(stack.getByRole("link")).toHaveCount(8);
+		await expect(stack.getByRole("link")).toHaveCount(9);
 		await page.keyboard.press("Escape");
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await expect(rail).toHaveAttribute("data-motion-active", "false");
@@ -424,8 +427,10 @@ test.describe("stack frames on fractional-density displays", () => {
 			await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 			await page.goto("/");
 			const trigger = page
-				.getByRole("article")
-				.first()
+				.getByRole("article", {
+					name: "Document Translation With Editable Tables",
+					exact: true,
+				})
 				.getByRole("button", { name: /^Stack: all / });
 			await trigger.click();
 			const dialog = page.getByRole("dialog", { name: /^Technology stack for / });
@@ -521,7 +526,7 @@ test.describe("stack frames on fractional-density displays", () => {
 			if (!viewport) throw new Error("Missing viewport");
 			await page.setViewportSize({ width: viewport.width, height: 360 });
 			await trigger.click();
-			await dialog.getByRole("link", { name: /^Redis:/ }).scrollIntoViewIfNeeded();
+			await dialog.getByRole("link").last().scrollIntoViewIfNeeded();
 			await expect(close).toBeInViewport();
 			await expect(
 				dialog.getByRole("button", { name: "Pause logo rotation" }),
@@ -533,16 +538,20 @@ test.describe("stack frames on fractional-density displays", () => {
 			await page.keyboard.press("Escape");
 			await page.emulateMedia({ reducedMotion: "reduce" });
 			await trigger.click();
-			expect(
-				await dialog.evaluate((node) =>
-					[node, ...node.querySelectorAll("*")]
-						.filter((element) => getComputedStyle(element).transitionDuration !== "0s")
-						.map((element) => ({
-							className: element.getAttribute("class"),
-							duration: getComputedStyle(element).transitionDuration,
-						})),
-				),
-			).toEqual([]);
+			await expect
+				.poll(() =>
+					dialog.evaluate((node) =>
+						[node, ...node.querySelectorAll("*")]
+							.filter(
+								(element) => getComputedStyle(element).transitionDuration !== "0s",
+							)
+							.map((element) => ({
+								className: element.getAttribute("class"),
+								duration: getComputedStyle(element).transitionDuration,
+							})),
+					),
+				)
+				.toEqual([]);
 			await page.keyboard.press("Escape");
 			await expect(trigger).toBeFocused();
 		});

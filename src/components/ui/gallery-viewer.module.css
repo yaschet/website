@@ -253,6 +253,10 @@
 	line-height: 20px;
 	font-variant-numeric: tabular-nums;
 }
+.viewer .zoomValue > * {
+	/* Animated digits must not change the touch target during a press. */
+	pointer-events: none;
+}
 .zoomReadout {
 	position: relative;
 	display: inline-flex;

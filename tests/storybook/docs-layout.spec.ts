@@ -14,7 +14,7 @@ for (const theme of ["light", "dark"] as const) {
 			).toBeVisible();
 			await expect(page.locator("html")).toHaveClass(new RegExp(theme));
 			await expect(docs.locator("iframe")).toHaveCount(0);
-			await expect(docs.locator(".sb-story")).toHaveCount(5);
+			await expect(docs.locator(".sb-story")).toHaveCount(6);
 			await page.evaluate(() => document.fonts.ready);
 			const geometry = await docs.evaluate((root) => ({
 				horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,

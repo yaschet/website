@@ -330,8 +330,20 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 			.toBeGreaterThan(190);
 		await gesture([{ x: 220, y: 390 }], [{ x: 100, y: 390 }]);
 		await expect(dialog).toHaveAccessibleName("Document Processing Pipeline");
-		await dialog.getByRole("button", { name: "Reset zoom to fit" }).tap();
-		await expect(dialog.getByRole("button", { name: "Reset zoom to fit" })).toHaveText("Fit");
+		const fit = dialog.getByRole("button", { name: "Reset zoom to fit" });
+		expect(
+			await fit.evaluate((button) => {
+				const frame = button.getBoundingClientRect();
+				return (
+					document.elementFromPoint(
+						frame.x + frame.width / 2,
+						frame.y + frame.height / 2,
+					) === button
+				);
+			}),
+		).toBe(true);
+		await fit.tap();
+		await expect(fit).toHaveText("Fit");
 		await gesture([{ x: 195, y: 390 }], [{ x: 195, y: 740 }]);
 		await expect(dialog).toHaveCount(0);
 		await expect(gallery).toBeFocused();
