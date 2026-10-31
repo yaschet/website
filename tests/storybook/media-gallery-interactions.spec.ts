@@ -342,7 +342,15 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 				);
 			}),
 		).toBe(true);
+		await fit.evaluate((button) => {
+			for (const type of ["pointerdown", "pointerup", "pointercancel", "click"]) {
+				button.addEventListener(type, () => {
+					button.dataset.touchEvents = `${button.dataset.touchEvents ?? ""} ${type}`;
+				});
+			}
+		});
 		await fit.tap();
+		await expect(fit).toHaveAttribute("data-touch-events", /click/);
 		await expect(fit).toHaveText("Fit");
 		await gesture([{ x: 195, y: 390 }], [{ x: 195, y: 740 }]);
 		await expect(dialog).toHaveCount(0);
