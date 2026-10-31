@@ -270,37 +270,26 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 	});
 	const page = await context.newPage();
 	const touch = await context.newCDPSession(page);
-	async function gesture(from: { x: number; y: number }[], to: { x: number; y: number }[]) {
-		const points = (positions: { x: number; y: number }[]) =>
-			positions.map((point, id) => ({ ...point, id, radiusX: 5, radiusY: 5, force: 1 }));
-		await touch.send("Input.dispatchTouchEvent", {
-			type: "touchStart",
-			touchPoints: points(from),
+	async function swipe(from: { x: number; y: number }, to: { x: number; y: number }) {
+		// Use the native gesture scheduler and end without a fling before the next tap.
+		await touch.send("Input.synthesizeScrollGesture", {
+			...from,
+			xDistance: to.x - from.x,
+			yDistance: to.y - from.y,
+			preventFling: true,
+			gestureSourceType: "touch",
 		});
-		for (let step = 1; step <= 12; step++) {
-			await touch.send("Input.dispatchTouchEvent", {
-				type: "touchMove",
-				touchPoints: points(
-					from.map((point, index) => ({
-						x: point.x + ((to[index].x - point.x) * step) / 12,
-						y: point.y + ((to[index].y - point.y) * step) / 12,
-					})),
-				),
-			});
-		}
-		await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 	}
 	async function tap(target: Locator) {
-		await expect(target).toBeVisible();
-		await expect(target).toBeEnabled();
+		await target.tap({ trial: true });
 		const frame = await target.boundingBox();
 		if (!frame) throw new Error("Expected a visible touch target");
-		// Keep taps and gestures on one input session with sequential contact start/end.
-		await touch.send("Input.dispatchTouchEvent", {
-			type: "touchStart",
-			touchPoints: [{ x: frame.x + frame.width / 2, y: frame.y + frame.height / 2, id: 0 }],
+		// Let Chromium generate the complete native tap, including its contact timing.
+		await touch.send("Input.synthesizeTapGesture", {
+			x: frame.x + frame.width / 2,
+			y: frame.y + frame.height / 2,
+			gestureSourceType: "touch",
 		});
-		await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 	}
 	try {
 		await page.goto(
@@ -309,9 +298,9 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 		const gallery = page.locator('[aria-roledescription="carousel"]');
 		const frame = await gallery.boundingBox();
 		if (!frame) throw new Error("Expected the inline gallery");
-		await gesture(
-			[{ x: 300, y: frame.y + frame.height / 2 }],
-			[{ x: 80, y: frame.y + frame.height / 2 }],
+		await swipe(
+			{ x: 300, y: frame.y + frame.height / 2 },
+			{ x: 80, y: frame.y + frame.height / 2 },
 		);
 		await expect(gallery.getByText("Slide 2 of 3", { exact: true })).toBeAttached();
 		await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -322,16 +311,12 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 		);
 		await expect(surface).toBeVisible();
 		await expect(dialog).toHaveAttribute("data-gallery-state", "open");
-		await gesture(
-			[
-				{ x: 155, y: 390 },
-				{ x: 235, y: 390 },
-			],
-			[
-				{ x: 95, y: 390 },
-				{ x: 295, y: 390 },
-			],
-		);
+		await touch.send("Input.synthesizePinchGesture", {
+			x: 195,
+			y: 390,
+			scaleFactor: 2.5,
+			gestureSourceType: "touch",
+		});
 		await expect
 			.poll(async () =>
 				Number.parseInt(
@@ -340,7 +325,7 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 				),
 			)
 			.toBeGreaterThan(190);
-		await gesture([{ x: 220, y: 390 }], [{ x: 100, y: 390 }]);
+		await swipe({ x: 220, y: 390 }, { x: 100, y: 390 });
 		await expect(dialog).toHaveAccessibleName("Document Processing Pipeline");
 		const fit = dialog.getByRole("button", { name: "Reset zoom to fit" });
 		expect(
@@ -356,7 +341,7 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 		).toBe(true);
 		await tap(fit);
 		await expect(fit).toHaveText("Fit");
-		await gesture([{ x: 195, y: 390 }], [{ x: 195, y: 740 }]);
+		await swipe({ x: 195, y: 390 }, { x: 195, y: 740 });
 		await expect(dialog).toHaveCount(0);
 		await expect(gallery).toBeFocused();
 	} finally {

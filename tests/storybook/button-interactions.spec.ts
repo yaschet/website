@@ -143,8 +143,9 @@ for (const theme of ["light", "dark"]) {
 		await page.goto(
 			`/iframe.html?id=primitives-button--pending-geometry&globals=theme:${theme}`,
 		);
-		await page.evaluate(() => document.fonts.ready);
 		const button = page.locator('[data-slot="button"]').first();
+		await expect(button).toBeVisible();
+		await page.evaluate(() => document.fonts.ready);
 		const before = await button.evaluate((node) => node.clientWidth);
 		// Attach before the click: a busy runner can finish a short transition before
 		// Playwright returns from its click action and starts a second evaluation.
