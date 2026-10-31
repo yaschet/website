@@ -1,4 +1,3 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import type { Metadata } from "next";
 import { AboutPrinciples } from "@/src/components/content/about-principles";
 import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
@@ -6,7 +5,7 @@ import { EditorialSection } from "@/src/components/layout/editorial-section";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { ButtonLink } from "@/src/components/ui/button-link";
+import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
@@ -140,22 +139,14 @@ export default function AboutPage() {
 											>
 												Work with these principles?
 											</h2>
-											<ButtonLink
+											<ArrowButtonLink
 												href="/contact"
-												size="md"
 												variant="solid"
 												color="default"
 												className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
-												icon={
-													<ArrowRightIcon
-														className="size-4"
-														weight="bold"
-														aria-hidden="true"
-													/>
-												}
 											>
-												Email
-											</ButtonLink>
+												Discuss a project
+											</ArrowButtonLink>
 										</InstrumentActionBand>
 									</SwissGridRow>
 								</SwissGridBox>

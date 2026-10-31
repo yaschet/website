@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect } from "storybook/test";
+import { SwissGridBox } from "@/src/components/ui/swiss-grid";
 import { CaseStudyFacts, CaseStudyHeader } from "./case-study-summary";
 
 const meta = {
@@ -10,9 +11,9 @@ const meta = {
 	parameters: { layout: "fullscreen" },
 	decorators: [
 		(Story) => (
-			<div className="portfolio-box-pad mx-auto max-w-5xl">
+			<SwissGridBox className="mx-auto max-w-5xl">
 				<Story />
-			</div>
+			</SwissGridBox>
 		),
 	],
 	args: {
@@ -50,31 +51,51 @@ export const ShortIntroduction: Story = {
 	},
 };
 
+export const StudentPortal: Story = {
+	args: {
+		title: "Student Applications & Document Collection",
+		description:
+			"Replace WhatsApp document collection with guided student applications that feed the advisor’s existing records.",
+		date: "2026-10-01",
+		readingTime: 4,
+		markdownHref: "/case-studies/clearway-portal.md",
+	},
+};
+
 export const ProjectFacts: Story = {
 	render: () => (
 		<CaseStudyFacts
+			projectTitle="Student Applications & Document Collection"
 			facts={[
 				{
 					label: "Role",
-					value: "Sole Engineer (Architecture, Backend, Frontend, DevOps, QA)",
+					value: "Sole engineer",
 				},
-				{ label: "Status", value: "Shipped / In Active Use" },
-				{ label: "Domain", value: "Education Operations / Internal Tools" },
+				{ label: "Status", value: "Delivered · August–October 2025" },
+				{ label: "Domain", value: "Student onboarding" },
 			]}
 			stack={[
-				"Next.js 16 (Server Actions)",
-				"Trigger.dev (Durable Execution)",
-				"Supabase (RLS & Realtime)",
-				"PostgreSQL (Double-Entry Ledger)",
+				"Next.js",
+				"React",
 				"TypeScript",
+				"Laravel",
+				"PHP",
+				"AWS Textract",
+				"OpenAI",
+				"S3",
+				"next-intl",
+				"TanStack Query",
 			]}
+			stackHighlights={["Next.js", "Laravel", "AWS Textract"]}
 			stackLabel="Engine Stack"
 		/>
 	),
 	play: async ({ canvas }) => {
-		await expect(canvas.getByRole("list", { name: "Engine Stack" })).toBeVisible();
+		await expect(canvas.getByRole("region", { name: "Engine Stack" })).toBeVisible();
 		await expect(
-			canvas.getByText("PostgreSQL (Double-Entry Ledger)", { exact: true }),
-		).toBeVisible();
+			canvas.getByRole("button", {
+				name: "Stack: all 10 technologies for Student Applications & Document Collection",
+			}),
+		).toBeEnabled();
 	},
 };

@@ -3,6 +3,9 @@ import { expect, test } from "@playwright/test";
 for (const theme of ["light", "dark"] as const) {
 	for (const slug of ["clearway-phoenix", "verto", "clearway-portal", "clearway-erp"] as const) {
 		test(`${slug} reading layout and contents in ${theme}`, async ({ page }, testInfo) => {
+			if (slug === "clearway-portal" && testInfo.project.name === "chromium") {
+				await page.setViewportSize({ width: 1630, height: 1351 });
+			}
 			await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
 			await page.addInitScript((value) => {
 				localStorage.setItem("theme", value);
@@ -15,11 +18,17 @@ for (const theme of ["light", "dark"] as const) {
 					configurable: true,
 				});
 			}, theme);
-			await page.goto(`/case-studies/${slug}`);
+			await page.route(/https:\/\/[^/]*mux\.(com|dev)\//, (route) => route.abort());
+			await page.goto(`/case-studies/${slug}`, { waitUntil: "domcontentloaded" });
+			await expect(page.getByRole("button", { name: /Theme: Switch to/ })).toBeVisible();
+			await page.addStyleTag({
+				content: "nextjs-portal, agentation-toolbar { display: none; }",
+			});
 			await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 			await page.evaluate(() => document.fonts.ready);
 			await expect(page.locator("article")).toHaveCount(1);
-			await expect(page.getByRole("list", { name: "Engine Stack" })).toBeVisible();
+			const stack = page.getByRole("region", { name: "Engine Stack" });
+			await expect(stack).toBeVisible();
 			const copy = page.getByRole("button", { name: "Copy Markdown", exact: true });
 			await expect(copy.locator('.t-state-label[data-sizing="content"]')).toHaveAttribute(
 				"data-measured",
@@ -40,14 +49,20 @@ for (const theme of ["light", "dark"] as const) {
 			await expect
 				.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
 				.toBe(true);
-			const chipsFit = await page
-				.locator(".portfolio-project-stack")
-				.evaluate((list) =>
-					[...list.querySelectorAll("li")].every(
-						(item) => item.scrollWidth <= item.clientWidth + 1,
-					),
-				);
-			expect(chipsFit).toBe(true);
+			const widths = await stack
+				.locator(".portfolio-technology-cell:visible, .portfolio-technology-disclosure")
+				.evaluateAll((cells) => cells.map((cell) => cell.getBoundingClientRect().width));
+			expect(Math.max(...widths) - Math.min(...widths)).toBeLessThan(0.5);
+			const headerInsets = await page.locator("#project-main header").evaluate((node) => {
+				const style = getComputedStyle(node);
+				return [
+					style.paddingTop,
+					style.paddingRight,
+					style.paddingBottom,
+					style.paddingLeft,
+				];
+			});
+			expect(new Set(headerInsets).size).toBe(1);
 			if ((page.viewportSize()?.width ?? 0) >= 768) {
 				const facts = page.locator(
 					".portfolio-project-fact:not(.portfolio-project-fact-stack)",
@@ -62,28 +77,48 @@ for (const theme of ["light", "dark"] as const) {
 				);
 			}
 			await page.screenshot({ path: testInfo.outputPath(`${slug}-${theme}.png`) });
+			const stackTrigger = stack.getByRole("button", { name: /^Stack: all / });
+			const technologyCount = await stack
+				.getByRole("list", { name: "Technologies" })
+				.getByRole("listitem")
+				.count();
+			await stackTrigger.click();
+			const stackDialog = page.getByRole("dialog", { name: /^Technology stack for / });
+			await expect(stackDialog).toBeVisible();
+			await expect(stackDialog.getByRole("listitem")).toHaveCount(technologyCount);
+			await page.keyboard.press("Escape");
+			await expect(stackTrigger).toBeFocused();
+			await page.screenshot({ path: testInfo.outputPath(`${slug}-${theme}-facts.png`) });
 			const firstHeading = page.locator("article h2[id]").first();
 			await firstHeading.scrollIntoViewIfNeeded();
-			const trigger = page.getByRole("button", { name: "Open table of contents" });
-			await expect(trigger).toBeVisible();
-			await trigger.click();
-			const contents = page.getByRole("dialog", { name: "On this page" });
+			const hasContentsRail = (page.viewportSize()?.width ?? 0) >= 1536;
+			let contents = page.getByRole("navigation", { name: "On this page", exact: true });
+			if (!hasContentsRail) {
+				const trigger = page.getByRole("button", { name: "Open table of contents" });
+				await expect(trigger).toBeVisible();
+				await trigger.click();
+				contents = page.getByRole("dialog", { name: "On this page" });
+				await expect(contents).toBeVisible();
+				const close = contents.getByRole("button", {
+					name: "Close table of contents",
+					exact: true,
+				});
+				await expect
+					.poll(async () => {
+						const box = await close.boundingBox();
+						return { width: box?.width, height: box?.height };
+					})
+					.toEqual({ width: 44, height: 44 });
+				await page.keyboard.press("Escape");
+				await expect(contents).not.toBeVisible();
+				await expect(trigger).toBeFocused();
+				await trigger.click();
+			}
 			await expect(contents).toBeVisible();
-			const close = contents.getByRole("button", { name: "Close", exact: true });
-			await expect
-				.poll(async () => {
-					const box = await close.boundingBox();
-					return { width: box?.width, height: box?.height };
-				})
-				.toEqual({ width: 40, height: 40 });
-			await page.keyboard.press("Escape");
-			await expect(contents).not.toBeVisible();
-			await expect(trigger).toBeFocused();
-			await trigger.click();
 			const lastLink = contents.getByRole("link").last();
 			const href = await lastLink.getAttribute("href");
 			await lastLink.click();
-			await expect(contents).not.toBeVisible();
+			if (!hasContentsRail) await expect(contents).not.toBeVisible();
 			await expect(page).toHaveURL(new RegExp(`${href}$`));
 			await expect(page.locator(`article [id="${href?.slice(1)}"]`)).toBeFocused();
 
@@ -197,19 +232,15 @@ for (const theme of ["light", "dark"] as const) {
 				.getByRole("button", { name: "Copy Markdown", exact: true })
 				.locator('.t-state-label[data-sizing="content"]'),
 		).toHaveAttribute("data-measured", "true");
-		await expect(page.getByRole("list", { name: "Engine Stack" })).toBeVisible();
+		const stack = page.getByRole("region", { name: "Engine Stack" });
+		await expect(stack).toBeVisible();
 		expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
 			true,
 		);
-		expect(
-			await page
-				.locator(".portfolio-project-stack")
-				.evaluate((el) =>
-					[...el.querySelectorAll("li")].every(
-						(item) => item.scrollWidth <= item.clientWidth + 1,
-					),
-				),
-		).toBe(true);
+		const widths = await stack
+			.locator(".portfolio-technology-cell:visible, .portfolio-technology-disclosure")
+			.evaluateAll((cells) => cells.map((cell) => cell.getBoundingClientRect().width));
+		expect(Math.max(...widths) - Math.min(...widths)).toBeLessThan(0.5);
 		await page.setViewportSize({ width: 1600, height: 900 });
 		await page.goto("/case-studies/clearway-phoenix");
 		await expect(

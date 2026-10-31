@@ -43,6 +43,7 @@ interface PortfolioMuxVideoProps {
 	onExit?: () => void;
 	onPlayingChange?: (playing: boolean) => void;
 	onReadyChange?: (ready: boolean) => void;
+	onDimensionsChange?: (width: number, height: number) => void;
 }
 
 type QualityOption = {
@@ -333,9 +334,12 @@ function PortfolioMuxVideoPlayer({
 	onExit,
 	onPlayingChange,
 	onReadyChange,
+	onDimensionsChange,
 }: PortfolioMuxVideoProps) {
 	const pathname = usePathname();
 	const mediaRef = useRef<MuxVideoElement | null>(null);
+	const dimensionsCallback = useRef(onDimensionsChange);
+	dimensionsCallback.current = onDimensionsChange;
 	const containerRef = useRef<HTMLDivElement>(null);
 	const visible = useAnimationVisibility(containerRef);
 	const volumeControlHoverRef = useRef(false);
@@ -1048,6 +1052,10 @@ function PortfolioMuxVideoPlayer({
 
 		const handleMediaEvent = (event: Event) => {
 			syncFromMedia();
+			if (event.type === "loadedmetadata" || event.type === "resize") {
+				if (media.videoWidth > 0 && media.videoHeight > 0)
+					dimensionsCallback.current?.(media.videoWidth, media.videoHeight);
+			}
 
 			if (
 				desiredPlayingRef.current &&
@@ -1103,6 +1111,7 @@ function PortfolioMuxVideoPlayer({
 			"volumechange",
 			"ratechange",
 			"loadedmetadata",
+			"resize",
 			"loadeddata",
 			"canplay",
 			"canplaythrough",
@@ -1131,6 +1140,8 @@ function PortfolioMuxVideoPlayer({
 		}
 
 		syncFromMedia();
+		if (media.videoWidth > 0 && media.videoHeight > 0)
+			dimensionsCallback.current?.(media.videoWidth, media.videoHeight);
 
 		return () => {
 			for (const eventName of eventNames) {
@@ -1821,6 +1832,7 @@ function PortfolioMuxVideoPlayer({
 		>
 			<mux-video
 				ref={mediaRef}
+				crossOrigin="anonymous"
 				className="portfolio-mux-video-host block size-full"
 				tabIndex={0}
 				data-playback-id={playbackId}
@@ -1866,6 +1878,7 @@ function PortfolioMuxVideoPlayer({
 
 			<motion.div
 				className="pointer-events-none absolute inset-x-0 bottom-0 z-20 border-t"
+				data-player-panel
 				style={{ borderColor: "var(--portfolio-player-hairline)" }}
 				initial={{ opacity: 1 }}
 				animate={{
@@ -1874,7 +1887,7 @@ function PortfolioMuxVideoPlayer({
 				}}
 				transition={tweens.interactionFast}
 			>
-				<div className="absolute inset-0 bg-surface-950" />
+				<div data-player-surface className="absolute inset-0 bg-surface-950" />
 				<div className={controlsPanelClassName}>
 					<div className={timelineRowClassName}>
 						{activeStoryboardCue && scrubPreviewTime !== null ? (
@@ -2003,6 +2016,7 @@ function PortfolioMuxVideoPlayer({
 							{showInlineVolume ? (
 								<div
 									data-player-interactive
+									data-player-divider
 									className="hidden items-center border-l pl-2 md:flex"
 									style={{
 										borderColor: "var(--portfolio-player-hairline)",
@@ -2039,6 +2053,7 @@ function PortfolioMuxVideoPlayer({
 
 							<div
 								className={timeDisplayClassName}
+								data-player-divider
 								style={{ borderColor: "var(--portfolio-player-hairline)" }}
 							>
 								{timeDisplayText}
@@ -2046,6 +2061,7 @@ function PortfolioMuxVideoPlayer({
 						</div>
 
 						<div
+							data-player-divider
 							className={cn(
 								"flex items-center gap-2 border-l pl-2",
 								controlsInteractiveClassName,

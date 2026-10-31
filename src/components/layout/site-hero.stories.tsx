@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect } from "storybook/test";
+import { SITE_BOOKING_URL } from "@/src/constants/site";
 import { SwissGridBox, SwissGridRow } from "../ui/swiss-grid";
 import { ProfileSection } from "./profile-section";
 import { SiteHero } from "./site-hero";
@@ -40,13 +41,17 @@ export const Default: Story = {
 		await expect(
 			canvas.getByRole("heading", { name: "Complex systems, clean interfaces." }),
 		).toBeVisible();
-		await expect(canvas.getByRole("link", { name: "Case studies" })).toHaveAttribute(
+		await expect(canvas.getByRole("link", { name: "Book a call" })).toHaveAttribute(
 			"href",
-			"/case-studies",
+			SITE_BOOKING_URL,
 		);
-		await expect(canvas.getByRole("link", { name: "Email" })).toHaveAttribute(
+		await expect(canvas.getByRole("link", { name: "Book a call" })).toHaveAttribute(
+			"target",
+			"_blank",
+		);
+		await expect(canvas.getByRole("link", { name: "View my work" })).toHaveAttribute(
 			"href",
-			"/contact",
+			"#work",
 		);
 	},
 };

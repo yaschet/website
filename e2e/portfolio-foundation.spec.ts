@@ -1,5 +1,12 @@
 import { expect, test } from "@playwright/test";
 
+// Verify layout and keyboard behavior without software-rendering the decorative shader.
+test.use({
+	launchOptions: async ({ browserName }, use) => {
+		await use(browserName === "chromium" ? { args: ["--disable-webgl"] } : {});
+	},
+});
+
 for (const theme of ["light", "dark"] as const) {
 	test(`portfolio foundation remains usable in ${theme} mode`, async ({
 		page,
@@ -61,7 +68,12 @@ for (const theme of ["light", "dark"] as const) {
 		for (const gap of workLayout.gaps) expect(gap).toBe(40);
 		expect(workLayout.nestedFrame).toBe(false);
 		const projects = page.getByRole("article");
-		expect(await projects.count()).toBeGreaterThan(0);
+		await expect(projects.getByRole("heading", { level: 3 })).toHaveText([
+			"Document Translation With Editable Tables",
+			"University Program Matching",
+			"Student Applications & Document Collection",
+			"Agency CRM & Billing",
+		]);
 		for (const project of await projects.all()) {
 			const heading = project.getByRole("heading", { level: 3 });
 			await expect(heading).toBeVisible();
@@ -103,7 +115,7 @@ for (const theme of ["light", "dark"] as const) {
 			expect(Number.isInteger(layout.leading)).toBe(true);
 			expect(layout.overflow).toBe(false);
 		}
-		const projectLink = projects.first().getByRole("link");
+		const projectLink = projects.first().locator("a.portfolio-project-link");
 		if (!isMobile) {
 			const card = projects.first();
 			await projectLink.scrollIntoViewIfNeeded();
@@ -234,14 +246,17 @@ for (const theme of ["light", "dark"] as const) {
 			await page.setViewportSize(viewport);
 		}
 
-		const selectedWork = page.getByRole("link", { name: "Case studies", exact: true }).first();
-		const contact = page.getByRole("link", { name: "Email", exact: true });
-		await expect(contact).toHaveAttribute("data-appearance", "outline");
+		const booking = page
+			.locator("#hero")
+			.getByRole("link", { name: "Book a call", exact: true });
+		const selectedWork = page.getByRole("link", { name: "View my work", exact: true });
+		await expect(selectedWork).toHaveAttribute("data-appearance", "outline");
+		await expect(booking).toHaveAttribute("target", "_blank");
 		if (!isMobile) {
-			await selectedWork.focus();
+			await booking.focus();
 			await page.keyboard.press("Tab");
-			await expect(contact).toBeFocused();
-			const focus = await contact.evaluate((element) => {
+			await expect(selectedWork).toBeFocused();
+			const focus = await selectedWork.evaluate((element) => {
 				const style = getComputedStyle(element);
 				return { outline: style.outlineStyle, shadow: style.boxShadow };
 			});
@@ -255,12 +270,15 @@ for (const theme of ["light", "dark"] as const) {
 		await projects.first().scrollIntoViewIfNeeded();
 		await page.screenshot({ path: testInfo.outputPath(`project-card-${theme}.png`) });
 		if (isMobile) {
-			await contact.tap();
+			await selectedWork.tap();
 		} else {
-			await contact.press("Enter");
+			await selectedWork.press("Enter");
 		}
-		await expect(page).toHaveURL(/\/contact$/);
-		await expect(page.getByRole("textbox", { name: "Email", exact: true })).toBeVisible();
+		await expect(page).toHaveURL(/\/#work$/);
+		expect(await work.evaluate((node) => Math.round(node.getBoundingClientRect().top))).toBe(
+			20,
+		);
+		await expect(projects.first().locator('[data-slot="project-preview"]')).toBeInViewport();
 	});
 
 	test(`project caption keeps its loading glyph centered in ${theme}`, async ({ page }) => {

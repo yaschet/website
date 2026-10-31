@@ -1,11 +1,11 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { Briefcase } from "@phosphor-icons/react/dist/ssr/Briefcase";
+import { WorkingTogether } from "@/src/components/content/working-together";
 import { ConfidentialWorkCallout } from "@/src/components/layout/confidential-work-callout";
 import { PageContainer } from "@/src/components/layout/containers";
 import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { SiteHero } from "@/src/components/layout/site-hero";
-import { ButtonLink } from "@/src/components/ui/button-link";
+import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
@@ -15,7 +15,9 @@ import {
 import { ProjectCardGallery } from "@/src/components/ui/project-card-gallery";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import { SITE_BOOKING_URL } from "@/src/constants/site";
 import { getListedPublicProjectSummaries } from "@/src/content/project-summaries";
+import { getProjectTechnologyHighlights } from "@/src/content/project-technology-highlights";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
 
 function HomeClosingCta() {
@@ -24,18 +26,19 @@ function HomeClosingCta() {
 			<h2
 				className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 			>
-				View selected work.
+				Have a project in mind?
 			</h2>
-			<ButtonLink
-				href="/case-studies"
-				size="md"
+			<ArrowButtonLink
+				href={SITE_BOOKING_URL}
 				variant="solid"
 				color="default"
 				className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
-				icon={<ArrowRightIcon className="size-4" weight="bold" />}
+				arrowDirection="up-right"
+				target="_blank"
+				rel="noopener noreferrer"
 			>
-				Case studies
-			</ButtonLink>
+				Book a call
+			</ArrowButtonLink>
 		</InstrumentActionBand>
 	);
 }
@@ -64,6 +67,8 @@ export default async function Home() {
 				{/* Box 2: Selected Work */}
 				<PageContainer className="mt-10">
 					<section
+						id="work"
+						className="scroll-mt-5"
 						aria-labelledby={hasFeaturedProjects ? "selected-work-heading" : undefined}
 					>
 						{hasFeaturedProjects && (
@@ -80,8 +85,14 @@ export default async function Home() {
 												index={String(i + 1).padStart(2, "0")}
 												title={project.title}
 												description={project.description}
+												overview={project.overview}
+												role={project.role}
+												status={project.status}
 												href={project.urlPath}
 												tags={project.tech ?? []}
+												technologyHighlights={getProjectTechnologyHighlights(
+													project.slug,
+												)}
 												items={getProjectCoverMedia(project)}
 												prioritizeFirstImage={i === 0}
 												isPrivate={project.cardState === "coming-soon"}
@@ -137,7 +148,9 @@ export default async function Home() {
 					</section>
 				</PageContainer>
 
-				{/* Box 4: Closing CTA */}
+				<WorkingTogether />
+
+				{/* Closing CTA */}
 				<PageContainer>
 					<SwissGridBox className="mt-10">
 						<SwissGridRow>

@@ -43,6 +43,20 @@ throttling constant; run at least three samples and report the median. Distingui
 JavaScript bytes, render timing and interaction latency: fewer bytes alone do not
 prove better LCP or INP. Do not promise a fixed frame rate across devices.
 
+The opt-in gallery diagnostic records three warm navigations with the complete
+effect stack and isolated artwork blur, glass and atmosphere variants:
+
+```sh
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:3100 RUN_GALLERY_PROFILE=1 pnpm exec playwright test \
+  e2e/gallery-render-profile.spec.ts --project=chromium --workers=1
+```
+
+Its JSON attachments include preparation delay, animation-frame callback intervals
+and Chromium's GPU status. Keep other builds and tests idle during measurement.
+Callback spacing is a local scheduling observation, not proof of presented frames
+or a field frame-rate guarantee. The diagnostic intentionally has no timing-based
+CI assertion.
+
 ## Bundle analysis and field data
 
 The installed Next.js CLI provides `pnpm exec next analyze` for the Turbopack

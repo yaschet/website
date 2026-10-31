@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ComponentProps, createContext, useContext, useTransition } from "react";
-import { startRouteTransition } from "@/src/lib/route-transition";
+import { startRouteTransition, supersedeRouteTransition } from "@/src/lib/route-transition";
 
 const PendingContext = createContext(false);
 
@@ -39,6 +39,15 @@ export function PortfolioLink({
 						},
 					});
 					if (prevented || typeof href !== "string") return;
+					// Fragment activation is a browser scroll, including repeated activation
+					// of the current hash. Next's same-URL route bailout must not swallow it.
+					if (href.startsWith("#") && scroll !== false) {
+						event.preventDefault();
+						supersedeRouteTransition();
+						if (replace) window.location.replace(href);
+						else window.location.assign(href);
+						return;
+					}
 					const enhanced = startRouteTransition(href, () => {
 						startTransition(() => {
 							const options = { scroll, transitionTypes };

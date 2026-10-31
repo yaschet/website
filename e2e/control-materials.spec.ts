@@ -1,5 +1,12 @@
 import { expect, type Locator, test } from "@playwright/test";
 
+// Verify control materials without software-rendering the decorative shader.
+test.use({
+	launchOptions: async ({ browserName }, use) => {
+		await use(browserName === "chromium" ? { args: ["--disable-webgl"] } : {});
+	},
+});
+
 async function material(control: Locator) {
 	return control.evaluate((node) => {
 		const context = document.createElement("canvas").getContext("2d");
@@ -38,8 +45,10 @@ for (const theme of ["light", "dark"] as const) {
 			const actions =
 				group === "primary"
 					? [
-							page.getByRole("link", { name: "Case studies", exact: true }).first(),
-							page.getByRole("link", { name: "Email", exact: true }).first(),
+							page
+								.locator("#hero")
+								.getByRole("link", { name: "Book a call", exact: true }),
+							page.getByRole("link", { name: "View my work", exact: true }),
 						]
 					: group === "projects"
 						? [page.locator("[data-project-action]").first()]
@@ -111,7 +120,7 @@ for (const theme of ["light", "dark"] as const) {
 			await route.continue();
 		});
 		await page.goto("/");
-		const link = page.getByRole("article").first().getByRole("link");
+		const link = page.getByRole("article").first().locator("a.portfolio-project-link");
 		const action = link.locator("[data-project-action]");
 		const title = await link.getByRole("heading", { level: 3 }).innerText();
 		const href = await link.getAttribute("href");
@@ -135,7 +144,7 @@ for (const theme of ["light", "dark"] as const) {
 		await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 	});
 
-	test(`a slow real link uses the shared spinner without losing balanced padding in ${theme}`, async ({
+	test(`a slow real link keeps its frame and balanced padding with the shared spinner in ${theme}`, async ({
 		page,
 	}) => {
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
@@ -151,16 +160,15 @@ for (const theme of ["light", "dark"] as const) {
 			await gate;
 			await route.continue();
 		});
-		await page.goto("/");
-		const link = page.getByRole("link", { name: "Email", exact: true }).first();
+		await page.goto("/about");
+		const link = page.getByRole("link", { name: "Discuss a project", exact: true });
+		await link.scrollIntoViewIfNeeded();
 		const initial = await link.boundingBox();
 		try {
 			await link.click();
 			await expect(link.locator("[data-loading]")).toHaveCount(1);
 			await expect(link.locator('[aria-busy="true"]')).toHaveCount(1);
-			await expect
-				.poll(async () => (await link.boundingBox())?.width ?? 0)
-				.toBeGreaterThan(initial?.width ?? 0);
+			expect(await link.boundingBox()).toEqual(initial);
 			const spacing = await link.evaluate((node) => {
 				const outer = node.getBoundingClientRect();
 				const inner = node
@@ -170,7 +178,7 @@ for (const theme of ["light", "dark"] as const) {
 			});
 			expect(spacing).toHaveLength(2);
 			expect(spacing[0]).toBeCloseTo(spacing[1], 0);
-			await expect(link).toHaveAccessibleName("Email");
+			await expect(link).toHaveAccessibleName("Discuss a project");
 		} finally {
 			release();
 		}

@@ -8,7 +8,7 @@ for (const theme of ["light", "dark"]) {
 				`/iframe.html?id=layout-casestudysummary--docs&viewMode=docs&globals=theme:${theme}`,
 			);
 			const docs = page.locator(".sbdocs-content");
-			await expect(docs.locator(".sb-story")).toHaveCount(3);
+			await expect(docs.locator(".sb-story")).toHaveCount(4);
 			await expect(docs.locator("iframe")).toHaveCount(0);
 			await expect(
 				docs.getByRole("heading", { name: "Program Matching Engine", level: 1 }),
@@ -26,11 +26,13 @@ for (const theme of ["light", "dark"]) {
 							el.clientHeight > 0 &&
 							el.scrollHeight > el.clientHeight + 1,
 					).length,
-					chipsFit: [
-						...root.querySelectorAll<HTMLElement>(".portfolio-project-stack li"),
+					stackFits: [
+						...root.querySelectorAll<HTMLElement>(
+							".portfolio-technology-cell, .portfolio-technology-disclosure",
+						),
 					].every((el) => el.scrollWidth <= el.clientWidth + 1),
 				})),
-			).toEqual({ overflows: false, previewGutters: 0, scrollers: 0, chipsFit: true });
+			).toEqual({ overflows: false, previewGutters: 0, scrollers: 0, stackFits: true });
 		});
 	}
 }

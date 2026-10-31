@@ -15,7 +15,9 @@ import { GalleryPlayButton } from "@/src/components/ui/gallery-play-button";
 import { LinkFeedback } from "@/src/components/ui/link-feedback";
 import type { MediaGalleryProps } from "@/src/components/ui/media-gallery";
 import { PortfolioLink as Link } from "@/src/components/ui/portfolio-link";
+import { ProjectTechnologyRail } from "@/src/components/ui/project-technology-rail";
 import { ReelIcon } from "@/src/components/ui/reel";
+import type { ProjectOverview } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
@@ -29,11 +31,15 @@ const PROJECT_PREVIEW_SIZES = "(min-width: 1024px) 984px, calc(100vw - 40px)";
 interface ProjectCardGalleryProps {
 	title: string;
 	description: string;
+	overview?: ProjectOverview;
+	role?: string;
+	status?: string;
 	href: string;
 	items?: GalleryMediaSource[];
 	images?: (string | StaticImageData)[];
 	index: string;
 	tags: string[];
+	technologyHighlights?: readonly string[];
 	isPrivate?: boolean;
 	challenge?: string;
 	solution?: string;
@@ -50,11 +56,15 @@ interface ProjectCardGalleryProps {
 export function ProjectCardGallery({
 	title,
 	description,
+	overview,
+	role,
+	status,
 	href,
 	items,
 	images,
 	index,
 	tags,
+	technologyHighlights,
 	isPrivate = false,
 	challenge,
 	solution,
@@ -110,6 +120,7 @@ export function ProjectCardGallery({
 		};
 	}, [images, items, title]);
 	const fallbackPlaybackId = items?.[0]?.kind === "mux-video" ? items[0].playbackId : null;
+	const attribution = overview ? [role, status].filter((value) => Boolean(value)) : [];
 
 	const triggerRichMediaLoad = useCallback(() => {
 		if (shouldLoadRichMedia) return;
@@ -159,11 +170,23 @@ export function ProjectCardGallery({
 		<>
 			<div data-slot="project-overview" className="portfolio-project-overview">
 				<div className="portfolio-project-identity">
+					{!overview && (
+						<div className="portfolio-project-metadata text-muted-foreground tabular-nums">
+							<span>{index}</span>
+							{date && (
+								<>
+									<span aria-hidden="true">·</span>
+									<span>{date}</span>
+								</>
+							)}
+						</div>
+					)}
 					{isPrivate ? (
 						<div className="portfolio-project-heading">{heading}</div>
 					) : (
 						<Link
 							transitionTypes={["navigation"]}
+							data-reel-trigger=""
 							href={href}
 							prefetch={true}
 							className="portfolio-project-heading portfolio-project-link"
@@ -171,14 +194,35 @@ export function ProjectCardGallery({
 							{heading}
 						</Link>
 					)}
+					{attribution.length > 0 && (
+						<p className="portfolio-project-attribution portfolio-project-metadata text-muted-foreground">
+							{attribution.join(" · ")}
+						</p>
+					)}
 				</div>
 
 				<div className="portfolio-project-details">
-					<div className="portfolio-project-summary">
-						<p className="portfolio-project-description portfolio-body-sm text-muted-foreground">
-							{description}
+					<div
+						className={cn(
+							"portfolio-project-summary",
+							overview && "portfolio-project-narrative",
+						)}
+					>
+						<p
+							className="portfolio-project-description portfolio-body-sm text-muted-foreground"
+							data-slot={overview ? "project-problem" : undefined}
+						>
+							{overview?.problem ?? description}
 						</p>
-						{challenge && (
+						{overview && (
+							<p
+								className="portfolio-project-description portfolio-body-sm"
+								data-slot="project-solution"
+							>
+								{overview.solution}
+							</p>
+						)}
+						{!overview && challenge && (
 							<div className="portfolio-card-copy">
 								<h4 className="portfolio-kicker text-surface-600 dark:text-surface-400">
 									Challenge
@@ -188,7 +232,7 @@ export function ProjectCardGallery({
 								</p>
 							</div>
 						)}
-						{solution && (
+						{!overview && solution && (
 							<div className="portfolio-card-copy">
 								<h4 className="portfolio-kicker text-surface-600 dark:text-surface-400">
 									Solution
@@ -202,27 +246,11 @@ export function ProjectCardGallery({
 				</div>
 			</div>
 
-			<div className="portfolio-project-footer">
-				<div className="portfolio-project-metadata text-muted-foreground tabular-nums">
-					<span>{index}</span>
-					{date && <span>{date}</span>}
-				</div>
-				{tags.length > 0 && (
-					<ul
-						aria-label="Technologies"
-						className="portfolio-project-technologies text-muted-foreground"
-					>
-						{tags.map((tag) => (
-							<li
-								key={`${index}-tag-${tag}`}
-								className="portfolio-project-technology"
-							>
-								{tag}
-							</li>
-						))}
-					</ul>
-				)}
-			</div>
+			<ProjectTechnologyRail
+				technologies={tags}
+				highlights={technologyHighlights}
+				projectTitle={title}
+			/>
 		</>
 	);
 
@@ -236,7 +264,7 @@ export function ProjectCardGallery({
 				className,
 			)}
 		>
-			{hasGalleryItems ? (
+			{hasGalleryItems && (
 				<div
 					data-slot="project-preview"
 					className={cn(
@@ -327,17 +355,6 @@ export function ProjectCardGallery({
 						</div>
 					)}
 				</div>
-			) : (
-				<section
-					className="relative aspect-[16/9] w-full overflow-hidden bg-muted"
-					aria-label="No preview available"
-				>
-					<div className="flex h-full w-full items-center justify-center">
-						<span className="portfolio-kicker text-muted-foreground">
-							No preview available
-						</span>
-					</div>
-				</section>
 			)}
 
 			<div data-slot="project-copy" className="portfolio-project-copy">

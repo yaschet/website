@@ -174,7 +174,7 @@
 .foundation-button-icon > .t-icon > [data-slot="spinner"] {
 	animation-play-state: paused;
 }
-.portfolio-action-link .foundation-button-icon [data-slot="spinner"] {
+[data-reel-trigger] .foundation-button-icon [data-slot="spinner"] {
 	max-width: var(--button-glyph-size);
 	max-height: var(--button-glyph-size);
 }
@@ -226,44 +226,40 @@
 
 /* The action's two text layers share their measured grid cell. Character
  * transforms do not resize the control or disturb its original inline padding. */
-.portfolio-action-reel-label,
-.portfolio-action-reel-icon {
+.portfolio-action-reel-label {
 	display: grid;
 	place-items: center;
-}
-.portfolio-action-reel-label {
+	height: 20px;
 	line-height: 20px;
-}
-.portfolio-action-reel-label > span,
-.portfolio-action-reel-icon > span {
-	grid-area: 1 / 1;
-}
-.portfolio-action-reel-icon {
-	/* Clip at the chamber's edges, not at the glyph's bounds. A glyph-sized
-	 * aperture makes both arrows disappear halfway through their exchange. */
-	width: 100%;
-	height: 100%;
 	overflow: clip;
 }
-.portfolio-action-reel-icon > span {
-	display: grid;
-	place-items: center;
-	width: 100%;
-	height: 100%;
+.portfolio-action-reel-label > span {
+	grid-area: 1 / 1;
+	perspective: 160px;
+}
+.portfolio-action-reel-label [data-action-character] {
+	display: inline-block;
+	white-space: pre;
+	backface-visibility: hidden;
+	transition:
+		transform calc(var(--action-reel-dur) - var(--action-reel-stagger)) var(--action-reel-ease),
+		filter calc(var(--action-reel-dur) - var(--action-reel-stagger)) var(--action-reel-ease);
+	transition-delay: calc((1 - var(--action-character-progress)) * var(--action-reel-stagger));
+}
+.portfolio-action-reel-label [data-action-reel="in"] [data-action-character] {
+	transform: translateY(100%) rotateX(-60deg);
+	filter: blur(var(--blur-small));
 }
 .portfolio-action-link {
 	overflow: clip;
 }
-/* Immediate access paths expose a resting layer instead of fighting inline
- * animation styles. It shares the same grid cell and never resizes the link. */
+/* Immediate access paths expose a resting layer in the same stable grid cell. */
 [data-action-rest] {
 	visibility: hidden;
 }
-.portfolio-action-link:not([data-action-ready]) [data-action-rest],
 .portfolio-action-link:focus-visible [data-action-rest] {
 	visibility: visible;
 }
-.portfolio-action-link:not([data-action-ready]) [data-action-reel],
 .portfolio-action-link:focus-visible [data-action-reel] {
 	visibility: hidden;
 }
@@ -276,44 +272,99 @@
 	}
 }
 
-/* A project caption's directional reel is independent of the hero text reel. */
+/* Icon-only reels use the control's whole chamber, including pending layers. */
+[data-reel-trigger] .foundation-button-pending[data-icon-only],
+[data-reel-trigger] [data-slot="link-feedback"]:has(> [data-icon-only]),
+[data-reel-trigger] .foundation-button-pending[data-icon-only] > .foundation-button-icon-space,
+[data-reel-trigger] .foundation-button-pending[data-icon-only] .foundation-button-icon.t-icon-swap {
+	width: 100%;
+	height: 100%;
+}
+
+/* The aperture ends at the chamber edge, never through the resting glyph. */
 .portfolio-reel-icon {
-	--reel-x: 20px;
+	--reel-distance: 80%;
+	--reel-x: var(--reel-distance);
 	--reel-y: 0px;
+	--reel-blur: 0px;
 	display: grid;
 	place-items: center;
 	overflow: clip;
-	width: var(--button-glyph-size, 16px);
-	height: var(--button-glyph-size, 16px);
+	width: 100%;
+	height: 100%;
+}
+.portfolio-reel-icon[data-blur] {
+	--reel-blur: var(--blur-small);
 }
 .portfolio-reel-icon[data-direction="up-right"] {
-	--reel-y: -20px;
+	--reel-x: var(--reel-distance);
+	--reel-y: calc(var(--reel-x) * -1);
+}
+.portfolio-reel-icon[data-direction="left"] {
+	--reel-x: calc(var(--reel-distance) * -1);
+}
+.portfolio-reel-icon[data-direction="down"] {
+	--reel-x: 0px;
+	--reel-y: var(--reel-distance);
 }
 .portfolio-reel-icon > span {
 	grid-area: 1 / 1;
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100%;
 	transition:
-		transform var(--duration-fast) var(--ease-smooth-out),
-		opacity var(--duration-fast) var(--ease-smooth-out);
+		transform var(--action-reel-dur) var(--action-reel-ease),
+		filter var(--action-reel-dur) var(--action-reel-ease);
 }
 .portfolio-reel-icon > [data-reel-in] {
-	opacity: 0;
+	visibility: hidden;
 	transform: translate(calc(-1 * var(--reel-x)), calc(-1 * var(--reel-y)));
+	filter: blur(var(--reel-blur));
+	transition:
+		transform var(--action-reel-dur) var(--action-reel-ease),
+		filter var(--action-reel-dur) var(--action-reel-ease),
+		visibility 0s var(--action-reel-dur);
 }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-	.portfolio-project-link:hover:not(:focus-visible):not(:has([data-loading])) [data-reel-out] {
-		opacity: 0;
-		transform: translate(var(--reel-x), var(--reel-y));
-	}
-	.portfolio-project-link:hover:not(:focus-visible):not(:has([data-loading])) [data-reel-in] {
-		opacity: 1;
-		transform: translate(0, 0);
+	[data-reel-trigger]:hover:not(:focus-visible):not([aria-disabled="true"]):not(
+		:has([data-loading])
+	) {
+		.portfolio-reel-icon > span {
+			transition-duration: var(--action-reel-dur);
+		}
+		[data-reel-out] {
+			transform: translate(var(--reel-x), var(--reel-y));
+			filter: blur(var(--reel-blur));
+		}
+		[data-reel-in] {
+			visibility: visible;
+			transform: translate(0, 0);
+			filter: blur(0px);
+			transition:
+				transform var(--action-reel-dur) var(--action-reel-ease),
+				filter var(--action-reel-dur) var(--action-reel-ease),
+				visibility 0s;
+		}
+		[data-action-character] {
+			transition-delay: calc(var(--action-character-progress) * var(--action-reel-stagger));
+		}
+		[data-action-reel="out"] [data-action-character] {
+			transform: translateY(-100%) rotateX(60deg);
+			filter: blur(var(--blur-small));
+		}
+		[data-action-reel="in"] [data-action-character] {
+			transform: translateY(0) rotateX(0deg);
+			filter: blur(0px);
+		}
 	}
 }
-.portfolio-project-link:focus-visible :is([data-reel-out], [data-reel-in]) {
+[data-reel-trigger]:focus-visible :is([data-action-character], [data-reel-out], [data-reel-in]) {
 	transition: none;
 }
 @media (prefers-reduced-motion: reduce) {
-	.portfolio-reel-icon > span {
+	.portfolio-reel-icon > span,
+	.portfolio-action-reel-label [data-action-character] {
 		transition: none;
 	}
 }

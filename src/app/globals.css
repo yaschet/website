@@ -17,6 +17,7 @@
 @import "../styles/foundation/badge.css";
 @import "../styles/foundation/portfolio-bridge.css";
 @import "../styles/foundation/portfolio-chrome.css";
+@import "../styles/foundation/project-technology.css";
 
 /* VARIANT: Dark Mode Configuration (Selector-based toggle) */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -417,6 +418,7 @@
   }
 
   .portfolio-project-overview {
+    position: relative;
     display: grid;
     gap: var(--portfolio-space-related);
     padding: var(--project-inset);
@@ -430,18 +432,9 @@
   .portfolio-project-metadata {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 var(--portfolio-space-related);
+    gap: 0 var(--portfolio-space-tight);
     font-size: var(--text-body-xs);
     line-height: var(--text-body-xs--line-height);
-  }
-
-  .portfolio-project-footer {
-    display: grid;
-    align-items: first baseline;
-    gap: var(--portfolio-space-tight) var(--portfolio-space-group);
-    padding: var(--portfolio-space-related) var(--project-inset);
-    border-top: var(--foundation-hairline) solid var(--portfolio-project-line);
-    background-color: var(--portfolio-project-detail-surface);
   }
 
   .portfolio-project-details,
@@ -478,6 +471,16 @@
     max-width: 65ch;
   }
 
+  .portfolio-project-narrative {
+    gap: var(--portfolio-space-tight);
+  }
+
+  .portfolio-project-attribution {
+    display: block;
+    max-width: 65ch;
+    text-wrap: pretty;
+  }
+
   /* This chamber belongs to the title link, rather than being a nested button. */
   .portfolio-project-link [data-project-action] {
     --button-glyph-size: 16px;
@@ -507,28 +510,6 @@
   .portfolio-project-card:has(.portfolio-project-link:focus-visible) {
     border-color: var(--foundation-control-line-active);
     transition: none;
-  }
-
-  .portfolio-project-technologies {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px var(--portfolio-space-tight);
-    align-content: start;
-    font-size: var(--text-body-xs);
-    line-height: var(--text-body-xs--line-height);
-  }
-
-  .portfolio-project-technologies li {
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  .portfolio-project-technology {
-    overflow-wrap: anywhere;
-  }
-
-  .portfolio-project-technology:not(:last-child)::after {
-    content: ",";
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -563,16 +544,6 @@
     font-weight: var(--text-heading-sm--font-weight);
     letter-spacing: var(--text-heading-sm--letter-spacing);
     text-wrap: balance;
-  }
-
-  @container project-caption (min-width: 42rem) {
-    .portfolio-project-footer:has(.portfolio-project-technologies) {
-      grid-template-columns: auto minmax(0, 1fr);
-    }
-
-    .portfolio-project-footer .portfolio-project-technologies {
-      justify-content: end;
-    }
   }
 
   @media (min-width: 40rem) {
@@ -1232,7 +1203,7 @@ html {
   }
 
   html {
-    @apply scroll-smooth selection:bg-surface-950 selection:text-surface-50;
+    @apply scroll-smooth motion-reduce:scroll-auto selection:bg-surface-950 selection:text-surface-50;
     background-color: var(--app-background);
     color-scheme: light;
   }

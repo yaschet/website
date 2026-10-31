@@ -1,10 +1,9 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { FileText } from "@phosphor-icons/react/dist/ssr/FileText";
 import type { Metadata } from "next";
 import { PageContainer } from "@/src/components/layout/containers";
 import { PageIntro } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { ButtonLink } from "@/src/components/ui/button-link";
+import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
@@ -30,16 +29,14 @@ function BlogClosingCta() {
 			>
 				See shipped work.
 			</h2>
-			<ButtonLink
+			<ArrowButtonLink
 				href="/case-studies"
-				size="md"
 				variant="solid"
 				color="default"
 				className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
-				icon={<ArrowRightIcon className="size-4" weight="bold" />}
 			>
-				Case Studies
-			</ButtonLink>
+				View case studies
+			</ArrowButtonLink>
 		</InstrumentActionBand>
 	);
 }

@@ -1,12 +1,16 @@
 "use client";
-import { RiArrowLeftSLine as CaretLeft, RiArrowRightSLine as CaretRight } from "@remixicon/react";
+import {
+	RiArrowLeftSLine as CaretLeft,
+	RiArrowRightSLine as CaretRight,
+	RiExpandDiagonalLine as Expand,
+} from "@remixicon/react";
 
 /**
  * MediaGallery - Shared rich media gallery.
  *
  * @remarks
- * Supports image and Mux video tiles, always-visible controls, scroll-snap
- * navigation, and an optional expanded viewer for detail pages.
+ * Supports image and Mux video tiles, pointer dragging, native touch scrolling,
+ * and an optional expanded viewer for detail pages.
  *
  * @public
  */
@@ -15,7 +19,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
 	GALLERY_CHROME_BUTTON_CLASS_NAME,
 	GALLERY_CHROME_COUNTER_CLASS_NAME,
@@ -24,6 +28,8 @@ import {
 	GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
 } from "@/src/components/ui/gallery-chrome";
 import { GalleryPlayButton } from "@/src/components/ui/gallery-play-button";
+import { usePageGallery } from "@/src/components/ui/page-gallery-scope";
+import { useGalleryDrag } from "@/src/components/ui/use-gallery-drag";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
@@ -31,9 +37,10 @@ import { cn, tweens } from "@/src/lib/index";
 import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
 
 const importPortfolioMuxVideo = () => import("@/src/components/ui/portfolio-mux-video");
+const importGalleryLightbox = () => import("@/src/components/ui/gallery-lightbox");
 
 const GalleryLightbox = dynamic(
-	() => import("@/src/components/ui/gallery-lightbox").then((module) => module.GalleryLightbox),
+	() => importGalleryLightbox().then((module) => module.GalleryLightbox),
 	{ ssr: false },
 );
 
@@ -94,6 +101,7 @@ type ResolvedGalleryItem =
 			kind: "image";
 			src: string | StaticImageData;
 			alt: string;
+			title?: string;
 			caption?: string;
 	  }
 	| {
@@ -167,12 +175,15 @@ export function MediaGallery({
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw",
 	quality = 90,
 }: MediaGalleryProps) {
+	const pageGallery = usePageGallery();
+	const galleryId = useId();
 	const outerRef = useRef<HTMLElement>(null);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const scrollFrameRef = useRef<number | null>(null);
 	const hoverPreviewTimeoutRef = useRef<number | null>(null);
 	const touchChromeTimeoutRef = useRef<number | null>(null);
 	const activeIndexRef = useRef(0);
+	const pendingIndexRef = useRef<number | null>(null);
 	const shouldReduceMotion = useReducedMotion();
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -186,6 +197,7 @@ export function MediaGallery({
 		requestedPlaybackId,
 	);
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+	const [viewerInstant, setViewerInstant] = useState(false);
 	const [isFocusedWithin, setIsFocusedWithin] = useState(false);
 	const [isPointerInside, setIsPointerInside] = useState(false);
 	const [touchChromeVisible, setTouchChromeVisible] = useState(false);
@@ -203,6 +215,7 @@ export function MediaGallery({
 						kind: "image",
 						src,
 						alt: item.alt ?? alts?.[index] ?? `${altPrefix} ${index + 1}`,
+						title: item.title,
 						caption: item.caption,
 					};
 				}
@@ -260,9 +273,12 @@ export function MediaGallery({
 	const isTouchLayout = !canHover || viewportWidth < 768;
 	const floatingChromeVisible =
 		hasMultiple &&
+		!isLightboxOpen &&
 		!isActiveVideoVisible &&
 		(isTouchLayout ? touchChromeVisible : chromeVisible);
 	const showStageArrows = hasMultiple && showArrows && !isActiveVideoVisible;
+	const viewerControlVisible =
+		!isLightboxOpen && !isActiveVideoVisible && (isTouchLayout || chromeVisible);
 	const counterText = `${String(activeIndex + 1).padStart(2, "0")} / ${String(
 		galleryItems.length,
 	).padStart(2, "0")}`;
@@ -273,17 +289,19 @@ export function MediaGallery({
 			: undefined;
 
 	const goToIndex = useCallback(
-		(index: number) => {
+		(index: number, instant = false) => {
 			const nextIndex = Math.max(0, Math.min(index, galleryItems.length - 1));
 			const container = scrollContainerRef.current;
-			const width = viewportWidth || container?.clientWidth || 0;
+			const width = container?.clientWidth || viewportWidth;
 
+			activeIndexRef.current = nextIndex;
+			pendingIndexRef.current = nextIndex;
 			setActiveIndex(nextIndex);
 
 			if (container && width > 0) {
 				container.scrollTo({
 					left: nextIndex * width,
-					behavior: shouldReduceMotion ? "auto" : "smooth",
+					behavior: instant || shouldReduceMotion ? "instant" : "smooth",
 				});
 			}
 		},
@@ -298,9 +316,43 @@ export function MediaGallery({
 		goToIndex(activeIndex - 1);
 	}, [activeIndex, goToIndex]);
 
+	const dragHandlers = useGalleryDrag({
+		containerRef: scrollContainerRef,
+		count: galleryItems.length,
+		onNavigate: goToIndex,
+	});
+
+	const warmViewer = useCallback(() => {
+		if (expandable) void importGalleryLightbox().catch(() => {});
+		if (expandable && activeItem?.kind === "mux-video")
+			void importPortfolioMuxVideo().catch(() => {});
+	}, [activeItem?.kind, expandable]);
+
+	useLayoutEffect(() => {
+		if (!expandable || !pageGallery) return;
+		// Register before a queued hydration click can ask the shared viewer to open.
+		return pageGallery.register({
+			id: galleryId,
+			items: galleryItems,
+			root: outerRef,
+			select: (index) => goToIndex(index, true),
+			onOpenChange: setIsLightboxOpen,
+		});
+	}, [expandable, galleryId, galleryItems, goToIndex, pageGallery]);
+
+	const openViewer = useCallback(
+		(index: number, instant: boolean) => {
+			setViewerInstant(instant);
+			if (pageGallery) pageGallery.open(galleryId, index, instant);
+			else setIsLightboxOpen(true);
+		},
+		[galleryId, pageGallery],
+	);
+
 	useEffect(() => {
 		void galleryIdentity;
 		activeIndexRef.current = 0;
+		pendingIndexRef.current = null;
 		setActiveIndex(0);
 		setHoveredIndex(null);
 		setHoverPreviewPlaybackId(null);
@@ -485,7 +537,7 @@ export function MediaGallery({
 
 		container.scrollTo({
 			left: activeIndexRef.current * viewportWidth,
-			behavior: "auto",
+			behavior: "instant",
 		});
 	}, [viewportWidth]);
 
@@ -501,6 +553,11 @@ export function MediaGallery({
 			scrollFrameRef.current = window.requestAnimationFrame(() => {
 				const width = container.clientWidth;
 				if (width === 0) return;
+				const pendingIndex = pendingIndexRef.current;
+				if (pendingIndex !== null) {
+					if (Math.abs(container.scrollLeft - pendingIndex * width) > 1) return;
+					pendingIndexRef.current = null;
+				}
 				const nextIndex = Math.round(container.scrollLeft / width);
 				setActiveIndex((prev) => (prev === nextIndex ? prev : nextIndex));
 			});
@@ -535,13 +592,13 @@ export function MediaGallery({
 
 			if (event.key === "ArrowRight") {
 				event.preventDefault();
-				goToNext();
+				goToIndex(activeIndex + 1, true);
 				return;
 			}
 
 			if (event.key === "ArrowLeft") {
 				event.preventDefault();
-				goToPrev();
+				goToIndex(activeIndex - 1, true);
 				return;
 			}
 
@@ -551,13 +608,13 @@ export function MediaGallery({
 				event.target === event.currentTarget
 			) {
 				const currentItem = galleryItems[activeIndex];
-				if (currentItem?.kind === "image") {
+				if (currentItem) {
 					event.preventDefault();
-					setIsLightboxOpen(true);
+					openViewer(activeIndex, true);
 				}
 			}
 		},
-		[activeIndex, enableKeyboard, expandable, galleryItems, goToNext, goToPrev],
+		[activeIndex, enableKeyboard, expandable, galleryItems, goToIndex, openViewer],
 	);
 
 	if (galleryItems.length === 0) return null;
@@ -574,20 +631,27 @@ export function MediaGallery({
 				tabIndex={enableKeyboard ? 0 : undefined}
 				aria-roledescription="carousel"
 				aria-label={altPrefix}
-				onFocus={() => setIsFocusedWithin(true)}
+				onFocus={() => {
+					setIsFocusedWithin(true);
+					warmViewer();
+				}}
 				onBlur={(event) => {
 					if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
 						setIsFocusedWithin(false);
 					}
 				}}
 				onKeyDown={handleKeyDown}
-				onPointerEnter={() => setIsPointerInside(true)}
+				onPointerEnter={() => {
+					setIsPointerInside(true);
+					warmViewer();
+				}}
 				onPointerLeave={() => {
 					setIsPointerInside(false);
 					setHoveredIndex(null);
 					clearHoverPreview();
 				}}
 				onPointerDownCapture={(event) => {
+					warmViewer();
 					if (event.pointerType !== "mouse") {
 						revealTouchChrome();
 					}
@@ -606,10 +670,18 @@ export function MediaGallery({
 				>
 					<div
 						ref={scrollContainerRef}
+						{...dragHandlers}
+						onPointerDownCapture={() => {
+							pendingIndexRef.current = null;
+						}}
+						onWheel={() => {
+							pendingIndexRef.current = null;
+						}}
 						className={cn(
-							"flex h-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth",
+							"flex h-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth motion-reduce:scroll-auto",
 							"[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-							hasMultiple && "cursor-grab active:cursor-grabbing",
+							hasMultiple &&
+								"cursor-grab active:cursor-grabbing data-[dragging=true]:cursor-grabbing data-[dragging=true]:select-none [&[data-dragging=true]_button]:cursor-grabbing",
 						)}
 						style={{
 							scrollbarWidth: "none",
@@ -850,11 +922,14 @@ export function MediaGallery({
 							return (
 								<div
 									key={getGalleryItemKey(item)}
+									data-gallery-slide={index}
 									className="relative h-full min-w-0 shrink-0 basis-full snap-center overflow-hidden"
 								>
 									{isExpandableImage ? (
 										<button
 											type="button"
+											data-gallery-open
+											tabIndex={activeIndex === index ? 0 : -1}
 											className={cn(
 												stageClassName,
 												"w-full border-0 p-0 text-left",
@@ -871,7 +946,7 @@ export function MediaGallery({
 											onClick={(event) => {
 												event.currentTarget.focus({ preventScroll: true });
 												setActiveIndex(index);
-												setIsLightboxOpen(true);
+												openViewer(index, event.detail === 0);
 											}}
 											aria-label={`Open slide ${index + 1} in expanded viewer`}
 										>
@@ -897,6 +972,32 @@ export function MediaGallery({
 							);
 						})}
 					</div>
+
+					{expandable && !isActiveVideoVisible && (
+						<motion.button
+							type="button"
+							aria-label="Open expanded viewer"
+							className={cn(
+								GALLERY_CHROME_BUTTON_CLASS_NAME,
+								isTouchLayout && GALLERY_CHROME_TOUCH_BUTTON_CLASS_NAME,
+								"absolute top-[var(--gallery-stage-inset)] right-[var(--gallery-stage-inset)] z-30",
+								!viewerControlVisible && "pointer-events-none",
+							)}
+							initial={false}
+							animate={{
+								opacity: viewerControlVisible ? 1 : 0,
+								y: viewerControlVisible ? 0 : -4,
+							}}
+							transition={{ duration: shouldReduceMotion ? 0 : 0.15 }}
+							onClick={(event) => {
+								event.currentTarget.focus({ preventScroll: true });
+								clearHoverPreview();
+								openViewer(activeIndex, event.detail === 0);
+							}}
+						>
+							<Expand size={GALLERY_CHROME_ICON_SIZE} />
+						</motion.button>
+					)}
 
 					{showStageArrows && (
 						<>
@@ -964,7 +1065,10 @@ export function MediaGallery({
 						</>
 					)}
 					{hasMultiple && showCounter && !isActiveVideoVisible && (
-						<div className="pointer-events-none absolute top-[var(--gallery-stage-inset)] left-[var(--gallery-stage-inset)] z-30">
+						<div
+							className="pointer-events-none absolute top-[var(--gallery-stage-inset)] left-[var(--gallery-stage-inset)] z-30 transition-opacity duration-100 motion-reduce:transition-none"
+							style={{ opacity: isLightboxOpen ? 0 : 1 }}
+						>
 							<div
 								className={cn(
 									GALLERY_CHROME_META_CHIP_CLASS_NAME,
@@ -1041,20 +1145,22 @@ export function MediaGallery({
 					)}
 				</div>
 
-				<div className="sr-only" aria-live="polite">
+				<div className="sr-only" aria-live={isLightboxOpen ? "off" : "polite"}>
 					Slide {activeIndex + 1} of {galleryItems.length}
 				</div>
 			</section>
 
-			{expandable && (
+			{expandable && !pageGallery && (
 				<GalleryLightbox
 					activeIndex={activeIndex}
 					items={galleryItems}
-					onIndexChange={setActiveIndex}
+					onIndexChange={(index) => goToIndex(index, true)}
 					onOpenChange={setIsLightboxOpen}
 					open={isLightboxOpen}
 					quality={quality}
 					returnFocusRef={enableKeyboard ? outerRef : undefined}
+					sourceRef={scrollContainerRef}
+					instant={viewerInstant}
 					sizes="95vw"
 				/>
 			)}

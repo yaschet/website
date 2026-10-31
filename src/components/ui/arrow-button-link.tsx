@@ -1,107 +1,56 @@
-"use client";
-
+import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import { motion, useReducedMotion } from "motion/react";
-import { type ComponentProps, useEffect, useState } from "react";
+import { ArrowUpRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
+import type { ComponentProps, CSSProperties } from "react";
 import { cn } from "@/src/lib/index";
 import { ButtonLink } from "./button-link";
+import { type ReelDirection, ReelIcon } from "./reel";
 
-// Independent springs preserve position and velocity when pointer intent changes.
-const textTransition = { type: "spring", stiffness: 250, damping: 30 } as const;
-const arrowTransition = { type: "spring", stiffness: 320, damping: 30 } as const;
-const clearLetter = { y: "0em", rotateX: 0, filter: "blur(0em)", opacity: 1 };
-const outgoingLetter = {
-	y: "-0.333333em",
-	rotateX: 80,
-	filter: "blur(0.083333em)",
-	opacity: 0,
+type CharacterStyle = CSSProperties & { "--action-character-progress": number };
+
+type ArrowButtonLinkProps = Omit<
+	ComponentProps<typeof ButtonLink>,
+	"children" | "icon" | "iconPosition" | "size"
+> & {
+	children: string;
+	/** Matches the glyph and its travel to the navigation direction. */
+	arrowDirection?: ReelDirection;
+	/** Softens the moving arrow without blurring its resting state. */
+	arrowBlur?: boolean;
 };
-const incomingLetter = {
-	y: "0.333333em",
-	rotateX: 270,
-	filter: "blur(0.083333em)",
-	opacity: 0,
-};
-const arrivedLetter = { ...clearLetter, rotateX: 360 };
 
-type ReelLayer = "out" | "in";
-
-function letterTarget(layer: ReelLayer, active: boolean) {
-	if (layer === "out") return active ? outgoingLetter : clearLetter;
-	return active ? arrivedLetter : incomingLetter;
-}
-
-/** Native navigation and pending feedback, with a character reel in a stable frame. */
+/** Native navigation with a bounded character stagger and a centered directional reel. */
 export function ArrowButtonLink({
 	children,
 	className,
-	onPointerEnter,
-	onPointerLeave,
-	onPointerCancel,
+	arrowDirection = "right",
+	arrowBlur = true,
 	...props
-}: Omit<ComponentProps<typeof ButtonLink>, "children" | "icon" | "iconPosition" | "size"> & {
-	children: string;
-}) {
-	const [ready, setReady] = useState(false);
-	const [hovered, setHovered] = useState(false);
-	const reducedMotion = useReducedMotion();
-	useEffect(() => setReady(true), []);
+}: ArrowButtonLinkProps) {
 	const characters = Array.from(children);
-	const active = hovered && !reducedMotion;
-	const arrowLayers = [
-		{ layer: "in", x: active ? "0%" : "-80%" },
-		{ layer: "out", x: active ? "80%" : "0%" },
-	];
-	const reel = (element: HTMLAnchorElement, pointerType: string, hover: boolean) => {
-		if (!hover) {
-			setHovered(false);
-			return;
-		}
-		if (
-			pointerType === "touch" ||
-			reducedMotion ||
-			!matchMedia("(hover: hover) and (pointer: fine)").matches ||
-			element.matches(":focus-visible") ||
-			element.getAttribute("aria-disabled") === "true" ||
-			element.querySelector("[data-loading]")
-		)
-			return;
-		setHovered(true);
-	};
+	const Arrow =
+		arrowDirection === "up-right"
+			? ArrowUpRightIcon
+			: arrowDirection === "left"
+				? ArrowLeftIcon
+				: arrowDirection === "down"
+					? ArrowDownIcon
+					: ArrowRightIcon;
+
 	return (
 		<ButtonLink
 			{...props}
-			data-action-ready={ready || undefined}
+			data-reel-trigger=""
 			className={cn("portfolio-action-link", className)}
-			onPointerEnter={(event) => {
-				onPointerEnter?.(event);
-				reel(event.currentTarget, event.pointerType, true);
-			}}
-			onPointerLeave={(event) => {
-				onPointerLeave?.(event);
-				reel(event.currentTarget, event.pointerType, false);
-			}}
-			onPointerCancel={(event) => {
-				onPointerCancel?.(event);
-				setHovered(false);
-			}}
 			icon={
-				<span className="portfolio-action-reel-icon" aria-hidden="true">
-					<span data-action-rest="">
-						<ArrowRightIcon className="size-4" weight="bold" />
-					</span>
-					{arrowLayers.map(({ layer, x }) => (
-						<motion.span
-							key={layer}
-							data-action-reel={layer}
-							initial={false}
-							animate={{ x }}
-							transition={arrowTransition}
-						>
-							<ArrowRightIcon className="size-4" weight="bold" />
-						</motion.span>
-					))}
-				</span>
+				<ReelIcon
+					direction={arrowDirection}
+					blur={arrowBlur}
+					className="portfolio-action-reel-icon"
+				>
+					<Arrow className="size-4" weight="bold" />
+				</ReelIcon>
 			}
 		>
 			<span className="portfolio-action-reel-label">
@@ -112,28 +61,19 @@ export function ArrowButtonLink({
 				{(["out", "in"] as const).map((layer) => (
 					<span key={layer} data-action-reel={layer} aria-hidden="true">
 						{characters.map((character, index) => {
-							const reverse = characters.length - 1 - index;
-							const incoming = layer === "in";
+							const style: CharacterStyle = {
+								"--action-character-progress":
+									index / Math.max(1, characters.length - 1),
+							};
 							return (
-								<motion.span
-									// The label is immutable during a reel; index preserves spaces and repeated letters.
-									// biome-ignore lint/suspicious/noArrayIndexKey: Character position is the animation identity.
+								<span
+									// biome-ignore lint/suspicious/noArrayIndexKey: Character position preserves spaces and repeated letters across the two visual layers.
 									key={index}
 									data-action-character=""
-									style={{
-										display: /\s/.test(character) ? "inline" : "inline-block",
-									}}
-									initial={false}
-									animate={letterTarget(layer, active)}
-									transition={{
-										...textTransition,
-										delay: active
-											? (incoming ? 0.1 : 0) + index * 0.05
-											: reverse * (incoming ? 0.05 : 0.06),
-									}}
+									style={style}
 								>
 									{character}
-								</motion.span>
+								</span>
 							);
 						})}
 					</span>

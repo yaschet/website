@@ -1,0 +1,672 @@
+/* Joined technology cells own their seams; the card owns the outer perimeter. */
+.portfolio-technology-rail,
+.portfolio-technology-popover {
+	--technology-control-hover: var(--palette-mineral-300);
+	--technology-control-active: var(--palette-mineral-400);
+	--technology-control-line: var(--foundation-control-line-hover);
+}
+
+:where(.dark) .portfolio-technology-rail,
+:where(.dark) .portfolio-technology-popover {
+	--technology-control-hover: var(--palette-neutral-800);
+	--technology-control-active: var(--palette-neutral-700);
+}
+
+.portfolio-technology-rail {
+	--technology-cell-size: 64px;
+	--technology-visible-cell-count: min(var(--technology-cell-count), 3);
+	position: relative;
+	display: grid;
+	grid-template-columns: repeat(calc(var(--technology-visible-cell-count) + 1), minmax(0, 1fr));
+	height: var(--technology-cell-size);
+	color: var(--foreground);
+	background: var(--portfolio-project-detail-surface);
+	user-select: none;
+}
+
+/* Paint the shared boundary above every cell's interactive fill. */
+.portfolio-technology-rail::after {
+	position: absolute;
+	z-index: 1;
+	inset: 0 0 auto;
+	height: var(--foundation-hairline);
+	background: var(--portfolio-project-line);
+	content: "";
+	pointer-events: none;
+}
+
+.portfolio-technology-cells {
+	display: grid;
+	grid-column: span var(--technology-visible-cell-count);
+	grid-template-columns: subgrid;
+	min-width: 0;
+}
+
+.portfolio-technology-cell {
+	position: relative;
+	display: grid;
+	place-items: center;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.portfolio-technology-cell::after {
+	position: absolute;
+	z-index: 1;
+	inset: 0 0 0 auto;
+	width: var(--foundation-hairline);
+	background: var(--portfolio-project-line);
+	content: "";
+	pointer-events: none;
+}
+
+.portfolio-technology-cell:nth-child(n + 4) {
+	display: none;
+}
+
+.portfolio-technology-reference {
+	display: grid;
+	align-items: center;
+	min-width: 0;
+	color: inherit;
+	background: transparent;
+	text-decoration: none;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+	transition: background-color 180ms var(--ease-smooth-out);
+}
+
+.portfolio-technology-cell > .portfolio-technology-reference {
+	position: absolute;
+	inset: 0;
+}
+
+a.portfolio-technology-reference:focus-visible {
+	outline: none;
+	box-shadow: none;
+	color: var(--background);
+	background: var(--foreground);
+}
+
+a.portfolio-technology-reference:active:not(:focus-visible) {
+	background: var(--technology-control-active);
+	transition-duration: 80ms;
+}
+
+@container project-caption (min-width: 40rem) {
+	.portfolio-technology-rail {
+		--technology-visible-cell-count: var(--technology-cell-count);
+	}
+
+	.portfolio-technology-cell:nth-child(n + 4) {
+		display: grid;
+	}
+}
+
+.portfolio-technology-exchange,
+.portfolio-technology-current,
+.portfolio-technology-outgoing {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	place-items: center;
+	min-width: 0;
+}
+
+.portfolio-technology-current,
+.portfolio-technology-outgoing {
+	align-content: center;
+	padding: 8px;
+}
+
+.portfolio-technology-idle {
+	display: none;
+}
+
+.portfolio-technology-identity {
+	display: grid;
+	grid-template-rows: 28px 16px;
+	justify-items: center;
+	gap: 4px;
+	width: 100%;
+	min-width: 0;
+	height: 48px;
+}
+
+.portfolio-technology-mark-chamber {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	color: var(--foreground);
+}
+
+.portfolio-technology-symbol {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	transition: scale 160ms var(--ease-smooth-out);
+}
+
+.portfolio-technology-mark {
+	display: block;
+	flex: none;
+	max-width: none;
+	object-fit: contain;
+	filter: brightness(0);
+	user-select: none;
+	pointer-events: none;
+}
+
+.dark .portfolio-technology-mark {
+	filter: brightness(0) invert(1);
+}
+
+.portfolio-technology-color-mark {
+	--technology-brand-ink: color-mix(in oklab, var(--technology-brand) 72%, black);
+	display: block;
+	flex: none;
+	background: var(--technology-brand-ink);
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-size: contain;
+	pointer-events: none;
+	transition: background-color 160ms var(--ease-smooth-out);
+}
+
+.dark .portfolio-technology-color-mark {
+	--technology-brand-ink: color-mix(in oklab, var(--technology-brand) 75%, white);
+}
+
+.portfolio-technology-identity[data-tone="interactive"] .portfolio-technology-color-mark {
+	background: var(--foreground);
+}
+
+a.portfolio-technology-reference:active:where(:not(:focus-visible))
+	:where([data-tone="interactive"])
+	.portfolio-technology-color-mark {
+	background: var(--technology-brand-ink);
+}
+
+.portfolio-technology-label {
+	display: block;
+	width: 100%;
+	overflow: hidden;
+	color: var(--muted-foreground);
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 16px;
+	text-align: center;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	transition: color 160ms var(--ease-smooth-out);
+}
+
+.portfolio-technology-disclosure {
+	display: grid;
+	place-items: center;
+	min-width: 0;
+	width: 100%;
+	height: var(--technology-cell-size);
+	padding: 8px;
+	border: 0;
+	color: var(--foreground);
+	background: transparent;
+	cursor: pointer;
+	user-select: none;
+	transition:
+		color var(--duration-quick) var(--ease-smooth-out),
+		background-color var(--duration-quick) var(--ease-smooth-out);
+}
+
+.portfolio-technology-disclosure .portfolio-technology-label {
+	transition: color var(--duration-quick) var(--ease-smooth-out);
+}
+
+.portfolio-technology-disclosure:is(:active, [data-popup-open]) {
+	color: var(--foreground);
+	background: var(--technology-control-active);
+}
+
+.portfolio-technology-disclosure:is(:active, [data-popup-open]) .portfolio-technology-label {
+	color: inherit;
+}
+
+.portfolio-technology-disclosure:focus-visible {
+	outline: none;
+	box-shadow: none;
+	color: var(--background);
+	background: var(--foreground);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	a.portfolio-technology-reference:hover:not(:active, :focus-visible) {
+		background: var(--technology-control-hover);
+		transition-duration: 140ms;
+	}
+
+	a.portfolio-technology-reference:hover:where(:not(:focus-visible))
+		:where([data-tone="interactive"])
+		.portfolio-technology-color-mark {
+		background: var(--technology-brand-ink);
+	}
+
+	.portfolio-technology-disclosure:hover:not(:active, :focus-visible, [data-popup-open]) {
+		color: var(--foreground);
+		background: var(--technology-control-hover);
+	}
+
+	.portfolio-technology-disclosure:hover .portfolio-technology-label {
+		color: inherit;
+	}
+}
+
+.portfolio-technology-positioner {
+	z-index: 60;
+}
+
+.portfolio-technology-popover {
+	--technology-panel-offset: 4px;
+	position: relative;
+	isolation: isolate;
+	display: flex;
+	flex-direction: column;
+	width: min(400px, var(--anchor-width), calc(100vw - 40px));
+	max-height: var(--available-height);
+	overflow: hidden;
+	padding: var(--foundation-hairline);
+	border: 0;
+	color: var(--popover-foreground);
+	background: var(--popover);
+	box-shadow: var(--foundation-popup-shadow);
+	transition: opacity var(--duration-fast) var(--ease-smooth-out);
+}
+
+.portfolio-technology-popover[data-side="bottom"] {
+	--technology-panel-offset: -4px;
+}
+
+.portfolio-technology-popover[data-starting-style],
+.portfolio-technology-popover[data-ending-style] {
+	opacity: 0;
+}
+
+.portfolio-technology-popover[data-ending-style] {
+	transition-duration: var(--duration-quick);
+	pointer-events: none;
+}
+
+.portfolio-technology-popover-heading {
+	position: relative;
+	flex: none;
+	display: grid;
+	grid-template-columns: 40px minmax(0, 1fr) 40px;
+	align-items: center;
+	gap: 12px;
+	padding: 12px;
+	background: var(--foundation-control-surface);
+}
+
+.portfolio-technology-popover-icon,
+.portfolio-technology-close {
+	position: relative;
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	border: 0;
+	color: var(--foreground);
+	background: var(--popover);
+}
+
+.portfolio-technology-close,
+.portfolio-technology-pause {
+	outline: none;
+	box-shadow: none;
+	transition: background-color 180ms var(--ease-smooth-out);
+}
+
+.portfolio-technology-close:active:not(:focus-visible),
+.portfolio-technology-pause:active:not(:focus-visible) {
+	background: var(--technology-control-active);
+	transition-duration: 80ms;
+}
+
+.portfolio-technology-popover-footer {
+	position: relative;
+	flex: none;
+	background: var(--foundation-control-surface);
+}
+
+/* Inset frames retain the same density as drawn seams at fractional zoom. */
+.portfolio-technology-popover::before,
+.portfolio-technology-popover-icon::before,
+.portfolio-technology-close::before,
+.portfolio-technology-identity[data-layout="inline"] .portfolio-technology-mark-chamber::before {
+	position: absolute;
+	z-index: 2;
+	inset: 0;
+	box-shadow: inset 0 0 0 var(--foundation-hairline) var(--technology-control-line);
+	content: "";
+	pointer-events: none;
+}
+
+.portfolio-technology-popover-heading::after,
+.portfolio-technology-popover-footer::before {
+	position: absolute;
+	z-index: 1;
+	inset: auto 0 0;
+	height: var(--foundation-hairline);
+	background: var(--technology-control-line);
+	content: "";
+	pointer-events: none;
+}
+
+.portfolio-technology-popover-footer::before {
+	inset: 0 0 auto;
+}
+
+.portfolio-technology-pause {
+	gap: 12px;
+	width: 100%;
+	height: 44px;
+	border: 0;
+	padding: 12px;
+	color: var(--foreground);
+	background: transparent;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 16px;
+}
+
+.portfolio-technology-pause[aria-pressed="true"] {
+	background: var(--technology-control-active);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.portfolio-technology-close:hover:not(:active, :focus-visible),
+	.portfolio-technology-pause:hover:not(:active, :focus-visible) {
+		background: var(--technology-control-hover);
+		transition-duration: 140ms;
+	}
+}
+
+.portfolio-technology-popover-title {
+	display: grid;
+	gap: 0;
+}
+
+.portfolio-technology-popover-heading h2 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 20px;
+}
+
+.portfolio-technology-popover-heading p {
+	margin: 0;
+	color: var(--muted-foreground);
+	font-size: 12px;
+	line-height: 16px;
+}
+
+.portfolio-technology-popover-body {
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: 0;
+}
+
+.portfolio-technology-list {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-auto-rows: minmax(64px, auto);
+	margin: 0;
+	padding: 0;
+	background: var(--popover);
+	list-style: none;
+}
+
+.portfolio-technology-list li {
+	position: relative;
+	display: grid;
+	align-items: center;
+	min-width: 0;
+	padding: 0;
+}
+
+.portfolio-technology-list .portfolio-technology-reference {
+	min-height: 64px;
+	padding: 12px;
+}
+
+/* Internal seams do not consume the cell's equal insets. */
+.portfolio-technology-list li:nth-child(even)::before,
+.portfolio-technology-list li:nth-child(n + 3)::after {
+	position: absolute;
+	z-index: 1;
+	inset: 0;
+	background: var(--technology-control-line);
+	content: "";
+	pointer-events: none;
+}
+
+.portfolio-technology-list li:nth-child(even)::before {
+	width: var(--foundation-hairline);
+}
+
+.portfolio-technology-list li:nth-child(n + 3)::after {
+	height: var(--foundation-hairline);
+}
+
+.portfolio-technology-list li:last-child:nth-child(odd) {
+	grid-column: 1 / -1;
+}
+
+.portfolio-technology-identity[data-layout="inline"] {
+	grid-template-columns: 40px minmax(0, 1fr);
+	grid-template-rows: auto;
+	align-items: center;
+	gap: 12px;
+	height: 100%;
+	min-height: 40px;
+}
+
+.portfolio-technology-identity[data-layout="inline"] .portfolio-technology-mark-chamber {
+	width: 40px;
+	height: 40px;
+	background: var(--foundation-control-surface);
+	transition: background-color 180ms var(--ease-smooth-out);
+}
+
+.portfolio-technology-identity[data-layout="inline"] .portfolio-technology-label {
+	color: var(--foreground);
+	font-size: 13px;
+	line-height: 20px;
+	text-align: start;
+	text-overflow: clip;
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
+a.portfolio-technology-reference:active:where(:not(:focus-visible)) .portfolio-technology-label {
+	color: var(--foreground);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	a.portfolio-technology-reference:hover:where(:not(:focus-visible)) .portfolio-technology-label {
+		color: var(--foreground);
+	}
+
+	a.portfolio-technology-reference:hover:not(:focus-visible)
+		[data-layout="inline"]
+		.portfolio-technology-mark-chamber {
+		background: color-mix(
+			in oklab,
+			var(--technology-brand, var(--foreground)) 8%,
+			var(--foundation-control-surface)
+		);
+	}
+}
+
+/* Focus uses the existing surface, never a second perimeter or thicker seam. */
+:is(a.portfolio-technology-reference, button.portfolio-technology-disclosure):focus-visible
+.portfolio-technology-label {
+	color: inherit;
+}
+
+:is(a.portfolio-technology-reference, button.portfolio-technology-disclosure):focus-visible
+	.portfolio-technology-mark-chamber {
+	color: inherit;
+	background: transparent;
+}
+
+a.portfolio-technology-reference:focus-visible .portfolio-technology-color-mark {
+	background: currentColor;
+}
+
+a.portfolio-technology-reference:focus-visible .portfolio-technology-mark {
+	filter: brightness(0) invert(1);
+}
+
+.dark a.portfolio-technology-reference:focus-visible .portfolio-technology-mark {
+	filter: brightness(0);
+}
+
+.portfolio-technology-close:focus-visible,
+.portfolio-technology-pause:focus-visible {
+	box-shadow: none;
+	color: var(--background);
+	background: var(--foreground);
+}
+
+/* Only ink reveals; the frame, chambers and every grid join stay sharp and fixed. */
+.portfolio-technology-list li {
+	--technology-reveal-delay: calc(min(var(--technology-row), 3) * 24ms);
+}
+
+.portfolio-technology-popover
+	:where(
+		.portfolio-technology-popover-title,
+		.portfolio-technology-popover-icon > svg,
+		.portfolio-technology-close > svg,
+		.portfolio-technology-symbol,
+		.portfolio-technology-list .portfolio-technology-label,
+		.portfolio-technology-pause > *
+	) {
+	transition:
+		opacity 180ms var(--ease-smooth-out) var(--technology-reveal-delay, 0ms),
+		translate 220ms var(--ease-smooth-out) var(--technology-reveal-delay, 0ms),
+		filter 180ms var(--ease-smooth-out) var(--technology-reveal-delay, 0ms),
+		background-color 160ms var(--ease-smooth-out),
+		color 160ms var(--ease-smooth-out),
+		scale 160ms var(--ease-smooth-out);
+}
+
+.portfolio-technology-popover:is([data-starting-style], [data-ending-style])
+	:where(
+		.portfolio-technology-popover-title,
+		.portfolio-technology-popover-icon > svg,
+		.portfolio-technology-close > svg,
+		.portfolio-technology-symbol,
+		.portfolio-technology-list .portfolio-technology-label,
+		.portfolio-technology-pause > *
+	) {
+	opacity: 0;
+	translate: 0 var(--technology-panel-offset);
+	filter: blur(2px);
+}
+
+.portfolio-technology-popover[data-ending-style] * {
+	transition-delay: 0ms;
+	transition-duration: 120ms;
+}
+
+a.portfolio-technology-reference:active .portfolio-technology-symbol {
+	scale: 0.96;
+}
+
+@keyframes technology-enter {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+		filter: blur(2px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
+	}
+}
+
+@keyframes technology-exit {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(-6px);
+		filter: blur(2px);
+	}
+}
+
+.portfolio-technology-exchange[data-exchanging="true"] > span {
+	animation-duration: 400ms;
+	animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+	animation-delay: var(--technology-phase);
+	animation-fill-mode: both;
+	animation-play-state: paused;
+}
+
+.portfolio-technology-exchange[data-exchanging="true"] .portfolio-technology-current {
+	animation-name: technology-enter;
+}
+
+.portfolio-technology-exchange[data-exchanging="true"] .portfolio-technology-outgoing {
+	animation-name: technology-exit;
+}
+
+.portfolio-technology-rail[data-motion-active="true"] .portfolio-technology-exchange > span {
+	animation-play-state: running;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.portfolio-technology-popover,
+	.portfolio-technology-popover * {
+		transition: none;
+	}
+
+	.portfolio-technology-popover:is([data-starting-style], [data-ending-style]) * {
+		filter: none;
+		translate: none;
+	}
+
+	.portfolio-technology-exchange[data-exchanging="true"] .portfolio-technology-outgoing {
+		display: none;
+	}
+
+	.portfolio-technology-exchange[data-exchanging="true"] .portfolio-technology-current {
+		animation: none;
+	}
+
+	.portfolio-technology-disclosure,
+	.portfolio-technology-disclosure .portfolio-technology-label,
+	.portfolio-technology-reference,
+	.portfolio-technology-reference .portfolio-technology-label,
+	.portfolio-technology-identity[data-layout="inline"] .portfolio-technology-mark-chamber,
+	.portfolio-technology-symbol,
+	.portfolio-technology-color-mark {
+		transition: none;
+	}
+
+	a.portfolio-technology-reference:active .portfolio-technology-symbol {
+		scale: none;
+	}
+}

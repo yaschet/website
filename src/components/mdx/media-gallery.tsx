@@ -5,8 +5,8 @@
  * MDX wrapper for the shared MediaGallery with caption support.
  * Features:
  * - Click arrows or swipe to navigate
- * - Spring physics for slide transitions
- * - Always-visible dot indicators
+ * - Direct dragging and animated expanded viewing
+ * - Shared navigation controls
  * - Touch/swipe support for mobile
  * - Keyboard navigation (arrow keys)
  * - Per-item captions
@@ -21,7 +21,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { MediaGallery as BaseMediaGallery } from "@/src/components/ui/media-gallery";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 
@@ -43,21 +43,35 @@ export function MediaGallery({
 	className,
 }: MediaGalleryProps) {
 	const [activeIndex, setActiveIndex] = useState(0);
-	const itemCount = items?.length ?? images.length;
+	const galleryItems = useMemo<GalleryMediaSource[]>(() => {
+		if (items?.length) {
+			return items.map((item, index) => ({
+				...item,
+				caption: captions?.[index] || item.caption || caption,
+			}));
+		}
+		return images.map((src, index) => ({
+			kind: "image",
+			src,
+			alt: captions?.[index] || `Gallery media ${index + 1}`,
+			caption: captions?.[index] || caption,
+		}));
+	}, [caption, captions, images, items]);
+	const itemCount = galleryItems.length;
 
 	if (itemCount === 0) return null;
 
 	// Get current media caption
-	const currentCaption =
-		captions?.[activeIndex] || (items?.[activeIndex]?.caption ?? undefined) || caption;
+	const currentCaption = galleryItems[activeIndex]?.caption;
+	const first = galleryItems[0];
+	const galleryLabel =
+		caption || (first?.kind === "mux-video" ? first.title || first.alt : first?.alt);
 
 	return (
 		<figure data-breakout="true" className="media-breakout mb-(--portfolio-space-group)">
 			<BaseMediaGallery
-				items={items}
-				images={images}
-				alts={captions}
-				altPrefix="Gallery media"
+				items={galleryItems}
+				altPrefix={galleryLabel || "Gallery media"}
 				aspectRatio={aspectRatio}
 				showArrows={itemCount > 1}
 				showProgress={itemCount > 1}

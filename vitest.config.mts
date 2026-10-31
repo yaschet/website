@@ -8,6 +8,10 @@ export default defineConfig({
 	// Prebundle the article renderers and hero motion before the test iframe mounts.
 	optimizeDeps: {
 		include: [
+			"@radix-ui/react-popover",
+			"@phosphor-icons/react/dist/ssr/ArrowDown",
+			"@phosphor-icons/react/dist/ssr/ArrowRight",
+			"@phosphor-icons/react/dist/ssr/ArrowUpRight",
 			"@phosphor-icons/react/dist/ssr/MagnifyingGlassPlus",
 			"mermaid",
 			"sugar-high",
