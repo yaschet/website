@@ -298,12 +298,24 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 		await target.tap({ trial: true });
 		const frame = await target.boundingBox();
 		if (!frame) throw new Error("Expected a visible touch target");
-		// Let Chromium generate the complete native tap, including its contact timing.
-		await touch.send("Input.synthesizeTapGesture", {
-			x: frame.x + frame.width / 2,
-			y: frame.y + frame.height / 2,
-			gestureSourceType: "touch",
+		await touch.send("Input.dispatchTouchEvent", {
+			type: "touchStart",
+			touchPoints: [
+				{
+					x: frame.x + frame.width / 2,
+					y: frame.y + frame.height / 2,
+					id: 0,
+					radiusX: 5,
+					radiusY: 5,
+					force: 1,
+				},
+			],
 		});
+		// Use the same contact stream as swipes, with a short physical press.
+		for (let frame = 0; frame < 3; frame++) {
+			await page.evaluate(() => new Promise(requestAnimationFrame));
+		}
+		await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 	}
 	try {
 		await page.goto(
@@ -315,19 +327,26 @@ test("touch supports native inline swipe, pinch inspection and vertical dismissa
 		});
 		const frame = await gallery.boundingBox();
 		if (!frame) throw new Error("Expected the inline gallery");
+		const scrollEnded = gallery.locator(".snap-x").evaluate(
+			(node) =>
+				new Promise<void>((resolve) => {
+					node.addEventListener("scrollend", () => resolve(), { once: true });
+				}),
+		);
 		await gesture(
 			[{ x: 300, y: frame.y + frame.height / 2 }],
 			[{ x: 80, y: frame.y + frame.height / 2 }],
 		);
+		await scrollEnded;
 		await expect(gallery.getByText("Slide 2 of 3", { exact: true })).toBeAttached();
 		await expect(page.getByRole("dialog")).toHaveCount(0);
 		await tap(page.getByRole("button", { name: "Open slide 2 in expanded viewer" }));
 		const dialog = page.getByRole("dialog");
+		await expect(dialog).toHaveAttribute("data-gallery-state", "open");
 		const surface = dialog.locator(
 			'.pswp__item[aria-hidden="false"] .pswp__img:not(.pswp__img--placeholder)',
 		);
 		await expect(surface).toBeVisible();
-		await expect(dialog).toHaveAttribute("data-gallery-state", "open");
 		await gesture(
 			[
 				{ x: 155, y: 390 },
