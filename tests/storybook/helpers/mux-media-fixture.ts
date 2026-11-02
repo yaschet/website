@@ -6,9 +6,12 @@ import type { Page } from "@playwright/test";
  * custom element's public transport boundary is controlled. This does not test
  * decoding, real audio, adaptive delivery or native Safari fullscreen.
  */
-export async function installMuxMediaFixture(page: Page) {
+export async function installMuxMediaFixture(
+	page: Page,
+	playback: "success" | "error" = "success",
+) {
 	await page.route(/https:\/\/stream\.mux\.(com|dev)\//, (route) => route.abort());
-	await page.addInitScript(() => {
+	await page.addInitScript((playback) => {
 		const define = CustomElementRegistry.prototype.define;
 		CustomElementRegistry.prototype.define = function (name, elementClass, options) {
 			if (name === "mux-video") {
@@ -71,6 +74,12 @@ export async function installMuxMediaFixture(page: Page) {
 				});
 				property("play", {
 					value(this: HTMLElement) {
+						if (playback === "error") {
+							queueMicrotask(() => this.dispatchEvent(new Event("error")));
+							return Promise.reject(
+								new DOMException("Fixture playback failed", "NotSupportedError"),
+							);
+						}
 						state(this).paused = false;
 						this.dispatchEvent(new Event("play"));
 						if (!state(this).paused) this.dispatchEvent(new Event("playing"));
@@ -95,5 +104,5 @@ export async function installMuxMediaFixture(page: Page) {
 			}
 			return define.call(this, name, elementClass, options);
 		};
-	});
+	}, playback);
 }
