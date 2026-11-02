@@ -50,7 +50,9 @@ for (const theme of ["light", "dark"] as const) {
 		}
 		// Transport is intentionally blocked: the mounted player can fail before the
 		// next assertion polls. Verify the durable, usable result of that activation.
-		await expect(card.locator("[data-playback-error]")).toBeVisible();
+		// Native stream errors can retry internally; allow the player's 20s stall
+		// fallback plus assertion overhead instead of racing it with the 5s default.
+		await expect(card.locator("[data-playback-error]")).toBeVisible({ timeout: 25_000 });
 		await expect(card.getByRole("button", { name: "Try again", exact: true })).toBeVisible();
 		await expect(
 			card.getByRole("button", { name: "Return to poster", exact: true }),
