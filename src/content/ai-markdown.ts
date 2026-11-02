@@ -500,7 +500,7 @@ export async function getLlmsTxt() {
 	lines.push("");
 	lines.push(`- [Resume PDF](${SITE_URL}/yassine-chettouch-resume.pdf): Formal resume asset.`);
 	lines.push(`- [About](${SITE_URL}/about): Human-readable engineering philosophy page.`);
-	lines.push(`- [Contact](${SITE_URL}/contact): Contact form and email path.`);
+	lines.push(`- [Contact](${SITE_URL}/contact): Email and booking.`);
 
 	return lines.join("\n").trim();
 }
