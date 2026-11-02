@@ -16,7 +16,7 @@ export function EditorialSection({
 	return (
 		<section id={id} aria-labelledby={`${id}-heading`} className="w-full">
 			<ScrollReveal phase={2}>
-				<PageContainer className="portfolio-section-top">
+				<PageContainer mobileBleed className="portfolio-section-top">
 					<SwissGridBox>
 						<SwissGridRow>
 							<div className="portfolio-box-pad portfolio-editorial-section">

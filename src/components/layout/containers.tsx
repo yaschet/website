@@ -1,11 +1,18 @@
 import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "@/src/lib/index";
+import styles from "./containers.module.css";
 
-export function PageContainer({ className, ...props }: ComponentPropsWithoutRef<"div">) {
+interface PageContainerProps extends ComponentPropsWithoutRef<"div"> {
+	/** Let an inset content frame own the mobile gutter, avoiding two nested insets. */
+	mobileBleed?: boolean;
+}
+
+export function PageContainer({ className, mobileBleed = false, ...props }: PageContainerProps) {
 	return (
 		<div
 			className={cn(
 				"mx-auto w-full max-w-5xl px-[var(--portfolio-page-gutter-mobile)] sm:px-[var(--portfolio-page-gutter-desktop)]",
+				mobileBleed && styles.mobileBleed,
 				className,
 			)}
 			{...props}
