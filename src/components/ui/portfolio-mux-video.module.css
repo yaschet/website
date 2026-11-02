@@ -233,3 +233,37 @@ html:has(.player:fullscreen) {
 		max-block-size: calc(100svh - 5rem);
 	}
 }
+
+/* Keep the seek position exact; animate only the thumb's interaction feedback. */
+.seekInput::-webkit-slider-thumb {
+	transition:
+		transform 160ms ease-out,
+		background-color 160ms ease-out;
+}
+.seekInput::-moz-range-thumb {
+	transition:
+		transform 160ms ease-out,
+		background-color 160ms ease-out;
+}
+.seekInput:active::-webkit-slider-thumb {
+	transform: scale(1.2);
+}
+.seekInput:active::-moz-range-thumb {
+	transform: scale(1.2);
+}
+@media (hover: hover) and (pointer: fine) {
+	.seekInput:hover::-webkit-slider-thumb {
+		transform: scale(1.2);
+	}
+	.seekInput:hover::-moz-range-thumb {
+		transform: scale(1.2);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.seekInput::-webkit-slider-thumb {
+		transition: none;
+	}
+	.seekInput::-moz-range-thumb {
+		transition: none;
+	}
+}

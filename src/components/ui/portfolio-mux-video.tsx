@@ -11,7 +11,13 @@ import {
 	RiVolumeMuteLine as SpeakerSimpleSlashIcon,
 	RiCloseLine as XIcon,
 } from "@remixicon/react";
-import { AnimatePresence, motion, useMotionValue, useReducedMotion } from "framer-motion";
+import {
+	AnimatePresence,
+	motion,
+	useMotionValue,
+	useReducedMotion,
+	useSpring,
+} from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import type { CSSProperties, KeyboardEvent, MouseEvent, WheelEvent } from "react";
@@ -19,7 +25,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { StateSwap } from "@/src/components/ui/state-swap";
 import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
 import type { MuxVideoMetadata } from "@/src/content/types";
-import { cn, tweens } from "@/src/lib/index";
+import { cn, springs, tweens } from "@/src/lib/index";
 import {
 	announceActivePortfolioVideo,
 	PORTFOLIO_VIDEO_ACTIVE_EVENT,
@@ -441,6 +447,7 @@ function PortfolioMuxVideoPlayer({
 	const [volume, setVolume] = useState(muted ? 0 : 1);
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
+	const [bufferedRanges, setBufferedRanges] = useState<{ start: number; end: number }[]>([]);
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const [controlsVisible, setControlsVisible] = useState(true);
 	const [isPointerInside, setIsPointerInside] = useState(false);
@@ -471,6 +478,7 @@ function PortfolioMuxVideoPlayer({
 	const [playerWidth, setPlayerWidth] = useState(0);
 	const [playerHeight, setPlayerHeight] = useState(0);
 	const scrubPreviewX = useMotionValue(0);
+	const scrubPreviewSpringX = useSpring(scrubPreviewX, springs.responsive);
 
 	const posterSrc = useMemo(() => getPosterSrc(poster), [poster]);
 	const resolvedPlaybackSrc = useMemo(() => getMuxStreamSrc(playbackId), [playbackId]);
@@ -682,6 +690,15 @@ function PortfolioMuxVideoPlayer({
 		setIsPlaying(currentlyPlaying);
 		setCurrentTime(Number.isFinite(media.currentTime) ? media.currentTime : 0);
 		setDuration(Number.isFinite(media.duration) ? media.duration : 0);
+		const ranges = media.buffered;
+		setBufferedRanges(
+			Number.isFinite(media.duration) && media.duration > 0 && ranges
+				? Array.from({ length: ranges.length }, (_, index) => ({
+						start: (ranges.start(index) / media.duration) * 100,
+						end: (ranges.end(index) / media.duration) * 100,
+					}))
+				: [],
+		);
 		setIsMuted(preferredMutedRef.current);
 		setVolume(preferredMutedRef.current ? 0 : mediaVolume);
 		setPlaybackRate(preferredPlaybackRateRef.current);
@@ -749,6 +766,7 @@ function PortfolioMuxVideoPlayer({
 		setPlaybackRate(1);
 		setCurrentTime(0);
 		setDuration(0);
+		setBufferedRanges([]);
 		setQualityOptions([{ label: "Auto", value: "auto", resolutionLabel: "AUTO" }]);
 		setQualityValue("auto");
 		setResolvedQualityLabel(null);
@@ -2083,17 +2101,28 @@ function PortfolioMuxVideoPlayer({
 								<motion.div
 									data-scrub-preview
 									aria-hidden="true"
-									initial={{ opacity: 0 }}
-									animate={{ opacity: 1 }}
-									exit={{ opacity: 0 }}
+									initial={{
+										opacity: 0,
+										y: shouldReduceMotion ? 0 : 6,
+										scale: shouldReduceMotion ? 1 : 0.97,
+									}}
+									animate={{ opacity: 1, y: 0, scale: 1 }}
+									exit={{ opacity: 0, y: shouldReduceMotion ? 0 : 3 }}
 									className="pointer-events-none absolute bottom-full z-30 mb-[var(--portfolio-overlay-gap)] overflow-hidden border border-white/20 bg-black"
 									style={{
 										left: 0,
-										x: scrubPreviewX,
+										x: shouldReduceMotion ? scrubPreviewX : scrubPreviewSpringX,
 										width: scrubPreviewWidth,
 										height: activeStoryboardCue.height * scrubPreviewScale,
 									}}
-									transition={{ duration: shouldReduceMotion ? 0 : 0.12 }}
+									transition={
+										shouldReduceMotion
+											? { duration: 0 }
+											: {
+													...springs.responsive,
+													opacity: tweens.interactionFast,
+												}
+									}
 								>
 									<div
 										className={cn(
@@ -2133,6 +2162,18 @@ function PortfolioMuxVideoPlayer({
 							className="pointer-events-none absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 bg-[color:var(--portfolio-player-track-color)]"
 							aria-hidden
 						/>
+						{bufferedRanges.map((range) => (
+							<div
+								key={range.start}
+								data-buffered-range
+								aria-hidden="true"
+								className="pointer-events-none absolute top-1/2 h-[2px] -translate-y-1/2 bg-white/30"
+								style={{
+									left: `${range.start}%`,
+									width: `${range.end - range.start}%`,
+								}}
+							/>
+						))}
 						<motion.div
 							className="pointer-events-none absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-white"
 							animate={
