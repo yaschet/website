@@ -9,7 +9,7 @@ import {
 	RiSpeedUpLine,
 } from "@remixicon/react";
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "./button";
 import {
 	DropdownMenu,
@@ -90,6 +90,10 @@ export function CompactVideoSettingsMenu({
 	const [viewHeight, setViewHeight] = useState<number | undefined>();
 	const viewRef = useRef<HTMLDivElement>(null);
 	const reducedMotion = useReducedMotion();
+	const measureView = useCallback((element: HTMLDivElement | null) => {
+		viewRef.current = element;
+		if (element) setViewHeight(element.offsetHeight);
+	}, []);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: keyed views replace the measured element.
 	useLayoutEffect(() => {
 		const element = viewRef.current;
@@ -105,7 +109,10 @@ export function CompactVideoSettingsMenu({
 		(a, b) => Number(b.label === "Video quality") - Number(a.label === "Video quality"),
 	);
 	useEffect(() => {
-		if (!open) setView(null);
+		if (!open) {
+			setView(null);
+			setViewHeight(undefined);
+		}
 	}, [open]);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: each view replaces the focused menu item.
 	useEffect(() => {
@@ -151,7 +158,7 @@ export function CompactVideoSettingsMenu({
 				>
 					<motion.div
 						key={view ?? "settings"}
-						ref={viewRef}
+						ref={measureView}
 						initial={reducedMotion ? false : { x: view ? 16 : -16, opacity: 0 }}
 						animate={{ x: 0, opacity: 1 }}
 						transition={{

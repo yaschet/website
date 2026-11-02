@@ -37,17 +37,22 @@ export function DropdownMenuFeedback({
 				delete root.dataset.underlayReady;
 				return;
 			}
-			const container = root.getBoundingClientRect();
-			const row = target.getBoundingClientRect();
-			if (!container.width || !row.height) return;
-			const style = view.getComputedStyle(root);
-			const scaleX = container.width / parseFloat(style.width) || 1;
-			const scaleY = container.height / parseFloat(style.height) || 1;
-			const firstEntry = current === null;
+			// Measure layout geometry, not animated descendant transforms. A sliding
+			// settings view must not leave its transient offset on the underlay.
+			let left = 0;
+			let top = 0;
+			let element: HTMLElement | null = target;
+			while (element && element !== root) {
+				left += element.offsetLeft;
+				top += element.offsetTop;
+				element = element.offsetParent as HTMLElement | null;
+			}
+			if (element !== root || !target.offsetHeight) return;
+			const firstEntry = current === null || !root.contains(current);
 			if (firstEntry) surface.style.transition = "none";
-			surface.style.transform = `translate(${(row.left - container.left) / scaleX}px, ${(row.top - container.top) / scaleY}px)`;
-			surface.style.width = `${row.width / scaleX}px`;
-			surface.style.height = `${row.height / scaleY}px`;
+			surface.style.transform = `translate(${left}px, ${top}px)`;
+			surface.style.width = `${target.offsetWidth}px`;
+			surface.style.height = `${target.offsetHeight}px`;
 			root.dataset.underlayTone =
 				target.dataset.variant === "destructive"
 					? "destructive"
