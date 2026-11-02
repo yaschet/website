@@ -893,6 +893,7 @@
 [data-resolve-sharp],
 [data-resolve-front] {
 	display: inline-block;
+	mask-mode: alpha;
 	mask-repeat: no-repeat;
 	mask-size: calc(200% + var(--resolve-feather)) 100%;
 	mask-position: 0% 0%;
@@ -920,6 +921,14 @@
 		#000 50%,
 		transparent calc(50% + var(--resolve-feather) / 2)
 	);
+}
+/* Finished copy is ordinary text, not a permanently masked/filter-composited
+ * layer. Preserve the same reveal math and geometry throughout the entrance. */
+[data-resolve-settled="true"] [data-resolve-sharp] {
+	mask-image: none;
+}
+[data-resolve-settled="true"] [data-resolve-fog] {
+	display: none;
 }
 /* First-paint CSS owns initial entry, so hydration never hides painted copy. */
 @media (prefers-reduced-motion: no-preference) {

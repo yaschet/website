@@ -172,6 +172,12 @@ for (const theme of ["light", "dark"] as const) {
 			"mask-position",
 			/^(?:0%|0px) (?:0%|0px)$/,
 		);
+		await expect(homeHeading).toHaveAttribute("data-resolve-settled", "true");
+		await expect(homeHeading.locator("[data-resolve-sharp]").last()).toHaveCSS(
+			"mask-image",
+			"none",
+		);
+		await expect(homeHeading.locator("[data-resolve-fog]").last()).toHaveCSS("display", "none");
 		expect(await homeHeading.boundingBox()).toEqual(homeFrame);
 		expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
 			true,
