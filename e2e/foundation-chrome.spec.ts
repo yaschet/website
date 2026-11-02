@@ -51,7 +51,11 @@ for (const theme of ["light", "dark"] as const) {
 		const badges = header.locator(".portfolio-context-badge");
 		for (const badge of await badges.all()) {
 			await expect(badge).toHaveCSS("font-size", "12px");
-			await expect(badge).toHaveCSS("line-height", "16px");
+			// Unitless line height can serialize as 15.99996px in WebKit.
+			const lineHeight = await badge.evaluate((node) =>
+				Number.parseFloat(getComputedStyle(node).lineHeight),
+			);
+			expect(lineHeight).toBeCloseTo(16, 2);
 			const hitArea = await badge.evaluate((node) => {
 				const style = getComputedStyle(node, "::before");
 				return node.getBoundingClientRect().height - Number.parseFloat(style.top) * 2;
