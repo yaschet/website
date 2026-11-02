@@ -1,23 +1,23 @@
 const PRINCIPLES = [
 	{
-		title: "Boring infrastructure over new toys.",
+		title: "Choose familiar tools.",
 		description:
-			"I'd rather use Postgres than five new databases, standard TypeScript than clever abstractions, and proven libraries than whatever launched last week. Novel stacks create debt. Boring stacks ship and keep shipping through pivots.",
+			"I choose tools for the requirements and the people maintaining the product. Familiar infrastructure and clear TypeScript make it easier to understand the system and change it later.",
 	},
 	{
-		title: "Verified AI, not vibe coding.",
+		title: "Check consequential decisions.",
 		description:
-			"I use Claude Code, Cursor, and Codex every day for scaffolding, refactors, tests, and reading new codebases. I don't ship unverified AI output into anything that touches money, eligibility, or user-visible correctness. Those paths get tests, evals, and a manual pass before they go live.",
+			"Billing, eligibility and extracted document data need explicit rules and verification. I use tests, evaluations and manual review where a plausible answer is not enough.",
 	},
 	{
-		title: "One owner per decision.",
+		title: "Make ownership explicit.",
 		description:
-			"I work best when one person owns decisions end to end. Committee scoping tends to produce committee software. If a project has four stakeholders who can each override the architecture, I'm probably not the right fit.",
+			"We agree on the scope, who makes decisions and how progress will be reviewed. I explain technical tradeoffs in terms of what they change for the product and its users.",
 	},
 	{
-		title: "End to end.",
+		title: "Follow through to deployment.",
 		description:
-			"I don't hand off at the edge of my tickets. I follow the work from first commit to the deployment logs. If something breaks at 2am, I'm the one reading the stack trace.",
+			"Design, application code, data and deployment are connected parts of the work. I follow a change through the system and leave the source and operating decisions understandable at handover.",
 	},
 ] as const;
 
