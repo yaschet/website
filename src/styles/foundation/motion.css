@@ -1176,30 +1176,3 @@
 		animation: none;
 	}
 }
-
-/* Small/touch screens use a single text layer: masked blurred duplicates can
- * produce colored edge fragments in mobile GPU compositing. */
-@media (width < 40rem), (pointer: coarse) {
-	[data-resolve-sharp] {
-		mask-image: none;
-	}
-	[data-resolve-fog] {
-		display: none;
-	}
-}
-@media (width < 40rem) and (prefers-reduced-motion: no-preference) {
-	[data-resolve-initial] .portfolio-resolve-word {
-		animation: portfolio-mobile-heading-in 320ms var(--ease-smooth-out) both;
-		animation-delay: var(--resolve-delay);
-	}
-}
-@keyframes portfolio-mobile-heading-in {
-	from {
-		opacity: 0;
-		transform: translateY(3px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
