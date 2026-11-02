@@ -20,6 +20,10 @@ for (const theme of ["light", "dark"] as const) {
 		});
 		const rail = project.locator('[data-slot="project-technology-rail"]');
 		const trigger = project.getByRole("button", { name: /^Stack: all \d+ technologies for / });
+		const outsideRail = project.getByRole("link", {
+			name: "University Program Matching",
+			exact: true,
+		});
 		await rail.scrollIntoViewIfNeeded();
 		// Inspect the initial frame without racing the automatic exchange.
 		await trigger.focus();
@@ -102,7 +106,9 @@ for (const theme of ["light", "dark"] as const) {
 				nodes.map((node) => getComputedStyle(node).getPropertyValue("--technology-phase")),
 			),
 		).toEqual(isMobile ? ["100ms", "50ms", "0ms"] : ["50ms", "0ms"]);
-		await page.keyboard.press("Tab");
+		await outsideRail.focus();
+		await expect(outsideRail).toBeFocused();
+		expect(await rail.evaluate((node) => node.contains(document.activeElement))).toBe(false);
 		await page.mouse.move(0, 0);
 		await expect(rail).toHaveAttribute("data-running", "true");
 		const nextFrame = isMobile
@@ -110,7 +116,7 @@ for (const theme of ["light", "dark"] as const) {
 			: [...core, "Alpine.js", "MySQL"];
 		await expect.poll(currentTechnologies, { timeout: 4_000 }).toEqual(nextFrame);
 		expect(new Set(await currentTechnologies()).size).toBe(isMobile ? 3 : 5);
-		// Tab can scroll the next control into view; the rail's document geometry must stay fixed.
+		// Focus can scroll the neighboring control into view; document geometry stays fixed.
 		expect(await railGeometry()).toEqual(before);
 		const hoverBounds = await rail.boundingBox();
 		if (!isMobile && hoverBounds) {
@@ -309,7 +315,9 @@ for (const theme of ["light", "dark"] as const) {
 		await dialog.getByRole("button", { name: "Close technology stack" }).click();
 		await expect(trigger).toBeFocused();
 		await expect(rail).toHaveAttribute("data-running", "false");
-		await page.keyboard.press("Tab");
+		await outsideRail.focus();
+		await expect(outsideRail).toBeFocused();
+		expect(await rail.evaluate((node) => node.contains(document.activeElement))).toBe(false);
 		await page.mouse.move(0, 0);
 		await expect(rail).toHaveAttribute("data-running", "true");
 		await page.getByRole("heading", { level: 1 }).scrollIntoViewIfNeeded();
