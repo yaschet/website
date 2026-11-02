@@ -149,7 +149,7 @@ for (const theme of ["light", "dark"] as const) {
 				// transparent magenta pixel is not evidence of a clipped snapshot.
 				const geometryStyle = await page.addStyleTag({
 					content:
-						":root[data-theme-transition]::view-transition-old(root) { opacity: 1 !important; }",
+						":root[data-theme-transition]::view-transition-old(root) { opacity: 1 !important; animation-play-state: paused !important; }",
 				});
 				// Establish the scrolled precondition after streaming and scroll restoration.
 				await expect
@@ -194,7 +194,24 @@ for (const theme of ["light", "dark"] as const) {
 				).toEqual(expected);
 				await page.getByRole("button", { name: /^Theme: Switch/ }).click();
 				await expect(page.locator("html")).toHaveAttribute("data-snapshot-ready", "true");
+				await expect(page.locator("html")).toHaveAttribute("data-theme-transition", "true");
 				expect(await page.locator("[data-theme-snapshot-marker]").count()).toBe(0);
+				// Pin the native animation before it starts instead of racing a one-time
+				// getAnimations() observation after ready.
+				await expect
+					.poll(() =>
+						page.evaluate(() =>
+							document
+								.getAnimations()
+								.some(
+									(animation) =>
+										animation instanceof CSSAnimation &&
+										animation.animationName === "theme-surface-out" &&
+										animation.playState === "paused",
+								),
+						),
+					)
+					.toBe(true);
 				for (const time of [0, 120, 239]) {
 					await page.evaluate((time) => {
 						for (const animation of document.getAnimations())
@@ -204,6 +221,10 @@ for (const theme of ["light", "dark"] as const) {
 							)
 								animation.currentTime = time;
 					}, time);
+					await expect(page.locator("html")).toHaveAttribute(
+						"data-theme-transition",
+						"true",
+					);
 					expect(
 						await readSnapshotMarkers(
 							page,
