@@ -143,7 +143,8 @@ is enlarged. Wide fine-pointer players retain the volume control and separate
 48px-high triggers and 40px-row settings menus. All gallery and player actions
 share a 12px stage inset, so expand, close and fullscreen retain the same right
 edge. The elapsed/duration display uses tabular numbers, an 8px gap and contrasting
-text tones, without a background box or slash. Quality menus pair exact resolutions with familiar badges (HD, Full HD,
+text tones and a visible “of” connector, without a background box or slash. Transport
+buttons remain transparent at rest and share neutral hover, focus and pressed surfaces. Quality menus pair exact resolutions with familiar badges (HD, Full HD,
 QHD, 4K); the 2160p trigger reads 4K. Auto remains explicit.
 Menus open in 150ms and close in 80ms, without blur;
 keyboard selection is immediate. Opaque inverse media controls stay legible over

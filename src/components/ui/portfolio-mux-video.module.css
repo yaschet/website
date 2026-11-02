@@ -82,7 +82,22 @@
 }
 
 .timeDuration {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.375rem;
 	color: var(--palette-neutral-300);
+}
+
+.controlsPanel button {
+	background: transparent;
+}
+
+.controlsPanel button:is(:hover, :focus-visible, [aria-expanded="true"]) {
+	background: var(--palette-neutral-800);
+}
+
+.controlsPanel button:active {
+	background: var(--palette-neutral-700);
 }
 
 .previewArtwork {

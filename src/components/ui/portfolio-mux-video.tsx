@@ -2289,8 +2289,8 @@ function PortfolioMuxVideoPlayer({
 							<div className={hideVisibleTime ? "sr-only" : styles.timeDisplay}>
 								<span>{formatPlaybackTime(currentTime)}</span>
 								<span className={showElapsedOnly ? "sr-only" : styles.timeDuration}>
-									<span className="sr-only"> of </span>
-									{formatPlaybackTime(duration, "ceil")}
+									<span>of</span>
+									<span>{formatPlaybackTime(duration, "ceil")}</span>
 								</span>
 							</div>
 						</div>
