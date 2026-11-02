@@ -50,9 +50,10 @@ for (const theme of ["light", "dark"] as const) {
 		);
 		const viewport = page.viewportSize();
 		if (!viewport) throw new Error("Expected a gallery viewport");
-		const caption = dialog.getByText("Document Translation With Editable Tables", {
-			exact: true,
-		});
+		const captionId = await dialog.getAttribute("aria-describedby");
+		if (!captionId) throw new Error("Expected the viewer's header caption reference");
+		const caption = dialog.locator(`[id="${captionId}"]`);
+		await expect(caption).toHaveText("Document Translation With Editable Tables");
 		if (viewport.width < 760 || viewport.height <= 520) await expect(caption).toBeHidden();
 		else await expect(caption).toBeVisible();
 		await expectBlockedPlayback(dialog);
@@ -102,6 +103,7 @@ for (const { slug, count, title, theme } of [
 		await cover.press("ArrowRight");
 		const opener = cover.getByRole("button", { name: "Open slide 2 in expanded viewer" });
 		await opener.scrollIntoViewIfNeeded();
+		const inlineSelection = await cover.locator('[aria-live="polite"]').innerText();
 		const scrollY = await page.evaluate(() => window.scrollY);
 		await opener.click();
 		const dialog = page.getByRole("dialog");
@@ -177,6 +179,7 @@ for (const { slug, count, title, theme } of [
 		await page.mouse.click(header.width / 2, header.y + header.height + 4);
 		await expect(dialog).toHaveCount(0);
 		expect(Math.abs((await page.evaluate(() => window.scrollY)) - scrollY)).toBeLessThan(2);
+		await expect(cover.locator('[aria-live="polite"]')).toHaveText(inlineSelection);
 		await expect(opener).toBeFocused();
 		await expect(opener.locator("img")).toBeInViewport();
 		await expect(page.locator("html")).not.toHaveAttribute("data-gallery-viewport-count");

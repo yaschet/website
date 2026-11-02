@@ -341,10 +341,9 @@ export function MediaGallery({
 			id: galleryId,
 			items: galleryItems,
 			root: outerRef,
-			select: (index) => goToIndex(index, true),
 			onOpenChange: setIsLightboxOpen,
 		});
-	}, [expandable, galleryId, galleryItems, goToIndex, pageGallery]);
+	}, [expandable, galleryId, galleryItems, pageGallery]);
 
 	const openViewer = useCallback(
 		(index: number, instant: boolean) => {
