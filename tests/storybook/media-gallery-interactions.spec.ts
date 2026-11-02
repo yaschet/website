@@ -196,9 +196,11 @@ test("image and video thumbnails keep player controls isolated", async ({ page }
 	await page.getByRole("button", { name: "Open slide 1 in expanded viewer" }).click();
 	const dialog = page.getByRole("dialog");
 	await expect(dialog).toHaveAttribute("data-gallery-state", "open");
-	await expect(
-		dialog.getByText("Translation activity and credit usage at a glance."),
-	).toBeVisible();
+	const captionId = await dialog.getAttribute("aria-describedby");
+	if (!captionId) throw new Error("Expected the viewer's header caption reference");
+	const caption = dialog.locator(`[id="${captionId}"]`);
+	await expect(caption).toHaveText("Translation activity and credit usage at a glance.");
+	await expect(caption).toBeVisible();
 	await page.screenshot({ path: testInfo.outputPath("mixed-media-viewer.png") });
 	await dialog.getByRole("button", { name: "View slide 2: Verto walkthrough" }).click();
 	await expect(dialog).toHaveAccessibleName("Verto walkthrough");
