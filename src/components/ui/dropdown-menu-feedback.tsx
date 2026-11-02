@@ -48,6 +48,14 @@ export function DropdownMenuFeedback({
 				element = element.offsetParent as HTMLElement | null;
 			}
 			if (element !== root || !target.offsetHeight) return;
+			for (
+				let parent = target.parentElement;
+				parent && parent !== root;
+				parent = parent.parentElement
+			) {
+				left -= parent.scrollLeft;
+				top -= parent.scrollTop;
+			}
 			const firstEntry = current === null || !root.contains(current);
 			if (firstEntry) surface.style.transition = "none";
 			surface.style.transform = `translate(${left}px, ${top}px)`;
@@ -84,7 +92,7 @@ export function DropdownMenuFeedback({
 		});
 		const resize = new ResizeObserver(measure);
 		resize.observe(root);
-		root.addEventListener("scroll", measure);
+		root.addEventListener("scroll", measure, true);
 		view.addEventListener("resize", measure);
 		view.addEventListener("pointerup", release, true);
 		view.addEventListener("pointercancel", release, true);
@@ -94,7 +102,7 @@ export function DropdownMenuFeedback({
 		return () => {
 			observer.disconnect();
 			resize.disconnect();
-			root.removeEventListener("scroll", measure);
+			root.removeEventListener("scroll", measure, true);
 			view.removeEventListener("resize", measure);
 			view.removeEventListener("pointerup", release, true);
 			view.removeEventListener("pointercancel", release, true);

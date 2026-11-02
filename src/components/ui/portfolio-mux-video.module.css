@@ -218,7 +218,7 @@ html:has(.player:fullscreen) {
 .compactSettings {
 	--dropdown-pre-scale: 1;
 	--dropdown-closing-scale: 1;
-	scrollbar-gutter: stable;
+	overflow: hidden;
 	min-inline-size: min(13rem, calc(100vw - 1.5rem));
 	max-inline-size: calc(100vw - 1.5rem);
 }
@@ -314,6 +314,9 @@ html:has(.player:fullscreen) {
 	inline-size: min(15rem, calc(100vw - 2.5rem));
 	overflow: hidden;
 }
+.settingsView {
+	inline-size: min(15rem, calc(100vw - 2.5rem));
+}
 .settingsValue {
 	color: var(--palette-neutral-400);
 	margin-inline-start: auto;
@@ -326,21 +329,21 @@ html:has(.player:fullscreen) {
 	--foundation-scrollbar-thumb-active: var(--palette-neutral-500);
 	scrollbar-color: var(--foundation-scrollbar-thumb) var(--foundation-scrollbar-track);
 }
-.compactSettings::-webkit-scrollbar {
+.settingsViewport::-webkit-scrollbar {
 	width: 8px;
 }
-.compactSettings::-webkit-scrollbar-track {
+.settingsViewport::-webkit-scrollbar-track {
 	background: var(--foundation-scrollbar-track);
 }
-.compactSettings::-webkit-scrollbar-thumb {
+.settingsViewport::-webkit-scrollbar-thumb {
 	background: var(--foundation-scrollbar-thumb);
 	border: 0;
 	border-radius: 0;
 }
-.compactSettings::-webkit-scrollbar-thumb:hover {
+.settingsViewport::-webkit-scrollbar-thumb:hover {
 	background: var(--foundation-scrollbar-thumb-hover);
 }
-.compactSettings::-webkit-scrollbar-thumb:active {
+.settingsViewport::-webkit-scrollbar-thumb:active {
 	background: var(--foundation-scrollbar-thumb-active);
 }
 .settingsHeader {
@@ -350,7 +353,8 @@ html:has(.player:fullscreen) {
 /* Standard scrollbar colors override WebKit pseudo-element geometry. Keep
  * Firefox's fallback above and let WebKit render the shared square thumb. */
 @supports selector(::-webkit-scrollbar) {
-	.compactSettings {
+	.compactSettings,
+	.settingsViewport {
 		scrollbar-color: auto;
 		scrollbar-width: auto;
 	}

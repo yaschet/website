@@ -88,22 +88,42 @@ export function CompactVideoSettingsMenu({
 }) {
 	const [view, setView] = useState<string | null>(null);
 	const [viewHeight, setViewHeight] = useState<number | undefined>();
+	const [scrollbarWidth, setScrollbarWidth] = useState(0);
 	const viewRef = useRef<HTMLDivElement>(null);
 	const reducedMotion = useReducedMotion();
-	const measureView = useCallback((element: HTMLDivElement | null) => {
-		viewRef.current = element;
-		if (element) setViewHeight(element.offsetHeight);
+	const measureViewSize = useCallback((element: HTMLDivElement) => {
+		const popup = element.closest<HTMLElement>('[data-video-settings="compact"]');
+		if (!popup) return;
+		const style = getComputedStyle(popup);
+		const limit =
+			Number.parseFloat(style.maxHeight) -
+			Number.parseFloat(style.borderTopWidth) -
+			Number.parseFloat(style.borderBottomWidth);
+		const height = element.offsetHeight;
+		setViewHeight(Math.min(height, limit));
+		setScrollbarWidth(height > limit ? 8 : 0);
 	}, []);
+	const measureView = useCallback(
+		(element: HTMLDivElement | null) => {
+			viewRef.current = element;
+			if (element) measureViewSize(element);
+		},
+		[measureViewSize],
+	);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: keyed views replace the measured element.
 	useLayoutEffect(() => {
 		const element = viewRef.current;
 		if (!open || !element) return;
-		const measure = () => setViewHeight(element.offsetHeight);
+		const measure = () => measureViewSize(element);
 		measure();
 		const observer = new ResizeObserver(measure);
 		observer.observe(element);
-		return () => observer.disconnect();
-	}, [open, view]);
+		window.addEventListener("resize", measure);
+		return () => {
+			observer.disconnect();
+			window.removeEventListener("resize", measure);
+		};
+	}, [open, view, measureViewSize]);
 	const selectedGroup = groups.find((group) => group.label === view);
 	const orderedGroups = [...groups].sort(
 		(a, b) => Number(b.label === "Video quality") - Number(a.label === "Video quality"),
@@ -112,6 +132,7 @@ export function CompactVideoSettingsMenu({
 		if (!open) {
 			setView(null);
 			setViewHeight(undefined);
+			setScrollbarWidth(0);
 		}
 	}, [open]);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: each view replaces the focused menu item.
@@ -152,13 +173,18 @@ export function CompactVideoSettingsMenu({
 			>
 				<motion.div
 					initial={false}
-					animate={{ height: viewHeight ?? "auto" }}
+					animate={{
+						height: viewHeight ?? "auto",
+						width: `calc(min(15rem, 100vw - 2.5rem) + ${scrollbarWidth}px)`,
+					}}
+					style={{ overflowY: scrollbarWidth ? "scroll" : "hidden" }}
 					transition={{ duration: reducedMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
 					className={styles.settingsViewport}
 				>
 					<motion.div
 						key={view ?? "settings"}
 						ref={measureView}
+						className={styles.settingsView}
 						initial={reducedMotion ? false : { x: view ? 16 : -16, opacity: 0 }}
 						animate={{ x: 0, opacity: 1 }}
 						transition={{
