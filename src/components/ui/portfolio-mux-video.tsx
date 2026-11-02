@@ -140,12 +140,12 @@ function formatResolutionLabel(height?: number) {
 }
 
 function formatFrameRateLabel(frameRate?: number) {
-	if (!frameRate || !Number.isFinite(frameRate)) return null;
+	if (!frameRate || frameRate <= 0 || !Number.isFinite(frameRate)) return null;
 	const roundedFrameRate =
 		Math.abs(frameRate - Math.round(frameRate)) < 0.05
 			? String(Math.round(frameRate))
 			: frameRate.toFixed(2).replace(/\.?0+$/, "");
-	return `${roundedFrameRate} FPS`;
+	return roundedFrameRate;
 }
 
 function resolveRenditionFrameRate(media: MuxVideoElement, rendition: VideoRenditionLike) {
@@ -161,31 +161,24 @@ function resolveRenditionFrameRate(media: MuxVideoElement, rendition: VideoRendi
 		(level) =>
 			level.frameRate &&
 			Number.isFinite(level.frameRate) &&
-			(rendition.height == null || level.height === rendition.height),
+			rendition.height != null &&
+			level.height === rendition.height,
 	);
 	if (candidates.length === 0) return undefined;
 
-	const bestLevel = [...candidates].sort((left, right) => {
-		const leftBitrateDelta =
-			rendition.bitrate != null && left.bitrate != null
-				? Math.abs(left.bitrate - rendition.bitrate)
-				: Number.POSITIVE_INFINITY;
-		const rightBitrateDelta =
-			rendition.bitrate != null && right.bitrate != null
-				? Math.abs(right.bitrate - rendition.bitrate)
-				: Number.POSITIVE_INFINITY;
-		return leftBitrateDelta - rightBitrateDelta;
-	})[0];
-
-	return bestLevel?.frameRate;
+	const exactMatch = candidates.find(
+		(level) => rendition.bitrate != null && level.bitrate === rendition.bitrate,
+	);
+	if (exactMatch) return exactMatch.frameRate;
+	const frameRates = new Set(candidates.map((level) => level.frameRate));
+	return frameRates.size === 1 ? candidates[0]?.frameRate : undefined;
 }
 
 function formatQualityOption(rendition: VideoRenditionLike): QualityOption {
 	const resolutionLabel = formatResolutionLabel(rendition.height) ?? rendition.id ?? "Manual";
 	const frameRateLabel = formatFrameRateLabel(rendition.frameRate);
 	return {
-		label: resolutionLabel,
-		detailLabel: frameRateLabel ?? undefined,
+		label: frameRateLabel ? `${resolutionLabel}${frameRateLabel}` : resolutionLabel,
 		value: String(rendition.id),
 		chipLabel: getQualityBadge(rendition.height) ?? undefined,
 		height: rendition.height,
@@ -449,6 +442,7 @@ function PortfolioMuxVideoPlayer({
 	const [isPointerInside, setIsPointerInside] = useState(false);
 	const [isFocusVisibleWithin, setIsFocusVisibleWithin] = useState(false);
 	const [openMenu, setOpenMenu] = useState<"quality" | "rate" | "settings" | null>(null);
+	const [manifestLevels, setManifestLevels] = useState<HlsLevelLike[] | null>(null);
 	const [qualityOptions, setQualityOptions] = useState<QualityOption[]>([
 		{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
 	]);
@@ -478,6 +472,32 @@ function PortfolioMuxVideoPlayer({
 
 	const posterSrc = useMemo(() => getPosterSrc(poster), [poster]);
 	const resolvedPlaybackSrc = useMemo(() => getMuxStreamSrc(playbackId), [playbackId]);
+	useEffect(() => {
+		void resolvedPlaybackSrc;
+		setManifestLevels(null);
+	}, [resolvedPlaybackSrc]);
+	useEffect(() => {
+		if (!openMenu || manifestLevels !== null) return;
+		const controller = new AbortController();
+		void fetch(resolvedPlaybackSrc, { signal: controller.signal })
+			.then((response) => (response.ok ? response.text() : ""))
+			.then((manifest) => {
+				const levels: HlsLevelLike[] = [];
+				for (const line of manifest.split(/\r?\n/)) {
+					if (!line.startsWith("#EXT-X-STREAM-INF:")) continue;
+					const height = Number(line.match(/RESOLUTION=\d+x(\d+)/)?.[1]);
+					const frameRate = Number(line.match(/FRAME-RATE=([\d.]+)/)?.[1]);
+					if (height > 0 && frameRate > 0 && Number.isFinite(frameRate)) {
+						levels.push({ height, frameRate });
+					}
+				}
+				if (!controller.signal.aborted) setManifestLevels(levels);
+			})
+			.catch(() => {
+				if (!controller.signal.aborted) setManifestLevels([]);
+			});
+		return () => controller.abort();
+	}, [openMenu, manifestLevels, resolvedPlaybackSrc]);
 	const menuOpen = openMenu !== null;
 	const hasQualityMenu = qualityOptions.length > 1;
 	const playedPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0;
@@ -1841,15 +1861,24 @@ function PortfolioMuxVideoPlayer({
 		],
 	);
 
-	const resolvedQualityOptions = qualityOptions.map((option) =>
-		option.value === "auto"
-			? {
-					...option,
-					detailLabel: resolvedQualityLabel ?? undefined,
-					chipLabel: resolvedQualityChipLabel ?? undefined,
-				}
-			: option,
-	);
+	const resolvedQualityOptions = qualityOptions.map((option) => {
+		if (option.value === "auto") {
+			return {
+				...option,
+				detailLabel: resolvedQualityLabel ?? undefined,
+				chipLabel: resolvedQualityChipLabel ?? undefined,
+			};
+		}
+		const rates = new Set(
+			(manifestLevels ?? [])
+				.filter((level) => level.height === option.height)
+				.map((level) => level.frameRate),
+		);
+		const rate = rates.size === 1 ? formatFrameRateLabel([...rates][0]) : null;
+		return rate && option.label === option.resolutionLabel
+			? { ...option, label: `${option.resolutionLabel}${rate}` }
+			: option;
+	});
 	const rateOptions = PLAYBACK_RATE_OPTIONS.map((option) => ({
 		...option,
 		value: String(option.value),
