@@ -6,7 +6,18 @@ async function openArticle(page: Page, theme: "light" | "dark") {
 	await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 	await page.goto("/case-studies/verto", { waitUntil: "domcontentloaded" });
 	await expect(page.locator("article h2[id]").first()).toBeVisible();
+	await page.evaluate(() => document.fonts.ready.then(() => undefined));
 	await page.addStyleTag({ content: "nextjs-portal, agentation-toolbar { display: none; }" });
+}
+
+async function readingGeometry(page: Page) {
+	return page.locator("article").evaluate((article) => ({
+		width: article.getBoundingClientRect().width,
+		headingTops: Array.from(
+			article.querySelectorAll("h2[id]"),
+			(heading) => heading.getBoundingClientRect().top,
+		),
+	}));
 }
 
 for (const theme of ["light", "dark"] as const) {
@@ -53,6 +64,7 @@ for (const theme of ["light", "dark"] as const) {
 			const trigger = page.getByRole("button", { name: "Open table of contents" });
 			await expect(trigger).toHaveCSS("opacity", "1");
 			const readingPosition = await page.evaluate(() => window.scrollY);
+			const geometry = await readingGeometry(page);
 			const triggerBox = await trigger.boundingBox();
 			expect(triggerBox?.y).toBeGreaterThanOrEqual(0);
 			expect(triggerBox?.y).toBeLessThanOrEqual(24);
@@ -63,6 +75,8 @@ for (const theme of ["light", "dark"] as const) {
 			await trigger.click();
 			const dialog = page.getByRole("dialog", { name: "On this page", exact: true });
 			await expect(dialog).toBeVisible();
+			// A reserved root gutter and the dialog's scroll lock must not compensate twice.
+			await expect.poll(() => readingGeometry(page)).toEqual(geometry);
 			await expect(
 				dialog.getByRole("button", { name: "Close table of contents" }),
 			).toBeFocused();
@@ -75,6 +89,7 @@ for (const theme of ["light", "dark"] as const) {
 			await expect(dialog).toHaveCount(0);
 			await expect(trigger).toBeFocused();
 			expect(await page.evaluate(() => window.scrollY)).toBe(readingPosition);
+			await expect.poll(() => readingGeometry(page)).toEqual(geometry);
 			await trigger.press("Enter");
 			const id = await section.getAttribute("id");
 			await dialog.locator(`a[href="#${id}"]`).focus();

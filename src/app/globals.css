@@ -1731,6 +1731,12 @@ pre {
     overflow-y: scroll;
     scrollbar-gutter: stable;
   }
+
+  /* The root already reserves this gutter while a Radix dialog locks the body.
+     A second body margin would narrow and reflow the article behind the dialog. */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+  }
 }
 
 /* Keyboard access to an anchor must not depend on hover. */
