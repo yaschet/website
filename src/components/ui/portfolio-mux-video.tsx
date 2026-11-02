@@ -2202,7 +2202,7 @@ function PortfolioMuxVideoPlayer({
 					>
 						<div
 							className={cn(
-								"flex min-w-0 items-center gap-4",
+								"flex min-w-0 items-center gap-2",
 								controlsInteractiveClassName,
 								isCompactLayout && "gap-1",
 							)}
@@ -2227,7 +2227,12 @@ function PortfolioMuxVideoPlayer({
 								/>
 							</button>
 
-							<div className="flex shrink-0 items-center">
+							<div
+								className={cn(
+									"flex shrink-0 items-center",
+									showInlineVolume && "pr-2",
+								)}
+							>
 								{!isMinimalLayout && (
 									<button
 										type="button"
