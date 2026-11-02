@@ -84,8 +84,14 @@ for (const theme of ["light", "dark"] as const) {
 					)
 					.toBeGreaterThan(500);
 				const expected = await page.evaluate(() => {
-					const surface = document.querySelector(".portfolio-theme-surface");
-					if (!surface) throw new Error("The portfolio surface is missing");
+					if (!document.querySelector(".portfolio-theme-surface"))
+						throw new Error("The portfolio surface is missing");
+					// The article dock follows the page surface in compact layouts. Probes
+					// belong to the viewport, without extending that surface or its scroll range.
+					const layer = document.createElement("div");
+					layer.style.cssText =
+						"position:fixed;inset:0;z-index:100000;pointer-events:none";
+					document.body.append(layer);
 					const markers = [
 						{ x: 8, y: 24, width: 80, height: 40 },
 						{ x: 8, y: Math.floor(innerHeight / 2), width: 80, height: 40 },
@@ -94,8 +100,8 @@ for (const theme of ["light", "dark"] as const) {
 					];
 					for (const box of markers) {
 						const marker = document.createElement("div");
-						marker.style.cssText = `position:absolute;z-index:100000;left:${box.x}px;top:${scrollY + box.y}px;width:${box.width}px;height:${box.height}px;background:#f0f`;
-						surface.append(marker);
+						marker.style.cssText = `position:absolute;left:${box.x}px;top:${box.y}px;width:${box.width}px;height:${box.height}px;background:#f0f`;
+						layer.append(marker);
 					}
 					return markers;
 				});
@@ -265,7 +271,7 @@ for (const theme of ["light", "dark"] as const) {
 					};
 			});
 			await page.emulateMedia({ reducedMotion: "reduce", colorScheme: theme });
-			await page.setViewportSize({ width: isMobile ? 393 : 1000, height: 900 });
+			await page.setViewportSize({ width: isMobile ? 393 : 1200, height: 900 });
 			await page.goto("/");
 			const nav = page.getByRole("navigation", { name: "Main navigation" });
 			await expect(nav).toBeVisible();
@@ -322,7 +328,13 @@ for (const theme of ["light", "dark"] as const) {
 					await readSnapshotMarkers(page, testInfo.outputPath(`${position}-before.png`)),
 				).toEqual(expected);
 				await page.emulateMedia({ reducedMotion: "no-preference" });
-				await nav.getByRole("link", { name: destination, exact: true }).click();
+				const leave = nav.getByRole("link", { name: destination, exact: true });
+				if (isMobile) {
+					// Compact article navigation is intentionally in flow. Exercise its real
+					// navigation handler without auto-scrolling away from the measured pixels;
+					// physical reachability is covered by mobile-reading-navigation.spec.ts.
+					await leave.evaluate((link) => (link as HTMLAnchorElement).click());
+				} else await leave.click();
 				await expect(page).toHaveURL(destination === "Home" ? /\/$/ : /\/about$/);
 				await expect(page.locator("html")).toHaveAttribute(
 					"data-route-snapshot-ready",

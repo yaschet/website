@@ -5,7 +5,17 @@ for (const ratio of [1, 1.8, 2.625]) {
 		test.use({ deviceScaleFactor: ratio });
 
 		for (const theme of ["light", "dark"] as const) {
-			test(`shared frames, flag insets and flush media in ${theme}`, async ({ page }) => {
+			test(`shared frames, flag insets and flush media in ${theme}`, async ({
+				page,
+				browserName,
+			}) => {
+				const actualRatio = await page.evaluate(() => devicePixelRatio);
+				test.skip(
+					browserName === "firefox" &&
+						ratio !== 1 &&
+						Math.abs(actualRatio - ratio) > 0.00005,
+					"This Firefox runner does not apply the fractional deviceScaleFactor override; DPR 1 remains covered, and fractional coverage runs in Chromium and WebKit.",
+				);
 				await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 				await page.goto("/");
 				await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

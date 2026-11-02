@@ -422,7 +422,13 @@ test.describe("stack frames on fractional-density displays", () => {
 		test(`stack edges stay fixed through motion and interaction in ${theme} mode`, async ({
 			page,
 			isMobile,
+			browserName,
 		}) => {
+			const actualRatio = await page.evaluate(() => devicePixelRatio);
+			test.skip(
+				browserName === "firefox" && Math.abs(actualRatio - 1.8) > 0.00005,
+				"This Firefox runner does not apply the fractional deviceScaleFactor override; DPR 1 hairlines remain covered, and fractional stack coverage runs in Chromium and WebKit.",
+			);
 			await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
 			await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 			await page.goto("/");

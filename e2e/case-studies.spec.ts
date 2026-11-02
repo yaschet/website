@@ -195,11 +195,12 @@ for (const theme of ["light", "dark"] as const) {
 		await expect(button).toBeVisible();
 		await page.evaluate(() => document.fonts.ready);
 		expect(requests).toBe(0);
-		const before = await button.boundingBox();
+		const height = await button.evaluate((node) => getComputedStyle(node).height);
 		await button.click();
 		const pending = page.getByRole("button", { name: "Copying", exact: true });
 		await expect(pending).toBeDisabled();
-		await expect.poll(async () => (await pending.boundingBox())?.height).toBe(before?.height);
+		// Compare layout height while the pointer press transform is allowed to settle.
+		await expect(pending).toHaveCSS("height", height);
 		await expect(pending).toBeFocused();
 		const spinner = pending.locator('[data-slot="spinner"]');
 		await expect(spinner).toHaveCSS("width", "16px");
@@ -217,7 +218,7 @@ for (const theme of ["light", "dark"] as const) {
 		const copied = page.getByRole("button", { name: "Copied Markdown", exact: true });
 		await expect(copied).toBeVisible();
 		expect(requests).toBe(2);
-		expect((await copied.boundingBox())?.height).toBe(before?.height);
+		await expect(copied).toHaveCSS("height", height);
 	});
 }
 

@@ -142,7 +142,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.goto("/case-studies/clearway-phoenix");
 		// The masthead can arrive before the streamed article makes the page scrollable.
 		await expect(page.locator("article h2[id]").last()).toBeVisible();
-		const scroll = await page.evaluate(() => {
+		await page.evaluate(() => {
 			const start = document.startViewTransition.bind(document);
 			document.startViewTransition = (update) => {
 				const transition = start(update);
@@ -156,10 +156,13 @@ for (const theme of ["light", "dark"] as const) {
 				return transition;
 			};
 			scrollTo({ top: document.documentElement.scrollHeight / 2, behavior: "instant" });
-			return scrollY;
 		});
+		const toggle = page.getByRole("button", { name: /^Theme:/ });
+		// Compact article navigation is in flow; measure from its reachable position.
+		await toggle.scrollIntoViewIfNeeded();
+		const scroll = await page.evaluate(() => scrollY);
 		expect(scroll).toBeGreaterThan(500);
-		await page.getByRole("button", { name: /^Theme:/ }).click();
+		await toggle.click();
 		await expect(page.locator("html")).toHaveAttribute("data-article-theme-capture", "ready");
 		await expect(page.locator("html")).not.toHaveAttribute("data-theme-transition");
 		await expect(page.locator("html")).toHaveClass(
