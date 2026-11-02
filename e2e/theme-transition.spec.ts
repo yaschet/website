@@ -140,6 +140,8 @@ for (const theme of ["light", "dark"] as const) {
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.emulateMedia({ reducedMotion: "no-preference", colorScheme: theme });
 		await page.goto("/case-studies/clearway-phoenix");
+		// The masthead can arrive before the streamed article makes the page scrollable.
+		await expect(page.locator("article h2[id]").last()).toBeVisible();
 		const scroll = await page.evaluate(() => {
 			const start = document.startViewTransition.bind(document);
 			document.startViewTransition = (update) => {
