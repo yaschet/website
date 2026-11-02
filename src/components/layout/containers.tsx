@@ -10,6 +10,7 @@ interface PageContainerProps extends ComponentPropsWithoutRef<"div"> {
 export function PageContainer({ className, mobileBleed = false, ...props }: PageContainerProps) {
 	return (
 		<div
+			data-mobile-bleed={mobileBleed || undefined}
 			className={cn(
 				"mx-auto w-full max-w-5xl px-[var(--portfolio-page-gutter-mobile)] sm:px-[var(--portfolio-page-gutter-desktop)]",
 				mobileBleed && styles.mobileBleed,

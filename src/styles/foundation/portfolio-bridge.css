@@ -589,6 +589,7 @@
 }
 .yaschet :is(button, [role="button"], [data-slot="button"]) {
 	user-select: none;
+	touch-action: manipulation;
 }
 @media (prefers-reduced-motion: reduce) {
 	[data-slot="spinner"] {

@@ -1070,10 +1070,9 @@
 .t-state-label[data-sizing="content"] > span {
 	position: absolute;
 	top: 0;
-	left: 50%;
+	left: 0;
 	width: max-content;
 	white-space: nowrap;
-	transform: translateX(-50%);
 }
 .t-state-label[data-sizing="content"]:not([data-measured]) > [data-active="true"] {
 	position: relative;

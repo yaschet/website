@@ -155,7 +155,7 @@ export function CaseStudiesPageContent({ projects }: { projects: readonly Projec
 				<section id="projects-nda" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="portfolio-section-loose">
+							<PageContainer mobileBleed className="portfolio-section-loose">
 								<div className="portfolio-stack-section">
 									{hasProjects && <ConfidentialWorkCallout headingLevel={2} />}
 									<SwissGridBox>

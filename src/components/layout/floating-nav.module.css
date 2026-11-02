@@ -43,19 +43,4 @@
 		--portfolio-control-default: 44px;
 		--portfolio-space-tight: 4px;
 	}
-
-	.wrapper[data-article="true"] {
-		position: relative;
-		inset: auto;
-		z-index: 20;
-		block-size: auto;
-		min-block-size: 88px;
-		padding-block: 16px max(16px, env(safe-area-inset-bottom));
-		background: var(--background);
-	}
-
-	/* Article routes now have a real in-flow dock instead of a fixed-dock spacer. */
-	body:has(.wrapper[data-article="true"]) [id="nav-spacer"] {
-		display: none;
-	}
 }

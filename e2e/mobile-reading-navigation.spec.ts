@@ -27,33 +27,18 @@ for (const theme of ["light", "dark"] as const) {
 		{ width: 834, height: 1112 },
 		{ width: 844, height: 390 },
 	]) {
-		test(`article has one fixed navigation surface at ${viewport.width}x${viewport.height} in ${theme}`, async ({
+		test(`article keeps the floating dock and contents control at ${viewport.width}x${viewport.height} in ${theme}`, async ({
 			page,
 		}) => {
 			await page.setViewportSize(viewport);
 			await openArticle(page, theme);
 			const nav = page.getByRole("navigation", { name: "Main navigation", exact: true });
-			await expect(nav.locator("..")).toHaveCSS("position", "relative");
+			await expect(nav.locator("..")).toHaveCSS("position", "fixed");
 			const outlet = page.locator("#portfolio-content");
 			await expect(outlet.locator("article:visible")).toHaveCount(1);
 			const articleSpacer = outlet.locator('[id="nav-spacer"]');
 			await expect(articleSpacer).toHaveCount(1);
-			await expect(articleSpacer).toBeHidden();
-			// Next may still retain a body-level hidden stream segment after the
-			// article appears. Check every copy without confusing it with live content.
-			await expect
-				.poll(() =>
-					page
-						.locator('[id="nav-spacer"]')
-						.evaluateAll(
-							(spacers) =>
-								spacers.length > 0 &&
-								spacers.every(
-									(spacer) => getComputedStyle(spacer).display === "none",
-								),
-						),
-				)
-				.toBe(true);
+			await expect(articleSpacer).toBeVisible();
 			for (const control of await nav.locator("a,button").all()) {
 				const box = await control.boundingBox();
 				expect(box?.width).toBeGreaterThanOrEqual(44);
@@ -178,7 +163,7 @@ test("reading controls fit enlarged text, adjusted spacing and short wide window
 	await expect(page.getByRole("navigation", { name: "On this page", exact: true })).toBeHidden();
 	await expect(
 		page.getByRole("navigation", { name: "Main navigation", exact: true }).locator(".."),
-	).toHaveCSS("position", "relative");
+	).toHaveCSS("position", "fixed");
 });
 
 test("the first keyboard link bypasses repeated chrome", async ({ page, browserName }) => {

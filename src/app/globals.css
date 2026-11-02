@@ -1746,3 +1746,16 @@ pre {
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
+
+/* Flush mobile frames retain horizontal rules and their own content inset. */
+@media (width < 40rem) {
+  .portfolio-project-header {
+    gap: var(--portfolio-space-related);
+  }
+
+  [data-mobile-bleed="true"] :is(.portfolio-grid-frame, .portfolio-solid-frame, .portfolio-project-card)::after {
+    box-shadow:
+      inset 0 var(--portfolio-hairline-width) 0 var(--portfolio-chrome-hairline),
+      inset 0 calc(-1 * var(--portfolio-hairline-width)) 0 var(--portfolio-chrome-hairline);
+  }
+}
