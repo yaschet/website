@@ -258,7 +258,10 @@ for (const theme of ["light", "dark"] as const) {
 				.getByRole("button", { name: "Copy Markdown", exact: true })
 				.locator('.t-state-label[data-sizing="content"]'),
 		).toHaveAttribute("data-measured", "true");
-		await page.locator("article h2[id]").first().scrollIntoViewIfNeeded();
+		await page
+			.locator("article h2[id]")
+			.first()
+			.evaluate((heading) => heading.scrollIntoView({ block: "start", behavior: "instant" }));
 		const rail = page.getByRole("navigation", { name: "On this page", exact: true });
 		await expect(rail).toBeVisible();
 		await expect(
