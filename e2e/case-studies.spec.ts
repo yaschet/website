@@ -90,7 +90,9 @@ for (const theme of ["light", "dark"] as const) {
 			await expect(stackTrigger).toBeFocused();
 			await page.screenshot({ path: testInfo.outputPath(`${slug}-${theme}-facts.png`) });
 			const firstHeading = page.locator("article h2[id]").first();
-			await firstHeading.scrollIntoViewIfNeeded();
+			await firstHeading.evaluate((heading) =>
+				heading.scrollIntoView({ block: "start", behavior: "instant" }),
+			);
 			const viewport = page.viewportSize();
 			const hasContentsRail =
 				(viewport?.width ?? 0) >= 1536 && (viewport?.height ?? 0) >= 768;
@@ -98,6 +100,8 @@ for (const theme of ["light", "dark"] as const) {
 			if (!hasContentsRail) {
 				const trigger = page.getByRole("button", { name: "Open table of contents" });
 				await expect(trigger).toBeVisible();
+				await expect(trigger).toHaveAttribute("data-visible", "true");
+				await expect(trigger).not.toHaveAttribute("inert");
 				await trigger.click();
 				contents = page.getByRole("dialog", { name: "On this page" });
 				await expect(contents).toBeVisible();

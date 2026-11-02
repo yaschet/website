@@ -24,7 +24,14 @@ for (const theme of ["light", "dark"] as const) {
 				page.getByRole("region", { name, exact: true }).getByRole("heading", { level: 2 }),
 			).toHaveText(name);
 		}
-		await expect(page.locator("#profile")).toHaveCount(1);
+		await expect(
+			page
+				.locator("#about-intro")
+				.getByText(
+					"A Product Engineer connecting product design, application code and the systems behind it.",
+					{ exact: true },
+				),
+		).toBeVisible();
 		await assertFits(page);
 		const section = page.locator("#story .portfolio-editorial-section");
 		expect(
