@@ -153,6 +153,26 @@ for (const theme of ["light", "dark"] as const) {
 		expect(homeWords[2].delay).toBeGreaterThan(homeWords[0].delay);
 		expect(homeWords.every((sample) => sample.properties.includes("maskPosition"))).toBe(true);
 		expect(homeWords.every((sample) => !sample.properties.includes("transform"))).toBe(true);
+		const layerGeometry = await homeHeading
+			.locator("[data-heading-word]")
+			.evaluateAll((words) =>
+				words.map((word) => {
+					const sharp = word
+						.querySelector("[data-resolve-sharp]")
+						?.getBoundingClientRect();
+					const front = word
+						.querySelector("[data-resolve-front]")
+						?.getBoundingClientRect();
+					const fog = word.querySelector("[data-resolve-fog]")?.getBoundingClientRect();
+					if (!sharp || !front || !fog) throw new Error("Missing resolve layer");
+					return { dx: front.x - sharp.x, dy: front.y - sharp.y, bleed: sharp.x - fog.x };
+				}),
+			);
+		for (const layer of layerGeometry) {
+			expect(Math.abs(layer.dx)).toBeLessThan(0.5);
+			expect(Math.abs(layer.dy)).toBeLessThan(0.5);
+			expect(layer.bleed).toBeGreaterThan(0);
+		}
 		const homeFrame = await homeHeading.boundingBox();
 		for (const time of [350, 850]) {
 			await page.evaluate((time) => {

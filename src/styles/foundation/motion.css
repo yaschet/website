@@ -886,6 +886,8 @@
 /* Both reveal layers share one fixed word box; no glyph or frame is scaled. */
 .portfolio-resolve-word {
 	--resolve-feather: 3em;
+	--resolve-blur: 0.3em;
+	--resolve-bleed: calc(var(--resolve-blur) * 3);
 	position: relative;
 	display: inline-block;
 	max-width: 100%;
@@ -910,9 +912,13 @@
 }
 [data-resolve-fog] {
 	position: absolute;
-	inset: 0;
+	/* Give the filter three blur radii of transparent source on every side.
+	 * Equal inset/padding preserves the duplicate's exact baseline and word width,
+	 * while keeping mobile filter bounds away from the glyph and its mask front. */
+	inset: calc(-1 * var(--resolve-bleed));
+	padding: var(--resolve-bleed);
 	pointer-events: none;
-	filter: blur(0.3em);
+	filter: blur(var(--resolve-blur));
 }
 [data-resolve-front] {
 	mask-image: linear-gradient(
