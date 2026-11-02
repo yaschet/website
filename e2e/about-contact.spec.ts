@@ -39,10 +39,13 @@ for (const theme of ["light", "dark"] as const) {
 		await expect(page.getByRole("heading", { name: "Let’s talk.", level: 1 })).toBeVisible();
 		const form = page.getByRole("form", { name: "Send a message" });
 		await expect(form).toBeVisible();
+		const inputHeight = (page.viewportSize()?.width ?? 0) < 640 ? 44 : 40;
 		for (const name of ["Name", "Email", "Subject"]) {
 			const input = form.getByRole("textbox", { name, exact: true });
 			await expect(input).toHaveAttribute("aria-required", "true");
-			expect(await input.evaluate((el) => el.getBoundingClientRect().height)).toBe(40);
+			expect(await input.evaluate((el) => el.getBoundingClientRect().height)).toBe(
+				inputHeight,
+			);
 		}
 		await expect(form.getByRole("textbox", { name: "Name", exact: true })).toHaveAttribute(
 			"autocomplete",

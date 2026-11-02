@@ -48,7 +48,7 @@ for (const theme of ["light", "dark"]) {
 						height: node.getBoundingClientRect().height,
 						containerWidth: node.closest("form")?.getBoundingClientRect().width,
 					}));
-					expect(geometry.height).toBe(40);
+					expect(geometry.height).toBe(width < 640 ? 44 : 40);
 					if (width < 640) expect(geometry.width).toBe(geometry.containerWidth);
 					else expect(geometry.width).toBeLessThan(250);
 				}
