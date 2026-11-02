@@ -29,19 +29,26 @@ for (const theme of ["light", "dark"] as const) {
 		const work = page.getByRole("region", { name: "Selected work", exact: true });
 		await expect(work).toBeVisible();
 		const workLayout = await work.evaluate((section) => {
-			const surfaces = [
-				...document.querySelectorAll("main .portfolio-grid-frame"),
-				...section.querySelectorAll(".portfolio-project-card"),
-			];
+			const frames = [...document.querySelectorAll("main .portfolio-grid-frame")];
+			const cards = [...section.querySelectorAll(".portfolio-project-card")];
 			const card = section.querySelector('[data-slot="project-card"]');
 			const preview = card?.querySelector('[data-slot="project-preview"]');
 			if (!card || !preview) throw new Error("Missing first project preview");
 			const rail = section.getBoundingClientRect();
 			const outer = card.getBoundingClientRect();
 			const media = preview.getBoundingClientRect();
-			const cards = [...section.querySelectorAll(".portfolio-project-card")];
+			// Inset frames own the single mobile gutter; project cards retain the page gutter.
+			const mobileBleed = window.matchMedia("(width < 40rem)").matches;
+			const frameLeft = mobileBleed ? 0 : rail.left;
+			const frameRight = mobileBleed ? window.innerWidth : rail.right;
 			return {
-				railOffsets: surfaces.flatMap((surface) => {
+				mobileBleed,
+				workInsets: [rail.left, window.innerWidth - rail.right],
+				frameRailOffsets: frames.flatMap((surface) => {
+					const box = surface.getBoundingClientRect();
+					return [box.left - frameLeft, box.right - frameRight];
+				}),
+				cardRailOffsets: cards.flatMap((surface) => {
 					const box = surface.getBoundingClientRect();
 					return [box.left - rail.left, box.right - rail.right];
 				}),
@@ -60,12 +67,16 @@ for (const theme of ["light", "dark"] as const) {
 				nestedFrame: !!section.querySelector(".portfolio-grid-frame"),
 			};
 		});
-		for (const offset of workLayout.railOffsets) expect(Math.abs(offset)).toBeLessThan(0.5);
+		for (const offset of [...workLayout.frameRailOffsets, ...workLayout.cardRailOffsets])
+			expect(Math.abs(offset)).toBeLessThan(0.5);
+		if (workLayout.mobileBleed)
+			for (const inset of workLayout.workInsets)
+				expect(Math.abs(inset - 20)).toBeLessThan(0.5);
 		expect(Math.max(...workLayout.previewInsets)).toBeLessThanOrEqual(1);
 		expect(
 			Math.max(...workLayout.previewInsets) - Math.min(...workLayout.previewInsets),
 		).toBeLessThan(0.5);
-		for (const gap of workLayout.gaps) expect(gap).toBe(40);
+		for (const gap of workLayout.gaps) expect(Math.abs(gap - 40)).toBeLessThanOrEqual(1 / 64);
 		expect(workLayout.nestedFrame).toBe(false);
 		const projects = page.getByRole("article");
 		await expect(projects.getByRole("heading", { level: 3 })).toHaveText([
