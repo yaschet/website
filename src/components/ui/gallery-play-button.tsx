@@ -3,6 +3,7 @@
 import { RiPlayFill } from "@remixicon/react";
 import type { ComponentPropsWithoutRef } from "react";
 import { Button } from "@/src/components/ui/button";
+import { StateSwap } from "@/src/components/ui/state-swap";
 import { cn } from "@/src/lib/index";
 
 interface GalleryPlayButtonProps
@@ -33,12 +34,32 @@ export function GalleryPlayButton({
 			)}
 			disabled={disabled}
 			aria-busy={loading || undefined}
-			aria-label={duration ? `Play ${duration} video` : "Play video"}
+			aria-label={
+				loading ? "Loading video" : duration ? `Play ${duration} video` : "Play video"
+			}
 			{...props}
 		>
 			<span className="portfolio-gallery-play-label">
-				<span className="portfolio-gallery-play-action">Play{duration ? " " : null}</span>
-				{duration && <span className="portfolio-gallery-play-duration">{duration}</span>}
+				<StateSwap
+					kind="text"
+					sizing="content"
+					value={loading ? "loading" : "idle"}
+					items={{
+						idle: (
+							<span className="inline-flex items-center gap-2">
+								<span className="portfolio-gallery-play-action">
+									Play{duration ? " " : null}
+								</span>
+								{duration && (
+									<span className="portfolio-gallery-play-duration">
+										{duration}
+									</span>
+								)}
+							</span>
+						),
+						loading: "Loading…",
+					}}
+				/>
 			</span>
 		</Button>
 	);
