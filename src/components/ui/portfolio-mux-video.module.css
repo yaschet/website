@@ -216,6 +216,9 @@ html:has(.player:fullscreen) {
 }
 
 .compactSettings {
+	--dropdown-pre-scale: 1;
+	--dropdown-closing-scale: 1;
+	scrollbar-gutter: stable;
 	min-inline-size: min(13rem, calc(100vw - 1.5rem));
 	max-inline-size: calc(100vw - 1.5rem);
 }
@@ -342,4 +345,13 @@ html:has(.player:fullscreen) {
 }
 .settingsHeader {
 	font-weight: 500;
+}
+
+/* Standard scrollbar colors override WebKit pseudo-element geometry. Keep
+ * Firefox's fallback above and let WebKit render the shared square thumb. */
+@supports selector(::-webkit-scrollbar) {
+	.compactSettings {
+		scrollbar-color: auto;
+		scrollbar-width: auto;
+	}
 }
