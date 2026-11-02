@@ -424,14 +424,16 @@ test.describe("stack frames on fractional-density displays", () => {
 			isMobile,
 			browserName,
 		}) => {
+			await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
+			await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+			await page.goto("/");
+			await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+			// Firefox can report the requested ratio on about:blank, then reset after navigation.
 			const actualRatio = await page.evaluate(() => devicePixelRatio);
 			test.skip(
 				browserName === "firefox" && Math.abs(actualRatio - 1.8) > 0.00005,
 				"This Firefox runner does not apply the fractional deviceScaleFactor override; DPR 1 hairlines remain covered, and fractional stack coverage runs in Chromium and WebKit.",
 			);
-			await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
-			await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
-			await page.goto("/");
 			const trigger = page
 				.getByRole("article", {
 					name: "Verto — AI Translation Platform",

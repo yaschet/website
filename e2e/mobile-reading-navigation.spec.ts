@@ -23,7 +23,26 @@ for (const theme of ["light", "dark"] as const) {
 			await openArticle(page, theme);
 			const nav = page.getByRole("navigation", { name: "Main navigation", exact: true });
 			await expect(nav.locator("..")).toHaveCSS("position", "relative");
-			await expect(page.locator("#nav-spacer")).toBeHidden();
+			const outlet = page.locator("#portfolio-content");
+			await expect(outlet.locator("article:visible")).toHaveCount(1);
+			const articleSpacer = outlet.locator('[id="nav-spacer"]');
+			await expect(articleSpacer).toHaveCount(1);
+			await expect(articleSpacer).toBeHidden();
+			// Next may still retain a body-level hidden stream segment after the
+			// article appears. Check every copy without confusing it with live content.
+			await expect
+				.poll(() =>
+					page
+						.locator('[id="nav-spacer"]')
+						.evaluateAll(
+							(spacers) =>
+								spacers.length > 0 &&
+								spacers.every(
+									(spacer) => getComputedStyle(spacer).display === "none",
+								),
+						),
+				)
+				.toBe(true);
 			for (const control of await nav.locator("a,button").all()) {
 				const box = await control.boundingBox();
 				expect(box?.width).toBeGreaterThanOrEqual(44);

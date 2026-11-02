@@ -9,6 +9,10 @@ for (const ratio of [1, 1.8, 2.625]) {
 				page,
 				browserName,
 			}) => {
+				await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+				await page.goto("/");
+				await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+				// Firefox can report the requested ratio on about:blank, then reset after navigation.
 				const actualRatio = await page.evaluate(() => devicePixelRatio);
 				test.skip(
 					browserName === "firefox" &&
@@ -16,9 +20,6 @@ for (const ratio of [1, 1.8, 2.625]) {
 						Math.abs(actualRatio - ratio) > 0.00005,
 					"This Firefox runner does not apply the fractional deviceScaleFactor override; DPR 1 remains covered, and fractional coverage runs in Chromium and WebKit.",
 				);
-				await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
-				await page.goto("/");
-				await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 				const geometry = await page.evaluate(() => {
 					const get = (selector: string) => {
 						const node = document.querySelector(selector);
