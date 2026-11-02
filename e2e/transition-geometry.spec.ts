@@ -36,12 +36,80 @@ async function readSnapshotMarkers(page: Page, path: string) {
 	);
 }
 
+let nativeBitmapCapture = true;
+
+test.beforeAll(async ({ browser, browserName }, testInfo) => {
+	if (browserName !== "firefox") return;
+	// Playwright's Firefox backend uses drawSnapshot, which can omit active
+	// View Transitions: https://bugzilla.mozilla.org/show_bug.cgi?id=2008417.
+	// Probe a standalone document so an application regression cannot cause a skip.
+	const probe = await browser.newPage({ viewport: { width: 800, height: 600 } });
+	try {
+		await probe.setContent(`<!doctype html><style>
+			html { background: white; }
+			::view-transition-group(root) { animation: none; }
+			::view-transition-old(root) { animation: hold 1s linear infinite paused; }
+			::view-transition-new(root) { display: none; }
+			@keyframes hold { from { opacity: 1; } to { opacity: 1; } }
+		</style><div id="probe" style="position:fixed;left:8px;top:24px;width:80px;height:40px;background:#f0f"></div>`);
+		const expected = [{ x: 8, y: 24, width: 80, height: 40 }];
+		expect(
+			await readSnapshotMarkers(probe, testInfo.outputPath("capture-probe-before.png")),
+		).toEqual(expected);
+		await probe.evaluate(async () => {
+			await document.startViewTransition(() => document.getElementById("probe")?.remove())
+				.ready;
+		});
+		expect(await probe.locator("#probe").count()).toBe(0);
+		expect(
+			await probe.evaluate(() => {
+				const old = getComputedStyle(
+					document.documentElement,
+					"::view-transition-old(root)",
+				);
+				const hold = document
+					.getAnimations()
+					.find(
+						(animation) =>
+							animation instanceof CSSAnimation && animation.animationName === "hold",
+					);
+				return {
+					width: old.width,
+					height: old.height,
+					opacity: old.opacity,
+					state: old.animationPlayState,
+					active: hold?.playState === "paused" && hold.currentTime === 0,
+				};
+			}),
+		).toEqual({ width: "800px", height: "600px", opacity: "1", state: "paused", active: true });
+		const captured = await readSnapshotMarkers(
+			probe,
+			testInfo.outputPath("capture-probe-active.png"),
+		);
+		if (captured.length) expect(captured).toEqual(expected);
+		nativeBitmapCapture = captured.length > 0;
+		await testInfo.attach("firefox-native-bitmap-capability", {
+			body: JSON.stringify({
+				supported: nativeBitmapCapture,
+				issue: "https://bugzilla.mozilla.org/show_bug.cgi?id=2008417",
+			}),
+			contentType: "application/json",
+		});
+	} finally {
+		await probe.close();
+	}
+});
+
 for (const theme of ["light", "dark"] as const) {
 	for (const route of ["/", "/case-studies/clearway-phoenix"]) {
 		test(`scrolled ${route} theme snapshot preserves all viewport edges from ${theme}`, async ({
 			page,
 			isMobile,
 		}, testInfo) => {
+			test.skip(
+				!nativeBitmapCapture,
+				"Standalone capture probe confirms drawSnapshot omits active View Transitions (Mozilla 2008417); Firefox lifecycle and DOM geometry remain covered.",
+			);
 			test.slow();
 			const errors: string[] = [];
 			page.on("pageerror", (error) => errors.push(error.message));
@@ -49,7 +117,12 @@ for (const theme of ["light", "dark"] as const) {
 			await page.addInitScript(() => {
 				const start = document.startViewTransition.bind(document);
 				document.startViewTransition = (update) => {
-					const transition = start(update);
+					const transition = start(async () => {
+						if (typeof update !== "function")
+							throw new Error("Expected a theme update callback");
+						await update();
+						document.querySelector("[data-theme-snapshot-marker]")?.remove();
+					});
 					void transition.ready.then(() => {
 						for (const animation of document.getAnimations()) {
 							if (
@@ -96,6 +169,7 @@ for (const theme of ["light", "dark"] as const) {
 					// The article dock follows the page surface in compact layouts. Probes
 					// belong to the viewport, without extending that surface or its scroll range.
 					const layer = document.createElement("div");
+					layer.dataset.themeSnapshotMarker = "true";
 					layer.style.cssText =
 						"position:fixed;inset:0;z-index:100000;pointer-events:none";
 					document.body.append(layer);
@@ -120,6 +194,7 @@ for (const theme of ["light", "dark"] as const) {
 				).toEqual(expected);
 				await page.getByRole("button", { name: /^Theme: Switch/ }).click();
 				await expect(page.locator("html")).toHaveAttribute("data-snapshot-ready", "true");
+				expect(await page.locator("[data-theme-snapshot-marker]").count()).toBe(0);
 				for (const time of [0, 120, 239]) {
 					await page.evaluate((time) => {
 						for (const animation of document.getAnimations())
@@ -226,6 +301,10 @@ for (const theme of ["light", "dark"] as const) {
 			page,
 			isMobile,
 		}, testInfo) => {
+			test.skip(
+				!nativeBitmapCapture,
+				"Standalone capture probe confirms drawSnapshot omits active View Transitions (Mozilla 2008417); Firefox lifecycle and DOM geometry remain covered.",
+			);
 			test.slow();
 			const errors: string[] = [];
 			page.on("pageerror", (error) => errors.push(error.message));
