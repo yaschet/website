@@ -36,6 +36,36 @@ async function readSnapshotMarkers(page: Page, path: string) {
 	);
 }
 
+async function readRootSnapshotStyles(page: Page) {
+	return page.evaluate(() => ({
+		scrollY,
+		colorScheme: getComputedStyle(document.documentElement).colorScheme,
+		parts: [
+			"view-transition",
+			"view-transition-group(root)",
+			"view-transition-image-pair(root)",
+			"view-transition-old(root)",
+		].map((part) => {
+			const style = getComputedStyle(document.documentElement, `::${part}`);
+			return {
+				part,
+				width: style.width,
+				height: style.height,
+				top: style.top,
+				left: style.left,
+				position: style.position,
+				transform: style.transform,
+				opacity: style.opacity,
+				display: style.display,
+				visibility: style.visibility,
+				objectFit: style.objectFit,
+				objectPosition: style.objectPosition,
+				animationPlayState: style.animationPlayState,
+			};
+		}),
+	}));
+}
+
 let nativeBitmapCapture = true;
 
 test.beforeAll(async ({ browser, browserName }, testInfo) => {
@@ -98,6 +128,77 @@ test.beforeAll(async ({ browser, browserName }, testInfo) => {
 	} finally {
 		await probe.close();
 	}
+});
+
+test("old-only root snapshots preserve scrolled pixels independently of theme and named entries", async ({
+	page,
+}, testInfo) => {
+	test.skip(
+		!nativeBitmapCapture,
+		"The independent Firefox bitmap capability probe is unsupported.",
+	);
+	const observations = [];
+	await page.setViewportSize({ width: 393, height: 900 });
+	for (const offset of [0, 2000]) {
+		for (const changeScheme of [false, true]) {
+			for (const namedEntry of [false, true]) {
+				const label = `${offset}-${changeScheme ? "scheme" : "paint"}-${namedEntry ? "entry" : "root"}`;
+				await page.setContent(`<!doctype html><style>
+					html { color-scheme: light; background: white; }
+					body { margin: 0; height: 4000px; background: white; }
+					html.changed, html.changed body { background: black; }
+					html[data-active] { view-transition-name: none; }
+					::view-transition-group(root) { animation: none; }
+					::view-transition-old(root) { height: auto; object-fit: none; object-position: left top; animation: probe-hold 240ms linear both paused; mix-blend-mode: normal; }
+					::view-transition-new(probe-entry) { animation: probe-hold 240ms linear both paused; }
+					@keyframes probe-hold { from { opacity: 1; } to { opacity: 1; } }
+				</style><div id="probe" style="position:fixed;left:8px;top:24px;width:80px;height:40px;background:#f0f"></div>`);
+				await page.evaluate((offset) => scrollTo(0, offset), offset);
+				const expected = [{ x: 8, y: 24, width: 80, height: 40 }];
+				expect(
+					await readSnapshotMarkers(page, testInfo.outputPath(`${label}-before.png`)),
+				).toEqual(expected);
+				await page.evaluate(
+					async ({ changeScheme, namedEntry }) => {
+						await document.startViewTransition(() => {
+							const root = document.documentElement;
+							root.dataset.active = "true";
+							root.classList.add("changed");
+							if (changeScheme) root.style.colorScheme = "dark";
+							document.getElementById("probe")?.remove();
+							if (namedEntry) {
+								const entry = document.createElement("span");
+								entry.textContent = "New entry";
+								entry.style.cssText =
+									"position:fixed;top:100px;left:120px;view-transition-name:probe-entry";
+								document.body.append(entry);
+							}
+						}).ready;
+					},
+					{ changeScheme, namedEntry },
+				);
+				const styles = await readRootSnapshotStyles(page);
+				const captured = await readSnapshotMarkers(
+					page,
+					testInfo.outputPath(`${label}-active.png`),
+				);
+				observations.push({ label, styles, captured });
+				await page.evaluate(() => {
+					for (const animation of document.getAnimations()) animation.finish();
+				});
+			}
+		}
+	}
+	await testInfo.attach("standalone-old-root-comparison", {
+		body: JSON.stringify(observations, null, 2),
+		contentType: "application/json",
+	});
+	expect(observations.map(({ label, captured }) => ({ label, captured }))).toEqual(
+		observations.map(({ label }) => ({
+			label,
+			captured: [{ x: 8, y: 24, width: 80, height: 40 }],
+		})),
+	);
 });
 
 for (const theme of ["light", "dark"] as const) {
@@ -225,6 +326,10 @@ for (const theme of ["light", "dark"] as const) {
 						"data-theme-transition",
 						"true",
 					);
+					await testInfo.attach(`${width}-${time}ms-root-styles`, {
+						body: JSON.stringify(await readRootSnapshotStyles(page), null, 2),
+						contentType: "application/json",
+					});
 					expect(
 						await readSnapshotMarkers(
 							page,
