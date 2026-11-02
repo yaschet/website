@@ -1,4 +1,24 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+type CapturedFrame = { image: string; time: number };
+
+async function sampleFrames(page: Page, frames: CapturedFrame[]) {
+	return page.evaluate(async (frames) => {
+		const canvas = new OffscreenCanvas(1, 1);
+		const context = canvas.getContext("2d");
+		if (!context) throw new Error("The frame check requires a 2D canvas");
+		const samples: { time: number; red: number }[] = [];
+		for (const frame of frames.slice().sort((a, b) => a.time - b.time)) {
+			const bytes = Uint8Array.from(atob(frame.image), (value) => value.charCodeAt(0));
+			const bitmap = await createImageBitmap(new Blob([bytes]));
+			// Sample the canvas margin below the fixed reading-progress bar.
+			context.drawImage(bitmap, 0, 10, 1, 1, 0, 0, 1, 1);
+			samples.push({ time: frame.time, red: context.getImageData(0, 0, 1, 1).data[0] });
+			bitmap.close();
+		}
+		return samples;
+	}, frames);
+}
 
 // Exercise native snapshot compositing without unrelated software-rendered WebGL.
 test.use({
@@ -18,7 +38,7 @@ for (const position of ["top", "footer"] as const) {
 		await page.addInitScript(() => localStorage.setItem("theme", "dark"));
 		await page.emulateMedia({ reducedMotion: "no-preference", colorScheme: "dark" });
 		const cdp = await context.newCDPSession(page);
-		const frames: { image: string; time: number }[] = [];
+		const frames: CapturedFrame[] = [];
 		cdp.on("Page.screencastFrame", (frame) => {
 			const time = frame.metadata.timestamp;
 			if (time !== undefined) frames.push({ image: frame.data, time });
@@ -32,23 +52,53 @@ for (const position of ["top", "footer"] as const) {
 				await page.goto(position === "top" ? "/" : "/case-studies/clearway-phoenix");
 				await expect(page.getByRole("button", { name: /^Theme: Switch/ })).toBeVisible();
 				await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+				if (position === "footer")
+					await page.locator("article h2[id]").last().waitFor({ state: "attached" });
 				await page.evaluate(() => document.fonts.ready);
-				await page.evaluate((position) => {
-					if (position === "footer")
+				if (position === "footer")
+					await page.evaluate(() =>
 						scrollTo({
 							top: document.documentElement.scrollHeight,
 							behavior: "instant",
-						});
+						}),
+					);
+				const toggle = page.getByRole("button", { name: /^Theme: Switch/ });
+				await toggle.scrollIntoViewIfNeeded();
+				// Scrolling during a theme transition intentionally interrupts it. Settle
+				// the in-flow article dock before recording an uninterrupted transition.
+				await page.evaluate(async () => {
+					let previous = -1;
+					do {
+						previous = scrollY;
+						await new Promise<void>((resolve) =>
+							requestAnimationFrame(() => resolve()),
+						);
+					} while (scrollY !== previous);
 					const start = document.startViewTransition.bind(document);
 					document.startViewTransition = (update) => {
 						delete document.documentElement.dataset.paintFinished;
+						delete document.documentElement.dataset.paintMidpoint;
 						const transition = start(update);
+						void transition.ready.then(() => {
+							for (const animation of document.getAnimations()) {
+								if (
+									animation instanceof CSSAnimation &&
+									animation.animationName === "theme-surface-out"
+								) {
+									// Hold the real midpoint until CDP records it; a busy CI
+									// runner can otherwise omit every frame of a 240 ms fade.
+									animation.pause();
+									animation.currentTime = 120;
+									document.documentElement.dataset.paintMidpoint = "true";
+								}
+							}
+						});
 						void transition.finished.then(() => {
 							document.documentElement.dataset.paintFinished = "true";
 						});
 						return transition;
 					};
-				}, position);
+				});
 				for (const destination of ["light", "dark"] as const) {
 					frames.length = 0;
 					await cdp.send("Page.startScreencast", {
@@ -59,12 +109,36 @@ for (const position of ["top", "footer"] as const) {
 						maxHeight: 90,
 					});
 					await expect.poll(() => frames.length).toBeGreaterThan(0);
-					await page.getByRole("button", { name: /^Theme: Switch/ }).click();
+					await toggle.click();
+					await expect(page.locator("html")).toHaveAttribute(
+						"data-paint-midpoint",
+						"true",
+					);
+					try {
+						await expect
+							.poll(async () =>
+								(await sampleFrames(page, frames)).some(
+									({ red }) => red > 45 && red < 220,
+								),
+							)
+							.toBe(true);
+					} finally {
+						await page.evaluate(() => {
+							for (const animation of document.getAnimations()) {
+								if (
+									animation instanceof CSSAnimation &&
+									animation.animationName === "theme-surface-out"
+								)
+									animation.play();
+							}
+						});
+					}
 					await expect(page.locator("html")).toHaveAttribute(
 						"data-paint-finished",
 						"true",
 					);
-					// Include teardown paints. Pausing the animation after ready misses this regression.
+					// Resume through native teardown: an endpoint screenshot alone misses
+					// the old bitmap flashing back after the animation completes.
 					await page.evaluate(async () => {
 						const end = performance.now() + 250;
 						do {
@@ -74,26 +148,7 @@ for (const position of ["top", "footer"] as const) {
 						} while (performance.now() < end);
 					});
 					await cdp.send("Page.stopScreencast");
-					const samples = await page.evaluate(async (frames) => {
-						const canvas = new OffscreenCanvas(1, 1);
-						const context = canvas.getContext("2d");
-						if (!context) throw new Error("The frame check requires a 2D canvas");
-						const samples: { time: number; red: number }[] = [];
-						for (const frame of frames.slice().sort((a, b) => a.time - b.time)) {
-							const bytes = Uint8Array.from(atob(frame.image), (value) =>
-								value.charCodeAt(0),
-							);
-							const bitmap = await createImageBitmap(new Blob([bytes]));
-							// Sample the canvas margin below the fixed reading-progress bar.
-							context.drawImage(bitmap, 0, 10, 1, 1, 0, 0, 1, 1);
-							samples.push({
-								time: frame.time,
-								red: context.getImageData(0, 0, 1, 1).data[0],
-							});
-							bitmap.close();
-						}
-						return samples;
-					}, frames);
+					const samples = await sampleFrames(page, frames);
 					await testInfo.attach(`${width}-${position}-${destination}-paints.json`, {
 						body: JSON.stringify(samples),
 						contentType: "application/json",
