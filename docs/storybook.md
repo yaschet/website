@@ -54,8 +54,8 @@ server on 3100 while the normal website preview remains on 3000.
 | Overview | One documentation entry explaining navigation, implementation status and review paths. |
 | Foundation | Brand overview, primitive/semantic colors, typography, spacing and motion. |
 | Components | Actions, Feedback, Forms, Overlays, Navigation, Media and Content. Each entry owns its supported states. |
-| Pages | Case-study composition and error, loading and not-found screens. |
-| Lab | Retained alternative ProjectCard, MeshGradient and SwissGridCanvas examples without current production consumers. |
+| Pages | Home, About, Case Studies, Case Study, Blog, Blog Post and Contact. Each starts with a populated Full Page; Route States contains loading, error and not-found screens. |
+| Lab | Retained alternative ProjectCard, MeshGradient, SwissGridCanvas and abridged Article Diagram examples without current production consumers. |
 
 Component labels use readable words. Story titles organize the catalog; they do
 not require renaming implementation exports. Existing unrelated component IDs
@@ -64,10 +64,43 @@ The diagram family has one canonical ID: `case-study-diagram`.
 
 `CaseStudyDiagram` is the only diagram frame. System Architecture, Validation
 Loop, One To Many and Program Matching are authored views of it, not competing
-implementations. The separate Pages / Case Study / In Context story verifies the
-same diagram within the actual article shell. It disables inapplicable Controls
+implementations. The separate Lab / Article Diagram / In Context story verifies the
+same diagram within an abridged article shell. It disables inapplicable Controls
 and Actions panels. See [Case-study diagrams](case-study-diagrams.md) for ownership
 and the public-integration boundary.
+
+### Complete Page Review
+
+Start with **Pages / Home / Full Page** and work through the seven templates.
+Each Canvas includes the production context header, navigation and footer, with
+the same responsive gutters as the website. Use the theme and viewport toolbars
+to annotate the same story on desktop and mobile. The browser document owns
+scrolling; full pages have no fixed-height nested preview frame. Docs mount only
+one full page and link to its other states, avoiding repeated fixed docks and IDs.
+
+The Text toolbar offers normal text, 200% root text and adjusted text spacing.
+The spacing mode applies 1.5 line height, 0.12em letter spacing, 0.16em word
+spacing and 2em paragraph spacing to the whole preview document, including
+portaled overlays. These are review-only stress settings. Root text sizing is
+not browser zoom or a substitute for native browser text-resize testing.
+
+Home and Case Studies expose populated and empty archives. Case Study contains
+the complete Verto, Phoenix, Portal and ERP articles plus a long-title state;
+ERP intentionally has no cover gallery. Contact has validation, sending,
+success, delivery-unavailable and rate-limited page states. Its isolated action
+never sends email. Page-preview notifications remain until dismissed so feedback
+can be annotated; the website retains its normal timeout. Static pages such as
+About do not invent artificial failure states; route-wide failures live in Route States.
+
+Article content is compiled from the actual `content/projects/*.mdx` sources with
+the same GFM, heading-ID and anchor plugins as Next.js. Metadata uses the production
+schema and reading-time calculation. Server-only loaders stay in route modules;
+Home, Case Studies and Blog share their synchronous presentation with Storybook.
+Blog and Blog Post use an explicitly unpublished MDX fixture in
+`.storybook/fixtures/`, outside the website's public content registry. The real
+Blog index reads published posts and retains its current empty state until one
+is available. These stories do not verify Next.js server streaming, route
+transitions, live email delivery or public metadata.
 
 The earlier diagram renderer and its global styles have been removed. Its public
 Verto and Program Matching explanations are preserved in a neutral evidence
@@ -93,7 +126,7 @@ not claim complete coverage of every retained primitive.
 CaseStudySummary renders the actual case-study header and facts, including long
 descriptions and technology names. Its Docs checks cover natural heights and
 reflow at 320px, 390px and 1280px in both themes. Production route tests cover
-both public case studies, the contents dialog and wide rail, table insets,
+public case studies, the contents dialog and wide rail, table insets,
 whole-pixel reading type, image-viewer focus return and recoverable Markdown copy.
 
 ## Runtime Isolation
@@ -122,10 +155,12 @@ whole-pixel reading type, image-viewer focus return and recoverable Markdown cop
   fractional zoom; code blocks and intentional component viewports retain their
   own overflow. New browser-only imports must be prebundled when Vite reports
   a dependency reload during tests; the production date formatter is included.
-- Fullscreen examples still own outer clearance: `workshop-stage` supplies equal
+- Component and route-state fullscreen examples own outer clearance: `workshop-stage` supplies equal
   20px phone / 40px desktop insets. Route states use a contained 520px preview
   viewport; loading occupies the content region while its header and dock remain usable.
   This framing does not establish that the unfinished error or 404 page design is final.
+- Full page templates use `full-page-preview.tsx` and retain production gutters;
+  do not wrap them in `workshop-stage` or a contained fixed-height viewport.
 - Mesh Gradient retains its January boxed-hero composition with current profile
   and action components. Swiss Grid Canvas demonstrates content-driven sections
   on the same centered 768px rail. Its canvas measures only its own host, not the
