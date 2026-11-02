@@ -1447,7 +1447,7 @@ pre[data-theme] {
   margin-left: 0.5rem;
   font-weight: normal;
   text-decoration: none;
-  color: var(--surface-400);
+  color: var(--muted-foreground);
   transition:
     opacity 0.2s ease,
     transform 0.2s ease,
@@ -1737,4 +1737,6 @@ pre {
 .anchor:focus-visible {
   opacity: 1;
   transform: none;
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
