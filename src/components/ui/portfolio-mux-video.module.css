@@ -315,16 +315,31 @@ html:has(.player:fullscreen) {
 	color: var(--palette-neutral-400);
 	margin-inline-start: auto;
 }
+
 .compactSettings {
-	scrollbar-color: var(--palette-neutral-600) var(--palette-neutral-900);
+	--foundation-scrollbar-track: var(--palette-neutral-900);
+	--foundation-scrollbar-thumb: var(--palette-neutral-700);
+	--foundation-scrollbar-thumb-hover: var(--palette-neutral-600);
+	--foundation-scrollbar-thumb-active: var(--palette-neutral-500);
+	scrollbar-color: var(--foundation-scrollbar-thumb) var(--foundation-scrollbar-track);
 }
 .compactSettings::-webkit-scrollbar {
-	width: 0.5rem;
+	width: 8px;
 }
 .compactSettings::-webkit-scrollbar-track {
-	background: var(--palette-neutral-900);
+	background: var(--foundation-scrollbar-track);
 }
 .compactSettings::-webkit-scrollbar-thumb {
-	background: var(--palette-neutral-600);
-	border: 2px solid var(--palette-neutral-900);
+	background: var(--foundation-scrollbar-thumb);
+	border: 0;
+	border-radius: 0;
+}
+.compactSettings::-webkit-scrollbar-thumb:hover {
+	background: var(--foundation-scrollbar-thumb-hover);
+}
+.compactSettings::-webkit-scrollbar-thumb:active {
+	background: var(--foundation-scrollbar-thumb-active);
+}
+.settingsHeader {
+	font-weight: 500;
 }

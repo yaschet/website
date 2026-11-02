@@ -9,7 +9,7 @@ import {
 	RiSpeedUpLine,
 } from "@remixicon/react";
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "./button";
 import {
 	DropdownMenu,
@@ -40,10 +40,16 @@ interface VideoSettingGroupProps {
 	onValueChange: (value: string) => void;
 }
 
-function VideoSettingGroup({ label, value, options, onValueChange }: VideoSettingGroupProps) {
+function VideoSettingGroup({
+	label,
+	value,
+	options,
+	onValueChange,
+	hideLabel = false,
+}: VideoSettingGroupProps & { hideLabel?: boolean }) {
 	return (
 		<DropdownMenuGroup>
-			<DropdownMenuLabel>{label}</DropdownMenuLabel>
+			{!hideLabel && <DropdownMenuLabel>{label}</DropdownMenuLabel>}
 			<DropdownMenuRadioGroup value={value} onValueChange={onValueChange} aria-label={label}>
 				{options.map((option) => (
 					<DropdownMenuRadioItem key={option.value} value={option.value} closeOnClick>
@@ -81,8 +87,19 @@ export function CompactVideoSettingsMenu({
 	container?: HTMLElement | null;
 }) {
 	const [view, setView] = useState<string | null>(null);
+	const [viewHeight, setViewHeight] = useState<number | undefined>();
 	const viewRef = useRef<HTMLDivElement>(null);
 	const reducedMotion = useReducedMotion();
+	// biome-ignore lint/correctness/useExhaustiveDependencies: keyed views replace the measured element.
+	useLayoutEffect(() => {
+		const element = viewRef.current;
+		if (!open || !element) return;
+		const measure = () => setViewHeight(element.offsetHeight);
+		measure();
+		const observer = new ResizeObserver(measure);
+		observer.observe(element);
+		return () => observer.disconnect();
+	}, [open, view]);
 	const selectedGroup = groups.find((group) => group.label === view);
 	const orderedGroups = [...groups].sort(
 		(a, b) => Number(b.label === "Video quality") - Number(a.label === "Video quality"),
@@ -127,18 +144,14 @@ export function CompactVideoSettingsMenu({
 				className={`${styles.compactSettings} portfolio-media-material z-[90] max-h-[min(20rem,var(--available-height))]`}
 			>
 				<motion.div
-					layout="size"
-					transition={{ duration: reducedMotion ? 0 : 0.2 }}
+					initial={false}
+					animate={{ height: viewHeight ?? "auto" }}
+					transition={{ duration: reducedMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
 					className={styles.settingsViewport}
 				>
 					<motion.div
 						key={view ?? "settings"}
 						ref={viewRef}
-						onAnimationComplete={() =>
-							viewRef.current
-								?.querySelector<HTMLElement>('[role="menuitem"]')
-								?.focus()
-						}
 						initial={reducedMotion ? false : { x: view ? 16 : -16, opacity: 0 }}
 						animate={{ x: 0, opacity: 1 }}
 						transition={{
@@ -156,14 +169,18 @@ export function CompactVideoSettingsMenu({
 							<>
 								<DropdownMenuItem
 									closeOnClick={false}
+									aria-label="Back to settings"
+									className={styles.settingsHeader}
 									onClick={() => setView(null)}
 								>
 									<RiArrowLeftSLine aria-hidden="true" />
 									<DropdownMenuItemContent>
-										Back to settings
+										{selectedGroup.label === "Video quality"
+											? "Quality"
+											: "Playback speed"}
 									</DropdownMenuItemContent>
 								</DropdownMenuItem>
-								<VideoSettingGroup {...selectedGroup} />
+								<VideoSettingGroup {...selectedGroup} hideLabel />
 							</>
 						) : (
 							<>
