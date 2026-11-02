@@ -39,7 +39,8 @@ export function MarqueeBadge({
 	const [dragging, setDragging] = useState(false);
 	const [copies, setCopies] = useState(2);
 	const stopped = useRef(false);
-	const copy = items.join(" · ");
+	// The visual list uses spacing between items; keep its spoken name identical.
+	const copy = items.join(" ");
 
 	useEffect(() => {
 		const control = button.current;
@@ -265,6 +266,7 @@ export function MarqueeBadge({
 									<span data-marquee-copy={index === 0 ? undefined : item}>
 										{index === 0 ? item : null}
 									</span>
+									{/* Preserve word boundaries without adding a flex item or visual gap. */}{" "}
 								</span>
 							))}
 						</span>
