@@ -132,7 +132,7 @@ for (const theme of ["light", "dark"] as const) {
 		expect(errors).toEqual([]);
 	});
 
-	test(`a long case study changes theme at its current scroll position from ${theme}`, async ({
+	test(`a long case study changes theme instantly at its current scroll position from ${theme}`, async ({
 		page,
 	}) => {
 		const errors: string[] = [];
@@ -145,15 +145,8 @@ for (const theme of ["light", "dark"] as const) {
 		await page.evaluate(() => {
 			const start = document.startViewTransition.bind(document);
 			document.startViewTransition = (update) => {
-				const transition = start(update);
-				void transition.ready
-					.then(() => {
-						document.documentElement.dataset.articleThemeCapture = "ready";
-					})
-					.catch(() => {
-						document.documentElement.dataset.articleThemeCapture = "failed";
-					});
-				return transition;
+				document.documentElement.dataset.articleThemeCapture = "attempted";
+				return start(update);
 			};
 			scrollTo({ top: document.documentElement.scrollHeight / 2, behavior: "instant" });
 		});
@@ -163,11 +156,23 @@ for (const theme of ["light", "dark"] as const) {
 		const scroll = await page.evaluate(() => scrollY);
 		expect(scroll).toBeGreaterThan(500);
 		await toggle.click();
-		await expect(page.locator("html")).toHaveAttribute("data-article-theme-capture", "ready");
+		await expect(page.locator("html")).not.toHaveAttribute("data-article-theme-capture");
 		await expect(page.locator("html")).not.toHaveAttribute("data-theme-transition");
 		await expect(page.locator("html")).toHaveClass(
 			new RegExp(`\\b${theme === "light" ? "dark" : "light"}\\b`),
 		);
+		await expect(page.locator("html")).not.toHaveAttribute("data-theme-updating");
+		expect(
+			await page.evaluate(() =>
+				document
+					.getAnimations()
+					.some(
+						(animation) =>
+							animation instanceof CSSAnimation &&
+							animation.animationName === "theme-surface-out",
+					),
+			),
+		).toBe(false);
 		expect(Math.abs((await page.evaluate(() => scrollY)) - scroll)).toBeLessThan(2);
 		expect(errors).toEqual([]);
 	});

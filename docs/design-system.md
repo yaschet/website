@@ -819,9 +819,10 @@ StateSwap keeps icon and label layers mounted. Stable sizing reserves the
 largest state; content sizing transitions to the active text's natural width.
 Use the Foundation icon-swap tokens and text crossfade for copy, theme and media
 feedback; give the owning action its current accessible name. Keyboard and
-reduced-motion changes are immediate. Theme changes use one native 240ms page
-crossfade, with material interpolation suppressed; embedded previews and live
-dialogs change immediately. Reading-time metadata and Copy Markdown share a
+reduced-motion changes are immediate. At the page origin, pointer theme changes
+use one native 240ms page crossfade, with material interpolation suppressed.
+Scrolled pages, embedded previews and live dialogs change immediately.
+Reading-time metadata and Copy Markdown share a
 40px row, 14/20px type and 16px glyphs.
 
 Web Vitals are developer diagnostics, never visitor notifications. Development
@@ -900,22 +901,24 @@ Initial HTML stays readable before hydration. Keyboard and reduced-motion paths
 remain immediate. Geometry and semantic markup stay identical on mobile and desktop.
 Browser automation exercises the same production motion as visitors.
 
-Theme changes separately use the native document View Transition API. Capture only
-the outgoing viewport, then remove the root's capture name inside the update callback.
+At the page origin, pointer theme changes use the native document View Transition API.
+Capture only the outgoing viewport, then remove the root's capture name inside the update callback.
 The old image fades out over 240ms above the live new theme and holds its final
 transparent frame until native teardown. Without that fill, the old bitmap can
 reappear before removal. Regression checks record unpaused rendered frames through
 teardown in both directions; stable DOM rectangles and paused midpoint captures
 alone cannot detect a color reversal. This composition keeps the dock
-interactive and bounds the bitmap to the viewport, including at the footer of long
-pages. Do not capture the full scrolling element: its raster can clip or rescale
-at deep scroll positions. Snapshot groups never interpolate dimensions or transform
-the page. Scroll, resize and new pointer or keyboard input interrupt the fade.
+interactive and bounds the bitmap to the opening viewport. After scrolling, change
+theme atomically at the current reading position without attempting a native capture;
+scrolled root snapshots are unreliable in the WebKit geometry checks. Do not capture
+the full scrolling element: its raster can clip or rescale. Snapshot groups never
+interpolate dimensions or transform the page. Scroll, resize and new pointer or
+keyboard input interrupt the fade.
 Component CSS transitions are suppressed through the first new-theme paint; the theme glyph
 retains shared StateSwap motion. Rapid requests supersede the previous snapshot
 and alternate against the requested destination. A rejected capture still applies
 the requested theme without an unhandled error. Keyboard, reduced motion,
-unsupported browsers, embedded previews and live dialogs use an atomic change.
+unsupported browsers, scrolled pages, embedded previews and live dialogs use an atomic change.
 
 Next 16.4 Cache Components and Partial Prefetching supply cached route shells.
 Visible case-study links also prefetch their cached URL-specific content. The

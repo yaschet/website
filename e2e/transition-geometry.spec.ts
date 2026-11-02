@@ -130,144 +130,61 @@ test.beforeAll(async ({ browser, browserName }, testInfo) => {
 	}
 });
 
-test("old-only root snapshots preserve scrolled pixels independently of theme and named entries", async ({
-	page,
-}, testInfo) => {
-	test.skip(
-		!nativeBitmapCapture,
-		"The independent Firefox bitmap capability probe is unsupported.",
-	);
-	const observations = [];
-	await page.setViewportSize({ width: 393, height: 900 });
-	for (const offset of [0, 2000]) {
-		for (const changeScheme of [false, true]) {
-			for (const namedEntry of [false, true]) {
-				const label = `${offset}-${changeScheme ? "scheme" : "paint"}-${namedEntry ? "entry" : "root"}`;
-				await page.setContent(`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-					html { color-scheme: light; background: white; }
-					body { margin: 0; height: 4000px; background: white; }
-					html.changed, html.changed body { background: black; }
-					html[data-active] { view-transition-name: none; }
-					::view-transition-group(root) { animation: none; }
-					::view-transition-old(root) { height: auto; object-fit: none; object-position: left top; animation: probe-hold 600s linear both; mix-blend-mode: normal; }
-					::view-transition-new(probe-entry) { animation: probe-hold 600s linear both; }
-					@keyframes probe-hold { from { opacity: 1; } to { opacity: 0; } }
-				</style><div id="probe" style="position:fixed;left:8px;top:24px;width:80px;height:40px;background:#f0f"></div>`);
-				await page.evaluate((offset) => scrollTo(0, offset), offset);
-				const expected = [{ x: 8, y: 24, width: 80, height: 40 }];
-				expect(
-					await readSnapshotMarkers(page, testInfo.outputPath(`${label}-before.png`)),
-				).toEqual(expected);
-				await page.evaluate(
-					async ({ changeScheme, namedEntry }) => {
-						await document.startViewTransition(() => {
-							const root = document.documentElement;
-							root.dataset.active = "true";
-							root.classList.add("changed");
-							if (changeScheme) root.style.colorScheme = "dark";
-							document.getElementById("probe")?.remove();
-							if (namedEntry) {
-								const entry = document.createElement("span");
-								entry.textContent = "New entry";
-								entry.style.cssText =
-									"position:fixed;top:100px;left:120px;view-transition-name:probe-entry";
-								document.body.append(entry);
-							}
-						}).ready;
-					},
-					{ changeScheme, namedEntry },
-				);
-				const styles = await readRootSnapshotStyles(page);
-				const captured = await readSnapshotMarkers(
-					page,
-					testInfo.outputPath(`${label}-active.png`),
-				);
-				observations.push({ label, styles, captured });
-				await page.evaluate(() => {
-					for (const animation of document.getAnimations()) animation.finish();
-				});
-			}
-		}
-	}
-	await testInfo.attach("standalone-old-root-comparison", {
-		body: JSON.stringify(observations, null, 2),
-		contentType: "application/json",
-	});
-	expect(observations.map(({ label, captured }) => ({ label, captured }))).toEqual(
-		observations.map(({ label }) => ({
-			label,
-			captured: [{ x: 8, y: 24, width: 80, height: 40 }],
-		})),
-	);
-});
-
 for (const theme of ["light", "dark"] as const) {
 	for (const route of ["/", "/case-studies/clearway-phoenix"]) {
-		test(`scrolled ${route} theme snapshot preserves all viewport edges from ${theme}`, async ({
+		test(`theme changes preserve viewport pixels on ${route} from ${theme}`, async ({
 			page,
 			isMobile,
 		}, testInfo) => {
-			test.skip(
-				!nativeBitmapCapture,
-				"Standalone capture probe confirms drawSnapshot omits active View Transitions (Mozilla 2008417); Firefox lifecycle and DOM geometry remain covered.",
-			);
 			test.slow();
 			const errors: string[] = [];
 			page.on("pageerror", (error) => errors.push(error.message));
 			await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 			await page.addInitScript(() => {
+				document.addEventListener(
+					"DOMContentLoaded",
+					() => {
+						document.documentElement.dataset.themeSnapshotAttempts ??= "0";
+					},
+					{ once: true },
+				);
 				const start = document.startViewTransition.bind(document);
 				document.startViewTransition = (update) => {
+					const root = document.documentElement;
+					root.dataset.themeSnapshotAttempts = String(
+						Number(root.dataset.themeSnapshotAttempts ?? "0") + 1,
+					);
 					const transition = start(async () => {
 						if (typeof update !== "function")
 							throw new Error("Expected a theme update callback");
 						await update();
 						document.querySelector("[data-theme-snapshot-marker]")?.remove();
 					});
-					void transition.ready.then(() => {
-						for (const animation of document.getAnimations()) {
-							if (
-								animation instanceof CSSAnimation &&
-								animation.animationName === "theme-surface-out"
-							) {
-								animation.currentTime = 0;
+					void transition.ready
+						.then(() => {
+							for (const animation of document.getAnimations()) {
+								if (
+									animation instanceof CSSAnimation &&
+									animation.animationName === "theme-surface-out"
+								) {
+									animation.currentTime = 0;
+								}
 							}
-						}
-						document.documentElement.dataset.snapshotReady = "true";
-					});
+							root.dataset.snapshotReady = "true";
+						})
+						.catch((error) => {
+							root.dataset.snapshotError = String(error);
+						});
 					return transition;
 				};
 			});
 			await page.emulateMedia({ reducedMotion: "no-preference", colorScheme: theme });
-			for (const width of isMobile ? [393] : [1200, 600]) {
-				await page.setViewportSize({ width, height: 900 });
-				await page.goto(route);
-				await expect(page.getByRole("button", { name: /^Theme: Switch/ })).toBeVisible();
-				await page.evaluate(() => document.fonts.ready);
-				// Keep the real changing opacity property so the compositor follows
-				// the production path. Only extend its duration: these early samples
-				// stay near-opaque and retain strict marker-color/geometry checks.
-				const geometryStyle = await page.addStyleTag({
-					content:
-						":root[data-theme-transition]::view-transition-old(root) { animation-duration: 600s !important; }",
-				});
-				// Establish the scrolled precondition after streaming and scroll restoration.
-				await expect
-					.poll(() =>
-						page.evaluate(() => {
-							scrollTo({
-								top: document.documentElement.scrollHeight,
-								behavior: "instant",
-							});
-							return scrollY;
-						}),
-					)
-					.toBeGreaterThan(500);
-				const expected = await page.evaluate(() => {
+			const placeMarkers = () =>
+				page.evaluate(() => {
 					if (!document.querySelector(".portfolio-theme-surface"))
 						throw new Error("The portfolio surface is missing");
-					// The article dock follows the page surface in compact layouts. Probes
-					// belong to the viewport, without extending that surface or its scroll range.
+					// A fixed live layer preserves all viewport edges without changing the
+					// article dock's in-flow geometry or extending the document's scroll range.
 					const layer = document.createElement("div");
 					layer.dataset.themeSnapshotMarker = "true";
 					layer.style.cssText =
@@ -286,17 +203,103 @@ for (const theme of ["light", "dark"] as const) {
 					}
 					return markers;
 				});
-				const scroll = await page.evaluate(() => scrollY);
-				expect(scroll).toBeGreaterThan(500);
+			const measureLayout = () =>
+				page.evaluate(() => ({
+					scrollX,
+					scrollY,
+					width: document.documentElement.clientWidth,
+					height: document.documentElement.scrollHeight,
+				}));
+			for (const width of isMobile ? [393] : [1200, 600]) {
+				await page.setViewportSize({ width, height: 900 });
+				await page.goto(route);
+				const toggle = page.getByRole("button", { name: /^Theme: Switch/ });
+				await expect(toggle).toBeVisible();
+				await page.evaluate(() => document.fonts.ready);
+				// Establish the reading position after streaming and scroll restoration.
+				await expect
+					.poll(() =>
+						page.evaluate(() => {
+							scrollTo({
+								top: document.documentElement.scrollHeight,
+								behavior: "instant",
+							});
+							return scrollY;
+						}),
+					)
+					.toBeGreaterThan(500);
+				// Compact article navigation is in flow; measure from its reachable position.
+				await toggle.scrollIntoViewIfNeeded();
+				const expected = await placeMarkers();
+				const layout = await measureLayout();
+				expect(layout.scrollY).toBeGreaterThan(500);
 				const footer = await page.locator("footer").boundingBox();
 				expect(
 					await readSnapshotMarkers(page, testInfo.outputPath(`${width}-before.png`)),
 				).toEqual(expected);
-				await page.getByRole("button", { name: /^Theme: Switch/ }).click();
-				await expect(page.locator("html")).toHaveAttribute("data-snapshot-ready", "true");
-				await expect(page.locator("html")).toHaveAttribute("data-theme-transition", "true");
-				expect(await page.locator("[data-theme-snapshot-marker]").count()).toBe(0);
-				// A real native animation must remain running throughout capture.
+				await toggle.click();
+				const root = page.locator("html");
+				await expect(root).toHaveClass(
+					new RegExp(`\\b${theme === "light" ? "dark" : "light"}\\b`),
+				);
+				await expect(root).not.toHaveAttribute("data-theme-updating");
+				// Reading changes are live and atomic: native capture must never be attempted.
+				for (const sample of [0, 1, 2]) {
+					await expect(root).toHaveAttribute("data-theme-snapshot-attempts", "0");
+					await expect(root).not.toHaveAttribute("data-snapshot-ready");
+					await expect(root).not.toHaveAttribute("data-theme-transition");
+					await expect(page.locator("[data-theme-snapshot-marker]")).toHaveCount(1);
+					expect(
+						await readSnapshotMarkers(
+							page,
+							testInfo.outputPath(`${width}-instant-${sample}.png`),
+						),
+						`${width}px ${route}: a live theme change must preserve every viewport marker`,
+					).toEqual(expected);
+					expect(await measureLayout()).toEqual(layout);
+					expect(await page.locator("footer").boundingBox()).toEqual(footer);
+				}
+				await page.evaluate(() =>
+					document.querySelector("[data-theme-snapshot-marker]")?.remove(),
+				);
+				if (route !== "/") continue;
+				if (!nativeBitmapCapture) {
+					testInfo.annotations.push({
+						type: "native-opening-bitmap",
+						description:
+							"Not captured: the independent Firefox drawSnapshot probe omits active View Transitions (Mozilla 2008417). Scrolled live-theme geometry was verified.",
+					});
+					continue;
+				}
+
+				// The opening still uses a native fade. Extend only its real duration,
+				// retaining changing opacity and strict outgoing bitmap geometry checks.
+				await expect
+					.poll(() =>
+						page.evaluate(() => {
+							scrollTo({ left: 0, top: 0, behavior: "instant" });
+							return [scrollX, scrollY];
+						}),
+					)
+					.toEqual([0, 0]);
+				const geometryStyle = await page.addStyleTag({
+					content:
+						":root[data-theme-transition]::view-transition-old(root) { animation-duration: 600s !important; }",
+				});
+				const openingMarkers = await placeMarkers();
+				const openingLayout = await measureLayout();
+				const openingFooter = await page.locator("footer").boundingBox();
+				expect(
+					await readSnapshotMarkers(
+						page,
+						testInfo.outputPath(`${width}-opening-before.png`),
+					),
+				).toEqual(openingMarkers);
+				await toggle.click();
+				await expect(root).toHaveAttribute("data-theme-snapshot-attempts", "1");
+				await expect(root).toHaveAttribute("data-snapshot-ready", "true");
+				await expect(root).toHaveAttribute("data-theme-transition", "true");
+				await expect(page.locator("[data-theme-snapshot-marker]")).toHaveCount(0);
 				await expect
 					.poll(() =>
 						page.evaluate(() =>
@@ -320,23 +323,20 @@ for (const theme of ["light", "dark"] as const) {
 							)
 								animation.currentTime = time;
 					}, time);
-					await expect(page.locator("html")).toHaveAttribute(
-						"data-theme-transition",
-						"true",
-					);
-					await testInfo.attach(`${width}-${time}ms-root-styles`, {
+					await expect(root).toHaveAttribute("data-theme-transition", "true");
+					await testInfo.attach(`${width}-opening-${time}ms-root-styles`, {
 						body: JSON.stringify(await readRootSnapshotStyles(page), null, 2),
 						contentType: "application/json",
 					});
 					expect(
 						await readSnapshotMarkers(
 							page,
-							testInfo.outputPath(`${width}-${time}ms.png`),
+							testInfo.outputPath(`${width}-opening-${time}ms.png`),
 						),
-						`${width}px ${route} at ${time}ms: captured pixels must not shift, scale or clip`,
-					).toEqual(expected);
-					expect(await page.locator("footer").boundingBox()).toEqual(footer);
-					expect(await page.evaluate(() => scrollY)).toBe(scroll);
+						`${width}px Home opening at ${time}ms: captured pixels must not shift, scale or clip`,
+					).toEqual(openingMarkers);
+					expect(await measureLayout()).toEqual(openingLayout);
+					expect(await page.locator("footer").boundingBox()).toEqual(openingFooter);
 				}
 				await page.evaluate(() => {
 					for (const animation of document.getAnimations())
@@ -346,10 +346,8 @@ for (const theme of ["light", "dark"] as const) {
 						)
 							animation.finish();
 				});
-				await expect(page.locator("html")).not.toHaveAttribute("data-theme-transition");
-				await expect(page.locator("html")).toHaveClass(
-					new RegExp(`\\b${theme === "light" ? "dark" : "light"}\\b`),
-				);
+				await expect(root).not.toHaveAttribute("data-theme-transition");
+				await expect(root).toHaveClass(new RegExp(`\\b${theme}\\b`));
 				await geometryStyle.evaluate((node) => node.parentNode?.removeChild(node));
 			}
 			expect(errors).toEqual([]);
