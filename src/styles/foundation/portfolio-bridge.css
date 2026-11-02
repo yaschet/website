@@ -595,3 +595,21 @@
 		animation: none;
 	}
 }
+
+/* Fade through a quiet midpoint instead of overlapping the two labels. */
+@media (prefers-reduced-motion: no-preference) {
+	.portfolio-gallery-play .t-state-label[data-sizing="content"] {
+		overflow: visible;
+		transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	.portfolio-gallery-play .t-state-label > [data-active="false"] {
+		transition: opacity 60ms ease-out;
+	}
+	.portfolio-gallery-play .t-state-label > [data-active="true"] {
+		transition: opacity 120ms ease-out 70ms;
+	}
+	.portfolio-gallery-play[data-motion-input="keyboard"] .t-state-label,
+	.portfolio-gallery-play[data-motion-input="keyboard"] .t-state-label > span {
+		transition: none;
+	}
+}
