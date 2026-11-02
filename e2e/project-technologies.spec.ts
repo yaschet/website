@@ -24,7 +24,17 @@ for (const theme of ["light", "dark"] as const) {
 			name: "University Program Matching",
 			exact: true,
 		});
-		await rail.scrollIntoViewIfNeeded();
+		const focusOutsideRail = () =>
+			outsideRail.evaluate((node) => {
+				if (!(node instanceof HTMLElement))
+					throw new Error("Missing project title control");
+				node.focus({ preventScroll: true });
+			});
+		// Hydration can replace the initial server node while scrolling settles.
+		await expect(async () => {
+			await rail.scrollIntoViewIfNeeded();
+			await expect(rail).toBeInViewport();
+		}).toPass({ timeout: 5_000 });
 		// Inspect the initial frame without racing the automatic exchange.
 		await trigger.focus();
 		await page.emulateMedia({ reducedMotion: "no-preference" });
@@ -106,10 +116,14 @@ for (const theme of ["light", "dark"] as const) {
 				nodes.map((node) => getComputedStyle(node).getPropertyValue("--technology-phase")),
 			),
 		).toEqual(isMobile ? ["100ms", "50ms", "0ms"] : ["50ms", "0ms"]);
-		await outsideRail.focus();
+		// Focusing the title normally scrolls a compact card's rail offscreen,
+		// which correctly pauses rotation. Keep this geometry fixture in view.
+		await focusOutsideRail();
 		await expect(outsideRail).toBeFocused();
 		expect(await rail.evaluate((node) => node.contains(document.activeElement))).toBe(false);
+		await expect(rail).toBeInViewport();
 		await page.mouse.move(0, 0);
+		await expect(rail).toHaveAttribute("data-motion-active", "true");
 		await expect(rail).toHaveAttribute("data-running", "true");
 		const nextFrame = isMobile
 			? ["PHP", "Livewire", "Alpine.js"]
@@ -315,10 +329,12 @@ for (const theme of ["light", "dark"] as const) {
 		await dialog.getByRole("button", { name: "Close technology stack" }).click();
 		await expect(trigger).toBeFocused();
 		await expect(rail).toHaveAttribute("data-running", "false");
-		await outsideRail.focus();
+		await focusOutsideRail();
 		await expect(outsideRail).toBeFocused();
 		expect(await rail.evaluate((node) => node.contains(document.activeElement))).toBe(false);
+		await expect(rail).toBeInViewport();
 		await page.mouse.move(0, 0);
+		await expect(rail).toHaveAttribute("data-motion-active", "true");
 		await expect(rail).toHaveAttribute("data-running", "true");
 		await page.getByRole("heading", { level: 1 }).scrollIntoViewIfNeeded();
 		await expect(rail).toHaveAttribute("data-running", "false");

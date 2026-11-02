@@ -204,7 +204,11 @@ test("keyboard and reduced motion cancel entry without hiding text", async ({ pa
 	await page.emulateMedia({ reducedMotion: "reduce" });
 	await nav.getByRole("link", { name: "Contact", exact: true }).click();
 	await expect(page).toHaveURL(/\/contact$/);
-	const contactHeading = page.locator("main:visible h1");
+	const contactHeading = page.getByRole("heading", {
+		name: "Let’s talk.",
+		level: 1,
+		exact: true,
+	});
 	// A committed URL can precede hydration of streamed copy. Exercise the
 	// current page's entry hook before changing the motion preference.
 	await expect(contactHeading).toHaveAttribute("data-entry-kind", "heading");
