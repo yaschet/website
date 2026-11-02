@@ -91,7 +91,9 @@ for (const theme of ["light", "dark"] as const) {
 			await page.screenshot({ path: testInfo.outputPath(`${slug}-${theme}-facts.png`) });
 			const firstHeading = page.locator("article h2[id]").first();
 			await firstHeading.scrollIntoViewIfNeeded();
-			const hasContentsRail = (page.viewportSize()?.width ?? 0) >= 1536;
+			const viewport = page.viewportSize();
+			const hasContentsRail =
+				(viewport?.width ?? 0) >= 1536 && (viewport?.height ?? 0) >= 768;
 			let contents = page.getByRole("navigation", { name: "On this page", exact: true });
 			if (!hasContentsRail) {
 				const trigger = page.getByRole("button", { name: "Open table of contents" });
@@ -127,7 +129,7 @@ for (const theme of ["light", "dark"] as const) {
 					.locator("article figure")
 					.filter({
 						has: page.getByRole("img", {
-							name: "University programs in the catalog maintenance interface.",
+							name: "A machine-learning search returning related university programs.",
 							exact: true,
 						}),
 					})
@@ -137,7 +139,7 @@ for (const theme of ["light", "dark"] as const) {
 				});
 				await imageTrigger.click();
 				const viewer = page.getByRole("dialog", {
-					name: "University programs in the catalog maintenance interface.",
+					name: "A machine-learning search returning related university programs.",
 					exact: true,
 				});
 				await expect(viewer).toBeVisible();
@@ -160,7 +162,7 @@ for (const theme of ["light", "dark"] as const) {
 for (const theme of ["light", "dark"] as const) {
 	test(`Markdown copy is lazy, focused while pending, recoverable and deduplicated in ${theme}`, async ({
 		page,
-	}) => {
+	}, testInfo) => {
 		await page.emulateMedia({ colorScheme: theme });
 		await page.addInitScript((value) => {
 			localStorage.setItem("theme", value);
@@ -193,8 +195,12 @@ for (const theme of ["light", "dark"] as const) {
 		await button.click();
 		const pending = page.getByRole("button", { name: "Copying", exact: true });
 		await expect(pending).toBeDisabled();
-		expect((await pending.boundingBox())?.height).toBe(before?.height);
+		await expect.poll(async () => (await pending.boundingBox())?.height).toBe(before?.height);
 		await expect(pending).toBeFocused();
+		const spinner = pending.locator('[data-slot="spinner"]');
+		await expect(spinner).toHaveCSS("width", "16px");
+		await expect(spinner).toHaveCSS("height", "16px");
+		await page.screenshot({ path: testInfo.outputPath(`markdown-copy-pending-${theme}.png`) });
 		await page.keyboard.press("Enter");
 		expect(requests).toBe(1);
 		complete?.();
@@ -224,7 +230,7 @@ for (const theme of ["light", "dark"] as const) {
 		await expect(
 			page.getByRole("heading", {
 				level: 1,
-				name: "Document Translation With Editable Tables",
+				name: "Verto — AI Translation Platform",
 			}),
 		).toBeVisible();
 		await expect(

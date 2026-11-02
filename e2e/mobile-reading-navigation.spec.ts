@@ -89,12 +89,23 @@ for (const theme of ["light", "dark"] as const) {
 	}
 }
 
-test("reading controls fit enlarged text and short wide windows", async ({ page }) => {
+test("reading controls fit enlarged text, adjusted spacing and short wide windows", async ({
+	page,
+}) => {
 	await page.setViewportSize({ width: 320, height: 568 });
 	await openArticle(page, "light");
+	const paragraph = page.locator("article > p").first();
+	const normalTextSize = await paragraph.evaluate((node) =>
+		Number.parseFloat(getComputedStyle(node).fontSize),
+	);
 	await page.evaluate(() => {
 		document.documentElement.style.fontSize = "200%";
 	});
+	await expect
+		.poll(() =>
+			paragraph.evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize)),
+		)
+		.toBe(normalTextSize * 2);
 	await page.locator("article h2[id]").nth(1).scrollIntoViewIfNeeded();
 	const trigger = page.getByRole("button", { name: "Open table of contents" });
 	await expect(trigger).toHaveCSS("opacity", "1");
@@ -107,7 +118,26 @@ test("reading controls fit enlarged text and short wide windows", async ({ page 
 	expect(await dialog.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
 	await page.keyboard.press("Escape");
 	await expect(trigger).toBeFocused();
+	expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+		true,
+	);
 	await page.evaluate(() => document.documentElement.style.removeProperty("font-size"));
+	const spacing = await page.addStyleTag({
+		content: `
+			* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }
+			p { margin-block-end: 2em !important; }
+		`,
+	});
+	await page.locator("article h2[id]").nth(1).scrollIntoViewIfNeeded();
+	await trigger.click();
+	await expect(dialog).toBeVisible();
+	expect(await dialog.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
+	expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+		true,
+	);
+	await page.keyboard.press("Escape");
+	await expect(trigger).toBeFocused();
+	await spacing.evaluate((node) => node.parentNode?.removeChild(node));
 	await page.setViewportSize({ width: 1600, height: 390 });
 	await page.locator("article h2[id]").nth(1).scrollIntoViewIfNeeded();
 	await expect(trigger).toBeVisible();
@@ -117,10 +147,11 @@ test("reading controls fit enlarged text and short wide windows", async ({ page 
 	).toHaveCSS("position", "relative");
 });
 
-test("the first keyboard link bypasses repeated chrome", async ({ page }) => {
+test("the first keyboard link bypasses repeated chrome", async ({ page, browserName }) => {
 	await page.setViewportSize({ width: 390, height: 844 });
 	await openArticle(page, "light");
-	await page.keyboard.press("Tab");
+	// WebKit follows macOS link navigation: Option-Tab includes links.
+	await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
 	const skip = page.getByRole("link", { name: "Skip to content", exact: true });
 	await expect(skip).toBeFocused();
 	await expect(skip).toBeInViewport();
