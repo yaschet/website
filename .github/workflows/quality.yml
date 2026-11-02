@@ -73,6 +73,8 @@ jobs:
             engine: chromium
           - project: mobile-safari
             engine: webkit
+          - project: firefox
+            engine: firefox
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: ./.github/actions/setup
@@ -103,7 +105,7 @@ jobs:
           retention-days: 7
   quality:
     if: ${{ always() }}
-    needs: [checks, browser, storybook]
+    needs: [checks, browser, storybook, secrets, title]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -112,8 +114,10 @@ jobs:
           CHECKS_RESULT: ${{ needs.checks.result }}
           BROWSER_RESULT: ${{ needs.browser.result }}
           STORYBOOK_RESULT: ${{ needs.storybook.result }}
+          SECRETS_RESULT: ${{ needs.secrets.result }}
+          TITLE_RESULT: ${{ needs.title.result }}
         run: |
-          if [ "$CHECKS_RESULT" != success ] || [ "$BROWSER_RESULT" != success ] || [ "$STORYBOOK_RESULT" != success ]; then
-            echo "Quality failed: checks=$CHECKS_RESULT browser=$BROWSER_RESULT storybook=$STORYBOOK_RESULT"
+          if [ "$CHECKS_RESULT" != success ] || [ "$BROWSER_RESULT" != success ] || [ "$STORYBOOK_RESULT" != success ] || [ "$SECRETS_RESULT" != success ] || { [ "$TITLE_RESULT" != success ] && [ "$TITLE_RESULT" != skipped ]; }; then
+            echo "Quality failed: checks=$CHECKS_RESULT browser=$BROWSER_RESULT storybook=$STORYBOOK_RESULT secrets=$SECRETS_RESULT title=$TITLE_RESULT"
             exit 1
           fi
