@@ -16,16 +16,23 @@ for (const theme of ["light", "dark"] as const) {
 		await expect
 			.poll(() => track.evaluate((node) => node.getAnimations()[0]?.playState))
 			.toBe("running");
-		const gaps = await track.evaluate((node) => {
+		const spacing = await track.evaluate((node) => {
 			const items = [...node.querySelectorAll(".portfolio-marquee-item")];
-			return items.slice(0, -1).flatMap((item, index) => {
-				const text = item.children[0].getBoundingClientRect();
-				const dot = item.children[1].getBoundingClientRect();
-				const next = items[index + 1].getBoundingClientRect();
-				return [dot.left - text.right, next.left - dot.right];
-			});
+			const context = document.querySelector(".portfolio-context-rail");
+			if (!context) throw new Error("Missing context rail");
+			return {
+				contextGap: Number.parseFloat(getComputedStyle(context).columnGap),
+				// Include the last-to-first item boundary between repeated cycles.
+				gaps: items.slice(0, -1).map((item, index) => {
+					const current = item.getBoundingClientRect();
+					const next = items[index + 1].getBoundingClientRect();
+					return next.left - current.right;
+				}),
+			};
 		});
-		for (const gap of gaps) expect(gap).toBeCloseTo(16, 1);
+		expect(spacing.contextGap).toBe(20);
+		expect(spacing.gaps.length).toBeGreaterThan(1);
+		for (const gap of spacing.gaps) expect(gap).toBeCloseTo(spacing.contextGap, 1);
 		const bounds = await button.boundingBox();
 		if (!bounds) throw new Error("Missing highlights bounds");
 		const x = bounds.x + bounds.width / 2;

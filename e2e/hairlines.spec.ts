@@ -36,10 +36,28 @@ for (const ratio of [1, 1.8, 2.625]) {
 					const marquee = get(".portfolio-marquee-cycle");
 					return {
 						ratio: devicePixelRatio,
-						frames: frames.map((frame) => ({
-							width: Number(frame.boxShadow.match(/ ([\d.]+)px inset$/)?.[1]),
-							color: frame.boxShadow.replace(/ 0px 0px 0px [\d.]+px inset$/, ""),
-						})),
+						frames: frames.map((frame) => {
+							// Engines may serialize "inset" before or after the color/lengths.
+							const lengths = frame.boxShadow.match(/-?(?:\d*\.)?\d+px\b/g) ?? [];
+							if (
+								!frame.boxShadow.includes("inset") ||
+								lengths.length !== 4 ||
+								lengths
+									.slice(0, 3)
+									.some((length) => Number.parseFloat(length) !== 0)
+							) {
+								throw new Error(
+									`Expected a single unblurred inset frame: ${frame.boxShadow}`,
+								);
+							}
+							return {
+								width: Number.parseFloat(lengths[3]),
+								color: frame.boxShadow
+									.replace(/-?(?:\d*\.)?\d+px\b/g, "")
+									.replace(/\binset\b/g, "")
+									.trim(),
+							};
+						}),
 						seams: seams.map(([selector, dimension]) =>
 							Number.parseFloat(
 								getComputedStyle(get(selector), "::after")[dimension],

@@ -416,7 +416,7 @@ for (const theme of ["light", "dark"] as const) {
 }
 
 test.describe("stack frames on fractional-density displays", () => {
-	// Native 1px borders rounded to 0.56px here while the drawn seams stayed 1px.
+	// Native borders and painted frames must agree at fractional display density.
 	test.use({ deviceScaleFactor: 1.8 });
 	for (const theme of ["light", "dark"] as const) {
 		test(`stack edges stay fixed through motion and interaction in ${theme} mode`, async ({
@@ -452,16 +452,31 @@ test.describe("stack frames on fractional-density displays", () => {
 					] as const;
 					const bounds = node.getBoundingClientRect();
 					return {
+						ratio: devicePixelRatio,
 						hairline: Number.parseFloat(
 							getComputedStyle(node).getPropertyValue("--foundation-hairline"),
 						),
 						bounds: [bounds.x, bounds.y, bounds.width, bounds.height],
 						frames: frames.map((element) => {
 							const frame = getComputedStyle(element, "::before");
-							const inset = / 0px 0px 0px ([\d.]+)px inset$/;
+							const lengths = frame.boxShadow.match(/-?(?:\d*\.)?\d+px\b/g) ?? [];
+							if (
+								!frame.boxShadow.includes("inset") ||
+								lengths.length !== 4 ||
+								lengths
+									.slice(0, 3)
+									.some((length) => Number.parseFloat(length) !== 0)
+							) {
+								throw new Error(
+									`Expected a single unblurred inset frame: ${frame.boxShadow}`,
+								);
+							}
 							return {
-								thickness: Number(frame.boxShadow.match(inset)?.[1]),
-								color: frame.boxShadow.replace(inset, ""),
+								thickness: Number.parseFloat(lengths[3]),
+								color: frame.boxShadow
+									.replace(/-?(?:\d*\.)?\d+px\b/g, "")
+									.replace(/\binset\b/g, "")
+									.trim(),
 								pointerEvents: frame.pointerEvents,
 							};
 						}),
@@ -485,8 +500,14 @@ test.describe("stack frames on fractional-density displays", () => {
 				}),
 			).toEqual(["none", "none", "none", "none"]);
 			const resting = await paint();
+			expect(resting.ratio).toBeCloseTo(1.8, 4);
+			expect(resting.hairline * resting.ratio).toBeCloseTo(1, 4);
+			for (const frame of resting.frames)
+				expect(frame.thickness * resting.ratio).toBeCloseTo(1, 4);
 			for (const edge of [...resting.frames, ...resting.seams]) {
-				expect(edge.thickness).toBeCloseTo(resting.hairline, 2);
+				// Layout dimensions can quantize to 1/64 CSS px; painted frame widths above
+				// still have to equal one physical pixel, without that layout tolerance.
+				expect(Math.abs(edge.thickness - resting.hairline)).toBeLessThanOrEqual(1 / 64);
 				expect(edge.color).toBe(resting.seams[0].color);
 				expect(edge.pointerEvents).toBe("none");
 			}
