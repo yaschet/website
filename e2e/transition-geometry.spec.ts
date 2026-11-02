@@ -143,7 +143,7 @@ test("old-only root snapshots preserve scrolled pixels independently of theme an
 		for (const changeScheme of [false, true]) {
 			for (const namedEntry of [false, true]) {
 				const label = `${offset}-${changeScheme ? "scheme" : "paint"}-${namedEntry ? "entry" : "root"}`;
-				await page.setContent(`<!doctype html><style>
+				await page.setContent(`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>
 					html { color-scheme: light; background: white; }
 					body { margin: 0; height: 4000px; background: white; }
 					html.changed, html.changed body { background: black; }

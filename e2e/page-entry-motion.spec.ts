@@ -188,7 +188,11 @@ test("keyboard and reduced motion cancel entry without hiding text", async ({ pa
 	await nav.getByRole("link", { name: "About", exact: true }).focus();
 	await page.keyboard.press("Enter");
 	await expect(page).toHaveURL(/\/about$/);
-	await expect(page.locator("main:visible h1")).toHaveAttribute("data-entry-kind", "heading");
+	// The URL can commit while Next retains the departing Home scene. Address the
+	// destination heading instead of assuming both scenes disappear atomically.
+	await expect(
+		page.getByRole("heading", { name: "How I work.", level: 1, exact: true }),
+	).toHaveAttribute("data-entry-kind", "heading");
 	const entryCount = () =>
 		page.evaluate(
 			() =>
