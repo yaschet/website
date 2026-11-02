@@ -130,7 +130,7 @@ for (const theme of ["light", "dark"] as const) {
 		await nav.getByRole("link", { name: "Home", exact: true }).click();
 		await expect(page).toHaveURL(/\/$/);
 		const homeHeading = page.getByRole("heading", {
-			name: "Complex systems, clean interfaces.",
+			name: "Business software, built end to end.",
 			exact: true,
 		});
 		await expect(homeHeading).toBeVisible();

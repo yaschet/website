@@ -69,7 +69,7 @@ for (const theme of ["light", "dark"] as const) {
 		expect(workLayout.nestedFrame).toBe(false);
 		const projects = page.getByRole("article");
 		await expect(projects.getByRole("heading", { level: 3 })).toHaveText([
-			"Document Translation With Editable Tables",
+			"Verto — AI Translation Platform",
 			"University Program Matching",
 			"Student Applications & Document Collection",
 			"Agency CRM & Billing",
@@ -91,17 +91,22 @@ for (const theme of ["light", "dark"] as const) {
 					a = action.getBoundingClientRect();
 				const overview = copy.querySelector('[data-slot="project-overview"]');
 				if (!overview) throw new Error("Missing project overview");
-				const style = getComputedStyle(overview);
+				const regions = overview.querySelectorAll(
+					".portfolio-project-identity, .portfolio-project-story",
+				);
 				return {
 					actionWidth: a.width,
 					actionHeight: a.height,
 					centerDifference: Math.abs(t.top + t.height / 2 - a.top - a.height / 2),
-					insets: [
-						style.paddingTop,
-						style.paddingRight,
-						style.paddingBottom,
-						style.paddingLeft,
-					],
+					regionInsets: [...regions].map((region) => {
+						const style = getComputedStyle(region);
+						return [
+							style.paddingTop,
+							style.paddingRight,
+							style.paddingBottom,
+							style.paddingLeft,
+						];
+					}),
 					clamped: getComputedStyle(description).webkitLineClamp,
 					leading: Number.parseFloat(getComputedStyle(description).lineHeight),
 					overflow: node.scrollWidth > node.clientWidth + 1,
@@ -110,7 +115,11 @@ for (const theme of ["light", "dark"] as const) {
 			expect(layout.actionWidth).toBe(40);
 			expect(layout.actionHeight).toBe(40);
 			expect(layout.centerDifference).toBeLessThan(0.5);
-			expect(new Set(layout.insets).size).toBe(1);
+			expect(layout.regionInsets).toHaveLength(3);
+			for (const insets of layout.regionInsets) {
+				expect(new Set(insets).size).toBe(1);
+				expect(Number.parseFloat(insets[0] ?? "0")).toBeGreaterThanOrEqual(20);
+			}
 			expect(layout.clamped).toBe("none");
 			expect(Number.isInteger(layout.leading)).toBe(true);
 			expect(layout.overflow).toBe(false);
@@ -156,9 +165,9 @@ for (const theme of ["light", "dark"] as const) {
 		const note = work.locator(".portfolio-confidential-work");
 		await expect(note.getByRole("heading", { name: "Confidential work" })).toBeVisible();
 		await expect(note.locator("p")).toHaveText(
-			"Other work spans legal translation, education, onboarding, operations, and reconciliation. Most of it is private. Happy to discuss it in a call.",
+			"Some client work stays private. I can discuss the problems, my contribution and the engineering approach without sharing confidential material. Ask about relevant work.",
 		);
-		const call = note.getByRole("link", { name: "in a call" });
+		const call = note.getByRole("link", { name: "Ask about relevant work" });
 		await expect(call).toHaveAttribute("href", "/contact");
 		await expect(note.getByRole("button")).toHaveCount(0);
 		await call.focus();
@@ -173,7 +182,7 @@ for (const theme of ["light", "dark"] as const) {
 			const title = node.querySelector("h3");
 			const description = node.querySelector("p");
 			const card = node.closest("section")?.querySelector('[data-slot="project-card"]');
-			const cardCopy = card?.querySelector('[data-slot="project-overview"]');
+			const cardCopy = card?.querySelector(".portfolio-project-identity");
 			if (!inset || !title || !description || !card || !cardCopy)
 				throw new Error("Missing confidential-work composition");
 			const style = getComputedStyle(inset);
@@ -199,12 +208,8 @@ for (const theme of ["light", "dark"] as const) {
 				background: material.backgroundColor,
 				projectBackground: projectMaterial.backgroundColor,
 				bodyBackground: getComputedStyle(document.body).backgroundColor,
-				border: [material.borderTopWidth, material.borderTopStyle, material.borderTopColor],
-				projectBorder: [
-					projectMaterial.borderTopWidth,
-					projectMaterial.borderTopStyle,
-					projectMaterial.borderTopColor,
-				],
+				frame: getComputedStyle(node, "::after").boxShadow,
+				projectFrame: getComputedStyle(card, "::after").boxShadow,
 				titleSize: Number.parseFloat(getComputedStyle(title).fontSize),
 				copySize: Number.parseFloat(getComputedStyle(description).fontSize),
 				overflow: node.scrollWidth > node.clientWidth,
@@ -220,8 +225,8 @@ for (const theme of ["light", "dark"] as const) {
 		expect(noteLayout.background).toBe(noteLayout.projectBackground);
 		expect(noteLayout.background).not.toBe("rgba(0, 0, 0, 0)");
 		expect(noteLayout.background).not.toBe(noteLayout.bodyBackground);
-		expect(noteLayout.border).toEqual(noteLayout.projectBorder);
-		expect(noteLayout.border[1]).toBe("solid");
+		expect(noteLayout.frame).toBe(noteLayout.projectFrame);
+		expect(noteLayout.frame).not.toBe("none");
 		expect(noteLayout.titleSize).toBeGreaterThan(noteLayout.copySize);
 		expect(noteLayout.overflow).toBe(false);
 		expect(await call.evaluate((node) => getComputedStyle(node).boxShadow)).not.toBe("none");

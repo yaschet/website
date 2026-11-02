@@ -135,7 +135,10 @@ for (const theme of ["light", "dark"] as const) {
 		await nav.getByRole("link", { name: "Home", exact: true }).click();
 		await expect(page).toHaveURL(/\/$/);
 		await expect(
-			page.getByRole("heading", { name: "Complex systems, clean interfaces.", exact: true }),
+			page.getByRole("heading", {
+				name: "Business software, built end to end.",
+				exact: true,
+			}),
 		).toBeVisible();
 		await page.evaluate(() => document.fonts.ready);
 		await expect(page.locator("html")).not.toHaveAttribute("data-route-transition");
@@ -153,7 +156,7 @@ for (const theme of ["light", "dark"] as const) {
 			(await page.locator("html").getAttribute("data-route-capture")) ?? "{}",
 		);
 		expect(capture).toEqual({
-			previous: "Complex systems, clean interfaces.",
+			previous: "Business software, built end to end.",
 			current: "How I work.",
 			chromeCapturedSeparately: false,
 			exit: "portfolio-route-out",

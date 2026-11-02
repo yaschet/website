@@ -38,8 +38,8 @@ for (const theme of ["light", "dark"] as const) {
 			.toBe(true);
 
 		const cells = rail.locator(".portfolio-technology-cell:visible");
-		await expect(cells).toHaveCount(isMobile ? 3 : 6);
-		await expect(rail.locator(".portfolio-technology-current")).toHaveCount(isMobile ? 3 : 6);
+		await expect(cells).toHaveCount(isMobile ? 3 : 5);
+		await expect(rail.locator(".portfolio-technology-current")).toHaveCount(isMobile ? 3 : 5);
 		const widths = await cells.evaluateAll((nodes) =>
 			nodes.map((node) => node.getBoundingClientRect().width),
 		);
@@ -64,7 +64,7 @@ for (const theme of ["light", "dark"] as const) {
 		const core = ["Laravel", "OpenAI", "MeiliSearch"];
 		expect(initialTechnologies.slice(0, core.length)).toEqual(core);
 		for (const [title, highlights] of [
-			["Document Translation With Editable Tables", ["Next.js", "OpenAI", "Google Docs API"]],
+			["Verto — AI Translation Platform", ["Next.js", "OpenAI", "Stripe"]],
 			["Student Applications & Document Collection", ["Next.js", "Laravel", "AWS Textract"]],
 			["Agency CRM & Billing", ["Laravel", "Cash Plus", "MySQL"]],
 		] as const) {
@@ -96,20 +96,20 @@ for (const theme of ["light", "dark"] as const) {
 			expect(bottom).toBeCloseTo(8, 2);
 		}
 		const rotating = rail.locator('[data-rotation="rotating"]');
-		await expect(rotating).toHaveCount(3);
+		await expect(rotating).toHaveCount(isMobile ? 3 : 2);
 		expect(
 			await rotating.evaluateAll((nodes) =>
 				nodes.map((node) => getComputedStyle(node).getPropertyValue("--technology-phase")),
 			),
-		).toEqual(["100ms", "50ms", "0ms"]);
+		).toEqual(isMobile ? ["100ms", "50ms", "0ms"] : ["50ms", "0ms"]);
 		await page.keyboard.press("Tab");
 		await page.mouse.move(0, 0);
 		await expect(rail).toHaveAttribute("data-running", "true");
 		const nextFrame = isMobile
 			? ["PHP", "Livewire", "Alpine.js"]
-			: [...core, "MySQL", "Redis", "PHP"];
+			: [...core, "Alpine.js", "MySQL"];
 		await expect.poll(currentTechnologies, { timeout: 4_000 }).toEqual(nextFrame);
-		expect(new Set(await currentTechnologies()).size).toBe(isMobile ? 3 : 6);
+		expect(new Set(await currentTechnologies()).size).toBe(isMobile ? 3 : 5);
 		// Tab can scroll the next control into view; the rail's document geometry must stay fixed.
 		expect(await railGeometry()).toEqual(before);
 		const hoverBounds = await rail.boundingBox();
@@ -325,7 +325,7 @@ for (const theme of ["light", "dark"] as const) {
 		// A platform and its database each get one mark and one readable name.
 		await page
 			.getByRole("article", {
-				name: "Document Translation With Editable Tables",
+				name: "Verto — AI Translation Platform",
 				exact: true,
 			})
 			.getByRole("button", { name: /^Stack: all / })
@@ -347,7 +347,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.goto("/");
 		const project = page.getByRole("article", {
-			name: "Document Translation With Editable Tables",
+			name: "Verto — AI Translation Platform",
 			exact: true,
 		});
 		const rail = project.locator('[data-slot="project-technology-rail"]');
@@ -428,7 +428,7 @@ test.describe("stack frames on fractional-density displays", () => {
 			await page.goto("/");
 			const trigger = page
 				.getByRole("article", {
-					name: "Document Translation With Editable Tables",
+					name: "Verto — AI Translation Platform",
 					exact: true,
 				})
 				.getByRole("button", { name: /^Stack: all / });

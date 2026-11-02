@@ -150,7 +150,7 @@ test("a case study is prefetched with its content and back restores the listing"
 	await page.goto("/");
 	await page.evaluate(() => document.fonts.ready);
 	const card = page.getByRole("link", {
-		name: "Document Translation With Editable Tables",
+		name: "Verto — AI Translation Platform",
 		exact: true,
 	});
 	await card.scrollIntoViewIfNeeded();
@@ -163,7 +163,7 @@ test("a case study is prefetched with its content and back restores the listing"
 	await expect(page).toHaveURL(/\/case-studies\/verto$/);
 	await expect(
 		page.locator("main:visible").getByRole("heading", {
-			name: "Document Translation With Editable Tables",
+			name: "Verto — AI Translation Platform",
 			exact: true,
 		}),
 	).toBeVisible();
