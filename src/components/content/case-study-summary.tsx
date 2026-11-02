@@ -114,7 +114,10 @@ export function CaseStudyFacts({
 	stackHighlights,
 }: CaseStudyFactsProps) {
 	return (
-		<section className={styles.summary} aria-label={`Project details for ${projectTitle}`}>
+		<section
+			className={styles.summary}
+			aria-label={`${facts.length > 0 ? "Project" : "Technology"} details for ${projectTitle}`}
+		>
 			{facts.length > 0 && (
 				<dl
 					className={`portfolio-project-facts ${styles.facts}`}
