@@ -64,8 +64,7 @@ for (const position of ["top", "footer"] as const) {
 					);
 				const toggle = page.getByRole("button", { name: /^Theme: Switch/ });
 				await toggle.scrollIntoViewIfNeeded();
-				// Scrolling during a theme transition intentionally interrupts it. Settle
-				// the in-flow article dock before recording an uninterrupted transition.
+				// Settle the in-flow article dock before recording the theme change.
 				await page.evaluate(async () => {
 					let previous = -1;
 					do {
@@ -74,8 +73,12 @@ for (const position of ["top", "footer"] as const) {
 							requestAnimationFrame(() => resolve()),
 						);
 					} while (scrollY !== previous);
+					document.documentElement.dataset.paintNativeCalls = "0";
 					const start = document.startViewTransition.bind(document);
 					document.startViewTransition = (update) => {
+						document.documentElement.dataset.paintNativeCalls = String(
+							Number(document.documentElement.dataset.paintNativeCalls) + 1,
+						);
 						delete document.documentElement.dataset.paintFinished;
 						delete document.documentElement.dataset.paintMidpoint;
 						const transition = start(update);
@@ -110,35 +113,58 @@ for (const position of ["top", "footer"] as const) {
 					});
 					await expect.poll(() => frames.length).toBeGreaterThan(0);
 					await toggle.click();
-					await expect(page.locator("html")).toHaveAttribute(
-						"data-paint-midpoint",
-						"true",
-					);
-					try {
-						await expect
-							.poll(async () =>
-								(await sampleFrames(page, frames)).some(
-									({ red }) => red > 45 && red < 220,
-								),
-							)
-							.toBe(true);
-					} finally {
-						await page.evaluate(() => {
-							for (const animation of document.getAnimations()) {
-								if (
-									animation instanceof CSSAnimation &&
-									animation.animationName === "theme-surface-out"
+					if (position === "top") {
+						await expect(page.locator("html")).toHaveAttribute(
+							"data-paint-midpoint",
+							"true",
+						);
+						try {
+							await expect
+								.poll(async () =>
+									(await sampleFrames(page, frames)).some(
+										({ red }) => red > 45 && red < 220,
+									),
 								)
-									animation.play();
-							}
-						});
+								.toBe(true);
+						} finally {
+							await page.evaluate(() => {
+								for (const animation of document.getAnimations()) {
+									if (
+										animation instanceof CSSAnimation &&
+										animation.animationName === "theme-surface-out"
+									)
+										animation.play();
+								}
+							});
+						}
+						await expect(page.locator("html")).toHaveAttribute(
+							"data-paint-finished",
+							"true",
+						);
+					} else {
+						await expect(page.locator("html")).toHaveClass(
+							new RegExp(`\\b${destination}\\b`),
+						);
+						await expect(page.locator("html")).toHaveAttribute(
+							"data-paint-native-calls",
+							"0",
+						);
+						await expect(page.locator("html")).not.toHaveAttribute(
+							"data-theme-transition",
+							/.+/,
+						);
 					}
-					await expect(page.locator("html")).toHaveAttribute(
-						"data-paint-finished",
-						"true",
-					);
-					// Resume through native teardown: an endpoint screenshot alone misses
-					// the old bitmap flashing back after the animation completes.
+					await expect
+						.poll(async () => {
+							const red = (await sampleFrames(page, frames)).at(-1)?.red;
+							return (
+								red !== undefined &&
+								(destination === "light" ? red > 230 : red < 30)
+							);
+						})
+						.toBe(true);
+					// Observe teardown and atomic updates long enough to catch old pixels
+					// returning after the theme commits.
 					await page.evaluate(async () => {
 						const end = performance.now() + 250;
 						do {
@@ -160,7 +186,8 @@ for (const position of ["top", "footer"] as const) {
 					if (first === undefined || last === undefined)
 						throw new Error("No captured theme paints");
 					expect(Math.abs(last - first)).toBeGreaterThan(150);
-					expect(samples.some(({ red }) => red > 45 && red < 220)).toBe(true);
+					if (position === "top")
+						expect(samples.some(({ red }) => red > 45 && red < 220)).toBe(true);
 					const direction = destination === "light" ? 1 : -1;
 					let furthest = direction * first;
 					const reversals = samples.filter(({ red }) => {
