@@ -31,9 +31,13 @@ export function MediaImage({
 			? `${width ?? 1200}/${height ?? 800}`
 			: `${asset.width}/${asset.height}`;
 	return (
-		<figure data-breakout="true" className="media-breakout mb-(--portfolio-space-group)">
+		<figure
+			data-slot="media-panel"
+			data-breakout="true"
+			className="media-breakout mb-(--portfolio-space-group)"
+		>
 			<MediaGallery
-				items={[{ kind: "image", src: asset, alt, title, caption: caption ?? alt }]}
+				items={[{ kind: "image", src: asset, alt, title, caption }]}
 				altPrefix={alt || "Case-study image"}
 				aspectRatio={ratio}
 				showArrows={false}
@@ -45,9 +49,9 @@ export function MediaImage({
 				className={className}
 				sizes="(max-width: 768px) 100vw, 896px"
 			/>
-			{(caption || alt) && (
-				<figcaption className="mt-(--portfolio-space-tight) text-[13px]/5 text-muted-foreground">
-					{caption || alt}
+			{caption && (
+				<figcaption className="mt-(--portfolio-space-tight) text-[0.8125rem]/5 text-muted-foreground">
+					{caption}
 				</figcaption>
 			)}
 		</figure>

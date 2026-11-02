@@ -349,6 +349,9 @@
 	--foundation-menu-item-height: 40px;
 	--foundation-menu-selection-inset: 8px;
 }
+.cn-menu-target[data-video-settings="compact"] {
+	--foundation-menu-item-height: var(--foundation-control-height-lg);
+}
 .cn-menu-target[data-video-settings] [role="menuitemradio"] {
 	min-height: var(--foundation-control-height-md);
 	padding-block: 8px;

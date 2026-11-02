@@ -1,0 +1,186 @@
+.player {
+	--portfolio-control-default: var(--foundation-control-height-lg);
+}
+
+.player button[data-player-interactive]:active {
+	background: var(--color-surface-700);
+}
+
+.playbackArea:focus-visible {
+	outline: 2px solid var(--color-surface-50);
+	outline-offset: -4px;
+}
+
+.gallerySurface:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: -2px;
+}
+
+.controlsPanel {
+	--player-inline-inset: 1rem;
+	--player-bottom-inset: 0.75rem;
+	padding-inline: var(--player-inline-inset);
+	padding-block-end: var(--player-bottom-inset);
+}
+
+.compactControlsPanel {
+	--player-inline-inset: 0.5rem;
+	--player-bottom-inset: 0.25rem;
+}
+
+.posterReturn {
+	inset-block-start: 1rem;
+	inset-inline: 1rem;
+}
+
+.player[data-fullscreen] .controlsPanel {
+	padding-left: max(var(--player-inline-inset), env(safe-area-inset-left, 0px));
+	padding-right: max(var(--player-inline-inset), env(safe-area-inset-right, 0px));
+	padding-block-end: max(var(--player-bottom-inset), env(safe-area-inset-bottom, 0px));
+}
+
+.player[data-fullscreen] .posterReturn {
+	inset-block-start: max(1rem, env(safe-area-inset-top, 0px));
+	inset-inline-start: max(1rem, env(safe-area-inset-left, 0px));
+	inset-inline-end: max(1rem, env(safe-area-inset-right, 0px));
+}
+
+.seekInput:disabled {
+	cursor: default;
+	opacity: 0.4;
+}
+
+.loadingStatus {
+	position: absolute;
+	inset-block-start: 50%;
+	inset-inline-start: 50%;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+	padding: 0.5rem 0.75rem;
+	background: var(--color-surface-950);
+	color: var(--color-surface-50);
+	font-size: 0.875rem;
+	line-height: 1.4;
+	white-space: nowrap;
+}
+
+.previewArtwork {
+	transition: opacity 120ms ease-out;
+}
+
+.previewTime {
+	position: absolute;
+	inset-block-end: 0;
+	inset-inline-start: 0;
+	padding: 0.125rem 0.375rem;
+	background: var(--color-surface-950);
+	color: var(--color-surface-50);
+	font-size: 0.75rem;
+	line-height: 1rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.previewStatus {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	color: var(--color-surface-50);
+	font-size: 0.75rem;
+	line-height: 1rem;
+}
+
+.galleryStage {
+	transition: height 280ms ease;
+}
+
+.playbackFallback {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	overflow: auto;
+	padding: 0.5rem;
+	background: var(--color-surface-950);
+	color: var(--color-surface-50);
+	text-align: center;
+	font-size: 0.875rem;
+	line-height: 1.4;
+}
+
+.fallbackActions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.5rem;
+}
+
+.fallbackButton {
+	min-block-size: var(--foundation-control-height-lg);
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	padding: 0.5rem 0.75rem;
+	background: var(--color-surface-800);
+	color: var(--color-surface-50);
+	cursor: pointer;
+	overflow-wrap: anywhere;
+}
+
+.fallbackButton:hover {
+	background: var(--color-surface-700);
+}
+
+.fallbackButton:active {
+	background: var(--color-surface-600);
+}
+
+.fallbackButton:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.galleryStage {
+		transition: none;
+	}
+
+	.previewArtwork {
+		transition: none;
+	}
+}
+
+.player:fullscreen {
+	inline-size: 100vw;
+	block-size: 100dvh;
+}
+
+/* The page's reserved scrollbar gutter must not reduce the fullscreen stage. */
+html:has(.player:fullscreen) {
+	scrollbar-gutter: auto;
+}
+
+.seekInput {
+	block-size: 100%;
+}
+
+.settingsTrigger {
+	inline-size: var(--foundation-control-height-lg);
+	block-size: var(--foundation-control-height-lg);
+}
+
+.compactSettings {
+	min-inline-size: min(13rem, calc(100vw - 1.5rem));
+	max-inline-size: calc(100vw - 1.5rem);
+}
+
+.videoStage {
+	/* Include the article media frame's two 1px borders. */
+	min-block-size: calc(1.5rem + var(--foundation-control-height-lg) + 0.25rem + 2px);
+}
+
+@media (max-height: 32.5rem) and (orientation: landscape) {
+	.videoStage {
+		max-block-size: calc(100svh - 5rem);
+	}
+}

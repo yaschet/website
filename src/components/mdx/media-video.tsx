@@ -20,6 +20,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GalleryPlayButton } from "@/src/components/ui/gallery-play-button";
 import { PortfolioMuxVideo } from "@/src/components/ui/portfolio-mux-video";
+import videoStyles from "@/src/components/ui/portfolio-mux-video.module.css";
 import { StateSwap } from "@/src/components/ui/state-swap";
 import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
 import type { MuxVideoMetadata } from "@/src/content/types";
@@ -139,7 +140,7 @@ export function MediaVideo({
 	}, []);
 
 	useEffect(() => {
-		if (shouldLoad) return;
+		if (shouldLoad || playbackId) return;
 
 		const observer = new IntersectionObserver(
 			(entries) => {
@@ -153,7 +154,7 @@ export function MediaVideo({
 
 		if (containerRef.current) observer.observe(containerRef.current);
 		return () => observer.disconnect();
-	}, [shouldLoad]);
+	}, [playbackId, shouldLoad]);
 
 	// 1. Mux Mode
 	if (playbackId) {
@@ -166,6 +167,7 @@ export function MediaVideo({
 				<div
 					className={cn(
 						"relative aspect-video w-full overflow-hidden",
+						videoStyles.videoStage,
 						"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-800",
 						className,
 					)}
@@ -180,9 +182,11 @@ export function MediaVideo({
 					onPointerEnter={armHoverPreview}
 					onPointerLeave={clearHoverPreview}
 				>
-					{shouldLoad && (
+					{(isVideoRequested || isVideoVisible) && (
 						<div
 							className="absolute inset-0 z-0"
+							inert={!isVideoVisible}
+							aria-hidden={!isVideoVisible}
 							style={{
 								visibility: "visible",
 								pointerEvents: isVideoVisible ? "auto" : "none",
@@ -213,12 +217,34 @@ export function MediaVideo({
 										setIsVideoVisible(true);
 									}
 								}}
+								onPlaybackError={(failed) => {
+									if (!failed) return;
+									setIsVideoReady(true);
+									setIsVideoVisible(true);
+									setIsVideoRequested(false);
+									setIsVideoPlaying(false);
+								}}
+								onExit={() => {
+									setIsVideoVisible(false);
+									setIsVideoRequested(false);
+									setIsVideoPlaying(false);
+									setIsVideoReady(false);
+									requestAnimationFrame(() => {
+										containerRef.current
+											?.querySelector<HTMLButtonElement>(
+												"button[aria-label^='Play']",
+											)
+											?.focus({ preventScroll: true });
+									});
+								}}
 							/>
 						</div>
 					)}
 
 					<motion.div
 						className="absolute inset-0 z-10"
+						inert={isVideoVisible}
+						aria-hidden={isVideoVisible || undefined}
 						animate={{ opacity: isVideoVisible ? 0 : 1 }}
 						transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
 						style={{ pointerEvents: isVideoVisible ? "none" : "auto" }}
@@ -246,17 +272,19 @@ export function MediaVideo({
 									transition={springs.snappy}
 									aria-hidden={!hoverPreviewActive}
 								>
-									<Image
-										src={`https://image.mux.com/${playbackId}/animated.webp?width=640&fps=15&start=0&end=4`}
-										alt=""
-										fill
-										unoptimized
-										sizes="100vw"
-										className="object-cover"
-										loading="lazy"
-										decoding="async"
-										aria-hidden="true"
-									/>
+									{hoverPreviewActive ? (
+										<Image
+											src={`https://image.mux.com/${playbackId}/animated.webp?width=640&fps=15&start=0&end=4`}
+											alt=""
+											fill
+											unoptimized
+											sizes="100vw"
+											className="object-cover"
+											loading="lazy"
+											decoding="async"
+											aria-hidden="true"
+										/>
+									) : null}
 								</motion.div>
 								<div
 									className="pointer-events-none absolute inset-0 z-20"
@@ -285,7 +313,7 @@ export function MediaVideo({
 				</div>
 
 				{caption && (
-					<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
+					<figcaption className="mt-(--portfolio-space-tight) text-left text-[0.8125rem]/5 text-muted-foreground">
 						{caption}
 					</figcaption>
 				)}
@@ -399,14 +427,14 @@ export function MediaVideo({
 					</motion.div>
 
 					{/* Corner Badge - "Video" indicator */}
-					<div className="absolute top-3 left-3 border border-surface-200 bg-white/90 px-2 py-0.5 font-mono text-[10px] text-surface-900 uppercase tracking-widest opacity-0 transition-opacity group-hover:opacity-100 dark:border-surface-800 dark:bg-surface-900/90 dark:text-surface-100">
+					<div className="absolute top-3 left-3 border border-surface-200 bg-white/90 px-2 py-0.5 font-mono text-[0.625rem] text-surface-900 uppercase tracking-widest opacity-0 transition-opacity group-hover:opacity-100 dark:border-surface-800 dark:bg-surface-900/90 dark:text-surface-100">
 						Video
 					</div>
 				</button>
 
 				{/* Caption */}
 				{caption && (
-					<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
+					<figcaption className="mt-(--portfolio-space-tight) text-left text-[0.8125rem]/5 text-muted-foreground">
 						{caption}
 					</figcaption>
 				)}
