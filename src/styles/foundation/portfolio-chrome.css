@@ -10,7 +10,7 @@
 	row-gap: var(--portfolio-context-row-gap);
 }
 .portfolio-context-badge {
-	--context-line: var(--border);
+	--context-line: var(--portfolio-project-line);
 	display: flex;
 	position: relative;
 	align-items: center;
