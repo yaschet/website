@@ -536,6 +536,13 @@
 	visibility: hidden;
 	pointer-events: none;
 }
+@media (max-width: 63.999rem), (max-height: 32.5rem) {
+	.portfolio-nav,
+	.portfolio-tooltip,
+	.portfolio-tooltip-measure {
+		--portfolio-nav-inset: 6px;
+	}
+}
 @media (prefers-reduced-motion: reduce) {
 	.theme-toggle::before,
 	.portfolio-nav-control > svg,

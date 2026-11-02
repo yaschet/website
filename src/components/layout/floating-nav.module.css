@@ -44,13 +44,6 @@
 		--portfolio-space-tight: 4px;
 	}
 
-	/* The hint and its measuring copy are portaled outside the dock. */
-	.dock,
-	body:has(.dock) [class~="portfolio-tooltip"],
-	body:has(.dock) [class~="portfolio-tooltip-measure"] {
-		--portfolio-nav-inset: 6px;
-	}
-
 	.wrapper[data-article="true"] {
 		position: relative;
 		inset: auto;
