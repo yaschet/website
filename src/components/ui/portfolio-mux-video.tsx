@@ -34,7 +34,7 @@ import {
 import { GALLERY_CHROME_BUTTON_CLASS_NAME } from "./gallery-chrome";
 import { GalleryPlayButton } from "./gallery-play-button";
 import styles from "./portfolio-mux-video.module.css";
-import { CompactVideoSettingsMenu, VideoSettingsMenu } from "./video-settings-menu";
+import { CompactVideoSettingsMenu } from "./video-settings-menu";
 
 type PortfolioMuxVideoVariant = "gallery" | "lightbox" | "article";
 
@@ -274,10 +274,6 @@ function getMuxStreamSrc(playbackId: string) {
 	return `https://stream.mux.com/${playbackId}.m3u8`;
 }
 
-function getPlaybackRateLabel(value: number) {
-	return PLAYBACK_RATE_OPTIONS.find((option) => option.value === value)?.label ?? `${value}x`;
-}
-
 function pauseNativeMediaElement(media: HTMLMediaElement) {
 	try {
 		media.pause();
@@ -486,9 +482,6 @@ function PortfolioMuxVideoPlayer({
 	const hasQualityMenu = qualityOptions.length > 1;
 	const playedPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0;
 	const volumePercent = Math.min(Math.max(volume * 100, 0), 100);
-	const rateLabel = getPlaybackRateLabel(playbackRate);
-	const activeQualityOption = qualityOptions.find((option) => option.value === qualityValue);
-	const qualityLabel = activeQualityOption?.triggerLabel ?? activeQualityOption?.label ?? "Auto";
 	const volumeState = isMuted || volume <= 0.01 ? "muted" : volume < 0.5 ? "low" : "high";
 	const controlsInteractiveClassName = controlsVisible
 		? "pointer-events-auto"
@@ -1862,44 +1855,6 @@ function PortfolioMuxVideoPlayer({
 		value: String(option.value),
 	}));
 	const menuContainer = isFullscreen || variant === "lightbox" ? containerRef.current : undefined;
-	const qualityControl = hasQualityMenu ? (
-		<VideoSettingsMenu
-			kind="quality"
-			label="Select video quality"
-			triggerLabel={qualityValue === "auto" ? "Auto" : qualityLabel}
-			value={qualityValue}
-			options={resolvedQualityOptions}
-			open={openMenu === "quality"}
-			onOpenChange={(open) => {
-				setOpenMenu(open ? "quality" : null);
-				if (open) {
-					clearControlsTimeout();
-					setControlsVisible(true);
-				}
-			}}
-			onValueChange={handleQualityChange}
-			container={menuContainer}
-		/>
-	) : null;
-	const rateControl = (
-		<VideoSettingsMenu
-			kind="speed"
-			label="Select playback speed"
-			triggerLabel={rateLabel}
-			value={String(playbackRate)}
-			options={rateOptions}
-			open={openMenu === "rate"}
-			onOpenChange={(open) => {
-				setOpenMenu(open ? "rate" : null);
-				if (open) {
-					clearControlsTimeout();
-					setControlsVisible(true);
-				}
-			}}
-			onValueChange={handlePlaybackRateChange}
-			container={menuContainer}
-		/>
-	);
 	const compactSettingsControl = (
 		<CompactVideoSettingsMenu
 			open={openMenu === "settings"}
@@ -2268,7 +2223,12 @@ function PortfolioMuxVideoPlayer({
 								/>
 							</button>
 
-							<div className="flex shrink-0 items-center gap-2">
+							<div
+								className={cn(
+									"flex shrink-0 items-center gap-2",
+									styles.volumeGroup,
+								)}
+							>
 								{!isMinimalLayout && (
 									<button
 										type="button"
@@ -2295,7 +2255,7 @@ function PortfolioMuxVideoPlayer({
 								{showInlineVolume ? (
 									<div
 										data-player-interactive
-										className="flex items-center"
+										className={cn("flex items-center", styles.volumeReveal)}
 										onPointerEnter={handleVolumeControlPointerEnter}
 										onPointerLeave={handleVolumeControlPointerLeave}
 										onWheelCapture={handleInteractiveVolumeWheel}
@@ -2343,14 +2303,7 @@ function PortfolioMuxVideoPlayer({
 								isCompactLayout && "gap-1",
 							)}
 						>
-							{isCompactLayout ? (
-								compactSettingsControl
-							) : (
-								<>
-									{qualityControl}
-									{rateControl}
-								</>
-							)}
+							{compactSettingsControl}
 							{!isMinimalLayout && fullscreenControl}
 						</div>
 					</div>

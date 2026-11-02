@@ -268,3 +268,24 @@ html:has(.player:fullscreen) {
 		transition: none;
 	}
 }
+
+.volumeReveal {
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 120ms ease-out;
+}
+.volumeGroup:focus-within .volumeReveal {
+	opacity: 1;
+	pointer-events: auto;
+}
+@media (hover: hover) and (pointer: fine) {
+	.volumeGroup:hover .volumeReveal {
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.volumeReveal {
+		transition: none;
+	}
+}
