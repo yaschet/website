@@ -84,29 +84,23 @@ for (const theme of ["light", "dark"] as const) {
 				const copy = node.querySelector('[data-slot="project-copy"]');
 				const title = node.querySelector("h3");
 				const action = node.querySelector("[data-project-action]");
-				const description = copy?.querySelector(".portfolio-project-description");
-				if (!copy || !title || !action || !description)
+				const description = copy?.querySelector('[data-slot="project-summary"]');
+				const body = copy?.querySelector(".portfolio-project-body");
+				if (!copy || !title || !action || !description || !body)
 					throw new Error("Incomplete project card");
 				const t = title.getBoundingClientRect(),
 					a = action.getBoundingClientRect();
-				const overview = copy.querySelector('[data-slot="project-overview"]');
-				if (!overview) throw new Error("Missing project overview");
-				const regions = overview.querySelectorAll(
-					".portfolio-project-identity, .portfolio-project-story",
-				);
+				const style = getComputedStyle(body);
 				return {
 					actionWidth: a.width,
 					actionHeight: a.height,
 					centerDifference: Math.abs(t.top + t.height / 2 - a.top - a.height / 2),
-					regionInsets: [...regions].map((region) => {
-						const style = getComputedStyle(region);
-						return [
-							style.paddingTop,
-							style.paddingRight,
-							style.paddingBottom,
-							style.paddingLeft,
-						];
-					}),
+					bodyInsets: [
+						style.paddingTop,
+						style.paddingRight,
+						style.paddingBottom,
+						style.paddingLeft,
+					],
 					clamped: getComputedStyle(description).webkitLineClamp,
 					leading: Number.parseFloat(getComputedStyle(description).lineHeight),
 					overflow: node.scrollWidth > node.clientWidth + 1,
@@ -115,11 +109,8 @@ for (const theme of ["light", "dark"] as const) {
 			expect(layout.actionWidth).toBe(40);
 			expect(layout.actionHeight).toBe(40);
 			expect(layout.centerDifference).toBeLessThan(0.5);
-			expect(layout.regionInsets).toHaveLength(3);
-			for (const insets of layout.regionInsets) {
-				expect(new Set(insets).size).toBe(1);
-				expect(Number.parseFloat(insets[0] ?? "0")).toBeGreaterThanOrEqual(20);
-			}
+			expect(new Set(layout.bodyInsets).size).toBe(1);
+			expect(Number.parseFloat(layout.bodyInsets[0] ?? "0")).toBeGreaterThanOrEqual(20);
 			expect(layout.clamped).toBe("none");
 			expect(Number.isInteger(layout.leading)).toBe(true);
 			expect(layout.overflow).toBe(false);
@@ -182,7 +173,7 @@ for (const theme of ["light", "dark"] as const) {
 			const title = node.querySelector("h3");
 			const description = node.querySelector("p");
 			const card = node.closest("section")?.querySelector('[data-slot="project-card"]');
-			const cardCopy = card?.querySelector(".portfolio-project-identity");
+			const cardCopy = card?.querySelector(".portfolio-project-body");
 			if (!inset || !title || !description || !card || !cardCopy)
 				throw new Error("Missing confidential-work composition");
 			const style = getComputedStyle(inset);
