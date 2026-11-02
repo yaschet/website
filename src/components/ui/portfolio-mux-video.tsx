@@ -2202,7 +2202,7 @@ function PortfolioMuxVideoPlayer({
 					>
 						<div
 							className={cn(
-								"flex min-w-0 items-center gap-2",
+								"flex min-w-0 items-center gap-4",
 								controlsInteractiveClassName,
 								isCompactLayout && "gap-1",
 							)}
@@ -2227,62 +2227,64 @@ function PortfolioMuxVideoPlayer({
 								/>
 							</button>
 
-							{!isMinimalLayout && (
-								<button
-									type="button"
-									className={iconButtonClassName}
-									data-player-interactive
-									aria-label={isMuted ? "Unmute video" : "Mute video"}
-									onClick={(event) => {
-										event.preventDefault();
-										event.stopPropagation();
-										toggleMute();
-									}}
-								>
-									<StateSwap
-										value={volumeState}
-										items={{
-											muted: <SpeakerSimpleSlashIcon size={16} />,
-											low: <SpeakerLowIcon size={16} />,
-											high: <SpeakerHighIcon size={16} />,
-										}}
-									/>
-								</button>
-							)}
-
-							{showInlineVolume ? (
-								<div
-									data-player-interactive
-									className="hidden items-center pl-2 md:flex"
-									onPointerEnter={handleVolumeControlPointerEnter}
-									onPointerLeave={handleVolumeControlPointerLeave}
-									onWheelCapture={handleInteractiveVolumeWheel}
-									onWheel={handleInteractiveVolumeWheel}
-								>
-									<input
+							<div className="flex shrink-0 items-center">
+								{!isMinimalLayout && (
+									<button
+										type="button"
+										className={iconButtonClassName}
 										data-player-interactive
-										type="range"
-										min={0}
-										max={1}
-										step={0.05}
-										value={isMuted ? 0 : volume}
-										onChange={(event) =>
-											handleVolumeChange(Number(event.target.value))
-										}
+										aria-label={isMuted ? "Unmute video" : "Mute video"}
+										onClick={(event) => {
+											event.preventDefault();
+											event.stopPropagation();
+											toggleMute();
+										}}
+									>
+										<StateSwap
+											value={volumeState}
+											items={{
+												muted: <SpeakerSimpleSlashIcon size={16} />,
+												low: <SpeakerLowIcon size={16} />,
+												high: <SpeakerHighIcon size={16} />,
+											}}
+										/>
+									</button>
+								)}
+
+								{showInlineVolume ? (
+									<div
+										data-player-interactive
+										className="flex items-center"
 										onPointerEnter={handleVolumeControlPointerEnter}
 										onPointerLeave={handleVolumeControlPointerLeave}
 										onWheelCapture={handleInteractiveVolumeWheel}
 										onWheel={handleInteractiveVolumeWheel}
-										className="portfolio-video-volume w-20"
-										aria-label="Adjust video volume"
-										style={
-											{
-												"--portfolio-video-range-progress": `${volumePercent}%`,
-											} as CSSProperties
-										}
-									/>
-								</div>
-							) : null}
+									>
+										<input
+											data-player-interactive
+											type="range"
+											min={0}
+											max={1}
+											step={0.05}
+											value={isMuted ? 0 : volume}
+											onChange={(event) =>
+												handleVolumeChange(Number(event.target.value))
+											}
+											onPointerEnter={handleVolumeControlPointerEnter}
+											onPointerLeave={handleVolumeControlPointerLeave}
+											onWheelCapture={handleInteractiveVolumeWheel}
+											onWheel={handleInteractiveVolumeWheel}
+											className="portfolio-video-volume w-20"
+											aria-label="Adjust video volume"
+											style={
+												{
+													"--portfolio-video-range-progress": `${volumePercent}%`,
+												} as CSSProperties
+											}
+										/>
+									</div>
+								) : null}
+							</div>
 
 							<div className={hideVisibleTime ? "sr-only" : styles.timeDisplay}>
 								<span>{formatPlaybackTime(currentTime)}</span>
