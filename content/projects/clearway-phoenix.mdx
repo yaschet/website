@@ -2,8 +2,11 @@ export const metadata = {
 	"title": "University Program Matching",
 	"description": "Help study-abroad advisors find suitable programs, understand each match and build a student shortlist.",
 	"overview": {
-		"problem": "Advisors had to compare grades, entry conditions, fees and scholarships across spreadsheets to find suitable university programs.",
-		"solution": "I built a structured catalog, a resumable AI-assisted import and matching with visible score breakdowns, so advisors could inspect recommendations and save shortlists to the student's record."
+		"engagement": "Client project",
+		"context": "Internal tool",
+		"capability": "AI matching",
+		"summary": "I designed and built the complete matching platform, connecting the academic catalog, AI import pipeline and explainable recommendations in a workspace advisors could use during a student call.",
+		"challenge": "Four hundred students were waiting for program recommendations. Keyword matching missed related subjects, while admission rules were buried in inconsistent spreadsheets."
 	},
 	"subtitle": "Help study-abroad advisors find suitable programs, understand each match and build a student shortlist.",
 	"date": "2025-06-08",
@@ -12,8 +15,8 @@ export const metadata = {
 		"AI-assisted ETL",
 		"Internal tools"
 	],
-	"role": "Sole engineer",
-	"status": "Delivered · February–June 2025",
+	"role": "Product Engineer",
+	"status": "Delivered",
 	"domain": "Study-abroad advising",
 	"stack": [
 		"Laravel",
@@ -49,64 +52,51 @@ export const metadata = {
 			"poster": "/images/clearway-phoenix/phoenix-film-poster.jpg",
 			"title": "University Program Matching — Walkthrough",
 			"alt": "Help study-abroad advisors find suitable programs, understand each match and build a student shortlist.",
-			"caption": "University Program Matching",
+			"caption": "A prepared walkthrough of catalog maintenance, matching and student shortlists.",
 			"duration": "1:40",
 			"metadata": {
 				"video_title": "University Program Matching — Walkthrough",
 				"video_id": "ADqScPNcxmVG01yCz4E37NU01kYUi01Z01tLmseJ5n8G4gg"
 			}
+		},
+		{
+			"kind": "image",
+			"src": "/images/clearway-phoenix/phase-1/01-programs-table.png",
+			"alt": "University programs in the catalog maintenance interface.",
+			"caption": "Staff can maintain the program catalog without repeating an import."
+		},
+		{
+			"kind": "image",
+			"src": "/images/clearway-phoenix/phase-1/03-programs-modal-grade-requirements.png",
+			"alt": "Structured grade requirements for a university program.",
+			"caption": "Admission thresholds are stored as program rules the matching system can evaluate."
+		},
+		{
+			"kind": "image",
+			"src": "/images/clearway-phoenix/phase-1/13-settings-scholarship-types-categories.png",
+			"alt": "Scholarship types and categories maintained by agency staff.",
+			"caption": "Scholarship categories belong to the maintainable academic catalog."
 		}
-	]
+	],
+	"delivery": {
+		"label": "Build",
+		"period": "About 14 weeks · 2025"
+	}
 };
 
-The agency had spreadsheets full of university programs. Its advisors still had to work out which ones suited each student, weighing grades, entry conditions, fees and scholarships together.
-
-I built Phoenix to connect that catalog to the student's profile. Advisors can find relevant programs, inspect the reasons behind a match and save a shortlist to the student's record.
-
-I was the sole engineer responsible for the data model, import pipeline, matching logic, interface and deployment.
+I owned the matching platform from the client brief through product design, data modeling, import logic, matching, the complete interface and production deployment.
 
 ## Make Admission Conditions Usable
+
+Advisors needed to weigh grades, admission conditions, fees and scholarships together. Those rules were buried in inconsistent spreadsheets. Finding a relevant course name did not tell them whether the student could apply, afford it or qualify for a scholarship.
 
 A scholarship condition written in a spreadsheet cell is useful to someone reading it. To evaluate it against a student's grades, the system needs to know which program it applies to and what the condition requires.
 
 I modeled universities, programs, scholarships, accommodations and requirements as related records. Grade thresholds became explicit program requirements. Staff can maintain them through forms and detail views, so changing an admission condition does not depend on another spreadsheet import.
 
-<Image
-	src="/images/clearway-phoenix/phase-1/01-programs-table.png"
-	alt="University programs in the catalog maintenance interface."
-	width={3200}
-	height={1800}
-/>
-
-<Image
-	src="/images/clearway-phoenix/phase-1/03-programs-modal-grade-requirements.png"
-	alt="Structured grade requirements for a university program."
-	width={3200}
-	height={1800}
-/>
-
-<Image
-	src="/images/clearway-phoenix/phase-1/05-universities-table.png"
-	alt="University records in the academic catalog."
-	width={3200}
-	height={1800}
-/>
-
-<Image
-	src="/images/clearway-phoenix/phase-1/09-university-detail-overview.png"
-	alt="University details connected to the program catalog."
-	width={3200}
-	height={1800}
-/>
-
-<Image
-	src="/images/clearway-phoenix/phase-1/13-settings-scholarship-types-categories.png"
-	alt="Scholarship types and categories maintained by agency staff."
-	width={3200}
-	height={1800}
-/>
-
 ## Recover An Interrupted Import
+
+Import runs could last hours. A failure near the end should not mean starting over and paying to transform the same data again.
 
 The spreadsheets referenced one another. I made the importer follow those dependencies, creating universities before their programs and scholarships, and mapping the old IDs to the new records.
 
@@ -114,43 +104,39 @@ AI handles the inconsistent cells, with validation before the results enter the 
 
 An interrupted run can therefore resume its unfinished work while retaining what has already been processed.
 
-<Video
-	playbackId="kJTw38g10201L1Ahz4jYM401rX00SFvJ01Se94llaIV3olPc"
-	poster="/images/clearway-phoenix/etl-film-poster.jpg"
-	duration="0:20"
-	loop={false}
-	muted={false}
-	caption="Resumable AI-assisted spreadsheet import."
-	metadata={{
-		video_title: "AI-Assisted Spreadsheet Import",
-		video_id: "bZDHMdqeNo64z313wZnxESau1gTCEfRPah4AIsfTt3A",
-	}}
+<Gallery
+	items={[
+		{
+			"kind": "mux-video",
+			"playbackId": "kJTw38g10201L1Ahz4jYM401rX00SFvJ01Se94llaIV3olPc",
+			"poster": "/images/clearway-phoenix/etl-film-poster.jpg",
+			"title": "AI-assisted spreadsheet import",
+			"duration": "0:20",
+			"caption": "An accelerated replay of a resumable import, with progress and failure details visible.",
+			"metadata": {
+				"video_title": "AI-Assisted Spreadsheet Import",
+				"video_id": "bZDHMdqeNo64z313wZnxESau1gTCEfRPah4AIsfTt3A"
+			}
+		},
+		{
+			"kind": "image",
+			"src": "/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png",
+			"alt": "Import dashboard showing stages, failures and cost information.",
+			"caption": "The operator can see the active stage, failures and demonstration cost totals."
+		},
+		{
+			"kind": "image",
+			"src": "/images/clearway-phoenix/phase-2/p2-03-editorial-signal-detail.png",
+			"alt": "Detailed progress and failure information for an import run.",
+			"caption": "Checkpoint and failure details help identify unfinished work before resuming."
+		}
+	]}
+	caption="Import progress and recovery."
 />
 
 *The 20-second film shows the importer through an accelerated demonstration replay.*
 
 The terminal shows the current stage, throughput, failures and cost information, giving the operator a way to see where a run stands and what needs attention.
-
-<Image
-	src="/images/clearway-phoenix/phase-2/p2-archive-dashboard-hero.png"
-	alt="Import dashboard showing stages, failures and cost information."
-	width={3200}
-	height={1800}
-/>
-
-<Image
-	src="/images/clearway-phoenix/phase-2/p2-02-editorial-dashboard-angle.png"
-	alt="Import run status in the terminal dashboard."
-	width={3200}
-	height={1800}
-/>
-
-<Image
-	src="/images/clearway-phoenix/phase-2/p2-03-editorial-signal-detail.png"
-	alt="Detailed progress and failure information for an import run."
-	width={3200}
-	height={1800}
-/>
 
 ## Explain Why A Program Fits
 
@@ -158,35 +144,37 @@ I separated finding relevant programs from evaluating their suitability. Semanti
 
 Alongside MeiliSearch, the matching system uses 13 weighted criteria, including grades, field of study, scholarships, deadlines and available places. Each score has a visible breakdown, with critical conditions flagged alongside it. An advisor can examine a promising result and understand what is helping or hurting the match.
 
-<Image
-	src="/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png"
-	alt="A machine-learning search returning related university programs."
-	width={3200}
-	height={1800}
-/>
-
-<Image
-	src="/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png"
-	alt="A program score broken down by matching criterion."
-	width={3200}
-	height={1800}
-/>
-
-<Image
-	src="/images/clearway-phoenix/phase-3/p3-04-critical-score-breakdown.png"
-	alt="Critical conditions shown alongside a program's score."
-	width={3200}
-	height={1800}
+<Gallery
+	items={[
+		{
+			"kind": "image",
+			"src": "/images/clearway-phoenix/phase-3/p3-01-semantic-search-machine-learning.png",
+			"alt": "A machine-learning search returning related university programs.",
+			"caption": "Semantic matching finds related fields beyond an exact course-name keyword."
+		},
+		{
+			"kind": "image",
+			"src": "/images/clearway-phoenix/phase-3/p3-02-match-score-positive-breakdown.png",
+			"alt": "A program score broken down by matching criterion.",
+			"caption": "A visible criterion breakdown lets an advisor inspect the reasons behind a match."
+		},
+		{
+			"kind": "image",
+			"src": "/images/clearway-phoenix/phase-3/p3-04-critical-score-breakdown.png",
+			"alt": "Critical conditions shown alongside a program score.",
+			"caption": "Critical conditions remain visible alongside a promising aggregate score."
+		},
+		{
+			"kind": "image",
+			"src": "/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png",
+			"alt": "Programs assigned to a student with priority and status.",
+			"caption": "Saving a shortlist carries priority and application status into the student record."
+		}
+	]}
+	caption="From matching reasons to an assigned shortlist."
 />
 
 The advisor makes the recommendation. Assigning a program saves its priority and application status on the student's record, carrying the decision into the agency's next steps.
-
-<Image
-	src="/images/clearway-phoenix/phase-3/p3-06-assigned-programs-workflow.png"
-	alt="Programs assigned to a student with priority and status."
-	width={3200}
-	height={1800}
-/>
 
 ## Keep The Shortlist In The Agency's Workflow
 
@@ -194,4 +182,8 @@ I delivered Phoenix inside the agency's Laravel platform, using the customer and
 
 Staff can maintain the catalog, recover an import and follow a recommendation through to assignment. When a program scores well, the advisor has the underlying conditions and score breakdown available before deciding to put it on a student's shortlist.
 
+The case demonstrates the delivered workflow; it does not quantify a change in advising time or student outcomes.
+
 *Clearway is an anonymized client identity. The films and screenshots use synthetic records and prepared replay data; displayed totals, timings and costs describe the demonstration.*
+
+Related work: [Student Applications & Document Collection](/case-studies/clearway-portal) shows how documents and grades reach those same student records.

@@ -2,6 +2,7 @@ import "server-only";
 
 import { compareDesc } from "date-fns";
 import { cache } from "react";
+import { calculateReadingTime } from "@/src/content/reading-time";
 import {
 	BLOG_DIR,
 	hasSourceFile,
@@ -19,21 +20,10 @@ import {
 	projectMetadataSchema,
 } from "@/src/content/types";
 
-const WORDS_PER_MINUTE = 200;
-
 type ContentModule<TMetadata> = {
 	default: MDXContentComponent;
 	metadata: TMetadata;
 };
-
-function stripMetadataExport(source: string) {
-	return source.replace(/^export\s+const\s+metadata\s*=\s*{[\s\S]*?^}\s*;?\s*$/m, "").trim();
-}
-
-function calculateReadingTime(source: string) {
-	const wordCount = stripMetadataExport(source).split(/\s+/g).filter(Boolean).length;
-	return Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
-}
 
 const loadPostModule = cache(async (slug: string) => {
 	return (await import(`@/content/blog/${slug}.mdx`)) as ContentModule<PostMetadata>;
