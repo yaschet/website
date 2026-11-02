@@ -48,6 +48,13 @@ for (const theme of ["light", "dark"] as const) {
 			await play.focus();
 			await page.keyboard.press("Enter");
 		}
-		await expect(card.locator("mux-video[data-playback-id]")).toHaveCount(1);
+		// Transport is intentionally blocked: the mounted player can fail before the
+		// next assertion polls. Verify the durable, usable result of that activation.
+		await expect(card.locator("[data-playback-error]")).toBeVisible();
+		await expect(card.getByRole("button", { name: "Try again", exact: true })).toBeVisible();
+		await expect(
+			card.getByRole("button", { name: "Return to poster", exact: true }),
+		).toBeVisible();
+		await expect(play).toBeHidden();
 	});
 }
