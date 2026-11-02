@@ -115,7 +115,13 @@ for (const theme of ["light", "dark"]) {
 			await expect(page.getByRole("menu")).toHaveCount(0);
 			await expect(dialog).toBeVisible();
 			await expect(trigger).toBeFocused();
+			// Input ownership does not depend on autoplay. Give the transport an
+			// explicit play intent before exercising Pause and the paused timeline.
+			if (await media.evaluate((node) => (node as HTMLMediaElement).paused))
+				await dialog.getByRole("button", { name: "Play video", exact: true }).click();
+			await expect(media).toHaveJSProperty("paused", false);
 			await dialog.getByRole("button", { name: "Pause video", exact: true }).click();
+			await expect(media).toHaveJSProperty("paused", true);
 			const slider = dialog.getByRole("slider", { name: "Seek video timeline", exact: true });
 			const beforeSeek = Number(await slider.inputValue());
 			await slider.focus();

@@ -126,7 +126,8 @@ for (const theme of ["light", "dark"]) {
 					right: frame.right - inner.right,
 				};
 			});
-			expect(geometry.height).toBe(40);
+			// The contact form raises its phone submit target without enlarging the glyph.
+			expect(geometry.height).toBe(width < 640 ? 44 : 40);
 			expect(geometry.left).toBeCloseTo(geometry.right, 1);
 			if (width < 640) expect(geometry.width).toBe(geometry.formWidth);
 			else expect(geometry.left).toBe(13);

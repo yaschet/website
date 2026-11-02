@@ -1,5 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
+import { installMuxMediaFixture } from "./helpers/mux-media-fixture";
 
 test("12 to 3 and 4 to 8 move both artwork planes on the same clock", async ({
 	page,
@@ -303,7 +304,9 @@ test("zoom reels keep their places through rapid changes and settle on the lates
 });
 
 test("video ambience follows presented color changes and stops with playback", async ({ page }) => {
-	await page.route(/https:\/\/[^/]*mux\.(com|dev)\//, (route) => route.abort());
+	// Keep the transport alive while the native video presents our synthetic frames.
+	// Deliberately failed delivery now correctly replaces the player with its fallback.
+	await installMuxMediaFixture(page);
 	await page.goto(
 		"/iframe.html?id=components-media-mediagallery--video-and-image&viewMode=story&globals=theme:dark",
 	);
