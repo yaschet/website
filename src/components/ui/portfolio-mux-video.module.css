@@ -70,11 +70,11 @@
 
 .timeDisplay {
 	display: inline-flex;
-	align-items: baseline;
 	gap: 0.375rem;
-	margin-inline-start: 0.25rem;
-	min-block-size: 2rem;
-	padding-block: 0.5rem;
+	block-size: var(--foundation-control-height-xl);
+	align-items: center;
+	padding-inline: 0.75rem;
+	background: var(--palette-neutral-900);
 	color: var(--palette-neutral-50);
 	font-size: 0.75rem;
 	line-height: 1rem;
@@ -90,7 +90,7 @@
 }
 
 .controlsPanel button {
-	background: transparent;
+	background: var(--palette-neutral-900);
 }
 
 .controlsPanel button:is(:hover, :focus-visible, [aria-expanded="true"]) {
@@ -270,16 +270,27 @@ html:has(.player:fullscreen) {
 }
 
 .volumeReveal {
+	inline-size: 0;
+	margin-inline-start: 0;
+	overflow: hidden;
+	flex-shrink: 0;
 	opacity: 0;
 	pointer-events: none;
-	transition: opacity 120ms ease-out;
+	transition:
+		inline-size 220ms var(--ease-smooth-out),
+		margin-inline-start 220ms var(--ease-smooth-out),
+		opacity 120ms ease-out;
 }
 .volumeGroup:focus-within .volumeReveal {
+	inline-size: 5rem;
+	margin-inline-start: 0.5rem;
 	opacity: 1;
 	pointer-events: auto;
 }
 @media (hover: hover) and (pointer: fine) {
 	.volumeGroup:hover .volumeReveal {
+		inline-size: 5rem;
+		margin-inline-start: 0.5rem;
 		opacity: 1;
 		pointer-events: auto;
 	}
