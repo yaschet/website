@@ -399,16 +399,35 @@
 
   .portfolio-project-card {
     --project-inset: var(--portfolio-space-related);
+    --project-frame-line: var(--portfolio-project-line);
     position: relative;
-    border: var(--foundation-hairline) solid var(--portfolio-project-line);
+    isolation: isolate;
+    border: 0 solid var(--project-frame-line);
   }
 
-  .portfolio-project-preview {
-    border-bottom: var(--foundation-hairline) solid var(--portfolio-project-line);
+  /* The perimeter paints over flush media; it never reserves a fractional gutter. */
+  .portfolio-project-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 var(--foundation-hairline) var(--project-frame-line);
+    transition: box-shadow var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  .portfolio-project-preview::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: var(--foundation-hairline);
+    z-index: 10;
+    pointer-events: none;
+    background: var(--portfolio-project-line);
   }
 
   .portfolio-project-copy {
-    --text-body-sm--line-height: 22px;
+    --text-body-sm--line-height: 1.375rem;
     container: project-caption / inline-size;
     position: relative;
     overflow-wrap: anywhere;
@@ -508,17 +527,17 @@
   }
 
   .portfolio-project-card:has(.portfolio-project-link:focus-visible) {
-    border-color: var(--foundation-control-line-active);
+    --project-frame-line: var(--foundation-control-line-active);
+    transition: none;
+  }
+
+  .portfolio-project-card:has(.portfolio-project-link:focus-visible)::after {
     transition: none;
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .portfolio-project-card[data-navigable] {
-      transition: border-color var(--duration-quick) var(--ease-smooth-out);
-    }
-
     .portfolio-project-card:has(.portfolio-project-link:hover) {
-      border-color: var(--portfolio-project-line-hover);
+      --project-frame-line: var(--portfolio-project-line-hover);
     }
 
     .portfolio-project-link:hover [data-project-action] {
@@ -552,13 +571,13 @@
     }
 
     .portfolio-project-copy {
-      --text-body-sm--line-height: 24px;
+      --text-body-sm--line-height: 1.5rem;
     }
 
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .portfolio-project-card[data-navigable],
+    .portfolio-project-card::after,
     .portfolio-project-link [data-project-action] {
       transition: none;
     }
