@@ -26,7 +26,7 @@ export function CaseStudiesPageContent({ projects }: { projects: readonly Projec
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
 				<section id="projects-list" className="w-full">
 					<PageContainer mobileBleed className="portfolio-section-top">
-						<SwissGridBox>
+						<SwissGridBox className="portfolio-work-archive-frame">
 							<SwissGridRow>
 								<PageIntroPanel
 									eyebrow="Work"
@@ -50,7 +50,7 @@ export function CaseStudiesPageContent({ projects }: { projects: readonly Projec
 							</SwissGridRow>
 							<SwissGridRow>
 								{hasProjects ? (
-									<div className="portfolio-box-pad">
+									<div className="portfolio-work-list-pad py-[var(--portfolio-box-pad-mobile)] sm:p-[var(--portfolio-box-pad-desktop)]">
 										<div className="portfolio-stack-group">
 											{projects.map((project, i) =>
 												i === 0 ? (

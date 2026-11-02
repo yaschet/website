@@ -1759,3 +1759,19 @@ pre {
       inset 0 calc(-1 * var(--portfolio-hairline-width)) 0 var(--portfolio-chrome-hairline);
   }
 }
+
+@media (width < 40rem) {
+  /* Media meets the viewport; the card copy retains its own reading inset. */
+  .portfolio-work-list-pad {
+    padding-inline: 0 !important;
+  }
+  .portfolio-work-archive-frame {
+    background: transparent;
+  }
+  .portfolio-work-archive-frame > .portfolio-grid-row:first-child {
+    background: var(--portfolio-panel);
+  }
+  [data-mobile-bleed="true"] .portfolio-work-archive-frame::after {
+    box-shadow: none;
+  }
+}

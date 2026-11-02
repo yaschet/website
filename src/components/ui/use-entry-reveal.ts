@@ -46,10 +46,11 @@ export function useEntryReveal(
 		const transition = getRouteTransition();
 		if (transition && effect !== "resolve") return;
 		let cancelled = false;
+		const singleLayerHeading = matchMedia("(width < 40rem), (pointer: coarse)").matches;
 		const resolveLayers = element.querySelectorAll<HTMLElement>(
 			"[data-resolve-sharp], [data-resolve-front]",
 		);
-		if (effect === "resolve" && resolveLayers.length) {
+		if (effect === "resolve" && resolveLayers.length && !singleLayerHeading) {
 			const animations = Array.from(resolveLayers, (layer) => {
 				const timing = getComputedStyle(
 					layer.parentElement?.closest("[data-heading-word]") ?? element,
@@ -94,12 +95,12 @@ export function useEntryReveal(
 						...(effect === "rise"
 							? { transform: `translateY(${distances.small}px)` }
 							: {}),
-						...(heading ? { filter: blur.subtle } : {}),
+						...(heading && !singleLayerHeading ? { filter: blur.subtle } : {}),
 					},
 					{
 						opacity: 1,
 						...(effect === "rise" ? { transform: "translateY(0)" } : {}),
-						...(heading ? { filter: blur.none } : {}),
+						...(heading && !singleLayerHeading ? { filter: blur.none } : {}),
 					},
 				],
 				{

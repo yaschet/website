@@ -66,7 +66,7 @@ export function HomePageContent({
 				</PageContainer>
 
 				{/* Box 2: Selected Work */}
-				<PageContainer className="mt-10">
+				<PageContainer mobileBleed className="mt-10">
 					<section
 						id="work"
 						className="scroll-mt-5"
