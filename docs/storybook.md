@@ -225,7 +225,10 @@ triggers axe's `aria-hidden-focus` rule. Menu content remains scanned; keyboard
 selection, Escape, Tab navigation and focus return remain interaction-tested.
 
 About and Contact examples render `AboutPrinciples`, `EditorialSection`,
-`ContactMethods`, `PageIntro` and `ContactMessage` from production. The form's
+`ContactMethods`, `PageIntro` and `ContactMessage` from production. The complete
+Contact example matches the launch fallback, with email and booking available
+and the form unavailable by default. Explicit form-state stories opt in to the
+form independently of the server-only `CONTACT_FORM_ENABLED` gate. The form's
 Page Section story includes its real heading and layout, using the same isolated
 action mock as the existing validation/pending/failure/retry examples. Responsive
 checks cover these compositions at 320px, 390px and 1280px in both themes,

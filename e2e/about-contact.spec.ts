@@ -37,40 +37,20 @@ for (const theme of ["light", "dark"] as const) {
 		await page.getByRole("link", { name: "Discuss a project", exact: true }).click();
 		await expect(page).toHaveURL(/\/contact$/);
 		await expect(page.getByRole("heading", { name: "Let’s talk.", level: 1 })).toBeVisible();
-		const form = page.getByRole("form", { name: "Send a message" });
-		await expect(form).toBeVisible();
-		const inputHeight = (page.viewportSize()?.width ?? 0) < 640 ? 44 : 40;
-		for (const name of ["Name", "Email", "Subject"]) {
-			const input = form.getByRole("textbox", { name, exact: true });
-			await expect(input).toHaveAttribute("aria-required", "true");
-			expect(await input.evaluate((el) => el.getBoundingClientRect().height)).toBe(
-				inputHeight,
-			);
-		}
-		await expect(form.getByRole("textbox", { name: "Name", exact: true })).toHaveAttribute(
-			"autocomplete",
-			"name",
+		await expect(page.getByRole("form", { name: "Send a message" })).toHaveCount(0);
+		await expect(page.getByRole("button", { name: "Send message", exact: true })).toHaveCount(
+			0,
 		);
-		const email = form.getByRole("textbox", { name: "Email", exact: true });
-		await expect(email).toHaveAttribute("autocomplete", "email");
-		await email.fill("invalid");
-		await form.getByRole("textbox", { name: "Subject", exact: true }).focus();
-		await expect(email).toHaveAttribute("aria-invalid", "true");
-		const errorId = await email.getAttribute("aria-describedby");
-		await expect(page.locator(`[id="${errorId}"]`)).toHaveText(
-			"Please enter a valid email address",
+		await expect(page.getByRole("link", { name: "Email", exact: true })).toHaveAttribute(
+			"href",
+			"mailto:hello@yaschet.com",
 		);
-		await expect(form.getByRole("button", { name: "Send message" })).toBeDisabled();
-		await email.fill("reviewer@example.test");
-		await expect(email).not.toHaveAttribute("aria-invalid", "true");
-		await expect(form.getByRole("textbox", { name: "Message", exact: true })).toBeEmpty();
-		expect(
-			await form
-				.getByRole("textbox", { name: "Message", exact: true })
-				.evaluate((node) => node.getBoundingClientRect().height),
-		).toBeGreaterThanOrEqual(160);
+		await expect(page.getByRole("link", { name: "Book a call", exact: true })).toHaveAttribute(
+			"href",
+			"https://cal.com/yassinechettouch/15min",
+		);
 		await assertFits(page);
-		// No submit: real-page verification must never send a contact email.
+		// Launch uses email/booking; form states are reviewed only in isolated Storybook fixtures.
 	});
 }
 

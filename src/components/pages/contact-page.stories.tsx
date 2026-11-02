@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { usePathname } from "@storybook/nextjs-vite/navigation.mock";
 import { expect, fireEvent, mocked, waitFor } from "storybook/test";
 import { submitContactForm } from "@/src/app/actions/contact";
-import ContactPage from "@/src/app/contact/page";
+import { ContactPage } from "@/src/components/pages/contact-page";
 import { toast } from "@/src/components/ui/sonner";
 import { fullPageDecorator, fullPageParameters } from "../../../.storybook/full-page-preview";
 
@@ -17,11 +17,12 @@ const meta = {
 			...fullPageParameters.docs,
 			description: {
 				component:
-					"The complete contact page with isolated delivery. Named states prepare the real form interaction for review; no email is sent. Full Page is ready for manual interaction.",
+					"The complete launch contact page uses email and booking. Named form states explicitly enable an isolated presentation fixture with a mocked action; no email is sent.",
 			},
 		},
 	},
 	decorators: [fullPageDecorator],
+	args: { formEnabled: false },
 	beforeEach: () => {
 		usePathname.mockReturnValue("/contact");
 		toast.close();
@@ -48,8 +49,23 @@ const fillAndSubmit: NonNullable<Story["play"]> = async ({ canvas, userEvent }) 
 	await userEvent.click(canvas.getByRole("button", { name: "Send message" }));
 };
 
-export const FullPage: Story = {};
+export const FullPage: Story = {
+	play: async ({ canvas }) => {
+		await expect(
+			canvas.queryByRole("form", { name: "Send a message" }),
+		).not.toBeInTheDocument();
+		await expect(canvas.getByRole("link", { name: /^Email$/ })).toHaveAttribute(
+			"href",
+			"mailto:hello@yaschet.com",
+		);
+		await expect(canvas.getByRole("link", { name: /^Book a call$/ })).toHaveAttribute(
+			"href",
+			"https://cal.com/yassinechettouch/15min",
+		);
+	},
+};
 export const ValidationErrors: Story = {
+	args: { formEnabled: true },
 	play: async ({ canvas, userEvent }) => {
 		const email = canvas.getByRole("textbox", { name: "Email" });
 		await userEvent.type(email, "invalid");
@@ -59,6 +75,7 @@ export const ValidationErrors: Story = {
 	},
 };
 export const Sending: Story = {
+	args: { formEnabled: true },
 	beforeEach: () => {
 		mocked(submitContactForm).mockImplementation(() => new Promise(() => {}));
 	},
@@ -70,6 +87,7 @@ export const Sending: Story = {
 	},
 };
 export const MessageSent: Story = {
+	args: { formEnabled: true },
 	beforeEach: () => {
 		mocked(submitContactForm).mockResolvedValue({ success: true });
 	},
@@ -80,6 +98,7 @@ export const MessageSent: Story = {
 	},
 };
 export const DeliveryUnavailable: Story = {
+	args: { formEnabled: true },
 	play: async (context) => {
 		await fillAndSubmit(context);
 		await waitFor(() =>
@@ -90,6 +109,7 @@ export const DeliveryUnavailable: Story = {
 	},
 };
 export const RateLimited: Story = {
+	args: { formEnabled: true },
 	beforeEach: () => {
 		mocked(submitContactForm).mockResolvedValue({
 			success: false,

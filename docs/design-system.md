@@ -579,8 +579,10 @@ not acquire button-like hover frames. Existing authored claims remain intact.
 
 `ContactMethods` renders native Foundation links and complete, wrapping copy.
 Methods stack until 1024px, then use three equal columns with aligned action
-rows. The page owns the outer inset. `ContactMessage` gives the real form a
-visible heading and introduction, separated from its fields by 30px.
+rows. The page owns the outer inset. The launch page keeps email and booking
+available while the server-only `CONTACT_FORM_ENABLED` gate defaults to false.
+When enabled after delivery verification, `ContactMessage` gives the real form
+a visible heading and introduction, separated from its fields by 30px.
 Fields use 8px label/control gaps, 24px field/column gaps and 40px controls;
 below 640px, inputs and the submit action have a 44px minimum height, and
 inputs use 1rem text to avoid small-text focus zoom on iOS.

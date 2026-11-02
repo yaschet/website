@@ -32,7 +32,31 @@ for (const theme of ["light", "dark"]) {
 						expect(Math.max(...positions) - Math.min(...positions)).toBeLessThan(1);
 				}
 				if (id === "forms-contact--page-section") {
+					const form = root.getByRole("form", { name: "Send a message" });
+					for (const name of ["Name", "Email", "Subject"]) {
+						const input = form.getByRole("textbox", { name, exact: true });
+						await expect(input).toHaveAttribute("aria-required", "true");
+						expect(
+							await input.evaluate((el) => el.getBoundingClientRect().height),
+						).toBe(width < 640 ? 44 : 40);
+					}
+					await expect(
+						form.getByRole("textbox", { name: "Name", exact: true }),
+					).toHaveAttribute("autocomplete", "name");
+					const email = form.getByRole("textbox", { name: "Email", exact: true });
+					await expect(email).toHaveAttribute("autocomplete", "email");
+					await email.fill("invalid");
+					await form.getByRole("textbox", { name: "Subject", exact: true }).focus();
+					await expect(email).toHaveAttribute("aria-invalid", "true");
+					const errorId = await email.getAttribute("aria-describedby");
+					await expect(root.locator(`[id="${errorId}"]`)).toHaveText(
+						"Please enter a valid email address",
+					);
+					await expect(form.getByRole("button", { name: "Send message" })).toBeDisabled();
+					await email.fill("reviewer@example.test");
+					await expect(email).not.toHaveAttribute("aria-invalid", "true");
 					const message = root.getByRole("textbox", { name: "Message", exact: true });
+					await expect(message).toBeEmpty();
 					expect(
 						await message.evaluate((node) => node.getBoundingClientRect().height),
 					).toBeGreaterThanOrEqual(160);

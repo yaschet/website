@@ -199,6 +199,7 @@ for (const theme of ["light", "dark"] as const) {
 			release();
 		}
 		await expect(page).toHaveURL(/\/contact$/);
-		await expect(page.getByRole("button", { name: "Send message", exact: true })).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Let’s talk.", level: 1 })).toBeVisible();
+		await expect(page.getByRole("link", { name: "Email", exact: true })).toBeVisible();
 	});
 }

@@ -76,7 +76,7 @@ async function expectNotification(canvasElement: HTMLElement, message: string) {
 	});
 }
 export const Empty: Story = {};
-export const PageSection: Story = { render: () => <ContactMessage /> };
+export const PageSection: Story = { render: () => <ContactMessage formEnabled /> };
 export const Validation: Story = {
 	play: async (context) => {
 		const email = context.canvas.getByRole("textbox", { name: "Email" });

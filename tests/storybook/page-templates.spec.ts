@@ -36,6 +36,17 @@ for (const theme of ["light", "dark"] as const) {
 					await expect(page.locator("#header")).toHaveCount(1);
 					await expect(page.getByRole("main")).toHaveCount(1);
 					await expect(page.locator("footer")).toHaveCount(1);
+					if (id === "pages-contact") {
+						await expect(
+							page.getByRole("form", { name: "Send a message" }),
+						).toHaveCount(0);
+						await expect(
+							page.getByRole("link", { name: "Email", exact: true }),
+						).toHaveAttribute("href", "mailto:hello@yaschet.com");
+						await expect(
+							page.getByRole("link", { name: "Book a call", exact: true }),
+						).toHaveAttribute("href", "https://cal.com/yassinechettouch/15min");
+					}
 					const dock = page.getByRole("navigation", { name: "Main navigation" });
 					await expect(dock).toHaveCount(1);
 					await expect(
