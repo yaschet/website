@@ -149,8 +149,8 @@ test("old-only root snapshots preserve scrolled pixels independently of theme an
 					html.changed, html.changed body { background: black; }
 					html[data-active] { view-transition-name: none; }
 					::view-transition-group(root) { animation: none; }
-					::view-transition-old(root) { height: auto; object-fit: none; object-position: left top; animation: probe-hold 240ms linear both paused; mix-blend-mode: normal; }
-					::view-transition-new(probe-entry) { animation: probe-hold 240ms linear both paused; }
+					::view-transition-old(root) { height: auto; object-fit: none; object-position: left top; animation: probe-hold 600s linear both; mix-blend-mode: normal; }
+					::view-transition-new(probe-entry) { animation: probe-hold 600s linear both; }
 					@keyframes probe-hold { from { opacity: 1; } to { opacity: 1; } }
 				</style><div id="probe" style="position:fixed;left:8px;top:24px;width:80px;height:40px;background:#f0f"></div>`);
 				await page.evaluate((offset) => scrollTo(0, offset), offset);
@@ -230,7 +230,6 @@ for (const theme of ["light", "dark"] as const) {
 								animation instanceof CSSAnimation &&
 								animation.animationName === "theme-surface-out"
 							) {
-								animation.pause();
 								animation.currentTime = 0;
 							}
 						}
@@ -248,9 +247,11 @@ for (const theme of ["light", "dark"] as const) {
 				// This test measures bitmap geometry, not the separately tested fade.
 				// Keep its color probes opaque at every animation time: a nearly
 				// transparent magenta pixel is not evidence of a clipped snapshot.
+				// Keep the native compositor running with ample capture time, rather
+				// than relying on how a backend paints paused View Transition images.
 				const geometryStyle = await page.addStyleTag({
 					content:
-						":root[data-theme-transition]::view-transition-old(root) { opacity: 1 !important; animation-play-state: paused !important; }",
+						":root[data-theme-transition]::view-transition-old(root) { opacity: 1 !important; animation-duration: 600s !important; }",
 				});
 				// Establish the scrolled precondition after streaming and scroll restoration.
 				await expect
@@ -297,8 +298,7 @@ for (const theme of ["light", "dark"] as const) {
 				await expect(page.locator("html")).toHaveAttribute("data-snapshot-ready", "true");
 				await expect(page.locator("html")).toHaveAttribute("data-theme-transition", "true");
 				expect(await page.locator("[data-theme-snapshot-marker]").count()).toBe(0);
-				// Pin the native animation before it starts instead of racing a one-time
-				// getAnimations() observation after ready.
+				// A real native animation must remain running throughout capture.
 				await expect
 					.poll(() =>
 						page.evaluate(() =>
@@ -308,7 +308,7 @@ for (const theme of ["light", "dark"] as const) {
 									(animation) =>
 										animation instanceof CSSAnimation &&
 										animation.animationName === "theme-surface-out" &&
-										animation.playState === "paused",
+										animation.playState === "running",
 								),
 						),
 					)
