@@ -2,10 +2,14 @@
 
 import {
 	RiArrowDownSLine,
+	RiArrowLeftSLine,
+	RiArrowRightSLine,
 	RiEqualizerLine,
 	RiSettings3Line,
 	RiSpeedUpLine,
 } from "@remixicon/react";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./button";
 import {
 	DropdownMenu,
@@ -76,6 +80,24 @@ export function CompactVideoSettingsMenu({
 	onOpenChange: (open: boolean) => void;
 	container?: HTMLElement | null;
 }) {
+	const [view, setView] = useState<string | null>(null);
+	const viewRef = useRef<HTMLDivElement>(null);
+	const reducedMotion = useReducedMotion();
+	const selectedGroup = groups.find((group) => group.label === view);
+	const orderedGroups = [...groups].sort(
+		(a, b) => Number(b.label === "Video quality") - Number(a.label === "Video quality"),
+	);
+	useEffect(() => {
+		if (!open) setView(null);
+	}, [open]);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: each view replaces the focused menu item.
+	useEffect(() => {
+		if (!open) return;
+		const frame = requestAnimationFrame(() => {
+			viewRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+		});
+		return () => cancelAnimationFrame(frame);
+	}, [view, open]);
 	return (
 		<DropdownMenu modal={false} open={open} onOpenChange={onOpenChange}>
 			<DropdownMenuTrigger asChild>
@@ -85,7 +107,12 @@ export function CompactVideoSettingsMenu({
 					data-player-interactive
 					className={`${GALLERY_CHROME_BUTTON_CLASS_NAME} ${styles.settingsTrigger} portfolio-media-material border-0`}
 				>
-					<RiSettings3Line size={16} aria-hidden="true" />
+					<motion.span
+						animate={{ rotate: open ? 30 : 0 }}
+						transition={{ duration: reducedMotion ? 0 : 0.18 }}
+					>
+						<RiSettings3Line size={16} aria-hidden="true" />
+					</motion.span>
 				</button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
@@ -99,19 +126,80 @@ export function CompactVideoSettingsMenu({
 				data-video-settings="compact"
 				className={`${styles.compactSettings} portfolio-media-material z-[90] max-h-[min(20rem,var(--available-height))]`}
 			>
-				{actions.length > 0 && (
-					<DropdownMenuGroup>
-						<DropdownMenuLabel>Playback controls</DropdownMenuLabel>
-						{actions.map((action) => (
-							<DropdownMenuItem key={action.label} onClick={action.onClick}>
-								<DropdownMenuItemContent>{action.label}</DropdownMenuItemContent>
-							</DropdownMenuItem>
-						))}
-					</DropdownMenuGroup>
-				)}
-				{groups.map((group) => (
-					<VideoSettingGroup key={group.label} {...group} />
-				))}
+				<motion.div
+					layout="size"
+					transition={{ duration: reducedMotion ? 0 : 0.2 }}
+					className={styles.settingsViewport}
+				>
+					<motion.div
+						key={view ?? "settings"}
+						ref={viewRef}
+						onAnimationComplete={() =>
+							viewRef.current
+								?.querySelector<HTMLElement>('[role="menuitem"]')
+								?.focus()
+						}
+						initial={reducedMotion ? false : { x: view ? 16 : -16, opacity: 0 }}
+						animate={{ x: 0, opacity: 1 }}
+						transition={{
+							duration: reducedMotion ? 0 : 0.18,
+							ease: [0.22, 1, 0.36, 1],
+						}}
+						onKeyDown={(event) => {
+							if (event.key === "ArrowLeft" && view) {
+								event.preventDefault();
+								setView(null);
+							}
+						}}
+					>
+						{selectedGroup ? (
+							<>
+								<DropdownMenuItem
+									closeOnClick={false}
+									onClick={() => setView(null)}
+								>
+									<RiArrowLeftSLine aria-hidden="true" />
+									<DropdownMenuItemContent>
+										Back to settings
+									</DropdownMenuItemContent>
+								</DropdownMenuItem>
+								<VideoSettingGroup {...selectedGroup} />
+							</>
+						) : (
+							<>
+								{orderedGroups.map((group) => {
+									const option = group.options.find(
+										(item) => item.value === group.value,
+									);
+									return (
+										<DropdownMenuItem
+											key={group.label}
+											closeOnClick={false}
+											onClick={() => setView(group.label)}
+										>
+											<DropdownMenuItemContent>
+												{group.label === "Video quality"
+													? "Quality"
+													: "Playback speed"}
+											</DropdownMenuItemContent>
+											<span className={styles.settingsValue}>
+												{option?.label ?? group.value}
+											</span>
+											<RiArrowRightSLine aria-hidden="true" />
+										</DropdownMenuItem>
+									);
+								})}
+								{actions.map((action) => (
+									<DropdownMenuItem key={action.label} onClick={action.onClick}>
+										<DropdownMenuItemContent>
+											{action.label}
+										</DropdownMenuItemContent>
+									</DropdownMenuItem>
+								))}
+							</>
+						)}
+					</motion.div>
+				</motion.div>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

@@ -306,3 +306,25 @@ html:has(.player:fullscreen) {
 		transition: none;
 	}
 }
+
+.settingsViewport {
+	inline-size: min(15rem, calc(100vw - 2.5rem));
+	overflow: hidden;
+}
+.settingsValue {
+	color: var(--palette-neutral-400);
+	margin-inline-start: auto;
+}
+.compactSettings {
+	scrollbar-color: var(--palette-neutral-600) var(--palette-neutral-900);
+}
+.compactSettings::-webkit-scrollbar {
+	width: 0.5rem;
+}
+.compactSettings::-webkit-scrollbar-track {
+	background: var(--palette-neutral-900);
+}
+.compactSettings::-webkit-scrollbar-thumb {
+	background: var(--palette-neutral-600);
+	border: 2px solid var(--palette-neutral-900);
+}
