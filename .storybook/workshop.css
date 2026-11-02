@@ -110,3 +110,10 @@ html.yaschet,
 	max-width: 1024px;
 	margin-inline: auto;
 }
+
+/* Full page stories use the production gutters and one document scroll surface. */
+.workshop-full-page {
+	min-width: 0;
+	min-height: 100vh;
+	background: var(--app-background);
+}

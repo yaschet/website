@@ -14,7 +14,21 @@ import "./workshop.css";
 const defaultTheme = import.meta.env.VITE_STORYBOOK_THEME === "light" ? "light" : "dark";
 
 const preview: Preview = {
-	initialGlobals: { theme: defaultTheme },
+	initialGlobals: { theme: defaultTheme, readingMode: "normal" },
+	globalTypes: {
+		readingMode: {
+			description: "Reading stress checks; these do not emulate browser zoom.",
+			toolbar: {
+				title: "Text",
+				dynamicTitle: true,
+				items: [
+					{ value: "normal", title: "Normal text" },
+					{ value: "enlarged", title: "200% root text" },
+					{ value: "spacing", title: "Adjusted text spacing" },
+				],
+			},
+		},
+	},
 	parameters: {
 		nextjs: { appDirectory: true },
 		controls: { matchers: { color: /(background|color)$/i } },
@@ -35,7 +49,16 @@ const preview: Preview = {
 					"Components",
 					["Actions", "Feedback", "Forms", "Overlays", "Navigation", "Media", "Content"],
 					"Pages",
-					["Case Study", "Loading", "Error", "Not Found"],
+					[
+						"Home",
+						"About",
+						"Case Studies",
+						"Case Study",
+						"Blog",
+						"Blog Post",
+						"Contact",
+						"Route States",
+					],
 					"Lab",
 				],
 			},
@@ -52,6 +75,21 @@ const preview: Preview = {
 					onThemeChange={(theme) => updateGlobals({ theme })}
 				>
 					<div className="workshop-canvas">
+						{context.globals.readingMode === "enlarged" && (
+							<style>{":root { font-size: 200% !important; }"}</style>
+						)}
+						{context.globals.readingMode === "spacing" && (
+							<style>{`
+								@layer theme {
+								:root body * {
+									line-height: 1.5 !important;
+									letter-spacing: 0.12em !important;
+									word-spacing: 0.16em !important;
+								}
+								:root body p { margin-block-end: 2em !important; }
+								}
+							`}</style>
+						)}
 						<PortfolioTypeStyles />
 						<Story />
 					</div>

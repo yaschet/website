@@ -50,7 +50,7 @@ function PortfolioSpecimen() {
 					<div className="portfolio-box-pad portfolio-stack-related">
 						<p className="portfolio-kicker">Yaschet Foundation</p>
 						<h1 className="portfolio-heading-xl portfolio-capsize-heading-xl">
-							Complex systems, clean interfaces.
+							Business software, built end to end.
 						</h1>
 						<p className="portfolio-body-lg">
 							Space Grotesk for reading. Space Mono for technical metadata. Sharp
