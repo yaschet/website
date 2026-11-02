@@ -1,5 +1,6 @@
 .player {
-	--portfolio-control-default: var(--foundation-control-height-lg);
+	--portfolio-control-default: var(--foundation-control-height-xl);
+	--player-edge-inset: var(--gallery-stage-inset, var(--portfolio-control-pad-default));
 }
 
 .player button[data-player-interactive]:active {
@@ -17,32 +18,40 @@
 }
 
 .controlsPanel {
-	--player-inline-inset: 1rem;
-	--player-bottom-inset: 0.75rem;
-	padding-inline: var(--player-inline-inset);
-	padding-block-end: var(--player-bottom-inset);
+	padding-inline: var(--player-edge-inset);
+	padding-block-end: var(--player-edge-inset);
 }
 
-.compactControlsPanel {
-	--player-inline-inset: 0.5rem;
-	--player-bottom-inset: 0.25rem;
+.controlsChrome {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition:
+		opacity 150ms var(--ease-smooth-out),
+		visibility 0s 150ms;
+}
+
+.controlsChrome[data-visible="true"] {
+	opacity: 1;
+	visibility: visible;
+	transition-delay: 0s;
 }
 
 .posterReturn {
-	inset-block-start: 1rem;
-	inset-inline: 1rem;
+	inset-block-start: var(--player-edge-inset);
+	inset-inline: var(--player-edge-inset);
 }
 
 .player[data-fullscreen] .controlsPanel {
-	padding-left: max(var(--player-inline-inset), env(safe-area-inset-left, 0px));
-	padding-right: max(var(--player-inline-inset), env(safe-area-inset-right, 0px));
-	padding-block-end: max(var(--player-bottom-inset), env(safe-area-inset-bottom, 0px));
+	padding-left: max(var(--player-edge-inset), env(safe-area-inset-left, 0px));
+	padding-right: max(var(--player-edge-inset), env(safe-area-inset-right, 0px));
+	padding-block-end: max(var(--player-edge-inset), env(safe-area-inset-bottom, 0px));
 }
 
 .player[data-fullscreen] .posterReturn {
-	inset-block-start: max(1rem, env(safe-area-inset-top, 0px));
-	inset-inline-start: max(1rem, env(safe-area-inset-left, 0px));
-	inset-inline-end: max(1rem, env(safe-area-inset-right, 0px));
+	inset-block-start: max(var(--player-edge-inset), env(safe-area-inset-top, 0px));
+	inset-inline-start: max(var(--player-edge-inset), env(safe-area-inset-left, 0px));
+	inset-inline-end: max(var(--player-edge-inset), env(safe-area-inset-right, 0px));
 }
 
 .seekInput:disabled {
@@ -56,12 +65,25 @@
 	inset-inline-start: 50%;
 	transform: translate(-50%, -50%);
 	pointer-events: none;
-	padding: 0.5rem 0.75rem;
-	background: var(--color-surface-950);
-	color: var(--color-surface-50);
-	font-size: 0.875rem;
-	line-height: 1.4;
+	z-index: 10;
+}
+
+.timeDisplay {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-block-size: 2rem;
+	padding: 0.5rem;
+	background: var(--palette-neutral-900);
+	color: var(--palette-neutral-50);
+	font-size: 0.75rem;
+	line-height: 1rem;
+	font-variant-numeric: tabular-nums;
 	white-space: nowrap;
+}
+
+.timeDuration {
+	color: var(--palette-neutral-300);
 }
 
 .previewArtwork {
@@ -148,6 +170,9 @@
 	.previewArtwork {
 		transition: none;
 	}
+	.controlsChrome {
+		transition: none;
+	}
 }
 
 .player:fullscreen {
@@ -161,12 +186,17 @@ html:has(.player:fullscreen) {
 }
 
 .seekInput {
+	position: absolute;
+	inset: 0;
+	display: block;
+	margin: 0;
+	padding: 0;
 	block-size: 100%;
 }
 
 .settingsTrigger {
-	inline-size: var(--foundation-control-height-lg);
-	block-size: var(--foundation-control-height-lg);
+	inline-size: var(--portfolio-control-default);
+	block-size: var(--portfolio-control-default);
 }
 
 .compactSettings {
@@ -176,7 +206,12 @@ html:has(.player:fullscreen) {
 
 .videoStage {
 	/* Include the article media frame's two 1px borders. */
-	min-block-size: calc(1.5rem + var(--foundation-control-height-lg) + 0.25rem + 2px);
+	min-block-size: calc(
+		1.5rem +
+		var(--foundation-control-height-xl) +
+		var(--portfolio-control-pad-default) +
+		2px
+	);
 }
 
 @media (max-height: 32.5rem) and (orientation: landscape) {

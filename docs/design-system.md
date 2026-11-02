@@ -133,20 +133,32 @@ component typography.
 Video menus are non-modal radio selections. They preserve selected state,
 return focus to their trigger, and portal into the owning lightbox or fullscreen player.
 Players narrower than 760px, or used with a coarse primary pointer, use one
-transport row and a seek strip. Play, mute, settings and fullscreen have 44px
+transport row and a seek strip. Play, mute, settings and fullscreen have 48px square
 targets; speed and quality share one grouped settings menu with 44px rows.
-The compact panel is 72px tall, including its 24px seek target, without internal
+The panel is 84px tall, including its 24px seek target and 12px bottom inset, without internal
 dividers at the default root text size. Below 240px of available player width,
 mute and fullscreen move into settings; elapsed time is available through the
 seek control. The stage has enough minimum height for the controls when text
 is enlarged. Wide fine-pointer players retain the volume control and separate
-40px-row settings menus. Menus open in 150ms and close in 80ms, without blur;
+48px-high triggers and 40px-row settings menus. All gallery and player actions
+share a 12px stage inset, so expand, close and fullscreen retain the same right
+edge. The elapsed/duration display is a non-interactive inset surface with tabular
+numbers. Quality menus pair exact resolutions with familiar badges (HD, Full HD,
+QHD, 4K); the 2160p trigger reads 4K. Auto remains explicit.
+Menus open in 150ms and close in 80ms, without blur;
 keyboard selection is immediate. Opaque inverse media controls stay legible over
 changing footage in either page theme.
 
 On touch screens, tapping playing footage reveals or hides controls; the play
 button pauses playback. Hidden controls and covered posters are inert. Closing
 inline playback restores focus to the poster's play button without scrolling.
+The poster's Play action stays pending until a decoded frame is available, rather
+than disappearing when metadata arrives. Buffering reuses that same control with
+Foundation's icon-to-spinner swap. Hover or keyboard focus warms the playback
+engine; unplayed film streams remain deferred until Play. Hidden chrome becomes
+invisible as well as transparent and inert after its 150ms fade. The timeline's
+native input fills its seek strip absolutely, avoiding inline baseline offsets
+inside article typography.
 In landscape viewports up to 32.5rem high, inline video stages fit within the
 viewport height minus 5rem and contain the complete frame. Fullscreen fills the
 viewport, restores prior scroll locks on exit, and uses the native video element
@@ -333,18 +345,18 @@ and action material; keyboard focus appears immediately, without moving the card
 Cards without an overview retain their index/date and description fallback.
 Overview paragraphs remain complete and unclamped at every width.
 
-The shared `GalleryPlayButton` uses one dark 160×48px control with two flush
+The shared `GalleryPlayButton` uses one dark, content-width, 48px-high control with two flush
 chambers, no outer padding and no internal gap. A 48px square chamber holds the
 20px play glyph or 16px spinner. The triangle's painted height balances the label;
-the loading glyph retains Foundation's standard size. The adjacent 112×48px text
+the loading glyph retains Foundation's standard size. The adjacent text
 chamber centers Play and its
-natural-width duration as one group, with a shared baseline, a fixed 10px gap
-and equal side clearance. Its 12px minimum insets protect longer durations.
-Without a duration, Play centers in that same text chamber. The icon chamber
+natural-width duration as one group, with a shared baseline, an 8px gap
+and equal 14px padding on all four sides. Without a duration, Play centers in
+the content-width text chamber. The icon chamber
 uses Neutral 900 and the text chamber uses Neutral 950, with one shared hairline
 perimeter and no separate internal borders. The whole button activates as one
-target; hover and press brighten the icon chamber while the text chamber and its
-copy retain contrast. Geometry stays fixed. The label stays steady;
+target; hover and press brighten both chambers. The play glyph scales gently
+on fine-pointer hover and press; reduced motion keeps it still. Geometry stays fixed. The label stays steady;
 no letter stagger delays recognition.
 Keyboard focus uses one immediate white perimeter. The existing
 16px loading spinner occupies that same chamber without changing button size.
@@ -490,10 +502,10 @@ keeps a visible underline and immediate keyboard focus. No separate button
 competes with the homepage's hero and footer CTA areas.
 
 Both the initial poster and enhanced gallery use `GalleryPlayButton`: the same
-160×48px dark Foundation control, 20px play glyph, 16px loader and 14/20px sans-serif
+content-width, 48px-high dark Foundation control, 20px play glyph, 16px loader and 14/20px sans-serif
 label and duration. Loading disables repeat activation and
-keeps the control's dimensions and label stable. It adds no separate hover
-zoom, shadow, blur or spinner recipe.
+keeps the control's dimensions and label stable. It adds no outer-frame zoom,
+shadow, blur or separate spinner recipe.
 
 ## Case-Study Reading
 

@@ -19,7 +19,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GalleryPlayButton } from "@/src/components/ui/gallery-play-button";
-import { PortfolioMuxVideo } from "@/src/components/ui/portfolio-mux-video";
+import { PortfolioMuxVideo, preloadPortfolioVideo } from "@/src/components/ui/portfolio-mux-video";
 import videoStyles from "@/src/components/ui/portfolio-mux-video.module.css";
 import { StateSwap } from "@/src/components/ui/state-swap";
 import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
@@ -179,7 +179,11 @@ export function MediaVideo({
 							"0 12px 24px -4px rgba(0, 0, 0, 0.08)",
 						].join(", "),
 					}}
-					onPointerEnter={armHoverPreview}
+					onPointerEnter={() => {
+						void preloadPortfolioVideo().catch(() => {});
+						armHoverPreview();
+					}}
+					onFocusCapture={() => void preloadPortfolioVideo().catch(() => {})}
 					onPointerLeave={clearHoverPreview}
 				>
 					{(isVideoRequested || isVideoVisible) && (
@@ -195,6 +199,7 @@ export function MediaVideo({
 							<PortfolioMuxVideo
 								playbackId={playbackId}
 								poster={poster}
+								durationLabel={duration}
 								metadata={metadata}
 								loop={loop}
 								muted={muted}
@@ -203,6 +208,7 @@ export function MediaVideo({
 								className="h-full w-full"
 								onPlayingChange={(playing) => {
 									if (playing) {
+										setIsVideoReady(true);
 										setIsVideoVisible(true);
 										setIsVideoPlaying(true);
 										setIsVideoRequested(false);
@@ -210,12 +216,6 @@ export function MediaVideo({
 									}
 
 									setIsVideoPlaying(false);
-								}}
-								onReadyChange={(ready) => {
-									setIsVideoReady(ready);
-									if (ready) {
-										setIsVideoVisible(true);
-									}
 								}}
 								onPlaybackError={(failed) => {
 									if (!failed) return;

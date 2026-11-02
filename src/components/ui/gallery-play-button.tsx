@@ -24,7 +24,7 @@ export function GalleryPlayButton({
 			size="xl"
 			variant="soft"
 			data-press-motion="surface"
-			icon={<RiPlayFill className="size-5" />}
+			icon={<RiPlayFill className="portfolio-gallery-play-glyph size-5" />}
 			iconPosition="start"
 			loading={loading}
 			className={cn(

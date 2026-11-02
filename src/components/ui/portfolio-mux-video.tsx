@@ -26,6 +26,7 @@ import {
 	type PortfolioVideoActiveEventDetail,
 } from "@/src/lib/portfolio-video-sync";
 import { GALLERY_CHROME_BUTTON_CLASS_NAME } from "./gallery-chrome";
+import { GalleryPlayButton } from "./gallery-play-button";
 import styles from "./portfolio-mux-video.module.css";
 import { CompactVideoSettingsMenu, VideoSettingsMenu } from "./video-settings-menu";
 
@@ -34,6 +35,7 @@ type PortfolioMuxVideoVariant = "gallery" | "lightbox" | "article";
 interface PortfolioMuxVideoProps {
 	playbackId: string;
 	poster?: string | StaticImageData;
+	durationLabel?: string;
 	metadata?: MuxVideoMetadata;
 	variant: PortfolioMuxVideoVariant;
 	active?: boolean;
@@ -98,8 +100,6 @@ const PLAYBACK_RATE_OPTIONS = [
 let nextPortfolioMuxVideoId = 0;
 
 const PLAYER_ICON_BUTTON_CLASS_NAME = cn(GALLERY_CHROME_BUTTON_CLASS_NAME, "border-0");
-const PLAYER_TIME_DISPLAY_CLASS_NAME =
-	"pointer-events-auto inline-flex h-[var(--portfolio-control-default)] cursor-default items-center whitespace-nowrap bg-surface-950 px-3 font-sans text-xs text-surface-50 tabular-nums";
 
 function formatPlaybackTime(value: number, mode: "floor" | "ceil" = "floor") {
 	if (!Number.isFinite(value) || value <= 0) {
@@ -123,14 +123,14 @@ function getQualityBadge(height?: number) {
 	if (!height) return null;
 	if (height >= 2160) return "4K";
 	if (height >= 1440) return "QHD";
-	if (height >= 1080) return "FHD";
+	if (height >= 1080) return "Full HD";
 	if (height >= 720) return "HD";
 	if (height >= 480) return "SD";
 	return null;
 }
 
 function formatResolutionLabel(height?: number) {
-	return height ? `${height}P` : null;
+	return height ? `${height}p` : null;
 }
 
 function formatFrameRateLabel(frameRate?: number) {
@@ -175,18 +175,16 @@ function resolveRenditionFrameRate(media: MuxVideoElement, rendition: VideoRendi
 }
 
 function formatQualityOption(rendition: VideoRenditionLike): QualityOption {
-	const resolutionLabel = rendition.height ? `${rendition.height}P` : (rendition.id ?? "MANUAL");
+	const resolutionLabel = formatResolutionLabel(rendition.height) ?? rendition.id ?? "Manual";
 	const frameRateLabel = formatFrameRateLabel(rendition.frameRate);
 	return {
-		label: frameRateLabel ? `${resolutionLabel} · ${frameRateLabel}` : resolutionLabel,
+		label: resolutionLabel,
 		detailLabel: frameRateLabel ?? undefined,
 		value: String(rendition.id),
 		chipLabel: getQualityBadge(rendition.height) ?? undefined,
 		height: rendition.height,
 		resolutionLabel,
-		triggerLabel: frameRateLabel
-			? `${resolutionLabel}/${frameRateLabel.replace(" FPS", "")}`
-			: resolutionLabel,
+		triggerLabel: (rendition.height ?? 0) >= 2160 ? "4K" : resolutionLabel,
 	};
 }
 
@@ -301,6 +299,11 @@ function pauseMuxMediaElement(media: MuxVideoElement, options?: { unload?: boole
 	}
 }
 
+/** Warm the engine on media intent without requesting an unplayed film. */
+export function preloadPortfolioVideo() {
+	return import("@mux/mux-video");
+}
+
 /** Register the playback engine on mount, so route prefetching stays lightweight. */
 export function PortfolioMuxVideo(props: PortfolioMuxVideoProps) {
 	const [runtimeReady, setRuntimeReady] = useState(false);
@@ -324,7 +327,7 @@ export function PortfolioMuxVideo(props: PortfolioMuxVideoProps) {
 		// A retry also reattempts a playback-runtime chunk that failed to load.
 		void attempt;
 		let cancelled = false;
-		void import("@mux/mux-video").then(
+		void preloadPortfolioVideo().then(
 			() => {
 				if (!cancelled) setRuntimeReady(true);
 			},
@@ -398,6 +401,7 @@ export function PortfolioMuxVideo(props: PortfolioMuxVideoProps) {
 function PortfolioMuxVideoPlayer({
 	playbackId,
 	poster,
+	durationLabel,
 	metadata,
 	variant,
 	active,
@@ -488,13 +492,6 @@ function PortfolioMuxVideoPlayer({
 	const hideVisibleTime = playerWidth > 0 && playerWidth < 272;
 	const showInlineVolume = !isCompactLayout && !isCoarsePointer;
 	const iconButtonClassName = PLAYER_ICON_BUTTON_CLASS_NAME;
-	const timeDisplayClassName = cn(
-		PLAYER_TIME_DISPLAY_CLASS_NAME,
-		isCompactLayout ? "px-1" : "px-3",
-	);
-	const timeDisplayText = showElapsedOnly
-		? formatPlaybackTime(currentTime)
-		: `${formatPlaybackTime(currentTime)} / ${formatPlaybackTime(duration, "ceil")}`;
 	const activeStoryboardCue = useMemo(() => {
 		if (scrubPreviewTime === null) return null;
 		return (
@@ -666,6 +663,10 @@ function PortfolioMuxVideoPlayer({
 		const currentlyPlaying = !media.paused && !media.ended;
 		const readyState = media.readyState ?? 0;
 		const metadataReady = readyState >= 1;
+		// Metadata can precede decoded footage. Keep the poster's pending action
+		// until a frame is available; an established playback may then rebuffer.
+		const presentablePlayback =
+			currentlyPlaying && (readyState >= 2 || lastEmittedPlayingStateRef.current === true);
 		const buffering =
 			desiredPlayingRef.current &&
 			!media.ended &&
@@ -688,7 +689,7 @@ function PortfolioMuxVideoPlayer({
 		setIsBuffering(buffering);
 		setIsWaitingForPlayback(waitingForPlayback);
 		setIsSeeking(media.seeking);
-		if (currentlyPlaying || media.currentTime > 0) {
+		if (presentablePlayback) {
 			setHasStartedPlayback(true);
 		}
 
@@ -725,10 +726,10 @@ function PortfolioMuxVideoPlayer({
 			selectedQualityValue === "auto" ? getQualityBadge(media.videoHeight) : null,
 		);
 		const shouldEmitPlayingChange =
-			currentlyPlaying || lastEmittedPlayingStateRef.current === true;
-		if (shouldEmitPlayingChange && lastEmittedPlayingStateRef.current !== currentlyPlaying) {
-			lastEmittedPlayingStateRef.current = currentlyPlaying;
-			onPlayingChange?.(currentlyPlaying);
+			presentablePlayback || lastEmittedPlayingStateRef.current === true;
+		if (shouldEmitPlayingChange && lastEmittedPlayingStateRef.current !== presentablePlayback) {
+			lastEmittedPlayingStateRef.current = presentablePlayback;
+			onPlayingChange?.(presentablePlayback);
 		}
 	}, [onPlayingChange]);
 
@@ -1942,16 +1943,8 @@ function PortfolioMuxVideoPlayer({
 			/>
 		</button>
 	);
-	const controlsPanelClassName = cn(
-		styles.controlsPanel,
-		"relative flex flex-col pt-1",
-		isCompactLayout && [styles.compactControlsPanel, "pt-0"],
-	);
-	const timelineRowClassName = cn(
-		"relative",
-		controlsInteractiveClassName,
-		isCompactLayout || isCoarsePointer ? "h-6" : "h-[18px]",
-	);
+	const controlsPanelClassName = cn(styles.controlsPanel, "relative flex flex-col");
+	const timelineRowClassName = cn("relative h-6", controlsInteractiveClassName);
 
 	return (
 		<section
@@ -2037,22 +2030,25 @@ function PortfolioMuxVideoPlayer({
 			/>
 			{isActive && (!isMediaReady || isBuffering) ? (
 				<span role="status" className={styles.loadingStatus}>
-					Loading video…
+					<span className="sr-only">Loading video…</span>
+					<GalleryPlayButton
+						duration={durationLabel}
+						loading
+						tabIndex={-1}
+						aria-hidden="true"
+						className="pointer-events-none"
+					/>
 				</span>
 			) : null}
 
 			{onExit ? (
-				<motion.div
+				<div
 					className={cn(
 						styles.posterReturn,
-						"pointer-events-none absolute z-20 flex justify-end",
+						styles.controlsChrome,
+						"absolute z-20 flex justify-end",
 					)}
-					initial={{ opacity: 1 }}
-					animate={{
-						opacity: controlsVisible ? 1 : 0,
-						pointerEvents: controlsVisible ? "auto" : "none",
-					}}
-					transition={shouldReduceMotion ? { duration: 0 } : tweens.interactionFast}
+					data-visible={controlsVisible}
 					inert={!controlsVisible}
 				>
 					<button
@@ -2068,19 +2064,14 @@ function PortfolioMuxVideoPlayer({
 					>
 						<XIcon size={16} />
 					</button>
-				</motion.div>
+				</div>
 			) : null}
 
-			<motion.div
-				className="pointer-events-none absolute inset-x-0 bottom-0 z-20"
+			<div
+				className={cn(styles.controlsChrome, "absolute inset-x-0 bottom-0 z-20")}
 				data-player-panel
+				data-visible={controlsVisible}
 				inert={!controlsVisible}
-				initial={{ opacity: 1 }}
-				animate={{
-					opacity: controlsVisible ? 1 : 0,
-					pointerEvents: controlsVisible ? "auto" : "none",
-				}}
-				transition={shouldReduceMotion ? { duration: 0 } : tweens.interactionFast}
 			>
 				<div data-player-surface className="absolute inset-0 bg-surface-950" />
 				<div className={controlsPanelClassName}>
@@ -2293,14 +2284,13 @@ function PortfolioMuxVideoPlayer({
 								</div>
 							) : null}
 
-							<div className={hideVisibleTime ? "sr-only" : timeDisplayClassName}>
-								{timeDisplayText}
-								{showElapsedOnly && (
-									<span className="sr-only">
-										{" "}
-										/ {formatPlaybackTime(duration, "ceil")}
-									</span>
-								)}
+							<div className={hideVisibleTime ? "sr-only" : styles.timeDisplay}>
+								<span>{formatPlaybackTime(currentTime)}</span>
+								<span className={showElapsedOnly ? "sr-only" : styles.timeDuration}>
+									<span aria-hidden="true">/ </span>
+									<span className="sr-only"> of </span>
+									{formatPlaybackTime(duration, "ceil")}
+								</span>
 							</div>
 						</div>
 
@@ -2323,7 +2313,7 @@ function PortfolioMuxVideoPlayer({
 						</div>
 					</div>
 				</div>
-			</motion.div>
+			</div>
 		</section>
 	);
 }

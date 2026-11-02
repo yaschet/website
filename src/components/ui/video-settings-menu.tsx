@@ -150,7 +150,7 @@ export function VideoSettingsMenu({
 					aria-label={`${label}: ${triggerLabel}`}
 					data-player-interactive
 					variant="soft"
-					size="md"
+					size="xl"
 					className="portfolio-media-material video-setting-trigger tabular-nums"
 				>
 					{kind === "quality" ? (

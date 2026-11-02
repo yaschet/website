@@ -280,9 +280,11 @@
 	--foundation-primary-soft-hover: var(--palette-neutral-800);
 	--foundation-primary-soft-active: var(--palette-neutral-700);
 	--gallery-play-chamber-surface: var(--palette-neutral-950);
+	--gallery-play-icon-surface: var(--palette-neutral-900);
 	position: relative;
-	width: 160px;
-	height: 48px;
+	width: max-content;
+	min-height: 3rem;
+	height: auto;
 	padding: 0;
 	border: 0;
 	box-shadow: none;
@@ -308,11 +310,12 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 10px;
+	gap: 0.5rem;
 	width: 100%;
 	height: 100%;
-	padding-inline: 12px;
+	padding: 0.875rem;
 	background: var(--gallery-play-chamber-surface);
+	transition: background-color var(--duration-quick) var(--ease-smooth-out);
 }
 .portfolio-gallery-play-duration {
 	color: var(--palette-neutral-300);
@@ -320,9 +323,37 @@
 	font-variant-numeric: tabular-nums;
 }
 .portfolio-gallery-play .foundation-button-icon-space {
-	width: 48px;
+	width: 3rem;
 	color: var(--palette-neutral-50);
-	background: transparent;
+	background: var(--gallery-play-icon-surface);
+	transition: background-color var(--duration-quick) var(--ease-smooth-out);
+}
+.portfolio-gallery-play .portfolio-gallery-play-glyph {
+	transition: transform var(--duration-quick) var(--ease-smooth-out);
+}
+@media (hover: hover) and (pointer: fine) {
+	.portfolio-gallery-play:hover:not([aria-disabled="true"]) {
+		--gallery-play-chamber-surface: var(--palette-neutral-900);
+		--gallery-play-icon-surface: var(--palette-neutral-800);
+	}
+	.portfolio-gallery-play:hover:not([aria-disabled="true"]) .portfolio-gallery-play-glyph {
+		transform: scale(1.08);
+	}
+}
+.portfolio-gallery-play:active:not([aria-disabled="true"]) {
+	--gallery-play-chamber-surface: var(--palette-neutral-800);
+	--gallery-play-icon-surface: var(--palette-neutral-700);
+}
+.portfolio-gallery-play:active:not([aria-disabled="true"]) .portfolio-gallery-play-glyph {
+	transform: scale(0.94);
+}
+@media (prefers-reduced-motion: reduce) {
+	.portfolio-gallery-play .portfolio-gallery-play-glyph,
+	.portfolio-gallery-play:is(:hover, :active):not([aria-disabled="true"])
+		.portfolio-gallery-play-glyph {
+		transform: none;
+		transition: none;
+	}
 }
 .portfolio-gallery-play:focus-visible::after {
 	border: 2px solid var(--palette-neutral-50);

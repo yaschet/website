@@ -247,6 +247,7 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 					<PortfolioMuxVideo
 						playbackId={item.playbackId}
 						poster={item.poster}
+						durationLabel={item.duration}
 						metadata={item.metadata}
 						active={index === viewer.index && !viewer.closing}
 						variant="lightbox"

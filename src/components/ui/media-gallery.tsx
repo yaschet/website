@@ -126,7 +126,7 @@ type NetworkInformationLike = {
 };
 
 const GALLERY_STAGE_INSET_CLASS_NAME =
-	"[--gallery-stage-inset:var(--portfolio-control-pad-default)] [--gallery-progress-edge:var(--portfolio-space-tight)] [--gallery-progress-baseline:calc(var(--portfolio-space-tight)*0.8)]";
+	"[--portfolio-control-default:var(--portfolio-control-prominent)] [--gallery-stage-inset:var(--portfolio-control-pad-default)] [--gallery-progress-edge:var(--portfolio-space-tight)] [--gallery-progress-baseline:calc(var(--portfolio-space-tight)*0.8)]";
 
 function getMuxAnimatedPreviewSrc(playbackId: string) {
 	return `https://image.mux.com/${playbackId}/animated.webp?width=640&fps=15&start=0&end=4`;
@@ -330,8 +330,10 @@ export function MediaGallery({
 
 	const warmViewer = useCallback(() => {
 		if (expandable) void importGalleryLightbox().catch(() => {});
-		if (expandable && activeItem?.kind === "mux-video")
-			void importPortfolioMuxVideo().catch(() => {});
+		if (activeItem?.kind === "mux-video")
+			void importPortfolioMuxVideo()
+				.then((module) => module.preloadPortfolioVideo())
+				.catch(() => {});
 	}, [activeItem?.kind, expandable]);
 
 	useLayoutEffect(() => {
@@ -756,6 +758,7 @@ export function MediaGallery({
 											<PortfolioMuxVideo
 												playbackId={item.playbackId}
 												poster={item.poster}
+												durationLabel={item.duration}
 												metadata={item.metadata}
 												active={isPlayingInline || isRequestedInline}
 												variant="gallery"
@@ -803,14 +806,6 @@ export function MediaGallery({
 													}
 
 													setPlayingVideoId((current) =>
-														current === item.playbackId
-															? null
-															: current,
-													);
-												}}
-												onReadyChange={(ready) => {
-													if (!ready) return;
-													setLoadingInlineVideoId((current) =>
 														current === item.playbackId
 															? null
 															: current,
