@@ -210,6 +210,7 @@ html:has(.player:fullscreen) {
 }
 
 .settingsTrigger {
+	border: 0;
 	inline-size: var(--portfolio-control-default);
 	block-size: var(--portfolio-control-default);
 }
@@ -269,28 +270,33 @@ html:has(.player:fullscreen) {
 	}
 }
 
+.volumeGroup {
+	background: color-mix(in srgb, var(--palette-neutral-900) 60%, var(--palette-neutral-950));
+}
+
 .volumeReveal {
 	inline-size: 0;
-	margin-inline-start: 0;
+	padding-inline: 0;
+	block-size: var(--foundation-control-height-xl);
 	overflow: hidden;
 	flex-shrink: 0;
 	opacity: 0;
 	pointer-events: none;
 	transition:
 		inline-size 220ms var(--ease-smooth-out),
-		margin-inline-start 220ms var(--ease-smooth-out),
+		padding-inline 220ms var(--ease-smooth-out),
 		opacity 120ms ease-out;
 }
 .volumeGroup:focus-within .volumeReveal {
-	inline-size: 5rem;
-	margin-inline-start: 0.5rem;
+	inline-size: 6.5rem;
+	padding-inline: 0.75rem;
 	opacity: 1;
 	pointer-events: auto;
 }
 @media (hover: hover) and (pointer: fine) {
 	.volumeGroup:hover .volumeReveal {
-		inline-size: 5rem;
-		margin-inline-start: 0.5rem;
+		inline-size: 6.5rem;
+		padding-inline: 0.75rem;
 		opacity: 1;
 		pointer-events: auto;
 	}
