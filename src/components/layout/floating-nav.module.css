@@ -1,0 +1,62 @@
+.wrapper {
+	position: fixed;
+	inset: auto 0 0;
+	z-index: 50;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	block-size: var(--portfolio-nav-clearance);
+	padding-inline: var(--portfolio-page-gutter-desktop);
+	pointer-events: none;
+}
+
+.skipLink {
+	position: fixed;
+	inset: max(12px, env(safe-area-inset-top)) auto auto 12px;
+	z-index: 100;
+	display: grid;
+	place-items: center;
+	min-block-size: 44px;
+	padding: 10px 16px;
+	color: var(--foreground);
+	background: var(--background);
+	border: var(--foundation-hairline) solid var(--border);
+	font: 500 1rem / 1.5 var(--font-sans);
+	text-decoration: underline;
+	transform: translateY(calc(-100% - 24px));
+}
+
+.skipLink:focus-visible {
+	outline: 2px solid var(--ring);
+	outline-offset: 2px;
+	transform: none;
+}
+
+@media (max-width: 63.999rem), (max-height: 32.5rem) {
+	.wrapper {
+		block-size: calc(88px + env(safe-area-inset-bottom));
+		padding-inline: 12px;
+		padding-block-end: env(safe-area-inset-bottom);
+	}
+
+	.dock {
+		--portfolio-control-default: 44px;
+		--portfolio-nav-inset: 6px;
+		--portfolio-space-tight: 4px;
+	}
+
+	.wrapper[data-article="true"] {
+		position: relative;
+		inset: auto;
+		z-index: 20;
+		block-size: auto;
+		min-block-size: 88px;
+		padding-block: 16px max(16px, env(safe-area-inset-bottom));
+		background: var(--background);
+	}
+
+	/* Article routes now have a real in-flow dock instead of a fixed-dock spacer. */
+	body:has(.wrapper[data-article="true"]) [id="nav-spacer"] {
+		display: none;
+	}
+}
