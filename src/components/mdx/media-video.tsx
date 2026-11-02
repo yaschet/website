@@ -296,7 +296,10 @@ export function MediaVideo({
 								/>
 							</>
 						)}
+					</motion.div>
 
+					{/* Keep the operable action opaque while the poster artwork crossfades. */}
+					{!isVideoVisible && (
 						<div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6">
 							<GalleryPlayButton
 								duration={duration}
@@ -309,7 +312,7 @@ export function MediaVideo({
 								}}
 							/>
 						</div>
-					</motion.div>
+					)}
 				</div>
 
 				{caption && (

@@ -64,6 +64,16 @@ export const RetryAndPosterReturn: Story = {
 		await waitFor(() =>
 			expect(canvas.getByRole("button", { name: "Play 1:40 video" })).toHaveFocus(),
 		);
+		// Focus restoration must not expose an actionable control through a fading ancestor.
+		for (
+			let element: HTMLElement | null = canvas.getByRole("button", {
+				name: "Play 1:40 video",
+			});
+			element && canvasElement.contains(element);
+			element = element.parentElement
+		) {
+			await expect(getComputedStyle(element).opacity).toBe("1");
+		}
 		await expect(canvasElement.querySelector("mux-video")).toBeNull();
 	},
 };

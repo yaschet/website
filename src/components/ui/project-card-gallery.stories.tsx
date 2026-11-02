@@ -316,10 +316,9 @@ export const InContext: Story = {
 		await expect(note).toBeVisible();
 		const continuation = note.parentElement;
 		if (!continuation) throw new Error("Missing private-work continuation");
-		await expect(within(continuation).getByRole("link", { name: "in a call" })).toHaveAttribute(
-			"href",
-			"/contact",
-		);
+		await expect(
+			within(continuation).getByRole("link", { name: "Ask about relevant work" }),
+		).toHaveAttribute("href", "/contact");
 		await expect(within(continuation).queryByRole("button")).toBeNull();
 	},
 };
