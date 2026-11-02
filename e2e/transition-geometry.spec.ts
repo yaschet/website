@@ -71,6 +71,13 @@ for (const theme of ["light", "dark"] as const) {
 				await page.goto(route);
 				await expect(page.getByRole("button", { name: /^Theme: Switch/ })).toBeVisible();
 				await page.evaluate(() => document.fonts.ready);
+				// This test measures bitmap geometry, not the separately tested fade.
+				// Keep its color probes opaque at every animation time: a nearly
+				// transparent magenta pixel is not evidence of a clipped snapshot.
+				const geometryStyle = await page.addStyleTag({
+					content:
+						":root[data-theme-transition]::view-transition-old(root) { opacity: 1 !important; }",
+				});
 				// Establish the scrolled precondition after streaming and scroll restoration.
 				await expect
 					.poll(() =>
@@ -144,6 +151,7 @@ for (const theme of ["light", "dark"] as const) {
 				await expect(page.locator("html")).toHaveClass(
 					new RegExp(`\\b${theme === "light" ? "dark" : "light"}\\b`),
 				);
+				await geometryStyle.evaluate((node) => node.parentNode?.removeChild(node));
 			}
 			expect(errors).toEqual([]);
 		});
@@ -327,6 +335,13 @@ for (const theme of ["light", "dark"] as const) {
 				expect(
 					await readSnapshotMarkers(page, testInfo.outputPath(`${position}-before.png`)),
 				).toEqual(expected);
+				// Hold the native old-root bitmap from its first frame without depending
+				// on when an engine exposes pseudo-element animations through
+				// document.getAnimations(). This still checks the real captured pixels.
+				const captureStyle = await page.addStyleTag({
+					content:
+						":root[data-route-transition]::view-transition-old(root) { animation-play-state: paused !important; }",
+				});
 				await page.emulateMedia({ reducedMotion: "no-preference" });
 				const leave = nav.getByRole("link", { name: destination, exact: true });
 				if (isMobile) {
@@ -340,12 +355,14 @@ for (const theme of ["light", "dark"] as const) {
 					"data-route-snapshot-ready",
 					"true",
 				);
+				await expect(page.locator("html")).toHaveAttribute("data-route-transition", "true");
 				expect(await page.locator("[data-route-snapshot-marker]").count()).toBe(0);
 				expect(
 					await readSnapshotMarkers(page, testInfo.outputPath(`${position}-capture.png`)),
 					`${position}: outgoing pixels must keep their size and viewport position after Next resets scroll`,
 				).toEqual(expected);
 				expect(await page.evaluate(() => scrollY)).toBe(0);
+				await captureStyle.evaluate((node) => node.parentNode?.removeChild(node));
 				await page.evaluate(() => {
 					for (const animation of document.getAnimations())
 						if (
