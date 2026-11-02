@@ -155,7 +155,20 @@ test("a case study is prefetched with its content and back restores the listing"
 	});
 	await card.scrollIntoViewIfNeeded();
 	await expect.poll(() => prefetched.has("/case-studies/verto"), { timeout: 15000 }).toBe(true);
-	const scroll = await page.evaluate(() => window.scrollY);
+	// Record the real departure position after click actionability has scrolled
+	// the link, before Next handles the navigation.
+	await page.evaluate(() => {
+		document.addEventListener(
+			"click",
+			(event) => {
+				const link =
+					event.target instanceof Element ? event.target.closest("a[href]") : null;
+				if (link?.getAttribute("href") === "/case-studies/verto")
+					document.documentElement.dataset.listingDepartureY = String(window.scrollY);
+			},
+			{ capture: true, once: true },
+		);
+	});
 	await page.route("**/*", (route) =>
 		route.request().url().includes("_rsc") ? route.abort() : route.continue(),
 	);
@@ -167,6 +180,10 @@ test("a case study is prefetched with its content and back restores the listing"
 			exact: true,
 		}),
 	).toBeVisible();
+	const scroll = await page.evaluate(() =>
+		Number(document.documentElement.dataset.listingDepartureY),
+	);
+	expect(Number.isFinite(scroll)).toBe(true);
 	await page.goBack();
 	await expect(page).toHaveURL(/\/$/);
 	await expect(card).toBeVisible();
