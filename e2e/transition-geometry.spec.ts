@@ -335,12 +335,11 @@ for (const theme of ["light", "dark"] as const) {
 				expect(
 					await readSnapshotMarkers(page, testInfo.outputPath(`${position}-before.png`)),
 				).toEqual(expected);
-				// Hold the native old-root bitmap from its first frame without depending
-				// on when an engine exposes pseudo-element animations through
-				// document.getAnimations(). This still checks the real captured pixels.
+				// Isolate bitmap geometry from fade timing, as with theme captures.
+				// The native captured pixels must still match all three live markers.
 				const captureStyle = await page.addStyleTag({
 					content:
-						":root[data-route-transition]::view-transition-old(root) { animation-play-state: paused !important; }",
+						":root[data-route-transition]::view-transition-old(root) { opacity: 1 !important; animation-play-state: paused !important; }",
 				});
 				await page.emulateMedia({ reducedMotion: "no-preference" });
 				const leave = nav.getByRole("link", { name: destination, exact: true });
@@ -357,6 +356,30 @@ for (const theme of ["light", "dark"] as const) {
 				);
 				await expect(page.locator("html")).toHaveAttribute("data-route-transition", "true");
 				expect(await page.locator("[data-route-snapshot-marker]").count()).toBe(0);
+				await testInfo.attach(`${position}-capture-styles`, {
+					body: JSON.stringify(
+						await page.evaluate(() =>
+							["group", "image-pair", "old"].map((part) => {
+								const style = getComputedStyle(
+									document.documentElement,
+									`::view-transition-${part}(root)`,
+								);
+								return {
+									part,
+									width: style.width,
+									height: style.height,
+									opacity: style.opacity,
+									display: style.display,
+									visibility: style.visibility,
+									animationPlayState: style.animationPlayState,
+								};
+							}),
+						),
+						null,
+						2,
+					),
+					contentType: "application/json",
+				});
 				expect(
 					await readSnapshotMarkers(page, testInfo.outputPath(`${position}-capture.png`)),
 					`${position}: outgoing pixels must keep their size and viewport position after Next resets scroll`,

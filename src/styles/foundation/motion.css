@@ -862,6 +862,8 @@
 }
 
 :root[data-route-transition]::view-transition-old(root) {
+	/* Keep the outgoing viewport image at its intrinsic height, as with theme captures. */
+	height: auto;
 	animation: portfolio-route-out var(--duration-quick) var(--ease-smooth-out) both;
 }
 
