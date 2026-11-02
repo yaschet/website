@@ -2227,12 +2227,7 @@ function PortfolioMuxVideoPlayer({
 								/>
 							</button>
 
-							<div
-								className={cn(
-									"flex shrink-0 items-center",
-									showInlineVolume && "pr-2",
-								)}
-							>
+							<div className="flex shrink-0 items-center gap-2">
 								{!isMinimalLayout && (
 									<button
 										type="button"
