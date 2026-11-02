@@ -265,7 +265,6 @@ export function MarqueeBadge({
 									<span data-marquee-copy={index === 0 ? undefined : item}>
 										{index === 0 ? item : null}
 									</span>
-									<span>·</span>
 								</span>
 							))}
 						</span>

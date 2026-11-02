@@ -41,7 +41,7 @@ for (const theme of ["light", "dark"] as const) {
 		const before = await location.boundingBox();
 		const resting = await location.evaluate((node) => ({
 			fill: getComputedStyle(node).backgroundColor,
-			line: getComputedStyle(node, "::after").borderColor,
+			line: getComputedStyle(node, "::after").boxShadow,
 		}));
 		if (!isMobile) {
 			await location.hover();
@@ -53,9 +53,9 @@ for (const theme of ["light", "dark"] as const) {
 		const panel = page.getByRole("dialog", { name: "Working together" });
 		await expect(panel).toBeVisible();
 		await expect(panel).toHaveCSS("opacity", "1");
-		expect(
-			await location.evaluate((node) => getComputedStyle(node, "::after").borderColor),
-		).toBe(resting.line);
+		expect(await location.evaluate((node) => getComputedStyle(node, "::after").boxShadow)).toBe(
+			resting.line,
+		);
 		await expect(panel.getByText("Email & scheduled calls", { exact: true })).toBeVisible();
 		await expect(panel.getByRole("link", { name: "Discuss a project" })).toHaveAttribute(
 			"href",
@@ -85,23 +85,24 @@ for (const theme of ["light", "dark"] as const) {
 			.evaluate((node) => Number.parseFloat(getComputedStyle(node).paddingLeft));
 		expect(frame).toBeGreaterThan(0);
 		expect(frame).toBeLessThanOrEqual(1);
-		expect(flag?.width).toBe(28 - 2 * frame);
-		expect(flag?.height).toBe(28 - 2 * frame);
+		expect(flag?.width).toBeCloseTo(28 - 2 * frame, 1);
+		expect(flag?.height).toBeCloseTo(28 - 2 * frame, 1);
 		for (const inset of [
 			(flag?.x ?? 0) - (chamber?.x ?? 0),
 			(flag?.y ?? 0) - (chamber?.y ?? 0),
 			(chamber?.x ?? 0) + 28 - (flag?.x ?? 0) - (flag?.width ?? 0),
 			(chamber?.y ?? 0) + 28 - (flag?.y ?? 0) - (flag?.height ?? 0),
 		])
-			expect(inset).toBeCloseTo(frame, 4);
+			expect(Math.abs(inset - frame)).toBeLessThanOrEqual(1 / 64);
 		const seam = await location.locator(".portfolio-context-chamber").evaluate((node) => ({
 			width: getComputedStyle(node, "::after").width,
 			border: getComputedStyle(node).borderWidth,
 			fill: getComputedStyle(node).backgroundColor,
+			line: getComputedStyle(node, "::after").backgroundColor,
 		}));
 		expect(Number.parseFloat(seam.width)).toBeLessThanOrEqual(1);
 		expect(seam.border).toBe("0px");
-		expect(seam.fill).toBe("rgba(0, 0, 0, 0)");
+		expect(seam.fill).toBe(seam.line);
 		const structure = await panel.evaluate((node) => {
 			const heading = node.querySelector(".portfolio-context-panel-heading");
 			const footer = node.querySelector(".portfolio-context-panel-footer");

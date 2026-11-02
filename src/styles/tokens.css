@@ -969,7 +969,7 @@
 	--portfolio-project-line: var(--palette-neutral-300);
 	--portfolio-project-line-hover: var(--palette-neutral-400);
 	--portfolio-hero-surface: var(--palette-mineral-0);
-	--portfolio-hero-line: var(--palette-mineral-400);
+	--portfolio-hero-line: var(--portfolio-project-line);
 	--portfolio-code-surface: var(--palette-mineral-100);
 	--app-background: var(--portfolio-canvas);
 	--instrument-field-bg-auto: var(--portfolio-canvas);
@@ -984,7 +984,7 @@
 	--portfolio-project-line: var(--palette-neutral-700);
 	--portfolio-project-line-hover: var(--palette-neutral-600);
 	--portfolio-hero-surface: var(--palette-neutral-925);
-	--portfolio-hero-line: var(--palette-neutral-700);
+	--portfolio-hero-line: var(--portfolio-project-line);
 	--portfolio-code-surface: var(--palette-neutral-925);
 }
 

@@ -33,7 +33,7 @@
 	position: absolute;
 	inset: 0;
 	z-index: 2;
-	border: var(--foundation-hairline) solid var(--context-line);
+	box-shadow: inset 0 0 0 var(--foundation-hairline) var(--context-line);
 	content: "";
 	pointer-events: none;
 }
@@ -268,14 +268,13 @@
 	display: inline-flex;
 	align-items: center;
 	flex: none;
-	gap: 16px;
-	padding-inline-end: 16px;
+	gap: var(--portfolio-context-gap);
+	padding-inline-end: var(--portfolio-context-gap);
 	white-space: nowrap;
 }
 .portfolio-marquee-item {
 	display: inline-flex;
 	align-items: center;
-	gap: 16px;
 }
 .portfolio-marquee-item > [data-marquee-copy]::before {
 	content: attr(data-marquee-copy);
@@ -548,6 +547,7 @@
 
 .portfolio-location .portfolio-context-chamber {
 	padding: var(--foundation-hairline);
+	background: var(--context-line);
 }
 .portfolio-location .portfolio-context-chamber > svg {
 	width: 100%;
