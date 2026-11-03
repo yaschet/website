@@ -164,6 +164,17 @@
 	padding: 20px var(--portfolio-box-pad-mobile);
 	border-top: var(--foundation-hairline) solid var(--portfolio-project-line);
 }
+/* Equal chambers when both labels fit; otherwise each takes a full row. */
+@media (max-width: 39.999rem) {
+	.metaItem,
+	.copyAction {
+		flex: 1 1 11rem;
+		margin-inline-start: 0;
+	}
+	.metaLabel {
+		flex: 1;
+	}
+}
 @media (min-width: 40rem) {
 	.overview dd {
 		font-size: 1.125rem;
