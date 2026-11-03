@@ -169,28 +169,39 @@
 	min-width: 0;
 }
 .descriptionTrigger {
+	width: 100%;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: start;
 	display: flex;
 	align-items: center;
 	gap: 16px;
 	min-width: 0;
 }
-.descriptionDisclosure > summary {
+.descriptionDisclosure > button {
 	cursor: pointer;
 	list-style: none;
 	touch-action: manipulation;
 }
-.descriptionDisclosure > summary::-webkit-details-marker {
+.descriptionDisclosure > button::-webkit-details-marker {
 	display: none;
 }
-.descriptionDisclosure > summary:focus-visible {
+.descriptionDisclosure > button:focus-visible {
 	outline: 2px solid var(--gallery-ink);
 	outline-offset: -4px;
 }
-.fullDescription {
+.descriptionAccordion {
 	position: absolute;
 	inset-block-start: calc(var(--gallery-head) + var(--gallery-safe-top));
 	inset-inline: 0;
 	z-index: 2;
+	overflow: clip;
+}
+.fullDescription {
+	position: relative;
 	max-block-size: min(
 		50dvh,
 		calc(100dvh - var(--gallery-head) - var(--gallery-safe-top) - var(--gallery-inset))
@@ -200,25 +211,21 @@
 	padding: var(--gallery-inset);
 	padding-inline-start: calc(var(--gallery-inset) + var(--gallery-safe-left));
 	padding-inline-end: calc(var(--gallery-inset) + var(--gallery-safe-right));
-	border-block-start: var(--foundation-hairline) solid var(--gallery-line);
 	background: var(--gallery-panel);
 	color: var(--gallery-ink);
 	font-size: 0.875rem;
 	line-height: 1.5;
 	overflow-wrap: anywhere;
 }
-.descriptionDisclosure[open] .fullDescription {
-	animation: description-in 180ms var(--ease-smooth-out) both;
+.fullDescription.glass::after {
+	border-block-start: 0;
 }
-@keyframes description-in {
-	from {
-		opacity: 0;
-		translate: 0 -4px;
-	}
-	to {
-		opacity: 1;
-		translate: 0 0;
-	}
+:where(.descriptionAccordion) .fullDescription p {
+	opacity: 0;
+	transition: opacity 160ms var(--ease-smooth-out);
+}
+:where(.descriptionAccordion[data-open="true"]) .fullDescription p {
+	opacity: 1;
 }
 .fullDescription p {
 	margin: 0;
@@ -265,12 +272,12 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
-.descriptionDisclosure > summary:hover .title {
+.descriptionDisclosure > button:hover .title {
 	text-decoration: underline;
 	text-decoration-color: color-mix(in srgb, var(--gallery-ink) 40%, transparent);
 	text-underline-offset: 0.2em;
 }
-.descriptionDisclosure > summary:active .heading {
+.descriptionDisclosure > button:active .heading {
 	opacity: 0.7;
 }
 .touchHint {
@@ -703,9 +710,6 @@
 	transition: none;
 }
 @media (prefers-reduced-motion: reduce) {
-	.descriptionDisclosure[open] .fullDescription {
-		animation: none;
-	}
 	.viewer *,
 	.viewer [class~="pswp__preloader"] [class~="pswp__icn"] {
 		animation: none;

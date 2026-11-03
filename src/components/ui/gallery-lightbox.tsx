@@ -6,8 +6,9 @@ import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
 import { MinusIcon } from "@phosphor-icons/react/dist/ssr/Minus";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
+import { motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/src/components/ui/button";
 import { GalleryAmbience } from "@/src/components/ui/gallery-ambience";
@@ -55,6 +56,32 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 		) : (
 			"Video walkthrough"
 		);
+	const headingRef = useRef<HTMLSpanElement>(null);
+	const [expandable, setExpandable] = useState(false);
+	const [descriptionOpen, setDescriptionOpen] = useState(false);
+	const reducedMotion = useReducedMotion();
+	const DescriptionTrigger = expandable ? "button" : "div";
+	useEffect(() => {
+		setDescriptionOpen(false);
+		const heading = headingRef.current;
+		if (!heading || !viewer.ready || !viewer.chrome || viewer.index < 0) return;
+		const measure = () => {
+			const hidden = Array.from(heading.children).some((child) => {
+				const element = child as HTMLElement;
+				return (
+					getComputedStyle(element).display === "none" ||
+					element.scrollHeight > element.clientHeight + 1 ||
+					element.scrollWidth > element.clientWidth + 1
+				);
+			});
+			setExpandable(hidden);
+			if (!hidden && expandable) setDescriptionOpen(false);
+		};
+		const observer = new ResizeObserver(measure);
+		observer.observe(heading);
+		measure();
+		return () => observer.disconnect();
+	}, [viewer.index, viewer.ready, viewer.chrome, expandable]);
 	const multiple = props.items.length > 1;
 	const targetIndex = viewer.pendingIndex ?? viewer.index;
 	const root = viewer.chrome?.closest<HTMLElement>(".pswp");
@@ -83,13 +110,22 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 							data-gallery-interactive
 						>
 							<div className={styles.identity}>
-								<details
+								<div
 									key={`description-${viewer.index}`}
 									className={styles.descriptionDisclosure}
 								>
-									<summary
+									<DescriptionTrigger
 										className={styles.descriptionTrigger}
-										aria-label={`Read full media description: ${title}`}
+										type={expandable ? "button" : undefined}
+										aria-expanded={expandable ? descriptionOpen : undefined}
+										aria-controls={
+											expandable ? `${viewer.descriptionId}-full` : undefined
+										}
+										onClick={
+											expandable
+												? () => setDescriptionOpen((open) => !open)
+												: undefined
+										}
 									>
 										<span className={styles.iconChamber}>
 											<InfoIcon size={20} weight="bold" aria-hidden="true" />
@@ -97,6 +133,7 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 										<span
 											key={`heading-${viewer.index}`}
 											className={styles.heading}
+											ref={headingRef}
 										>
 											<span id={viewer.titleId} className={styles.title}>
 												{title}
@@ -108,18 +145,32 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 												{description}
 											</span>
 										</span>
-									</summary>
-									<section
-										className={`${styles.fullDescription} ${styles.glass}`}
-										aria-label="Full media description"
-										data-gallery-text
-										// biome-ignore lint/a11y/noNoninteractiveTabindex: The bounded text panel needs focus for native keyboard scrolling.
-										tabIndex={0}
+									</DescriptionTrigger>
+									<motion.div
+										className={styles.descriptionAccordion}
+										initial={false}
+										animate={{ height: descriptionOpen ? "auto" : 0 }}
+										transition={{
+											duration: reducedMotion ? 0 : 0.22,
+											ease: [0.22, 1, 0.36, 1],
+										}}
+										data-open={descriptionOpen}
+										inert={!descriptionOpen}
+										aria-hidden={!descriptionOpen}
 									>
-										<p className={styles.fullDescriptionTitle}>{title}</p>
-										<p>{description}</p>
-									</section>
-								</details>
+										<section
+											className={`${styles.fullDescription} ${styles.glass}`}
+											id={`${viewer.descriptionId}-full`}
+											aria-label="Full media description"
+											data-gallery-text
+											// biome-ignore lint/a11y/noNoninteractiveTabindex: The bounded text panel needs focus for native keyboard scrolling.
+											tabIndex={0}
+										>
+											<p className={styles.fullDescriptionTitle}>{title}</p>
+											<p>{description}</p>
+										</section>
+									</motion.div>
+								</div>
 							</div>
 							<Button
 								variant="soft"
