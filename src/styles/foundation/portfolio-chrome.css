@@ -412,25 +412,7 @@
 		rgb(0 0 0 / 0%) 100%
 	);
 }
-/* Keep an opaque fallback; only the dock receives the glass material. */
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-	.portfolio-nav {
-		background: color-mix(
-			in srgb,
-			var(--nav-surface) var(--nav-glass-opacity, 76%),
-			transparent
-		);
-		-webkit-backdrop-filter: blur(28px) saturate(0.65);
-		backdrop-filter: blur(28px) saturate(0.65);
-	}
-}
-@media (prefers-reduced-transparency: reduce) {
-	.portfolio-nav {
-		background: var(--nav-surface);
-		-webkit-backdrop-filter: none;
-		backdrop-filter: none;
-	}
-}
+/* Solid primary surfaces match the action-button text chambers in both themes. */
 @media (forced-colors: active) {
 	.portfolio-nav {
 		background: Canvas;
@@ -622,9 +604,6 @@
 .dark .portfolio-tooltip {
 	--nav-surface: var(--palette-neutral-50);
 	--nav-ink: var(--palette-neutral-950);
-}
-.dark .portfolio-nav {
-	--nav-glass-opacity: 97%;
 }
 
 /* Loading owns the content region, never the persistent header or dock. */
