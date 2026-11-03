@@ -89,7 +89,7 @@ export function CaseStudyHeader({
 				<CopyResourceButton
 					href={markdownHref}
 					label="Copy Markdown"
-					copiedLabel="Copied Markdown"
+					copiedLabel="Copied"
 					className={`portfolio-action-link ${styles.copyAction}`}
 				/>
 			</Reveal>

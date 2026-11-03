@@ -174,12 +174,12 @@
 	.metaLabel {
 		flex: 1;
 		padding-inline: 8px;
-		text-align: start;
+		text-align: center;
 	}
 	.copyAction [class~="foundation-button-pending-copy"] {
-		justify-content: flex-start;
+		justify-content: center;
 		padding-inline: 8px;
-		text-align: start;
+		text-align: center;
 	}
 }
 @media (min-width: 40rem) {
