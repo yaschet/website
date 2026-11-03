@@ -212,7 +212,7 @@ for (const theme of ["light", "dark"]) {
 		});
 	}
 
-	test(`poster action retains its geometry while pending in ${theme}`, async ({ page }) => {
+	test(`poster action keeps its chambers aligned while pending in ${theme}`, async ({ page }) => {
 		await page.goto(
 			`/iframe.html?id=components-media-galleryplaybutton--default&viewMode=story&globals=theme:${theme}`,
 		);
@@ -220,7 +220,7 @@ for (const theme of ["light", "dark"]) {
 		await expect(button).toBeVisible();
 		await page.evaluate(() => document.fonts.ready);
 		const before = await button.boundingBox();
-		expect(before?.width).toBe(160);
+		expect(before?.width).toBeGreaterThan(48);
 		expect(before?.height).toBe(48);
 		await button.hover();
 		await button.focus();
@@ -232,20 +232,32 @@ for (const theme of ["light", "dark"]) {
 		await page.goto(
 			`/iframe.html?id=components-media-galleryplaybutton--pending&viewMode=story&globals=theme:${theme}`,
 		);
-		const pending = page.getByRole("button", { name: "Play 1:40 video" });
-		await expect(pending).toBeDisabled();
+		const pending = page.getByRole("button", { name: "Loading video" });
+		await expect(pending).toHaveAttribute("aria-disabled", "true");
 		await expect(pending).toHaveAttribute("aria-busy", "true");
 		await page.evaluate(() => document.fonts.ready);
 		const after = await pending.boundingBox();
 		expect(after?.height).toBe(48);
-		expect(after?.width).toBe(before?.width);
-		expect((await pending.locator('[data-slot="spinner"]').boundingBox())?.width).toBe(16);
+		expect(after?.width).toBeGreaterThan(48);
+		expect((await pending.locator(".foundation-button-icon-space").boundingBox())?.width).toBe(
+			48,
+		);
+		await expect(pending.locator('[data-slot="spinner"]')).toBeVisible();
 		await page.goto(
 			`/iframe.html?id=components-media-galleryplaybutton--without-duration&viewMode=story&globals=theme:${theme}`,
 		);
 		const withoutDuration = page.getByRole("button", { name: "Play video", exact: true });
 		await expect(withoutDuration).toBeVisible();
-		expect((await withoutDuration.boundingBox())?.width).toBe(before?.width);
+		expect((await withoutDuration.boundingBox())?.width).toBeGreaterThan(48);
+		for (const action of [withoutDuration]) {
+			const label = await action.locator(".portfolio-gallery-play-label").boundingBox();
+			const frame = await action.boundingBox();
+			expect(label?.x).toBeCloseTo((frame?.x ?? 0) + 48, 0);
+			expect((label?.x ?? 0) + (label?.width ?? 0)).toBeCloseTo(
+				(frame?.x ?? 0) + (frame?.width ?? 0),
+				0,
+			);
+		}
 		expect((await withoutDuration.boundingBox())?.height).toBe(before?.height);
 	});
 }

@@ -64,11 +64,13 @@ for (const theme of ["light", "dark"] as const) {
 			const menu = page.getByRole("menu", { name: "Video settings", exact: true });
 			await expect(menu).toBeVisible();
 			await expect(menu).toHaveCSS("color-scheme", "dark");
+			await page.getByRole("menuitem", { name: /^Playback speed/ }).click();
 			await page.getByRole("menuitemradio", { name: "1.5x", exact: true }).click();
 			await expect(menu).toHaveCount(0);
 			await expect(trigger).toBeFocused();
 			await expect(page.getByRole("status")).toHaveText("Quality: auto. Speed: 1.5x.");
 			await trigger.click();
+			await page.getByRole("menuitem", { name: /^Playback speed/ }).click();
 			await expect(
 				page.getByRole("menuitemradio", { name: "1.5x", exact: true }),
 			).toHaveAttribute("aria-checked", "true");
@@ -77,6 +79,8 @@ for (const theme of ["light", "dark"] as const) {
 			expect(box?.y).toBeGreaterThanOrEqual(12);
 			expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(viewport.width - 12);
 			expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(viewport.height - 12);
+			await page.getByRole("menuitem", { name: "Back to settings", exact: true }).click();
+			await page.getByRole("menuitem", { name: /^Quality/ }).click();
 			const quality = page.getByRole("menuitemradio", { name: "720p HD", exact: true });
 			await expect(quality).toHaveCSS("height", "44px");
 			await quality.click();
