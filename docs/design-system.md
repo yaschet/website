@@ -733,7 +733,13 @@ Hero and Contact use the same renderer and opacity token. Home's longer text
 block and different panel aspect suppress more of the field; visual coverage is
 not a separate color palette. Do not compensate with unrelated page-specific
 colors. Preserve local shielding under text while allowing higher definition in
-unoccupied areas. Opacity is a grading control, not a text-contrast guarantee.
+unoccupied areas. Hero/header shielding measures the real headline and paragraph
+rectangles on layout, with an 8px breathing edge and a two-grid-step feather.
+Within the protected area, terrain dots retain only 3.5% of their unshielded
+alpha. A separate monotonic shoulder, `alpha / (1 + 1.8 * alpha)`, softens dot
+peaks without flattening the terrain bands. Pointer response passes through
+this shoulder too. These are adopted visual tuning values, not universal rules.
+Opacity is a grading control, not a text-contrast guarantee.
 Normal text must still meet 4.5:1 against its actual animated background, large
 text 3:1, following [WCAG contrast requirements](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html);
 inspect peaks as well as troughs before release.
