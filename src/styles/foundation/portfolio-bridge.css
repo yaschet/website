@@ -208,9 +208,15 @@
 }
 .portfolio-action-link > [data-slot="link-feedback"],
 .portfolio-action-link .foundation-button-pending {
+	width: 100%;
 	height: 100%;
 }
+.portfolio-action-link .foundation-button-pending {
+	min-width: 0;
+}
 .portfolio-action-link .foundation-button-pending-copy {
+	flex: 1;
+	min-width: 0;
 	padding-inline: 12px;
 }
 .portfolio-action-link .foundation-button-icon-space {
