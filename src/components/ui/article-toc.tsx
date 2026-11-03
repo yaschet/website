@@ -3,6 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { RiCloseLine, RiListCheck2 } from "@remixicon/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/src/lib/index";
 import styles from "./article-toc.module.css";
 
@@ -24,7 +25,9 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 	const [visible, setVisible] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [instant, setInstant] = useState(false);
+	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 	const destination = useRef<{ heading: HTMLElement; instant: boolean } | null>(null);
+	useEffect(() => setPortalContainer(document.body), []);
 
 	useEffect(() => {
 		const content = document.querySelector(contentSelector);
@@ -49,6 +52,7 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 	}, [contentSelector]);
 
 	useEffect(() => {
+		const content = document.querySelector(contentSelector);
 		const track = () => {
 			let index = 0;
 			for (let i = headings.length - 1; i >= 0; i--) {
@@ -58,12 +62,13 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 				}
 			}
 			setActiveIndex(index);
-			setVisible(window.scrollY > 200);
+			const bounds = content?.getBoundingClientRect();
+			setVisible(Boolean(bounds && bounds.top <= 128 && bounds.bottom > 128));
 		};
 		track();
 		window.addEventListener("scroll", track, { passive: true });
 		return () => window.removeEventListener("scroll", track);
-	}, [headings]);
+	}, [contentSelector, headings]);
 
 	const navigate = useCallback((heading: HTMLElement, keyboard = false) => {
 		const hash = `#${encodeURIComponent(heading.id)}`;
@@ -79,7 +84,7 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 		});
 	}, []);
 
-	if (!headings.length) return null;
+	if (!headings.length || !portalContainer) return null;
 	const links = (
 		<ol className={styles.list}>
 			{headings.map(({ id, text, level }, index) => (
@@ -110,7 +115,7 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 			))}
 		</ol>
 	);
-	return (
+	return createPortal(
 		<>
 			<nav
 				className={cn(styles.rail, className)}
@@ -175,7 +180,8 @@ export function ArticleTOC({ contentSelector = "article", className }: ArticleTO
 					</Dialog.Content>
 				</Dialog.Portal>
 			</Dialog.Root>
-		</>
+		</>,
+		portalContainer,
 	);
 }
 

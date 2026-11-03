@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
+import { installMuxMediaFixture } from "./helpers/mux-media-fixture";
 
 async function drag(page: Page, surface: Locator, dx: number, dy = 0) {
 	const box = await surface.boundingBox();
@@ -190,19 +191,21 @@ test("rapid inline navigation keeps the selected destination while scrolling", a
 
 test("image and video thumbnails keep player controls isolated", async ({ page }, testInfo) => {
 	await page.setViewportSize({ width: 1280, height: 900 });
-	await page.route(/https:\/\/[^/]*mux\.(com|dev)\//, (route) => route.abort());
+	await installMuxMediaFixture(page);
 	await page.goto("/iframe.html?id=components-media-mediagallery--mixed-media&viewMode=story");
 	await page.getByRole("button", { name: "Open slide 1 in expanded viewer" }).click();
 	const dialog = page.getByRole("dialog");
 	await expect(dialog).toHaveAttribute("data-gallery-state", "open");
-	await expect(
-		dialog.getByText("Translation activity and credit usage at a glance."),
-	).toBeVisible();
+	const captionId = await dialog.getAttribute("aria-describedby");
+	if (!captionId) throw new Error("Expected the viewer's header caption reference");
+	const caption = dialog.locator(`[id="${captionId}"]`);
+	await expect(caption).toHaveText("Translation activity and credit usage at a glance.");
+	await expect(caption).toBeVisible();
 	await page.screenshot({ path: testInfo.outputPath("mixed-media-viewer.png") });
 	await dialog.getByRole("button", { name: "View slide 2: Verto walkthrough" }).click();
 	await expect(dialog).toHaveAccessibleName("Verto walkthrough");
 	await expect(dialog.getByRole("group", { name: "Image zoom" })).toHaveCount(0);
-	const slider = dialog.getByRole("slider", { name: "Seek video" });
+	const slider = dialog.getByRole("slider", { name: "Seek video timeline", exact: true });
 	await slider.focus();
 	await slider.press("ArrowRight");
 	await expect(dialog).toHaveAccessibleName("Verto walkthrough");
@@ -214,7 +217,9 @@ test("image and video thumbnails keep player controls isolated", async ({ page }
 	);
 	await expect(dialog).toHaveAccessibleName("Verto review editor");
 	await expect(dialog.getByRole("button", { name: "Zoom in", exact: true })).toBeEnabled();
-	await expect(dialog.getByRole("slider", { name: "Seek video" })).toHaveCount(0);
+	await expect(
+		dialog.getByRole("slider", { name: "Seek video timeline", exact: true }),
+	).toHaveCount(0);
 	await dialog.getByRole("button", { name: "Close expanded viewer" }).click();
 	await expect(page.locator('[data-gallery-slide="2"]')).toBeInViewport();
 });
@@ -239,7 +244,7 @@ test("Escape interrupts opening and leaves the source usable on the next open", 
 for (const width of [390, 1280]) {
 	test(`video posters open the shared viewer directly at ${width}px`, async ({ page }) => {
 		await page.setViewportSize({ width, height: 900 });
-		await page.route(/https:\/\/[^/]*mux\.(com|dev)\//, (route) => route.abort());
+		await installMuxMediaFixture(page);
 		await page.goto(
 			"/iframe.html?id=components-media-mediagallery--video-and-image&viewMode=story",
 		);
@@ -248,7 +253,9 @@ for (const width of [390, 1280]) {
 		await page.getByRole("button", { name: "Open expanded viewer", exact: true }).click();
 		const dialog = page.getByRole("dialog");
 		await expect(dialog).toHaveAccessibleName("Verto walkthrough");
-		await expect(dialog.getByRole("slider", { name: "Seek video" })).toBeVisible();
+		await expect(
+			dialog.getByRole("slider", { name: "Seek video timeline", exact: true }),
+		).toBeVisible();
 		await dialog.getByRole("button", { name: "Next slide", exact: true }).click();
 		await expect(dialog).toHaveAccessibleName("Verto review editor");
 		await dialog.getByRole("button", { name: "Close expanded viewer" }).click();
@@ -422,7 +429,7 @@ for (const width of [390, 1280]) {
 		page,
 	}) => {
 		await page.setViewportSize({ width, height: 900 });
-		await page.route(/https:\/\/[^/]*mux\.(com|dev)\//, (route) => route.abort());
+		await installMuxMediaFixture(page);
 		await page.goto(
 			"/iframe.html?id=components-media-mediagallery--video-and-image&viewMode=story",
 		);
@@ -431,7 +438,7 @@ for (const width of [390, 1280]) {
 		const dialog = page.getByRole("dialog");
 		await expect(dialog).toHaveAttribute("data-gallery-state", "open");
 		const host = dialog.locator('.pswp__item[aria-hidden="false"] mux-video');
-		await expect(host).toBeAttached();
+		await expect(host).toHaveAttribute("data-player-initialized", "");
 		// Supply transport metadata for a portrait film whose poster is landscape.
 		await host.evaluate((media) => {
 			Object.defineProperties(media, {

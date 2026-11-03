@@ -178,12 +178,27 @@ for (const theme of ["light", "dark"] as const) {
 		});
 		await page.goto("/about");
 		const link = page.getByRole("link", { name: "Discuss a project", exact: true });
+		await page.evaluate(() => document.fonts.ready);
 		await link.click({ trial: true });
+		// Touch actionability checks and the real tap can leave a press transition
+		// settling. Compare the resting frames, rather than two animation instants.
+		const settlePress = () =>
+			expect
+				.poll(() =>
+					link.evaluate(
+						(node) =>
+							!node.matches(":active") &&
+							new DOMMatrix(getComputedStyle(node).transform).isIdentity,
+					),
+				)
+				.toBe(true);
+		await settlePress();
 		const initial = await link.boundingBox();
 		try {
 			await link.click();
 			await expect(link.locator("[data-loading]")).toHaveCount(1);
 			await expect(link.locator('[aria-busy="true"]')).toHaveCount(1);
+			await settlePress();
 			expect(await link.boundingBox()).toEqual(initial);
 			const spacing = await link.evaluate((node) => {
 				const outer = node.getBoundingClientRect();
@@ -199,6 +214,7 @@ for (const theme of ["light", "dark"] as const) {
 			release();
 		}
 		await expect(page).toHaveURL(/\/contact$/);
-		await expect(page.getByRole("button", { name: "Send message", exact: true })).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Let’s talk.", level: 1 })).toBeVisible();
+		await expect(page.getByRole("link", { name: "Email", exact: true })).toBeVisible();
 	});
 }

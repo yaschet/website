@@ -39,7 +39,8 @@ export function MarqueeBadge({
 	const [dragging, setDragging] = useState(false);
 	const [copies, setCopies] = useState(2);
 	const stopped = useRef(false);
-	const copy = items.join(" · ");
+	// The visual list uses spacing between items; keep its spoken name identical.
+	const copy = items.join(" ");
 
 	useEffect(() => {
 		const control = button.current;
@@ -161,6 +162,9 @@ export function MarqueeBadge({
 		};
 		const finish = (event: PointerEvent) => {
 			if (!drag || drag.id !== event.pointerId) return;
+			// Touch moves can be coalesced; commit the release coordinate before coasting.
+			if (event.type === "pointerup" && drag.moved && event.clientX !== drag.lastX)
+				move(event);
 			const previous = drag;
 			drag = null;
 			suppressClick.current = previous.moved;
@@ -265,7 +269,7 @@ export function MarqueeBadge({
 									<span data-marquee-copy={index === 0 ? undefined : item}>
 										{index === 0 ? item : null}
 									</span>
-									<span>·</span>
+									{/* Preserve word boundaries without adding a flex item or visual gap. */}{" "}
 								</span>
 							))}
 						</span>

@@ -223,7 +223,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.evaluate(() => document.fonts.ready);
 		const heading = page.getByRole("heading", { level: 1 });
 		// Decorative reveal layers must not duplicate text in route announcements or copying.
-		expect(await heading.textContent()).toBe("Complex systems, clean interfaces.");
+		expect(await heading.textContent()).toBe("Business software, built end to end.");
 		const action = page
 			.locator("#hero")
 			.getByRole("link", { name: "Book a call", exact: true });
@@ -281,7 +281,7 @@ for (const theme of ["light", "dark"] as const) {
 		expect(await action.boundingBox()).toEqual(before);
 		await page.getByRole("link", { name: "View my work", exact: true }).click();
 		await expect(page).toHaveURL(/\/#work$/);
-		await expect(heading).toHaveText("Complex systems, clean interfaces.");
+		await expect(heading).toHaveText("Business software, built end to end.");
 		await expect(page.locator("[data-route-capture]")).toHaveCount(0);
 	});
 }

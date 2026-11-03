@@ -47,5 +47,9 @@ export function PortfolioScene({ children }: { children: ReactNode }) {
 			window.removeEventListener("touchmove", cancelRouteTransition);
 		};
 	}, []);
-	return <div className="portfolio-scene">{children}</div>;
+	return (
+		<div id="portfolio-content" className="portfolio-scene" tabIndex={-1}>
+			{children}
+		</div>
+	);
 }

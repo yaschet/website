@@ -1,4 +1,4 @@
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
 	// These checks own the gallery and player controls, with no external video transport.
@@ -12,6 +12,17 @@ async function openCaseStudy(page: Page, slug: string) {
 	});
 	// Development tools are absent in production and otherwise cover the mobile controls in proofs.
 	await page.addStyleTag({ content: "nextjs-portal, agentation-toolbar { display: none; }" });
+}
+
+async function expectBlockedPlayback(dialog: Locator) {
+	// This suite deliberately aborts transport. Verify the usable failure state;
+	// playback and seek checks require networked media and are separate.
+	await expect(
+		dialog.getByText("Video couldn’t start. Try again or continue reading."),
+	).toBeVisible({
+		timeout: 25_000,
+	});
+	await expect(dialog.getByRole("button", { name: "Try again", exact: true })).toBeVisible();
 }
 
 for (const theme of ["light", "dark"] as const) {
@@ -39,12 +50,13 @@ for (const theme of ["light", "dark"] as const) {
 		);
 		const viewport = page.viewportSize();
 		if (!viewport) throw new Error("Expected a gallery viewport");
-		const caption = dialog.getByText("Document Translation With Editable Tables", {
-			exact: true,
-		});
+		const captionId = await dialog.getAttribute("aria-describedby");
+		if (!captionId) throw new Error("Expected the viewer's header caption reference");
+		const caption = dialog.locator(`[id="${captionId}"]`);
+		await expect(caption).toHaveText("Document Translation With Editable Tables");
 		if (viewport.width < 760 || viewport.height <= 520) await expect(caption).toBeHidden();
 		else await expect(caption).toBeVisible();
-		await expect(dialog.getByRole("slider", { name: "Seek video" })).toBeVisible();
+		await expectBlockedPlayback(dialog);
 		const close = dialog.getByRole("button", { name: "Close expanded viewer" });
 		await expect(close).toBeFocused();
 		const bounds = await close.boundingBox();
@@ -77,7 +89,7 @@ test("case-study viewer honors reduced motion and keyboard dismissal", async ({ 
 
 for (const { slug, count, title, theme } of [
 	{ slug: "clearway-portal", count: 6, title: "Student portal walkthrough" },
-	{ slug: "clearway-phoenix", count: 13, title: "University Program Matching — Walkthrough" },
+	{ slug: "clearway-phoenix", count: 11, title: "University Program Matching — Walkthrough" },
 ].flatMap((project) => (["light", "dark"] as const).map((theme) => ({ ...project, theme })))) {
 	test(`${slug} images and cover video form one gallery without moving the article in ${theme}`, async ({
 		page,
@@ -85,11 +97,13 @@ for (const { slug, count, title, theme } of [
 		await page.emulateMedia({ colorScheme: theme });
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await openCaseStudy(page, slug);
-		const opener = page
-			.locator("article")
-			.getByRole("button", { name: "Open slide 1 in expanded viewer" })
-			.first();
+		const cover = page.locator('[aria-roledescription="carousel"]').first();
+		await cover.scrollIntoViewIfNeeded();
+		await cover.focus();
+		await cover.press("ArrowRight");
+		const opener = cover.getByRole("button", { name: "Open slide 2 in expanded viewer" });
 		await opener.scrollIntoViewIfNeeded();
+		const inlineSelection = await cover.locator('[aria-live="polite"]').innerText();
 		const scrollY = await page.evaluate(() => window.scrollY);
 		await opener.click();
 		const dialog = page.getByRole("dialog");
@@ -150,7 +164,7 @@ for (const { slug, count, title, theme } of [
 		}
 		await dialog.getByRole("button", { name: "Previous slide", exact: true }).click();
 		await expect(dialog).toHaveAccessibleName(title);
-		await expect(dialog.getByRole("slider", { name: "Seek video" })).toBeVisible();
+		await expectBlockedPlayback(dialog);
 		await expect(
 			dialog.getByRole("button", { name: "Previous slide", exact: true }),
 		).toBeDisabled();
@@ -159,12 +173,13 @@ for (const { slug, count, title, theme } of [
 		await expect(
 			dialog.getByRole("button", { name: "Next slide", exact: true }),
 		).toBeDisabled();
-		await expect(dialog.getByRole("slider", { name: "Seek video" })).toHaveCount(0);
+		await expect(dialog.locator("[data-portfolio-video]")).toHaveCount(0);
 		const header = await dialog.locator("header").boundingBox();
 		if (!header) throw new Error("Expected the gallery header");
 		await page.mouse.click(header.width / 2, header.y + header.height + 4);
 		await expect(dialog).toHaveCount(0);
 		expect(Math.abs((await page.evaluate(() => window.scrollY)) - scrollY)).toBeLessThan(2);
+		await expect(cover.locator('[aria-live="polite"]')).toHaveText(inlineSelection);
 		await expect(opener).toBeFocused();
 		await expect(opener.locator("img")).toBeInViewport();
 		await expect(page.locator("html")).not.toHaveAttribute("data-gallery-viewport-count");
@@ -247,8 +262,10 @@ for (const width of [390, 1600]) {
 		await section.scrollIntoViewIfNeeded();
 		const id = await section.getAttribute("id");
 		if (!id) throw new Error("Expected a section anchor");
+		const viewport = page.viewportSize();
+		const hasContentsRail = (viewport?.width ?? 0) >= 1536 && (viewport?.height ?? 0) >= 768;
 		let navigation = page.getByRole("navigation", { name: "On this page", exact: true });
-		if (width < 1536) {
+		if (!hasContentsRail) {
 			const trigger = page.getByRole("button", { name: "Open table of contents" });
 			await expect(trigger).toBeVisible();
 			await trigger.click();
@@ -282,6 +299,6 @@ for (const width of [390, 1600]) {
 		await expect(page.getByRole("dialog")).toHaveCount(0);
 		await expect(section).toBeFocused();
 		await expect(section).toBeInViewport();
-		if (width >= 1536) await expect(link).toHaveAttribute("aria-current", "location");
+		if (hasContentsRail) await expect(link).toHaveAttribute("aria-current", "location");
 	});
 }

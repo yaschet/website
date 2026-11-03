@@ -90,12 +90,18 @@ for (const theme of ["light", "dark"] as const) {
 			await expect(stackTrigger).toBeFocused();
 			await page.screenshot({ path: testInfo.outputPath(`${slug}-${theme}-facts.png`) });
 			const firstHeading = page.locator("article h2[id]").first();
-			await firstHeading.scrollIntoViewIfNeeded();
-			const hasContentsRail = (page.viewportSize()?.width ?? 0) >= 1536;
+			await firstHeading.evaluate((heading) =>
+				heading.scrollIntoView({ block: "start", behavior: "instant" }),
+			);
+			const viewport = page.viewportSize();
+			const hasContentsRail =
+				(viewport?.width ?? 0) >= 1536 && (viewport?.height ?? 0) >= 768;
 			let contents = page.getByRole("navigation", { name: "On this page", exact: true });
 			if (!hasContentsRail) {
 				const trigger = page.getByRole("button", { name: "Open table of contents" });
 				await expect(trigger).toBeVisible();
+				await expect(trigger).toHaveAttribute("data-visible", "true");
+				await expect(trigger).not.toHaveAttribute("inert");
 				await trigger.click();
 				contents = page.getByRole("dialog", { name: "On this page" });
 				await expect(contents).toBeVisible();
@@ -127,7 +133,7 @@ for (const theme of ["light", "dark"] as const) {
 					.locator("article figure")
 					.filter({
 						has: page.getByRole("img", {
-							name: "University programs in the catalog maintenance interface.",
+							name: "A machine-learning search returning related university programs.",
 							exact: true,
 						}),
 					})
@@ -137,7 +143,7 @@ for (const theme of ["light", "dark"] as const) {
 				});
 				await imageTrigger.click();
 				const viewer = page.getByRole("dialog", {
-					name: "University programs in the catalog maintenance interface.",
+					name: "A machine-learning search returning related university programs.",
 					exact: true,
 				});
 				await expect(viewer).toBeVisible();
@@ -160,7 +166,7 @@ for (const theme of ["light", "dark"] as const) {
 for (const theme of ["light", "dark"] as const) {
 	test(`Markdown copy is lazy, focused while pending, recoverable and deduplicated in ${theme}`, async ({
 		page,
-	}) => {
+	}, testInfo) => {
 		await page.emulateMedia({ colorScheme: theme });
 		await page.addInitScript((value) => {
 			localStorage.setItem("theme", value);
@@ -189,12 +195,17 @@ for (const theme of ["light", "dark"] as const) {
 		await expect(button).toBeVisible();
 		await page.evaluate(() => document.fonts.ready);
 		expect(requests).toBe(0);
-		const before = await button.boundingBox();
+		const height = await button.evaluate((node) => getComputedStyle(node).height);
 		await button.click();
 		const pending = page.getByRole("button", { name: "Copying", exact: true });
 		await expect(pending).toBeDisabled();
-		expect((await pending.boundingBox())?.height).toBe(before?.height);
+		// Compare layout height while the pointer press transform is allowed to settle.
+		await expect(pending).toHaveCSS("height", height);
 		await expect(pending).toBeFocused();
+		const spinner = pending.locator('[data-slot="spinner"]');
+		await expect(spinner).toHaveCSS("width", "16px");
+		await expect(spinner).toHaveCSS("height", "16px");
+		await page.screenshot({ path: testInfo.outputPath(`markdown-copy-pending-${theme}.png`) });
 		await page.keyboard.press("Enter");
 		expect(requests).toBe(1);
 		complete?.();
@@ -207,7 +218,7 @@ for (const theme of ["light", "dark"] as const) {
 		const copied = page.getByRole("button", { name: "Copied Markdown", exact: true });
 		await expect(copied).toBeVisible();
 		expect(requests).toBe(2);
-		expect((await copied.boundingBox())?.height).toBe(before?.height);
+		await expect(copied).toHaveCSS("height", height);
 	});
 }
 
@@ -224,7 +235,7 @@ for (const theme of ["light", "dark"] as const) {
 		await expect(
 			page.getByRole("heading", {
 				level: 1,
-				name: "Document Translation With Editable Tables",
+				name: "Verto — AI Translation Platform",
 			}),
 		).toBeVisible();
 		await expect(
@@ -248,7 +259,10 @@ for (const theme of ["light", "dark"] as const) {
 				.getByRole("button", { name: "Copy Markdown", exact: true })
 				.locator('.t-state-label[data-sizing="content"]'),
 		).toHaveAttribute("data-measured", "true");
-		await page.locator("article h2[id]").first().scrollIntoViewIfNeeded();
+		await page
+			.locator("article h2[id]")
+			.first()
+			.evaluate((heading) => heading.scrollIntoView({ block: "start", behavior: "instant" }));
 		const rail = page.getByRole("navigation", { name: "On this page", exact: true });
 		await expect(rail).toBeVisible();
 		await expect(

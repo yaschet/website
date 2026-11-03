@@ -15,9 +15,10 @@ import { GalleryPlayButton } from "@/src/components/ui/gallery-play-button";
 import { LinkFeedback } from "@/src/components/ui/link-feedback";
 import type { MediaGalleryProps } from "@/src/components/ui/media-gallery";
 import { PortfolioLink as Link } from "@/src/components/ui/portfolio-link";
+import { ProjectCardOverview } from "@/src/components/ui/project-card-overview";
 import { ProjectTechnologyRail } from "@/src/components/ui/project-technology-rail";
 import { ReelIcon } from "@/src/components/ui/reel";
-import type { ProjectOverview } from "@/src/content/types";
+import type { ProjectDelivery, ProjectOverview } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
 import { cn } from "@/src/lib/index";
@@ -30,10 +31,11 @@ const PROJECT_PREVIEW_SIZES = "(min-width: 1024px) 984px, calc(100vw - 40px)";
 
 interface ProjectCardGalleryProps {
 	title: string;
+	headingLevel?: 2 | 3;
 	description: string;
 	overview?: ProjectOverview;
 	role?: string;
-	status?: string;
+	delivery?: ProjectDelivery;
 	href: string;
 	items?: GalleryMediaSource[];
 	images?: (string | StaticImageData)[];
@@ -55,10 +57,11 @@ interface ProjectCardGalleryProps {
 
 export function ProjectCardGallery({
 	title,
+	headingLevel = 3,
 	description,
 	overview,
 	role,
-	status,
+	delivery,
 	href,
 	items,
 	images,
@@ -79,6 +82,7 @@ export function ProjectCardGallery({
 }: ProjectCardGalleryProps) {
 	const [RichMediaGallery, setRichMediaGallery] = useState<MediaGalleryComponent | null>(null);
 	const [requestedPlaybackId, setRequestedPlaybackId] = useState<string | null>(null);
+	const [requestedExpandedIndex, setRequestedExpandedIndex] = useState<number | null>(null);
 	const [shouldLoadRichMedia, setShouldLoadRichMedia] = useState(!deferMediaLoading);
 	const isRichMediaLoading = shouldLoadRichMedia && !RichMediaGallery;
 	const hasGalleryItems = (items?.length ?? 0) > 0 || (images?.length ?? 0) > 0;
@@ -120,7 +124,8 @@ export function ProjectCardGallery({
 		};
 	}, [images, items, title]);
 	const fallbackPlaybackId = items?.[0]?.kind === "mux-video" ? items[0].playbackId : null;
-	const attribution = overview ? [role, status].filter((value) => Boolean(value)) : [];
+	const Heading = headingLevel === 2 ? "h2" : "h3";
+	const DetailHeading = headingLevel === 2 ? "h3" : "h4";
 
 	const triggerRichMediaLoad = useCallback(() => {
 		if (shouldLoadRichMedia) return;
@@ -149,9 +154,9 @@ export function ProjectCardGallery({
 
 	const heading = (
 		<>
-			<h3 className="portfolio-project-title portfolio-capsize-project-title min-w-0">
+			<Heading className="portfolio-project-title portfolio-capsize-project-title min-w-0">
 				{title}
-			</h3>
+			</Heading>
 			{!isPrivate && (
 				<span data-project-action="" aria-hidden="true">
 					<LinkFeedback
@@ -168,84 +173,60 @@ export function ProjectCardGallery({
 	);
 	const caption = (
 		<>
-			<div data-slot="project-overview" className="portfolio-project-overview">
-				<div className="portfolio-project-identity">
-					{!overview && (
+			{overview ? (
+				<ProjectCardOverview
+					title={title}
+					headingLevel={headingLevel}
+					overview={overview}
+					role={role}
+					delivery={delivery}
+					href={href}
+					isPrivate={isPrivate}
+				/>
+			) : (
+				<div data-slot="project-overview" className="portfolio-project-overview">
+					<div className="portfolio-project-identity">
 						<div className="portfolio-project-metadata text-muted-foreground tabular-nums">
 							<span>{index}</span>
-							{date && (
-								<>
-									<span aria-hidden="true">·</span>
-									<span>{date}</span>
-								</>
-							)}
+							{date && <span>{date}</span>}
 						</div>
-					)}
-					{isPrivate ? (
-						<div className="portfolio-project-heading">{heading}</div>
-					) : (
-						<Link
-							transitionTypes={["navigation"]}
-							data-reel-trigger=""
-							href={href}
-							prefetch={true}
-							className="portfolio-project-heading portfolio-project-link"
-						>
-							{heading}
-						</Link>
-					)}
-					{attribution.length > 0 && (
-						<p className="portfolio-project-attribution portfolio-project-metadata text-muted-foreground">
-							{attribution.join(" · ")}
-						</p>
-					)}
-				</div>
-
-				<div className="portfolio-project-details">
-					<div
-						className={cn(
-							"portfolio-project-summary",
-							overview && "portfolio-project-narrative",
-						)}
-					>
-						<p
-							className="portfolio-project-description portfolio-body-sm text-muted-foreground"
-							data-slot={overview ? "project-problem" : undefined}
-						>
-							{overview?.problem ?? description}
-						</p>
-						{overview && (
-							<p
-								className="portfolio-project-description portfolio-body-sm"
-								data-slot="project-solution"
+						{isPrivate ? (
+							<div className="portfolio-project-heading">{heading}</div>
+						) : (
+							<Link
+								transitionTypes={["navigation"]}
+								data-reel-trigger=""
+								href={href}
+								prefetch={true}
+								className="portfolio-project-heading portfolio-project-link"
 							>
-								{overview.solution}
-							</p>
+								{heading}
+							</Link>
 						)}
-						{!overview && challenge && (
-							<div className="portfolio-card-copy">
-								<h4 className="portfolio-kicker text-surface-600 dark:text-surface-400">
+					</div>
+					<div className="portfolio-project-details">
+						<p className="portfolio-project-description portfolio-body-sm text-muted-foreground">
+							{description}
+						</p>
+						{challenge && (
+							<div className="portfolio-project-story">
+								<DetailHeading className="portfolio-kicker text-muted-foreground">
 									Challenge
-								</h4>
-								<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
-									{challenge}
-								</p>
+								</DetailHeading>
+								<p className="portfolio-body-sm">{challenge}</p>
 							</div>
 						)}
-						{!overview && solution && (
-							<div className="portfolio-card-copy">
-								<h4 className="portfolio-kicker text-surface-600 dark:text-surface-400">
+						{solution && (
+							<div className="portfolio-project-story">
+								<DetailHeading className="portfolio-kicker text-muted-foreground">
 									Solution
-								</h4>
-								<p className="portfolio-body-sm text-surface-700 dark:text-surface-300">
-									{solution}
-								</p>
+								</DetailHeading>
+								<p className="portfolio-body-sm">{solution}</p>
 							</div>
 						)}
 					</div>
 				</div>
-			</div>
-
+			)}
 			<ProjectTechnologyRail
 				technologies={tags}
 				highlights={technologyHighlights}
@@ -274,7 +255,6 @@ export function ProjectCardGallery({
 					onPointerEnter={(event) => {
 						if (event.pointerType === "mouse") triggerRichMediaLoad();
 					}}
-					onTouchStartCapture={fallbackPlaybackId ? undefined : triggerRichMediaLoad}
 				>
 					{shouldLoadRichMedia && RichMediaGallery ? (
 						<RichMediaGallery
@@ -283,13 +263,14 @@ export function ProjectCardGallery({
 							altPrefix={title}
 							aspectRatio={imageAspectRatio}
 							prioritizeFirstImage={prioritizeFirstImage}
-							enableKeyboard={false}
+							enableKeyboard={!isPrivate}
 							showArrows={!isPrivate}
 							showProgress={!isPrivate}
 							showCounter={false}
-							expandable={false}
+							expandable={!isPrivate}
 							enableHoverPreview={enableHoverPreview}
 							requestedPlaybackId={requestedPlaybackId}
+							requestedExpandedIndex={requestedExpandedIndex}
 							className="border-0"
 							sizes={PROJECT_PREVIEW_SIZES}
 							quality={mediaQuality}
@@ -314,6 +295,17 @@ export function ProjectCardGallery({
 								fetchPriority={prioritizeFirstImage ? "high" : undefined}
 								quality={mediaQuality}
 							/>
+							{fallbackMedia.kind === "image" && !isPrivate ? (
+								<button
+									type="button"
+									className="absolute inset-0 cursor-zoom-in outline-none focus-visible:outline-2 focus-visible:outline-foreground focus-visible:outline-offset-[-2px]"
+									aria-label={`Inspect ${title} screenshots`}
+									onClick={() => {
+										setRequestedExpandedIndex(0);
+										triggerRichMediaLoad();
+									}}
+								/>
+							) : null}
 
 							{fallbackMedia.kind === "mux-video" && (
 								<>

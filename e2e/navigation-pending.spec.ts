@@ -32,6 +32,11 @@ for (const theme of ["light", "dark"] as const) {
 		await expect(marquee).toHaveAttribute("aria-pressed", "true");
 		const contact = nav.getByRole("link", { name: "Contact", exact: true });
 		const feedback = contact.locator('[data-slot="link-feedback"]');
+		await nav
+			.locator("..")
+			.evaluate((frame) =>
+				Promise.allSettled(frame.getAnimations().map((animation) => animation.finished)),
+			);
 		const idleDock = await nav.boundingBox();
 		const idleControl = await contact.boundingBox();
 		try {

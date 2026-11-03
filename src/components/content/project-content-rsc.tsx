@@ -2,6 +2,7 @@ import { CaseStudyFacts, CaseStudyHeader } from "@/src/components/content/case-s
 import { ModuleContainer, PageContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
+import { MediaGallery } from "@/src/components/mdx/media-gallery";
 import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
 import { ButtonLink } from "@/src/components/ui/button-link";
@@ -10,7 +11,6 @@ import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
-import { MediaGallery } from "@/src/components/ui/media-gallery";
 import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import { getProjectTechnologyHighlights } from "@/src/content/project-technology-highlights";
@@ -32,8 +32,15 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 	const galleryItems = getProjectCoverMedia(project);
 	const projectFacts = [
 		project.role ? { label: "Role", value: project.role } : null,
+		project.delivery
+			? {
+					label: project.delivery.label,
+					value: [project.delivery.period, project.delivery.duration]
+						.filter(Boolean)
+						.join(" · "),
+				}
+			: null,
 		project.status ? { label: "Status", value: project.status } : null,
-		project.domain ? { label: "Domain", value: project.domain } : null,
 	].filter((fact): fact is { label: string; value: string } => fact !== null);
 	const projectStack = project.stack?.length ? project.stack : (project.tech ?? []);
 	const projectStackLabel = project.stack?.length ? "Engine Stack" : "Technologies";
@@ -42,7 +49,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 		<div className="flex flex-1 flex-col text-foreground selection:bg-foreground selection:text-background">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
 				<section id="project-main" className="w-full">
-					<PageContainer className="portfolio-section-top">
+					<PageContainer mobileBleed className="portfolio-section-top">
 						<SwissGridBox className={styles.frame}>
 							<SwissGridRow>
 								<CaseStudyHeader
@@ -51,7 +58,19 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									date={project.date}
 									readingTime={project.readingTime}
 									markdownHref={`/case-studies/${project.slug}.md`}
+									overview={project.overview}
 								/>
+							</SwissGridRow>
+
+							<SwissGridRow>
+								<Reveal phase={2} delay={0.04} className="w-full">
+									<CaseStudyFacts
+										facts={projectFacts}
+										stack={[]}
+										stackLabel={projectStackLabel}
+										projectTitle={project.title}
+									/>
+								</Reveal>
 							</SwissGridRow>
 							{galleryItems.length > 0 && !project.hideCoverGallery && (
 								<SwissGridRow>
@@ -59,56 +78,12 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 										items={galleryItems}
 										altPrefix={project.title}
 										aspectRatio="16/9"
-										sizes="(min-width: 1024px) 984px, calc(100vw - 40px)"
-										showArrows={galleryItems.length > 1}
-										showProgress={galleryItems.length > 1}
-										showCounter={galleryItems.length > 1}
-										expandable
+										sizes="(min-width: 1024px) 984px, (min-width: 640px) calc(100vw - 40px), 100vw"
+										breakout={false}
+										prioritizeFirstImage
 									/>
 								</SwissGridRow>
 							)}
-							<SwissGridRow>
-								<Reveal phase={2} delay={0.04} className="w-full">
-									<CaseStudyFacts
-										facts={projectFacts}
-										stack={projectStack}
-										stackLabel={projectStackLabel}
-										projectTitle={project.title}
-										stackHighlights={getProjectTechnologyHighlights(
-											project.slug,
-										)}
-									/>
-
-									{(project.url || project.github) && (
-										<div className={styles.resources}>
-											{project.url && (
-												<ButtonLink
-													size="md"
-													variant="outlined"
-													color="default"
-													href={project.url}
-													target="_blank"
-													rel="noopener noreferrer"
-												>
-													Visit Site
-												</ButtonLink>
-											)}
-											{project.github && (
-												<ButtonLink
-													size="md"
-													variant="outlined"
-													color="default"
-													href={project.github}
-													target="_blank"
-													rel="noopener noreferrer"
-												>
-													View Code
-												</ButtonLink>
-											)}
-										</div>
-									)}
-								</Reveal>
-							</SwissGridRow>
 							<SwissGridRow>
 								<ScrollReveal phase={2} className="w-full">
 									<div className="portfolio-box-pad">
@@ -120,6 +95,44 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									</div>
 								</ScrollReveal>
 							</SwissGridRow>
+							<SwissGridRow>
+								<CaseStudyFacts
+									facts={[]}
+									stack={projectStack}
+									stackLabel={projectStackLabel}
+									projectTitle={project.title}
+									stackHighlights={getProjectTechnologyHighlights(project.slug)}
+								/>
+
+								{(project.url || project.github) && (
+									<div className={styles.resources}>
+										{project.url && (
+											<ButtonLink
+												size="md"
+												variant="outlined"
+												color="default"
+												href={project.url}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												Visit Site
+											</ButtonLink>
+										)}
+										{project.github && (
+											<ButtonLink
+												size="md"
+												variant="outlined"
+												color="default"
+												href={project.github}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												View Code
+											</ButtonLink>
+										)}
+									</div>
+								)}
+							</SwissGridRow>
 						</SwissGridBox>
 					</PageContainer>
 				</section>
@@ -127,7 +140,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 				<section id="project-cta" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
-							<PageContainer className="portfolio-section-loose">
+							<PageContainer mobileBleed className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
 										<InstrumentActionBand

@@ -63,7 +63,7 @@ export function ProjectTechnologyRail({
 	const rootRef = useRef<HTMLDivElement>(null);
 	const remainingMs = useRef(ROTATION_INTERVAL_MS);
 	const interaction = useRef({ hovered: false, focused: false, pressed: false });
-	const [columns, setColumns] = useState(6);
+	const [columns, setColumns] = useState(5);
 	const [cycle, setCycle] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const [pageVisible, setPageVisible] = useState(false);
@@ -75,7 +75,7 @@ export function ProjectTechnologyRail({
 	const [pressed, setPressed] = useState(false);
 	const hasTechnologies = entries.length > 0;
 	const cellCount = Math.min(columns, entries.length);
-	const fixedCount = columns === 6 ? Math.min(3, cellCount) : 0;
+	const fixedCount = columns === 5 ? Math.min(3, cellCount) : 0;
 	const rotatingCount = cellCount - fixedCount;
 	const groups = useMemo(() => {
 		const fixed = orderedEntries.slice(0, fixedCount).map((name) => [name]);
@@ -129,7 +129,7 @@ export function ProjectTechnologyRail({
 		});
 		const size = new ResizeObserver(([entry]) => {
 			if (!entry) return;
-			setColumns(entry.contentRect.width >= 640 ? 6 : 3);
+			setColumns(entry.contentRect.width >= 640 ? 5 : 3);
 		});
 		visibility.observe(root);
 		size.observe(root);

@@ -60,7 +60,8 @@ export function WorkshopDocsContainer({
 
 function ComponentApi() {
 	const context = useContext(DocsContext);
-	if (Object.keys(context.storyById().argTypes).length === 0) return null;
+	const story = context.storyById();
+	if (story.parameters.controls?.disable || Object.keys(story.argTypes).length === 0) return null;
 	return (
 		<details className="workshop-api">
 			<summary>Component API and controls</summary>

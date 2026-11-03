@@ -29,6 +29,7 @@ import {
 } from "@/src/components/ui/gallery-chrome";
 import { GalleryPlayButton } from "@/src/components/ui/gallery-play-button";
 import { usePageGallery } from "@/src/components/ui/page-gallery-scope";
+import videoStyles from "@/src/components/ui/portfolio-mux-video.module.css";
 import { useGalleryDrag } from "@/src/components/ui/use-gallery-drag";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { resolveAsset } from "@/src/lib/assets";
@@ -94,6 +95,8 @@ export interface MediaGalleryProps {
 	enableHoverPreview?: boolean;
 	/** Request immediate playback for a specific Mux video item once mounted */
 	requestedPlaybackId?: string | null;
+	/** Preserve an inspect action made on a card's lightweight poster before this module loads. */
+	requestedExpandedIndex?: number | null;
 }
 
 type ResolvedGalleryItem =
@@ -123,7 +126,7 @@ type NetworkInformationLike = {
 };
 
 const GALLERY_STAGE_INSET_CLASS_NAME =
-	"[--gallery-stage-inset:var(--portfolio-control-pad-default)] [--gallery-progress-edge:var(--portfolio-space-tight)] [--gallery-progress-baseline:calc(var(--portfolio-space-tight)*0.8)]";
+	"[--portfolio-control-default:var(--portfolio-control-prominent)] [--gallery-stage-inset:var(--portfolio-control-pad-default)] [--gallery-progress-edge:var(--portfolio-space-tight)] [--gallery-progress-baseline:calc(var(--portfolio-space-tight)*0.8)]";
 
 function getMuxAnimatedPreviewSrc(playbackId: string) {
 	return `https://image.mux.com/${playbackId}/animated.webp?width=640&fps=15&start=0&end=4`;
@@ -172,12 +175,14 @@ export function MediaGallery({
 	prioritizeFirstImage = true,
 	enableHoverPreview = true,
 	requestedPlaybackId = null,
+	requestedExpandedIndex = null,
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw",
 	quality = 90,
 }: MediaGalleryProps) {
 	const pageGallery = usePageGallery();
 	const galleryId = useId();
 	const outerRef = useRef<HTMLElement>(null);
+	const posterRefs = useRef(new Map<number, HTMLDivElement>());
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const scrollFrameRef = useRef<number | null>(null);
 	const hoverPreviewTimeoutRef = useRef<number | null>(null);
@@ -205,6 +210,7 @@ export function MediaGallery({
 	const [canHover, setCanHover] = useState(false);
 	const [allowHoverPreview, setAllowHoverPreview] = useState(enableHoverPreview);
 	const lastHandledRequestedPlaybackIdRef = useRef<string | null>(null);
+	const lastHandledExpandedIndexRef = useRef<number | null>(null);
 
 	const galleryItems = useMemo<ResolvedGalleryItem[]>(() => {
 		if (items?.length) {
@@ -324,8 +330,10 @@ export function MediaGallery({
 
 	const warmViewer = useCallback(() => {
 		if (expandable) void importGalleryLightbox().catch(() => {});
-		if (expandable && activeItem?.kind === "mux-video")
-			void importPortfolioMuxVideo().catch(() => {});
+		if (activeItem?.kind === "mux-video")
+			void importPortfolioMuxVideo()
+				.then((module) => module.preloadPortfolioVideo())
+				.catch(() => {});
 	}, [activeItem?.kind, expandable]);
 
 	useLayoutEffect(() => {
@@ -335,10 +343,9 @@ export function MediaGallery({
 			id: galleryId,
 			items: galleryItems,
 			root: outerRef,
-			select: (index) => goToIndex(index, true),
 			onOpenChange: setIsLightboxOpen,
 		});
-	}, [expandable, galleryId, galleryItems, goToIndex, pageGallery]);
+	}, [expandable, galleryId, galleryItems, pageGallery]);
 
 	const openViewer = useCallback(
 		(index: number, instant: boolean) => {
@@ -363,7 +370,23 @@ export function MediaGallery({
 		setIsLightboxOpen(false);
 		setTouchChromeVisible(false);
 		lastHandledRequestedPlaybackIdRef.current = null;
+		lastHandledExpandedIndexRef.current = null;
 	}, [galleryIdentity]);
+
+	useEffect(() => {
+		if (
+			!expandable ||
+			requestedExpandedIndex === null ||
+			requestedExpandedIndex === lastHandledExpandedIndexRef.current ||
+			!galleryItems[requestedExpandedIndex]
+		)
+			return;
+		lastHandledExpandedIndexRef.current = requestedExpandedIndex;
+		goToIndex(requestedExpandedIndex, true);
+		// The lightweight opener has been replaced; restore to its equivalent rich surface.
+		outerRef.current?.focus({ preventScroll: true });
+		openViewer(requestedExpandedIndex, true);
+	}, [expandable, galleryItems, goToIndex, openViewer, requestedExpandedIndex]);
 
 	useEffect(() => {
 		if (!requestedPlaybackId) return;
@@ -558,7 +581,10 @@ export function MediaGallery({
 					if (Math.abs(container.scrollLeft - pendingIndex * width) > 1) return;
 					pendingIndexRef.current = null;
 				}
-				const nextIndex = Math.round(container.scrollLeft / width);
+				const nextIndex = Math.min(
+					galleryItems.length - 1,
+					Math.max(0, Math.round(container.scrollLeft / width)),
+				);
 				setActiveIndex((prev) => (prev === nextIndex ? prev : nextIndex));
 			});
 		};
@@ -570,7 +596,7 @@ export function MediaGallery({
 				window.cancelAnimationFrame(scrollFrameRef.current);
 			}
 		};
-	}, []);
+	}, [galleryItems.length]);
 
 	const handleKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -625,7 +651,7 @@ export function MediaGallery({
 				ref={outerRef}
 				className={cn(
 					"relative flex w-full flex-col overflow-hidden bg-surface-100 dark:bg-surface-900",
-					"outline-none focus-visible:ring-2 focus-visible:ring-surface-900/15 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent dark:focus-visible:ring-surface-50/25",
+					videoStyles.gallerySurface,
 					className,
 				)}
 				tabIndex={enableKeyboard ? 0 : undefined}
@@ -660,12 +686,14 @@ export function MediaGallery({
 				<div
 					className={cn(
 						"relative w-full overflow-hidden",
+						videoStyles.galleryStage,
 						GALLERY_STAGE_INSET_CLASS_NAME,
+						activeItem?.kind === "mux-video" && videoStyles.videoStage,
 					)}
 					style={{
-						aspectRatio: hasVaryingRatios ? undefined : `${aspectRatios[0] ?? 16 / 9}`,
+						// Reserve the active frame on the server, before ResizeObserver runs.
+						aspectRatio: `${Number((aspectRatios[activeIndex] ?? 16 / 9).toPrecision(6))} / 1`,
 						height: currentHeight,
-						transition: shouldReduceMotion ? undefined : "height 280ms ease",
 					}}
 				>
 					<div
@@ -718,6 +746,8 @@ export function MediaGallery({
 									{shouldRenderInlineVideo && (
 										<div
 											className="absolute inset-0 z-0"
+											inert={!isViewingInline || activeIndex !== index}
+											aria-hidden={!isViewingInline || activeIndex !== index}
 											style={{
 												visibility:
 													activeIndex === index ? "visible" : "hidden",
@@ -728,11 +758,20 @@ export function MediaGallery({
 											<PortfolioMuxVideo
 												playbackId={item.playbackId}
 												poster={item.poster}
+												durationLabel={item.duration}
 												metadata={item.metadata}
 												active={isPlayingInline || isRequestedInline}
 												variant="gallery"
 												className="h-full w-full"
 												onExit={() => {
+													requestAnimationFrame(() => {
+														posterRefs.current
+															.get(index)
+															?.querySelector<HTMLButtonElement>(
+																"button",
+															)
+															?.focus({ preventScroll: true });
+													});
 													setRequestedInlineVideoId((current) =>
 														current === item.playbackId
 															? null
@@ -772,13 +811,12 @@ export function MediaGallery({
 															: current,
 													);
 												}}
-												onReadyChange={(ready) => {
-													if (!ready) return;
-													setLoadingInlineVideoId((current) =>
-														current === item.playbackId
-															? null
-															: current,
-													);
+												onPlaybackError={(failed) => {
+													if (!failed) return;
+													setVisibleVideoId(item.playbackId);
+													setLoadingInlineVideoId(null);
+													setRequestedInlineVideoId(null);
+													setPlayingVideoId(null);
 												}}
 											/>
 										</div>
@@ -786,6 +824,12 @@ export function MediaGallery({
 
 									<motion.div
 										className="absolute inset-0 z-10"
+										ref={(node) => {
+											if (node) posterRefs.current.set(index, node);
+											else posterRefs.current.delete(index);
+										}}
+										inert={isViewingInline}
+										aria-hidden={isViewingInline || undefined}
 										animate={{
 											opacity:
 												item.kind === "mux-video" && isViewingInline
@@ -866,25 +910,27 @@ export function MediaGallery({
 													transition={tweens.interaction}
 													aria-hidden={!isHoverPreviewActive}
 												>
-													<Image
-														src={getMuxAnimatedPreviewSrc(
-															item.playbackId,
-														)}
-														alt=""
-														fill
-														unoptimized
-														sizes={sizes}
-														className={cn(
-															hasVaryingRatios
-																? "object-contain"
-																: "object-cover",
-															"pointer-events-none select-none",
-															mediaClassName,
-														)}
-														loading="lazy"
-														decoding="async"
-														aria-hidden="true"
-													/>
+													{isHoverPreviewActive ? (
+														<Image
+															src={getMuxAnimatedPreviewSrc(
+																item.playbackId,
+															)}
+															alt=""
+															fill
+															unoptimized
+															sizes={sizes}
+															className={cn(
+																hasVaryingRatios
+																	? "object-contain"
+																	: "object-cover",
+																"pointer-events-none select-none",
+																mediaClassName,
+															)}
+															loading="lazy"
+															decoding="async"
+															aria-hidden="true"
+														/>
+													) : null}
 												</motion.div>
 												<div
 													className="pointer-events-none absolute inset-0 z-20"
@@ -923,6 +969,8 @@ export function MediaGallery({
 								<div
 									key={getGalleryItemKey(item)}
 									data-gallery-slide={index}
+									inert={activeIndex !== index}
+									aria-hidden={activeIndex !== index || undefined}
 									className="relative h-full min-w-0 shrink-0 basis-full snap-center overflow-hidden"
 								>
 									{isExpandableImage ? (

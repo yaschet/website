@@ -3,27 +3,27 @@
 	padding-block: var(--portfolio-context-clearance);
 }
 .portfolio-context-rail {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	column-gap: var(--portfolio-context-gap);
 	row-gap: var(--portfolio-context-row-gap);
 }
 .portfolio-context-badge {
-	--context-line: var(--border);
+	--context-line: var(--portfolio-project-line);
 	display: flex;
 	position: relative;
 	align-items: center;
 	min-width: 0;
-	height: var(--portfolio-badge-height);
+	min-height: var(--portfolio-badge-height);
 	background: var(--portfolio-panel);
 	color: var(--muted-foreground);
 	border: 0;
 	border-radius: 0;
 	padding: 0;
-	font: 400 12px / 16px var(--font-sans);
+	font: 400 12px / 1.3333333333 var(--font-sans);
 }
-/* The compact frame stays 28px; its invisible hit area remains 44px high. */
+/* The normal frame is 28px and can grow with text; its hit area is at least 44px. */
 .portfolio-context-badge::before {
 	position: absolute;
 	inset: calc((var(--portfolio-badge-height) - 44px) / 2) 0;
@@ -33,7 +33,7 @@
 	position: absolute;
 	inset: 0;
 	z-index: 2;
-	border: var(--foundation-hairline) solid var(--context-line);
+	box-shadow: inset 0 0 0 var(--foundation-hairline) var(--context-line);
 	content: "";
 	pointer-events: none;
 }
@@ -214,28 +214,33 @@
 	height: 14px;
 }
 .portfolio-context-label {
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	display: block;
 	flex: 1;
 	min-width: 0;
+	padding-block: 6px;
 	padding-inline: var(--portfolio-badge-inset);
-	white-space: nowrap;
+	text-align: center;
 }
+.portfolio-location,
 .portfolio-time {
-	grid-column: 2;
-	grid-row: 1;
+	flex: 1 1 0;
+	min-width: min-content;
 }
 .portfolio-marquee {
-	grid-column: 1 / -1;
+	flex: 1 0 100%;
+	order: 1;
 	padding: 0;
 	text-align: start;
 	cursor: grab;
-	touch-action: pan-y pinch-zoom;
 	user-select: none;
 	font-weight: 500;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
+}
+/* Override the shared button tap policy: horizontal gestures belong to the track,
+   while vertical scrolling and pinch zoom remain browser-owned. */
+.yaschet .portfolio-marquee {
+	touch-action: pan-y pinch-zoom;
 }
 .portfolio-marquee[data-dragging="true"] {
 	cursor: grabbing;
@@ -268,14 +273,13 @@
 	display: inline-flex;
 	align-items: center;
 	flex: none;
-	gap: 16px;
-	padding-inline-end: 16px;
+	gap: var(--portfolio-context-gap);
+	padding-inline-end: var(--portfolio-context-gap);
 	white-space: nowrap;
 }
 .portfolio-marquee-item {
 	display: inline-flex;
 	align-items: center;
-	gap: 16px;
 }
 .portfolio-marquee-item > [data-marquee-copy]::before {
 	content: attr(data-marquee-copy);
@@ -293,16 +297,17 @@
 }
 .portfolio-clock-digits {
 	display: inline-flex;
-	height: 16px;
+	/* Native text enlargement must also enlarge the masked digit chambers. */
+	height: 1lh;
 	align-items: flex-start;
 }
 .portfolio-clock-digit {
 	display: inline-block;
-	width: 8px;
+	width: 0.6666666667em;
 	box-sizing: content-box;
 	padding-block: 2px;
 	margin-block: -2px;
-	height: 16px;
+	height: 1lh;
 	overflow: hidden;
 	mask-image: linear-gradient(
 		to bottom,
@@ -330,8 +335,8 @@
 }
 .portfolio-clock-digit i {
 	flex: none;
-	height: 16px;
-	line-height: 16px;
+	height: 1lh;
+	line-height: inherit;
 	font-style: normal;
 	text-align: center;
 }
@@ -340,7 +345,7 @@
 	content: attr(data-digit);
 }
 .portfolio-clock-separator {
-	width: 4px;
+	width: 0.3333333333em;
 	text-align: center;
 }
 .portfolio-clock-readout[data-ready="false"] .portfolio-clock-placeholder {
@@ -353,17 +358,14 @@
 	animation: none;
 }
 @media (min-width: 40rem) {
-	.portfolio-context-rail {
-		grid-template-columns: var(--portfolio-badge-width) minmax(0, 1fr) var(
-				--portfolio-badge-width
-			);
+	.portfolio-location,
+	.portfolio-time {
+		flex: 0 0 auto;
+		min-width: var(--portfolio-badge-width);
 	}
 	.portfolio-marquee {
-		grid-column: 2;
-		grid-row: 1;
-	}
-	.portfolio-time {
-		grid-column: 3;
+		flex: 1 1 0;
+		order: 0;
 	}
 }
 @media (max-width: 24rem) {
@@ -386,10 +388,60 @@
 	color: var(--nav-ink);
 }
 
+.portfolio-nav-frame {
+	position: relative;
+}
 .portfolio-nav {
 	position: relative;
-	isolation: isolate;
+	z-index: 1;
 	padding: var(--portfolio-nav-inset);
+	box-shadow: inset 0 0 0 var(--foundation-hairline)
+		color-mix(in srgb, var(--nav-ink) 16%, transparent);
+}
+.portfolio-nav-frame::before {
+	/* Fade fully before the viewport edge, inside the 28px mobile clearance. */
+	content: "";
+	position: absolute;
+	inset: -28px -48px -24px;
+	z-index: 0;
+	pointer-events: none;
+	background: radial-gradient(
+		ellipse 50% 50% at 50% 50%,
+		rgb(0 0 0 / 32%) 42%,
+		rgb(0 0 0 / 16%) 68%,
+		rgb(0 0 0 / 0%) 100%
+	);
+}
+/* Keep an opaque fallback; only the dock receives the glass material. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.portfolio-nav {
+		background: color-mix(
+			in srgb,
+			var(--nav-surface) var(--nav-glass-opacity, 76%),
+			transparent
+		);
+		-webkit-backdrop-filter: blur(28px) saturate(0.65);
+		backdrop-filter: blur(28px) saturate(0.65);
+	}
+}
+@media (prefers-reduced-transparency: reduce) {
+	.portfolio-nav {
+		background: var(--nav-surface);
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+	}
+}
+@media (forced-colors: active) {
+	.portfolio-nav {
+		background: Canvas;
+		color: CanvasText;
+		outline: 1px solid CanvasText;
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+	}
+	.portfolio-nav-frame::before {
+		display: none;
+	}
 }
 .portfolio-nav-rail,
 .portfolio-nav-pages {
@@ -427,6 +479,7 @@
 .portfolio-nav-control {
 	--button-glyph-size: 1rem;
 	--button-content-gap: 0px;
+	touch-action: manipulation;
 	position: relative;
 	z-index: 1;
 	display: grid;
@@ -454,6 +507,9 @@
 .portfolio-nav-control[data-highlighted="true"] > .t-icon-swap {
 	opacity: 1;
 }
+.portfolio-nav-control[data-pressed="true"] > svg,
+.portfolio-nav-control[data-pressed="true"] > [data-slot="link-feedback"],
+.portfolio-nav-control[data-pressed="true"] > .t-icon-swap,
 .portfolio-nav-control:active > svg,
 .portfolio-nav-control:active > [data-slot="link-feedback"],
 .portfolio-nav-control:active > .t-icon-swap {
@@ -537,6 +593,13 @@
 	visibility: hidden;
 	pointer-events: none;
 }
+@media (max-width: 63.999rem), (max-height: 32.5rem) {
+	.portfolio-nav,
+	.portfolio-tooltip,
+	.portfolio-tooltip-measure {
+		--portfolio-nav-inset: 6px;
+	}
+}
 @media (prefers-reduced-motion: reduce) {
 	.theme-toggle::before,
 	.portfolio-nav-control > svg,
@@ -548,6 +611,7 @@
 
 .portfolio-location .portfolio-context-chamber {
 	padding: var(--foundation-hairline);
+	background: var(--context-line);
 }
 .portfolio-location .portfolio-context-chamber > svg {
 	width: 100%;
@@ -558,6 +622,9 @@
 .dark .portfolio-tooltip {
 	--nav-surface: var(--palette-neutral-50);
 	--nav-ink: var(--palette-neutral-950);
+}
+.dark .portfolio-nav {
+	--nav-glass-opacity: 97%;
 }
 
 /* Loading owns the content region, never the persistent header or dock. */
@@ -585,4 +652,15 @@
 	.portfolio-page-loading-glyph {
 		animation: none;
 	}
+}
+
+/* Touch-down feedback is immediate; release returns with the shared transition. */
+.portfolio-nav-control[data-pressed="true"] > [data-slot="link-feedback"],
+.portfolio-nav-control[data-pressed="true"] > .t-icon-swap {
+	transition-duration: 0ms;
+	opacity: 1;
+}
+
+.portfolio-nav-hover[data-touch="true"] {
+	transition: none;
 }

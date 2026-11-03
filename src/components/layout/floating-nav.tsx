@@ -20,6 +20,7 @@ import { LinkFeedback } from "@/src/components/ui/link-feedback";
 import { PortfolioLink as Link } from "@/src/components/ui/portfolio-link";
 import { StateSwap } from "@/src/components/ui/state-swap";
 import { toggleThemeWithTransition } from "@/src/lib/theme-transition";
+import styles from "./floating-nav.module.css";
 
 type NavItem = {
 	name: string;
@@ -42,9 +43,11 @@ function getActiveIndex(pathname: string) {
 /** The route marker stays put while a separate, clipped hover plane follows exploration. */
 export function FloatingNav() {
 	const pathname = usePathname();
+	const isArticle = /^\/(?:case-studies|blog)\/[^/]+\/?$/.test(pathname);
 	const { setTheme, resolvedTheme, theme } = useTheme();
 	const activeIndex = getActiveIndex(pathname);
 	const [isMounted, setIsMounted] = useState(false);
+	const [pressedIndex, setPressedIndex] = useState<number | null>(null);
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 	const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 	const [underlay, setUnderlay] = useState({ index: 0, visible: false, snap: true });
@@ -61,7 +64,10 @@ export function FloatingNav() {
 		hoveredIndex !== null && hoveredIndex < navItems.length ? hoveredIndex : null;
 	const routeFocus =
 		focusedIndex !== null && focusedIndex < navItems.length ? focusedIndex : null;
-	const themeHighlighted = hoveredIndex === navItems.length || focusedIndex === navItems.length;
+	const themeHighlighted =
+		hoveredIndex === navItems.length ||
+		focusedIndex === navItems.length ||
+		pressedIndex === navItems.length;
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -76,6 +82,22 @@ export function FloatingNav() {
 		setUnderlay((previous) => ({ ...previous, visible: false }));
 	};
 
+	const clearTouch = (event: PointerEvent<HTMLElement>) => {
+		if (event.pointerType !== "touch") return;
+		setPressedIndex(null);
+		hideHover();
+	};
+	const touchFeedback = (index: number) => ({
+		onPointerDown: (event: PointerEvent<HTMLElement>) => {
+			if (event.pointerType !== "touch" || !event.isPrimary) return;
+			setPressedIndex(index);
+			hint.dismiss();
+			setUnderlay({ index, visible: index < navItems.length, snap: true });
+		},
+		onPointerUp: clearTouch,
+		onPointerCancel: clearTouch,
+		onPointerLeave: clearTouch,
+	});
 	const pointerEnter = (event: PointerEvent<HTMLElement>, index: number, label: string) => {
 		if (event.pointerType !== "mouse" && event.pointerType !== "pen") return;
 		if (event.buttons !== 0) return;
@@ -118,133 +140,151 @@ export function FloatingNav() {
 			: "Toggle theme";
 	return (
 		<>
-			<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-[var(--portfolio-nav-clearance)] items-center justify-center px-[var(--portfolio-page-gutter-mobile)] sm:px-[var(--portfolio-page-gutter-desktop)]">
-				<nav
-					ref={dock}
-					className="portfolio-nav pointer-events-auto"
-					aria-label="Main navigation"
-					data-motion-input={keyboard ? "keyboard" : undefined}
+			<div className={styles.wrapper} data-article={isArticle}>
+				<div
+					className={`portfolio-nav-frame ${styles.frame}`}
+					data-motion-reduced={reduced ? "true" : undefined}
 				>
-					<ul
-						className="portfolio-nav-rail"
-						onPointerLeave={() => {
-							hideHover();
-							hint.hide();
-						}}
+					<nav
+						ref={dock}
+						className={`portfolio-nav pointer-events-auto ${styles.dock}`}
+						aria-label="Main navigation"
+						data-motion-reduced={reduced ? "true" : undefined}
+						data-motion-input={keyboard ? "keyboard" : undefined}
 					>
-						<li>
-							<ul className="portfolio-nav-pages" onPointerLeave={hideHover}>
-								<li className="portfolio-nav-underlay-clip" aria-hidden="true">
-									<span
-										className="portfolio-nav-underlay portfolio-nav-active"
-										data-instant={reduced || keyboard}
-										style={{
-											transform: `translateX(calc(${Math.max(0, activeIndex)} * var(--portfolio-control-default)))`,
-											opacity: activeIndex >= 0 ? 1 : 0,
-										}}
-									/>
-									<span
-										className="portfolio-nav-underlay portfolio-nav-hover"
-										data-instant={reduced || keyboard}
-										data-snap={underlay.snap}
-										style={{
-											transform: `translateX(calc(${routeFocus ?? underlay.index} * var(--portfolio-control-default)))`,
-											opacity:
-												underlay.visible || routeFocus !== null ? 1 : 0,
-										}}
-										onTransitionEnd={(event) => {
-											if (
-												event.propertyName === "opacity" &&
-												!underlay.visible
-											)
-												hoverExited.current = true;
-										}}
-									/>
-								</li>
-								{navItems.map((item, index) => {
-									const Icon = item.icon;
-									return (
-										<li key={item.link}>
-											<Link
-												transitionTypes={["navigation"]}
-												href={item.link}
-												ref={(node) => {
-													controls.current[index] = node;
-												}}
-												aria-label={item.name}
-												aria-current={
-													activeIndex === index ? "page" : undefined
-												}
-												aria-describedby={
-													hint.target?.id === String(index)
-														? tooltipId
-														: undefined
-												}
-												className="portfolio-nav-control"
-												data-highlighted={
-													activeIndex === index ||
-													routeHover === index ||
-													routeFocus === index
-												}
-												onNavigate={() => {
-													hint.dismiss();
-												}}
-												onPointerEnter={(event) =>
-													pointerEnter(event, index, item.name)
-												}
-												onFocus={(event) => focus(event, index, item.name)}
-												onBlur={blur}
-											>
-												<LinkFeedback
-													icon={<Icon className="size-4" />}
-													iconOnly
-												/>
-											</Link>
-										</li>
-									);
-								})}
-							</ul>
-						</li>
-						<li className="portfolio-nav-divider" aria-hidden="true" />
-						<li>
-							<button
-								type="button"
-								ref={(node) => {
-									controls.current[navItems.length] = node;
-								}}
-								className="portfolio-nav-control theme-toggle"
-								data-highlighted={themeHighlighted}
-								aria-label={`Theme: ${themeToggleLabel}`}
-								aria-describedby={
-									hint.target?.id === String(navItems.length)
-										? tooltipId
-										: undefined
-								}
-								onPointerEnter={(event) =>
-									pointerEnter(event, navItems.length, "Theme")
-								}
-								onFocus={(event) => focus(event, navItems.length, "Theme")}
-								onBlur={blur}
-								onClick={(event) => {
-									hint.dismiss();
-									toggleThemeWithTransition(
-										setTheme,
-										resolvedTheme,
-										event.detail === 0 ? "keyboard" : "pointer",
-									);
-								}}
-							>
-								<StateSwap
-									value={isMounted && resolvedTheme === "dark" ? "dark" : "light"}
-									items={{
-										light: <Moon className="size-4" />,
-										dark: <Sun className="size-4" />,
+						<ul
+							className="portfolio-nav-rail"
+							onPointerLeave={() => {
+								hideHover();
+								hint.hide();
+							}}
+						>
+							<li>
+								<ul className="portfolio-nav-pages" onPointerLeave={hideHover}>
+									<li className="portfolio-nav-underlay-clip" aria-hidden="true">
+										<span
+											className="portfolio-nav-underlay portfolio-nav-active"
+											data-instant={reduced || keyboard}
+											style={{
+												transform: `translateX(calc(${Math.max(0, activeIndex)} * var(--portfolio-control-default)))`,
+												opacity: activeIndex >= 0 ? 1 : 0,
+											}}
+										/>
+										<span
+											className="portfolio-nav-underlay portfolio-nav-hover"
+											data-instant={reduced || keyboard}
+											data-snap={underlay.snap}
+											data-touch={pressedIndex !== null || undefined}
+											style={{
+												transform: `translateX(calc(${routeFocus ?? underlay.index} * var(--portfolio-control-default)))`,
+												opacity:
+													underlay.visible || routeFocus !== null ? 1 : 0,
+											}}
+											onTransitionEnd={(event) => {
+												if (
+													event.propertyName === "opacity" &&
+													!underlay.visible
+												)
+													hoverExited.current = true;
+											}}
+										/>
+									</li>
+									{navItems.map((item, index) => {
+										const Icon = item.icon;
+										return (
+											<li key={item.link}>
+												<Link
+													transitionTypes={["navigation"]}
+													href={item.link}
+													ref={(node) => {
+														controls.current[index] = node;
+													}}
+													aria-label={item.name}
+													aria-current={
+														activeIndex === index ? "page" : undefined
+													}
+													aria-describedby={
+														hint.target?.id === String(index)
+															? tooltipId
+															: undefined
+													}
+													className="portfolio-nav-control"
+													{...touchFeedback(index)}
+													data-pressed={
+														pressedIndex === index || undefined
+													}
+													data-highlighted={
+														activeIndex === index ||
+														routeHover === index ||
+														routeFocus === index ||
+														pressedIndex === index
+													}
+													onNavigate={() => {
+														hint.dismiss();
+													}}
+													onPointerEnter={(event) =>
+														pointerEnter(event, index, item.name)
+													}
+													onFocus={(event) =>
+														focus(event, index, item.name)
+													}
+													onBlur={blur}
+												>
+													<LinkFeedback
+														icon={<Icon className="size-4" />}
+														iconOnly
+													/>
+												</Link>
+											</li>
+										);
+									})}
+								</ul>
+							</li>
+							<li className="portfolio-nav-divider" aria-hidden="true" />
+							<li>
+								<button
+									type="button"
+									ref={(node) => {
+										controls.current[navItems.length] = node;
 									}}
-								/>
-							</button>
-						</li>
-					</ul>
-				</nav>
+									className="portfolio-nav-control theme-toggle"
+									{...touchFeedback(navItems.length)}
+									data-pressed={pressedIndex === navItems.length || undefined}
+									data-highlighted={themeHighlighted}
+									aria-label={`Theme: ${themeToggleLabel}`}
+									aria-describedby={
+										hint.target?.id === String(navItems.length)
+											? tooltipId
+											: undefined
+									}
+									onPointerEnter={(event) =>
+										pointerEnter(event, navItems.length, "Theme")
+									}
+									onFocus={(event) => focus(event, navItems.length, "Theme")}
+									onBlur={blur}
+									onClick={(event) => {
+										hint.dismiss();
+										toggleThemeWithTransition(
+											setTheme,
+											resolvedTheme,
+											event.detail === 0 ? "keyboard" : "pointer",
+										);
+									}}
+								>
+									<StateSwap
+										value={
+											isMounted && resolvedTheme === "dark" ? "dark" : "light"
+										}
+										items={{
+											light: <Moon className="size-4" />,
+											dark: <Sun className="size-4" />,
+										}}
+									/>
+								</button>
+							</li>
+						</ul>
+					</nav>
+				</div>
 			</div>
 			<HoverTooltip
 				id={tooltipId}

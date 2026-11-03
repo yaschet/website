@@ -11,6 +11,7 @@ declare global {
 	interface Window {
 		portfolioEntrySamples: EntrySample[];
 		freezePortfolioEntry: boolean;
+		portfolioEntryAnimations: Animation[];
 	}
 }
 
@@ -22,6 +23,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.addInitScript(() => {
 			window.portfolioEntrySamples = [];
 			window.freezePortfolioEntry = false;
+			window.portfolioEntryAnimations = [];
 			// Exercise the live-DOM fallback independently of native viewport handoffs.
 			Object.defineProperty(document, "startViewTransition", {
 				value: undefined,
@@ -33,6 +35,7 @@ for (const theme of ["light", "dark"] as const) {
 				void animation.ready
 					.then(() => {
 						if (!animation.id.startsWith("portfolio-entry-")) return;
+						window.portfolioEntryAnimations.push(animation);
 						const effect = animation.effect;
 						if (!(effect instanceof KeyframeEffect)) return;
 						const timing = effect.getTiming();
@@ -80,13 +83,18 @@ for (const theme of ["light", "dark"] as const) {
 					),
 				})),
 			)
-			.toEqual({ headings: 3, copy: true });
+			.toEqual({ headings: 6, copy: true });
 		const samples = await page.evaluate(() => window.portfolioEntrySamples);
 		const words = samples.filter((sample) => sample.id === "portfolio-entry-heading");
-		expect(words[1].delay).toBeGreaterThan(words[0].delay);
-		expect(words[2].delay).toBeGreaterThan(words[1].delay);
-		expect(words.every((sample) => sample.properties.includes("filter"))).toBe(true);
-		expect(samples.every((sample) => sample.duration + sample.delay <= 370)).toBe(true);
+		expect(words[2].delay).toBeGreaterThan(words[0].delay);
+		expect(words[4].delay).toBeGreaterThan(words[2].delay);
+		expect(words.every((sample) => sample.properties.includes("maskPosition"))).toBe(true);
+		expect(words.every((sample) => sample.duration + sample.delay <= 1100)).toBe(true);
+		expect(
+			samples
+				.filter((sample) => sample.id === "portfolio-entry-copy")
+				.every((sample) => sample.duration + sample.delay <= 370),
+		).toBe(true);
 		expect(samples.some((sample) => sample.id === "portfolio-entry-copy")).toBe(true);
 		expect(samples.some((sample) => sample.id === "portfolio-entry-frame")).toBe(false);
 		await expect(page.locator(".portfolio-scene")).toHaveCSS("transform", "none");
@@ -106,7 +114,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.screenshot({ path: testInfo.outputPath(`page-entry-${theme}.png`) });
 		await page.evaluate(() => {
 			window.freezePortfolioEntry = false;
-			for (const animation of document.getAnimations()) {
+			for (const animation of window.portfolioEntryAnimations) {
 				if (animation.id.startsWith("portfolio-entry-")) animation.finish();
 			}
 		});
@@ -125,12 +133,13 @@ for (const theme of ["light", "dark"] as const) {
 		// Returning to the initial URL must animate too, with the same accessible title.
 		await page.evaluate(() => {
 			window.portfolioEntrySamples = [];
+			window.portfolioEntryAnimations = [];
 			window.freezePortfolioEntry = true;
 		});
 		await nav.getByRole("link", { name: "Home", exact: true }).click();
 		await expect(page).toHaveURL(/\/$/);
 		const homeHeading = page.getByRole("heading", {
-			name: "Complex systems, clean interfaces.",
+			name: "Business software, built end to end.",
 			exact: true,
 		});
 		await expect(homeHeading).toBeVisible();
@@ -153,10 +162,32 @@ for (const theme of ["light", "dark"] as const) {
 		expect(homeWords[2].delay).toBeGreaterThan(homeWords[0].delay);
 		expect(homeWords.every((sample) => sample.properties.includes("maskPosition"))).toBe(true);
 		expect(homeWords.every((sample) => !sample.properties.includes("transform"))).toBe(true);
+		const layerGeometry = await homeHeading
+			.locator("[data-heading-word]")
+			.evaluateAll((words) =>
+				words.map((word) => {
+					const sharp = word
+						.querySelector("[data-resolve-sharp]")
+						?.getBoundingClientRect();
+					const front = word
+						.querySelector("[data-resolve-front]")
+						?.getBoundingClientRect();
+					const fog = word.querySelector("[data-resolve-fog]")?.getBoundingClientRect();
+					if (!sharp || !front || !fog) throw new Error("Missing resolve layer");
+					return { dx: fog.x - sharp.x, dy: fog.y - sharp.y, bleed: sharp.x - front.x };
+				}),
+			);
+		for (const layer of layerGeometry) {
+			expect(Math.abs(layer.dx)).toBeLessThan(0.5);
+			expect(Math.abs(layer.dy)).toBeLessThan(0.5);
+			expect(layer.bleed).toBeGreaterThan(0);
+		}
 		const homeFrame = await homeHeading.boundingBox();
+		// Keep the owned handles: getAnimations() omits paused, non-filling effects
+		// once seeking moves them beyond their active interval. They still need resuming.
 		for (const time of [350, 850]) {
 			await page.evaluate((time) => {
-				for (const animation of document.getAnimations())
+				for (const animation of window.portfolioEntryAnimations)
 					if (animation.id === "portfolio-entry-heading") animation.currentTime = time;
 			}, time);
 			await page.screenshot({
@@ -165,13 +196,20 @@ for (const theme of ["light", "dark"] as const) {
 			expect(await homeHeading.boundingBox()).toEqual(homeFrame);
 		}
 		await page.evaluate(() => {
-			for (const animation of document.getAnimations())
-				if (animation.id.startsWith("portfolio-entry-")) animation.finish();
+			window.freezePortfolioEntry = false;
+			for (const animation of window.portfolioEntryAnimations)
+				if (animation.id.startsWith("portfolio-entry-")) animation.play();
 		});
 		await expect(homeHeading.locator("[data-resolve-sharp]").last()).toHaveCSS(
 			"mask-position",
 			/^(?:0%|0px) (?:0%|0px)$/,
 		);
+		await expect(homeHeading).toHaveAttribute("data-resolve-settled", "true");
+		await expect(homeHeading.locator("[data-resolve-sharp]").last()).toHaveCSS(
+			"mask-image",
+			"none",
+		);
+		await expect(homeHeading.locator("[data-resolve-fog]").last()).toHaveCSS("display", "none");
 		expect(await homeHeading.boundingBox()).toEqual(homeFrame);
 		expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
 			true,
@@ -188,7 +226,11 @@ test("keyboard and reduced motion cancel entry without hiding text", async ({ pa
 	await nav.getByRole("link", { name: "About", exact: true }).focus();
 	await page.keyboard.press("Enter");
 	await expect(page).toHaveURL(/\/about$/);
-	await expect(page.locator("main:visible h1")).toHaveAttribute("data-entry-kind", "heading");
+	// The URL can commit while Next retains the departing Home scene. Address the
+	// destination heading instead of assuming both scenes disappear atomically.
+	await expect(
+		page.getByRole("heading", { name: "How I work.", level: 1, exact: true }),
+	).toHaveAttribute("data-entry-kind", "heading");
 	const entryCount = () =>
 		page.evaluate(
 			() =>
@@ -200,7 +242,11 @@ test("keyboard and reduced motion cancel entry without hiding text", async ({ pa
 	await page.emulateMedia({ reducedMotion: "reduce" });
 	await nav.getByRole("link", { name: "Contact", exact: true }).click();
 	await expect(page).toHaveURL(/\/contact$/);
-	const contactHeading = page.locator("main:visible h1");
+	const contactHeading = page.getByRole("heading", {
+		name: "Let’s talk.",
+		level: 1,
+		exact: true,
+	});
 	// A committed URL can precede hydration of streamed copy. Exercise the
 	// current page's entry hook before changing the motion preference.
 	await expect(contactHeading).toHaveAttribute("data-entry-kind", "heading");

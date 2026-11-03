@@ -16,16 +16,23 @@ for (const theme of ["light", "dark"] as const) {
 		await expect
 			.poll(() => track.evaluate((node) => node.getAnimations()[0]?.playState))
 			.toBe("running");
-		const gaps = await track.evaluate((node) => {
+		const spacing = await track.evaluate((node) => {
 			const items = [...node.querySelectorAll(".portfolio-marquee-item")];
-			return items.slice(0, -1).flatMap((item, index) => {
-				const text = item.children[0].getBoundingClientRect();
-				const dot = item.children[1].getBoundingClientRect();
-				const next = items[index + 1].getBoundingClientRect();
-				return [dot.left - text.right, next.left - dot.right];
-			});
+			const context = document.querySelector(".portfolio-context-rail");
+			if (!context) throw new Error("Missing context rail");
+			return {
+				contextGap: Number.parseFloat(getComputedStyle(context).columnGap),
+				// Include the last-to-first item boundary between repeated cycles.
+				gaps: items.slice(0, -1).map((item, index) => {
+					const current = item.getBoundingClientRect();
+					const next = items[index + 1].getBoundingClientRect();
+					return next.left - current.right;
+				}),
+			};
 		});
-		for (const gap of gaps) expect(gap).toBeCloseTo(16, 1);
+		expect(spacing.contextGap).toBe(20);
+		expect(spacing.gaps.length).toBeGreaterThan(1);
+		for (const gap of spacing.gaps) expect(gap).toBeCloseTo(spacing.contextGap, 1);
 		const bounds = await button.boundingBox();
 		if (!bounds) throw new Error("Missing highlights bounds");
 		const x = bounds.x + bounds.width / 2;
@@ -73,7 +80,26 @@ for (const theme of ["light", "dark"] as const) {
 		await page.waitForTimeout(160);
 		expect(await position()).toBe(frozen);
 		if (testInfo.project.name === "mobile-chrome" && browserName === "chromium") {
+			await expect(button).toHaveCSS("touch-action", "pan-y pinch-zoom");
 			// Dispatch real browser touch input, exercising pan-y arbitration and pointer capture.
+			await button.evaluate((control) => {
+				const samples: string[] = [];
+				for (const type of ["pointerdown", "pointermove", "pointerup", "pointercancel"]) {
+					control.addEventListener(type, (event) => {
+						if (!(event instanceof PointerEvent)) return;
+						samples.push(
+							JSON.stringify({
+								type,
+								x: event.clientX,
+								y: event.clientY,
+								pointer: event.pointerType,
+								scale: visualViewport?.scale,
+							}),
+						);
+						control.dataset.touchSamples = JSON.stringify(samples);
+					});
+				}
+			});
 			const touch = await context.newCDPSession(page);
 			await touch.send("Input.dispatchTouchEvent", {
 				type: "touchStart",
@@ -88,7 +114,16 @@ for (const theme of ["light", "dark"] as const) {
 			}
 			await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 			const touchExpected = -(((-(touchStart - 60) % width) + width) % width);
-			expect(await position()).toBeCloseTo(touchExpected, 0);
+			try {
+				await expect.poll(position).toBeCloseTo(touchExpected, 0);
+			} catch (error) {
+				throw new Error(
+					`Touch drag failed: ${await button.getAttribute("data-touch-samples")}`,
+					{
+						cause: error,
+					},
+				);
+			}
 			await expect(button).toHaveAttribute("aria-pressed", "true");
 			await touch.send("Input.dispatchTouchEvent", {
 				type: "touchStart",

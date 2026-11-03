@@ -1,9 +1,18 @@
+import { networkInterfaces } from "node:os";
 import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 import { IS_PREVIEW_DEPLOYMENT } from "./src/constants/site";
 
 const nextConfig: NextConfig = {
 	reactCompiler: true,
+	// The development badge otherwise overlaps Home in the narrow floating dock.
+	devIndicators: false,
+	// Phone previews use the Mac's LAN address; dev assets are origin-checked
+	// separately from the page itself. Allow only this machine's IPv4 addresses.
+	allowedDevOrigins: Object.values(networkInterfaces())
+		.flatMap((addresses) => addresses ?? [])
+		.filter((address) => !address.internal && address.family === "IPv4")
+		.map((address) => address.address),
 	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
 
 	images: {

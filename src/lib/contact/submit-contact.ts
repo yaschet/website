@@ -1,6 +1,7 @@
 /* Server-side policy, with injected transports so tests never send real mail. */
 import { createHmac } from "node:crypto";
 import { isIP } from "node:net";
+import { SITE_EMAIL } from "@/src/constants/site";
 import {
 	type ContactFormValues,
 	type ContactSubmissionResult,
@@ -24,12 +25,13 @@ export interface ContactDependencies {
 export interface ContactRequestContext {
 	headers: Pick<Headers, "get">;
 	isVercel: boolean;
+	formEnabled: boolean;
 }
 
-const unavailable: ContactSubmissionResult = {
+export const contactUnavailableResult: ContactSubmissionResult = {
 	success: false,
 	code: "unavailable",
-	error: "Contact is temporarily unavailable. Please try again later.",
+	error: `The message form is unavailable. Please email ${SITE_EMAIL} or book a call.`,
 };
 
 /** Require a browser origin matching the host; retain Next's own origin checks too. */
@@ -64,12 +66,13 @@ export async function processContactSubmission(
 	context: ContactRequestContext,
 	dependencies: ContactDependencies | null,
 ): Promise<ContactSubmissionResult> {
+	if (!context.formEnabled) return contactUnavailableResult;
 	const parsed = contactSubmissionSchema.safeParse(input);
 	if (!parsed.success || !hasSameOrigin(context)) {
 		return { success: false, code: "invalid", error: "Invalid form submission." };
 	}
 	if (parsed.data.website !== "") return { success: true };
-	if (!dependencies || dependencies.salt.length < 32) return unavailable;
+	if (!dependencies || dependencies.salt.length < 32) return contactUnavailableResult;
 	const { values, submissionId } = parsed.data;
 	const digest = (value: string) =>
 		createHmac("sha256", dependencies.salt).update(value).digest("hex");
@@ -84,7 +87,7 @@ export async function processContactSubmission(
 		for (const bucket of ["ip", "email", "hour", "day"] as const) {
 			const result = await dependencies.limit(bucket, identifiers[bucket]);
 			// Upstash returns success=true on its timeout path. Explicitly reject it.
-			if (result.reason === "timeout") return unavailable;
+			if (result.reason === "timeout") return contactUnavailableResult;
 			if (!result.success) {
 				return {
 					success: false,
@@ -105,6 +108,6 @@ export async function processContactSubmission(
 		return { success: true };
 	} catch {
 		// Do not expose provider responses, request data, or credentials.
-		return unavailable;
+		return contactUnavailableResult;
 	}
 }

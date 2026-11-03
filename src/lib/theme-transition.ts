@@ -11,7 +11,7 @@ let revision = 0;
 let paintRevision = 0;
 let paintFrame: number | undefined;
 
-/** Capture one material change, rather than interpolating every surface independently. */
+/** Change theme in place, with an optional material fade at the page opening. */
 export function toggleThemeWithTransition(
 	setTheme: (theme: string) => void,
 	resolvedTheme: string | undefined,
@@ -58,9 +58,13 @@ export function toggleThemeWithTransition(
 		delete root.dataset.themeTransition;
 	};
 
-	// Embedded previews and live dialogs need their original interactive surface.
+	// Change theme in place while reading; reserve the viewport fade for the
+	// opening. This avoids depending on unreliable scrolled root snapshots.
+	// Embedded previews and live dialogs also keep their interactive surface.
 	if (
 		window.self !== window.top ||
+		window.scrollX !== 0 ||
+		window.scrollY !== 0 ||
 		document.querySelector(
 			'[role="dialog"]:not([aria-hidden="true"]), [role="alertdialog"]:not([aria-hidden="true"])',
 		) ||
@@ -75,8 +79,7 @@ export function toggleThemeWithTransition(
 
 	root.dataset.themeTransition = "capturing";
 	try {
-		// A document snapshot is viewport-sized at every scroll depth. Capturing the
-		// full scrolling surface can clip or rescale its bitmap on narrow viewports.
+		// Capture the opening viewport; the destination remains live and interactive.
 		const transition = document.startViewTransition(update);
 		activeTransition = transition;
 		const interrupt = () => transition.skipTransition();

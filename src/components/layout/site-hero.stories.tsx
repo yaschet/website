@@ -39,7 +39,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
 	play: async ({ canvas }) => {
 		await expect(
-			canvas.getByRole("heading", { name: "Complex systems, clean interfaces." }),
+			canvas.getByRole("heading", { name: "Business software, built end to end." }),
+		).toBeVisible();
+		await expect(
+			canvas.getByText(
+				/I design and build web applications for onboarding, operations, billing and document workflows/,
+			),
 		).toBeVisible();
 		await expect(canvas.getByRole("link", { name: "Book a call" })).toHaveAttribute(
 			"href",

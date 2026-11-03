@@ -82,6 +82,7 @@ const personSchema = {
 const THEME_BOOTSTRAP_SCRIPT = `(() => {
   try {
     const root = document.documentElement;
+    root.style.setProperty("--foundation-hairline", 1 / (window.devicePixelRatio || 1) + "px");
     const cookieTheme = document.cookie
       .split("; ")
       .find((entry) => entry.startsWith("theme="))
@@ -118,7 +119,7 @@ export default function RootLayout({
 			<head>
 				<script
 					id="theme-bootstrap"
-					// biome-ignore lint/security/noDangerouslySetInnerHtml: theme bootstrap must run before first paint
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: theme and hairline bootstrap must run before first paint
 					dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }}
 				/>
 				<link rel="preconnect" href="https://image.mux.com" crossOrigin="" />

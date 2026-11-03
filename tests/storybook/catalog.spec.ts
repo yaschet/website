@@ -29,7 +29,9 @@ test("catalog has one diagram family and keeps compositions separate from page p
 		"case-study-diagram--system-architecture",
 		"case-study-diagram--validation-loop",
 	]);
-	expect(index.entries["pages-casestudyarchitecture--in-context"].title).toBe("Pages/Case Study");
+	expect(index.entries["pages-casestudyarchitecture--in-context"].title).toBe(
+		"Lab/Article Diagram",
+	);
 });
 
 for (const theme of ["light", "dark"]) {
@@ -39,7 +41,7 @@ for (const theme of ["light", "dark"]) {
 		await page.setViewportSize({ width: 390, height: 900 });
 		await page.goto(`/iframe.html?id=overview--docs&viewMode=docs&globals=theme:${theme}`);
 		const docs = page.locator(".sbdocs-content");
-		await expect(docs.getByRole("list")).toHaveCount(2);
+		await expect(docs.getByRole("list")).toHaveCount(3);
 		await expect(
 			docs.getByRole("heading", { level: 1, name: "Yaschet Portfolio" }),
 		).toBeVisible();
@@ -47,9 +49,10 @@ for (const theme of ["light", "dark"]) {
 		await expect(
 			docs.getByRole("link", { name: "Case study diagram", exact: true }),
 		).toHaveAttribute("href", "/?path=/docs/case-study-diagram--docs");
-		await expect(
-			docs.getByRole("link", { name: "Case study page", exact: true }),
-		).toHaveAttribute("href", "/?path=/story/pages-casestudyarchitecture--in-context");
+		await expect(docs.getByRole("link", { name: "Case Study", exact: true })).toHaveAttribute(
+			"href",
+			"/?path=/story/pages-case-study--full-page",
+		);
 		expect(
 			await page.evaluate(
 				() => document.documentElement.scrollWidth <= window.innerWidth + 1,

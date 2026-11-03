@@ -14,12 +14,12 @@ interface HeadingRevealProps {
 	style?: CSSProperties;
 }
 
-/** Stable text geometry on every viewport, with a bounded word-entry sequence. */
+/** Shared blur-front reveal with stable word geometry across wrapped page titles. */
 export function HeadingReveal({
 	as: Tag = "h2",
 	children,
 	className,
-	effect = "rise",
+	effect = "resolve",
 	delay = 0,
 	phase = 1,
 	style,
@@ -29,6 +29,10 @@ export function HeadingReveal({
 	useEntryReveal(ref, { delay, heading: true, effect });
 	void phase;
 	const isText = typeof children === "string" || typeof children === "number";
+	// Preserve the sweep's proportions, but bound the full title rather than each word.
+	const resolveCharacterMs = isText
+		? Math.min(45, 1100 / (String(children).trimEnd().length + 6))
+		: 45;
 	const occurrences = new Map<string, number>();
 	let characterOffset = 0;
 	const segments = isText
@@ -63,8 +67,8 @@ export function HeadingReveal({
 								style={
 									effect === "resolve"
 										? ({
-												"--resolve-delay": `${Math.max(offset - 3, 0) * 45}ms`,
-												"--resolve-duration": `${(word.length + 6) * 45}ms`,
+												"--resolve-delay": `${Math.max(offset - 3, 0) * resolveCharacterMs}ms`,
+												"--resolve-duration": `${(word.length + 6) * resolveCharacterMs}ms`,
 											} as CSSProperties)
 										: undefined
 								}
@@ -72,8 +76,8 @@ export function HeadingReveal({
 								{effect === "resolve" ? (
 									<>
 										<span data-resolve-sharp="">{word}</span>
-										<span data-resolve-fog="" aria-hidden="true">
-											<span data-resolve-front="" data-resolve-text={word} />
+										<span data-resolve-front="" aria-hidden="true">
+											<span data-resolve-fog="" data-resolve-text={word} />
 										</span>
 									</>
 								) : (

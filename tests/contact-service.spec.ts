@@ -4,6 +4,7 @@ import type { ContactDependencies } from "@/src/lib/contact/submit-contact";
 test("installed adapters bound quotas and pass safe mail/idempotency options without real I/O", async () => {
 	const originalFetch = globalThis.fetch;
 	const environment = {
+		CONTACT_FORM_ENABLED: "true",
 		NEXT_PUBLIC_APP_URL: "http://localhost:3000",
 		NEXT_PUBLIC_ENVIRONMENT: "test",
 		RESEND_API_KEY: "re_inert_adapter_test_only",
@@ -86,6 +87,22 @@ test("installed adapters bound quotas and pass safe mail/idempotency options wit
 			),
 		).toBe(true);
 		expect(emailRequests).toBe(1);
+
+		// Disabling must also stop a cached adapter and a direct Server Action call.
+		const { env } = await import("@/src/env");
+		const { submitContactForm } = await import("@/src/app/actions/contact");
+		const enabled = env.CONTACT_FORM_ENABLED;
+		const beforeDisabled = { redisRequests, emailRequests };
+		try {
+			expect(Reflect.set(env, "CONTACT_FORM_ENABLED", false)).toBe(true);
+			expect(getContactService()).toBeNull();
+			expect(
+				await submitContactForm({ formEnabled: true, CONTACT_FORM_ENABLED: true }),
+			).toMatchObject({ success: false, code: "unavailable" });
+			expect({ redisRequests, emailRequests }).toEqual(beforeDisabled);
+		} finally {
+			Reflect.set(env, "CONTACT_FORM_ENABLED", enabled);
+		}
 	} finally {
 		globalThis.fetch = originalFetch;
 		for (const [key, value] of Object.entries(previous)) {

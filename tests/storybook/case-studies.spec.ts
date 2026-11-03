@@ -11,7 +11,7 @@ for (const theme of ["light", "dark"]) {
 			await expect(docs.locator(".sb-story")).toHaveCount(4);
 			await expect(docs.locator("iframe")).toHaveCount(0);
 			await expect(
-				docs.getByRole("heading", { name: "Program Matching Engine", level: 1 }),
+				docs.getByRole("heading", { name: "University Program Matching", level: 1 }),
 			).toBeVisible();
 			await page.evaluate(() => document.fonts.ready);
 			expect(

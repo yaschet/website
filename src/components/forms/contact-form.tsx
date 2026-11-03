@@ -11,6 +11,7 @@ import { Textarea } from "@/src/components/ui/form/textarea";
 import { toast } from "@/src/components/ui/sonner";
 import { StateSwap } from "@/src/components/ui/state-swap";
 import { type ContactFormValues, contactSchema } from "@/src/lib/schemas/contact";
+import styles from "./contact-form.module.css";
 
 interface ContactField {
 	name: keyof ContactFormValues;
@@ -157,7 +158,7 @@ export function ContactForm() {
 					submissionPending.current = false;
 				}
 			}}
-			className="portfolio-contact-form"
+			className={`portfolio-contact-form ${styles.form}`}
 		>
 			<div hidden aria-hidden="true">
 				<label htmlFor={`${instanceId}-website`}>Website</label>

@@ -3,6 +3,7 @@ import { ProseContainer } from "@/src/components/layout/containers";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { Reveal, revealSequence } from "@/src/components/ui/reveal";
 import { cn } from "@/src/lib/utils";
+import { SiteHeroField } from "./site-hero-field";
 
 interface PageIntroProps {
 	eyebrow?: string;
@@ -57,6 +58,18 @@ export function PageIntro({
 				)}
 
 				{children && <Reveal delay={revealSequence.children}>{children}</Reveal>}
+			</div>
+		</div>
+	);
+}
+
+/** Reuses the Contact page's framed introduction across secondary pages. */
+export function PageIntroPanel(props: PageIntroProps) {
+	return (
+		<div className="relative isolate overflow-hidden" data-instrument-host="">
+			<SiteHeroField />
+			<div className="portfolio-box-pad relative z-[1]">
+				<PageIntro {...props} />
 			</div>
 		</div>
 	);

@@ -31,6 +31,7 @@
 :root:not(.dark),
 :root.dark {
 	--surface: var(--foundation-canvas);
+	--border: var(--portfolio-project-line);
 }
 
 /* Transparent warning controls need the deeper existing ink on the portfolio canvas. */
@@ -170,13 +171,14 @@
 :where(.foundation-button-pending[data-icon-only]) > .foundation-button-icon-space {
 	margin-inline: 0;
 }
+/* A full-size editorial chamber must not stretch its loading glyph. */
+.foundation-button-icon [data-slot="spinner"] {
+	max-width: var(--button-glyph-size);
+	max-height: var(--button-glyph-size);
+}
 [data-active="false"] [data-slot="spinner"],
 .foundation-button-icon > .t-icon > [data-slot="spinner"] {
 	animation-play-state: paused;
-}
-[data-reel-trigger] .foundation-button-icon [data-slot="spinner"] {
-	max-width: var(--button-glyph-size);
-	max-height: var(--button-glyph-size);
 }
 
 [data-loading] .foundation-button-icon > .t-icon > [data-slot="spinner"] {
@@ -227,11 +229,16 @@
 /* The action's two text layers share their measured grid cell. Character
  * transforms do not resize the control or disturb its original inline padding. */
 .portfolio-action-reel-label {
+	--action-text-bleed: calc(var(--blur-small) * 3);
 	display: grid;
 	place-items: center;
-	height: 20px;
+	height: calc(20px + var(--action-text-bleed) * 2);
 	line-height: 20px;
 	overflow: clip;
+	/* Real padding expands the paint aperture in WebKit as well as Chromium.
+	 * Counter-margins keep the original label position and control dimensions. */
+	padding: var(--action-text-bleed);
+	margin: calc(-1 * var(--action-text-bleed));
 }
 .portfolio-action-reel-label > span {
 	grid-area: 1 / 1;
@@ -247,7 +254,7 @@
 	transition-delay: calc((1 - var(--action-character-progress)) * var(--action-reel-stagger));
 }
 .portfolio-action-reel-label [data-action-reel="in"] [data-action-character] {
-	transform: translateY(100%) rotateX(-60deg);
+	transform: translateY(calc(100% + var(--action-text-bleed) * 2)) rotateX(-60deg);
 	filter: blur(var(--blur-small));
 }
 .portfolio-action-link {
@@ -270,6 +277,91 @@
 	[data-action-reel] {
 		visibility: hidden;
 	}
+}
+
+/* Two flush chambers share one perimeter and one native action. */
+[data-slot="button"].portfolio-gallery-play {
+	--foundation-primary-soft: var(--palette-neutral-900);
+	--foundation-primary-soft-hover: var(--palette-neutral-800);
+	--foundation-primary-soft-active: var(--palette-neutral-700);
+	--gallery-play-chamber-surface: var(--palette-neutral-950);
+	--gallery-play-icon-surface: var(--palette-neutral-900);
+	position: relative;
+	width: max-content;
+	min-height: 3rem;
+	height: auto;
+	padding: 0;
+	border: 0;
+	box-shadow: none;
+}
+.portfolio-gallery-play::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border: var(--foundation-hairline) solid var(--palette-neutral-600);
+	pointer-events: none;
+}
+.portfolio-gallery-play .foundation-button-pending {
+	gap: 0;
+	width: 100%;
+}
+.portfolio-gallery-play .foundation-button-pending-copy {
+	flex: 1;
+	min-width: 0;
+	height: 100%;
+	padding: 0;
+}
+.portfolio-gallery-play-label {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	height: 100%;
+	padding: 0.875rem;
+	background: var(--gallery-play-chamber-surface);
+	transition: background-color var(--duration-quick) var(--ease-smooth-out);
+}
+.portfolio-gallery-play-duration {
+	color: var(--palette-neutral-300);
+	font-weight: 400;
+	font-variant-numeric: tabular-nums;
+}
+.portfolio-gallery-play .foundation-button-icon-space {
+	width: 3rem;
+	color: var(--palette-neutral-50);
+	background: var(--gallery-play-icon-surface);
+	transition: background-color var(--duration-quick) var(--ease-smooth-out);
+}
+.portfolio-gallery-play .portfolio-gallery-play-glyph {
+	transition: transform var(--duration-quick) var(--ease-smooth-out);
+}
+@media (hover: hover) and (pointer: fine) {
+	.portfolio-gallery-play:hover:not([aria-disabled="true"]) {
+		--gallery-play-chamber-surface: var(--palette-neutral-900);
+		--gallery-play-icon-surface: var(--palette-neutral-800);
+	}
+	.portfolio-gallery-play:hover:not([aria-disabled="true"]) .portfolio-gallery-play-glyph {
+		transform: scale(1.08);
+	}
+}
+.portfolio-gallery-play:active:not([aria-disabled="true"]) {
+	--gallery-play-chamber-surface: var(--palette-neutral-800);
+	--gallery-play-icon-surface: var(--palette-neutral-700);
+}
+.portfolio-gallery-play:active:not([aria-disabled="true"]) .portfolio-gallery-play-glyph {
+	transform: scale(0.94);
+}
+@media (prefers-reduced-motion: reduce) {
+	.portfolio-gallery-play .portfolio-gallery-play-glyph,
+	.portfolio-gallery-play:is(:hover, :active):not([aria-disabled="true"])
+		.portfolio-gallery-play-glyph {
+		transform: none;
+		transition: none;
+	}
+}
+.portfolio-gallery-play:focus-visible::after {
+	border: 2px solid var(--palette-neutral-50);
 }
 
 /* Icon-only reels use the control's whole chamber, including pending layers. */
@@ -350,7 +442,7 @@
 			transition-delay: calc(var(--action-character-progress) * var(--action-reel-stagger));
 		}
 		[data-action-reel="out"] [data-action-character] {
-			transform: translateY(-100%) rotateX(60deg);
+			transform: translateY(calc(-100% - var(--action-text-bleed) * 2)) rotateX(60deg);
 			filter: blur(var(--blur-small));
 		}
 		[data-action-reel="in"] [data-action-character] {
@@ -467,6 +559,7 @@
 	--foundation-control-line-hover: var(--palette-neutral-600);
 	--foundation-popup-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
 }
+
 .video-setting-trigger {
 	gap: 8px;
 }
@@ -501,9 +594,28 @@
 }
 .yaschet :is(button, [role="button"], [data-slot="button"]) {
 	user-select: none;
+	touch-action: manipulation;
 }
 @media (prefers-reduced-motion: reduce) {
 	[data-slot="spinner"] {
 		animation: none;
+	}
+}
+
+/* Fade through a quiet midpoint instead of overlapping the two labels. */
+@media (prefers-reduced-motion: no-preference) {
+	.portfolio-gallery-play .t-state-label[data-sizing="content"] {
+		overflow: visible;
+		transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	.portfolio-gallery-play .t-state-label > [data-active="false"] {
+		transition: opacity 60ms ease-out;
+	}
+	.portfolio-gallery-play .t-state-label > [data-active="true"] {
+		transition: opacity 120ms ease-out 70ms;
+	}
+	.portfolio-gallery-play[data-motion-input="keyboard"] .t-state-label,
+	.portfolio-gallery-play[data-motion-input="keyboard"] .t-state-label > span {
+		transition: none;
 	}
 }

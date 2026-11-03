@@ -313,7 +313,7 @@ export function Table({ className, ...props }: ComponentPropsWithoutRef<"table">
 		>
 			<table
 				className={cn(
-					"w-full table-fixed border-collapse text-[14px]/6 [overflow-wrap:anywhere]",
+					"w-full table-fixed border-collapse text-[0.875rem]/6 [overflow-wrap:anywhere]",
 					className,
 				)}
 				{...props}
@@ -356,7 +356,7 @@ export function TH({ className, ...props }: ComponentPropsWithoutRef<"th">) {
 		<th
 			className={cn(
 				"p-4 text-left align-bottom",
-				"font-medium text-[13px]/5",
+				"font-medium text-[0.8125rem]/5",
 				"text-surface-600 dark:text-surface-400",
 				className,
 			)}

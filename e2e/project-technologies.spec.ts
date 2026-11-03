@@ -20,7 +20,21 @@ for (const theme of ["light", "dark"] as const) {
 		});
 		const rail = project.locator('[data-slot="project-technology-rail"]');
 		const trigger = project.getByRole("button", { name: /^Stack: all \d+ technologies for / });
-		await rail.scrollIntoViewIfNeeded();
+		const outsideRail = project.getByRole("link", {
+			name: "University Program Matching",
+			exact: true,
+		});
+		const focusOutsideRail = () =>
+			outsideRail.evaluate((node) => {
+				if (!(node instanceof HTMLElement))
+					throw new Error("Missing project title control");
+				node.focus({ preventScroll: true });
+			});
+		// Hydration can replace the initial server node while scrolling settles.
+		await expect(async () => {
+			await rail.scrollIntoViewIfNeeded();
+			await expect(rail).toBeInViewport();
+		}).toPass({ timeout: 5_000 });
 		// Inspect the initial frame without racing the automatic exchange.
 		await trigger.focus();
 		await page.emulateMedia({ reducedMotion: "no-preference" });
@@ -38,8 +52,8 @@ for (const theme of ["light", "dark"] as const) {
 			.toBe(true);
 
 		const cells = rail.locator(".portfolio-technology-cell:visible");
-		await expect(cells).toHaveCount(isMobile ? 3 : 6);
-		await expect(rail.locator(".portfolio-technology-current")).toHaveCount(isMobile ? 3 : 6);
+		await expect(cells).toHaveCount(isMobile ? 3 : 5);
+		await expect(rail.locator(".portfolio-technology-current")).toHaveCount(isMobile ? 3 : 5);
 		const widths = await cells.evaluateAll((nodes) =>
 			nodes.map((node) => node.getBoundingClientRect().width),
 		);
@@ -64,7 +78,7 @@ for (const theme of ["light", "dark"] as const) {
 		const core = ["Laravel", "OpenAI", "MeiliSearch"];
 		expect(initialTechnologies.slice(0, core.length)).toEqual(core);
 		for (const [title, highlights] of [
-			["Document Translation With Editable Tables", ["Next.js", "OpenAI", "Google Docs API"]],
+			["Verto — AI Translation Platform", ["Next.js", "OpenAI", "Stripe"]],
 			["Student Applications & Document Collection", ["Next.js", "Laravel", "AWS Textract"]],
 			["Agency CRM & Billing", ["Laravel", "Cash Plus", "MySQL"]],
 		] as const) {
@@ -96,21 +110,27 @@ for (const theme of ["light", "dark"] as const) {
 			expect(bottom).toBeCloseTo(8, 2);
 		}
 		const rotating = rail.locator('[data-rotation="rotating"]');
-		await expect(rotating).toHaveCount(3);
+		await expect(rotating).toHaveCount(isMobile ? 3 : 2);
 		expect(
 			await rotating.evaluateAll((nodes) =>
 				nodes.map((node) => getComputedStyle(node).getPropertyValue("--technology-phase")),
 			),
-		).toEqual(["100ms", "50ms", "0ms"]);
-		await page.keyboard.press("Tab");
+		).toEqual(isMobile ? ["100ms", "50ms", "0ms"] : ["50ms", "0ms"]);
+		// Focusing the title normally scrolls a compact card's rail offscreen,
+		// which correctly pauses rotation. Keep this geometry fixture in view.
+		await focusOutsideRail();
+		await expect(outsideRail).toBeFocused();
+		expect(await rail.evaluate((node) => node.contains(document.activeElement))).toBe(false);
+		await expect(rail).toBeInViewport();
 		await page.mouse.move(0, 0);
+		await expect(rail).toHaveAttribute("data-motion-active", "true");
 		await expect(rail).toHaveAttribute("data-running", "true");
 		const nextFrame = isMobile
 			? ["PHP", "Livewire", "Alpine.js"]
-			: [...core, "MySQL", "Redis", "PHP"];
+			: [...core, "Alpine.js", "MySQL"];
 		await expect.poll(currentTechnologies, { timeout: 4_000 }).toEqual(nextFrame);
-		expect(new Set(await currentTechnologies()).size).toBe(isMobile ? 3 : 6);
-		// Tab can scroll the next control into view; the rail's document geometry must stay fixed.
+		expect(new Set(await currentTechnologies()).size).toBe(isMobile ? 3 : 5);
+		// Focus can scroll the neighboring control into view; document geometry stays fixed.
 		expect(await railGeometry()).toEqual(before);
 		const hoverBounds = await rail.boundingBox();
 		if (!isMobile && hoverBounds) {
@@ -188,7 +208,11 @@ for (const theme of ["light", "dark"] as const) {
 		if (!before) throw new Error("Missing technology rail geometry");
 		expect(dialogBounds.width).toBeLessThanOrEqual(before.width + 1);
 		expect(
-			Math.abs(dialogBounds.x + dialogBounds.width - before.x - before.width),
+			Math.abs(
+				dialogBounds.x +
+					dialogBounds.width -
+					Math.min(before.x + before.width, viewport.width - 20),
+			),
 		).toBeLessThan(1);
 		for (const name of [
 			"Laravel",
@@ -309,8 +333,12 @@ for (const theme of ["light", "dark"] as const) {
 		await dialog.getByRole("button", { name: "Close technology stack" }).click();
 		await expect(trigger).toBeFocused();
 		await expect(rail).toHaveAttribute("data-running", "false");
-		await page.keyboard.press("Tab");
+		await focusOutsideRail();
+		await expect(outsideRail).toBeFocused();
+		expect(await rail.evaluate((node) => node.contains(document.activeElement))).toBe(false);
+		await expect(rail).toBeInViewport();
 		await page.mouse.move(0, 0);
+		await expect(rail).toHaveAttribute("data-motion-active", "true");
 		await expect(rail).toHaveAttribute("data-running", "true");
 		await page.getByRole("heading", { level: 1 }).scrollIntoViewIfNeeded();
 		await expect(rail).toHaveAttribute("data-running", "false");
@@ -325,7 +353,7 @@ for (const theme of ["light", "dark"] as const) {
 		// A platform and its database each get one mark and one readable name.
 		await page
 			.getByRole("article", {
-				name: "Document Translation With Editable Tables",
+				name: "Verto — AI Translation Platform",
 				exact: true,
 			})
 			.getByRole("button", { name: /^Stack: all / })
@@ -347,7 +375,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.goto("/");
 		const project = page.getByRole("article", {
-			name: "Document Translation With Editable Tables",
+			name: "Verto — AI Translation Platform",
 			exact: true,
 		});
 		const rail = project.locator('[data-slot="project-technology-rail"]');
@@ -416,19 +444,27 @@ for (const theme of ["light", "dark"] as const) {
 }
 
 test.describe("stack frames on fractional-density displays", () => {
-	// Native 1px borders rounded to 0.56px here while the drawn seams stayed 1px.
+	// Native borders and painted frames must agree at fractional display density.
 	test.use({ deviceScaleFactor: 1.8 });
 	for (const theme of ["light", "dark"] as const) {
 		test(`stack edges stay fixed through motion and interaction in ${theme} mode`, async ({
 			page,
 			isMobile,
+			browserName,
 		}) => {
 			await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
 			await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 			await page.goto("/");
+			await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+			// Firefox can report the requested ratio on about:blank, then reset after navigation.
+			const actualRatio = await page.evaluate(() => devicePixelRatio);
+			test.skip(
+				browserName === "firefox" && Math.abs(actualRatio - 1.8) > 0.00005,
+				"This Firefox runner does not apply the fractional deviceScaleFactor override; DPR 1 hairlines remain covered, and fractional stack coverage runs in Chromium and WebKit.",
+			);
 			const trigger = page
 				.getByRole("article", {
-					name: "Document Translation With Editable Tables",
+					name: "Verto — AI Translation Platform",
 					exact: true,
 				})
 				.getByRole("button", { name: /^Stack: all / });
@@ -452,16 +488,31 @@ test.describe("stack frames on fractional-density displays", () => {
 					] as const;
 					const bounds = node.getBoundingClientRect();
 					return {
+						ratio: devicePixelRatio,
 						hairline: Number.parseFloat(
 							getComputedStyle(node).getPropertyValue("--foundation-hairline"),
 						),
 						bounds: [bounds.x, bounds.y, bounds.width, bounds.height],
 						frames: frames.map((element) => {
 							const frame = getComputedStyle(element, "::before");
-							const inset = / 0px 0px 0px ([\d.]+)px inset$/;
+							const lengths = frame.boxShadow.match(/-?(?:\d*\.)?\d+px\b/g) ?? [];
+							if (
+								!frame.boxShadow.includes("inset") ||
+								lengths.length !== 4 ||
+								lengths
+									.slice(0, 3)
+									.some((length) => Number.parseFloat(length) !== 0)
+							) {
+								throw new Error(
+									`Expected a single unblurred inset frame: ${frame.boxShadow}`,
+								);
+							}
 							return {
-								thickness: Number(frame.boxShadow.match(inset)?.[1]),
-								color: frame.boxShadow.replace(inset, ""),
+								thickness: Number.parseFloat(lengths[3]),
+								color: frame.boxShadow
+									.replace(/-?(?:\d*\.)?\d+px\b/g, "")
+									.replace(/\binset\b/g, "")
+									.trim(),
 								pointerEvents: frame.pointerEvents,
 							};
 						}),
@@ -485,8 +536,14 @@ test.describe("stack frames on fractional-density displays", () => {
 				}),
 			).toEqual(["none", "none", "none", "none"]);
 			const resting = await paint();
+			expect(resting.ratio).toBeCloseTo(1.8, 4);
+			expect(resting.hairline * resting.ratio).toBeCloseTo(1, 4);
+			for (const frame of resting.frames)
+				expect(frame.thickness * resting.ratio).toBeCloseTo(1, 4);
 			for (const edge of [...resting.frames, ...resting.seams]) {
-				expect(edge.thickness).toBeCloseTo(resting.hairline, 2);
+				// Layout dimensions can quantize to 1/64 CSS px; painted frame widths above
+				// still have to equal one physical pixel, without that layout tolerance.
+				expect(Math.abs(edge.thickness - resting.hairline)).toBeLessThanOrEqual(1 / 64);
 				expect(edge.color).toBe(resting.seams[0].color);
 				expect(edge.pointerEvents).toBe("none");
 			}

@@ -822,10 +822,22 @@
 
 @media (min-resolution: 2dppx) {
 	:root:not(.dark),
-	:root.dark,
-	:root:not(.dark),
 	:root.dark {
 		--foundation-hairline: 0.5px;
+	}
+}
+
+@media (min-resolution: 3dppx) {
+	:root:not(.dark),
+	:root.dark {
+		--foundation-hairline: 0.333333px;
+	}
+}
+
+@media (min-resolution: 4dppx) {
+	:root:not(.dark),
+	:root.dark {
+		--foundation-hairline: 0.25px;
 	}
 }
 

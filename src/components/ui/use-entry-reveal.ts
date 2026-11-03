@@ -21,6 +21,35 @@ export function useEntryReveal(
 ) {
 	const { entryKey, shouldAnimateEntry } = useRevealState();
 	const identity = useId();
+	// Keep masks and the filtered duplicate only while the reveal is running.
+	// Observe both first-paint CSS transitions and route-entry Web Animations;
+	// a fixed timeout would settle too early during a paused native capture.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Route identity and entry mode must reset settlement before a retained heading replays.
+	useLayoutEffect(() => {
+		const element = ref.current;
+		if (!element || effect !== "resolve") return;
+		delete element.dataset.resolveSettled;
+		let disposed = false;
+		let secondFrame = 0;
+		const firstFrame = requestAnimationFrame(() => {
+			secondFrame = requestAnimationFrame(() => {
+				const layers = element.querySelectorAll<HTMLElement>(
+					"[data-resolve-sharp], [data-resolve-front]",
+				);
+				const animations = Array.from(layers).flatMap((layer) => layer.getAnimations());
+				void Promise.allSettled(animations.map((animation) => animation.finished)).then(
+					() => {
+						if (!disposed) element.dataset.resolveSettled = "true";
+					},
+				);
+			});
+		});
+		return () => {
+			disposed = true;
+			cancelAnimationFrame(firstFrame);
+			cancelAnimationFrame(secondFrame);
+		};
+	}, [ref, effect, entryKey, shouldAnimateEntry]);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: Route identity must restart an entry even when this component and its props are reused.
 	useLayoutEffect(() => {
 		const element = ref.current;
@@ -66,6 +95,11 @@ export function useEntryReveal(
 				animation.id = "portfolio-entry-heading";
 				if (transition) animation.pause();
 				return animation;
+			});
+			// Settle owned route animations directly rather than depending on a later
+			// frame's animation snapshot, which also handles the first-paint CSS reveal.
+			void Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
+				if (!cancelled) element.dataset.resolveSettled = "true";
 			});
 			const play = () => {
 				if (!cancelled) for (const animation of animations) animation.play();

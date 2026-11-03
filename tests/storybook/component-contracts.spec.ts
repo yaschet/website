@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { installMuxMediaFixture } from "./helpers/mux-media-fixture";
 
 test.use({ deviceScaleFactor: 2 });
 
@@ -45,29 +46,30 @@ for (const theme of ["light", "dark"]) {
 			page,
 		}) => {
 			await page.setViewportSize({ width, height: 900 });
-			// Test real player controls without downloading or decoding a remote stream.
-			await page.route(/https:\/\/[^/]*mux\.(com|dev)\//, (route) => route.abort());
+			await installMuxMediaFixture(page);
 			await page.goto(
 				`/iframe.html?id=components-media-lightbox--video&viewMode=story&globals=theme:${theme}`,
 			);
 			const opener = page.getByRole("button", { name: "Expand project images" });
 			await opener.click();
 			const dialog = page.getByRole("dialog");
-			const close = page.getByRole("button", { name: "Close expanded viewer" });
+			const close = dialog.getByRole("button", { name: "Close expanded viewer" });
 			await expect(close).toBeFocused();
-			const trigger = page.getByRole("button", { name: /^Select playback speed:/ });
+			const trigger = dialog.getByRole("button", {
+				name: "Video settings",
+			});
 			await trigger.focus();
 			await page.keyboard.press("ArrowDown");
 			await expect(page.getByRole("menu")).toBeVisible();
 			await expect(dialog).toBeVisible();
+			await page.getByRole("menuitem", { name: /^Playback speed/ }).click();
 			const option = page.getByRole("menuitemradio", { name: "1.5x" });
-			await expect.poll(async () => (await option.boundingBox())?.height).toBeCloseTo(40, 1);
+			await expect.poll(async () => (await option.boundingBox())?.height).toBeCloseTo(44, 1);
 			await option.click();
 			await expect(trigger).toBeFocused();
-			await expect(trigger).toHaveAccessibleName("Select playback speed: 1.5x");
-			await expect(trigger.locator('.t-state-label > [data-active="true"]')).toHaveText(
-				"1.5x",
-			);
+			const media = dialog.locator('.pswp__item[aria-hidden="false"] mux-video');
+			await expect(media).toHaveJSProperty("playbackRate", 1.5);
+			await expect(trigger).toHaveAccessibleName("Video settings");
 			if (width === 1280) {
 				await page.getByRole("button", { name: "Enter fullscreen" }).click();
 				await expect
@@ -89,6 +91,11 @@ for (const theme of ["light", "dark"]) {
 			}
 			await trigger.press("ArrowDown");
 			await expect(page.getByRole("menu")).toBeVisible();
+			await page.getByRole("menuitem", { name: /^Playback speed/ }).click();
+			await expect(page.getByRole("menuitemradio", { name: "1.5x" })).toHaveAttribute(
+				"aria-checked",
+				"true",
+			);
 			await expect
 				.poll(() =>
 					page
@@ -100,9 +107,20 @@ for (const theme of ["light", "dark"]) {
 			await expect(page.getByRole("menu")).toHaveCount(0);
 			await expect(dialog).toBeVisible();
 			await expect(trigger).toBeFocused();
-			const slider = page.getByRole("slider", { name: "Seek video" });
+			// Input ownership does not depend on autoplay. Give the transport an
+			// explicit play intent before exercising Pause and the paused timeline.
+			if (await media.evaluate((node) => (node as HTMLMediaElement).paused))
+				await dialog.getByRole("button", { name: "Play video", exact: true }).click();
+			await expect(media).toHaveJSProperty("paused", false);
+			await dialog.getByRole("button", { name: "Pause video", exact: true }).click();
+			await expect(media).toHaveJSProperty("paused", true);
+			const slider = dialog.getByRole("slider", { name: "Seek video timeline", exact: true });
+			const beforeSeek = Number(await slider.inputValue());
 			await slider.focus();
 			await slider.press("ArrowRight");
+			await expect
+				.poll(async () => Number(await slider.inputValue()))
+				.toBeGreaterThan(beforeSeek);
 			await expect(dialog).toHaveAccessibleName("Verto walkthrough");
 			await close.click();
 			await expect(dialog).toHaveCount(0);
@@ -111,15 +129,23 @@ for (const theme of ["light", "dark"]) {
 
 		test(`inline video keeps its arrow keys at ${width}px in ${theme}`, async ({ page }) => {
 			await page.setViewportSize({ width, height: 900 });
-			await page.route(/https:\/\/[^/]*mux\.(com|dev)\//, (route) => route.abort());
+			await installMuxMediaFixture(page);
 			await page.goto(
 				`/iframe.html?id=components-media-mediagallery--video-and-image&viewMode=story&globals=theme:${theme}`,
 			);
 			const gallery = page.locator('[aria-roledescription="carousel"]').first();
 			await page.getByRole("button", { name: "Play video", exact: true }).click();
-			const slider = page.getByRole("slider", { name: "Seek video" });
+			await gallery.getByRole("button", { name: "Pause video", exact: true }).click();
+			const slider = gallery.getByRole("slider", {
+				name: "Seek video timeline",
+				exact: true,
+			});
+			const beforeSeek = Number(await slider.inputValue());
 			await slider.focus();
 			await slider.press("ArrowRight");
+			await expect
+				.poll(async () => Number(await slider.inputValue()))
+				.toBeGreaterThan(beforeSeek);
 			await expect(gallery.getByText("Slide 1 of 2", { exact: true })).toHaveText(
 				"Slide 1 of 2",
 			);

@@ -78,7 +78,7 @@ function ArchitecturePagePreview() {
 
 const meta = {
 	id: "pages-casestudyarchitecture",
-	title: "Pages/Case Study",
+	title: "Lab/Article Diagram",
 	component: ArchitecturePagePreview,
 	parameters: {
 		layout: "fullscreen",

@@ -68,12 +68,12 @@
 	z-index: 1;
 }
 .foundation-drawer .foundation-overlay-header {
-	border-bottom: 1px solid var(--border);
+	border-bottom: var(--foundation-hairline) solid var(--border);
 }
 
 .foundation-sheet > .foundation-overlay-header,
 .foundation-dialog[data-framed] > .foundation-overlay-header {
-	border-bottom: 1px solid var(--border);
+	border-bottom: var(--foundation-hairline) solid var(--border);
 }
 
 .foundation-drawer[data-close-button="true"] .foundation-overlay-header {
@@ -115,14 +115,14 @@
 .foundation-dialog[data-framed] [data-slot="dialog-footer"] {
 	flex-shrink: 0;
 	margin: 0;
-	border-top: 1px solid var(--border);
+	border-top: var(--foundation-hairline) solid var(--border);
 	padding: 16px;
 	background: var(--background);
 }
 .foundation-alert-footer {
 	margin: 0 -16px -16px;
 	padding: 16px;
-	border-top: 1px solid var(--border);
+	border-top: var(--foundation-hairline) solid var(--border);
 	background: var(--background);
 }
 /* Preserve existing media-slot compositions alongside the new icon prop. */
@@ -162,7 +162,7 @@
 	top: 28px;
 }
 .foundation-drawer [data-slot="drawer-footer"] {
-	border-top: 1px solid var(--border);
+	border-top: var(--foundation-hairline) solid var(--border);
 	background: var(--background);
 }
 

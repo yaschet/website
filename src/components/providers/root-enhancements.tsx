@@ -8,7 +8,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { Toaster } from "@/src/components/ui/sonner";
 import { NAVIGATION_SHORTCUTS } from "@/src/constants/navigation";
 import { DeferredGlobalChrome } from "./deferred-global-chrome";
-import { DevAgentation } from "./dev-agentation";
 import { WebVitals } from "./web-vitals";
 
 export function RootEnhancements() {
@@ -103,7 +102,6 @@ export function RootEnhancements() {
 			) : null}
 			<WebVitals />
 			<Toaster />
-			<DevAgentation />
 		</>
 	);
 }

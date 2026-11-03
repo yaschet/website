@@ -1,8 +1,9 @@
 "use client";
 
-import { RiPlayLine } from "@remixicon/react";
+import { RiPlayFill } from "@remixicon/react";
 import type { ComponentPropsWithoutRef } from "react";
 import { Button } from "@/src/components/ui/button";
+import { StateSwap } from "@/src/components/ui/state-swap";
 import { cn } from "@/src/lib/index";
 
 interface GalleryPlayButtonProps
@@ -23,26 +24,43 @@ export function GalleryPlayButton({
 		<Button
 			size="xl"
 			variant="soft"
-			icon={<RiPlayLine className="size-4" />}
+			data-press-motion="surface"
+			icon={<RiPlayFill className="portfolio-gallery-play-glyph size-5" />}
+			iconPosition="start"
 			loading={loading}
 			className={cn(
-				"portfolio-media-material pointer-events-auto border-surface-700",
+				"portfolio-media-material portfolio-action-link portfolio-gallery-play pointer-events-auto",
 				className,
 			)}
 			disabled={disabled}
 			aria-busy={loading || undefined}
-			aria-label={duration ? `Play ${duration} video` : "Play video"}
+			aria-label={
+				loading ? "Loading video" : duration ? `Play ${duration} video` : "Play video"
+			}
 			{...props}
 		>
-			<span>Play{duration ? " " : null}</span>
-			{duration && (
-				<>
-					<span aria-hidden="true" className="h-4 w-px bg-surface-600" />
-					<span className="font-sans text-sm/5 text-surface-300 tabular-nums">
-						{duration}
-					</span>
-				</>
-			)}
+			<span className="portfolio-gallery-play-label">
+				<StateSwap
+					kind="text"
+					sizing="content"
+					value={loading ? "loading" : "idle"}
+					items={{
+						idle: (
+							<span className="inline-flex items-center gap-2">
+								<span className="portfolio-gallery-play-action">
+									Play{duration ? " " : null}
+								</span>
+								{duration && (
+									<span className="portfolio-gallery-play-duration">
+										{duration}
+									</span>
+								)}
+							</span>
+						),
+						loading: "Loading…",
+					}}
+				/>
+			</span>
 		</Button>
 	);
 }

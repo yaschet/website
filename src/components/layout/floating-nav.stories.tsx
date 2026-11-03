@@ -129,3 +129,30 @@ export const SharedTooltip: Story = {
 		);
 	},
 };
+
+/** Touch feedback clears when the finger leaves; it does not become sticky hover. */
+export const TouchFeedback: Story = {
+	play: async ({ canvas, canvasElement, userEvent }) => {
+		const contact = canvas.getByRole("link", { name: "Contact" });
+		await userEvent.pointer({ keys: "[TouchA>]", target: contact });
+		await expect(contact).toHaveAttribute("data-pressed", "true");
+		await expect(canvasElement.querySelector(".portfolio-nav-hover")).toHaveStyle({
+			opacity: "1",
+		});
+		await expect(
+			canvasElement.ownerDocument.querySelector('[role="tooltip"][data-state="open"]'),
+		).toBeNull();
+		await userEvent.pointer({
+			pointerName: "TouchA",
+			target: canvasElement.ownerDocument.body,
+		});
+		await userEvent.pointer({ keys: "[/TouchA]", target: canvasElement.ownerDocument.body });
+		await expect(contact).not.toHaveAttribute("data-pressed");
+		await waitFor(() =>
+			expect(canvasElement.querySelector(".portfolio-nav-hover")).toHaveStyle({
+				opacity: "0",
+			}),
+		);
+		canvasElement.dataset.touchFeedbackResult = "passed";
+	},
+};
