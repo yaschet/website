@@ -475,6 +475,7 @@
 .portfolio-nav-control {
 	--button-glyph-size: 1rem;
 	--button-content-gap: 0px;
+	touch-action: manipulation;
 	position: relative;
 	z-index: 1;
 	display: grid;
@@ -502,6 +503,9 @@
 .portfolio-nav-control[data-highlighted="true"] > .t-icon-swap {
 	opacity: 1;
 }
+.portfolio-nav-control[data-pressed="true"] > svg,
+.portfolio-nav-control[data-pressed="true"] > [data-slot="link-feedback"],
+.portfolio-nav-control[data-pressed="true"] > .t-icon-swap,
 .portfolio-nav-control:active > svg,
 .portfolio-nav-control:active > [data-slot="link-feedback"],
 .portfolio-nav-control:active > .t-icon-swap {
@@ -644,4 +648,15 @@
 	.portfolio-page-loading-glyph {
 		animation: none;
 	}
+}
+
+/* Touch-down feedback is immediate; release returns with the shared transition. */
+.portfolio-nav-control[data-pressed="true"] > [data-slot="link-feedback"],
+.portfolio-nav-control[data-pressed="true"] > .t-icon-swap {
+	transition-duration: 0ms;
+	opacity: 1;
+}
+
+.portfolio-nav-hover[data-touch="true"] {
+	transition: none;
 }

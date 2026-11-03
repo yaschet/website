@@ -1073,3 +1073,13 @@ on the frame after settling; the glass samples the scrolling page beneath it.
 Navigation cells stay joined in one rail, with equal square targets, even outer
 padding and the existing theme-control separator. Do not introduce gaps between
 route cells: the moving active and hover underlays use this shared cell pitch.
+
+### Dock touch feedback
+
+Touch-down reveals the shared exploration underlay immediately and presses the
+icon to 92%. Release, pointer cancellation and leaving the target clear that
+feedback. A completed tap uses normal link navigation and the existing active
+indicator slide. No pointer capture, prevented scrolling, drag-to-select or
+hover tooltip is introduced. The theme control gets the same touch feedback.
+`touch-action: manipulation` preserves pan/pinch while avoiding double-tap delay.
+Reduced-motion and keyboard indicator rules remain in effect.

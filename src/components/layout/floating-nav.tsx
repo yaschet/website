@@ -47,6 +47,7 @@ export function FloatingNav() {
 	const { setTheme, resolvedTheme, theme } = useTheme();
 	const activeIndex = getActiveIndex(pathname);
 	const [isMounted, setIsMounted] = useState(false);
+	const [pressedIndex, setPressedIndex] = useState<number | null>(null);
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 	const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 	const [underlay, setUnderlay] = useState({ index: 0, visible: false, snap: true });
@@ -63,7 +64,10 @@ export function FloatingNav() {
 		hoveredIndex !== null && hoveredIndex < navItems.length ? hoveredIndex : null;
 	const routeFocus =
 		focusedIndex !== null && focusedIndex < navItems.length ? focusedIndex : null;
-	const themeHighlighted = hoveredIndex === navItems.length || focusedIndex === navItems.length;
+	const themeHighlighted =
+		hoveredIndex === navItems.length ||
+		focusedIndex === navItems.length ||
+		pressedIndex === navItems.length;
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -78,6 +82,22 @@ export function FloatingNav() {
 		setUnderlay((previous) => ({ ...previous, visible: false }));
 	};
 
+	const clearTouch = (event: PointerEvent<HTMLElement>) => {
+		if (event.pointerType !== "touch") return;
+		setPressedIndex(null);
+		hideHover();
+	};
+	const touchFeedback = (index: number) => ({
+		onPointerDown: (event: PointerEvent<HTMLElement>) => {
+			if (event.pointerType !== "touch" || !event.isPrimary) return;
+			setPressedIndex(index);
+			hint.dismiss();
+			setUnderlay({ index, visible: index < navItems.length, snap: true });
+		},
+		onPointerUp: clearTouch,
+		onPointerCancel: clearTouch,
+		onPointerLeave: clearTouch,
+	});
 	const pointerEnter = (event: PointerEvent<HTMLElement>, index: number, label: string) => {
 		if (event.pointerType !== "mouse" && event.pointerType !== "pen") return;
 		if (event.buttons !== 0) return;
@@ -154,6 +174,7 @@ export function FloatingNav() {
 											className="portfolio-nav-underlay portfolio-nav-hover"
 											data-instant={reduced || keyboard}
 											data-snap={underlay.snap}
+											data-touch={pressedIndex !== null || undefined}
 											style={{
 												transform: `translateX(calc(${routeFocus ?? underlay.index} * var(--portfolio-control-default)))`,
 												opacity:
@@ -188,10 +209,15 @@ export function FloatingNav() {
 															: undefined
 													}
 													className="portfolio-nav-control"
+													{...touchFeedback(index)}
+													data-pressed={
+														pressedIndex === index || undefined
+													}
 													data-highlighted={
 														activeIndex === index ||
 														routeHover === index ||
-														routeFocus === index
+														routeFocus === index ||
+														pressedIndex === index
 													}
 													onNavigate={() => {
 														hint.dismiss();
@@ -222,6 +248,8 @@ export function FloatingNav() {
 										controls.current[navItems.length] = node;
 									}}
 									className="portfolio-nav-control theme-toggle"
+									{...touchFeedback(navItems.length)}
+									data-pressed={pressedIndex === navItems.length || undefined}
 									data-highlighted={themeHighlighted}
 									aria-label={`Theme: ${themeToggleLabel}`}
 									aria-describedby={
