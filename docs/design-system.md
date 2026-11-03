@@ -1035,3 +1035,9 @@ Their canvas is opaque: broad terrain bands use Neutral 950, 925 and 900 rather
 than lifting the whole surface toward mid-gray. Dot highlights retain their
 independent neutral ramp and highlight shoulder. Light grading is unchanged.
 These roles apply at every width; grid geometry, entrance and motion are unchanged.
+
+Hero/page-intro dots use 65% of the graded alpha in dark and 80% in light,
+keeping the ground and moving bands independent. Portrait terrain uses up to
+1.65 times the spatial frequency, blending to the original scale between aspect
+ratios 0.9 and 1.8. Dot pitch and motion timing do not change. These are visual
+composition decisions, not accessibility thresholds.

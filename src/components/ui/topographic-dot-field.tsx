@@ -208,7 +208,11 @@ float snoise(vec3 v){
 
 float terrainFieldValue(vec2 uv, float time) {
   float aspect = uRes.x / uRes.y;
-  vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
+  // Finer terrain on portrait fields, blended continuously into the desktop scale.
+  float portraitWeight = 1.0 - smoothstep(0.9, 1.8, aspect);
+  float introSurface = 1.0 - step(1.5, uSurface);
+  float compositionScale = 1.0 + portraitWeight * introSurface * 0.65;
+  vec2 p = (uv - 0.5) * vec2(aspect, 1.0) * compositionScale;
 
   mat2 orient = mat2(0.951, -0.309, 0.309, 0.951);
   vec2 base = orient * p;
@@ -491,6 +495,9 @@ void main() {
   // Compress bright dot peaks independently of the broad terrain bands.
   float peakWeight = smoothstep(0.24, 0.64, dots.a);
   dots.a *= 1.0 - terrainSurface * peakWeight * 0.38;
+  // Keep atmospheric dots subordinate to the reading layer without dimming the ground.
+  float introDotWeight = terrainSurface * (1.0 - step(1.5, uSurface));
+  dots.a *= mix(1.0, mix(0.80, 0.65, uDark), introDotWeight);
 
   if (uDark < 0.5) {
     vec4 lightBase = vec4(uBG, 1.0);
