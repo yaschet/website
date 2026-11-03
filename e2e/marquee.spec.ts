@@ -95,7 +95,8 @@ for (const theme of ["light", "dark"] as const) {
 			}
 			await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 			const touchExpected = -(((-(touchStart - 60) % width) + width) % width);
-			expect(await position()).toBeCloseTo(touchExpected, 0);
+			// CDP input acknowledgement precedes delivery of compositor-routed touch events.
+			await expect.poll(position).toBeCloseTo(touchExpected, 0);
 			await expect(button).toHaveAttribute("aria-pressed", "true");
 			await touch.send("Input.dispatchTouchEvent", {
 				type: "touchStart",

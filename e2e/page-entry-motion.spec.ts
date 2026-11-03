@@ -190,8 +190,9 @@ for (const theme of ["light", "dark"] as const) {
 			expect(await homeHeading.boundingBox()).toEqual(homeFrame);
 		}
 		await page.evaluate(() => {
+			window.freezePortfolioEntry = false;
 			for (const animation of document.getAnimations())
-				if (animation.id.startsWith("portfolio-entry-")) animation.finish();
+				if (animation.id.startsWith("portfolio-entry-")) animation.play();
 		});
 		await expect(homeHeading.locator("[data-resolve-sharp]").last()).toHaveCSS(
 			"mask-position",
