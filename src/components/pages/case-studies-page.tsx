@@ -33,9 +33,10 @@ export function CaseStudiesPageContent({ projects }: { projects: readonly Projec
 									title="Case studies."
 									description="Product and engineering decisions, with the evidence behind them."
 								>
-									<div className="portfolio-control-row mt-(--portfolio-space-group)">
+									<div className="grid grid-cols-1 gap-(--portfolio-space-tight) sm:max-w-[28rem] min-[420px]:grid-cols-2">
 										<CopyResourceButton
 											href="/portfolio.md"
+											className="w-full min-w-0"
 											label="Copy Portfolio"
 											copiedLabel="Copied Portfolio"
 										/>
@@ -43,7 +44,7 @@ export function CaseStudiesPageContent({ projects }: { projects: readonly Projec
 											href="/llms-full.txt"
 											label="Copy Full Context"
 											copiedLabel="Copied Context"
-											className="min-w-[9.75rem]"
+											className="w-full min-w-0"
 										/>
 									</div>
 								</PageIntroPanel>

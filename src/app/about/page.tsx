@@ -3,6 +3,7 @@ import { AboutPrinciples } from "@/src/components/content/about-principles";
 import { PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { EditorialSection } from "@/src/components/layout/editorial-section";
 import { PageIntroPanel } from "@/src/components/layout/page-intro";
+import { ProfileSection } from "@/src/components/layout/profile-section";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
@@ -30,6 +31,9 @@ export default function AboutPage() {
 					<section className="w-full">
 						<PageContainer mobileBleed className="portfolio-section-top">
 							<SwissGridBox>
+								<SwissGridRow>
+									<ProfileSection />
+								</SwissGridRow>
 								<SwissGridRow>
 									<PageIntroPanel
 										eyebrow="About"
