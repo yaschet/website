@@ -165,7 +165,7 @@ for (const theme of ["light", "dark"] as const) {
 						?.getBoundingClientRect();
 					const fog = word.querySelector("[data-resolve-fog]")?.getBoundingClientRect();
 					if (!sharp || !front || !fog) throw new Error("Missing resolve layer");
-					return { dx: front.x - sharp.x, dy: front.y - sharp.y, bleed: sharp.x - fog.x };
+					return { dx: fog.x - sharp.x, dy: fog.y - sharp.y, bleed: sharp.x - front.x };
 				}),
 			);
 		for (const layer of layerGeometry) {

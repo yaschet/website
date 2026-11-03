@@ -907,20 +907,25 @@
 		transparent calc(50% + var(--resolve-feather) / 2)
 	);
 }
-[data-resolve-front]::before {
+[data-resolve-fog]::before {
 	content: attr(data-resolve-text);
 }
 [data-resolve-fog] {
-	position: absolute;
-	/* Give the filter three blur radii of transparent source on every side.
-	 * Equal inset/padding preserves the duplicate's exact baseline and word width,
-	 * while keeping mobile filter bounds away from the glyph and its mask front. */
-	inset: calc(-1 * var(--resolve-bleed));
-	padding: var(--resolve-bleed);
-	pointer-events: none;
+	display: inline-block;
 	filter: blur(var(--resolve-blur));
 }
 [data-resolve-front] {
+	position: absolute;
+	/* Blur a static text source, then mask its output. Keep the moving mask
+	 * outside the filtered subtree, with paint bounds beyond the word/line box. */
+	inset: calc(-1 * var(--resolve-bleed));
+	padding: var(--resolve-bleed);
+	pointer-events: none;
+	/* The sweep still uses the unpadded word width. Repeat the horizontal-only
+	 * gradient vertically so its image edge cannot cut off the blur at a line. */
+	mask-origin: content-box;
+	mask-clip: border-box;
+	mask-repeat: no-repeat repeat;
 	mask-image: linear-gradient(
 		to right,
 		transparent calc(50% - var(--resolve-feather) / 2),

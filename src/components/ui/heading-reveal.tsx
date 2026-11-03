@@ -72,8 +72,8 @@ export function HeadingReveal({
 								{effect === "resolve" ? (
 									<>
 										<span data-resolve-sharp="">{word}</span>
-										<span data-resolve-fog="" aria-hidden="true">
-											<span data-resolve-front="" data-resolve-text={word} />
+										<span data-resolve-front="" aria-hidden="true">
+											<span data-resolve-fog="" data-resolve-text={word} />
 										</span>
 									</>
 								) : (
