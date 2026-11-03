@@ -88,11 +88,27 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 									className={styles.descriptionDisclosure}
 								>
 									<summary
-										className={styles.iconChamber}
-										aria-label="Read full media description"
+										className={styles.descriptionTrigger}
+										aria-label={`Read full media description: ${title}`}
 										title="Read full media description"
 									>
-										<InfoIcon size={20} weight="bold" aria-hidden="true" />
+										<span className={styles.iconChamber}>
+											<InfoIcon size={20} weight="bold" aria-hidden="true" />
+										</span>
+										<span
+											key={`heading-${viewer.index}`}
+											className={styles.heading}
+										>
+											<span id={viewer.titleId} className={styles.title}>
+												{title}
+											</span>
+											<span
+												id={viewer.descriptionId}
+												className={styles.caption}
+											>
+												{description}
+											</span>
+										</span>
 									</summary>
 									<section
 										className={styles.fullDescription}
@@ -105,14 +121,6 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 										<p>{description}</p>
 									</section>
 								</details>
-								<div key={`heading-${viewer.index}`} className={styles.heading}>
-									<h2 id={viewer.titleId} className={styles.title}>
-										{title}
-									</h2>
-									<p id={viewer.descriptionId} className={styles.caption}>
-										{description}
-									</p>
-								</div>
 							</div>
 							<Button
 								variant="soft"

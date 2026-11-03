@@ -137,6 +137,7 @@
 	align-items: center;
 	gap: 16px;
 	min-width: 0;
+	flex: 1;
 }
 .iconChamber {
 	display: grid;
@@ -148,7 +149,15 @@
 	color: var(--gallery-ink);
 }
 .descriptionDisclosure {
-	flex: 0 0 48px;
+	width: 100%;
+	min-width: 0;
+}
+.descriptionTrigger {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	min-width: 0;
+	transition: background 150ms var(--ease-smooth-out);
 }
 .descriptionDisclosure > summary {
 	cursor: pointer;
@@ -164,6 +173,9 @@
 }
 .descriptionDisclosure > summary:hover {
 	background: var(--gallery-hover);
+}
+.descriptionDisclosure[open] > summary {
+	background: var(--gallery-well);
 }
 .descriptionDisclosure > summary:active {
 	background: var(--gallery-active);
@@ -181,14 +193,30 @@
 	overflow: auto;
 	overscroll-behavior: contain;
 	padding: 1rem;
+	border-block: var(--foundation-hairline) solid var(--gallery-line);
 	background: var(--gallery-canvas);
 	color: var(--gallery-ink);
 	font-size: 0.875rem;
 	line-height: 1.5;
 	overflow-wrap: anywhere;
 }
+.descriptionDisclosure[open] .fullDescription {
+	animation: description-in 180ms var(--ease-smooth-out) both;
+}
+@keyframes description-in {
+	from {
+		opacity: 0;
+		translate: 0 -4px;
+	}
+	to {
+		opacity: 1;
+		translate: 0 0;
+	}
+}
 .fullDescription p {
 	margin: 0;
+	font-size: inherit;
+	line-height: inherit;
 }
 .fullDescription:focus-visible {
 	outline: 2px solid var(--gallery-ink);
@@ -197,8 +225,8 @@
 .fullDescription p + p {
 	margin-block-start: 0.5rem;
 }
-.fullDescriptionTitle {
-	font-size: 1rem;
+.fullDescription .fullDescriptionTitle {
+	font-size: 1.0625rem;
 	font-weight: 600;
 }
 .heading {
@@ -212,13 +240,14 @@
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 1;
 	margin: 0;
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	font-weight: 600;
 	line-height: 1.5rem;
 	text-wrap: pretty;
 	overflow-wrap: anywhere;
 }
 .caption {
+	display: block;
 	overflow: hidden;
 	margin: 4px 0 0;
 	color: var(--gallery-muted);
@@ -539,6 +568,9 @@
 	.identity {
 		gap: 12px;
 	}
+	.descriptionTrigger {
+		gap: 12px;
+	}
 	.title {
 		-webkit-line-clamp: 2;
 		line-height: 1.25rem;
@@ -643,6 +675,9 @@
 	transition: none;
 }
 @media (prefers-reduced-motion: reduce) {
+	.descriptionDisclosure[open] .fullDescription {
+		animation: none;
+	}
 	.viewer *,
 	.viewer [class~="pswp__preloader"] [class~="pswp__icn"] {
 		animation: none;
