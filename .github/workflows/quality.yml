@@ -80,7 +80,10 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
       - run: pnpm build
-      - run: pnpm exec playwright test --project=${{ matrix.project }}
+      - name: Touch and heading regressions
+        run: pnpm exec playwright test --project=${{ matrix.project }} --grep='marquee.spec.ts|page-entry-motion.spec.ts'
+      - name: Remaining browser journeys
+        run: pnpm exec playwright test --project=${{ matrix.project }} --grep-invert='marquee.spec.ts|page-entry-motion.spec.ts'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:

@@ -81,6 +81,24 @@ for (const theme of ["light", "dark"] as const) {
 		expect(await position()).toBe(frozen);
 		if (testInfo.project.name === "mobile-chrome" && browserName === "chromium") {
 			// Dispatch real browser touch input, exercising pan-y arbitration and pointer capture.
+			await button.evaluate((control) => {
+				const samples: string[] = [];
+				for (const type of ["pointerdown", "pointermove", "pointerup", "pointercancel"]) {
+					control.addEventListener(type, (event) => {
+						if (!(event instanceof PointerEvent)) return;
+						samples.push(
+							JSON.stringify({
+								type,
+								x: event.clientX,
+								y: event.clientY,
+								pointer: event.pointerType,
+								scale: visualViewport?.scale,
+							}),
+						);
+						control.dataset.touchSamples = JSON.stringify(samples);
+					});
+				}
+			});
 			const touch = await context.newCDPSession(page);
 			await touch.send("Input.dispatchTouchEvent", {
 				type: "touchStart",
@@ -95,8 +113,16 @@ for (const theme of ["light", "dark"] as const) {
 			}
 			await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 			const touchExpected = -(((-(touchStart - 60) % width) + width) % width);
-			// CDP input acknowledgement precedes delivery of compositor-routed touch events.
-			await expect.poll(position).toBeCloseTo(touchExpected, 0);
+			try {
+				await expect.poll(position).toBeCloseTo(touchExpected, 0);
+			} catch (error) {
+				throw new Error(
+					`Touch drag failed: ${await button.getAttribute("data-touch-samples")}`,
+					{
+						cause: error,
+					},
+				);
+			}
 			await expect(button).toHaveAttribute("aria-pressed", "true");
 			await touch.send("Input.dispatchTouchEvent", {
 				type: "touchStart",
