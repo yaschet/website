@@ -310,7 +310,7 @@ for (const theme of ["light", "dark"]) {
 	}
 }
 
-test("zoom reels keep their places through rapid changes and settle on the latest value", async ({
+test("zoom digit chambers persist through rapid changes and settle on the latest value", async ({
 	page,
 }) => {
 	await page.goto("/iframe.html?id=components-media-mediagallery--default&viewMode=story");
@@ -322,10 +322,12 @@ test("zoom reels keep their places through rapid changes and settle on the lates
 	const readout = dialog.getByRole("button", { name: "Reset zoom to fit" });
 	await readout.evaluate((button) => {
 		(button as HTMLElement & { reels?: Element[] }).reels = [
-			...button.querySelectorAll("[data-digit='0']"),
-		]
-			.map((digit) => digit.parentElement)
-			.filter((reel): reel is HTMLElement => Boolean(reel));
+			...new Set(
+				[...button.querySelectorAll("[data-digit]")]
+					.map((digit) => digit.parentElement?.parentElement)
+					.filter((chamber): chamber is HTMLElement => Boolean(chamber)),
+			),
+		];
 	});
 	await dialog.getByRole("button", { name: "Zoom in", exact: true }).click({ clickCount: 2 });
 	await dialog.getByRole("button", { name: "Zoom out", exact: true }).click();

@@ -376,7 +376,18 @@
 .zoomDigit > span {
 	display: flex;
 	flex-direction: column;
-	transition: transform 180ms var(--ease-smooth-out);
+	transform: translateY(-1.25rem);
+}
+.zoomDigit > span[data-rolling] {
+	animation: zoom-digit-step 120ms var(--ease-smooth-out);
+}
+@keyframes zoom-digit-step {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(-1.25rem);
+	}
 }
 .zoomDigit i {
 	flex: none;

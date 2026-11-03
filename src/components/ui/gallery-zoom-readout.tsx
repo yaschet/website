@@ -1,30 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import styles from "./gallery-viewer.module.css";
 
-const DIGITS = Array.from({ length: 10 }, (_, digit) => digit);
 const PLACES = [100, 10, 1];
 
-/** Persistent decimal reels retarget from their current position, including during a pinch. */
+/** Changed digits travel one step, including carries; no sweep through unrelated numbers. */
 export function GalleryZoomReadout({ value }: { value: string }) {
 	const number = Number.parseInt(value, 10) || 100;
+	const [frame, setFrame] = useState({ current: number, previous: number });
+	if (frame.current !== number) {
+		setFrame({ current: number, previous: frame.current });
+	}
 	return (
 		<span className={styles.zoomReadout} aria-hidden="true" data-fit={value === "Fit"}>
 			<span data-label="Fit" className={styles.zoomFit} />
 			<span className={styles.zoomNumber}>
-				{PLACES.map((place) => (
-					<span key={place} className={styles.zoomDigit}>
-						<span
-							style={{
-								transform: `translateY(-${(Math.floor(number / place) % 10) * 1.25}rem)`,
-							}}
-						>
-							{DIGITS.map((number) => (
-								<i key={number} data-digit={number} />
-							))}
+				{PLACES.map((place) => {
+					const digit = Math.floor(number / place) % 10;
+					const previous = Math.floor(frame.previous / place) % 10;
+					return (
+						<span key={place} className={styles.zoomDigit}>
+							<span key={digit} data-rolling={digit !== previous || undefined}>
+								<i data-digit={previous} />
+								<i data-digit={digit} />
+							</span>
 						</span>
-					</span>
-				))}
+					);
+				})}
 				<span data-label="%" className={styles.zoomUnit} />
 			</span>
 		</span>
