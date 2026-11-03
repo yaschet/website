@@ -117,7 +117,7 @@ export function CopyResourceButton({
 					aria-busy={state === "loading"}
 					disabled={state === "loading"}
 					className={cn(
-						"inline-grid cursor-pointer touch-manipulation items-baseline border-0 bg-transparent p-0 text-left align-baseline disabled:cursor-wait",
+						"inline-grid w-max max-w-full cursor-pointer touch-manipulation items-baseline justify-items-center border-0 bg-transparent p-0 text-center align-baseline disabled:cursor-wait",
 						className,
 					)}
 				>

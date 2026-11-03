@@ -63,7 +63,7 @@ export function SiteFooter() {
 											X
 										</Link>
 									</nav>
-									<div className="flex flex-wrap items-center justify-center gap-[var(--portfolio-space-related)] sm:justify-end">
+									<div className="flex w-full flex-wrap items-center justify-center gap-[var(--portfolio-space-related)] sm:w-auto sm:justify-end">
 										<CopyResourceButton
 											href="/llms-full.txt"
 											label="Copy portfolio"
