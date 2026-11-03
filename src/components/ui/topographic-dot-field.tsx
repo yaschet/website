@@ -732,6 +732,11 @@ function resolveSurfaceTone(node: HTMLElement, tone: number, fallback: RGB) {
 	);
 }
 
+function resolveOptionalFieldColor(node: HTMLElement, property: string, fallback: RGB): RGB {
+	const value = getComputedStyle(node).getPropertyValue(property).trim();
+	return value ? resolveCssColor(node, value, fallback) : fallback;
+}
+
 function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	const alphaPalette = isDark ? DARK_ALPHA_PALETTE : LIGHT_ALPHA_PALETTE;
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
@@ -773,15 +778,29 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 				alpha: alphaPalette.underlay[0].alpha,
 			},
 			{
-				color: isDark ? resolveTone(900) : lightBandOneUnderlay,
+				color: isDark
+					? resolveOptionalFieldColor(node, "--instrument-underlay-one", resolveTone(900))
+					: lightBandOneUnderlay,
 				alpha: alphaPalette.underlay[1].alpha,
 			},
 			{
-				color: isDark ? darkBandTwoUnderlay : lightBandTwoUnderlay,
+				color: isDark
+					? resolveOptionalFieldColor(
+							node,
+							"--instrument-underlay-two",
+							darkBandTwoUnderlay,
+						)
+					: lightBandTwoUnderlay,
 				alpha: alphaPalette.underlay[2].alpha,
 			},
 			{
-				color: isDark ? darkPeakUnderlay : lightPeakUnderlay,
+				color: isDark
+					? resolveOptionalFieldColor(
+							node,
+							"--instrument-underlay-peak",
+							darkPeakUnderlay,
+						)
+					: lightPeakUnderlay,
 				alpha: alphaPalette.underlay[3].alpha,
 			},
 		],

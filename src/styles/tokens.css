@@ -984,7 +984,7 @@
 	--portfolio-project-detail-surface: var(--palette-neutral-950);
 	--portfolio-project-line: var(--palette-neutral-700);
 	--portfolio-project-line-hover: var(--palette-neutral-600);
-	--portfolio-hero-surface: var(--palette-neutral-925);
+	--portfolio-hero-surface: var(--palette-neutral-950);
 	--portfolio-artwork-opacity: 0.78;
 	--portfolio-hero-line: var(--portfolio-project-line);
 	--portfolio-code-surface: var(--palette-neutral-925);
@@ -1016,4 +1016,15 @@
 	--sh-sign: var(--surface-color-400);
 	--sh-property: var(--accent-color-300);
 	--sh-identifier: var(--surface-color-100);
+}
+
+/* Opaque hero ground; grade bands independently instead of fading the canvas. */
+.portfolio-hero-artwork {
+	--instrument-field-bg-auto: var(--portfolio-hero-surface);
+}
+:root.dark .portfolio-hero-artwork {
+	--portfolio-artwork-opacity: 1;
+	--instrument-underlay-one: var(--palette-neutral-950);
+	--instrument-underlay-two: var(--palette-neutral-925);
+	--instrument-underlay-peak: var(--palette-neutral-900);
 }

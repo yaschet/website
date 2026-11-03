@@ -725,7 +725,7 @@ requirement or a promise of identical appearance on different displays.
 | Project card body | mineral-0 | neutral-925 | Let screenshots supply color; no second ambient field |
 | Project detail region | mineral-200 | neutral-950 | Quiet separation from card body |
 | Code / technical inset | mineral-100 | neutral-925 | Plain surface with a quiet keyline |
-| Hero and page-intro artwork | Shared neutral band/dot ramp | Shared neutral band/dot ramp | `--portfolio-artwork-opacity`: 0.88 light, 0.78 dark |
+| Hero and page-intro artwork | Shared neutral band/dot ramp | Shared neutral band/dot ramp | `--portfolio-artwork-opacity`: 0.88 light, 1.0 dark for hero/page intros |
 | Action band | Canvas-grounded field | Canvas-grounded field | Existing full-strength field; local text shielding |
 | Media / player | Media's own colors | Media's own colors | Keep the dark control material independent of page theme |
 
@@ -1027,3 +1027,11 @@ The portfolio accent aliases Foundation's neutral primary material: dark ink in
 light mode and light ink in dark mode. This includes legacy accent utilities,
 native accent-color, selection, the reading indicator and portal controls.
 Semantic success/error colors and the Moroccan flag retain their meaning.
+
+### Hero terrain depth
+
+Dark hero and page-intro fields share the technology footer's Neutral 950 ground.
+Their canvas is opaque: broad terrain bands use Neutral 950, 925 and 900 rather
+than lifting the whole surface toward mid-gray. Dot highlights retain their
+independent neutral ramp and highlight shoulder. Light grading is unchanged.
+These roles apply at every width; grid geometry, entrance and motion are unchanged.
