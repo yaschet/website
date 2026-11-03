@@ -1196,3 +1196,13 @@
 		animation: none;
 	}
 }
+
+/* Begin only after the shader has drawn: delayed chunks never expose a full-strength first frame. */
+@keyframes portfolio-field-arrive {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}

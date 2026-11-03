@@ -973,20 +973,6 @@ export function InstrumentField({
 	});
 	const shouldFreezeField = environment !== "normal" || shouldReduceMotion || saveData;
 
-	useEffect(() => {
-		let cancelled = false;
-		const fallbackTimer = window.setTimeout(() => {
-			if (!cancelled) {
-				setIsCanvasReady(true);
-			}
-		}, 800);
-
-		return () => {
-			cancelled = true;
-			clearTimeout(fallbackTimer);
-		};
-	}, []);
-
 	useLayoutEffect(() => {
 		if (typeof window === "undefined") return;
 
@@ -1439,10 +1425,16 @@ export function InstrumentField({
 		>
 			<canvas
 				ref={canvasRef}
-				className="pointer-events-none absolute inset-0 h-full w-full transition-[opacity,background-color]"
+				data-field-ready={isThemeReady && isCanvasReady ? "true" : "false"}
+				className="pointer-events-none absolute inset-0 h-full w-full transition-[background-color]"
 				style={{
 					backgroundColor: backgroundPaint,
 					opacity: isThemeReady && isCanvasReady ? 1 : 0,
+					animationName:
+						isThemeReady && isCanvasReady ? "portfolio-field-arrive" : "none",
+					animationDuration: shouldReduceMotion ? "0s" : "0.9s",
+					animationTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+					animationFillMode: "both",
 					transitionDuration: `${tweens.field.duration}s`,
 					transitionTimingFunction: `cubic-bezier(${tweens.field.ease.join(",")})`,
 				}}

@@ -744,7 +744,10 @@ Maintain the 10px dot pitch and 1px radius in CSS pixels. No pointer interaction
 is required to reveal the field on touch screens. Do not accelerate motion to
 make it visible: preserve speed 0.28 and the existing noise recipe. The shader's
 clock retains its phase across resize, theme changes and visibility pauses;
-resuming does not restart the terrain. Keep damped pointer response on fine
+resuming does not restart the terrain. Reveal the first drawn canvas with a
+900ms opacity-only ease-out, without delaying the page or moving/scaling the
+grid. Readiness comes from an actual shader draw, never a loading timer. Reduced
+motion shows the static field immediately when ready. Keep damped pointer response on fine
 pointers and retain the static preference path.
 
 Finish line for this treatment: Home and Contact visibly share the same material
