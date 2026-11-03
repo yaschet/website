@@ -157,7 +157,6 @@
 	align-items: center;
 	gap: 16px;
 	min-width: 0;
-	transition: background 150ms var(--ease-smooth-out);
 }
 .descriptionDisclosure > summary {
 	cursor: pointer;
@@ -170,15 +169,6 @@
 .descriptionDisclosure > summary:focus-visible {
 	outline: 2px solid var(--gallery-ink);
 	outline-offset: -4px;
-}
-.descriptionDisclosure > summary:hover {
-	background: var(--gallery-hover);
-}
-.descriptionDisclosure[open] > summary {
-	background: var(--gallery-well);
-}
-.descriptionDisclosure > summary:active {
-	background: var(--gallery-active);
 }
 .fullDescription {
 	position: absolute;
@@ -193,7 +183,6 @@
 	overflow: auto;
 	overscroll-behavior: contain;
 	padding: 1rem;
-	border-block: var(--foundation-hairline) solid var(--gallery-line);
 	background: var(--gallery-canvas);
 	color: var(--gallery-ink);
 	font-size: 0.875rem;
@@ -255,6 +244,14 @@
 	line-height: 1.25rem;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+.descriptionDisclosure > summary:hover .title {
+	text-decoration: underline;
+	text-decoration-color: color-mix(in srgb, var(--gallery-ink) 40%, transparent);
+	text-underline-offset: 0.2em;
+}
+.descriptionDisclosure > summary:active .heading {
+	opacity: 0.7;
 }
 .touchHint {
 	display: none;
@@ -570,6 +567,11 @@
 	}
 	.descriptionTrigger {
 		gap: 12px;
+	}
+	.iconChamber {
+		flex-basis: 44px;
+		width: 44px;
+		height: 44px;
 	}
 	.title {
 		-webkit-line-clamp: 2;
