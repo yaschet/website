@@ -1041,3 +1041,13 @@ keeping the ground and moving bands independent. Portrait terrain uses up to
 1.65 times the spatial frequency, blending to the original scale between aspect
 ratios 0.9 and 1.8. Dot pitch and motion timing do not change. These are visual
 composition decisions, not accessibility thresholds.
+
+### Floating navigation separation
+
+The dock keeps its opaque inverted surface and square geometry. A 16% ink inset
+hairline defines the edge without changing layout or touch targets. Two diffuse
+shadows (4px/16px/-4px at 12%, 12px/40px/-8px at 20%) separate it from scrolling
+media without a hard offset silhouette. No shadow animation or extra backdrop
+layer is introduced. Light hero/page-intro broad fills use 65% of their previous
+mix; dots and contour strokes retain their independent grading so the field
+reads as structure rather than a gray wash. Home and Contact share these rules.

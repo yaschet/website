@@ -388,6 +388,11 @@
 	position: relative;
 	isolation: isolate;
 	padding: var(--portfolio-nav-inset);
+	/* A fine edge defines the square frame; broad blur supplies floating depth. */
+	box-shadow:
+		inset 0 0 0 var(--foundation-hairline) color-mix(in srgb, var(--nav-ink) 16%, transparent),
+		0 4px 16px -4px rgb(0 0 0 / 12%),
+		0 12px 40px -8px rgb(0 0 0 / 20%);
 }
 .portfolio-nav-rail,
 .portfolio-nav-pages {

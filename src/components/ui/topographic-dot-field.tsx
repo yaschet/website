@@ -501,7 +501,10 @@ void main() {
 
   if (uDark < 0.5) {
     vec4 lightBase = vec4(uBG, 1.0);
-    float lightMix = underlay.a * mix(0.62, 0.72, terrainSurface);
+    // Lighter broad fills leave the registered dots and contours as the structure.
+    float introFillWeight = terrainSurface * (1.0 - step(1.5, uSurface));
+    float lightMix = underlay.a * mix(0.62, 0.72, terrainSurface)
+      * mix(1.0, 0.65, introFillWeight);
     vec4 lightUnderlay = vec4(mix(lightBase.rgb, underlay.rgb, lightMix), 1.0);
     vec4 contouredLight = alphaOver(contourStroke, lightUnderlay);
     oColor = alphaOver(dots, contouredLight);
