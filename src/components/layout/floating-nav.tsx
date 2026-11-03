@@ -125,6 +125,7 @@ export function FloatingNav() {
 					ref={dock}
 					className={`portfolio-nav pointer-events-auto ${styles.dock}`}
 					aria-label="Main navigation"
+					data-motion-reduced={reduced ? "true" : undefined}
 					data-motion-input={keyboard ? "keyboard" : undefined}
 				>
 					<ul

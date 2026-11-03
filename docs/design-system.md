@@ -1045,9 +1045,12 @@ composition decisions, not accessibility thresholds.
 ### Floating navigation separation
 
 The dock keeps its opaque inverted surface and square geometry. A 16% ink inset
-hairline defines the edge without changing layout or touch targets. Two diffuse
-shadows (4px/16px/-4px at 12%, 12px/40px/-8px at 20%) separate it from scrolling
-media without a hard offset silhouette. No shadow animation or extra backdrop
-layer is introduced. Light hero/page-intro broad fills use 65% of their previous
+hairline defines the edge without changing layout or touch targets. A non-interactive elliptical halo extends 40px sideways, 24px above and 12px
+below the dock. It fades from 16% black through 7% at 45% radius to transparent
+at its edge, ending within the minimum 16px bottom clearance. This avoids
+viewport clipping and a hard offset silhouette without a backdrop filter.
+On initial mount the dock arrives over 420ms with a 6px upward settle and opacity
+fade; no scale, bounce or scroll-triggered disappearance. Reduced motion removes
+the entrance. The persistent dock does not replay on route changes. Light hero/page-intro broad fills use 65% of their previous
 mix; dots and contour strokes retain their independent grading so the field
 reads as structure rather than a gray wash. Home and Contact share these rules.
