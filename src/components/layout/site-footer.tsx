@@ -64,15 +64,6 @@ export function SiteFooter() {
 										</Link>
 									</nav>
 									<div className="flex flex-wrap items-center justify-center gap-[var(--portfolio-space-related)] sm:justify-end">
-										<Link
-											transitionTypes={["navigation"]}
-											href="https://github.com/yaschet/website"
-											target="_blank"
-											rel="noreferrer"
-											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
-										>
-											Source
-										</Link>
 										<CopyResourceButton
 											href="/llms-full.txt"
 											label="Copy portfolio"
@@ -82,15 +73,6 @@ export function SiteFooter() {
 									</div>
 								</div>
 							</div>
-
-							<p className="portfolio-body-xs max-w-[72ch] text-surface-600 dark:text-surface-400">
-								<span className="font-medium text-surface-700 dark:text-surface-300">
-									Colophon.
-								</span>{" "}
-								Typeset in Space Grotesk and Space Mono. Built with Next.js 16,
-								Tailwind v4, Framer Motion, and a custom WebGL2 topographic field
-								shader. Deployed on Vercel. Source open on GitHub.
-							</p>
 						</div>
 					</PageContainer>
 				</section>
