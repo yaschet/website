@@ -699,6 +699,16 @@ portfolio frames and dividers are solid; dashed structural decoration is not
 part of this composition. The topographic shader retains its tonal band recipe,
 resolving the shared neutral ramp rather than flattening bands into UI surface roles.
 
+Instrument dots register to a fixed 10px inset on the 10px rhythm. The 20px and
+40px content insets share that phase; resizing never recenters the dots. Any
+sub-step remainder stays at the right/bottom edge rather than distorting the
+pitch to force equal margins. This registers content anchors, not every glyph
+or arbitrary trailing edge. Narrow hero fields blend to a mobile content shield
+and use stronger field opacity; the neutral palette and terrain timing remain.
+Low-memory/low-core devices use DPR 1 and at most 30 rendered frames per second
+without freezing time. Reduced motion, data saving, slow connections and the
+existing reveal environment still select a static field; hidden fields pause.
+
 All structural frames, control outlines and seams consume `--foundation-hairline`.
 The document bootstrap sets it to `1 / devicePixelRatio` CSS pixels before paint;
 `HairlineScale` follows resolution changes from browser zoom or display changes.

@@ -321,7 +321,9 @@ float contentShield(vec2 uv) {
   float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
   float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
   float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
-  float shield = max(max(title, body), max(cta, mobile * 0.66));
+  float desktopShield = max(max(title, body), cta);
+  float desktopWeight = smoothstep(1.1, 2.4, uRes.x / uRes.y);
+  float shield = mix(mobile * 0.78, desktopShield, desktopWeight);
   return sm3(0.08, 0.90, shield);
 }
 
@@ -957,6 +959,7 @@ export function InstrumentField({
 	const [isCanvasReady, setIsCanvasReady] = useState(false);
 	const isInViewport = useAnimationVisibility(containerRef);
 	const [lightweight, setLightweight] = useState(false);
+	const [saveData, setSaveData] = useState(false);
 	const [paletteSignature, setPaletteSignature] = useState("");
 	const [isThemeReady, setIsThemeReady] = useState(false);
 	const [metrics, setMetrics] = useState<Metrics>({
@@ -966,7 +969,7 @@ export function InstrumentField({
 		step: typeof step === "number" ? step : 18,
 		width: 0,
 	});
-	const shouldFreezeField = environment !== "normal" || shouldReduceMotion || lightweight;
+	const shouldFreezeField = environment !== "normal" || shouldReduceMotion || saveData;
 
 	useEffect(() => {
 		let cancelled = false;
@@ -1040,10 +1043,12 @@ export function InstrumentField({
 			connection?: EventTarget & { saveData?: boolean; effectiveType?: string };
 		};
 		const syncBudget = () => {
-			setLightweight(
+			setSaveData(
 				hints.connection?.saveData === true ||
-					["slow-2g", "2g"].includes(hints.connection?.effectiveType ?? "") ||
-					(hints.deviceMemory !== undefined && hints.deviceMemory <= 4) ||
+					["slow-2g", "2g"].includes(hints.connection?.effectiveType ?? ""),
+			);
+			setLightweight(
+				(hints.deviceMemory !== undefined && hints.deviceMemory <= 4) ||
 					(hints.hardwareConcurrency > 0 && hints.hardwareConcurrency <= 4),
 			);
 		};
@@ -1365,6 +1370,10 @@ export function InstrumentField({
 
 		const render = (now: number) => {
 			if (startTime === 0) startTime = now;
+			if (lightweight && lastFrameTime > 0 && now - lastFrameTime < 1000 / 30 - 1) {
+				frameId = requestAnimationFrame(render);
+				return;
+			}
 			if (lastFrameTime === 0) lastFrameTime = now;
 			const deltaSeconds = (now - lastFrameTime) / 1000;
 			lastFrameTime = now;
@@ -1404,6 +1413,7 @@ export function InstrumentField({
 		isDark,
 		isInViewport,
 		metrics,
+		lightweight,
 		origin,
 		paletteSignature,
 		radius,
@@ -1418,6 +1428,7 @@ export function InstrumentField({
 	return (
 		<div
 			ref={containerRef}
+			data-field-motion={shouldFreezeField ? "static" : lightweight ? "budget" : "full"}
 			aria-hidden="true"
 			className={cn(
 				className,
