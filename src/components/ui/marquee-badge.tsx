@@ -162,6 +162,9 @@ export function MarqueeBadge({
 		};
 		const finish = (event: PointerEvent) => {
 			if (!drag || drag.id !== event.pointerId) return;
+			// Touch moves can be coalesced; commit the release coordinate before coasting.
+			if (event.type === "pointerup" && drag.moved && event.clientX !== drag.lastX)
+				move(event);
 			const previous = drag;
 			drag = null;
 			suppressClick.current = previous.moved;
