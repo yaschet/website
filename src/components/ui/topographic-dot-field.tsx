@@ -97,7 +97,6 @@ uniform float uDotRadius;
 uniform float uDark;
 uniform float uVariant;
 uniform float uSurface;
-uniform vec4 uReadingBounds;
 uniform vec2  uMouse;
 uniform float uMouseStrength;
 uniform vec3  uBG;
@@ -294,13 +293,6 @@ float fieldValue(vec2 uv, float time) {
   return rayFieldValue(uv, time);
 }
 
-float readingShield(vec2 uv) {
-  if (uReadingBounds.z <= uReadingBounds.x) return 0.0;
-  vec2 outside = max(uReadingBounds.xy - uv, uv - uReadingBounds.zw);
-  float distancePx = max(outside.x * uRes.x, outside.y * uRes.y);
-  return 1.0 - smoothstep(0.0, uStep * 2.0, distancePx);
-}
-
 float contentShield(vec2 uv) {
   if (uSurface > 2.5) {
     return 0.0;
@@ -322,7 +314,7 @@ float contentShield(vec2 uv) {
     float meta = gauss2(uv, vec2(0.22, 0.62), vec2(0.18, 0.14));
     float mobile = gauss2(uv, vec2(0.34, 0.42), vec2(0.36, 0.34)) * 0.70;
     float shield = max(max(title, body), max(meta, mobile));
-    return max(sm3(0.08, 0.90, shield), readingShield(uv));
+    return sm3(0.08, 0.90, shield);
   }
 
   float title = gauss2(uv, vec2(0.29, 0.34), vec2(0.26, 0.19)) * 1.18;
@@ -332,7 +324,7 @@ float contentShield(vec2 uv) {
   float desktopShield = max(max(title, body), cta);
   float desktopWeight = smoothstep(1.1, 2.4, uRes.x / uRes.y);
   float shield = mix(mobile * 0.78, desktopShield, desktopWeight);
-  return max(sm3(0.08, 0.90, shield), readingShield(uv));
+  return sm3(0.08, 0.90, shield);
 }
 
 float resolvedField(vec2 uv, float time) {
@@ -480,8 +472,7 @@ void main() {
   contourStroke.a *= 1.0 - terrainSurface;
 
   underlay.a *= mix(1.0, mix(mix(0.20, 0.28, uDark), mix(0.12, 0.18, uDark), pulseVariant), shield);
-  float quietDots = mix(mix(0.18, 0.24, uDark), 0.035, terrainSurface);
-  dots.a *= mix(1.0, mix(quietDots, mix(0.14, 0.18, uDark), pulseVariant), shield);
+  dots.a *= mix(1.0, mix(mix(0.18, 0.24, uDark), mix(0.14, 0.18, uDark), pulseVariant), shield);
   contourStroke.a *= mix(1.0, mix(0.22, 0.52, uDark), shield);
   underlay.a *= mix(1.0, mix(1.08, 1.05, uDark), terrainSurface);
   vec2 fillAxisA = normalize(vec2(0.951, -0.309));
@@ -498,7 +489,8 @@ void main() {
   contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark) * mix(1.0, 0.72, terrainSurface);
 
   // Compress bright dot peaks independently of the broad terrain bands.
-  dots.a /= 1.0 + dots.a * terrainSurface * 1.8;
+  float peakWeight = smoothstep(0.24, 0.64, dots.a);
+  dots.a *= 1.0 - terrainSurface * peakWeight * 0.38;
 
   if (uDark < 0.5) {
     vec4 lightBase = vec4(uBG, 1.0);
@@ -1229,7 +1221,6 @@ export function InstrumentField({
 				uDark: getUniform("uDark"),
 				uVariant: getUniform("uVariant"),
 				uSurface: getUniform("uSurface"),
-				uReadingBounds: getUniform("uReadingBounds"),
 				uMouse: getUniform("uMouse"),
 				uMouseStrength: getUniform("uMouseStrength"),
 				uBG: getUniform("uBG"),
@@ -1334,31 +1325,6 @@ export function InstrumentField({
 		gl.uniform1f(uniforms.uDark, isDark ? 1 : 0);
 		gl.uniform1f(uniforms.uVariant, resolveVariantValue(variant));
 		gl.uniform1f(uniforms.uSurface, resolveSurfaceValue(surface));
-		// Measure the real copy block, so wrapped titles and mobile copy stay quiet.
-		const host = resolveInteractionHost(container);
-		const fieldRect = container.getBoundingClientRect();
-		const copyRects =
-			surface === "hero" || surface === "header"
-				? Array.from(host?.querySelectorAll("h1, p") ?? [])
-						.map((node) => node.getBoundingClientRect())
-						.filter((rect) => rect.width > 0 && rect.height > 0)
-				: [];
-		if (copyRects.length > 0) {
-			gl.uniform4f(
-				uniforms.uReadingBounds,
-				(Math.min(...copyRects.map((rect) => rect.left)) - fieldRect.left - 8) /
-					fieldRect.width,
-				(Math.min(...copyRects.map((rect) => rect.top)) - fieldRect.top - 8) /
-					fieldRect.height,
-				(Math.max(...copyRects.map((rect) => rect.right)) - fieldRect.left + 8) /
-					fieldRect.width,
-				(Math.max(...copyRects.map((rect) => rect.bottom)) - fieldRect.top + 8) /
-					fieldRect.height,
-			);
-		} else {
-			gl.uniform4f(uniforms.uReadingBounds, 0, 0, 0, 0);
-		}
-
 		gl.uniform2f(uniforms.uMouse, 0.5, 0.5);
 		gl.uniform1f(uniforms.uMouseStrength, 0);
 		if (uniforms.uBG) {
