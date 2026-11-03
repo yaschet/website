@@ -556,6 +556,7 @@
 	--foundation-primary-soft-hover: var(--palette-neutral-800);
 	--foundation-primary-soft-active: var(--palette-neutral-700);
 	--foundation-menu-hover: var(--palette-neutral-800);
+	--foundation-secondary-soft-active: var(--palette-neutral-700);
 	--foundation-control-line-hover: var(--palette-neutral-600);
 	--foundation-popup-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
 }

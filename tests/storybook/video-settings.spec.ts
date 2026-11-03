@@ -22,6 +22,16 @@ for (const theme of ["light", "dark"] as const) {
 			const popup = page.getByRole("menu");
 			await expect(popup).toBeVisible();
 			await expect(popup).toHaveCSS("color-scheme", "dark");
+			// Pressed rows must stay dark even when the surrounding site is light.
+			expect(
+				await popup.evaluate((element) => {
+					const style = getComputedStyle(element);
+					return (
+						style.getPropertyValue("--foundation-secondary-soft-active").trim() ===
+						style.getPropertyValue("--palette-neutral-700").trim()
+					);
+				}),
+			).toBe(true);
 			const box = await popup.boundingBox();
 			expect(box?.x).toBeGreaterThanOrEqual(12);
 			expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(width - 12);

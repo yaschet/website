@@ -2023,7 +2023,7 @@ function PortfolioMuxVideoPlayer({
 				data-playback-id={playbackId}
 				style={
 					{
-						"--media-object-fit": "contain",
+						"--media-object-fit": isFullscreen ? "contain" : "cover",
 						"--media-object-position": "center",
 						"--media-max-width": "100%",
 						"--media-max-height": "100%",
@@ -2072,8 +2072,8 @@ function PortfolioMuxVideoPlayer({
 			<div
 				className={cn(styles.controlsChrome, "absolute inset-x-0 bottom-0 z-20")}
 				data-player-panel
-				data-visible={controlsVisible}
-				inert={!controlsVisible}
+				data-visible={controlsVisible && isMediaReady}
+				inert={!controlsVisible || !isMediaReady}
 			>
 				<div data-player-surface className="absolute inset-0 bg-surface-950" />
 				<div className={controlsPanelClassName}>

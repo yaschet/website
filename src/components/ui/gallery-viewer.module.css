@@ -6,7 +6,7 @@
 }
 .viewer {
 	--gallery-inset: 24px;
-	--gallery-media-rail: 104px;
+	--gallery-media-rail: 24px;
 	--gallery-head-content: 3rem;
 	--gallery-head: calc(max(48px, var(--gallery-head-content)) + 2 * var(--gallery-inset));
 	--gallery-foot: 112px;
@@ -262,8 +262,9 @@
 /* Navigation stays beside the artwork, independently of the zoom layer. */
 .navigation {
 	position: absolute;
-	inset: calc(var(--gallery-head) + var(--gallery-safe-top)) 0
-		calc(var(--gallery-foot) + var(--gallery-safe-bottom) + var(--gallery-zoom-space));
+	inset-inline: 0;
+	bottom: calc(var(--gallery-foot) + var(--gallery-safe-bottom) + var(--gallery-gap));
+	height: var(--gallery-zoom-height);
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -311,7 +312,7 @@
 }
 .viewer .zoomValue[data-slot="button"] {
 	width: max(64px, 4rem);
-	background: var(--gallery-well);
+	background: transparent;
 	font-size: 0.875rem;
 	font-weight: 500;
 	line-height: 1.25rem;
@@ -330,7 +331,11 @@
 	position: absolute;
 	inset: 0;
 	text-align: center;
-	visibility: hidden;
+	opacity: 0;
+	transform: translateY(-3px);
+	transition:
+		opacity 160ms var(--ease-smooth-out),
+		transform 160ms var(--ease-smooth-out);
 }
 .zoomFit::before,
 .zoomUnit::before {
@@ -338,17 +343,24 @@
 }
 .zoomNumber {
 	display: inline-flex;
+	opacity: 1;
+	transform: translateY(0);
+	transition:
+		opacity 160ms var(--ease-smooth-out),
+		transform 160ms var(--ease-smooth-out);
 }
 .zoomReadout[data-fit="true"] .zoomFit {
-	visibility: visible;
+	opacity: 1;
+	transform: translateY(0);
 }
 .zoomReadout[data-fit="true"] .zoomNumber {
-	visibility: hidden;
+	opacity: 0;
+	transform: translateY(3px);
 }
 .zoomDigit {
 	display: inline-block;
 	width: 0.62em;
-	height: 20px;
+	height: 1.25rem;
 	padding-block: 2px;
 	margin-block: -2px;
 	box-sizing: content-box;
@@ -368,7 +380,8 @@
 }
 .zoomDigit i {
 	flex: none;
-	height: 20px;
+	height: 1.25rem;
+	line-height: 1.25rem;
 	font-style: normal;
 	text-align: center;
 }
@@ -501,8 +514,13 @@
 		--gallery-inset: 16px;
 		--gallery-media-rail: 16px;
 		--gallery-head-content: 2.5rem;
+		--gallery-zoom-height: 52px;
 		--gallery-foot: 88px;
 		--gallery-gap: 16px;
+	}
+	.viewer .control[data-slot="button"] {
+		width: 44px;
+		height: 44px;
 	}
 	.header {
 		gap: 12px;

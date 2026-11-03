@@ -101,7 +101,7 @@ export function MediaGallery({
 			{/* Caption */}
 			{currentCaption && (
 				<figcaption
-					className={`text-left text-[0.8125rem]/5 text-muted-foreground ${breakout ? "mt-(--portfolio-space-tight)" : "px-(--portfolio-box-pad-mobile) py-3 sm:px-8"}`}
+					className={`text-left text-[0.8125rem]/5 text-muted-foreground ${breakout ? "mt-(--portfolio-space-tight)" : "border-[var(--portfolio-project-line)] border-t-[length:var(--foundation-hairline)] px-(--portfolio-box-pad-mobile) py-3 sm:px-8"}`}
 				>
 					{currentCaption}
 				</figcaption>

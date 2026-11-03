@@ -16,7 +16,7 @@ export function GalleryZoomReadout({ value }: { value: string }) {
 					<span key={place} className={styles.zoomDigit}>
 						<span
 							style={{
-								transform: `translateY(-${(Math.floor(number / place) % 10) * 20}px)`,
+								transform: `translateY(-${(Math.floor(number / place) % 10) * 1.25}rem)`,
 							}}
 						>
 							{DIGITS.map((number) => (

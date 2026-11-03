@@ -5,7 +5,6 @@ import { animate, motionValue } from "motion";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import type { GalleryMediaSource } from "@/src/lib/gallery-media";
-import { createGalleryMotionBlur } from "./gallery-motion";
 import styles from "./gallery-viewer.module.css";
 import { Spinner } from "./spinner";
 
@@ -39,13 +38,10 @@ export function GalleryFilmstrip({
 		const track = strip?.querySelector<HTMLElement>("[data-gallery-track]");
 		if (!strip || !track) return;
 		const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-		const blur = reduced ? null : createGalleryMotionBlur(strip);
 		const position = motionValue(strip.scrollLeft);
 		let scrollAnimation: ReturnType<typeof animate> | undefined;
 		let auto = false;
 		let initial = true;
-		let last = { x: strip.scrollLeft, time: performance.now() };
-		let idle: number | undefined;
 		const unsubscribePosition = position.on("change", (value) => {
 			strip.scrollLeft = value;
 		});
@@ -54,7 +50,6 @@ export function GalleryFilmstrip({
 			auto = false;
 			strip.removeAttribute("data-gallery-filmstrip-moving");
 			position.jump(strip.scrollLeft);
-			blur?.clear();
 		};
 		const follow = (current: number, destination: number) => {
 			const active = track.querySelector<HTMLElement>(`[data-gallery-preview="${current}"]`);
@@ -85,24 +80,12 @@ export function GalleryFilmstrip({
 				onComplete: () => {
 					auto = false;
 					strip.removeAttribute("data-gallery-filmstrip-moving");
-					blur?.clear();
 				},
 			});
 		};
 		const onScroll = () => {
-			const time = performance.now();
-			const elapsed = time - last.time;
+			// Native touch scrolling owns the position; no SVG filter repaint per scroll event.
 			if (!auto) position.jump(strip.scrollLeft);
-			blur?.update(
-				elapsed > 0 && elapsed < 80 ? (strip.scrollLeft - last.x) / elapsed : 0,
-				[track],
-				1.5,
-			);
-			last = { x: strip.scrollLeft, time };
-			if (idle !== undefined) cancelAnimationFrame(idle);
-			idle = requestAnimationFrame(() => {
-				idle = requestAnimationFrame(() => blur?.clear());
-			});
 		};
 		strip.addEventListener("scroll", onScroll, { passive: true });
 		controller.current = { follow, stop };
@@ -115,11 +98,9 @@ export function GalleryFilmstrip({
 			stop();
 			unsubscribePosition();
 			position.destroy();
-			if (idle !== undefined) cancelAnimationFrame(idle);
 			if (intent.current !== undefined) clearTimeout(intent.current);
 			resize.disconnect();
 			strip.removeEventListener("scroll", onScroll);
-			blur?.destroy();
 			controller.current = null;
 		};
 	}, []);

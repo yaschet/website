@@ -159,11 +159,7 @@ export function useGalleryViewer(options: GalleryViewerOptions) {
 				return;
 			const source = sources.current[itemIndex];
 			if (source?.type !== "portfolio-video") return;
-			if (
-				source.width &&
-				source.height &&
-				Math.abs(source.width / source.height - width / height) < 0.002
-			)
+			if (source.width && source.height && source.width === width && source.height === height)
 				return;
 			source.width = width;
 			source.height = height;

@@ -1,6 +1,10 @@
 .frame {
 	--portfolio-chrome-hairline: var(--portfolio-project-line);
 }
+/* The preceding grid row owns this seam; the rail must not paint it again. */
+.frame [class~="portfolio-technology-rail"]::after {
+	display: none;
+}
 .header {
 	--case-inset: var(--portfolio-box-pad-mobile);
 	display: grid;
