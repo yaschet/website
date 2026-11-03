@@ -78,6 +78,7 @@ function Asset({
 
 interface TechnologyMarkProps {
 	name: string;
+	description?: string;
 	layout?: "stacked" | "inline";
 	tone?: "monochrome" | "brand" | "interactive";
 }
@@ -85,6 +86,7 @@ interface TechnologyMarkProps {
 /** Symbol-only artwork and one caption, with shared geometry in both layouts. */
 export function TechnologyMark({
 	name,
+	description,
 	layout = "stacked",
 	tone = "monochrome",
 }: TechnologyMarkProps) {
@@ -113,7 +115,14 @@ export function TechnologyMark({
 					)}
 				</span>
 			</span>
-			<span className="portfolio-technology-label">{name}</span>
+			{description ? (
+				<span className="portfolio-technology-copy">
+					<span className="portfolio-technology-label">{name}</span>
+					<span className="portfolio-technology-description">{description}</span>
+				</span>
+			) : (
+				<span className="portfolio-technology-label">{name}</span>
+			)}
 		</span>
 	);
 }

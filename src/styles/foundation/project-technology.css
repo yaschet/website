@@ -276,7 +276,8 @@ a.portfolio-technology-reference:active:where(:not(:focus-visible))
 	isolation: isolate;
 	display: flex;
 	flex-direction: column;
-	width: min(400px, var(--anchor-width), calc(100vw - 40px));
+	width: min(34rem, var(--anchor-width), calc(100vw - 40px));
+	container-type: inline-size;
 	max-height: var(--available-height);
 	overflow: hidden;
 	padding: var(--foundation-hairline);
@@ -424,7 +425,7 @@ a.portfolio-technology-reference:active:where(:not(:focus-visible))
 
 .portfolio-technology-list {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-columns: minmax(0, 1fr);
 	grid-auto-rows: minmax(64px, auto);
 	margin: 0;
 	padding: 0;
@@ -445,30 +446,41 @@ a.portfolio-technology-reference:active:where(:not(:focus-visible))
 	padding: 12px;
 }
 
-/* Internal seams do not consume the cell's equal insets. */
-.portfolio-technology-list li:nth-child(even)::before,
-.portfolio-technology-list li:nth-child(n + 3)::after {
-	position: absolute;
-	z-index: 1;
-	inset: 0;
-	background: var(--technology-control-line);
-	content: "";
-	pointer-events: none;
+/* A single owner for each seam, in either column layout. */
+.portfolio-technology-list :where(li + li) {
+	border-top: var(--foundation-hairline) solid var(--technology-control-line);
 }
-
-.portfolio-technology-list li:nth-child(even)::before {
-	width: var(--foundation-hairline);
+@container (min-width: 30rem) {
+	.portfolio-technology-list {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.portfolio-technology-list :where(li + li) {
+		border-top: 0;
+	}
+	.portfolio-technology-list :where(li:nth-child(n + 3)) {
+		border-top: var(--foundation-hairline) solid var(--technology-control-line);
+	}
+	.portfolio-technology-list :where(li:nth-child(even)) {
+		border-left: var(--foundation-hairline) solid var(--technology-control-line);
+	}
+	.portfolio-technology-list :where(li:last-child:nth-child(odd)) {
+		grid-column: 1 / -1;
+	}
 }
-
-.portfolio-technology-list li:nth-child(n + 3)::after {
-	height: var(--foundation-hairline);
+.portfolio-technology-copy {
+	min-width: 0;
+	display: grid;
+	gap: 0.125rem;
 }
-
-.portfolio-technology-list li:last-child:nth-child(odd) {
-	grid-column: 1 / -1;
+.portfolio-technology-description {
+	color: var(--muted-foreground);
+	font-size: 0.75rem;
+	line-height: 1.5;
+	overflow-wrap: break-word;
 }
 
 .portfolio-technology-identity[data-layout="inline"] {
+	justify-items: stretch;
 	grid-template-columns: 40px minmax(0, 1fr);
 	grid-template-rows: auto;
 	align-items: center;
@@ -491,7 +503,8 @@ a.portfolio-technology-reference:active:where(:not(:focus-visible))
 	text-align: start;
 	text-overflow: clip;
 	white-space: normal;
-	overflow-wrap: anywhere;
+	overflow-wrap: break-word;
+	text-wrap: balance;
 }
 
 a.portfolio-technology-reference:active:where(:not(:focus-visible)) .portfolio-technology-label {

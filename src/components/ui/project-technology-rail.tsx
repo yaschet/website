@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { StateSwap } from "@/src/components/ui/state-swap";
 import { TechnologyMark } from "@/src/components/ui/technology-mark";
+import { getProjectTechnologyRole } from "@/src/content/project-technology-roles";
 import { getTechnologyReference } from "@/src/content/technology-references";
 
 const ROTATION_INTERVAL_MS = 2200;
@@ -17,7 +18,15 @@ interface ProjectTechnologyRailProps {
 	projectTitle: string;
 }
 
-function TechnologyReference({ name, children }: { name: string; children: ReactNode }) {
+function TechnologyReference({
+	name,
+	children,
+	description,
+}: {
+	name: string;
+	children: ReactNode;
+	description?: string;
+}) {
 	const reference = getTechnologyReference(name);
 	return reference ? (
 		<a
@@ -25,7 +34,7 @@ function TechnologyReference({ name, children }: { name: string; children: React
 			href={reference.href}
 			target="_blank"
 			rel="noopener noreferrer"
-			aria-label={`${name}: ${reference.label} (opens in a new tab)`}
+			aria-label={`${name}: ${description ?? reference.label} (opens in a new tab)`}
 		>
 			{children}
 		</a>
@@ -316,9 +325,19 @@ export function ProjectTechnologyRail({
 												} as CSSProperties
 											}
 										>
-											<TechnologyReference name={name}>
+											<TechnologyReference
+												name={name}
+												description={getProjectTechnologyRole(
+													name,
+													projectTitle,
+												)}
+											>
 												<TechnologyMark
 													name={name}
+													description={getProjectTechnologyRole(
+														name,
+														projectTitle,
+													)}
 													layout="inline"
 													tone="brand"
 												/>
