@@ -12,6 +12,18 @@
 	outline-offset: -4px;
 }
 
+/* PhotoSwipe positions media on fractional CSS pixels. Extend only the video
+ * under its existing clip so a compositor-rounded edge cannot reveal the dark
+ * player ground. Keep controls and native fullscreen at their exact bounds. */
+.galleryPlaybackArea {
+	position: absolute;
+	inset: -1px;
+	width: calc(100% + 2px);
+	height: calc(100% + 2px);
+	max-width: none;
+	max-height: none;
+}
+
 .gallerySurface:focus-visible {
 	outline: 2px solid currentColor;
 	outline-offset: -2px;

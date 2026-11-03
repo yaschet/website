@@ -2028,7 +2028,13 @@ function PortfolioMuxVideoPlayer({
 			<mux-video
 				ref={mediaRef}
 				crossOrigin="anonymous"
-				className={cn("portfolio-mux-video-host block size-full", styles.playbackArea)}
+				className={cn(
+					"portfolio-mux-video-host block",
+					styles.playbackArea,
+					variant === "lightbox" && !isFullscreen
+						? styles.galleryPlaybackArea
+						: "size-full",
+				)}
 				tabIndex={0}
 				role="group"
 				aria-label="Video playback area"
