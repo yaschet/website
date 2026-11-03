@@ -458,10 +458,6 @@
 	flex-direction: column-reverse;
 	transform: translateY(0);
 }
-.zoomReadout[data-live="true"] .zoomFit,
-.zoomReadout[data-live="true"] .zoomNumber {
-	transition: none;
-}
 .zoomDigit i {
 	flex: none;
 	height: 1.25rem;
