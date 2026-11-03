@@ -395,15 +395,42 @@
 	/* Fade fully before the viewport edge, including the 16px mobile clearance. */
 	content: "";
 	position: absolute;
-	inset: -24px -40px -12px;
+	inset: -24px -48px -12px;
 	z-index: -1;
 	pointer-events: none;
 	background: radial-gradient(
 		ellipse 50% 50% at 50% 50%,
-		rgb(0 0 0 / 16%) 0%,
-		rgb(0 0 0 / 7%) 45%,
+		rgb(0 0 0 / 26%) 0%,
+		rgb(0 0 0 / 13%) 45%,
 		rgb(0 0 0 / 0%) 100%
 	);
+}
+/* Keep an opaque fallback; only the dock receives the glass material. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.portfolio-nav {
+		background: color-mix(in srgb, var(--nav-surface) 90%, transparent);
+		-webkit-backdrop-filter: blur(20px) saturate(0.65);
+		backdrop-filter: blur(20px) saturate(0.65);
+	}
+}
+@media (prefers-reduced-transparency: reduce) {
+	.portfolio-nav {
+		background: var(--nav-surface);
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+	}
+}
+@media (forced-colors: active) {
+	.portfolio-nav {
+		background: Canvas;
+		color: CanvasText;
+		outline: 1px solid CanvasText;
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+	}
+	.portfolio-nav::before {
+		display: none;
+	}
 }
 .portfolio-nav-rail,
 .portfolio-nav-pages {
