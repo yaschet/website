@@ -952,6 +952,8 @@ export function InstrumentField({
 		targetY: 0.5,
 	});
 	const supportsHoverRef = useRef(false);
+	// Preserve terrain phase across resize, theme and rendering-budget changes.
+	const fieldTimeRef = useRef(0);
 
 	const shouldReduceMotion = useReducedMotion();
 	const { environment } = useRevealState();
@@ -1365,20 +1367,19 @@ export function InstrumentField({
 		const shouldAnimate = isInViewport && !shouldFreezeField;
 		let frameId = 0;
 		let hasMarkedReady = false;
-		let startTime = 0;
 		let lastFrameTime = 0;
 
 		const render = (now: number) => {
-			if (startTime === 0) startTime = now;
 			if (lightweight && lastFrameTime > 0 && now - lastFrameTime < 1000 / 30 - 1) {
 				frameId = requestAnimationFrame(render);
 				return;
 			}
 			if (lastFrameTime === 0) lastFrameTime = now;
-			const deltaSeconds = (now - lastFrameTime) / 1000;
+			const deltaSeconds = Math.min((now - lastFrameTime) / 1000, 0.1);
 			lastFrameTime = now;
 
-			const elapsed = shouldAnimate ? ((now - startTime) / 1000) * speed : 0;
+			if (shouldAnimate) fieldTimeRef.current += deltaSeconds * speed;
+			const elapsed = fieldTimeRef.current;
 			const mouse = mouseRef.current;
 			const pointerTau = 0.1;
 			const strengthTau = mouse.targetStrength > mouse.currentStrength ? 0.12 : 0.6;

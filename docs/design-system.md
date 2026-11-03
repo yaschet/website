@@ -703,11 +703,54 @@ Instrument dots register to a fixed 10px inset on the 10px rhythm. The 20px and
 40px content insets share that phase; resizing never recenters the dots. Any
 sub-step remainder stays at the right/bottom edge rather than distorting the
 pitch to force equal margins. This registers content anchors, not every glyph
-or arbitrary trailing edge. Narrow hero fields blend to a mobile content shield
-and use stronger field opacity; the neutral palette and terrain timing remain.
+or arbitrary trailing edge. Narrow hero fields blend to a mobile content shield;
+the same theme palette, artwork opacity and terrain timing apply at every width.
 Low-memory/low-core devices use DPR 1 and at most 30 rendered frames per second
 without freezing time. Reduced motion, data saving, slow connections and the
 existing reveal environment still select a static field; hidden fields pause.
+
+### Artwork Color And Motion Direction
+
+The adopted direction is a neutral engraved field: broad quiet tonal bands,
+crisp registered dots, clear type and restrained continuous motion. The current
+[Zecto reference](https://zecto.io/) demonstrates stronger shapes at the perimeter
+with a quiet area for text. Transfer that composition principle, not its turquoise
+accent or its text contrast. This is an art-direction choice, not an accessibility
+requirement or a promise of identical appearance on different displays.
+
+| Surface | Light | Dark | Artwork treatment |
+| --- | --- | --- | --- |
+| Body / gutters | mineral-300 | neutral-900 | No animated texture behind long-form reading |
+| Framed intro / reading panel | mineral-0 | neutral-950 | Intro field only; prose stays plain |
+| Project card body | mineral-0 | neutral-925 | Let screenshots supply color; no second ambient field |
+| Project detail region | mineral-200 | neutral-950 | Quiet separation from card body |
+| Code / technical inset | mineral-100 | neutral-925 | Plain surface with a quiet keyline |
+| Hero and page-intro artwork | Shared neutral band/dot ramp | Shared neutral band/dot ramp | `--portfolio-artwork-opacity`: 0.88 light, 0.78 dark |
+| Action band | Canvas-grounded field | Canvas-grounded field | Existing full-strength field; local text shielding |
+| Media / player | Media's own colors | Media's own colors | Keep the dark control material independent of page theme |
+
+Hero and Contact use the same renderer and opacity token. Home's longer text
+block and different panel aspect suppress more of the field; visual coverage is
+not a separate color palette. Do not compensate with unrelated page-specific
+colors. Preserve local shielding under text while allowing higher definition in
+unoccupied areas. Opacity is a grading control, not a text-contrast guarantee.
+Normal text must still meet 4.5:1 against its actual animated background, large
+text 3:1, following [WCAG contrast requirements](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html);
+inspect peaks as well as troughs before release.
+
+Phones, tablets and desktops keep the same material roles. Adapt composition to
+available aspect ratio and rendering cost to capability, never tint by device.
+Maintain the 10px dot pitch and 1px radius in CSS pixels. No pointer interaction
+is required to reveal the field on touch screens. Do not accelerate motion to
+make it visible: preserve speed 0.28 and the existing noise recipe. The shader's
+clock retains its phase across resize, theme changes and visibility pauses;
+resuming does not restart the terrain. Keep damped pointer response on fine
+pointers and retain the static preference path.
+
+Finish line for this treatment: Home and Contact visibly share the same material
+in both themes; text remains readable through the animation; resizing does not
+restart its phase; narrow layouts reveal terrain without requiring hover; and
+physical iPhone smoothness is checked before claiming device performance.
 
 All structural frames, control outlines and seams consume `--foundation-hairline`.
 The document bootstrap sets it to `1 / devicePixelRatio` CSS pixels before paint;
