@@ -567,6 +567,12 @@
 	}
 }
 @media (max-width: 759px) {
+	/* Full-bleed panes keep separators, never side rules at the viewport edges. */
+	.header.glass::after,
+	.footer.glass::after,
+	.fullDescription.glass::after {
+		border-inline: 0;
+	}
 	.viewer {
 		--gallery-inset: 16px;
 		--gallery-media-rail: 16px;
