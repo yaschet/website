@@ -208,7 +208,11 @@ for (const theme of ["light", "dark"] as const) {
 		if (!before) throw new Error("Missing technology rail geometry");
 		expect(dialogBounds.width).toBeLessThanOrEqual(before.width + 1);
 		expect(
-			Math.abs(dialogBounds.x + dialogBounds.width - before.x - before.width),
+			Math.abs(
+				dialogBounds.x +
+					dialogBounds.width -
+					Math.min(before.x + before.width, viewport.width - 20),
+			),
 		).toBeLessThan(1);
 		for (const name of [
 			"Laravel",

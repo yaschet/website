@@ -33,7 +33,7 @@ for (const theme of ["light", "dark"] as const) {
 			await page.setViewportSize(viewport);
 			await openArticle(page, theme);
 			const nav = page.getByRole("navigation", { name: "Main navigation", exact: true });
-			await expect(nav.locator("..")).toHaveCSS("position", "fixed");
+			await expect(nav.locator("..").locator("..")).toHaveCSS("position", "fixed");
 			const outlet = page.locator("#portfolio-content");
 			await expect(outlet.locator("article:visible")).toHaveCount(1);
 			const articleSpacer = outlet.locator('[id="nav-spacer"]');
@@ -162,7 +162,10 @@ test("reading controls fit enlarged text, adjusted spacing and short wide window
 	await expect(trigger).toBeVisible();
 	await expect(page.getByRole("navigation", { name: "On this page", exact: true })).toBeHidden();
 	await expect(
-		page.getByRole("navigation", { name: "Main navigation", exact: true }).locator(".."),
+		page
+			.getByRole("navigation", { name: "Main navigation", exact: true })
+			.locator("..")
+			.locator(".."),
 	).toHaveCSS("position", "fixed");
 });
 

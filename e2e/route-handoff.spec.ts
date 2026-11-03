@@ -103,11 +103,7 @@ for (const theme of ["light", "dark"] as const) {
 								);
 							}),
 							titleDelays: animations
-								.filter(
-									(animation) =>
-										animation instanceof CSSAnimation &&
-										animation.animationName === "portfolio-title-in",
-								)
+								.filter((animation) => animation.id === "portfolio-entry-heading")
 								.map((animation) => animation.effect?.getTiming().delay)
 								.sort((a, b) => Number(a) - Number(b)),
 						});
@@ -177,7 +173,7 @@ for (const theme of ["light", "dark"] as const) {
 			incomingCapture: "none",
 			incomingFrameAnimated: false,
 			controlsInteractive: true,
-			titleDelays: [0, 20, 40],
+			titleDelays: [0, 0, 45, 45, 135, 135],
 		});
 		expect(
 			await dock?.evaluate(

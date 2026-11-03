@@ -55,30 +55,21 @@ for (const theme of ["light", "dark"]) {
 			const dialog = page.getByRole("dialog");
 			const close = dialog.getByRole("button", { name: "Close expanded viewer" });
 			await expect(close).toBeFocused();
-			const compact = width < 760;
 			const trigger = dialog.getByRole("button", {
-				name: compact ? "Video settings" : /^Select playback speed:/,
+				name: "Video settings",
 			});
 			await trigger.focus();
 			await page.keyboard.press("ArrowDown");
 			await expect(page.getByRole("menu")).toBeVisible();
 			await expect(dialog).toBeVisible();
+			await page.getByRole("menuitem", { name: /^Playback speed/ }).click();
 			const option = page.getByRole("menuitemradio", { name: "1.5x" });
-			await expect
-				.poll(async () => (await option.boundingBox())?.height)
-				.toBeCloseTo(compact ? 44 : 40, 1);
+			await expect.poll(async () => (await option.boundingBox())?.height).toBeCloseTo(44, 1);
 			await option.click();
 			await expect(trigger).toBeFocused();
 			const media = dialog.locator('.pswp__item[aria-hidden="false"] mux-video');
 			await expect(media).toHaveJSProperty("playbackRate", 1.5);
-			if (compact) {
-				await expect(trigger).toHaveAccessibleName("Video settings");
-			} else {
-				await expect(trigger).toHaveAccessibleName("Select playback speed: 1.5x");
-				await expect(trigger.locator('.t-state-label > [data-active="true"]')).toHaveText(
-					"1.5x",
-				);
-			}
+			await expect(trigger).toHaveAccessibleName("Video settings");
 			if (width === 1280) {
 				await page.getByRole("button", { name: "Enter fullscreen" }).click();
 				await expect
@@ -100,6 +91,7 @@ for (const theme of ["light", "dark"]) {
 			}
 			await trigger.press("ArrowDown");
 			await expect(page.getByRole("menu")).toBeVisible();
+			await page.getByRole("menuitem", { name: /^Playback speed/ }).click();
 			await expect(page.getByRole("menuitemradio", { name: "1.5x" })).toHaveAttribute(
 				"aria-checked",
 				"true",

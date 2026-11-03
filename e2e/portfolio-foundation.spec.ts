@@ -37,7 +37,7 @@ for (const theme of ["light", "dark"] as const) {
 			const rail = section.getBoundingClientRect();
 			const outer = card.getBoundingClientRect();
 			const media = preview.getBoundingClientRect();
-			// Inset frames own the single mobile gutter; project cards retain the page gutter.
+			// Mobile frames and project cards share the full viewport rail.
 			const mobileBleed = window.matchMedia("(width < 40rem)").matches;
 			const frameLeft = mobileBleed ? 0 : rail.left;
 			const frameRight = mobileBleed ? window.innerWidth : rail.right;
@@ -70,8 +70,7 @@ for (const theme of ["light", "dark"] as const) {
 		for (const offset of [...workLayout.frameRailOffsets, ...workLayout.cardRailOffsets])
 			expect(Math.abs(offset)).toBeLessThan(0.5);
 		if (workLayout.mobileBleed)
-			for (const inset of workLayout.workInsets)
-				expect(Math.abs(inset - 20)).toBeLessThan(0.5);
+			for (const inset of workLayout.workInsets) expect(Math.abs(inset)).toBeLessThan(0.5);
 		expect(Math.max(...workLayout.previewInsets)).toBeLessThanOrEqual(1);
 		expect(
 			Math.max(...workLayout.previewInsets) - Math.min(...workLayout.previewInsets),

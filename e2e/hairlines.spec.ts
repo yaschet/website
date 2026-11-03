@@ -30,7 +30,10 @@ for (const ratio of [1, 1.8, 2.625]) {
 						".portfolio-context-badge",
 						".portfolio-hero-frame",
 						".portfolio-project-card",
-					].map((selector) => getComputedStyle(get(selector), "::after"));
+					].map((selector) => ({
+						selector,
+						style: getComputedStyle(get(selector), "::after"),
+					}));
 					const seams = [
 						[".portfolio-context-chamber", "width"],
 						[".portfolio-grid-row", "height"],
@@ -47,23 +50,36 @@ for (const ratio of [1, 1.8, 2.625]) {
 					const marquee = get(".portfolio-marquee-cycle");
 					return {
 						ratio: devicePixelRatio,
-						frames: frames.map((frame) => {
-							// Engines may serialize "inset" before or after the color/lengths.
-							const lengths = frame.boxShadow.match(/-?(?:\d*\.)?\d+px\b/g) ?? [];
-							if (
-								!frame.boxShadow.includes("inset") ||
-								lengths.length !== 4 ||
-								lengths
-									.slice(0, 3)
-									.some((length) => Number.parseFloat(length) !== 0)
-							) {
-								throw new Error(
-									`Expected a single unblurred inset frame: ${frame.boxShadow}`,
+						frames: frames.map(({ selector, style: frame }) => {
+							// Flush mobile hero/cards retain only their top and bottom hairlines.
+							const horizontalOnly =
+								matchMedia("(width < 40rem)").matches &&
+								selector !== ".portfolio-context-badge";
+							const shadows = frame.boxShadow.split(/,(?![^()]*\))/);
+							if (shadows.length !== (horizontalOnly ? 2 : 1))
+								throw new Error(`Unexpected frame edges: ${frame.boxShadow}`);
+							const widths = shadows.map((shadow, index) => {
+								const lengths = (shadow.match(/-?(?:\d*\.)?\d+px\b/g) ?? []).map(
+									Number.parseFloat,
 								);
-							}
+								if (
+									!shadow.includes("inset") ||
+									lengths.length !== 4 ||
+									lengths[0] !== 0 ||
+									lengths[2] !== 0 ||
+									(horizontalOnly
+										? lengths[3] !== 0 ||
+											(index === 0 ? lengths[1] <= 0 : lengths[1] >= 0)
+										: lengths[1] !== 0)
+								)
+									throw new Error(`Expected sharp inset hairlines: ${shadow}`);
+								return horizontalOnly ? Math.abs(lengths[1]) : lengths[3];
+							});
+							if (widths.some((width) => width !== widths[0]))
+								throw new Error("Unequal frame hairlines");
 							return {
-								width: Number.parseFloat(lengths[3]),
-								color: frame.boxShadow
+								width: widths[0],
+								color: shadows[0]
 									.replace(/-?(?:\d*\.)?\d+px\b/g, "")
 									.replace(/\binset\b/g, "")
 									.trim(),

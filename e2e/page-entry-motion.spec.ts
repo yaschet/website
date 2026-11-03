@@ -80,13 +80,18 @@ for (const theme of ["light", "dark"] as const) {
 					),
 				})),
 			)
-			.toEqual({ headings: 3, copy: true });
+			.toEqual({ headings: 6, copy: true });
 		const samples = await page.evaluate(() => window.portfolioEntrySamples);
 		const words = samples.filter((sample) => sample.id === "portfolio-entry-heading");
-		expect(words[1].delay).toBeGreaterThan(words[0].delay);
-		expect(words[2].delay).toBeGreaterThan(words[1].delay);
-		expect(words.every((sample) => sample.properties.includes("filter"))).toBe(true);
-		expect(samples.every((sample) => sample.duration + sample.delay <= 370)).toBe(true);
+		expect(words[2].delay).toBeGreaterThan(words[0].delay);
+		expect(words[4].delay).toBeGreaterThan(words[2].delay);
+		expect(words.every((sample) => sample.properties.includes("maskPosition"))).toBe(true);
+		expect(words.every((sample) => sample.duration + sample.delay <= 1100)).toBe(true);
+		expect(
+			samples
+				.filter((sample) => sample.id === "portfolio-entry-copy")
+				.every((sample) => sample.duration + sample.delay <= 370),
+		).toBe(true);
 		expect(samples.some((sample) => sample.id === "portfolio-entry-copy")).toBe(true);
 		expect(samples.some((sample) => sample.id === "portfolio-entry-frame")).toBe(false);
 		await expect(page.locator(".portfolio-scene")).toHaveCSS("transform", "none");

@@ -15,8 +15,8 @@ for (const theme of ["light", "dark"] as const) {
 			await expect(speed).toHaveCSS("color-scheme", "dark");
 			const first = await quality.boundingBox();
 			const second = await speed.boundingBox();
-			expect(first?.height).toBe(40);
-			expect(second?.height).toBe(40);
+			expect(first?.height).toBe(48);
+			expect(second?.height).toBe(48);
 			expect(first?.y).toBe(second?.y);
 			await quality.click();
 			const popup = page.getByRole("menu");
@@ -57,8 +57,9 @@ for (const theme of ["light", "dark"] as const) {
 			);
 			const trigger = page.getByRole("button", { name: "Video settings", exact: true });
 			const bounds = await trigger.boundingBox();
-			expect(bounds?.width).toBeGreaterThanOrEqual(44);
-			expect(bounds?.height).toBeGreaterThanOrEqual(44);
+			// This standalone story uses the foundation default (40px); the player supplies its 48px chrome size.
+			expect(bounds?.width).toBe(40);
+			expect(bounds?.height).toBe(40);
 			await trigger.focus();
 			await trigger.press("Enter");
 			const menu = page.getByRole("menu", { name: "Video settings", exact: true });
