@@ -232,11 +232,15 @@
 	padding: 0;
 	text-align: start;
 	cursor: grab;
-	touch-action: pan-y pinch-zoom;
 	user-select: none;
 	font-weight: 500;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
+}
+/* Override the shared button tap policy: horizontal gestures belong to the track,
+   while vertical scrolling and pinch zoom remain browser-owned. */
+.yaschet .portfolio-marquee {
+	touch-action: pan-y pinch-zoom;
 }
 .portfolio-marquee[data-dragging="true"] {
 	cursor: grabbing;

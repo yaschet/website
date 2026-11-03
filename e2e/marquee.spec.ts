@@ -80,6 +80,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.waitForTimeout(160);
 		expect(await position()).toBe(frozen);
 		if (testInfo.project.name === "mobile-chrome" && browserName === "chromium") {
+			await expect(button).toHaveCSS("touch-action", "pan-y pinch-zoom");
 			// Dispatch real browser touch input, exercising pan-y arbitration and pointer capture.
 			await button.evaluate((control) => {
 				const samples: string[] = [];
