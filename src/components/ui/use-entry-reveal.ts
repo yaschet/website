@@ -96,6 +96,11 @@ export function useEntryReveal(
 				if (transition) animation.pause();
 				return animation;
 			});
+			// Settle owned route animations directly rather than depending on a later
+			// frame's animation snapshot, which also handles the first-paint CSS reveal.
+			void Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
+				if (!cancelled) element.dataset.resolveSettled = "true";
+			});
 			const play = () => {
 				if (!cancelled) for (const animation of animations) animation.play();
 			};
