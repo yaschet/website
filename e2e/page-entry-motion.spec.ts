@@ -11,7 +11,7 @@ declare global {
 	interface Window {
 		portfolioEntrySamples: EntrySample[];
 		freezePortfolioEntry: boolean;
-		portfolioEntryMutations: string[];
+		portfolioEntryAnimations: Animation[];
 	}
 }
 
@@ -23,24 +23,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.addInitScript(() => {
 			window.portfolioEntrySamples = [];
 			window.freezePortfolioEntry = false;
-			window.portfolioEntryMutations = [];
-			new MutationObserver((records) => {
-				for (const record of records) {
-					if (!(record.target instanceof HTMLElement)) continue;
-					window.portfolioEntryMutations.push(
-						JSON.stringify({
-							text: record.target.textContent?.slice(0, 100),
-							previous: record.oldValue,
-							settled: record.target.dataset.resolveSettled,
-						}),
-					);
-				}
-			}).observe(document, {
-				subtree: true,
-				attributes: true,
-				attributeOldValue: true,
-				attributeFilter: ["data-resolve-settled"],
-			});
+			window.portfolioEntryAnimations = [];
 			// Exercise the live-DOM fallback independently of native viewport handoffs.
 			Object.defineProperty(document, "startViewTransition", {
 				value: undefined,
@@ -52,6 +35,7 @@ for (const theme of ["light", "dark"] as const) {
 				void animation.ready
 					.then(() => {
 						if (!animation.id.startsWith("portfolio-entry-")) return;
+						window.portfolioEntryAnimations.push(animation);
 						const effect = animation.effect;
 						if (!(effect instanceof KeyframeEffect)) return;
 						const timing = effect.getTiming();
@@ -130,7 +114,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.screenshot({ path: testInfo.outputPath(`page-entry-${theme}.png`) });
 		await page.evaluate(() => {
 			window.freezePortfolioEntry = false;
-			for (const animation of document.getAnimations()) {
+			for (const animation of window.portfolioEntryAnimations) {
 				if (animation.id.startsWith("portfolio-entry-")) animation.finish();
 			}
 		});
@@ -149,6 +133,7 @@ for (const theme of ["light", "dark"] as const) {
 		// Returning to the initial URL must animate too, with the same accessible title.
 		await page.evaluate(() => {
 			window.portfolioEntrySamples = [];
+			window.portfolioEntryAnimations = [];
 			window.freezePortfolioEntry = true;
 		});
 		await nav.getByRole("link", { name: "Home", exact: true }).click();
@@ -198,9 +183,11 @@ for (const theme of ["light", "dark"] as const) {
 			expect(layer.bleed).toBeGreaterThan(0);
 		}
 		const homeFrame = await homeHeading.boundingBox();
+		// Keep the owned handles: getAnimations() omits paused, non-filling effects
+		// once seeking moves them beyond their active interval. They still need resuming.
 		for (const time of [350, 850]) {
 			await page.evaluate((time) => {
-				for (const animation of document.getAnimations())
+				for (const animation of window.portfolioEntryAnimations)
 					if (animation.id === "portfolio-entry-heading") animation.currentTime = time;
 			}, time);
 			await page.screenshot({
@@ -210,34 +197,14 @@ for (const theme of ["light", "dark"] as const) {
 		}
 		await page.evaluate(() => {
 			window.freezePortfolioEntry = false;
-			for (const animation of document.getAnimations())
+			for (const animation of window.portfolioEntryAnimations)
 				if (animation.id.startsWith("portfolio-entry-")) animation.play();
 		});
 		await expect(homeHeading.locator("[data-resolve-sharp]").last()).toHaveCSS(
 			"mask-position",
 			/^(?:0%|0px) (?:0%|0px)$/,
 		);
-		try {
-			await expect(homeHeading).toHaveAttribute("data-resolve-settled", "true");
-		} catch (error) {
-			const diagnostic = await page.evaluate(() => ({
-				mutations: window.portfolioEntryMutations,
-				animations: document.getAnimations().map((animation) => ({
-					id: animation.id,
-					state: animation.playState,
-					time: animation.currentTime,
-					timing: animation.effect?.getTiming(),
-					heading:
-						animation.effect instanceof KeyframeEffect &&
-						animation.effect.target instanceof Element
-							? animation.effect.target.closest("h1")?.textContent?.slice(0, 100)
-							: null,
-				})),
-			}));
-			throw new Error(`Reveal settlement failed: ${JSON.stringify(diagnostic)}`, {
-				cause: error,
-			});
-		}
+		await expect(homeHeading).toHaveAttribute("data-resolve-settled", "true");
 		await expect(homeHeading.locator("[data-resolve-sharp]").last()).toHaveCSS(
 			"mask-image",
 			"none",
