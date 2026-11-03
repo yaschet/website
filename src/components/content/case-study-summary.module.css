@@ -98,8 +98,8 @@
 .metaItem {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.5rem;
 	min-height: 2.5rem;
+	border: var(--foundation-hairline) solid var(--foundation-control-line);
 	color: var(--foreground);
 	font-size: 0.875rem;
 	line-height: 1.25rem;
@@ -109,10 +109,14 @@
 .metaIcon {
 	display: grid;
 	place-items: center;
+	align-self: stretch;
+	width: 2.5rem;
 	flex: none;
+	background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .metaLabel {
-	text-align: start;
+	padding-inline: 12px;
+	text-align: center;
 }
 .copyAction {
 	flex: 0 1 auto;
