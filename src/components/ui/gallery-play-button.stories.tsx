@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import Image from "next/image";
-import { expect, fn, userEvent } from "storybook/test";
+import { expect, fn, userEvent, waitFor } from "storybook/test";
 import { GalleryPlayButton } from "./gallery-play-button";
 
 const meta = {
@@ -10,6 +10,14 @@ const meta = {
 	tags: ["autodocs"],
 	parameters: { layout: "centered" },
 	args: { duration: "1:40", onClick: fn() },
+	play: async ({ canvasElement }) => {
+		await canvasElement.ownerDocument.fonts.ready;
+		await waitFor(() => {
+			const label = canvasElement.querySelector('.t-state-label > [data-active="true"]');
+			expect(label).toBeVisible();
+			if (label) expect(getComputedStyle(label).opacity).toBe("1");
+		});
+	},
 } satisfies Meta<typeof GalleryPlayButton>;
 
 export default meta;
@@ -26,10 +34,10 @@ export const Default: Story = {
 export const Pending: Story = {
 	args: { loading: true },
 	play: async ({ canvas }) => {
-		const button = canvas.getByRole("button", { name: "Play 1:40 video" });
+		const button = canvas.getByRole("button", { name: "Loading video" });
 		await expect(button).toHaveAttribute("aria-disabled", "true");
 		await expect(button).toHaveAttribute("aria-busy", "true");
-		await expect(canvas.getByText("Play", { exact: true })).toBeVisible();
+		await waitFor(() => expect(canvas.getByText("Loading…", { exact: true })).toBeVisible());
 	},
 };
 

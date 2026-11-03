@@ -76,7 +76,17 @@ async function expectNotification(canvasElement: HTMLElement, message: string) {
 	});
 }
 export const Empty: Story = {};
-export const PageSection: Story = { render: () => <ContactMessage formEnabled /> };
+export const PageSection: Story = {
+	render: () => <ContactMessage formEnabled />,
+	play: async ({ canvasElement }) => {
+		await canvasElement.ownerDocument.fonts.ready;
+		await waitFor(() => {
+			const label = canvasElement.querySelector('.t-state-label > [data-active="true"]');
+			expect(label).toBeVisible();
+			if (label) expect(getComputedStyle(label).opacity).toBe("1");
+		});
+	},
+};
 export const Validation: Story = {
 	play: async (context) => {
 		const email = context.canvas.getByRole("textbox", { name: "Email" });

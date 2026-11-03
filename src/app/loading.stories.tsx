@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { usePathname } from "@storybook/nextjs-vite/navigation.mock";
-import { expect } from "storybook/test";
+import { expect, waitFor } from "storybook/test";
 import { FloatingNav } from "@/src/components/layout/floating-nav";
 import { SiteHeader } from "@/src/components/layout/site-header";
 import { WorkshopPagePreview } from "../../.storybook/page-preview";
@@ -49,7 +49,9 @@ export const WithNavigation: Story = {
 		const header = canvasElement.querySelector("#header");
 		await expect(header).toBeVisible();
 		await expect(header).not.toHaveAttribute("inert");
-		await expect(canvas.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
-		await expect(canvas.getByRole("status", { name: "Loading page" })).toBeVisible();
+		await waitFor(() => {
+			expect(canvas.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
+			expect(canvas.getByRole("status", { name: "Loading page" })).toBeVisible();
+		});
 	},
 };
