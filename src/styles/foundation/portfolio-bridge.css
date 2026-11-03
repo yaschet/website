@@ -229,11 +229,16 @@
 /* The action's two text layers share their measured grid cell. Character
  * transforms do not resize the control or disturb its original inline padding. */
 .portfolio-action-reel-label {
+	--action-text-bleed: calc(var(--blur-small) * 3);
 	display: grid;
 	place-items: center;
-	height: 20px;
+	height: calc(20px + var(--action-text-bleed) * 2);
 	line-height: 20px;
 	overflow: clip;
+	/* Real padding expands the paint aperture in WebKit as well as Chromium.
+	 * Counter-margins keep the original label position and control dimensions. */
+	padding: var(--action-text-bleed);
+	margin: calc(-1 * var(--action-text-bleed));
 }
 .portfolio-action-reel-label > span {
 	grid-area: 1 / 1;
@@ -249,7 +254,7 @@
 	transition-delay: calc((1 - var(--action-character-progress)) * var(--action-reel-stagger));
 }
 .portfolio-action-reel-label [data-action-reel="in"] [data-action-character] {
-	transform: translateY(100%) rotateX(-60deg);
+	transform: translateY(calc(100% + var(--action-text-bleed) * 2)) rotateX(-60deg);
 	filter: blur(var(--blur-small));
 }
 .portfolio-action-link {
@@ -437,7 +442,7 @@
 			transition-delay: calc(var(--action-character-progress) * var(--action-reel-stagger));
 		}
 		[data-action-reel="out"] [data-action-character] {
-			transform: translateY(-100%) rotateX(60deg);
+			transform: translateY(calc(-100% - var(--action-text-bleed) * 2)) rotateX(60deg);
 			filter: blur(var(--blur-small));
 		}
 		[data-action-reel="in"] [data-action-character] {
