@@ -710,10 +710,17 @@
   }
 
   .portfolio-control-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    gap: var(--portfolio-space-related) !important;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+    align-items: stretch !important;
+    width: 100%;
+    max-width: 28rem;
+    gap: var(--portfolio-space-tight) !important;
+  }
+
+  .portfolio-control-row > * {
+    min-width: 0;
+    width: 100%;
   }
 
   .portfolio-action-band {
