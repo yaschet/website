@@ -117,11 +117,21 @@ export function CopyResourceButton({
 					aria-busy={state === "loading"}
 					disabled={state === "loading"}
 					className={cn(
-						"inline-grid cursor-pointer touch-manipulation border-0 bg-transparent p-0 disabled:cursor-wait",
+						"inline-grid cursor-pointer touch-manipulation items-baseline border-0 bg-transparent p-0 text-left align-baseline disabled:cursor-wait",
 						className,
 					)}
 				>
-					{animatedLabel}
+					<span aria-hidden="true" className="inline-grid items-baseline">
+						{[label, "Copying", copiedLabel, "Retry copying"].map((text) => (
+							<span
+								key={text}
+								className="col-start-1 row-start-1 whitespace-nowrap"
+								style={{ visibility: text === visibleLabel ? "visible" : "hidden" }}
+							>
+								{text}
+							</span>
+						))}
+					</span>
 				</button>
 			) : (
 				<Button
