@@ -5,6 +5,7 @@ import {
 	RiFileCopyLine as Copy,
 	RiErrorWarningLine as WarningCircle,
 } from "@remixicon/react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { StateSwap } from "@/src/components/ui/state-swap";
@@ -30,6 +31,7 @@ export function CopyResourceButton({
 	variant = "button",
 }: CopyResourceButtonProps) {
 	const [state, setState] = useState<CopyState>("idle");
+	const reducedMotion = useReducedMotion();
 	const request = useRef<AbortController | null>(null);
 	const reset = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -98,17 +100,32 @@ export function CopyResourceButton({
 					/>
 				}
 			>
-				<StateSwap
-					kind="text"
-					sizing="content"
-					value={state}
-					items={{
+				<span aria-hidden="true" className="inline-grid items-center">
+					{Object.entries({
 						idle: label,
 						loading: "Copying",
 						copied: copiedLabel,
 						error: "Retry copying",
-					}}
-				/>
+					}).map(([key, text]) => (
+						<motion.span
+							key={key}
+							className="col-start-1 row-start-1 whitespace-nowrap"
+							initial={false}
+							animate={{
+								opacity: key === state ? 1 : 0,
+								y: key === state ? 0 : key === "idle" ? -10 : 10,
+								filter: key === state ? "blur(0px)" : "blur(2px)",
+							}}
+							transition={
+								reducedMotion
+									? { duration: 0 }
+									: { type: "spring", stiffness: 260, damping: 28, mass: 0.85 }
+							}
+						>
+							{text}
+						</motion.span>
+					))}
+				</span>
 			</Button>
 			<span role="status" className="sr-only">
 				{state === "copied"
