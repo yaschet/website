@@ -11,6 +11,7 @@ declare global {
 	interface Window {
 		portfolioEntrySamples: EntrySample[];
 		freezePortfolioEntry: boolean;
+		portfolioEntryMutations: string[];
 	}
 }
 
@@ -22,6 +23,24 @@ for (const theme of ["light", "dark"] as const) {
 		await page.addInitScript(() => {
 			window.portfolioEntrySamples = [];
 			window.freezePortfolioEntry = false;
+			window.portfolioEntryMutations = [];
+			new MutationObserver((records) => {
+				for (const record of records) {
+					if (!(record.target instanceof HTMLElement)) continue;
+					window.portfolioEntryMutations.push(
+						JSON.stringify({
+							text: record.target.textContent?.slice(0, 100),
+							previous: record.oldValue,
+							settled: record.target.dataset.resolveSettled,
+						}),
+					);
+				}
+			}).observe(document, {
+				subtree: true,
+				attributes: true,
+				attributeOldValue: true,
+				attributeFilter: ["data-resolve-settled"],
+			});
 			// Exercise the live-DOM fallback independently of native viewport handoffs.
 			Object.defineProperty(document, "startViewTransition", {
 				value: undefined,
@@ -198,7 +217,27 @@ for (const theme of ["light", "dark"] as const) {
 			"mask-position",
 			/^(?:0%|0px) (?:0%|0px)$/,
 		);
-		await expect(homeHeading).toHaveAttribute("data-resolve-settled", "true");
+		try {
+			await expect(homeHeading).toHaveAttribute("data-resolve-settled", "true");
+		} catch (error) {
+			const diagnostic = await page.evaluate(() => ({
+				mutations: window.portfolioEntryMutations,
+				animations: document.getAnimations().map((animation) => ({
+					id: animation.id,
+					state: animation.playState,
+					time: animation.currentTime,
+					timing: animation.effect?.getTiming(),
+					heading:
+						animation.effect instanceof KeyframeEffect &&
+						animation.effect.target instanceof Element
+							? animation.effect.target.closest("h1")?.textContent?.slice(0, 100)
+							: null,
+				})),
+			}));
+			throw new Error(`Reveal settlement failed: ${JSON.stringify(diagnostic)}`, {
+				cause: error,
+			});
+		}
 		await expect(homeHeading.locator("[data-resolve-sharp]").last()).toHaveCSS(
 			"mask-image",
 			"none",
