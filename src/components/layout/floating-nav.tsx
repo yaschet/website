@@ -121,133 +121,142 @@ export function FloatingNav() {
 	return (
 		<>
 			<div className={styles.wrapper} data-article={isArticle}>
-				<nav
-					ref={dock}
-					className={`portfolio-nav pointer-events-auto ${styles.dock}`}
-					aria-label="Main navigation"
+				<div
+					className={`portfolio-nav-frame ${styles.frame}`}
 					data-motion-reduced={reduced ? "true" : undefined}
-					data-motion-input={keyboard ? "keyboard" : undefined}
 				>
-					<ul
-						className="portfolio-nav-rail"
-						onPointerLeave={() => {
-							hideHover();
-							hint.hide();
-						}}
+					<nav
+						ref={dock}
+						className={`portfolio-nav pointer-events-auto ${styles.dock}`}
+						aria-label="Main navigation"
+						data-motion-reduced={reduced ? "true" : undefined}
+						data-motion-input={keyboard ? "keyboard" : undefined}
 					>
-						<li>
-							<ul className="portfolio-nav-pages" onPointerLeave={hideHover}>
-								<li className="portfolio-nav-underlay-clip" aria-hidden="true">
-									<span
-										className="portfolio-nav-underlay portfolio-nav-active"
-										data-instant={reduced || keyboard}
-										style={{
-											transform: `translateX(calc(${Math.max(0, activeIndex)} * var(--portfolio-control-default)))`,
-											opacity: activeIndex >= 0 ? 1 : 0,
-										}}
-									/>
-									<span
-										className="portfolio-nav-underlay portfolio-nav-hover"
-										data-instant={reduced || keyboard}
-										data-snap={underlay.snap}
-										style={{
-											transform: `translateX(calc(${routeFocus ?? underlay.index} * var(--portfolio-control-default)))`,
-											opacity:
-												underlay.visible || routeFocus !== null ? 1 : 0,
-										}}
-										onTransitionEnd={(event) => {
-											if (
-												event.propertyName === "opacity" &&
-												!underlay.visible
-											)
-												hoverExited.current = true;
-										}}
-									/>
-								</li>
-								{navItems.map((item, index) => {
-									const Icon = item.icon;
-									return (
-										<li key={item.link}>
-											<Link
-												transitionTypes={["navigation"]}
-												href={item.link}
-												ref={(node) => {
-													controls.current[index] = node;
-												}}
-												aria-label={item.name}
-												aria-current={
-													activeIndex === index ? "page" : undefined
-												}
-												aria-describedby={
-													hint.target?.id === String(index)
-														? tooltipId
-														: undefined
-												}
-												className="portfolio-nav-control"
-												data-highlighted={
-													activeIndex === index ||
-													routeHover === index ||
-													routeFocus === index
-												}
-												onNavigate={() => {
-													hint.dismiss();
-												}}
-												onPointerEnter={(event) =>
-													pointerEnter(event, index, item.name)
-												}
-												onFocus={(event) => focus(event, index, item.name)}
-												onBlur={blur}
-											>
-												<LinkFeedback
-													icon={<Icon className="size-4" />}
-													iconOnly
-												/>
-											</Link>
-										</li>
-									);
-								})}
-							</ul>
-						</li>
-						<li className="portfolio-nav-divider" aria-hidden="true" />
-						<li>
-							<button
-								type="button"
-								ref={(node) => {
-									controls.current[navItems.length] = node;
-								}}
-								className="portfolio-nav-control theme-toggle"
-								data-highlighted={themeHighlighted}
-								aria-label={`Theme: ${themeToggleLabel}`}
-								aria-describedby={
-									hint.target?.id === String(navItems.length)
-										? tooltipId
-										: undefined
-								}
-								onPointerEnter={(event) =>
-									pointerEnter(event, navItems.length, "Theme")
-								}
-								onFocus={(event) => focus(event, navItems.length, "Theme")}
-								onBlur={blur}
-								onClick={(event) => {
-									hint.dismiss();
-									toggleThemeWithTransition(
-										setTheme,
-										resolvedTheme,
-										event.detail === 0 ? "keyboard" : "pointer",
-									);
-								}}
-							>
-								<StateSwap
-									value={isMounted && resolvedTheme === "dark" ? "dark" : "light"}
-									items={{
-										light: <Moon className="size-4" />,
-										dark: <Sun className="size-4" />,
+						<ul
+							className="portfolio-nav-rail"
+							onPointerLeave={() => {
+								hideHover();
+								hint.hide();
+							}}
+						>
+							<li>
+								<ul className="portfolio-nav-pages" onPointerLeave={hideHover}>
+									<li className="portfolio-nav-underlay-clip" aria-hidden="true">
+										<span
+											className="portfolio-nav-underlay portfolio-nav-active"
+											data-instant={reduced || keyboard}
+											style={{
+												transform: `translateX(calc(${Math.max(0, activeIndex)} * var(--portfolio-control-default)))`,
+												opacity: activeIndex >= 0 ? 1 : 0,
+											}}
+										/>
+										<span
+											className="portfolio-nav-underlay portfolio-nav-hover"
+											data-instant={reduced || keyboard}
+											data-snap={underlay.snap}
+											style={{
+												transform: `translateX(calc(${routeFocus ?? underlay.index} * var(--portfolio-control-default)))`,
+												opacity:
+													underlay.visible || routeFocus !== null ? 1 : 0,
+											}}
+											onTransitionEnd={(event) => {
+												if (
+													event.propertyName === "opacity" &&
+													!underlay.visible
+												)
+													hoverExited.current = true;
+											}}
+										/>
+									</li>
+									{navItems.map((item, index) => {
+										const Icon = item.icon;
+										return (
+											<li key={item.link}>
+												<Link
+													transitionTypes={["navigation"]}
+													href={item.link}
+													ref={(node) => {
+														controls.current[index] = node;
+													}}
+													aria-label={item.name}
+													aria-current={
+														activeIndex === index ? "page" : undefined
+													}
+													aria-describedby={
+														hint.target?.id === String(index)
+															? tooltipId
+															: undefined
+													}
+													className="portfolio-nav-control"
+													data-highlighted={
+														activeIndex === index ||
+														routeHover === index ||
+														routeFocus === index
+													}
+													onNavigate={() => {
+														hint.dismiss();
+													}}
+													onPointerEnter={(event) =>
+														pointerEnter(event, index, item.name)
+													}
+													onFocus={(event) =>
+														focus(event, index, item.name)
+													}
+													onBlur={blur}
+												>
+													<LinkFeedback
+														icon={<Icon className="size-4" />}
+														iconOnly
+													/>
+												</Link>
+											</li>
+										);
+									})}
+								</ul>
+							</li>
+							<li className="portfolio-nav-divider" aria-hidden="true" />
+							<li>
+								<button
+									type="button"
+									ref={(node) => {
+										controls.current[navItems.length] = node;
 									}}
-								/>
-							</button>
-						</li>
-					</ul>
-				</nav>
+									className="portfolio-nav-control theme-toggle"
+									data-highlighted={themeHighlighted}
+									aria-label={`Theme: ${themeToggleLabel}`}
+									aria-describedby={
+										hint.target?.id === String(navItems.length)
+											? tooltipId
+											: undefined
+									}
+									onPointerEnter={(event) =>
+										pointerEnter(event, navItems.length, "Theme")
+									}
+									onFocus={(event) => focus(event, navItems.length, "Theme")}
+									onBlur={blur}
+									onClick={(event) => {
+										hint.dismiss();
+										toggleThemeWithTransition(
+											setTheme,
+											resolvedTheme,
+											event.detail === 0 ? "keyboard" : "pointer",
+										);
+									}}
+								>
+									<StateSwap
+										value={
+											isMounted && resolvedTheme === "dark" ? "dark" : "light"
+										}
+										items={{
+											light: <Moon className="size-4" />,
+											dark: <Sun className="size-4" />,
+										}}
+									/>
+								</button>
+							</li>
+						</ul>
+					</nav>
+				</div>
 			</div>
 			<HoverTooltip
 				id={tooltipId}

@@ -34,7 +34,7 @@
 
 @media (max-width: 63.999rem), (max-height: 32.5rem) {
 	.wrapper {
-		block-size: calc(88px + env(safe-area-inset-bottom));
+		block-size: calc(112px + env(safe-area-inset-bottom));
 		padding-inline: 12px;
 		padding-block-end: env(safe-area-inset-bottom);
 	}
@@ -45,8 +45,8 @@
 	}
 }
 
-.dock {
-	animation: dock-arrive 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+.frame {
+	animation: dock-arrive 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 @keyframes dock-arrive {
 	from {
@@ -58,11 +58,11 @@
 		transform: translateY(0);
 	}
 }
-.dock[data-motion-reduced="true"] {
+.frame[data-motion-reduced="true"] {
 	animation: none;
 }
 @media (prefers-reduced-motion: reduce) {
-	.dock {
+	.frame {
 		animation: none;
 	}
 }

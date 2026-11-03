@@ -384,33 +384,36 @@
 	color: var(--nav-ink);
 }
 
+.portfolio-nav-frame {
+	position: relative;
+}
 .portfolio-nav {
 	position: relative;
-	isolation: isolate;
+	z-index: 1;
 	padding: var(--portfolio-nav-inset);
 	box-shadow: inset 0 0 0 var(--foundation-hairline)
 		color-mix(in srgb, var(--nav-ink) 16%, transparent);
 }
-.portfolio-nav::before {
-	/* Fade fully before the viewport edge, including the 16px mobile clearance. */
+.portfolio-nav-frame::before {
+	/* Fade fully before the viewport edge, inside the 28px mobile clearance. */
 	content: "";
 	position: absolute;
-	inset: -24px -48px -12px;
-	z-index: -1;
+	inset: -28px -48px -24px;
+	z-index: 0;
 	pointer-events: none;
 	background: radial-gradient(
 		ellipse 50% 50% at 50% 50%,
-		rgb(0 0 0 / 26%) 0%,
-		rgb(0 0 0 / 13%) 45%,
+		rgb(0 0 0 / 32%) 42%,
+		rgb(0 0 0 / 16%) 68%,
 		rgb(0 0 0 / 0%) 100%
 	);
 }
 /* Keep an opaque fallback; only the dock receives the glass material. */
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
 	.portfolio-nav {
-		background: color-mix(in srgb, var(--nav-surface) 90%, transparent);
-		-webkit-backdrop-filter: blur(20px) saturate(0.65);
-		backdrop-filter: blur(20px) saturate(0.65);
+		background: color-mix(in srgb, var(--nav-surface) 76%, transparent);
+		-webkit-backdrop-filter: blur(28px) saturate(0.65);
+		backdrop-filter: blur(28px) saturate(0.65);
 	}
 }
 @media (prefers-reduced-transparency: reduce) {
@@ -428,7 +431,7 @@
 		-webkit-backdrop-filter: none;
 		backdrop-filter: none;
 	}
-	.portfolio-nav::before {
+	.portfolio-nav-frame::before {
 		display: none;
 	}
 }
