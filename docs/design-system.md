@@ -1055,9 +1055,9 @@ the entrance. The persistent dock does not replay on route changes. Light hero/p
 mix; dots and contour strokes retain their independent grading so the field
 reads as structure rather than a gray wash. Home and Contact share these rules.
 
-The dock alone uses dense frosted glass: 76% of its inverted neutral surface,
+The dock alone uses dense frosted glass: 76% smoked-black fill on light pages and 97% near-white fill on dark pages,
 28px backdrop blur and 0.65 saturation. Light pages receive smoked-black glass;
-dark pages receive milky-white glass. Tooltips remain opaque. Unsupported blur
+dark pages retain a crisp near-white dock with only a trace of transmission. Tooltips remain opaque. Unsupported blur
 or a reduced-transparency preference keeps the solid surface; forced colors
 uses the system canvas and outline without the decorative halo. The hairline,
 icon contrast hierarchy, touch targets and entrance remain unchanged. Review
@@ -1069,3 +1069,7 @@ layer inside the backdrop-filter element. Mobile clearance is 112px, leaving
 28px below the 56px dock. Its shadow reaches transparent at 24px. The entrance
 uses backwards fill only, so no animation-held opacity or transform remains
 on the frame after settling; the glass samples the scrolling page beneath it.
+
+Navigation cells stay joined in one rail, with equal square targets, even outer
+padding and the existing theme-control separator. Do not introduce gaps between
+route cells: the moving active and hover underlays use this shared cell pitch.

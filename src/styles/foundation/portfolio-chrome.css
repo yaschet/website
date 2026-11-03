@@ -411,7 +411,11 @@
 /* Keep an opaque fallback; only the dock receives the glass material. */
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
 	.portfolio-nav {
-		background: color-mix(in srgb, var(--nav-surface) 76%, transparent);
+		background: color-mix(
+			in srgb,
+			var(--nav-surface) var(--nav-glass-opacity, 76%),
+			transparent
+		);
 		-webkit-backdrop-filter: blur(28px) saturate(0.65);
 		backdrop-filter: blur(28px) saturate(0.65);
 	}
@@ -610,6 +614,9 @@
 .dark .portfolio-tooltip {
 	--nav-surface: var(--palette-neutral-50);
 	--nav-ink: var(--palette-neutral-950);
+}
+.dark .portfolio-nav {
+	--nav-glass-opacity: 97%;
 }
 
 /* Loading owns the content region, never the persistent header or dock. */
