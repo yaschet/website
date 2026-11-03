@@ -91,16 +91,15 @@
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 12px;
-	width: fit-content;
+	width: 100%;
 	max-width: 100%;
 	min-width: 0;
 }
 .metaItem {
 	display: inline-flex;
-	flex-grow: 1;
 	align-items: center;
+	gap: 0.5rem;
 	min-height: 2.5rem;
-	border: var(--foundation-hairline) solid var(--foundation-control-line);
 	color: var(--foreground);
 	font-size: 0.875rem;
 	line-height: 1.25rem;
@@ -110,19 +109,16 @@
 .metaIcon {
 	display: grid;
 	place-items: center;
-	align-self: stretch;
-	width: 2.5rem;
 	flex: none;
-	background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .metaLabel {
-	flex: 1;
-	padding-inline: 12px;
-	text-align: center;
+	text-align: start;
 }
 .copyAction {
-	flex-grow: 1;
-	min-width: 180px;
+	flex: 0 1 auto;
+	min-width: 0;
+	max-width: 100%;
+	margin-inline-start: auto;
 }
 .copyAction [class~="foundation-button-pending"] {
 	width: 100%;
