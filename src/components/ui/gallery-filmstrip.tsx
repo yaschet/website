@@ -40,14 +40,12 @@ export function GalleryFilmstrip({
 		const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 		const position = motionValue(strip.scrollLeft);
 		let scrollAnimation: ReturnType<typeof animate> | undefined;
-		let auto = false;
 		let initial = true;
 		const unsubscribePosition = position.on("change", (value) => {
 			strip.scrollLeft = value;
 		});
 		const stop = () => {
 			scrollAnimation?.stop();
-			auto = false;
 			strip.removeAttribute("data-gallery-filmstrip-moving");
 			position.jump(strip.scrollLeft);
 		};
@@ -73,21 +71,17 @@ export function GalleryFilmstrip({
 				return;
 			}
 			if (Math.abs(strip.scrollLeft - left) < 0.5) return;
-			auto = true;
 			strip.dataset.galleryFilmstripMoving = "true";
+			position.jump(strip.scrollLeft);
 			scrollAnimation = animate(position, left, {
 				...response,
 				onComplete: () => {
-					auto = false;
 					strip.removeAttribute("data-gallery-filmstrip-moving");
 				},
 			});
 		};
-		const onScroll = () => {
-			// Native touch scrolling owns the position; no SVG filter repaint per scroll event.
-			if (!auto) position.jump(strip.scrollLeft);
-		};
-		strip.addEventListener("scroll", onScroll, { passive: true });
+		// Do not mirror native scrolling into a value that writes scrollLeft back.
+		// Safari reports elastic offsets outside the scroll range during rubber-banding.
 		controller.current = { follow, stop };
 		const resize = new ResizeObserver(() => {
 			initial = true;
@@ -100,7 +94,6 @@ export function GalleryFilmstrip({
 			position.destroy();
 			if (intent.current !== undefined) clearTimeout(intent.current);
 			resize.disconnect();
-			strip.removeEventListener("scroll", onScroll);
 			controller.current = null;
 		};
 	}, []);
