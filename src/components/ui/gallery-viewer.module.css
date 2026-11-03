@@ -384,11 +384,6 @@
 	position: absolute;
 	inset: 0;
 	text-align: center;
-	opacity: 0;
-	transform: translateY(-3px);
-	transition:
-		opacity 160ms var(--ease-smooth-out),
-		transform 160ms var(--ease-smooth-out);
 }
 .zoomFit::before,
 .zoomUnit::before {
@@ -396,19 +391,6 @@
 }
 .zoomNumber {
 	display: inline-flex;
-	opacity: 1;
-	transform: translateY(0);
-	transition:
-		opacity 160ms var(--ease-smooth-out),
-		transform 160ms var(--ease-smooth-out);
-}
-.zoomReadout[data-fit="true"] .zoomFit {
-	opacity: 1;
-	transform: translateY(0);
-}
-.zoomReadout[data-fit="true"] .zoomNumber {
-	opacity: 0;
-	transform: translateY(3px);
 }
 .zoomDigit {
 	display: inline-block;
