@@ -131,6 +131,7 @@ export function useGalleryViewer(options: GalleryViewerOptions) {
 	const [videos, setVideos] = useState<Map<number, HTMLElement>>(new Map());
 	const [index, setIndex] = useState(options.activeIndex);
 	const [zoom, setZoom] = useState(1);
+	const [animateZoomReadout, setAnimateZoomReadout] = useState(false);
 	const [closing, setClosing] = useState(false);
 	const [ready, setReady] = useState(false);
 	const [pendingIndex, setPendingIndex] = useState<number | null>(null);
@@ -297,8 +298,18 @@ export function useGalleryViewer(options: GalleryViewerOptions) {
 			setZoom(1);
 			latest.current.onIndexChange(viewer.currIndex);
 		});
+		let zoomTransitionEnds = 0;
+		viewer.on("beforeZoomTo", ({ destZoomLevel, transitionDuration }) => {
+			const slide = viewer.currSlide;
+			if (!slide) return;
+			zoomTransitionEnds = performance.now() + (transitionDuration || 0);
+			setAnimateZoomReadout(Boolean(transitionDuration));
+			setZoom(destZoomLevel / slide.zoomLevels.fit);
+		});
 		viewer.on("zoomPanUpdate", ({ slide }) => {
-			if (slide.isActive) setZoom(slide.currZoomLevel / slide.zoomLevels.fit);
+			if (!slide.isActive || performance.now() < zoomTransitionEnds) return;
+			setAnimateZoomReadout(false);
+			setZoom(slide.currZoomLevel / slide.zoomLevels.fit);
 		});
 		viewer.on("pointerDown", (event) => {
 			if (!reduced.current && viewer.opener.isOpen) {
@@ -313,12 +324,14 @@ export function useGalleryViewer(options: GalleryViewerOptions) {
 		});
 		viewer.on("bindEvents", () => {
 			let backgroundPointer: { x: number; y: number } | null = null;
+			let lastPointerType = "mouse";
 			const isBackground = (target: EventTarget | null) =>
 				target instanceof Element &&
 				!target.closest(
 					`.pswp__img, [data-portfolio-video], fieldset, ${GALLERY_INTERACTIVE_TARGETS}`,
 				);
 			const onPointerDown = (event: PointerEvent) => {
+				lastPointerType = event.pointerType;
 				backgroundPointer = isBackground(event.target)
 					? { x: event.clientX, y: event.clientY }
 					: null;
@@ -338,6 +351,8 @@ export function useGalleryViewer(options: GalleryViewerOptions) {
 				close();
 			};
 			const onDoubleClick = (event: MouseEvent) => {
+				// PhotoSwipe owns touch double-taps; ignore their synthetic dblclick.
+				if (lastPointerType === "touch") return;
 				if (event.target instanceof Element && event.target.matches(".pswp__img")) {
 					viewer.currSlide?.toggleZoom({ x: event.clientX, y: event.clientY });
 				}
@@ -543,6 +558,7 @@ export function useGalleryViewer(options: GalleryViewerOptions) {
 		videos,
 		index,
 		zoom,
+		animateZoomReadout,
 		closing,
 		close,
 		navigate,

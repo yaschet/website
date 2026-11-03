@@ -432,7 +432,7 @@
 	transform: translateY(-1.25rem);
 }
 .zoomDigit > span[data-rolling] {
-	animation: zoom-digit-step 120ms var(--ease-smooth-out);
+	animation: zoom-digit-step 200ms var(--ease-smooth-out);
 }
 @keyframes zoom-digit-step {
 	from {
@@ -441,6 +441,26 @@
 	to {
 		transform: translateY(-1.25rem);
 	}
+}
+.zoomDigit > span[data-rolling][data-direction="down"] {
+	animation-name: zoom-digit-step-down;
+	flex-direction: column-reverse;
+}
+@keyframes zoom-digit-step-down {
+	from {
+		transform: translateY(-1.25rem);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+.zoomDigit > span[data-direction="down"] {
+	flex-direction: column-reverse;
+	transform: translateY(0);
+}
+.zoomReadout[data-live="true"] .zoomFit,
+.zoomReadout[data-live="true"] .zoomNumber {
+	transition: none;
 }
 .zoomDigit i {
 	flex: none;

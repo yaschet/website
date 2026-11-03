@@ -266,6 +266,7 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 									}
 								>
 									<GalleryZoomReadout
+										animate={viewer.animateZoomReadout}
 										value={
 											viewer.zoom <= 1.001
 												? "Fit"
