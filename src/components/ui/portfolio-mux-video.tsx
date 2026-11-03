@@ -2031,9 +2031,7 @@ function PortfolioMuxVideoPlayer({
 				className={cn(
 					"portfolio-mux-video-host block",
 					styles.playbackArea,
-					variant === "lightbox" && !isFullscreen
-						? styles.galleryPlaybackArea
-						: "size-full",
+					!isFullscreen ? styles.clippedPlaybackArea : "size-full",
 				)}
 				tabIndex={0}
 				role="group"

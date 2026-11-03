@@ -12,10 +12,10 @@
 	outline-offset: -4px;
 }
 
-/* PhotoSwipe positions media on fractional CSS pixels. Extend only the video
+/* Inline galleries and PhotoSwipe can both land on fractional CSS pixels. Extend only the video
  * under its existing clip so a compositor-rounded edge cannot reveal the dark
  * player ground. Keep controls and native fullscreen at their exact bounds. */
-.galleryPlaybackArea {
+.clippedPlaybackArea {
 	position: absolute;
 	inset: -1px;
 	width: calc(100% + 2px);
