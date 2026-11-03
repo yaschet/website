@@ -14,12 +14,12 @@ interface HeadingRevealProps {
 	style?: CSSProperties;
 }
 
-/** Stable text geometry on every viewport, with a bounded word-entry sequence. */
+/** Shared blur-front reveal with stable word geometry across wrapped page titles. */
 export function HeadingReveal({
 	as: Tag = "h2",
 	children,
 	className,
-	effect = "rise",
+	effect = "resolve",
 	delay = 0,
 	phase = 1,
 	style,

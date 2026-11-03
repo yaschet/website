@@ -1083,3 +1083,12 @@ indicator slide. No pointer capture, prevented scrolling, drag-to-select or
 hover tooltip is introduced. The theme control gets the same touch feedback.
 `touch-action: manipulation` preserves pan/pinch while avoiding double-tap delay.
 Reduced-motion and keyboard indicator rules remain in effect.
+
+### Shared page-title reveal
+
+`HeadingReveal` defaults to the approved hero resolve effect: a traveling sharp /
+blur boundary with the mask outside the blurred layer. Page introductions,
+case-study titles and article titles use the same renderer and wrapping behavior.
+The older rise variant remains explicitly selectable for isolated experiments;
+it is no longer the default. Existing entry delays, semantic headings, typography
+and reduced-motion behavior stay intact.
