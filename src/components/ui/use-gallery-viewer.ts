@@ -159,10 +159,14 @@ export function useGalleryViewer(options: GalleryViewerOptions) {
 				return;
 			const source = sources.current[itemIndex];
 			if (source?.type !== "portfolio-video") return;
-			if (source.width && source.height && source.width === width && source.height === height)
-				return;
-			source.width = width;
-			source.height = height;
+			// Rendition switches change decoded pixel dimensions, not the artwork's
+			// layout size. Preserve the source coordinate space and update only its
+			// aspect ratio, so a 360p rendition cannot shrink the expanded stage.
+			const layoutWidth = source.width || width;
+			const layoutHeight = (layoutWidth * height) / width;
+			if (source.width === layoutWidth && source.height === layoutHeight) return;
+			source.width = layoutWidth;
+			source.height = layoutHeight;
 			resizeVideoSlides();
 		},
 		[resizeVideoSlides],
