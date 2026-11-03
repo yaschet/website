@@ -4,7 +4,6 @@ import { PageContainer } from "@/src/components/layout/containers";
 import { PageIntroPanel } from "@/src/components/layout/page-intro";
 import { SiteFooter } from "@/src/components/layout/site-footer";
 import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
-import { CopyResourceButton } from "@/src/components/ui/copy-resource-button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
@@ -32,22 +31,7 @@ export function CaseStudiesPageContent({ projects }: { projects: readonly Projec
 									eyebrow="Work"
 									title="Case studies."
 									description="Product and engineering decisions, with the evidence behind them."
-								>
-									<div className="grid grid-cols-1 gap-(--portfolio-space-tight) sm:max-w-[28rem] min-[420px]:grid-cols-2">
-										<CopyResourceButton
-											href="/portfolio.md"
-											className="w-full min-w-0"
-											label="Copy Portfolio"
-											copiedLabel="Copied Portfolio"
-										/>
-										<CopyResourceButton
-											href="/llms-full.txt"
-											label="Copy Full Context"
-											copiedLabel="Copied Context"
-											className="w-full min-w-0"
-										/>
-									</div>
-								</PageIntroPanel>
+								/>
 							</SwissGridRow>
 							<SwissGridRow>
 								{hasProjects ? (

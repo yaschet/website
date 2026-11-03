@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
+import { CopyResourceButton } from "@/src/components/ui/copy-resource-button";
 import { ShellReveal } from "@/src/components/ui/reveal";
 import { SITE_EMAIL } from "@/src/constants/site";
 
@@ -62,7 +63,7 @@ export function SiteFooter() {
 											X
 										</Link>
 									</nav>
-									<div>
+									<div className="flex flex-wrap items-center justify-center gap-[var(--portfolio-space-related)] sm:justify-end">
 										<Link
 											transitionTypes={["navigation"]}
 											href="https://github.com/yaschet/website"
@@ -72,6 +73,12 @@ export function SiteFooter() {
 										>
 											Source
 										</Link>
+										<CopyResourceButton
+											href="/llms-full.txt"
+											label="Copy portfolio"
+											variant="text"
+											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
+										/>
 									</div>
 								</div>
 							</div>

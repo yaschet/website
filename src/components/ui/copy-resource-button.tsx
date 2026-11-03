@@ -17,7 +17,7 @@ interface CopyResourceButtonProps {
 	label: string;
 	copiedLabel?: string;
 	className?: string;
-	variant?: "button" | "inline";
+	variant?: "button" | "inline" | "text";
 }
 
 type CopyState = "idle" | "loading" | "copied" | "error";
@@ -79,54 +79,73 @@ export function CopyResourceButton({
 				: state === "error"
 					? "Retry copying"
 					: label;
+	const animatedLabel = (
+		<span aria-hidden="true" className="inline-grid items-center">
+			{Object.entries({
+				idle: label,
+				loading: "Copying",
+				copied: copiedLabel,
+				error: "Retry copying",
+			}).map(([key, text]) => (
+				<motion.span
+					key={key}
+					className="col-start-1 row-start-1 whitespace-nowrap"
+					initial={false}
+					animate={{
+						opacity: key === state ? 1 : 0,
+						y: key === state ? 0 : key === "idle" ? -10 : 10,
+						filter: key === state ? "blur(0px)" : "blur(2px)",
+					}}
+					transition={
+						reducedMotion
+							? { duration: 0 }
+							: { type: "spring", stiffness: 260, damping: 28, mass: 0.85 }
+					}
+				>
+					{text}
+				</motion.span>
+			))}
+		</span>
+	);
 	return (
 		<>
-			<Button
-				type="button"
-				variant={variant === "inline" ? "plain" : "outlined"}
-				color="default"
-				onClick={handleCopy}
-				loading={state === "loading"}
-				aria-label={visibleLabel}
-				className={cn(className)}
-				icon={
-					<StateSwap
-						value={state === "loading" ? "idle" : state}
-						items={{
-							idle: <Copy size={16} />,
-							copied: <Check size={16} />,
-							error: <WarningCircle size={16} />,
-						}}
-					/>
-				}
-			>
-				<span aria-hidden="true" className="inline-grid items-center">
-					{Object.entries({
-						idle: label,
-						loading: "Copying",
-						copied: copiedLabel,
-						error: "Retry copying",
-					}).map(([key, text]) => (
-						<motion.span
-							key={key}
-							className="col-start-1 row-start-1 whitespace-nowrap"
-							initial={false}
-							animate={{
-								opacity: key === state ? 1 : 0,
-								y: key === state ? 0 : key === "idle" ? -10 : 10,
-								filter: key === state ? "blur(0px)" : "blur(2px)",
+			{variant === "text" ? (
+				<button
+					type="button"
+					onClick={handleCopy}
+					aria-label={visibleLabel}
+					aria-busy={state === "loading"}
+					disabled={state === "loading"}
+					className={cn(
+						"inline-grid cursor-pointer touch-manipulation border-0 bg-transparent p-0 disabled:cursor-wait",
+						className,
+					)}
+				>
+					{animatedLabel}
+				</button>
+			) : (
+				<Button
+					type="button"
+					variant={variant === "inline" ? "plain" : "outlined"}
+					color="default"
+					onClick={handleCopy}
+					loading={state === "loading"}
+					aria-label={visibleLabel}
+					className={cn(className)}
+					icon={
+						<StateSwap
+							value={state === "loading" ? "idle" : state}
+							items={{
+								idle: <Copy size={16} />,
+								copied: <Check size={16} />,
+								error: <WarningCircle size={16} />,
 							}}
-							transition={
-								reducedMotion
-									? { duration: 0 }
-									: { type: "spring", stiffness: 260, damping: 28, mass: 0.85 }
-							}
-						>
-							{text}
-						</motion.span>
-					))}
-				</span>
-			</Button>
+						/>
+					}
+				>
+					{animatedLabel}
+				</Button>
+			)}
 			<span role="status" className="sr-only">
 				{state === "copied"
 					? "Copied to clipboard."
