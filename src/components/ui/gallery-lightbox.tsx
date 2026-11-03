@@ -90,7 +90,6 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 									<summary
 										className={styles.descriptionTrigger}
 										aria-label={`Read full media description: ${title}`}
-										title="Read full media description"
 									>
 										<span className={styles.iconChamber}>
 											<InfoIcon size={20} weight="bold" aria-hidden="true" />
@@ -111,7 +110,7 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 										</span>
 									</summary>
 									<section
-										className={styles.fullDescription}
+										className={`${styles.fullDescription} ${styles.glass}`}
 										aria-label="Full media description"
 										data-gallery-text
 										// biome-ignore lint/a11y/noNoninteractiveTabindex: The bounded text panel needs focus for native keyboard scrolling.
