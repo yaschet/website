@@ -1092,3 +1092,9 @@ case-study titles and article titles use the same renderer and wrapping behavior
 The older rise variant remains explicitly selectable for isolated experiments;
 it is no longer the default. Existing entry delays, semantic headings, typography
 and reduced-motion behavior stay intact.
+
+The title sweep keeps its original character-relative timing up to 45ms per
+character, but compresses proportionally to a maximum 1,100ms for the complete
+heading (including the blur tail). Short titles finish sooner. Both initial CSS
+and route-entry animations consume the same per-word timing variables; no
+separate mobile timing or word-by-word duration cap is used.
