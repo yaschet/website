@@ -86,7 +86,7 @@
     display: block;
     inline-size: 100%;
     block-size: 100%;
-    background: rgb(2 6 23);
+    background: transparent;
     color: inherit;
     /* Preserve aspect ratio: use object-fit from CSS variable */
     object-fit: var(--media-object-fit, cover);

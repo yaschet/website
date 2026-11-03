@@ -1209,6 +1209,19 @@ function PortfolioMuxVideoPlayer({
 		}
 	}, []);
 
+	// Mux's native video defaults to intrinsic sizing with min/max constraints.
+	// Give the owned playback surface definite dimensions, avoiding an inline
+	// replaced-element baseline and independently rounded intrinsic dimensions.
+	useLayoutEffect(() => {
+		const video = mediaRef.current?.nativeEl;
+		if (!video) return;
+		video.style.display = "block";
+		video.style.width = "100%";
+		video.style.height = "100%";
+		video.style.minWidth = "0";
+		video.style.minHeight = "0";
+	}, []);
+
 	// Register before the source/play layout effect below can emit an early error.
 	useLayoutEffect(() => {
 		const media = mediaRef.current;
