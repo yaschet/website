@@ -132,6 +132,22 @@
 	padding-left: calc(var(--gallery-inset) + var(--gallery-safe-left));
 	padding-right: calc(var(--gallery-inset) + var(--gallery-safe-right));
 }
+/* Keep the header frost on a sibling layer: a filtered ancestor prevents
+   the description pane from sampling the media behind it. */
+.header.glass {
+	background: transparent;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+}
+.header.glass::before {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	content: "";
+	background: var(--gallery-panel);
+	-webkit-backdrop-filter: blur(48px) saturate(1.8) brightness(var(--gallery-backdrop-exposure));
+	backdrop-filter: blur(48px) saturate(1.8) brightness(var(--gallery-backdrop-exposure));
+}
 .identity {
 	display: flex;
 	align-items: center;
