@@ -168,11 +168,18 @@
 @media (max-width: 39.999rem) {
 	.metaItem,
 	.copyAction {
-		flex: 1 1 11rem;
+		flex: 1 1 10.25rem;
 		margin-inline-start: 0;
 	}
 	.metaLabel {
 		flex: 1;
+		padding-inline: 8px;
+		text-align: start;
+	}
+	.copyAction [class~="foundation-button-pending-copy"] {
+		justify-content: flex-start;
+		padding-inline: 8px;
+		text-align: start;
 	}
 }
 @media (min-width: 40rem) {
