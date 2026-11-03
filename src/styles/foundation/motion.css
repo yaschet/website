@@ -1094,7 +1094,7 @@
 	width: max-content;
 	white-space: nowrap;
 }
-.t-state-label[data-sizing="content"]:not([data-measured]) > [data-active="true"] {
+.t-state-label[data-sizing="content"] > [data-active="true"] {
 	position: relative;
 }
 
