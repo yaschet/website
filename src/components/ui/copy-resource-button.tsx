@@ -121,16 +121,8 @@ export function CopyResourceButton({
 						className,
 					)}
 				>
-					<span aria-hidden="true" className="inline-grid items-baseline">
-						{[label, "Copying", copiedLabel, "Retry copying"].map((text) => (
-							<span
-								key={text}
-								className="col-start-1 row-start-1 whitespace-nowrap"
-								style={{ visibility: text === visibleLabel ? "visible" : "hidden" }}
-							>
-								{text}
-							</span>
-						))}
+					<span aria-hidden="true" className="whitespace-nowrap">
+						{visibleLabel}
 					</span>
 				</button>
 			) : (
