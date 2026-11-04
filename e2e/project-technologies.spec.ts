@@ -78,7 +78,7 @@ for (const theme of ["light", "dark"] as const) {
 		const core = ["Laravel", "OpenAI", "MeiliSearch"];
 		expect(initialTechnologies.slice(0, core.length)).toEqual(core);
 		for (const [title, highlights] of [
-			["Verto — AI Translation Platform", ["Next.js", "OpenAI", "Stripe"]],
+			["Verto: AI Translation Platform", ["Next.js", "OpenAI", "Stripe"]],
 			["Student Applications & Document Collection", ["Next.js", "Laravel", "AWS Textract"]],
 			["Agency CRM & Billing", ["Laravel", "Cash Plus", "MySQL"]],
 		] as const) {
@@ -353,7 +353,7 @@ for (const theme of ["light", "dark"] as const) {
 		// A platform and its database each get one mark and one readable name.
 		await page
 			.getByRole("article", {
-				name: "Verto — AI Translation Platform",
+				name: "Verto: AI Translation Platform",
 				exact: true,
 			})
 			.getByRole("button", { name: /^Stack: all / })
@@ -375,7 +375,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
 		await page.goto("/");
 		const project = page.getByRole("article", {
-			name: "Verto — AI Translation Platform",
+			name: "Verto: AI Translation Platform",
 			exact: true,
 		});
 		const rail = project.locator('[data-slot="project-technology-rail"]');
@@ -464,7 +464,7 @@ test.describe("stack frames on fractional-density displays", () => {
 			);
 			const trigger = page
 				.getByRole("article", {
-					name: "Verto — AI Translation Platform",
+					name: "Verto: AI Translation Platform",
 					exact: true,
 				})
 				.getByRole("button", { name: /^Stack: all / });

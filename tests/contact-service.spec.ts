@@ -42,7 +42,7 @@ test("installed adapters bound quotas and pass safe mail/idempotency options wit
 		const payload: unknown = JSON.parse(String(options?.body));
 		expect(payload).toEqual({
 			from: "Yaschet <contact@mail.yaschet.com>",
-			to: ["hello@yaschet.com"],
+			to: ["contact@yaschet.com"],
 			reply_to: "sender@example.com",
 			subject: "[Contact Form] Test subject",
 			text: "Name: Test Sender\nEmail: sender@example.com\n\nMessage:\nNever delivered.",

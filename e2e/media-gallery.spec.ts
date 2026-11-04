@@ -36,12 +36,12 @@ for (const theme of ["light", "dark"] as const) {
 		await gallery.hover();
 		await expand.click();
 		const dialog = page.getByRole("dialog", {
-			name: "Document Translation With Editable Tables — Walkthrough",
+			name: "Document Translation With Editable Tables: Walkthrough",
 		});
 		await expect(dialog).toBeVisible();
 		await expect(
 			dialog.getByRole("heading", {
-				name: "Document Translation With Editable Tables — Walkthrough",
+				name: "Document Translation With Editable Tables: Walkthrough",
 				exact: true,
 			}),
 		).toBeVisible();
@@ -89,7 +89,7 @@ test("case-study viewer honors reduced motion and keyboard dismissal", async ({ 
 
 for (const { slug, count, title, theme } of [
 	{ slug: "clearway-portal", count: 6, title: "Student portal walkthrough" },
-	{ slug: "clearway-phoenix", count: 11, title: "University Program Matching — Walkthrough" },
+	{ slug: "clearway-phoenix", count: 11, title: "University Program Matching: Walkthrough" },
 ].flatMap((project) => (["light", "dark"] as const).map((theme) => ({ ...project, theme })))) {
 	test(`${slug} images and cover video form one gallery without moving the article in ${theme}`, async ({
 		page,

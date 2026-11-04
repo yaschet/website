@@ -235,7 +235,7 @@ for (const theme of ["light", "dark"] as const) {
 		await expect(
 			page.getByRole("heading", {
 				level: 1,
-				name: "Verto — AI Translation Platform",
+				name: "Verto: AI Translation Platform",
 			}),
 		).toBeVisible();
 		await expect(

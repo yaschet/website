@@ -79,7 +79,7 @@ for (const theme of ["light", "dark"] as const) {
 		expect(workLayout.nestedFrame).toBe(false);
 		const projects = page.getByRole("article");
 		await expect(projects.getByRole("heading", { level: 3 })).toHaveText([
-			"Verto — AI Translation Platform",
+			"Verto: AI Translation Platform",
 			"University Program Matching",
 			"Student Applications & Document Collection",
 			"Agency CRM & Billing",

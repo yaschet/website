@@ -18,7 +18,7 @@ for (const theme of ["light", "dark"] as const) {
 		await page.goto("/");
 		const header = await page.locator("#header").elementHandle();
 
-		for (const title of ["University Program Matching", "Verto — AI Translation Platform"]) {
+		for (const title of ["University Program Matching", "Verto: AI Translation Platform"]) {
 			await page.getByRole("link", { name: title, exact: true }).click();
 			await expect(
 				page.locator("main:visible").getByRole("heading", { level: 1 }),

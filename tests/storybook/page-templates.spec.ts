@@ -4,7 +4,7 @@ const templates = [
 	{ id: "pages-home", heading: "Business software, built end to end." },
 	{ id: "pages-about", heading: "How I work." },
 	{ id: "pages-case-studies", heading: "Case studies." },
-	{ id: "pages-case-study", heading: "Verto — AI Translation Platform" },
+	{ id: "pages-case-study", heading: "Verto: AI Translation Platform" },
 	{ id: "pages-blog", heading: "Blog" },
 	{ id: "pages-blog-post", heading: "Article layout preview" },
 	{ id: "pages-contact", heading: "Let’s talk." },
