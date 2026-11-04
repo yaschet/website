@@ -2,7 +2,6 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { Resend } from "resend";
-import { SITE_EMAIL } from "@/src/constants/site";
 import { env } from "@/src/env";
 import type { ContactDependencies, ContactLimit } from "@/src/lib/contact/submit-contact";
 
@@ -45,7 +44,7 @@ export function getContactService(): ContactDependencies | null {
 			const { data, error } = await resend.emails.send(
 				{
 					from: "Yaschet <contact@mail.yaschet.com>",
-					to: [SITE_EMAIL],
+					to: ["contact@yaschet.com"],
 					replyTo: email,
 					subject: `[Contact Form] ${subject}`,
 					text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,

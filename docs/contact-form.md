@@ -2,10 +2,9 @@
 
 ## Launch Availability
 
-The launch contact page uses email and booking. The server form is disabled by
-default with the server-only `CONTACT_FORM_ENABLED=false` setting. Its fields
-and submit action are not rendered. The page keeps its existing contact methods
-and directs visitors to email or book a call.
+The contact page renders the form alongside email and booking. Delivery remains
+guarded by the server-only `CONTACT_FORM_ENABLED=false` default until the
+receiving address and environment configuration are verified.
 
 The Server Action independently rejects disabled submissions before reading
 request headers, configuring providers or consuming quotas. The policy also
@@ -96,12 +95,11 @@ Set these server-only variables for each environment that should deliver mail:
 - `CONTACT_RATE_LIMIT_SALT`: stable random secret of at least 32 characters;
   generate with `openssl rand -hex 32` and store in environment settings.
 
-The server sends from `Yaschet <contact@mail.yaschet.com>` to the public contact
-address, `hello@yaschet.com`. The recipient, footer and Contact page share
-`SITE_EMAIL` in `src/constants/site.ts`. Verify `mail.yaschet.com` in Resend and
-confirm that `hello@yaschet.com` is a receiving mailbox or an alias to the owner's
-inbox before releasing this domain migration. Keep the root domain's Google
-Workspace MX records intact; the transactional sender uses its own subdomain.
+The server sends from `Yaschet <contact@mail.yaschet.com>` to
+`contact@yaschet.com`, a dedicated Google Workspace receiving alias. Public
+contact links remain `hello@yaschet.com`; the personal mailbox is unchanged.
+Keep the root domain's Google Workspace MX records intact; the transactional
+sender uses its own subdomain. Resend receiving stays disabled.
 Local adapter tests intercept email transport and do not establish live delivery.
 
 Use a dedicated database or reviewed namespace and keep preview/production
