@@ -1,10 +1,10 @@
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
-import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
 import { Button } from "@/src/components/ui/button";
 import { EditorialEmptyState } from "@/src/components/ui/editorial-empty-state";
+import { PortfolioLink as Link } from "@/src/components/ui/portfolio-link";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 
 export default function NotFound() {
@@ -27,13 +27,16 @@ export default function NotFound() {
 								actions={
 									<>
 										<Button asChild size="md" variant="solid">
-											<Link href="/">
+											<Link transitionTypes={["navigation"]} href="/">
 												<ArrowLeft weight="bold" />
 												Home
 											</Link>
 										</Button>
 										<Button asChild size="md" variant="outlined">
-											<Link href="/case-studies">
+											<Link
+												transitionTypes={["navigation"]}
+												href="/case-studies"
+											>
 												Case Studies
 												<ArrowRight weight="bold" />
 											</Link>

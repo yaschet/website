@@ -1,13 +1,16 @@
-import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { RiAddLine as PlusIcon, RiDeleteBinLine as TrashIcon } from "@remixicon/react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, userEvent, within } from "storybook/test";
+import { useState } from "react";
+import { expect, fn, userEvent, within } from "storybook/test";
 import { Button } from "./button";
+import { StateSwap } from "./state-swap";
 
 /**
- * Primary UI action element with physics-based hover/tap feedback.
+ * Shared action control with keyboard focus, loading state, and continuous content geometry.
  */
 const meta: Meta<typeof Button> = {
-	title: "Primitives/Button",
+	id: "primitives-button",
+	title: "Components/Actions/Button",
 	component: Button,
 	tags: ["autodocs"],
 	parameters: {
@@ -15,7 +18,7 @@ const meta: Meta<typeof Button> = {
 		docs: {
 			description: {
 				component:
-					"A GPU-accelerated button with layered spring animations for scale, Y-translation, and shadow.",
+					"Yaschet's square controls with independent appearance and semantic color. A single glyph chamber replaces its icon with the spinner, or expands beside a text-only label. StateSwap can resize to its active text while crossfading. Pending actions retain focus and color while blocking repeat activation; keyboard and reduced-motion feedback is immediate.",
 			},
 		},
 	},
@@ -28,25 +31,42 @@ const meta: Meta<typeof Button> = {
 		},
 		color: {
 			control: "select",
-			options: ["default", "primary", "accent", "success", "warning", "info", "destructive"],
+			options: [
+				"default",
+				"primary",
+				"secondary",
+				"accent",
+				"success",
+				"warning",
+				"info",
+				"destructive",
+			],
 			description: "Semantic color mapping.",
 			table: { category: "Appearance" },
 		},
 		size: {
 			control: "select",
-			options: ["xs", "sm", "md", "lg", "xl", "icon", "icon-sm", "icon-lg"],
-			description: "Physical dimensions.",
+			options: [
+				"xs",
+				"sm",
+				"md",
+				"lg",
+				"xl",
+				"icon",
+				"icon-xs",
+				"icon-sm",
+				"icon-lg",
+				"icon-xl",
+			],
+			description:
+				"Foundation geometry: 28 / 36 / 40 / 44 / 48px. The md alias means the default 40px control.",
 			table: { category: "Dimensions" },
 		},
-		shape: {
-			control: "select",
-			options: ["default", "none", "sm", "md", "lg", "xl", "full"],
-			description: "Border radius override.",
-			table: { category: "Dimensions" },
-		},
+		shape: { table: { disable: true } },
 		loading: {
 			control: "boolean",
-			description: "Shows spinner and disables interaction.",
+			description:
+				"Shows progress and blocks activation while preserving focus and contrast.",
 			table: { category: "State" },
 		},
 		disabled: {
@@ -72,7 +92,6 @@ const meta: Meta<typeof Button> = {
 		variant: "solid",
 		color: "default",
 		size: "md",
-		loading: false,
 		disabled: false,
 	},
 };
@@ -120,7 +139,7 @@ export const Destructive: Story = {
 		color: "destructive",
 		children: (
 			<>
-				<TrashIcon size={16} weight="bold" />
+				<TrashIcon size={16} />
 				Delete
 			</>
 		),
@@ -131,8 +150,9 @@ export const IconOnly: Story = {
 	args: {
 		variant: "outlined",
 		size: "icon",
-		children: <PlusIcon size={20} weight="bold" />,
+		children: <PlusIcon size={20} />,
 		tooltipContent: "Add item",
+		"aria-label": "Add item",
 	},
 };
 
@@ -147,210 +167,129 @@ export const ActiveState: Story = {
 };
 
 export const InteractionTest: Story = {
-	args: { ...Primary.args, children: "Click" },
-	play: async ({ canvasElement }) => {
+	args: { ...Primary.args, children: "Click", onClick: fn() },
+	play: async ({ canvasElement, args }) => {
 		const canvas = within(canvasElement);
 		const button = canvas.getByRole("button");
 		await userEvent.click(button);
-		await expect(button).toBeInTheDocument();
+		await expect(args.onClick).toHaveBeenCalledTimes(1);
+		button.focus();
+		await userEvent.keyboard("{Enter}");
+		await expect(args.onClick).toHaveBeenCalledTimes(2);
 	},
 };
 
-/**
- * Complete Showcase: All variants, colors, and sizes in one comprehensive grid.
- * Useful for design review and documentation.
- */
+/** Purposeful hierarchy and supported sizes, rather than every API permutation. */
 export const Showcase: Story = {
-	parameters: {
-		layout: "fullscreen",
-		docs: {
-			disable: true,
-		},
-	},
-	render: () => {
-		const variants: Array<"solid" | "soft" | "outlined" | "plain"> = [
-			"solid",
-			"soft",
-			"outlined",
-			"plain",
-		];
-		const colors: Array<
-			"default" | "primary" | "accent" | "success" | "warning" | "info" | "destructive"
-		> = ["default", "primary", "accent", "success", "warning", "info", "destructive"];
-		const sizes: Array<"xs" | "sm" | "md" | "lg" | "xl"> = ["xs", "sm", "md", "lg", "xl"];
-
-		return (
-			<div className="min-h-screen bg-surface-50 p-8 dark:bg-surface-950">
-				<div className="mx-auto max-w-7xl">
-					{/* Header */}
-					<div className="mb-12">
-						<h1 className="mb-2 font-bold text-4xl text-surface-900 dark:text-surface-50">
-							Button Showcase
-						</h1>
-						<p className="text-lg text-surface-600 dark:text-surface-400">
-							Complete reference of all button variants, colors, and sizes.
-						</p>
-					</div>
-
-					{/* Variants */}
-					{variants.map((variant) => (
-						<div key={variant} className="mb-16">
-							{/* Variant Header */}
-							<div className="mb-8 border-surface-200 border-b pb-4 dark:border-surface-800">
-								<h2 className="font-bold text-2xl text-surface-900 capitalize dark:text-surface-50">
-									{variant}
-								</h2>
-							</div>
-
-							{/* Colors Grid */}
-							<div className="mb-12 space-y-8">
-								{colors.map((color) => (
-									<div key={color}>
-										{/* Color Label */}
-										<p className="mb-4 font-semibold text-sm text-surface-500 uppercase tracking-widest dark:text-surface-400">
-											{color}
-										</p>
-
-										{/* Size Grid */}
-										<div className="flex flex-wrap gap-4">
-											{sizes.map((size) => (
-												<div
-													key={size}
-													className="flex flex-col items-center gap-2"
-												>
-													<Button
-														variant={variant}
-														color={color}
-														size={size}
-													>
-														Button
-													</Button>
-													<span className="text-surface-500 text-xs dark:text-surface-400">
-														{size}
-													</span>
-												</div>
-											))}
-
-											{/* Icon Buttons */}
-											<div className="flex flex-col items-center gap-2">
-												<Button
-													variant={variant}
-													color={color}
-													size="icon-sm"
-												>
-													<PlusIcon size={16} weight="bold" />
-												</Button>
-												<span className="text-surface-500 text-xs dark:text-surface-400">
-													icon-sm
-												</span>
-											</div>
-
-											<div className="flex flex-col items-center gap-2">
-												<Button variant={variant} color={color} size="icon">
-													<PlusIcon size={18} weight="bold" />
-												</Button>
-												<span className="text-surface-500 text-xs dark:text-surface-400">
-													icon
-												</span>
-											</div>
-
-											<div className="flex flex-col items-center gap-2">
-												<Button
-													variant={variant}
-													color={color}
-													size="icon-lg"
-												>
-													<PlusIcon size={20} weight="bold" />
-												</Button>
-												<span className="text-surface-500 text-xs dark:text-surface-400">
-													icon-lg
-												</span>
-											</div>
-										</div>
-									</div>
-								))}
-							</div>
-						</div>
-					))}
-
-					{/* States Section */}
-					<div className="mb-16">
-						<div className="mb-8 border-surface-200 border-b pb-4 dark:border-surface-800">
-							<h2 className="font-bold text-2xl text-surface-900 dark:text-surface-50">
-								States
-							</h2>
-						</div>
-
-						<div className="space-y-8">
-							{/* Disabled */}
-							<div>
-								<p className="mb-4 font-semibold text-sm text-surface-500 uppercase tracking-widest dark:text-surface-400">
-									Disabled
-								</p>
-								<div className="flex flex-wrap gap-4">
-									<Button variant="solid" color="primary" disabled>
-										Disabled
-									</Button>
-									<Button variant="soft" color="accent" disabled>
-										Disabled
-									</Button>
-									<Button variant="outlined" color="success" disabled>
-										Disabled
-									</Button>
-									<Button variant="plain" color="info" disabled>
-										Disabled
-									</Button>
-								</div>
-							</div>
-
-							{/* Loading */}
-							<div>
-								<p className="mb-4 font-semibold text-sm text-surface-500 uppercase tracking-widest dark:text-surface-400">
-									Loading
-								</p>
-								<div className="flex flex-wrap gap-4">
-									<Button variant="solid" color="primary" loading>
-										Saving
-									</Button>
-									<Button variant="soft" color="accent" loading>
-										Processing
-									</Button>
-									<Button variant="outlined" color="success" loading>
-										Uploading
-									</Button>
-									<Button variant="plain" color="info" loading>
-										Loading
-									</Button>
-								</div>
-							</div>
-
-							{/* With Tooltip */}
-							<div>
-								<p className="mb-4 font-semibold text-sm text-surface-500 uppercase tracking-widest dark:text-surface-400">
-									With Tooltip
-								</p>
-								<div className="flex flex-wrap gap-4">
-									<Button
-										variant="solid"
-										color="primary"
-										tooltipContent="This is a helpful tooltip"
-									>
-										Hover me
-									</Button>
-									<Button
-										variant="outlined"
-										color="success"
-										size="icon"
-										tooltipContent="Add new item"
-									>
-										<PlusIcon size={18} weight="bold" />
-									</Button>
-								</div>
-							</div>
-						</div>
-					</div>
+	parameters: { layout: "fullscreen" },
+	render: () => (
+		<div className="portfolio-box-pad portfolio-stack-group max-w-4xl">
+			<div className="portfolio-stack-related">
+				<h2 className="portfolio-heading-sm">Action hierarchy</h2>
+				<p className="portfolio-body-sm text-muted-foreground">
+					One primary action. Quiet secondary controls. Color carries a specific meaning.
+				</p>
+				<div className="flex flex-wrap items-center gap-3">
+					<Button>Send message</Button>
+					<Button variant="soft">Save draft</Button>
+					<Button variant="outlined">View project</Button>
+					<Button variant="plain">Cancel</Button>
 				</div>
 			</div>
-		);
-	},
+			<div className="portfolio-stack-related">
+				<h2 className="portfolio-heading-sm">Foundation sizes</h2>
+				<div className="flex flex-wrap items-center gap-3">
+					<Button size="sm" variant="soft">
+						Compact · 36px
+					</Button>
+					<Button size="md" variant="soft">
+						Default · 40px
+					</Button>
+					<Button size="lg" variant="soft">
+						Large · 44px
+					</Button>
+					<Button size="icon" variant="soft" aria-label="Add item">
+						<PlusIcon />
+					</Button>
+				</div>
+			</div>
+			<div className="portfolio-stack-related">
+				<h2 className="portfolio-heading-sm">States and intent</h2>
+				<div className="flex flex-wrap items-center gap-3">
+					<Button disabled>Unavailable</Button>
+					<Button loading>Sending…</Button>
+					<Button variant="soft" color="destructive">
+						<TrashIcon />
+						Delete draft
+					</Button>
+				</div>
+			</div>
+		</div>
+	),
+};
+
+const actionLabels = {
+	idle: "Save changes",
+	pending: "Saving changes",
+	complete: "Changes saved",
+};
+
+function PendingExample() {
+	const [state, setState] = useState<keyof typeof actionLabels>("idle");
+	const pending = state === "pending";
+	return (
+		<div className="portfolio-stack-group w-full max-w-2xl">
+			<div className="portfolio-stack-related">
+				<h2 className="portfolio-heading-sm">Continuous feedback, balanced spacing</h2>
+				<p className="portfolio-body-sm text-muted-foreground">
+					Start the local example, then complete it to compare the states. No request is
+					sent.
+				</p>
+				<div className="flex flex-wrap items-center gap-3">
+					<Button
+						aria-label={actionLabels[state]}
+						loading={pending}
+						onClick={() => setState("pending")}
+					>
+						<StateSwap
+							kind="text"
+							sizing="content"
+							value={state}
+							items={actionLabels}
+						/>
+					</Button>
+					<Button
+						aria-label="Add item"
+						loading={pending}
+						onClick={() => setState("pending")}
+						size="icon"
+						variant="soft"
+					>
+						<PlusIcon aria-hidden="true" />
+					</Button>
+					<Button asChild loading={pending} variant="outline">
+						<a href="#example-preview">View example</a>
+					</Button>
+				</div>
+			</div>
+			<div className="flex flex-wrap items-center gap-3">
+				<Button
+					disabled={!pending}
+					size="sm"
+					variant="plain"
+					onClick={() => setState("complete")}
+				>
+					Complete example
+				</Button>
+				<Button size="sm" variant="plain" onClick={() => setState("idle")}>
+					Reset example
+				</Button>
+			</div>
+		</div>
+	);
+}
+
+export const PendingGeometry: Story = {
+	name: "Interaction details",
+	render: () => <PendingExample />,
 };

@@ -5,7 +5,8 @@ declare module "react" {
 	namespace JSX {
 		interface IntrinsicElements {
 			"mux-video": React.DetailedHTMLProps<
-				React.HTMLAttributes<MuxVideoElement>,
+				React.HTMLAttributes<MuxVideoElement> &
+					Pick<React.VideoHTMLAttributes<MuxVideoElement>, "crossOrigin">,
 				MuxVideoElement
 			>;
 		}

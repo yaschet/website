@@ -1,0 +1,212 @@
+import { expect, type Page, test } from "@playwright/test";
+
+type CapturedFrame = { image: string; time: number };
+
+async function sampleFrames(page: Page, frames: CapturedFrame[]) {
+	return page.evaluate(async (frames) => {
+		const canvas = new OffscreenCanvas(1, 1);
+		const context = canvas.getContext("2d");
+		if (!context) throw new Error("The frame check requires a 2D canvas");
+		const samples: { time: number; red: number }[] = [];
+		for (const frame of frames.slice().sort((a, b) => a.time - b.time)) {
+			const bytes = Uint8Array.from(atob(frame.image), (value) => value.charCodeAt(0));
+			const bitmap = await createImageBitmap(new Blob([bytes]));
+			// Sample the canvas margin below the fixed reading-progress bar.
+			context.drawImage(bitmap, 0, 10, 1, 1, 0, 0, 1, 1);
+			samples.push({ time: frame.time, red: context.getImageData(0, 0, 1, 1).data[0] });
+			bitmap.close();
+		}
+		return samples;
+	}, frames);
+}
+
+// Exercise native snapshot compositing without unrelated software-rendered WebGL.
+test.use({
+	launchOptions: async ({ browserName }, use) => {
+		await use(browserName === "chromium" ? { args: ["--disable-webgl"] } : {});
+	},
+});
+for (const position of ["top", "footer"] as const) {
+	test(`theme paint never reverses at the ${position}`, async ({
+		page,
+		context,
+		browserName,
+		isMobile,
+	}, testInfo) => {
+		test.skip(browserName !== "chromium", "Rendered frame capture requires Chromium CDP");
+		test.slow();
+		await page.addInitScript(() => localStorage.setItem("theme", "dark"));
+		await page.emulateMedia({ reducedMotion: "no-preference", colorScheme: "dark" });
+		const cdp = await context.newCDPSession(page);
+		const frames: CapturedFrame[] = [];
+		cdp.on("Page.screencastFrame", (frame) => {
+			const time = frame.metadata.timestamp;
+			if (time !== undefined) frames.push({ image: frame.data, time });
+			void cdp
+				.send("Page.screencastFrameAck", { sessionId: frame.sessionId })
+				.catch(() => {});
+		});
+		try {
+			for (const width of isMobile ? [393] : [1000, 600]) {
+				await page.setViewportSize({ width, height: 900 });
+				await page.goto(position === "top" ? "/" : "/case-studies/clearway-phoenix");
+				await expect(page.getByRole("button", { name: /^Theme: Switch/ })).toBeVisible();
+				await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+				if (position === "footer")
+					await page.locator("article h2[id]").last().waitFor({ state: "attached" });
+				await page.evaluate(() => document.fonts.ready);
+				if (position === "footer")
+					await page.evaluate(() =>
+						scrollTo({
+							top: document.documentElement.scrollHeight,
+							behavior: "instant",
+						}),
+					);
+				const toggle = page.getByRole("button", { name: /^Theme: Switch/ });
+				await toggle.scrollIntoViewIfNeeded();
+				// Settle the in-flow article dock before recording the theme change.
+				await page.evaluate(async () => {
+					let previous = -1;
+					do {
+						previous = scrollY;
+						await new Promise<void>((resolve) =>
+							requestAnimationFrame(() => resolve()),
+						);
+					} while (scrollY !== previous);
+					document.documentElement.dataset.paintNativeCalls = "0";
+					const start = document.startViewTransition.bind(document);
+					document.startViewTransition = (update) => {
+						document.documentElement.dataset.paintNativeCalls = String(
+							Number(document.documentElement.dataset.paintNativeCalls) + 1,
+						);
+						delete document.documentElement.dataset.paintFinished;
+						delete document.documentElement.dataset.paintMidpoint;
+						const transition = start(update);
+						void transition.ready.then(() => {
+							for (const animation of document.getAnimations()) {
+								if (
+									animation instanceof CSSAnimation &&
+									animation.animationName === "theme-surface-out"
+								) {
+									// Hold the real midpoint until CDP records it; a busy CI
+									// runner can otherwise omit every frame of a 240 ms fade.
+									animation.pause();
+									animation.currentTime = 120;
+									document.documentElement.dataset.paintMidpoint = "true";
+								}
+							}
+						});
+						void transition.finished.then(() => {
+							document.documentElement.dataset.paintFinished = "true";
+						});
+						return transition;
+					};
+				});
+				for (const destination of ["light", "dark"] as const) {
+					frames.length = 0;
+					await cdp.send("Page.startScreencast", {
+						format: "png",
+						everyNthFrame: 1,
+						// Small frames bound capture memory and cost.
+						maxWidth: 100,
+						maxHeight: 90,
+					});
+					await expect.poll(() => frames.length).toBeGreaterThan(0);
+					await toggle.click();
+					if (position === "top") {
+						await expect(page.locator("html")).toHaveAttribute(
+							"data-paint-midpoint",
+							"true",
+						);
+						try {
+							await expect
+								.poll(async () =>
+									(await sampleFrames(page, frames)).some(
+										({ red }) => red > 45 && red < 220,
+									),
+								)
+								.toBe(true);
+						} finally {
+							await page.evaluate(() => {
+								for (const animation of document.getAnimations()) {
+									if (
+										animation instanceof CSSAnimation &&
+										animation.animationName === "theme-surface-out"
+									)
+										animation.play();
+								}
+							});
+						}
+						await expect(page.locator("html")).toHaveAttribute(
+							"data-paint-finished",
+							"true",
+						);
+					} else {
+						await expect(page.locator("html")).toHaveClass(
+							new RegExp(`\\b${destination}\\b`),
+						);
+						await expect(page.locator("html")).toHaveAttribute(
+							"data-paint-native-calls",
+							"0",
+						);
+						await expect(page.locator("html")).not.toHaveAttribute(
+							"data-theme-transition",
+							/.+/,
+						);
+					}
+					await expect
+						.poll(async () => {
+							const red = (await sampleFrames(page, frames)).at(-1)?.red;
+							return (
+								red !== undefined &&
+								(destination === "light" ? red > 230 : red < 30)
+							);
+						})
+						.toBe(true);
+					// Observe teardown and atomic updates long enough to catch old pixels
+					// returning after the theme commits.
+					await page.evaluate(async () => {
+						const end = performance.now() + 250;
+						do {
+							await new Promise<void>((resolve) =>
+								requestAnimationFrame(() => resolve()),
+							);
+						} while (performance.now() < end);
+					});
+					await cdp.send("Page.stopScreencast");
+					const samples = await sampleFrames(page, frames);
+					await testInfo.attach(`${width}-${position}-${destination}-paints.json`, {
+						body: JSON.stringify(samples),
+						contentType: "application/json",
+					});
+					const first = samples[0]?.red;
+					const last = samples.at(-1)?.red;
+					expect(first).toBeDefined();
+					expect(last).toBeDefined();
+					if (first === undefined || last === undefined)
+						throw new Error("No captured theme paints");
+					expect(Math.abs(last - first)).toBeGreaterThan(150);
+					if (position === "top")
+						expect(samples.some(({ red }) => red > 45 && red < 220)).toBe(true);
+					const direction = destination === "light" ? 1 : -1;
+					let furthest = direction * first;
+					const reversals = samples.filter(({ red }) => {
+						const progress = direction * red;
+						const reversed = progress < furthest - 2;
+						furthest = Math.max(furthest, progress);
+						return reversed;
+					});
+					expect(
+						reversals,
+						`${width}px ${position}: old-theme pixels must not return`,
+					).toEqual([]);
+					await expect(page.locator("html")).toHaveClass(
+						new RegExp(`\\b${destination}\\b`),
+					);
+				}
+			}
+		} finally {
+			await cdp.detach().catch(() => {});
+		}
+	});
+}

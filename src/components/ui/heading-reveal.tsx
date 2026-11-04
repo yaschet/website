@@ -1,113 +1,94 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import type { CSSProperties, ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { type CSSProperties, type ReactNode, useRef } from "react";
 import { type RevealPhase, useRevealState } from "@/src/components/providers/reveal-provider";
-import { blur, distances, tweens } from "@/src/lib/index";
-import { TextEffectWrapper } from "./text-effect-wrapper";
+import { useEntryReveal } from "./use-entry-reveal";
 
 interface HeadingRevealProps {
 	as?: "h1" | "h2" | "h3" | "h4" | "p" | "span";
 	children: ReactNode;
 	className?: string;
+	effect?: "rise" | "resolve";
 	delay?: number;
 	phase?: RevealPhase;
 	style?: CSSProperties;
 }
 
-const DESKTOP_QUERY = "(min-width: 768px)";
-const HEADING_STAGGER = 0.03;
-
+/** Shared blur-front reveal with stable word geometry across wrapped page titles. */
 export function HeadingReveal({
-	as = "h2",
+	as: Tag = "h2",
 	children,
 	className,
+	effect = "resolve",
 	delay = 0,
 	phase = 1,
 	style,
 }: HeadingRevealProps) {
-	const shouldReduceMotion = useReducedMotion();
-	const { environment, entryKey, forceRevealed, shouldAnimateEntry } = useRevealState();
-	const [isDesktop, setIsDesktop] = useState(false);
-	const isAutomation = environment === "automation";
-	const isReduced =
-		forceRevealed ||
-		environment === "reduced-motion" ||
-		shouldReduceMotion ||
-		!shouldAnimateEntry;
-	const isTextContent = typeof children === "string" || typeof children === "number";
-	const MotionTag = motion[as] as typeof motion.div;
-	const StaticTag = as;
+	const ref = useRef<HTMLHeadingElement>(null);
+	const { shouldAnimateEntry } = useRevealState();
+	useEntryReveal(ref, { delay, heading: true, effect });
 	void phase;
-
-	useEffect(() => {
-		if (typeof window === "undefined") return;
-
-		const mediaQuery = window.matchMedia(DESKTOP_QUERY);
-		const syncDesktop = () => {
-			setIsDesktop(mediaQuery.matches);
-		};
-
-		syncDesktop();
-		mediaQuery.addEventListener("change", syncDesktop);
-		return () => mediaQuery.removeEventListener("change", syncDesktop);
-	}, []);
-
-	if (isAutomation || isReduced) {
-		return (
-			<StaticTag className={className} style={style}>
-				{children}
-			</StaticTag>
-		);
-	}
-
-	if (!isDesktop || !isTextContent) {
-		return (
-			<MotionTag
-				key={`heading-${entryKey}-${delay}`}
-				initial={{ opacity: 0, y: distances.small, filter: blur.subtle }}
-				animate={{ opacity: 1, y: 0, filter: blur.none }}
-				transition={{
-					y: { ...tweens.content, delay },
-					opacity: { ...tweens.content, delay },
-					filter: { ...tweens.interactionSlow, delay },
-				}}
-				className={className}
-				style={style}
-			>
-				{children}
-			</MotionTag>
-		);
-	}
-
+	const isText = typeof children === "string" || typeof children === "number";
+	// Preserve the sweep's proportions, but bound the full title rather than each word.
+	const resolveCharacterMs = isText
+		? Math.min(45, 1100 / (String(children).trimEnd().length + 6))
+		: 45;
+	const occurrences = new Map<string, number>();
+	let characterOffset = 0;
+	const segments = isText
+		? String(children)
+				.split(/(\s+)/)
+				.map((word) => {
+					const occurrence = occurrences.get(word) ?? 0;
+					occurrences.set(word, occurrence + 1);
+					const offset = characterOffset;
+					characterOffset += word.length;
+					return { word, offset, key: `${word}-${occurrence}` };
+				})
+		: [];
 	return (
-		<TextEffectWrapper
-			key={`heading-text-${entryKey}-${delay}`}
-			as={as}
-			per="word"
-			preset="fade-in-blur"
-			delay={delay}
+		<Tag
+			ref={ref}
 			className={className}
 			style={style}
-			segmentTransition={{
-				type: "tween",
-				...tweens.heading,
-			}}
-			variants={{
-				container: {
-					hidden: { opacity: 1 },
-					visible: {
-						opacity: 1,
-						transition: {
-							staggerChildren: HEADING_STAGGER,
-						},
-					},
-					exit: { opacity: 1 },
-				},
-			}}
+			data-resolve-initial={effect === "resolve" && !shouldAnimateEntry ? "" : undefined}
 		>
-			{children}
-		</TextEffectWrapper>
+			{isText
+				? segments.map(({ word, offset, key }) =>
+						/\S/.test(word) ? (
+							<span
+								key={key}
+								data-heading-word=""
+								className={
+									effect === "resolve"
+										? "portfolio-resolve-word"
+										: "inline-block max-w-full"
+								}
+								style={
+									effect === "resolve"
+										? ({
+												"--resolve-delay": `${Math.max(offset - 3, 0) * resolveCharacterMs}ms`,
+												"--resolve-duration": `${(word.length + 6) * resolveCharacterMs}ms`,
+											} as CSSProperties)
+										: undefined
+								}
+							>
+								{effect === "resolve" ? (
+									<>
+										<span data-resolve-sharp="">{word}</span>
+										<span data-resolve-front="" aria-hidden="true">
+											<span data-resolve-fog="" data-resolve-text={word} />
+										</span>
+									</>
+								) : (
+									word
+								)}
+							</span>
+						) : (
+							word
+						),
+					)
+				: children}
+		</Tag>
 	);
 }

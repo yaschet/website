@@ -9,11 +9,12 @@ let service: ContactDependencies | undefined;
 
 /** Lazily configure shared limits. Missing credentials never enable an in-memory fallback. */
 export function getContactService(): ContactDependencies | null {
+	if (!env.CONTACT_FORM_ENABLED) return null;
 	if (service) return service;
 	const url = env.UPSTASH_REDIS_REST_URL;
 	const token = env.UPSTASH_REDIS_REST_TOKEN;
 	const salt = env.CONTACT_RATE_LIMIT_SALT;
-	if (!url || !token || !salt) return null;
+	if (!env.RESEND_API_KEY || !url || !token || !salt) return null;
 	const redis = new Redis({ url, token, retry: false, signal: () => AbortSignal.timeout(2000) });
 	const limiter = (kind: ContactLimit, algorithm: ReturnType<typeof Ratelimit.slidingWindow>) =>
 		new Ratelimit({
@@ -42,8 +43,8 @@ export function getContactService(): ContactDependencies | null {
 		send: async ({ name, email, subject, message }, idempotencyKey) => {
 			const { data, error } = await resend.emails.send(
 				{
-					from: "Yaschet <contact@mail.yaschet.dev>",
-					to: ["hello@yaschet.dev"],
+					from: "Yaschet <contact@mail.yaschet.com>",
+					to: ["contact@yaschet.com"],
 					replyTo: email,
 					subject: `[Contact Form] ${subject}`,
 					text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,

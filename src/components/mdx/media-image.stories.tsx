@@ -11,13 +11,11 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { MediaImage } from "./media-image";
 
 const meta: Meta<typeof MediaImage> = {
-	title: "MDX/MediaImage",
+	id: "components-media-mediaimage",
+	title: "Components/Media/Image",
 	component: MediaImage,
 	parameters: {
 		layout: "padded",
-		backgrounds: {
-			default: "light",
-		},
 	},
 	argTypes: {
 		src: {
@@ -48,7 +46,7 @@ type Story = StoryObj<typeof MediaImage>;
  */
 export const Default: Story = {
 	args: {
-		src: "/images/verto/hero-dashboard.jpg",
+		src: "/images/verto/dashboard-page.png",
 		alt: "Verto Dashboard Interface",
 		caption: "The main dashboard showing translation analytics",
 	},
@@ -59,7 +57,7 @@ export const Default: Story = {
  */
 export const WithoutCaption: Story = {
 	args: {
-		src: "/images/verto/hero-editor.jpg",
+		src: "/images/verto/review-editor.png",
 		alt: "Translation Editor",
 	},
 };
@@ -69,7 +67,7 @@ export const WithoutCaption: Story = {
  */
 export const PriorityLoading: Story = {
 	args: {
-		src: "/images/verto/hero-translation.jpg",
+		src: "/images/verto/new-translation-page.png",
 		alt: "Translation Flow",
 		caption: "Priority loaded image (check Network tab)",
 		priority: true,
@@ -83,43 +81,20 @@ export const Gallery: Story = {
 	render: () => (
 		<div className="space-y-8">
 			<MediaImage
-				src="/images/verto/hero-dashboard.jpg"
+				src="/images/verto/dashboard-page.png"
 				alt="Dashboard"
 				caption="First image - hover to see zoom hint"
 			/>
 			<MediaImage
-				src="/images/verto/architecture-overview.jpg"
+				src="/images/verto/dashboard-page.png"
 				alt="Architecture"
 				caption="Second image - click to open lightbox"
 			/>
 			<MediaImage
-				src="/images/verto/document-pipeline.jpg"
+				src="/images/verto/pipeline-processing.png"
 				alt="Pipeline"
 				caption="Third image - test ESC to close"
 			/>
 		</div>
 	),
-};
-
-/**
- * Dark mode variant.
- */
-export const DarkMode: Story = {
-	args: {
-		src: "/images/verto/hero-billing.jpg",
-		alt: "Billing Interface",
-		caption: "Dark mode appearance",
-	},
-	parameters: {
-		backgrounds: {
-			default: "dark",
-		},
-	},
-	decorators: [
-		(Story) => (
-			<div className="dark bg-surface-950 p-8">
-				<Story />
-			</div>
-		),
-	],
 };

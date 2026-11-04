@@ -12,6 +12,7 @@ const galleryImageItemSchema = z.object({
 	kind: z.literal("image"),
 	src: z.string(),
 	alt: z.string().optional(),
+	title: z.string().optional(),
 	caption: z.string().optional(),
 });
 
@@ -40,14 +41,30 @@ export const postMetadataSchema = z.object({
 	published: z.boolean().default(true),
 });
 
+const projectOverviewSchema = z.object({
+	engagement: z.enum(["Client project", "Independent product"]),
+	context: z.string().trim().min(1),
+	capability: z.string().trim().min(1).optional(),
+	challenge: z.string().trim().min(1),
+	summary: z.string().trim().min(1),
+});
+
+const projectDeliverySchema = z.object({
+	label: z.enum(["Build", "Platform evolution"]),
+	period: z.string().trim().min(1),
+	duration: z.string().trim().min(1).optional(),
+});
+
 export const projectMetadataSchema = z.object({
 	title: z.string(),
 	description: z.string(),
+	overview: projectOverviewSchema.optional(),
 	subtitle: z.string().optional(),
 	date: z.string(),
 	tags: z.array(z.string()).default([]),
 	tech: z.array(z.string()).default([]),
 	role: z.string().optional(),
+	delivery: projectDeliverySchema.optional(),
 	domain: z.string().optional(),
 	stack: z.array(z.string()).optional(),
 	status: z.string().optional(),
@@ -66,6 +83,8 @@ export const projectMetadataSchema = z.object({
 
 export type PostMetadata = z.infer<typeof postMetadataSchema>;
 export type ProjectMetadata = z.infer<typeof projectMetadataSchema>;
+export type ProjectOverview = z.infer<typeof projectOverviewSchema>;
+export type ProjectDelivery = z.infer<typeof projectDeliverySchema>;
 export type GalleryMediaItem = z.infer<typeof galleryMediaItemSchema>;
 export type MuxVideoMetadata = z.infer<typeof muxVideoMetadataSchema>;
 
@@ -88,5 +107,6 @@ type BaseSummaryEntry<TMetadata> = TMetadata & {
 };
 
 export type PostEntry = BaseEntry<PostMetadata>;
+export type PostSummaryEntry = BaseSummaryEntry<PostMetadata> & { readingTime: number };
 export type ProjectEntry = BaseEntry<ProjectMetadata>;
 export type ProjectSummaryEntry = BaseSummaryEntry<ProjectMetadata>;

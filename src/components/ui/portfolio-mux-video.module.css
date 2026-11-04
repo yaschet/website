@@ -1,0 +1,373 @@
+.player {
+	--portfolio-control-default: var(--foundation-control-height-xl);
+	--player-edge-inset: var(--gallery-stage-inset, var(--portfolio-control-pad-default));
+}
+
+.player button[data-player-interactive]:active {
+	background: var(--color-surface-700);
+}
+
+.playbackArea:focus-visible {
+	outline: 2px solid var(--color-surface-50);
+	outline-offset: -4px;
+}
+
+/* Inline galleries and PhotoSwipe can both land on fractional CSS pixels. Extend only the video
+ * under its existing clip so a compositor-rounded edge cannot reveal the dark
+ * player ground. Keep controls and native fullscreen at their exact bounds. */
+.clippedPlaybackArea {
+	position: absolute;
+	inset: -1px;
+	width: calc(100% + 2px);
+	height: calc(100% + 2px);
+	max-width: none;
+	max-height: none;
+}
+
+.gallerySurface:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: -2px;
+}
+
+.controlsPanel {
+	padding-inline: var(--player-edge-inset);
+	padding-block-end: var(--player-edge-inset);
+}
+
+.controlsChrome {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition:
+		opacity 150ms var(--ease-smooth-out),
+		visibility 0s 150ms;
+}
+
+.controlsChrome[data-visible="true"] {
+	opacity: 1;
+	visibility: visible;
+	transition-delay: 0s;
+}
+
+.posterReturn {
+	inset-block-start: var(--player-edge-inset);
+	inset-inline: var(--player-edge-inset);
+}
+
+.player[data-fullscreen] .controlsPanel {
+	padding-left: max(var(--player-edge-inset), env(safe-area-inset-left, 0px));
+	padding-right: max(var(--player-edge-inset), env(safe-area-inset-right, 0px));
+	padding-block-end: max(var(--player-edge-inset), env(safe-area-inset-bottom, 0px));
+}
+
+.player[data-fullscreen] .posterReturn {
+	inset-block-start: max(var(--player-edge-inset), env(safe-area-inset-top, 0px));
+	inset-inline-start: max(var(--player-edge-inset), env(safe-area-inset-left, 0px));
+	inset-inline-end: max(var(--player-edge-inset), env(safe-area-inset-right, 0px));
+}
+
+.seekInput:disabled {
+	cursor: default;
+	opacity: 0.4;
+}
+
+.loadingStatus {
+	position: absolute;
+	inset-block-start: 50%;
+	inset-inline-start: 50%;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+	z-index: 10;
+}
+
+.timeDisplay {
+	display: inline-flex;
+	gap: 0.375rem;
+	block-size: var(--foundation-control-height-xl);
+	align-items: center;
+	padding-inline: 0.75rem;
+	background: var(--palette-neutral-900);
+	color: var(--palette-neutral-50);
+	font-size: 0.75rem;
+	line-height: 1rem;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.timeDuration {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.375rem;
+	color: var(--palette-neutral-300);
+}
+
+.controlsPanel button {
+	background: var(--palette-neutral-900);
+}
+
+.controlsPanel button:is(:hover, :focus-visible, [aria-expanded="true"]) {
+	background: var(--palette-neutral-800);
+}
+
+.controlsPanel button:active {
+	background: var(--palette-neutral-700);
+}
+
+.previewArtwork {
+	transition: opacity 120ms ease-out;
+}
+
+.previewTime {
+	position: absolute;
+	inset-block-end: 0;
+	inset-inline-start: 0;
+	padding: 0.125rem 0.375rem;
+	background: var(--color-surface-950);
+	color: var(--color-surface-50);
+	font-size: 0.75rem;
+	line-height: 1rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.previewStatus {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	color: var(--color-surface-50);
+	font-size: 0.75rem;
+	line-height: 1rem;
+}
+
+.galleryStage {
+	transition: height 280ms ease;
+}
+
+.playbackFallback {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	overflow: auto;
+	padding: 0.5rem;
+	background: var(--color-surface-950);
+	color: var(--color-surface-50);
+	text-align: center;
+	font-size: 0.875rem;
+	line-height: 1.4;
+}
+
+.fallbackActions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.5rem;
+}
+
+.fallbackButton {
+	min-block-size: var(--foundation-control-height-lg);
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	padding: 0.5rem 0.75rem;
+	background: var(--color-surface-800);
+	color: var(--color-surface-50);
+	cursor: pointer;
+	overflow-wrap: anywhere;
+}
+
+.fallbackButton:hover {
+	background: var(--color-surface-700);
+}
+
+.fallbackButton:active {
+	background: var(--color-surface-600);
+}
+
+.fallbackButton:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.galleryStage {
+		transition: none;
+	}
+
+	.previewArtwork {
+		transition: none;
+	}
+	.controlsChrome {
+		transition: none;
+	}
+}
+
+.player:fullscreen {
+	inline-size: 100vw;
+	block-size: 100dvh;
+}
+
+/* The page's reserved scrollbar gutter must not reduce the fullscreen stage. */
+html:has(.player:fullscreen) {
+	scrollbar-gutter: auto;
+}
+
+.seekInput {
+	position: absolute;
+	inset: 0;
+	display: block;
+	margin: 0;
+	padding: 0;
+	block-size: 100%;
+}
+
+.settingsTrigger {
+	border: 0;
+	inline-size: var(--portfolio-control-default);
+	block-size: var(--portfolio-control-default);
+}
+
+.compactSettings {
+	--dropdown-pre-scale: 1;
+	--dropdown-closing-scale: 1;
+	overflow: hidden;
+	min-inline-size: min(13rem, calc(100vw - 1.5rem));
+	max-inline-size: calc(100vw - 1.5rem);
+}
+
+.videoStage {
+	/* Include the article media frame's two 1px borders. */
+	min-block-size: calc(
+		1.5rem +
+		var(--foundation-control-height-xl) +
+		var(--portfolio-control-pad-default) +
+		2px
+	);
+}
+
+@media (max-height: 32.5rem) and (orientation: landscape) {
+	.videoStage {
+		max-block-size: calc(100svh - 5rem);
+	}
+}
+
+/* Keep the seek position exact; animate only the thumb's interaction feedback. */
+.seekInput::-webkit-slider-thumb {
+	transition:
+		transform 160ms ease-out,
+		background-color 160ms ease-out;
+}
+.seekInput::-moz-range-thumb {
+	transition:
+		transform 160ms ease-out,
+		background-color 160ms ease-out;
+}
+.seekInput:active::-webkit-slider-thumb {
+	transform: scale(1.2);
+}
+.seekInput:active::-moz-range-thumb {
+	transform: scale(1.2);
+}
+@media (hover: hover) and (pointer: fine) {
+	.seekInput:hover::-webkit-slider-thumb {
+		transform: scale(1.2);
+	}
+	.seekInput:hover::-moz-range-thumb {
+		transform: scale(1.2);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.seekInput::-webkit-slider-thumb {
+		transition: none;
+	}
+	.seekInput::-moz-range-thumb {
+		transition: none;
+	}
+}
+
+.volumeGroup {
+	background: color-mix(in srgb, var(--palette-neutral-900) 60%, var(--palette-neutral-950));
+}
+
+.volumeReveal {
+	inline-size: 0;
+	padding-inline: 0;
+	block-size: var(--foundation-control-height-xl);
+	overflow: hidden;
+	flex-shrink: 0;
+	opacity: 0;
+	pointer-events: none;
+	transition:
+		inline-size 220ms var(--ease-smooth-out),
+		padding-inline 220ms var(--ease-smooth-out),
+		opacity 120ms ease-out;
+}
+.volumeGroup:focus-within .volumeReveal {
+	inline-size: 6.5rem;
+	padding-inline: 0.75rem;
+	opacity: 1;
+	pointer-events: auto;
+}
+@media (hover: hover) and (pointer: fine) {
+	.volumeGroup:hover .volumeReveal {
+		inline-size: 6.5rem;
+		padding-inline: 0.75rem;
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.volumeReveal {
+		transition: none;
+	}
+}
+
+.settingsViewport {
+	inline-size: min(15rem, calc(100vw - 2.5rem));
+	overflow: hidden;
+}
+.settingsView {
+	inline-size: min(15rem, calc(100vw - 2.5rem));
+}
+.settingsValue {
+	color: var(--palette-neutral-400);
+	margin-inline-start: auto;
+}
+
+.compactSettings {
+	--foundation-scrollbar-track: var(--palette-neutral-900);
+	--foundation-scrollbar-thumb: var(--palette-neutral-700);
+	--foundation-scrollbar-thumb-hover: var(--palette-neutral-600);
+	--foundation-scrollbar-thumb-active: var(--palette-neutral-500);
+	scrollbar-color: var(--foundation-scrollbar-thumb) var(--foundation-scrollbar-track);
+}
+.settingsViewport::-webkit-scrollbar {
+	width: 8px;
+}
+.settingsViewport::-webkit-scrollbar-track {
+	background: var(--foundation-scrollbar-track);
+}
+.settingsViewport::-webkit-scrollbar-thumb {
+	background: var(--foundation-scrollbar-thumb);
+	border: 0;
+	border-radius: 0;
+}
+.settingsViewport::-webkit-scrollbar-thumb:hover {
+	background: var(--foundation-scrollbar-thumb-hover);
+}
+.settingsViewport::-webkit-scrollbar-thumb:active {
+	background: var(--foundation-scrollbar-thumb-active);
+}
+.settingsHeader {
+	font-weight: 500;
+}
+
+/* Standard scrollbar colors override WebKit pseudo-element geometry. Keep
+ * Firefox's fallback above and let WebKit render the shared square thumb. */
+@supports selector(::-webkit-scrollbar) {
+	.compactSettings,
+	.settingsViewport {
+		scrollbar-color: auto;
+		scrollbar-width: auto;
+	}
+}

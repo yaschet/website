@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Spinner } from "./spinner";
 
 const meta: Meta<typeof Spinner> = {
-	title: "Primitives/Spinner",
+	id: "primitives-spinner",
+	title: "Components/Feedback/Spinner",
 	component: Spinner,
 	tags: ["autodocs"],
 	parameters: {
@@ -10,7 +11,7 @@ const meta: Meta<typeof Spinner> = {
 		docs: {
 			description: {
 				component:
-					"A system-consistent SVG spinner with 'draw-square' animation. Used for loading states.",
+					"The same Remix loader used by Yaschet Foundation. Keep visible loading text alongside decorative button spinners.",
 			},
 		},
 	},
@@ -96,27 +97,27 @@ export const Showcase: Story = {
 		];
 
 		return (
-			<div className="min-h-screen bg-surface-50 p-12 dark:bg-surface-950">
+			<div className="portfolio-box-pad bg-surface-50 dark:bg-surface-950">
 				<div className="mx-auto max-w-5xl space-y-12">
 					<div>
-						<h1 className="mb-2 font-bold text-4xl text-surface-900 dark:text-surface-50">
+						<h1 className="portfolio-heading-lg mb-5 text-surface-900 dark:text-surface-50">
 							Spinner Showcase
 						</h1>
-						<p className="text-surface-600 dark:text-surface-400">
+						<p className="portfolio-body-md text-surface-600 dark:text-surface-400">
 							All sizes and semantic color mappings.
 						</p>
 					</div>
 
 					{colors.map((color) => (
 						<div key={color} className="space-y-4">
-							<h3 className="font-mono text-sm text-surface-500 uppercase tracking-wider">
+							<h2 className="font-mono text-sm text-surface-600 uppercase tracking-wider dark:text-surface-400">
 								{color}
-							</h3>
-							<div className="flex items-center gap-8 border-surface-200 border-b pb-8 dark:border-surface-800">
+							</h2>
+							<div className="flex flex-wrap items-center gap-5 border-surface-200 border-b pb-5 dark:border-surface-800">
 								{sizes.map((size) => (
 									<div key={size} className="flex flex-col items-center gap-3">
 										<Spinner size={size} color={color} />
-										<span className="font-mono text-surface-400 text-xs">
+										<span className="font-mono text-surface-600 text-xs dark:text-surface-400">
 											{size}
 										</span>
 									</div>

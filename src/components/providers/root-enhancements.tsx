@@ -2,13 +2,12 @@
 
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { useRouter } from "next-nprogress-bar";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Toaster } from "@/src/components/ui/sonner";
 import { NAVIGATION_SHORTCUTS } from "@/src/constants/navigation";
 import { DeferredGlobalChrome } from "./deferred-global-chrome";
-import { DevAgentation } from "./dev-agentation";
 import { WebVitals } from "./web-vitals";
 
 export function RootEnhancements() {
@@ -102,8 +101,7 @@ export function RootEnhancements() {
 				</>
 			) : null}
 			<WebVitals />
-			<Toaster closeButton={true} expand={false} position="top-right" richColors={false} />
-			<DevAgentation />
+			<Toaster />
 		</>
 	);
 }

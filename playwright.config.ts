@@ -1,17 +1,20 @@
 import { existsSync } from "node:fs";
-import { defineConfig, devices, webkit } from "@playwright/test";
+import { defineConfig, devices, firefox, webkit } from "@playwright/test";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
 const port = new URL(baseURL).port || "3000";
 const includeWebKit = process.env.CI || existsSync(webkit.executablePath());
+const includeFirefox = process.env.CI || existsSync(firefox.executablePath());
 
 export default defineConfig({
 	testDir: "./e2e",
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
+	// Full interaction journeys include several settled animations on shared CI runners.
+	timeout: process.env.CI ? 60_000 : 30_000,
 	workers: process.env.CI ? 1 : 2,
-	reporter: "list",
+	reporter: process.env.CI ? [["list", { printFailuresInline: true }], ["github"]] : "list",
 	use: {
 		baseURL,
 		trace: "on-first-retry",
@@ -25,6 +28,7 @@ export default defineConfig({
 			name: "mobile-chrome",
 			use: { ...devices["Pixel 5"] },
 		},
+		...(includeFirefox ? [{ name: "firefox", use: { ...devices["Desktop Firefox"] } }] : []),
 		...(includeWebKit
 			? [
 					{

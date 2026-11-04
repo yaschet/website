@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
+import { SITE_DESCRIPTION, SITE_ROLE } from "@/src/constants/site";
 
 export default function manifest(): MetadataRoute.Manifest {
 	return {
-		name: "Yassine Chettouch | Software Engineer",
+		name: `Yassine Chettouch | ${SITE_ROLE}`,
 		short_name: "Yassine",
-		description:
-			"Portfolio of Yassine Chettouch, a Software Engineer specialized in high-performance web systems.",
+		description: SITE_DESCRIPTION,
 		start_url: "/",
 		display: "standalone",
 		background_color: "#fafafa", // Zinc-50 (Surface Light)

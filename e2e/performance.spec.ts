@@ -9,6 +9,7 @@ test.describe("Sitemap route and lab performance checks", () => {
 		browserName,
 	}) => {
 		test.setTimeout(180_000);
+		test.skip(process.env.VERCEL_ENV === "preview", "Preview deployments omit the sitemap.");
 		// 1. Fetch Sitemap
 		// biome-ignore lint/suspicious/noConsole: Test output
 		console.log(`🗺️  Fetching sitemap from ${BASE_URL}/sitemap.xml ...`);
@@ -31,7 +32,7 @@ test.describe("Sitemap route and lab performance checks", () => {
 		// 3. Iterate & Test Each Route
 		for (const url of urls) {
 			// Convert absolute production URL back to local relative path
-			// e.g. https://www.yaschet.dev/about -> /about
+			// e.g. https://www.yaschet.com/about -> /about
 			const relativePath = new URL(url).pathname;
 
 			if (/\.[a-z0-9]+$/i.test(relativePath) && !relativePath.endsWith(".html")) {

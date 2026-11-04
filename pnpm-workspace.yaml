@@ -3,6 +3,8 @@ packages:
 overrides:
   # GHSA-mw96-cpmx-2vgc: constrain an older Storybook optional peer to patched Rollup 4.
   "rollup@<4.59.0": "^4.59.0"
+  # GHSA-3g3m-2fjr-6pw4 and GHSA-g3hv-75wg-m249: patch Storybook file matching.
+  "@joshwooding/vite-plugin-react-docgen-typescript>glob": "14.0.2"
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
