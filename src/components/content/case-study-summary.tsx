@@ -5,6 +5,7 @@ import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { ProjectTechnologyRail } from "@/src/components/ui/project-technology-rail";
 import { ReelIcon } from "@/src/components/ui/reel";
 import { Reveal, revealSequence } from "@/src/components/ui/reveal";
+import type { ProjectOverview } from "@/src/content/types";
 import { formatDate } from "@/src/lib/format-date";
 import styles from "./case-study-summary.module.css";
 
@@ -14,6 +15,7 @@ interface CaseStudyHeaderProps {
 	date: string;
 	readingTime: number;
 	markdownHref: string;
+	overview?: ProjectOverview;
 }
 
 /** The same measured introduction is rendered on the case-study page and in the workshop. */
@@ -23,6 +25,7 @@ export function CaseStudyHeader({
 	date,
 	readingTime,
 	markdownHref,
+	overview,
 }: CaseStudyHeaderProps) {
 	return (
 		<header className={styles.header}>
@@ -48,6 +51,11 @@ export function CaseStudyHeader({
 				</div>
 			</Reveal>
 			<div className={styles.introduction}>
+				{overview && (
+					<p className={styles.context}>
+						{overview.engagement} · {overview.context}
+					</p>
+				)}
 				<HeadingReveal
 					as="h1"
 					delay={revealSequence.heading}
@@ -59,6 +67,18 @@ export function CaseStudyHeader({
 					<p className={styles.lede}>{description}</p>
 				</Reveal>
 			</div>
+			{overview && (
+				<dl className={styles.overview} aria-label="Project overview">
+					<div>
+						<dt>The problem</dt>
+						<dd data-slot="case-study-problem">{overview.challenge}</dd>
+					</div>
+					<div>
+						<dt>What I built</dt>
+						<dd data-slot="case-study-contribution">{overview.summary}</dd>
+					</div>
+				</dl>
+			)}
 			<Reveal delay={revealSequence.meta} className={styles.metaRow}>
 				<span className={styles.metaItem}>
 					<span className={styles.metaIcon}>
@@ -94,7 +114,10 @@ export function CaseStudyFacts({
 	stackHighlights,
 }: CaseStudyFactsProps) {
 	return (
-		<section className={styles.summary} aria-label="Project details">
+		<section
+			className={styles.summary}
+			aria-label={`${facts.length > 0 ? "Project" : "Technology"} details for ${projectTitle}`}
+		>
 			{facts.length > 0 && (
 				<dl
 					className={`portfolio-project-facts ${styles.facts}`}

@@ -32,6 +32,10 @@ interface MediaGalleryProps {
 	caption?: string;
 	aspectRatio?: string;
 	className?: string;
+	altPrefix?: string;
+	breakout?: boolean;
+	sizes?: string;
+	prioritizeFirstImage?: boolean;
 }
 
 export function MediaGallery({
@@ -41,6 +45,10 @@ export function MediaGallery({
 	caption,
 	aspectRatio = "16/9",
 	className,
+	altPrefix,
+	breakout = true,
+	sizes = "(max-width: 768px) 100vw, 768px",
+	prioritizeFirstImage = false,
 }: MediaGalleryProps) {
 	const [activeIndex, setActiveIndex] = useState(0);
 	const galleryItems = useMemo<GalleryMediaSource[]>(() => {
@@ -65,10 +73,16 @@ export function MediaGallery({
 	const currentCaption = galleryItems[activeIndex]?.caption;
 	const first = galleryItems[0];
 	const galleryLabel =
-		caption || (first?.kind === "mux-video" ? first.title || first.alt : first?.alt);
+		altPrefix ||
+		caption ||
+		(first?.kind === "mux-video" ? first.title || first.alt : first?.alt);
 
 	return (
-		<figure data-breakout="true" className="media-breakout mb-(--portfolio-space-group)">
+		<figure
+			data-slot="media-panel"
+			data-breakout={breakout ? "true" : undefined}
+			className={breakout ? "media-breakout mb-(--portfolio-space-group)" : "m-0"}
+		>
 			<BaseMediaGallery
 				items={galleryItems}
 				altPrefix={galleryLabel || "Gallery media"}
@@ -78,15 +92,17 @@ export function MediaGallery({
 				showCounter={itemCount > 1}
 				onIndexChange={setActiveIndex}
 				className={className}
-				prioritizeFirstImage={false}
+				prioritizeFirstImage={prioritizeFirstImage}
 				expandable
-				sizes="(max-width: 768px) 100vw, 768px"
+				sizes={sizes}
 				quality={75}
 			/>
 
 			{/* Caption */}
 			{currentCaption && (
-				<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-600 text-xs dark:text-surface-400">
+				<figcaption
+					className={`text-left text-[0.8125rem]/5 text-muted-foreground ${breakout ? "mt-(--portfolio-space-tight)" : "px-(--portfolio-box-pad-mobile) py-3 sm:px-8"}`}
+				>
 					{currentCaption}
 				</figcaption>
 			)}

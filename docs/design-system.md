@@ -33,7 +33,7 @@ palette in global CSS.
 
 | Property | Contract |
 | --- | --- |
-| Typography | Space Grotesk for reading, labels, dates, and counts; Space Mono only for code, identifiers, shortcuts, and true system metadata |
+| Typography | Space Grotesk for reading, labels, dates, and counts; Space Mono for project category lines, code, identifiers, shortcuts, and true system metadata |
 | Hierarchy | One page-level heading; profile identity and metadata do not introduce competing `h1` elements |
 | Geometry | Square default; component-specific exceptions must have a functional reason |
 | Structure | Responsive Swiss grid, registered keylines, stable media dimensions |
@@ -132,10 +132,25 @@ component typography.
 
 Video menus are non-modal radio selections. They preserve selected state,
 return focus to their trigger, and portal into the owning lightbox or fullscreen player.
-Keep 40px video menu rows and readable labels at narrow widths; reflow controls
-instead of shrinking text. Menus open in 150ms and close in 80ms, without blur;
+Players narrower than 760px, or used with a coarse primary pointer, use one
+transport row and a seek strip. Play, mute, settings and fullscreen have 44px
+targets; speed and quality share one grouped settings menu with 44px rows.
+The compact panel is 72px tall, including its 24px seek target, without internal
+dividers at the default root text size. Below 240px of available player width,
+mute and fullscreen move into settings; elapsed time is available through the
+seek control. The stage has enough minimum height for the controls when text
+is enlarged. Wide fine-pointer players retain the volume control and separate
+40px-row settings menus. Menus open in 150ms and close in 80ms, without blur;
 keyboard selection is immediate. Opaque inverse media controls stay legible over
 changing footage in either page theme.
+
+On touch screens, tapping playing footage reveals or hides controls; the play
+button pauses playback. Hidden controls and covered posters are inert. Closing
+inline playback restores focus to the poster's play button without scrolling.
+In landscape viewports up to 32.5rem high, inline video stages fit within the
+viewport height minus 5rem and contain the complete frame. Fullscreen fills the
+viewport, restores prior scroll locks on exit, and uses the native video element
+for the iOS fullscreen fallback. Control fades respect reduced motion.
 
 The lightbox owns its focus scope and keyboard shortcuts. Initial focus goes
 to Close; dismissal restores the owning gallery, or the opener for a standalone
@@ -263,24 +278,82 @@ Project cards use locally owned surface roles from the Foundation neutral palett
 and a density-aware Neutral 300/700 perimeter. The preview owns one bottom
 boundary, including after the deferred gallery mounts. Cards without assigned
 media render only the content and technology footer, with no empty preview panel.
-The content panel is
-white in Light and Neutral 925 in Dark. Its title and explanation share equal
-20px insets on phones and 30px from 640px, with a 20px gap. Titles use 24/32px
-and 28/36px respectively. Authored project overviews place ownership and delivery
-status beneath the title in a quiet 13/20px line. Two short paragraphs explain
-the previous problem and what was built, with 10px between them; the contribution
-uses the stronger text role. These statements come from the case-study MDX,
-without inferred results or metrics. Delivery periods remain distinct from article
-publication dates. Cards without an overview retain the index/date metadata and
-single-description fallback. One native title
-link extends its hit area across the overview, with a centered 40px action
-chamber beside the title. The footer remains a separate interaction zone.
-Overview paragraphs remain complete, with 22px leading on phones and 24px from 640px.
+The caption uses white in Light and Neutral 925 in Dark.
+Supporting facts sit beneath the title, inside the same reading panel. At card
+widths of 720px and above, product type and primary capability align left while
+role and one timing fact align right. Narrower cards use one left-aligned wrapping
+group. The facts use the shared Foundation Badge
+with the technology footer's surface: 28px height, 10px horizontal padding and 10px
+gaps. Whole badges wrap without shrinking or truncation. There is no extra
+metadata band above the title.
+
+Product type, capability, role and timing use uppercase 12/16px
+Space Mono at regular 400 weight, with normal tracking and tabular figures.
+Every badge uses the technology footer's fill and muted label ink, with an
+inset hairline. Its thickness and idle color match the card perimeter, footer
+seams and title action; the action retains its own hover, press and focus states.
+The badges are read-only, with no icons, arbitrary color variants or fake hover states.
+The role badge reads `Product Engineer`, sourced from the same project metadata
+as the full case study. The narrative explains the complete ownership from design
+through delivery. Generic status labels are omitted.
+
+Verto shows “Built in 3 months”; its October 2025–January 2026 build period
+remains in the article. Portal records 4 September–16 October 2025, six weeks.
+Phoenix uses the approximate duration “About 14 weeks” in 2025. Agency CRM &
+Billing uses “Ongoing development” because an initial build was extended through
+client-requested features. These facts remain an accessible definition list,
+with one value for each term.
+
+The title shares a row with the compact 40px square arrow chamber. The arrow
+uses the technology footer's fill and primary logo ink at rest, with the existing directional reel
+and loading feedback. No separate name, subtitle or prominent text CTA precedes
+the copy. The title, challenge and response share one uninterrupted white /
+Neutral 925 surface, with one equal 20px outer inset on phones and 30px from
+640px. Titles use 24/32px and 28/36px respectively. A 20px vertical gap separates
+the title and each story group; no internal seam or alternate fill divides them.
+
+The challenge and response remain in a single column at every width. Each has
+a quiet 12/16px mono label, a 5px label-to-paragraph gap and complete 16/26px
+foreground prose with a 720px reading measure. The challenge states the real
+business difficulty; the response credits the complete product and the decisions
+that address it. A film's example does not define the whole product. The flush
+technology footer supplies the main material contrast beneath this reading area.
+
+Use `Product Engineer` as the role, and describe end-to-end ownership explicitly.
+Dates come from typed delivery metadata, independently of the article's publication
+date. Keep approximate durations approximate, and distinguish an ongoing
+engagement from one fixed build. The full article and generated Markdown retain
+the same role and delivery record.
+The MDX owns this copy; component and page stories import it rather than keeping
+a second version. No outcomes or metrics are inferred from demonstration footage.
+
+One native title link extends its hit area across the overview. The preview
+and technology footer remain separate interaction zones. Hover changes the frame
+and action material; keyboard focus appears immediately, without moving the card.
+Cards without an overview retain their index/date and description fallback.
+Overview paragraphs remain complete and unclamped at every width.
+
+The shared `GalleryPlayButton` uses one dark 160×48px control with two flush
+chambers, no outer padding and no internal gap. A 48px square chamber holds the
+20px play glyph or 16px spinner. The triangle's painted height balances the label;
+the loading glyph retains Foundation's standard size. The adjacent 112×48px text
+chamber centers Play and its
+natural-width duration as one group, with a shared baseline, a fixed 10px gap
+and equal side clearance. Its 12px minimum insets protect longer durations.
+Without a duration, Play centers in that same text chamber. The icon chamber
+uses Neutral 900 and the text chamber uses Neutral 950, with one shared hairline
+perimeter and no separate internal borders. The whole button activates as one
+target; hover and press brighten the icon chamber while the text chamber and its
+copy retain contrast. Geometry stays fixed. The label stays steady;
+no letter stagger delays recognition.
+Keyboard focus uses one immediate white perimeter. The existing
+16px loading spinner occupies that same chamber without changing button size.
+The static poster and deferred gallery render this same component.
 
 `ProjectTechnologyRail` owns the full-width 64px footer, using Mineral 200 in
 Light and Neutral 950 in Dark. One top hairline and joined vertical seams define
-six logo cells when the caption is at least 640px wide, and three below
-that width. The disclosure shares their column grid: all seven desktop cells or
+five logo cells when the caption is at least 640px wide, and three below
+that width. The disclosure shares their column grid: all six desktop cells or
 four compact cells have equal widths and a fixed 64px height, with the same 8px
 insets, 28px symbol chamber, caption styling and resting surface as the logo
 cells. Its grid symbol and “Stack” caption identify the complete technology list;
@@ -302,7 +375,7 @@ The shared top hairline is painted above the cells, so disclosure hover and open
 fills cannot erase it. Interactive states preserve the cell seams and geometry.
 
 Three core technologies lead the first frame and remain fixed on desktop.
-The final three desktop cells exchange supporting technologies as one ordered
+The final two desktop cells exchange supporting technologies as one ordered
 window. Compact rails exchange all three cells, starting with the same core
 technologies. Each new window follows the authored supporting order, wrapping
 without duplicating a technology within the frame. If every technology already
@@ -311,8 +384,8 @@ without waiting for an exchange or adding another footer row.
 Project highlights are presentation data, included only when they
 exist in the authored stack. Windows advance every 2.2 seconds: a contained 400ms
 fade, 6px vertical travel and 2px blur, phased by 50ms from the rightmost changing
-cell inward. The final cell settles 500ms into the cycle, leaving 1.7 seconds
-with every symbol at rest. This cadence is a presentation choice, not a claim
+cell inward. The final cell settles within 500ms on compact rails and 450ms on wide rails,
+leaving at least 1.7 seconds with every symbol at rest. This cadence is a presentation choice, not a claim
 about attention spans. No card dimensions
 animate. Hover, keyboard focus and opening the disclosure pause rotation; its
 pause control can retain that state after dismissal. An exchange already
@@ -417,16 +490,20 @@ keeps a visible underline and immediate keyboard focus. No separate button
 competes with the homepage's hero and footer CTA areas.
 
 Both the initial poster and enhanced gallery use `GalleryPlayButton`: the same
-48px inverse Foundation control, 16px play/loader slot, 14/20px sans-serif label
-and duration, and 8px internal gaps. Loading disables repeat activation and
+160×48px dark Foundation control, 20px play glyph, 16px loader and 14/20px sans-serif
+label and duration. Loading disables repeat activation and
 keeps the control's dimensions and label stable. It adds no separate hover
 zoom, shadow, blur or spinner recipe.
 
 ## Case-Study Reading
 
 Case-study introductions use the production `CaseStudyHeader`. One outer inset
-owns all four sides: 20px on phones and 32px from 640px. The toolbar, introduction
-and utilities share that content edge, with 24px between groups. The back link
+owns all four sides: 20px on phones and 32px from 640px. Case-study and blog-post
+frames reach the page edges below 640px, using `PageContainer`'s `mobileBleed`
+option so the frame's 20px content inset is the only mobile gutter. Article text,
+the opening and the closing CTA share that edge; evidence can use the complete
+frame width. Ordinary page containers keep their existing gutters. The toolbar,
+introduction and utilities have 20px between groups on phones, 24px from 640px. The back link
 uses the existing directional reel and square glyph chamber. Publication metadata
 is a compact label/date pair. Descriptions use 16/26px and 18/30px reading type.
 Reading time is a passive 40px framed display; Copy Markdown is a separate 40px
@@ -434,7 +511,9 @@ Foundation outline action with the same chamber geometry. Loading begins only on
 activation and retains pending, success and recoverable-error feedback.
 
 `CaseStudyFacts` owns semantic fact/value pairs above `ProjectTechnologyRail`.
-Phones use aligned label/value rows with equal 20px insets. From 768px, available
+Phones use aligned label/value rows with 20px inline and 12px block insets;
+single-line facts are 44px high before their shared boundary. From 640px the
+stacked rows return to 20px on all sides. From 768px, available
 facts fill one, two or three equal columns, each with 24px on all four sides and
 an 8px label/value gap. Labels use 13/20px medium, values 14/20px on phones and
 16/24px medium on desktop. Content wraps without clipping or shrinking the type.
@@ -449,9 +528,36 @@ Captions use 13/20px Space Grotesk. Tables keep native semantics, equal 16px cel
 insets and wrapping 14/24px values. Code keeps 13/20px Space Mono and its own
 horizontal scroll; an always-visible 40px copy action occupies a separate header.
 
-Contents use the Foundation dialog at ordinary widths and a quiet reading rail
-from 1536px, where it fits outside the article frame. Entries have a 40px minimum
-hit area and wrap at 13/20px. Escape restores the trigger; selecting an entry
+These pixel equivalents describe the normal 16px root setting. Reading roles
+and generated Capsize sizes use rem, so changing the reader's root size preserves
+their hierarchy. The existing Space Grotesk / Space Mono pairing is retained.
+The narrow-to-wide reading contract is:
+
+| Role | Below 40rem | From 40rem | Measure |
+| --- | --- | --- | --- |
+| Page title | 2rem/2.5rem; 2.25rem/2.75rem from 22.5rem | 3rem/3.5rem | 24ch |
+| Lead / opening summary | 1rem/1.625rem | 1.125rem/1.875rem | 62ch |
+| Body and lists | 1rem/1.75rem | 1.125rem/2rem | 60ch |
+| Article h2 | 1.25rem/1.75rem | 1.5rem/2rem | Reading column |
+| Article h3 | 1.125rem/1.5rem | 1.25rem/1.75rem | Reading column |
+| Captions / metadata labels | 0.8125rem/1.25rem | Same | Figure / fact column |
+| Table values | 0.875rem/1.5rem | Same | Local table |
+| Code | 0.8125rem/1.25rem, Space Mono | Same | Local horizontal scroll |
+
+Titles and headings use weight 500; ordinary reading text uses 400. Body tracking
+is -0.01em, h2 is -0.015em, and captions use normal tracking. Paragraphs have
+20px after them; h2 uses 40px before and 16px after; h3 uses 30px before and
+12px after. A 60ch text column sits inside the larger figure grid, so supporting
+media can expand without lengthening prose lines. Long words wrap rather than
+forcing page overflow. These values preserve this portfolio's measured hierarchy;
+they are design decisions, not universal accessibility thresholds.
+
+Contents use one top-centred 44px trigger once the article reaches the reading
+band. A quiet outside rail appears only from 1536px wide and 768px tall. On
+article layouts below 1024px or at most 520px high, the site dock stays in flow
+after the footer, leaving one fixed reading control. Entries have a 44px minimum
+hit area and wrap at 13/20px. The dialog fits the dynamic viewport, including
+short landscape layouts. Escape restores the trigger; selecting an entry
 closes the dialog, updates the fragment and moves focus to the section heading.
 Reduced motion bypasses animated scrolling. Article images reuse the production
 gallery viewer, including keyboard activation, Escape and focus return, rather
@@ -473,9 +579,13 @@ not acquire button-like hover frames. Existing authored claims remain intact.
 
 `ContactMethods` renders native Foundation links and complete, wrapping copy.
 Methods stack until 1024px, then use three equal columns with aligned action
-rows. The page owns the outer inset. `ContactMessage` gives the real form a
-visible heading and introduction, separated from its fields by 30px.
-Fields use 8px label/control gaps, 24px field/column gaps and 40px controls.
+rows. The page owns the outer inset. The launch page keeps email and booking
+available while the server-only `CONTACT_FORM_ENABLED` gate defaults to false.
+When enabled after delivery verification, `ContactMessage` gives the real form
+a visible heading and introduction, separated from its fields by 30px.
+Fields use 8px label/control gaps, 24px field/column gaps and 40px controls;
+below 640px, inputs and the submit action have a 44px minimum height, and
+inputs use 1rem text to avoid small-text focus zoom on iOS.
 Name/email share a row from 640px. The message field starts at 160px and grows
 with its content. Submit spans phones and keeps its content width on larger
 screens; pending retains its height and equal insets while the active label's
@@ -492,6 +602,14 @@ stop at validation; submission states use the isolated Storybook action mock.
 An action's label describes its destination. `Email` opens `mailto:`,
 `Book a call` opens the shared scheduling URL, and project enquiries lead to
 `/contact` with `Discuss a project`. Booking is an option, not a required step.
+
+Closing action bands use 28/36px titles below 640px, with matching Space Grotesk
+Capsize trims, 20px block insets and the existing 20px mobile inline inset.
+From 640px they retain the 36/44px title and existing desktop spacing. The same
+rule reaches article CTAs with nested content; control sizes are independent.
+On phones, action labels wrap and grow vertically when text is enlarged. The
+resting label supplies that flow instead of the desktop character reel. Header
+toolbars can also wrap, and their grid tracks never force a wider article.
 
 | Page | Reading or discovery action | Closing action |
 | --- | --- | --- |
@@ -568,6 +686,22 @@ portfolio frames and dividers are solid; dashed structural decoration is not
 part of this composition. The topographic shader retains its tonal band recipe,
 resolving the shared neutral ramp rather than flattening bands into UI surface roles.
 
+All structural frames, control outlines and seams consume `--foundation-hairline`.
+The document bootstrap sets it to `1 / devicePixelRatio` CSS pixels before paint;
+`HairlineScale` follows resolution changes from browser zoom or display changes.
+CSS resolution fallbacks retain hairlines without JavaScript. Storybook uses the
+same synchronizer. This keeps native borders, inset frames and painted seams at
+the same physical thickness at fractional scales, rather than switching abruptly
+between 1px and 0.5px. The header, hero and project cards share the `border` color
+role; functional control states retain their own material roles.
+
+Project cards paint one inset perimeter above their content. Media fills the
+whole card width beneath that frame, without reserving a fractional border
+gutter. Preview and technology dividers each own one internal seam; neither adds
+a second outer frame. The context flag's equal inset uses the same hairline,
+with the chamber backed by its line color. Marquee phrases use the context
+rail's 20px gap, including the join between repeated cycles, without dot separators.
+
 The floating navigation is an intentional inverse material: neutral-950 in light
 mode and neutral-50 in dark mode, with opposite ink. A counter-inverse 40px
 indicator identifies the current route. A separate soft hover plane travels between
@@ -607,7 +741,7 @@ location label to Rabat instead of compressing its chamber or overflowing.
 
 Each 14px clock glyph has 7px clearance inside its square; 16px label line-height
 leaves 6px above and below. Label insets are 10px. One outer perimeter and one
-chamber seam share the same quiet hairline. The chamber has no competing border or separate
+chamber seam share the same quiet hairline. The clock chamber has no competing border or separate
 fill: hover strengthens the entire joined surface to primary-soft; open uses
 primary-soft-hover and press uses primary-soft-active. The line never brightens
 on hover. A neutral 2px inset focus frame is reserved for keyboard use. The flag
@@ -685,9 +819,10 @@ StateSwap keeps icon and label layers mounted. Stable sizing reserves the
 largest state; content sizing transitions to the active text's natural width.
 Use the Foundation icon-swap tokens and text crossfade for copy, theme and media
 feedback; give the owning action its current accessible name. Keyboard and
-reduced-motion changes are immediate. Theme changes use one native 240ms page
-crossfade, with material interpolation suppressed; embedded previews and live
-dialogs change immediately. Reading-time metadata and Copy Markdown share a
+reduced-motion changes are immediate. At the page origin, pointer theme changes
+use one native 240ms page crossfade, with material interpolation suppressed.
+Scrolled pages, embedded previews and live dialogs change immediately.
+Reading-time metadata and Copy Markdown share a
 40px row, 14/20px type and 16px glyphs.
 
 Web Vitals are developer diagnostics, never visitor notifications. Development
@@ -766,22 +901,24 @@ Initial HTML stays readable before hydration. Keyboard and reduced-motion paths
 remain immediate. Geometry and semantic markup stay identical on mobile and desktop.
 Browser automation exercises the same production motion as visitors.
 
-Theme changes separately use the native document View Transition API. Capture only
-the outgoing viewport, then remove the root's capture name inside the update callback.
+At the page origin, pointer theme changes use the native document View Transition API.
+Capture only the outgoing viewport, then remove the root's capture name inside the update callback.
 The old image fades out over 240ms above the live new theme and holds its final
 transparent frame until native teardown. Without that fill, the old bitmap can
 reappear before removal. Regression checks record unpaused rendered frames through
 teardown in both directions; stable DOM rectangles and paused midpoint captures
 alone cannot detect a color reversal. This composition keeps the dock
-interactive and bounds the bitmap to the viewport, including at the footer of long
-pages. Do not capture the full scrolling element: its raster can clip or rescale
-at deep scroll positions. Snapshot groups never interpolate dimensions or transform
-the page. Scroll, resize and new pointer or keyboard input interrupt the fade.
+interactive and bounds the bitmap to the opening viewport. After scrolling, change
+theme atomically at the current reading position without attempting a native capture;
+scrolled root snapshots are unreliable in the WebKit geometry checks. Do not capture
+the full scrolling element: its raster can clip or rescale. Snapshot groups never
+interpolate dimensions or transform the page. Scroll, resize and new pointer or
+keyboard input interrupt the fade.
 Component CSS transitions are suppressed through the first new-theme paint; the theme glyph
 retains shared StateSwap motion. Rapid requests supersede the previous snapshot
 and alternate against the requested destination. A rejected capture still applies
 the requested theme without an unhandled error. Keyboard, reduced motion,
-unsupported browsers, embedded previews and live dialogs use an atomic change.
+unsupported browsers, scrolled pages, embedded previews and live dialogs use an atomic change.
 
 Next 16.4 Cache Components and Partial Prefetching supply cached route shells.
 Visible case-study links also prefetch their cached URL-specific content. The

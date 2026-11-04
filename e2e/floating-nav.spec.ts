@@ -80,7 +80,6 @@ for (const theme of ["light", "dark"] as const) {
 			"aria-describedby",
 			(await tooltip.getAttribute("id")) ?? "",
 		);
-		await expect(tooltip).toHaveCSS("height", "36px");
 		await expect(tooltip).toHaveCSS("opacity", "1");
 		const dockBox = await nav.boundingBox();
 		const tipBox = await tooltip.boundingBox();
@@ -90,11 +89,18 @@ for (const theme of ["light", "dark"] as const) {
 		expect((dockBox?.y ?? 0) - (tipBox?.y ?? 0) - (tipBox?.height ?? 0)).toBeCloseTo(inset, 0);
 		await expect(tooltip.locator(".portfolio-tooltip-copy")).toHaveCount(1);
 		await expect(tooltip.locator(".portfolio-tooltip-copy")).toHaveCSS("padding", `${inset}px`);
+		const lineHeight = await tooltip
+			.locator(".portfolio-tooltip-copy")
+			.evaluate((node) => Number.parseFloat(getComputedStyle(node).lineHeight));
+		await expect(tooltip).toHaveCSS("height", `${lineHeight + inset * 2}px`);
 		const targetBox = await contact.boundingBox();
+		if (!targetBox) throw new Error("Missing Contact target geometry");
 		await expect
 			.poll(async () => {
 				const box = await tooltip.boundingBox();
-				return Math.abs((box?.x ?? 0) + (box?.width ?? 0) / 2 - (targetBox?.x ?? 0) - 20);
+				return Math.abs(
+					(box?.x ?? 0) + (box?.width ?? 0) / 2 - targetBox.x - targetBox.width / 2,
+				);
 			})
 			.toBeLessThan(1);
 		await page.screenshot({ path: testInfo.outputPath(`navigation-${theme}.png`) });
@@ -145,11 +151,14 @@ for (const theme of ["light", "dark"] as const) {
 			.toBe(0);
 		await expect(nav.locator(".portfolio-nav-hover")).toHaveCSS("opacity", "0");
 		// The hover plane fades at Contact rather than traveling back to Home.
+		const homeBox = await home.boundingBox();
+		const contactBox = await contact.boundingBox();
+		if (!homeBox || !contactBox) throw new Error("Missing dock target geometry");
 		expect(
 			await nav
 				.locator(".portfolio-nav-hover")
 				.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).m41),
-		).toBe(160);
+		).toBeCloseTo(contactBox.x - homeBox.x, 1);
 		await expect(themeControl).toHaveCSS("mix-blend-mode", "normal");
 		// Once fully hidden, the next hint opens at its new anchor, without cross-dock travel.
 		await page.mouse.move(0, 0);

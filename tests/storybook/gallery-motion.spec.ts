@@ -1,5 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
+import { installMuxMediaFixture } from "./helpers/mux-media-fixture";
 
 test("12 to 3 and 4 to 8 move both artwork planes on the same clock", async ({
 	page,
@@ -22,44 +23,87 @@ test("12 to 3 and 4 to 8 move both artwork planes on the same clock", async ({
 		await expect(previews.nth(from)).toHaveAttribute("aria-current", "true");
 		await expect(dialog).not.toHaveAttribute("data-gallery-jump");
 		const observation = await dialog.evaluate((root, destination) => {
-			return new Promise<
-				{ incoming: number; outgoing: number; exposure: number; states: string[] }[]
-			>((resolve, reject) => {
-				const frames: {
-					incoming: number;
-					outgoing: number;
-					exposure: number;
-					states: string[];
-				}[] = [];
-				const started = performance.now();
-				const sample = () => {
+			return new Promise<{
+				states: string[];
+				startTimes: (number | null)[];
+				currentTimes: number[];
+				durations: number[];
+				travel: number[];
+				frames: { incoming: number; outgoing: number; exposure: number }[];
+			}>((resolve, reject) => {
+				const timeout = setTimeout(() => {
+					observer.disconnect();
+					reject(new Error("The artwork transition was never painted"));
+				}, 5000);
+				const observer = new MutationObserver(() => {
 					const outgoing = root.querySelector<HTMLElement>("[data-gallery-transition]");
 					const incoming = root.querySelector<HTMLElement>(".pswp__scroll-wrap");
-					if (outgoing && incoming) {
-						frames.push({
-							incoming: incoming.getBoundingClientRect().x,
-							outgoing: outgoing.getBoundingClientRect().x,
-							exposure: Number(
-								root
-									.querySelector(":scope > svg feGaussianBlur")
-									?.getAttribute("stdDeviation")
-									?.split(" ")[0] ?? 0,
-							),
-							states: outgoing
-								.getAnimations()
-								.map((animation) => animation.playState),
+					const animations = [
+						...(incoming?.getAnimations() ?? []),
+						...(outgoing?.getAnimations() ?? []),
+					];
+					if (!incoming || !outgoing || animations.length !== 2) return;
+					observer.disconnect();
+					// Capture the production clocks before pausing. Sampling a running
+					// animation can miss its late frames when a CI worker is busy.
+					void Promise.all(animations.map((animation) => animation.ready))
+						.then(() => {
+							clearTimeout(timeout);
+							const states = animations.map((animation) => animation.playState);
+							const startTimes = animations.map((animation) =>
+								typeof animation.startTime === "number"
+									? animation.startTime
+									: null,
+							);
+							const currentTimes = animations.map((animation) =>
+								Number(animation.currentTime),
+							);
+							const durations = animations.map((animation) =>
+								Number(animation.effect?.getTiming().duration),
+							);
+							const travel = animations.map((animation) => {
+								const frames = (animation.effect as KeyframeEffect).getKeyframes();
+								return (
+									Number.parseFloat(String(frames.at(-1)?.translate)) -
+									Number.parseFloat(String(frames[0].translate))
+								);
+							});
+							for (const animation of animations) animation.pause();
+							const frames = [0, 0.25, 0.5, 0.75, 0.9].map((progress) => {
+								for (const animation of animations)
+									animation.currentTime = durations[0] * progress;
+								return {
+									incoming: incoming.getBoundingClientRect().x,
+									outgoing: outgoing.getBoundingClientRect().x,
+									exposure: Number(
+										root
+											.querySelector(":scope > svg feGaussianBlur")
+											?.getAttribute("stdDeviation")
+											?.split(" ")[0] ?? 0,
+									),
+								};
+							});
+							for (const animation of animations) animation.play();
+							resolve({
+								states,
+								startTimes,
+								currentTimes,
+								durations,
+								travel,
+								frames,
+							});
+						})
+						.catch((error) => {
+							clearTimeout(timeout);
+							reject(error);
 						});
-					} else if (frames.length) {
-						resolve(frames);
-						return;
-					}
-					if (performance.now() - started > 5000) {
-						reject(new Error("The artwork transition was never painted"));
-						return;
-					}
-					requestAnimationFrame(sample);
-				};
-				requestAnimationFrame(sample);
+				});
+				observer.observe(root, {
+					childList: true,
+					subtree: true,
+					attributes: true,
+					attributeFilter: ["data-gallery-jump"],
+				});
 				root.querySelector<HTMLButtonElement>(
 					`[data-gallery-preview="${destination}"]`,
 				)?.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }));
@@ -69,13 +113,21 @@ test("12 to 3 and 4 to 8 move both artwork planes on the same clock", async ({
 			testInfo.outputPath(`travel-${from + 1}-${to + 1}.json`),
 			JSON.stringify(observation),
 		);
-		expect(observation.length).toBeGreaterThan(1);
-		expect(Math.max(...observation.map((frame) => Math.abs(frame.outgoing)))).toBeGreaterThan(
-			720,
-		);
-		expect(observation.every((frame) => frame.states.includes("running"))).toBe(true);
-		for (const frame of observation)
+		expect(observation.states).toEqual(["running", "running"]);
+		expect(observation.startTimes.every((time) => time !== null)).toBe(true);
+		expect(observation.startTimes[0]).toBe(observation.startTimes[1]);
+		expect(observation.currentTimes[0]).toBeCloseTo(observation.currentTimes[1], 1);
+		expect(observation.durations[0]).toBeGreaterThan(0);
+		expect(observation.durations[0]).toBe(observation.durations[1]);
+		expect(observation.travel.map(Math.abs)).toEqual([1440, 1440]);
+		expect(observation.travel[0]).toBe(observation.travel[1]);
+		expect(observation.frames).toHaveLength(5);
+		expect(
+			Math.max(...observation.frames.map((frame) => Math.abs(frame.outgoing))),
+		).toBeGreaterThan(720);
+		for (const frame of observation.frames)
 			expect(Math.abs(frame.incoming - frame.outgoing)).toBeCloseTo(1440, -1);
+		await expect(dialog).not.toHaveAttribute("data-gallery-jump");
 	}
 	await page.keyboard.press("Escape");
 });
@@ -303,7 +355,9 @@ test("zoom reels keep their places through rapid changes and settle on the lates
 });
 
 test("video ambience follows presented color changes and stops with playback", async ({ page }) => {
-	await page.route(/https:\/\/[^/]*mux\.(com|dev)\//, (route) => route.abort());
+	// Keep the transport alive while the native video presents our synthetic frames.
+	// Deliberately failed delivery now correctly replaces the player with its fallback.
+	await installMuxMediaFixture(page);
 	await page.goto(
 		"/iframe.html?id=components-media-mediagallery--video-and-image&viewMode=story&globals=theme:dark",
 	);
@@ -312,7 +366,25 @@ test("video ambience follows presented color changes and stops with playback", a
 	const dialog = page.getByRole("dialog");
 	await expect(dialog).toHaveAttribute("data-gallery-state", "open");
 	const host = dialog.locator('.pswp__item[aria-hidden="false"] mux-video');
-	await expect(host).toBeAttached();
+	await expect(host).toHaveAttribute("data-player-initialized", "");
+	const player = dialog.locator('.pswp__item[aria-hidden="false"] [data-portfolio-video]');
+	const playback = player.getByRole("button", { name: /^(Play|Pause) video$/ });
+	await expect(playback).toBeVisible();
+	// Enter playback through the real control before replacing native frames.
+	// The inactive/poster guard must still reject unsolicited native play events.
+	if ((await playback.getAttribute("aria-label")) === "Pause video") {
+		await playback.click();
+		await expect(playback).toHaveAccessibleName("Play video");
+	}
+	await playback.click();
+	await expect(playback).toHaveAccessibleName("Pause video");
+	await expect
+		.poll(() =>
+			host.evaluate((media) =>
+				Boolean(!media.closest("[inert]") && !(media as HTMLMediaElement).paused),
+			),
+		)
+		.toBe(true);
 	const evidence = await host.evaluate(async (element) => {
 		const video = element.shadowRoot?.querySelector("video");
 		const root = element.closest(".pswp");

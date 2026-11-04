@@ -1,9 +1,10 @@
 import { existsSync } from "node:fs";
-import { defineConfig, devices, webkit } from "@playwright/test";
+import { defineConfig, devices, firefox, webkit } from "@playwright/test";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
 const port = new URL(baseURL).port || "3000";
 const includeWebKit = process.env.CI || existsSync(webkit.executablePath());
+const includeFirefox = process.env.CI || existsSync(firefox.executablePath());
 
 export default defineConfig({
 	testDir: "./e2e",
@@ -27,6 +28,7 @@ export default defineConfig({
 			name: "mobile-chrome",
 			use: { ...devices["Pixel 5"] },
 		},
+		...(includeFirefox ? [{ name: "firefox", use: { ...devices["Desktop Firefox"] } }] : []),
 		...(includeWebKit
 			? [
 					{

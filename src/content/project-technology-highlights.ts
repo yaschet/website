@@ -2,7 +2,7 @@
 // The rail includes a highlight only when that technology exists in its stack.
 const highlights: Readonly<Record<string, readonly string[]>> = {
 	"clearway-phoenix": ["Laravel", "OpenAI", "MeiliSearch"],
-	verto: ["Next.js", "OpenAI", "Google Docs API", "Stripe"],
+	verto: ["Next.js", "OpenAI", "Stripe", "Google Docs API"],
 	"clearway-portal": ["Next.js", "Laravel", "AWS Textract"],
 	"clearway-erp": ["Laravel", "Cash Plus", "MySQL"],
 };

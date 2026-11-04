@@ -2,8 +2,7 @@
 
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import { FilmStripIcon } from "@phosphor-icons/react/dist/ssr/FilmStrip";
-import { ImageIcon } from "@phosphor-icons/react/dist/ssr/Image";
+import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
 import { MinusIcon } from "@phosphor-icons/react/dist/ssr/Minus";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
@@ -41,6 +40,21 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 	const current = props.items[viewer.index];
 	const title = itemTitle(current, viewer.index);
 	const caption = current?.caption;
+	const description =
+		caption && caption !== title ? (
+			caption
+		) : current?.kind === "image" ? (
+			<>
+				<span className={styles.pointerHint}>
+					{props.items.length > 1 ? "Drag to browse · " : ""}Double-click to zoom
+				</span>
+				<span className={styles.touchHint}>
+					{props.items.length > 1 ? "Swipe to browse · " : ""}Pinch to zoom
+				</span>
+			</>
+		) : (
+			"Video walkthrough"
+		);
 	const multiple = props.items.length > 1;
 	const targetIndex = viewer.pendingIndex ?? viewer.index;
 	const root = viewer.chrome?.closest<HTMLElement>(".pswp");
@@ -69,34 +83,34 @@ export function GalleryLightbox(props: GalleryViewerOptions) {
 							data-gallery-interactive
 						>
 							<div className={styles.identity}>
-								<div className={styles.iconChamber} aria-hidden="true">
-									{current?.kind === "image" ? (
-										<ImageIcon size={20} weight="bold" />
-									) : (
-										<FilmStripIcon size={20} weight="bold" />
-									)}
-								</div>
-								<div key={viewer.index} className={styles.heading}>
+								<details
+									key={`description-${viewer.index}`}
+									className={styles.descriptionDisclosure}
+								>
+									<summary
+										className={styles.iconChamber}
+										aria-label="Read full media description"
+										title="Read full media description"
+									>
+										<InfoIcon size={20} weight="bold" aria-hidden="true" />
+									</summary>
+									<section
+										className={styles.fullDescription}
+										aria-label="Full media description"
+										data-gallery-text
+										// biome-ignore lint/a11y/noNoninteractiveTabindex: The bounded text panel needs focus for native keyboard scrolling.
+										tabIndex={0}
+									>
+										<p className={styles.fullDescriptionTitle}>{title}</p>
+										<p>{description}</p>
+									</section>
+								</details>
+								<div key={`heading-${viewer.index}`} className={styles.heading}>
 									<h2 id={viewer.titleId} className={styles.title}>
 										{title}
 									</h2>
 									<p id={viewer.descriptionId} className={styles.caption}>
-										{caption && caption !== title ? (
-											caption
-										) : current?.kind === "image" ? (
-											<>
-												<span className={styles.pointerHint}>
-													{multiple ? "Drag to browse · " : ""}
-													Double-click to zoom
-												</span>
-												<span className={styles.touchHint}>
-													{multiple ? "Swipe to browse · " : ""}Pinch to
-													zoom
-												</span>
-											</>
-										) : (
-											"Video walkthrough"
-										)}
+										{description}
 									</p>
 								</div>
 							</div>

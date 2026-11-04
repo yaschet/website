@@ -1,6 +1,14 @@
 import { PageContainer } from "@/src/components/layout/containers";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/src/components/ui/accordion";
+import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
 import { ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import styles from "./working-together.module.css";
 
 const PROJECT_QUESTIONS = [
 	{
@@ -29,7 +37,7 @@ export function WorkingTogether() {
 			className="mt-10 w-full"
 		>
 			<ScrollReveal phase={2}>
-				<PageContainer>
+				<PageContainer mobileBleed>
 					<SwissGridBox>
 						<SwissGridRow>
 							<div className="portfolio-box-pad portfolio-editorial-section">
@@ -39,17 +47,31 @@ export function WorkingTogether() {
 								>
 									Working together
 								</h2>
-								<div className="grid min-w-0 gap-[var(--portfolio-space-group)] sm:grid-cols-2">
-									{PROJECT_QUESTIONS.map(({ question, answer }) => (
-										<div key={question} className="portfolio-card-copy min-w-0">
-											<h3 className="portfolio-detail-title text-foreground">
+								<p className="portfolio-body-md max-w-[60ch] text-muted-foreground">
+									Bring a new product or an existing system that needs work. We
+									start by understanding the workflow and agreeing on a useful
+									first scope.
+								</p>
+								<Accordion type="single" collapsible className={styles.questions}>
+									{PROJECT_QUESTIONS.map(({ question, answer }, index) => (
+										<AccordionItem
+											key={question}
+											value={`question-${index}`}
+											className={styles.item}
+										>
+											<AccordionTrigger className={styles.trigger}>
 												{question}
-											</h3>
-											<p className="portfolio-detail-copy text-muted-foreground">
+											</AccordionTrigger>
+											<AccordionContent className={styles.answer}>
 												{answer}
-											</p>
-										</div>
+											</AccordionContent>
+										</AccordionItem>
 									))}
+								</Accordion>
+								<div>
+									<ArrowButtonLink href="/contact" variant="solid">
+										Discuss a project
+									</ArrowButtonLink>
 								</div>
 							</div>
 						</SwissGridRow>

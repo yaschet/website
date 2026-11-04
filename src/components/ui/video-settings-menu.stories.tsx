@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 import { expect, waitFor, within } from "storybook/test";
 import { SinglePreviewDocsPage } from "../../../.storybook/workshop-docs";
-import { VideoSettingsMenu } from "./video-settings-menu";
+import { CompactVideoSettingsMenu, VideoSettingsMenu } from "./video-settings-menu";
 
 function expectDarkMaterial(element: HTMLElement) {
 	const style = getComputedStyle(element);
@@ -81,6 +81,48 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
+export const Compact: Story = {
+	render: function CompactSettings() {
+		const [open, setOpen] = useState(false);
+		const [speed, setSpeed] = useState("1");
+		const [quality, setQuality] = useState("auto");
+		return (
+			<div className="flex min-h-80 items-end justify-end bg-surface-950 p-4">
+				<CompactVideoSettingsMenu
+					open={open}
+					onOpenChange={setOpen}
+					groups={[
+						{
+							label: "Playback speed",
+							value: speed,
+							onValueChange: setSpeed,
+							options: [
+								{ label: "1x", value: "1" },
+								{ label: "1.25x", value: "1.25" },
+								{ label: "1.5x", value: "1.5" },
+								{ label: "1.75x", value: "1.75" },
+								{ label: "2x", value: "2" },
+							],
+						},
+						{
+							label: "Video quality",
+							value: quality,
+							onValueChange: setQuality,
+							options: [
+								{ label: "1080p", value: "1080", chipLabel: "FHD" },
+								{ label: "720p", value: "720", chipLabel: "HD" },
+								{ label: "Auto", value: "auto", detailLabel: "1080p" },
+							],
+						},
+					]}
+				/>
+				<p role="status" className="sr-only">
+					Quality: {quality}. Speed: {speed}x.
+				</p>
+			</div>
+		);
+	},
+};
 export const KeyboardSelection: Story = {
 	play: async ({ canvas, canvasElement, userEvent }) => {
 		const body = within(canvasElement.ownerDocument.body);

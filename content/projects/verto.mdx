@@ -1,19 +1,22 @@
 export const metadata = {
-	"title": "Document Translation With Editable Tables",
-	"description": "Translate scanned documents into editable Google Docs, preserving tables, headings and reading direction.",
+	"title": "Verto — AI Translation Platform",
+	"description": "A complete SaaS platform for translation agencies: AI document translation, editing, customer records, credits and billing.",
 	"overview": {
-		"problem": "Translators need scanned reports to retain figures, merged tables and reading direction in a document the client can edit.",
-		"solution": "I built side-by-side review, background processing and a Google Docs generator that reconstructs editable tables, including merged cells and right-to-left layouts."
+		"engagement": "Independent product",
+		"context": "SaaS",
+		"capability": "Document AI",
+		"summary": "I designed Verto in Figma and built the entire platform, from document processing and editing to customer management, billing, administration and deployment.",
+		"challenge": "Scanned documents meant translating the text, reconstructing the layout and preparing a deliverable—then managing the customer, job history and payment around it."
 	},
-	"subtitle": "Translate scanned documents into editable Google Docs, preserving tables, headings and reading direction.",
+	"subtitle": "A complete SaaS platform for translation agencies: AI document translation, editing, customer records, credits and billing.",
 	"date": "2026-01-26",
 	"tags": [
 		"Document AI",
 		"Translation",
 		"SaaS"
 	],
-	"role": "Designed and built end to end",
-	"status": "Personal project · Released January 2026",
+	"role": "Product Engineer",
+	"status": "Released January 2026",
 	"domain": "Document translation",
 	"stack": [
 		"Next.js",
@@ -56,14 +59,25 @@ export const metadata = {
 				"video_id": "8OgGATpayBhBcIsWjODyVzAblZeyA521hHwGEmJtnvY"
 			}
 		}
-	]
+	],
+	"delivery": {
+		"label": "Build",
+		"period": "Oct 2025–Jan 2026",
+		"duration": "3 months"
+	}
 };
 
-A translator needs to deliver a document someone can use. With a scanned financial report, that means checking the figures and preserving the tables as well as translating the words.
+I built and released Verto over three months, from October 2025 to January 2026.
 
-I built Verto around that handoff: a photographed report becomes a translation you can review beside the original and open in Google Docs with editable tables. The film follows an English financial report into Japanese, ending inside the same $179,000 table cell in the finished document.
+The film follows a financial report from photograph to reviewed Japanese translation and editable delivery. That document is one example of the wider agency workflow.
 
-Verto is a personal product designed for translation agencies. I owned the interface, document model, processing pipeline, export generation and account operations.
+## Build The Product Around The Agency
+
+I built the account and administration interfaces alongside the document workspace. Customer records and translation history keep each job connected to the agency's client. Branding settings carry the agency's logo, stamp and certification text into the delivered document.
+
+Stripe funds the credit balance used for processing. I implemented the transaction ledger, credit deductions and refunds, including the handling of failed processing jobs. Administration covers users and credit adjustments, with account security and data access enforced behind the interface.
+
+Translation and generation run as background tasks with saved stages and failure details. Users can leave the page and return to the completed result for review and export.
 
 ## Preserve Structure Through Review
 
@@ -72,6 +86,14 @@ The source stays beside the translated document while the translator works. They
 I chose a structured document model for paragraphs, headings and table cells, including their row and column spans. The editor, checking pass and export generator work from that structure. A correction has a defined place in the document, and the export can recreate a table as editable cells.
 
 Names follow an explicit preservation policy. In the Japanese example, the company and personal names stay in Latin script, letting the reviewer compare them directly with the source.
+
+<Image
+	src="/images/verto/review-editor.png"
+	alt="A scanned financial report beside its Japanese translation and editable table in Verto."
+	caption="The source stays beside the translated document so the reviewer can compare its figures and table structure."
+	width={1920}
+	height={1080}
+/>
 
 ## Check Against The Original
 
@@ -93,12 +115,14 @@ Merged cells made that mapping more involved. The generator reconstructs the ful
 
 The result is a document the translator can continue working in. The film closes by clicking into a real Google Docs table cell and using Tab to move between cells. The generation workflow also supports DOCX and PDF, with agency branding and certification text.
 
-## Keep The Agency Workflow Around The Document
-
-Translation and generation run as background tasks with saved stages and failure details. Users can leave the page and return to the completed result for review and export.
-
-Client records, translation history and credit transactions keep each job connected to the agency's work. Usage and refunds remain on the ledger; branding settings control the logo, stamp and certification text on delivered documents.
-
-The document structure carries through every handoff, from interpretation to checking, human review and export. A translator can finish the job in Google Docs with the tables still available to edit.
+<Image
+	src="/images/verto/screenshots/arabic-google-docs-file.png"
+	alt="An Arabic agreement with right-to-left headings and a table in Google Docs."
+	caption="A separate Arabic example shows native Google Docs text and table structure with right-to-left reading order."
+	width={3840}
+	height={2160}
+/>
 
 *Verto is a personal project. The film uses synthetic agency records and existing completed translations; it demonstrates the workflow rather than live processing speed or customer adoption.*
+
+Related work: [Student Applications & Document Collection](/case-studies/clearway-portal) applies document extraction to a guided customer workflow.

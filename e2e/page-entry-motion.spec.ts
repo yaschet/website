@@ -130,7 +130,7 @@ for (const theme of ["light", "dark"] as const) {
 		await nav.getByRole("link", { name: "Home", exact: true }).click();
 		await expect(page).toHaveURL(/\/$/);
 		const homeHeading = page.getByRole("heading", {
-			name: "Complex systems, clean interfaces.",
+			name: "Business software, built end to end.",
 			exact: true,
 		});
 		await expect(homeHeading).toBeVisible();
@@ -188,7 +188,11 @@ test("keyboard and reduced motion cancel entry without hiding text", async ({ pa
 	await nav.getByRole("link", { name: "About", exact: true }).focus();
 	await page.keyboard.press("Enter");
 	await expect(page).toHaveURL(/\/about$/);
-	await expect(page.locator("main:visible h1")).toHaveAttribute("data-entry-kind", "heading");
+	// The URL can commit while Next retains the departing Home scene. Address the
+	// destination heading instead of assuming both scenes disappear atomically.
+	await expect(
+		page.getByRole("heading", { name: "How I work.", level: 1, exact: true }),
+	).toHaveAttribute("data-entry-kind", "heading");
 	const entryCount = () =>
 		page.evaluate(
 			() =>
@@ -200,7 +204,11 @@ test("keyboard and reduced motion cancel entry without hiding text", async ({ pa
 	await page.emulateMedia({ reducedMotion: "reduce" });
 	await nav.getByRole("link", { name: "Contact", exact: true }).click();
 	await expect(page).toHaveURL(/\/contact$/);
-	const contactHeading = page.locator("main:visible h1");
+	const contactHeading = page.getByRole("heading", {
+		name: "Let’s talk.",
+		level: 1,
+		exact: true,
+	});
 	// A committed URL can precede hydration of streamed copy. Exercise the
 	// current page's entry hook before changing the motion preference.
 	await expect(contactHeading).toHaveAttribute("data-entry-kind", "heading");

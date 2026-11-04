@@ -7,7 +7,8 @@ import { WorkshopPagePreview } from "../../.storybook/page-preview";
 import Loading from "./loading";
 
 const meta = {
-	title: "Pages/Loading",
+	id: "pages-loading",
+	title: "Pages/Route States/Loading",
 	component: Loading,
 	beforeEach: () => {
 		usePathname.mockReturnValue("/");

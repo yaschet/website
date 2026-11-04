@@ -10,18 +10,34 @@ This workshop documents the portfolio's locally owned design foundations, reusab
 
 - <a href="/?path=/story/foundation-overview--portfolio" target="_top">Brand overview</a> — typography, surfaces, actions and editorial composition together.
 - <a href="/?path=/docs/case-study-diagram--docs" target="_top">Case study diagram</a> — one component family, four authored compositions, a shared walkthrough and text explanation.
-- <a href="/?path=/story/pages-casestudyarchitecture--in-context" target="_top">Case study page</a> — the diagram within the real page shell and an abridged Verto article.
+- <a href="/?path=/story/pages-home--full-page" target="_top">Home</a> — complete homepage with all four case studies, working together, closing action and footer.
+
+## Review the seven page templates
+
+Each template opens as a complete page with the real context header, navigation, footer and production gutters. Use Canvas for annotation and the viewport toolbar for mobile review. The document owns scrolling; these are not small nested page frames.
+
+- <a href="/?path=/story/pages-home--full-page" target="_top">Home</a> — populated and empty archive.
+- <a href="/?path=/story/pages-about--full-page" target="_top">About</a> — complete current page.
+- <a href="/?path=/story/pages-case-studies--full-page" target="_top">Case Studies</a> — populated and empty index.
+- <a href="/?path=/story/pages-case-study--full-page" target="_top">Case Study</a> — complete Verto, Phoenix, Portal and ERP articles, plus a long-title state. ERP has no cover media.
+- <a href="/?path=/story/pages-blog--full-page" target="_top">Blog</a> — populated workshop example, current empty state and long title.
+- <a href="/?path=/story/pages-blog-post--full-page" target="_top">Blog Post</a> — unpublished sample with headings, code, lists, a table and long-title coverage.
+- <a href="/?path=/story/pages-contact--full-page" target="_top">Contact</a> — manual review, validation, sending, success, unavailable delivery and rate limiting. Delivery is mocked; no email is sent.
+
+Loading, Error and Not Found live under **Pages / Route States**. The earlier abridged diagram article is retained under **Lab / Article Diagram**.
 
 ## Find the right level
 
 - **Foundation:** brand composition, color, typography, spacing and motion.
 - **Components:** actions, feedback, fields, overlays, navigation, media and content.
-- **Pages:** composed screens and route states.
+- **Pages:** seven complete page templates, their relevant edge states and a separate Route States subgroup.
 - **Lab:** retained visual explorations without a current production consumer.
 
 ## Implementation status
 
-Most component stories render components already used by the website. The case study diagram is the canonical local implementation, awaiting public MDX integration. Its page story is a review fixture; it does not replace the authored case study. Lab entries remain clearly separate from the active component catalog.
+Page stories reuse the website's presentation components. Case-study metadata and prose come directly from the four authored MDX files. Blog examples use clearly labelled content outside the public content directory; they do not publish a post. Storybook mocks Next.js routing and contact delivery, so production navigation, server loading and email delivery must still be verified on the website.
+
+The case study diagram is the canonical local implementation, awaiting public MDX integration. Its Lab article is a review fixture; it does not replace the authored case study. Lab entries remain separate from the active page catalog.
 
 ## Review behavior
 

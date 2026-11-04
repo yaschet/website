@@ -18,7 +18,6 @@ interface RegisteredGallery {
 	id: string;
 	items: GalleryMediaSource[];
 	root: RefObject<HTMLElement | null>;
-	select: (index: number) => void;
 	onOpenChange: (open: boolean) => void;
 }
 
@@ -30,7 +29,6 @@ interface PageGalleryContextValue {
 interface GallerySession {
 	items: GalleryMediaSource[];
 	origins: GalleryOrigin[];
-	select: ((() => void) | undefined)[];
 	index: number;
 	instant: boolean;
 	owner: RegisteredGallery;
@@ -80,7 +78,6 @@ export function PageGalleryScope({ children }: { children: ReactNode }) {
 		setSession({
 			items: entries.map((entry) => entry.item),
 			origins: entries.map((entry) => entry.origin),
-			select: entries.map((entry) => () => entry.gallery.select(entry.index)),
 			index,
 			instant,
 			owner,
@@ -98,7 +95,7 @@ export function PageGalleryScope({ children }: { children: ReactNode }) {
 					origins={session.origins}
 					activeIndex={session.index}
 					onIndexChange={(index) => {
-						session.select[index]?.();
+						// Inspection must leave the exact inline opener and reading geometry intact.
 						setSession((current) => (current ? { ...current, index } : current));
 					}}
 					open={open}

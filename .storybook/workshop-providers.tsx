@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, useTheme } from "next-themes";
 import { type ReactNode, useEffect, useRef, useState } from "react";
+import { HairlineScale } from "../src/components/providers/hairline-scale";
 import { RevealProvider } from "../src/components/providers/reveal-provider";
 
 function ThemeBridge({
@@ -60,6 +61,7 @@ export function WorkshopProviders({
 				disableTransitionOnChange
 			>
 				<ThemeBridge theme={theme} onThemeChange={onThemeChange} />
+				<HairlineScale />
 				<RevealProvider>{children}</RevealProvider>
 			</ThemeProvider>
 		</QueryClientProvider>

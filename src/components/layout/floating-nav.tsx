@@ -20,6 +20,7 @@ import { LinkFeedback } from "@/src/components/ui/link-feedback";
 import { PortfolioLink as Link } from "@/src/components/ui/portfolio-link";
 import { StateSwap } from "@/src/components/ui/state-swap";
 import { toggleThemeWithTransition } from "@/src/lib/theme-transition";
+import styles from "./floating-nav.module.css";
 
 type NavItem = {
 	name: string;
@@ -42,6 +43,7 @@ function getActiveIndex(pathname: string) {
 /** The route marker stays put while a separate, clipped hover plane follows exploration. */
 export function FloatingNav() {
 	const pathname = usePathname();
+	const isArticle = /^\/(?:case-studies|blog)\/[^/]+\/?$/.test(pathname);
 	const { setTheme, resolvedTheme, theme } = useTheme();
 	const activeIndex = getActiveIndex(pathname);
 	const [isMounted, setIsMounted] = useState(false);
@@ -118,10 +120,10 @@ export function FloatingNav() {
 			: "Toggle theme";
 	return (
 		<>
-			<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50 flex h-[var(--portfolio-nav-clearance)] items-center justify-center px-[var(--portfolio-page-gutter-mobile)] sm:px-[var(--portfolio-page-gutter-desktop)]">
+			<div className={styles.wrapper} data-article={isArticle}>
 				<nav
 					ref={dock}
-					className="portfolio-nav pointer-events-auto"
+					className={`portfolio-nav pointer-events-auto ${styles.dock}`}
 					aria-label="Main navigation"
 					data-motion-input={keyboard ? "keyboard" : undefined}
 				>

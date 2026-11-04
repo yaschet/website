@@ -2,8 +2,11 @@ export const metadata = {
 	"title": "Agency CRM & Billing",
 	"description": "Manage student cases, invoices and payments together, with balances and statuses derived from the records.",
 	"overview": {
-		"problem": "Staff needed one place to follow a student's application, outstanding documents and payments without losing the connections between them.",
-		"solution": "I built the shared customer record, role-scoped access and billing rules that derive balances from payment entries, then extended that foundation into the portal and matching system."
+		"engagement": "Client project",
+		"context": "CRM / ERP",
+		"capability": "Billing",
+		"summary": "I designed and built the agency's CRM and billing platform, linking customer records, staff access, invoices and payments so the portal and matching system could share them.",
+		"challenge": "Every student brought an application, documents to collect and money to track. Staff needed one reliable view of the case and its outstanding balance."
 	},
 	"subtitle": "Manage student cases, invoices and payments together, with balances and statuses derived from the records.",
 	"date": "2026-10-30",
@@ -12,7 +15,7 @@ export const metadata = {
 		"Customer operations",
 		"Invoicing"
 	],
-	"role": "Sole engineer",
+	"role": "Product Engineer",
 	"status": "Delivered",
 	"domain": "Study-abroad operations",
 	"stack": [
@@ -37,14 +40,14 @@ export const metadata = {
 	],
 	"featured": true,
 	"sortOrder": 4,
-	"listed": true
+	"listed": true,
+	"delivery": {
+		"label": "Platform evolution",
+		"period": "Ongoing development"
+	}
 };
 
-A student's application and payment history belong to the same case. Staff at a study-abroad agency need to see which documents are outstanding, who is responsible and what the student still owes.
-
-I built the CRM and billing platform that connects those records. It became the foundation for the agency's university-matching system and student application portal, with all three using the same customer record.
-
-As the sole engineer, I owned customer management, academic data, billing rules, staff permissions and the interfaces used to manage them.
+I delivered the initial CRM and billing platform, then extended it with features requested by the client. I led the work from discovery through product design, implementation and deployment, including customer management, academic data, billing rules, staff permissions and the staff interface.
 
 ## Keep One Student Record Across The Workflow
 
@@ -74,4 +77,8 @@ Delivered as Clearway ERP, this platform handles the agency's customer and finan
 
 Those later products inherit the customer relationships and access rules already in place. The same student can move from document collection to program selection and billing without being recreated for each tool.
 
+This text-led case describes the delivered platform and its integration choices. It does not present public payment records or measured financial outcomes.
+
 *Clearway is an anonymized client identity. The ERP, student portal and program-matching system were built for the same agency.*
+
+Related work: [University Program Matching](/case-studies/clearway-phoenix) shows the program catalog and shortlist workflow built on this foundation.

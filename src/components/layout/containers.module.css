@@ -1,0 +1,5 @@
+@media (width < 40rem) {
+	.mobileBleed {
+		padding-inline: 0;
+	}
+}

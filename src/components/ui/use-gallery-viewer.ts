@@ -360,7 +360,7 @@ export function useGalleryViewer(options: GalleryViewerOptions) {
 			}
 			const target = key.target instanceof Element ? key.target : null;
 			const playerOwnsInput = target?.closest(
-				"[data-portfolio-video], [data-player-interactive], input, [role=slider], [role=menu]",
+				"[data-portfolio-video], [data-player-interactive], [data-gallery-text], input, [role=slider], [role=menu]",
 			);
 			if (key.key === "Escape") {
 				event.preventDefault();

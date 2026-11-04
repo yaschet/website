@@ -11,7 +11,7 @@ import {
 	RiVolumeMuteLine as SpeakerSimpleSlashIcon,
 	RiCloseLine as XIcon,
 } from "@remixicon/react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import type { CSSProperties, KeyboardEvent, MouseEvent, WheelEvent } from "react";
@@ -19,14 +19,15 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { StateSwap } from "@/src/components/ui/state-swap";
 import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
 import type { MuxVideoMetadata } from "@/src/content/types";
-import { applyEdgeResistance, cn, springs, tweens } from "@/src/lib/index";
+import { cn, tweens } from "@/src/lib/index";
 import {
 	announceActivePortfolioVideo,
 	PORTFOLIO_VIDEO_ACTIVE_EVENT,
 	type PortfolioVideoActiveEventDetail,
 } from "@/src/lib/portfolio-video-sync";
 import { GALLERY_CHROME_BUTTON_CLASS_NAME } from "./gallery-chrome";
-import { VideoSettingsMenu } from "./video-settings-menu";
+import styles from "./portfolio-mux-video.module.css";
+import { CompactVideoSettingsMenu, VideoSettingsMenu } from "./video-settings-menu";
 
 type PortfolioMuxVideoVariant = "gallery" | "lightbox" | "article";
 
@@ -43,6 +44,7 @@ interface PortfolioMuxVideoProps {
 	onExit?: () => void;
 	onPlayingChange?: (playing: boolean) => void;
 	onReadyChange?: (ready: boolean) => void;
+	onPlaybackError?: (failed: boolean) => void;
 	onDimensionsChange?: (width: number, height: number) => void;
 }
 
@@ -68,6 +70,12 @@ type HlsLevelLike = {
 	frameRate?: number;
 	height?: number;
 };
+
+interface NativeFullscreenVideo extends HTMLVideoElement {
+	webkitEnterFullscreen?: () => void;
+	webkitExitFullscreen?: () => void;
+	webkitDisplayingFullscreen?: boolean;
+}
 
 type StoryboardCue = {
 	startTime: number;
@@ -276,6 +284,7 @@ function pauseMuxMediaElement(media: MuxVideoElement, options?: { unload?: boole
 	try {
 		media.pause();
 	} catch {}
+	if (media.nativeEl) pauseNativeMediaElement(media.nativeEl);
 
 	try {
 		media.autoplay = false;
@@ -295,30 +304,95 @@ function pauseMuxMediaElement(media: MuxVideoElement, options?: { unload?: boole
 /** Register the playback engine on mount, so route prefetching stays lightweight. */
 export function PortfolioMuxVideo(props: PortfolioMuxVideoProps) {
 	const [runtimeReady, setRuntimeReady] = useState(false);
-	const [runtimeError, setRuntimeError] = useState<Error | null>(null);
+	const [playbackFailed, setPlaybackFailed] = useState(false);
+	const [attempt, setAttempt] = useState(0);
+	const [retryRequested, setRetryRequested] = useState(false);
+	const callbacks = useRef(props);
+	callbacks.current = props;
+	const retryRef = useRef<HTMLButtonElement>(null);
+	const handlePlaybackError = useCallback((failed: boolean) => {
+		setPlaybackFailed(failed);
+		if (failed) callbacks.current.onPlayingChange?.(false);
+		callbacks.current.onPlaybackError?.(failed);
+	}, []);
+	const handlePlayingChange = useCallback((playing: boolean) => {
+		if (playing) setRetryRequested(false);
+		callbacks.current.onPlayingChange?.(playing);
+	}, []);
 
 	useEffect(() => {
+		// A retry also reattempts a playback-runtime chunk that failed to load.
+		void attempt;
 		let cancelled = false;
 		void import("@mux/mux-video").then(
 			() => {
 				if (!cancelled) setRuntimeReady(true);
 			},
-			(cause: unknown) => {
-				if (!cancelled)
-					setRuntimeError(
-						cause instanceof Error
-							? cause
-							: new Error("Could not load video playback."),
-					);
+			() => {
+				if (!cancelled) handlePlaybackError(true);
 			},
 		);
 		return () => {
 			cancelled = true;
 		};
-	}, []);
+	}, [attempt, handlePlaybackError]);
 
-	if (runtimeError) throw runtimeError;
-	return runtimeReady ? <PortfolioMuxVideoPlayer {...props} /> : null;
+	useEffect(() => {
+		if (!playbackFailed || !retryRef.current) return;
+		const retry = retryRef.current;
+		if (retry.closest("[inert]")) return;
+		const focused = retry.ownerDocument.activeElement;
+		// Replace a removed player control's focus, but preserve focus elsewhere
+		// (for example the viewer's close button or the reader's next link).
+		if (!focused || focused === retry.ownerDocument.body || focused.closest("[inert]")) {
+			retry.focus({ preventScroll: true });
+		}
+	}, [playbackFailed]);
+
+	if (playbackFailed) {
+		return (
+			<section
+				className={cn(styles.player, styles.playbackFallback, props.className)}
+				data-playback-error
+				data-portfolio-video
+				aria-label="Video player"
+			>
+				<p role="status">Video couldn’t start. Try again or continue reading.</p>
+				<div className={styles.fallbackActions}>
+					<button
+						ref={retryRef}
+						type="button"
+						className={styles.fallbackButton}
+						onClick={() => {
+							handlePlaybackError(false);
+							setRetryRequested(true);
+							setAttempt((current) => current + 1);
+						}}
+					>
+						Try again
+					</button>
+					{props.onExit ? (
+						<button
+							type="button"
+							className={styles.fallbackButton}
+							onClick={props.onExit}
+						>
+							Return to poster
+						</button>
+					) : null}
+				</div>
+			</section>
+		);
+	}
+	return runtimeReady ? (
+		<PortfolioMuxVideoPlayer
+			{...props}
+			key={attempt}
+			active={(props.active ?? props.autoPlay) || retryRequested}
+			onPlaybackError={handlePlaybackError}
+			onPlayingChange={handlePlayingChange}
+		/>
+	) : null;
 }
 
 function PortfolioMuxVideoPlayer({
@@ -334,17 +408,21 @@ function PortfolioMuxVideoPlayer({
 	onExit,
 	onPlayingChange,
 	onReadyChange,
+	onPlaybackError,
 	onDimensionsChange,
 }: PortfolioMuxVideoProps) {
 	const pathname = usePathname();
 	const mediaRef = useRef<MuxVideoElement | null>(null);
 	const dimensionsCallback = useRef(onDimensionsChange);
 	dimensionsCallback.current = onDimensionsChange;
-	const containerRef = useRef<HTMLDivElement>(null);
+	const playbackErrorCallback = useRef(onPlaybackError);
+	playbackErrorCallback.current = onPlaybackError;
+	const containerRef = useRef<HTMLElement>(null);
+	const shouldReduceMotion = useReducedMotion();
 	const visible = useAnimationVisibility(containerRef);
 	const volumeControlHoverRef = useRef(false);
+	const timelinePointerDownRef = useRef(false);
 	const hideControlsTimeoutRef = useRef<number | null>(null);
-	const suppressNextRootClickRef = useRef(false);
 	const instanceIdRef = useRef(++nextPortfolioMuxVideoId);
 	const lastEmittedPlayingStateRef = useRef<boolean | null>(null);
 	const playbackCommandIdRef = useRef(0);
@@ -363,7 +441,7 @@ function PortfolioMuxVideoPlayer({
 	const [controlsVisible, setControlsVisible] = useState(true);
 	const [isPointerInside, setIsPointerInside] = useState(false);
 	const [isFocusVisibleWithin, setIsFocusVisibleWithin] = useState(false);
-	const [openMenu, setOpenMenu] = useState<"quality" | "rate" | null>(null);
+	const [openMenu, setOpenMenu] = useState<"quality" | "rate" | "settings" | null>(null);
 	const [qualityOptions, setQualityOptions] = useState<QualityOption[]>([
 		{ label: "Auto", value: "auto", resolutionLabel: "AUTO" },
 	]);
@@ -380,11 +458,15 @@ function PortfolioMuxVideoPlayer({
 	const [scrubPreviewTime, setScrubPreviewTime] = useState<number | null>(null);
 	const [scrubPreviewRawX, setScrubPreviewRawX] = useState<number | null>(null);
 	const [scrubPreviewTrackWidth, setScrubPreviewTrackWidth] = useState(0);
+	const [previewImage, setPreviewImage] = useState<{
+		url: string;
+		status: "loading" | "ready" | "error";
+	} | null>(null);
 	const [canHover, setCanHover] = useState(false);
 	const [isCoarsePointer, setIsCoarsePointer] = useState(false);
 	const [playerWidth, setPlayerWidth] = useState(0);
+	const [playerHeight, setPlayerHeight] = useState(0);
 	const scrubPreviewX = useMotionValue(0);
-	const scrubPreviewXSpring = useSpring(scrubPreviewX, springs.layout);
 
 	const posterSrc = useMemo(() => getPosterSrc(poster), [poster]);
 	const resolvedPlaybackSrc = useMemo(() => getMuxStreamSrc(playbackId), [playbackId]);
@@ -400,17 +482,18 @@ function PortfolioMuxVideoPlayer({
 		? "pointer-events-auto"
 		: "pointer-events-none";
 	const showTimelineBuffering = isActive && hasStartedPlayback && isBuffering && !isSeeking;
-	const isCompactLayout = playerWidth > 0 && playerWidth < 760;
-	const isUltraCompactLayout = playerWidth > 0 && playerWidth < 430;
+	const isCompactLayout = playerWidth < 760 || isCoarsePointer;
+	const isMinimalLayout = playerWidth > 0 && playerWidth < 240;
+	const showElapsedOnly = playerWidth > 0 && playerWidth < 320;
+	const hideVisibleTime = playerWidth > 0 && playerWidth < 272;
 	const showInlineVolume = !isCompactLayout && !isCoarsePointer;
 	const iconButtonClassName = PLAYER_ICON_BUTTON_CLASS_NAME;
 	const timeDisplayClassName = cn(
 		PLAYER_TIME_DISPLAY_CLASS_NAME,
-		"border-l",
-		isCompactLayout ? "px-2" : "pl-3",
+		isCompactLayout ? "px-1" : "px-3",
 	);
-	const timeDisplayText = isCompactLayout
-		? `${formatPlaybackTime(currentTime)}/${formatPlaybackTime(duration, "ceil")}`
+	const timeDisplayText = showElapsedOnly
+		? formatPlaybackTime(currentTime)
 		: `${formatPlaybackTime(currentTime)} / ${formatPlaybackTime(duration, "ceil")}`;
 	const activeStoryboardCue = useMemo(() => {
 		if (scrubPreviewTime === null) return null;
@@ -422,7 +505,40 @@ function PortfolioMuxVideoPlayer({
 			null
 		);
 	}, [scrubPreviewTime, storyboardCues]);
-	const scrubPreviewWidth = activeStoryboardCue?.width ?? 160;
+	const scrubPreviewScale = activeStoryboardCue
+		? Math.min(
+				1,
+				Math.max(0, scrubPreviewTrackWidth) / activeStoryboardCue.width,
+				Math.max(0, playerHeight - 84) / activeStoryboardCue.height,
+			)
+		: 1;
+	const scrubPreviewWidth = (activeStoryboardCue?.width ?? 160) * scrubPreviewScale;
+	const previewImageUrl = activeStoryboardCue?.imageUrl;
+	useEffect(() => {
+		if (!previewImageUrl) return;
+		let cancelled = false;
+		const image = new window.Image();
+		setPreviewImage({ url: previewImageUrl, status: "loading" });
+		image.onload = () => {
+			if (!cancelled) setPreviewImage({ url: previewImageUrl, status: "ready" });
+		};
+		image.onerror = () => {
+			if (!cancelled) setPreviewImage({ url: previewImageUrl, status: "error" });
+		};
+		image.src = previewImageUrl;
+		return () => {
+			cancelled = true;
+		};
+	}, [previewImageUrl]);
+
+	useEffect(() => {
+		if (!isActive || (hasStartedPlayback && !isBuffering)) return;
+		// A blocked request must not leave the poster action pending indefinitely.
+		const timeout = window.setTimeout(() => {
+			if (desiredPlayingRef.current) playbackErrorCallback.current?.(true);
+		}, 20_000);
+		return () => window.clearTimeout(timeout);
+	}, [hasStartedPlayback, isActive, isBuffering]);
 
 	const clearControlsTimeout = useCallback(() => {
 		if (hideControlsTimeoutRef.current !== null) {
@@ -518,7 +634,13 @@ function PortfolioMuxVideoPlayer({
 
 	const scheduleControlsHide = useCallback(() => {
 		clearControlsTimeout();
-		if (!isPlaying || isFocusVisibleWithin || menuOpen) {
+		if (
+			!isPlaying ||
+			!hasStartedPlayback ||
+			isFocusVisibleWithin ||
+			menuOpen ||
+			timelinePointerDownRef.current
+		) {
 			setControlsVisible(true);
 			return;
 		}
@@ -528,7 +650,14 @@ function PortfolioMuxVideoPlayer({
 			},
 			canHover ? 1600 : 2200,
 		);
-	}, [canHover, clearControlsTimeout, isFocusVisibleWithin, isPlaying, menuOpen]);
+	}, [
+		canHover,
+		clearControlsTimeout,
+		hasStartedPlayback,
+		isFocusVisibleWithin,
+		isPlaying,
+		menuOpen,
+	]);
 
 	const syncFromMedia = useCallback(() => {
 		const media = mediaRef.current;
@@ -679,6 +808,7 @@ function PortfolioMuxVideoPlayer({
 
 		const observer = new ResizeObserver(([entry]) => {
 			setPlayerWidth(entry.contentRect.width);
+			setPlayerHeight(entry.contentRect.height);
 		});
 
 		observer.observe(container);
@@ -705,6 +835,7 @@ function PortfolioMuxVideoPlayer({
 				if (playbackCommandIdRef.current === commandId) {
 					desiredPlayingRef.current = false;
 					syncFromMedia();
+					playbackErrorCallback.current?.(true);
 				}
 				setControlsVisible(true);
 				return;
@@ -798,7 +929,7 @@ function PortfolioMuxVideoPlayer({
 	);
 
 	const handleVolumeWheel = useCallback(
-		(event: WheelEvent<HTMLDivElement>) => {
+		(event: WheelEvent<HTMLElement>) => {
 			if (!canHover || !isFullscreen) return;
 
 			const target = event.target as HTMLElement | null;
@@ -926,7 +1057,12 @@ function PortfolioMuxVideoPlayer({
 	const toggleFullscreen = useCallback(async () => {
 		const container = containerRef.current;
 		const media = mediaRef.current;
+		const nativeVideo: NativeFullscreenVideo | undefined = media?.nativeEl;
 		if (!container || typeof document === "undefined") return;
+		if (nativeVideo?.webkitDisplayingFullscreen) {
+			nativeVideo.webkitExitFullscreen?.();
+			return;
+		}
 
 		// Helper: Check if fullscreen is active (handles vendor prefixes for Android)
 		const checkIsFullscreen = (el: HTMLElement): boolean => {
@@ -985,13 +1121,8 @@ function PortfolioMuxVideoPlayer({
 		// then fall back to container fullscreen API (Android/desktop)
 		try {
 			// iOS: Use video element's webkitEnterFullscreen if available
-			if (
-				media &&
-				"webkitEnterFullscreen" in media &&
-				typeof (media as unknown as { webkitEnterFullscreen: () => void })
-					.webkitEnterFullscreen === "function"
-			) {
-				(media as unknown as { webkitEnterFullscreen: () => void }).webkitEnterFullscreen();
+			if (typeof nativeVideo?.webkitEnterFullscreen === "function") {
+				nativeVideo.webkitEnterFullscreen();
 				// Lock to landscape on mobile
 				if (screen?.orientation?.lock) {
 					screen.orientation.lock("landscape").catch(() => {
@@ -1046,11 +1177,24 @@ function PortfolioMuxVideoPlayer({
 		}
 	}, []);
 
-	useEffect(() => {
+	// Register before the source/play layout effect below can emit an early error.
+	useLayoutEffect(() => {
 		const media = mediaRef.current;
 		if (!media) return;
 
 		const handleMediaEvent = (event: Event) => {
+			if (event.type === "error") {
+				desiredPlayingRef.current = false;
+				pauseMuxMediaElement(media);
+				playbackErrorCallback.current?.(true);
+				return;
+			}
+			// A pending engine play can settle after a gallery slide is deactivated.
+			if ((event.type === "play" || event.type === "playing") && !desiredPlayingRef.current) {
+				pauseMuxMediaElement(media);
+				syncFromMedia();
+				return;
+			}
 			syncFromMedia();
 			if (event.type === "loadedmetadata" || event.type === "resize") {
 				if (media.videoWidth > 0 && media.videoHeight > 0)
@@ -1101,6 +1245,7 @@ function PortfolioMuxVideoPlayer({
 		};
 
 		const eventNames = [
+			"error",
 			"loadstart",
 			"play",
 			"playing",
@@ -1139,11 +1284,15 @@ function PortfolioMuxVideoPlayer({
 			renditions.addEventListener("removerendition", handleMediaEvent);
 		}
 
-		syncFromMedia();
+		media.setAttribute("data-player-initialized", "");
+		// Also cover a native error that existed before this element was connected.
+		if (media.error) handleMediaEvent(new Event("error"));
+		else syncFromMedia();
 		if (media.videoWidth > 0 && media.videoHeight > 0)
 			dimensionsCallback.current?.(media.videoWidth, media.videoHeight);
 
 		return () => {
+			media.removeAttribute("data-player-initialized");
 			for (const eventName of eventNames) {
 				media.removeEventListener(eventName, handleMediaEvent);
 			}
@@ -1198,18 +1347,16 @@ function PortfolioMuxVideoPlayer({
 		return () => controller.abort();
 	}, [playbackId]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (scrubPreviewRawX === null || scrubPreviewTrackWidth <= 0) {
 			return;
 		}
 
 		const minLeft = 0;
 		const maxLeft = Math.max(minLeft, scrubPreviewTrackWidth - scrubPreviewWidth);
-		const targetLeft = applyEdgeResistance(
-			scrubPreviewRawX - scrubPreviewWidth / 2,
-			minLeft,
+		const targetLeft = Math.min(
+			Math.max(scrubPreviewRawX - scrubPreviewWidth / 2, minLeft),
 			maxLeft,
-			Math.min(Math.max(scrubPreviewWidth * 0.85, 64), 112),
 		);
 		scrubPreviewX.set(targetLeft);
 	}, [scrubPreviewRawX, scrubPreviewTrackWidth, scrubPreviewWidth, scrubPreviewX]);
@@ -1247,18 +1394,14 @@ function PortfolioMuxVideoPlayer({
 			return;
 		}
 
-		try {
-			media.pause();
-		} catch {}
-
-		setIsPlaying(false);
-		setControlsVisible(true);
+		stopPlayback();
 	}, [
 		applyStableMediaConfig,
 		ensureMediaSource,
 		isActive,
 		keepPlaybackRunning,
 		pauseOtherDocumentMedia,
+		stopPlayback,
 		syncFromMedia,
 	]);
 
@@ -1267,6 +1410,7 @@ function PortfolioMuxVideoPlayer({
 		if (!media || typeof window === "undefined") return;
 
 		const announceActivation = () => {
+			if (!desiredPlayingRef.current) return;
 			announceActivePortfolioVideo({
 				instanceId: instanceIdRef.current,
 				pathname,
@@ -1286,14 +1430,7 @@ function PortfolioMuxVideoPlayer({
 				return;
 			}
 
-			const media = mediaRef.current;
-			if (!media) return;
-			desiredPlayingRef.current = false;
-			try {
-				media.pause();
-			} catch {}
-			setIsPlaying(false);
-			setControlsVisible(true);
+			stopPlayback();
 		};
 
 		window.addEventListener(
@@ -1305,7 +1442,7 @@ function PortfolioMuxVideoPlayer({
 				PORTFOLIO_VIDEO_ACTIVE_EVENT,
 				handleActivePlayerChange as EventListener,
 			);
-	}, []);
+	}, [stopPlayback]);
 
 	useEffect(() => {
 		if (typeof document === "undefined") return;
@@ -1335,6 +1472,15 @@ function PortfolioMuxVideoPlayer({
 			return false;
 		};
 
+		let previousStyles: { htmlOverflow: string; bodyOverflow: string; contain: string } | null =
+			null;
+		const restoreFullscreenStyles = () => {
+			if (!previousStyles) return;
+			document.documentElement.style.overflow = previousStyles.htmlOverflow;
+			document.body.style.overflow = previousStyles.bodyOverflow;
+			if (containerRef.current) containerRef.current.style.contain = previousStyles.contain;
+			previousStyles = null;
+		};
 		const handleFullscreenChange = () => {
 			const container = containerRef.current;
 			if (!container) return;
@@ -1343,16 +1489,18 @@ function PortfolioMuxVideoPlayer({
 			setIsFullscreen(isNowFullscreen);
 
 			if (isNowFullscreen) {
+				previousStyles ??= {
+					htmlOverflow: document.documentElement.style.overflow,
+					bodyOverflow: document.body.style.overflow,
+					contain: container.style.contain,
+				};
 				// Prevent scrolling in fullscreen mode
 				document.documentElement.style.overflow = "hidden";
 				document.body.style.overflow = "hidden";
 				// Update layout containment
 				container.style.contain = "layout style paint";
 			} else {
-				// Restore scrolling
-				document.documentElement.style.overflow = "";
-				document.body.style.overflow = "";
-				container.style.contain = "";
+				restoreFullscreenStyles();
 				// Ensure orientation is unlocked when exiting
 				if (screen?.orientation?.unlock) {
 					screen.orientation.unlock();
@@ -1361,13 +1509,13 @@ function PortfolioMuxVideoPlayer({
 		};
 
 		// iOS: Listen for native video fullscreen changes
-		const media = mediaRef.current;
+		const media: NativeFullscreenVideo | undefined = isMediaReady
+			? mediaRef.current?.nativeEl
+			: undefined;
 		const handleWebkitFullscreenChange = () => {
 			// Exit custom fullscreen when native fullscreen exits
 			if (media && "webkitDisplayingFullscreen" in media) {
-				const isWebkitFullscreen = (
-					media as unknown as { webkitDisplayingFullscreen: boolean }
-				).webkitDisplayingFullscreen;
+				const isWebkitFullscreen = media.webkitDisplayingFullscreen;
 				if (!isWebkitFullscreen) {
 					setIsFullscreen(false);
 				}
@@ -1380,24 +1528,26 @@ function PortfolioMuxVideoPlayer({
 		document.addEventListener("mozfullscreenchange", handleFullscreenChange);
 		document.addEventListener("msfullscreenchange", handleFullscreenChange);
 
+		const handleNativeFullscreenStart = () => {
+			setIsFullscreen(true);
+			// Lock orientation when entering fullscreen
+			if (screen?.orientation?.lock) {
+				screen.orientation.lock("landscape").catch(() => {
+					// Silently fail if lock not supported
+				});
+			}
+		};
+		const handleNativeFullscreenEnd = () => {
+			setIsFullscreen(false);
+			// Unlock orientation when exiting fullscreen
+			if (screen?.orientation?.unlock) {
+				screen.orientation.unlock();
+			}
+		};
 		if (media) {
 			media.addEventListener("webkitfullscreenchange", handleWebkitFullscreenChange);
-			media.addEventListener("webkitbeginfullscreen", () => {
-				setIsFullscreen(true);
-				// Lock orientation when entering fullscreen
-				if (screen?.orientation?.lock) {
-					screen.orientation.lock("landscape").catch(() => {
-						// Silently fail if lock not supported
-					});
-				}
-			});
-			media.addEventListener("webkitendfullscreen", () => {
-				setIsFullscreen(false);
-				// Unlock orientation when exiting fullscreen
-				if (screen?.orientation?.unlock) {
-					screen.orientation.unlock();
-				}
-			});
+			media.addEventListener("webkitbeginfullscreen", handleNativeFullscreenStart);
+			media.addEventListener("webkitendfullscreen", handleNativeFullscreenEnd);
 		}
 
 		return () => {
@@ -1407,11 +1557,12 @@ function PortfolioMuxVideoPlayer({
 			document.removeEventListener("msfullscreenchange", handleFullscreenChange);
 			if (media) {
 				media.removeEventListener("webkitfullscreenchange", handleWebkitFullscreenChange);
-				media.removeEventListener("webkitbeginfullscreen", () => {});
-				media.removeEventListener("webkitendfullscreen", () => {});
+				media.removeEventListener("webkitbeginfullscreen", handleNativeFullscreenStart);
+				media.removeEventListener("webkitendfullscreen", handleNativeFullscreenEnd);
 			}
+			restoreFullscreenStyles();
 		};
-	}, []);
+	}, [isMediaReady]);
 
 	useEffect(() => {
 		if (!isPlaying) {
@@ -1480,32 +1631,38 @@ function PortfolioMuxVideoPlayer({
 
 		// Hide controls when window loses focus (switching to another app)
 		const handleWindowBlur = () => {
-			setControlsVisible(false);
+			if (isPlaying && hasStartedPlayback && !isFocusVisibleWithin && !menuOpen)
+				setControlsVisible(false);
+		};
+		const handleWindowFocus = () => {
+			setControlsVisible(true);
+			scheduleControlsHide();
 		};
 
 		// Hide controls when page becomes hidden (tab switch, minimize)
 		const handleVisibilityChange = () => {
-			if (document.hidden) {
-				setControlsVisible(false);
-			}
+			if (document.hidden) handleWindowBlur();
+			else handleWindowFocus();
 		};
 
 		window.addEventListener("blur", handleWindowBlur);
+		window.addEventListener("focus", handleWindowFocus);
 		document.addEventListener("visibilitychange", handleVisibilityChange);
 
 		return () => {
 			window.removeEventListener("blur", handleWindowBlur);
+			window.removeEventListener("focus", handleWindowFocus);
 			document.removeEventListener("visibilitychange", handleVisibilityChange);
 		};
-	}, []);
+	}, [hasStartedPlayback, isFocusVisibleWithin, isPlaying, menuOpen, scheduleControlsHide]);
 
 	const hideControlsImmediately = useCallback(() => {
 		clearControlsTimeout();
-		if (!isPlaying || isFocusVisibleWithin || menuOpen) {
+		if (!isPlaying || !hasStartedPlayback || isFocusVisibleWithin || menuOpen) {
 			return;
 		}
 		setControlsVisible(false);
-	}, [clearControlsTimeout, isFocusVisibleWithin, isPlaying, menuOpen]);
+	}, [clearControlsTimeout, hasStartedPlayback, isFocusVisibleWithin, isPlaying, menuOpen]);
 
 	const handlePointerActivity = useCallback(() => {
 		setControlsVisible(true);
@@ -1545,24 +1702,26 @@ function PortfolioMuxVideoPlayer({
 	}, [canHover, hideControlsImmediately, isPlaying]);
 
 	const handleRootClick = useCallback(
-		(event: MouseEvent<HTMLDivElement>) => {
+		(event: MouseEvent<HTMLElement>) => {
 			const target = event.target as HTMLElement | null;
 			if (target?.closest("[data-player-interactive]")) {
 				return;
 			}
 
-			if (suppressNextRootClickRef.current) {
-				suppressNextRootClickRef.current = false;
+			if (isCoarsePointer && isPlaying) {
+				setControlsVisible((shown) => !shown);
+				scheduleControlsHide();
 				return;
 			}
 
 			void togglePlayback();
 		},
-		[togglePlayback],
+		[isCoarsePointer, isPlaying, scheduleControlsHide, togglePlayback],
 	);
 
 	const handleRootDoubleClick = useCallback(
-		(event: MouseEvent<HTMLDivElement>) => {
+		(event: MouseEvent<HTMLElement>) => {
+			if (isCoarsePointer) return;
 			const target = event.target as HTMLElement | null;
 			if (target?.closest("[data-player-interactive]")) {
 				return;
@@ -1571,7 +1730,7 @@ function PortfolioMuxVideoPlayer({
 			event.preventDefault();
 			void toggleFullscreen();
 		},
-		[toggleFullscreen],
+		[isCoarsePointer, toggleFullscreen],
 	);
 
 	const handleVolumeControlPointerEnter = useCallback(() => {
@@ -1583,7 +1742,7 @@ function PortfolioMuxVideoPlayer({
 	}, []);
 
 	const handleKeyDown = useCallback(
-		(event: KeyboardEvent<HTMLDivElement>) => {
+		(event: KeyboardEvent<HTMLElement>) => {
 			const target = event.target as HTMLElement | null;
 			if (
 				event.defaultPrevented ||
@@ -1670,21 +1829,27 @@ function PortfolioMuxVideoPlayer({
 		],
 	);
 
+	const resolvedQualityOptions = qualityOptions.map((option) =>
+		option.value === "auto"
+			? {
+					...option,
+					detailLabel: resolvedQualityLabel ?? undefined,
+					chipLabel: resolvedQualityChipLabel ?? undefined,
+				}
+			: option,
+	);
+	const rateOptions = PLAYBACK_RATE_OPTIONS.map((option) => ({
+		...option,
+		value: String(option.value),
+	}));
+	const menuContainer = isFullscreen || variant === "lightbox" ? containerRef.current : undefined;
 	const qualityControl = hasQualityMenu ? (
 		<VideoSettingsMenu
 			kind="quality"
 			label="Select video quality"
 			triggerLabel={qualityValue === "auto" ? "Auto" : qualityLabel}
 			value={qualityValue}
-			options={qualityOptions.map((option) =>
-				option.value === "auto"
-					? {
-							...option,
-							detailLabel: resolvedQualityLabel ?? undefined,
-							chipLabel: resolvedQualityChipLabel ?? undefined,
-						}
-					: option,
-			)}
+			options={resolvedQualityOptions}
 			open={openMenu === "quality"}
 			onOpenChange={(open) => {
 				setOpenMenu(open ? "quality" : null);
@@ -1694,7 +1859,7 @@ function PortfolioMuxVideoPlayer({
 				}
 			}}
 			onValueChange={handleQualityChange}
-			container={isFullscreen || variant === "lightbox" ? containerRef.current : undefined}
+			container={menuContainer}
 		/>
 	) : null;
 	const rateControl = (
@@ -1703,10 +1868,7 @@ function PortfolioMuxVideoPlayer({
 			label="Select playback speed"
 			triggerLabel={rateLabel}
 			value={String(playbackRate)}
-			options={PLAYBACK_RATE_OPTIONS.map((option) => ({
-				...option,
-				value: String(option.value),
-			}))}
+			options={rateOptions}
 			open={openMenu === "rate"}
 			onOpenChange={(open) => {
 				setOpenMenu(open ? "rate" : null);
@@ -1716,7 +1878,49 @@ function PortfolioMuxVideoPlayer({
 				}
 			}}
 			onValueChange={handlePlaybackRateChange}
-			container={isFullscreen || variant === "lightbox" ? containerRef.current : undefined}
+			container={menuContainer}
+		/>
+	);
+	const compactSettingsControl = (
+		<CompactVideoSettingsMenu
+			open={openMenu === "settings"}
+			onOpenChange={(open) => {
+				setOpenMenu(open ? "settings" : null);
+				if (open) {
+					clearControlsTimeout();
+					setControlsVisible(true);
+				}
+			}}
+			container={menuContainer}
+			actions={
+				isMinimalLayout
+					? [
+							{ label: isMuted ? "Unmute video" : "Mute video", onClick: toggleMute },
+							{
+								label: isFullscreen ? "Exit fullscreen" : "Enter fullscreen",
+								onClick: () => void toggleFullscreen(),
+							},
+						]
+					: []
+			}
+			groups={[
+				{
+					label: "Playback speed",
+					value: String(playbackRate),
+					options: rateOptions,
+					onValueChange: handlePlaybackRateChange,
+				},
+				...(hasQualityMenu
+					? [
+							{
+								label: "Video quality",
+								value: qualityValue,
+								options: resolvedQualityOptions,
+								onValueChange: handleQualityChange,
+							},
+						]
+					: []),
+			]}
 		/>
 	);
 
@@ -1739,23 +1943,21 @@ function PortfolioMuxVideoPlayer({
 		</button>
 	);
 	const controlsPanelClassName = cn(
-		"relative flex flex-col gap-2 px-4 pt-1 pb-3",
-		isUltraCompactLayout
-			? "gap-1 px-2.5 pt-1.5 pb-1.5"
-			: isCompactLayout
-				? "gap-1.5 px-3 pt-2 pb-2"
-				: undefined,
+		styles.controlsPanel,
+		"relative flex flex-col pt-1",
+		isCompactLayout && [styles.compactControlsPanel, "pt-0"],
 	);
 	const timelineRowClassName = cn(
 		"relative",
 		controlsInteractiveClassName,
-		isUltraCompactLayout ? "h-3.5" : isCompactLayout ? "h-4" : "h-[18px]",
+		isCompactLayout || isCoarsePointer ? "h-6" : "h-[18px]",
 	);
 
 	return (
-		<div
+		<section
 			ref={containerRef}
 			className={cn(
+				styles.player,
 				"group relative h-full w-full overflow-hidden bg-surface-950 text-surface-50",
 				"outline-none focus-visible:ring-2 focus-visible:ring-surface-50/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
 				canHover && isPlaying && !controlsVisible && "cursor-none",
@@ -1763,8 +1965,8 @@ function PortfolioMuxVideoPlayer({
 				className,
 			)}
 			data-portfolio-video
+			data-fullscreen={isFullscreen || undefined}
 			data-motion-input={isFocusVisibleWithin ? "keyboard" : "pointer"}
-			role="application"
 			aria-label="Video player"
 			onClick={handleRootClick}
 			onDoubleClick={handleRootDoubleClick}
@@ -1772,6 +1974,8 @@ function PortfolioMuxVideoPlayer({
 				const target = event.target as HTMLElement | null;
 				if (target?.matches(":focus-visible")) {
 					setIsFocusVisibleWithin(true);
+					setControlsVisible(true);
+					clearControlsTimeout();
 				}
 			}}
 			onBlur={(event) => {
@@ -1805,23 +2009,6 @@ function PortfolioMuxVideoPlayer({
 				}
 				handlePointerActivity();
 			}}
-			onTouchStart={(event) => {
-				if ((event.target as HTMLElement)?.closest("input, button, [role='button']")) {
-					return;
-				}
-
-				if (isPlaying && !controlsVisible) {
-					suppressNextRootClickRef.current = true;
-					setControlsVisible(true);
-					scheduleControlsHide();
-					return;
-				}
-
-				handlePointerActivity();
-			}}
-			onTouchEnd={() => {
-				scheduleControlsHide();
-			}}
 			onTouchMove={(event) => {
 				// Allow scrolling in non-fullscreen mode
 				if (isFullscreen && (event.target as HTMLElement)?.closest("mux-video")) {
@@ -1833,32 +2020,40 @@ function PortfolioMuxVideoPlayer({
 			<mux-video
 				ref={mediaRef}
 				crossOrigin="anonymous"
-				className="portfolio-mux-video-host block size-full"
+				className={cn("portfolio-mux-video-host block size-full", styles.playbackArea)}
 				tabIndex={0}
+				role="group"
+				aria-label="Video playback area"
+				aria-description="Use the labeled playback controls, or Space to play or pause, left and right arrows to seek, M to mute, and F for fullscreen while this area is focused."
 				data-playback-id={playbackId}
 				style={
 					{
-						"--media-object-fit": isFullscreen
-							? "contain"
-							: variant === "lightbox"
-								? "contain"
-								: "cover",
+						"--media-object-fit": "contain",
 						"--media-object-position": "center",
 						"--media-max-width": "100%",
 						"--media-max-height": "100%",
 					} as CSSProperties
 				}
 			/>
+			{isActive && (!isMediaReady || isBuffering) ? (
+				<span role="status" className={styles.loadingStatus}>
+					Loading video…
+				</span>
+			) : null}
 
 			{onExit ? (
 				<motion.div
-					className="pointer-events-none absolute inset-x-4 top-4 z-20 flex justify-end"
+					className={cn(
+						styles.posterReturn,
+						"pointer-events-none absolute z-20 flex justify-end",
+					)}
 					initial={{ opacity: 1 }}
 					animate={{
 						opacity: controlsVisible ? 1 : 0,
 						pointerEvents: controlsVisible ? "auto" : "none",
 					}}
-					transition={tweens.interactionFast}
+					transition={shouldReduceMotion ? { duration: 0 } : tweens.interactionFast}
+					inert={!controlsVisible}
 				>
 					<button
 						type="button"
@@ -1877,39 +2072,71 @@ function PortfolioMuxVideoPlayer({
 			) : null}
 
 			<motion.div
-				className="pointer-events-none absolute inset-x-0 bottom-0 z-20 border-t"
+				className="pointer-events-none absolute inset-x-0 bottom-0 z-20"
 				data-player-panel
-				style={{ borderColor: "var(--portfolio-player-hairline)" }}
+				inert={!controlsVisible}
 				initial={{ opacity: 1 }}
 				animate={{
 					opacity: controlsVisible ? 1 : 0,
 					pointerEvents: controlsVisible ? "auto" : "none",
 				}}
-				transition={tweens.interactionFast}
+				transition={shouldReduceMotion ? { duration: 0 } : tweens.interactionFast}
 			>
 				<div data-player-surface className="absolute inset-0 bg-surface-950" />
 				<div className={controlsPanelClassName}>
 					<div className={timelineRowClassName}>
-						{activeStoryboardCue && scrubPreviewTime !== null ? (
-							<motion.div
-								className="pointer-events-none absolute bottom-full z-30 mb-[var(--portfolio-overlay-gap)] overflow-hidden border border-white/20 bg-black"
-								style={{
-									left: 0,
-									x: scrubPreviewXSpring,
-									width: activeStoryboardCue.width,
-									height: activeStoryboardCue.height,
-								}}
-								transition={springs.layout}
-							>
-								<div
-									className="size-full bg-no-repeat"
+						<AnimatePresence initial={false}>
+							{activeStoryboardCue &&
+							scrubPreviewTime !== null &&
+							scrubPreviewScale > 0 ? (
+								<motion.div
+									data-scrub-preview
+									aria-hidden="true"
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									className="pointer-events-none absolute bottom-full z-30 mb-[var(--portfolio-overlay-gap)] overflow-hidden border border-white/20 bg-black"
 									style={{
-										backgroundImage: `url(${activeStoryboardCue.imageUrl})`,
-										backgroundPosition: `-${activeStoryboardCue.x}px -${activeStoryboardCue.y}px`,
+										left: 0,
+										x: scrubPreviewX,
+										width: scrubPreviewWidth,
+										height: activeStoryboardCue.height * scrubPreviewScale,
 									}}
-								/>
-							</motion.div>
-						) : null}
+									transition={{ duration: shouldReduceMotion ? 0 : 0.12 }}
+								>
+									<div
+										className={cn(
+											styles.previewArtwork,
+											"size-full bg-no-repeat",
+										)}
+										style={{
+											opacity:
+												previewImage?.url === previewImageUrl &&
+												previewImage?.status === "ready"
+													? 1
+													: 0,
+											width: activeStoryboardCue.width,
+											height: activeStoryboardCue.height,
+											transform: `scale(${scrubPreviewScale})`,
+											transformOrigin: "top left",
+											backgroundImage: `url(${activeStoryboardCue.imageUrl})`,
+											backgroundPosition: `-${activeStoryboardCue.x}px -${activeStoryboardCue.y}px`,
+										}}
+									/>
+									<span className={styles.previewTime}>
+										{formatPlaybackTime(scrubPreviewTime)}
+									</span>
+									{previewImage?.status !== "ready" &&
+									scrubPreviewScale >= 0.7 ? (
+										<span className={styles.previewStatus}>
+											{previewImage?.status === "error"
+												? "Preview unavailable"
+												: "Loading preview…"}
+										</span>
+									) : null}
+								</motion.div>
+							) : null}
+						</AnimatePresence>
 
 						<div
 							className="pointer-events-none absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 bg-[color:var(--portfolio-player-track-color)]"
@@ -1918,10 +2145,12 @@ function PortfolioMuxVideoPlayer({
 						<motion.div
 							className="pointer-events-none absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-white"
 							animate={
-								showTimelineBuffering ? { opacity: [1, 0.6, 1] } : { opacity: 1 }
+								showTimelineBuffering && !shouldReduceMotion
+									? { opacity: [1, 0.6, 1] }
+									: { opacity: 1 }
 							}
 							transition={
-								showTimelineBuffering
+								showTimelineBuffering && !shouldReduceMotion
 									? {
 											duration: 1.2,
 											ease: "easeInOut",
@@ -1940,36 +2169,51 @@ function PortfolioMuxVideoPlayer({
 							max={duration || 0}
 							step={0.1}
 							value={duration > 0 ? currentTime : 0}
+							disabled={duration <= 0}
 							onChange={(event) => handleSeek(Number(event.target.value))}
 							onPointerMove={(event) => {
 								updateScrubPreview(event.clientX, event.currentTarget);
 							}}
 							onPointerDown={(event) => {
+								timelinePointerDownRef.current = true;
+								clearControlsTimeout();
 								event.currentTarget.setPointerCapture?.(event.pointerId);
 								updateScrubPreview(event.clientX, event.currentTarget);
 							}}
 							onPointerUp={(event) => {
+								timelinePointerDownRef.current = false;
 								event.currentTarget.releasePointerCapture?.(event.pointerId);
+								if (event.pointerType !== "mouse") clearScrubPreview();
+								scheduleControlsHide();
+							}}
+							onPointerCancel={() => {
+								timelinePointerDownRef.current = false;
+								clearScrubPreview();
+								scheduleControlsHide();
 							}}
 							onPointerLeave={clearScrubPreview}
 							onBlur={clearScrubPreview}
-							className={cn("portfolio-video-range", controlsInteractiveClassName)}
+							className={cn(
+								"portfolio-video-range",
+								styles.seekInput,
+								controlsInteractiveClassName,
+							)}
 							aria-label="Seek video timeline"
+							aria-valuetext={`${formatPlaybackTime(currentTime)} of ${formatPlaybackTime(duration, "ceil")}`}
 						/>
 					</div>
 
 					<div
 						className={cn(
-							"flex flex-wrap items-center justify-between gap-3",
-							isCompactLayout && "gap-2",
-							isUltraCompactLayout && "gap-1.5",
+							"flex items-center justify-between gap-3",
+							isCompactLayout && "gap-1",
 						)}
 					>
 						<div
 							className={cn(
 								"flex min-w-0 items-center gap-2",
 								controlsInteractiveClassName,
-								isUltraCompactLayout && "gap-1.5",
+								isCompactLayout && "gap-1",
 							)}
 						>
 							<button
@@ -1992,35 +2236,33 @@ function PortfolioMuxVideoPlayer({
 								/>
 							</button>
 
-							<button
-								type="button"
-								className={iconButtonClassName}
-								data-player-interactive
-								aria-label={isMuted ? "Unmute video" : "Mute video"}
-								onClick={(event) => {
-									event.preventDefault();
-									event.stopPropagation();
-									toggleMute();
-								}}
-							>
-								<StateSwap
-									value={volumeState}
-									items={{
-										muted: <SpeakerSimpleSlashIcon size={16} />,
-										low: <SpeakerLowIcon size={16} />,
-										high: <SpeakerHighIcon size={16} />,
+							{!isMinimalLayout && (
+								<button
+									type="button"
+									className={iconButtonClassName}
+									data-player-interactive
+									aria-label={isMuted ? "Unmute video" : "Mute video"}
+									onClick={(event) => {
+										event.preventDefault();
+										event.stopPropagation();
+										toggleMute();
 									}}
-								/>
-							</button>
+								>
+									<StateSwap
+										value={volumeState}
+										items={{
+											muted: <SpeakerSimpleSlashIcon size={16} />,
+											low: <SpeakerLowIcon size={16} />,
+											high: <SpeakerHighIcon size={16} />,
+										}}
+									/>
+								</button>
+							)}
 
 							{showInlineVolume ? (
 								<div
 									data-player-interactive
-									data-player-divider
-									className="hidden items-center border-l pl-2 md:flex"
-									style={{
-										borderColor: "var(--portfolio-player-hairline)",
-									}}
+									className="hidden items-center pl-2 md:flex"
 									onPointerEnter={handleVolumeControlPointerEnter}
 									onPointerLeave={handleVolumeControlPointerLeave}
 									onWheelCapture={handleInteractiveVolumeWheel}
@@ -2051,32 +2293,37 @@ function PortfolioMuxVideoPlayer({
 								</div>
 							) : null}
 
-							<div
-								className={timeDisplayClassName}
-								data-player-divider
-								style={{ borderColor: "var(--portfolio-player-hairline)" }}
-							>
+							<div className={hideVisibleTime ? "sr-only" : timeDisplayClassName}>
 								{timeDisplayText}
+								{showElapsedOnly && (
+									<span className="sr-only">
+										{" "}
+										/ {formatPlaybackTime(duration, "ceil")}
+									</span>
+								)}
 							</div>
 						</div>
 
 						<div
-							data-player-divider
 							className={cn(
-								"flex items-center gap-2 border-l pl-2",
+								"flex shrink-0 items-center gap-2",
 								controlsInteractiveClassName,
-								isCompactLayout && "gap-1.5 pl-1.5",
-								isUltraCompactLayout && "gap-1 pl-1",
+								isCompactLayout && "gap-1",
 							)}
-							style={{ borderColor: "var(--portfolio-player-hairline)" }}
 						>
-							{qualityControl}
-							{rateControl}
-							{fullscreenControl}
+							{isCompactLayout ? (
+								compactSettingsControl
+							) : (
+								<>
+									{qualityControl}
+									{rateControl}
+								</>
+							)}
+							{!isMinimalLayout && fullscreenControl}
 						</div>
 					</div>
 				</div>
 			</motion.div>
-		</div>
+		</section>
 	);
 }

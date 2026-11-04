@@ -27,6 +27,7 @@ function context(headers: Record<string, string> = {}, isVercel = true): Contact
 			...headers,
 		}),
 		isVercel,
+		formEnabled: true,
 	};
 }
 
@@ -46,6 +47,25 @@ function fixture() {
 	};
 	return { sent, consumed, dependencies };
 }
+
+test("disabled delivery rejects valid, bot and attempted flag-bypass inputs before I/O", async () => {
+	const { dependencies, consumed, sent } = fixture();
+	for (const input of [
+		submission,
+		{ ...submission, website: "https://spam.example" },
+		{ ...submission, formEnabled: true, CONTACT_FORM_ENABLED: true },
+	]) {
+		expect(
+			await processContactSubmission(
+				input,
+				{ ...context(), formEnabled: false },
+				dependencies,
+			),
+		).toMatchObject({ success: false, code: "unavailable" });
+	}
+	expect(consumed).toHaveLength(0);
+	expect(sent).toHaveLength(0);
+});
 
 test("rejects malformed, oversized, whitespace-only, and header-injection input before I/O", async () => {
 	const { dependencies, consumed, sent } = fixture();

@@ -7,7 +7,11 @@ import {
 	getListedPublicProjectSummaries,
 	getPublicProjectSummaryBySlug,
 } from "@/src/content/project-summaries";
-import type { ProjectSummaryEntry } from "@/src/content/types";
+import {
+	type GalleryMediaItem,
+	galleryMediaItemSchema,
+	type ProjectSummaryEntry,
+} from "@/src/content/types";
 
 const PROJECTS_DIR = path.join(process.cwd(), "content", "projects");
 
@@ -167,6 +171,36 @@ function serializeVideoBlock(block: string) {
 }
 
 function serializeGalleryBlock(block: string) {
+	const itemsStart = /\bitems\s*=\s*\{\s*(\[)/m.exec(block);
+	if (itemsStart) {
+		// Authored mixed-media arrays are JSON literals, never evaluated JavaScript.
+		const start = itemsStart.index + itemsStart[0].length - 1;
+		let depth = 0;
+		let quoted = false;
+		let escaped = false;
+		for (let cursor = start; cursor < block.length; cursor += 1) {
+			const character = block[cursor];
+			if (quoted) {
+				if (escaped) escaped = false;
+				else if (character === "\\") escaped = true;
+				else if (character === '"') quoted = false;
+				continue;
+			}
+			if (character === '"') quoted = true;
+			else if (character === "[") depth += 1;
+			else if (character === "]") {
+				depth -= 1;
+				if (depth === 0) {
+					const items = galleryMediaItemSchema
+						.array()
+						.min(1)
+						.parse(JSON.parse(block.slice(start, cursor + 1)));
+					return serializeGalleryItems(items);
+				}
+			}
+		}
+		throw new Error("Gallery items must be a complete JSON array.");
+	}
 	const images = getArrayProp(block, "images");
 	const captions = getArrayProp(block, "captions");
 	const caption = getStringProp(block, "caption");
@@ -183,6 +217,28 @@ function serializeGalleryBlock(block: string) {
 	}
 
 	return lines.join("\n");
+}
+
+function serializeGalleryItems(items: readonly GalleryMediaItem[]) {
+	return items
+		.map((item, index) => {
+			if (item.kind === "image") {
+				const lines = [
+					`![${item.alt ?? item.title ?? `Gallery image ${index + 1}`}](${absoluteSiteUrl(item.src)})`,
+				];
+				if (item.caption && item.caption !== item.alt)
+					lines.push(`Caption: ${item.caption}`);
+				return lines.join("\n\n");
+			}
+			return [
+				`> Video: ${item.title ?? item.alt ?? "Case study video"}`,
+				...(item.caption ? [`> ${item.caption}`] : []),
+				...(item.duration ? [`> Duration: ${item.duration}`] : []),
+				`> Poster: ${absoluteSiteUrl(item.poster)}`,
+				`> Mux playback ID: ${item.playbackId}`,
+			].join("\n");
+		})
+		.join("\n\n");
 }
 
 function serializeCompareBlock(block: string) {
@@ -257,14 +313,47 @@ function projectMetaLines(project: ProjectSummaryEntry) {
 		lines.push(`Status: ${project.status}`);
 	}
 
+	if (project.delivery) {
+		const { label, period, duration } = project.delivery;
+		lines.push(`${label}: ${[period, duration].filter(Boolean).join(" · ")}`);
+	}
+
 	if (project.domain) {
 		lines.push(`Domain: ${project.domain}`);
+	}
+
+	if (project.overview) {
+		lines.push(
+			`Engagement: ${project.overview.engagement}`,
+			`Context: ${project.overview.context}`,
+		);
 	}
 
 	if (project.stack && project.stack.length > 0) {
 		lines.push(`Stack: ${project.stack.join(", ")}`);
 	} else if (project.tech.length > 0) {
 		lines.push(`Tech: ${project.tech.join(", ")}`);
+	}
+
+	if (project.overview) {
+		lines.push(
+			"",
+			"## The problem",
+			"",
+			project.overview.challenge,
+			"",
+			"## What I built",
+			"",
+			project.overview.summary,
+		);
+	}
+	if (project.coverMedia?.length && !project.hideCoverGallery) {
+		lines.push(
+			"",
+			"## Walkthrough and selected screens",
+			"",
+			serializeGalleryItems(project.coverMedia),
+		);
 	}
 
 	return lines;
@@ -355,6 +444,11 @@ export async function getPortfolioMarkdown() {
 			lines.push(`- Status: ${project.status}`);
 		}
 
+		if (project.delivery) {
+			const { label, period, duration } = project.delivery;
+			lines.push(`- ${label}: ${[period, duration].filter(Boolean).join(" · ")}`);
+		}
+
 		const stack = project.stack?.length ? project.stack : project.tech;
 
 		if (stack.length > 0) {
@@ -406,7 +500,7 @@ export async function getLlmsTxt() {
 	lines.push("");
 	lines.push(`- [Resume PDF](${SITE_URL}/yassine-chettouch-resume.pdf): Formal resume asset.`);
 	lines.push(`- [About](${SITE_URL}/about): Human-readable engineering philosophy page.`);
-	lines.push(`- [Contact](${SITE_URL}/contact): Contact form and email path.`);
+	lines.push(`- [Contact](${SITE_URL}/contact): Email and booking.`);
 
 	return lines.join("\n").trim();
 }

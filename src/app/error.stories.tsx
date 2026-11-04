@@ -3,7 +3,8 @@ import { WorkshopPagePreview } from "../../.storybook/page-preview";
 import AppError from "./error";
 
 const meta = {
-	title: "Pages/Error",
+	id: "pages-error",
+	title: "Pages/Route States/Error",
 	component: AppError,
 	parameters: {
 		layout: "fullscreen",

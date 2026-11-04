@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect } from "storybook/test";
 import { SwissGridBox } from "@/src/components/ui/swiss-grid";
+import { phoenix, portal, verto } from "../../../.storybook/project-fixtures";
 import { CaseStudyFacts, CaseStudyHeader } from "./case-study-summary";
 
 const meta = {
@@ -17,11 +18,11 @@ const meta = {
 		),
 	],
 	args: {
-		title: "Program Matching Engine",
-		description:
-			"The original matching workflow broke in live advising calls. I rebuilt it into three connected systems: a normalized schema, a resumable AI import pipeline, and an explainable matching engine advisors could trust during real student calls.",
-		date: "2025-06-01",
-		readingTime: 10,
+		title: phoenix.title,
+		description: phoenix.subtitle ?? phoenix.description,
+		overview: phoenix.overview,
+		date: phoenix.date,
+		readingTime: phoenix.readingTime,
 		markdownHref: "/case-studies/clearway-phoenix.md",
 	},
 } satisfies Meta<typeof CaseStudyHeader>;
@@ -30,34 +31,35 @@ type Story = StoryObj<typeof meta>;
 
 export const Introduction: Story = {
 	play: async ({ canvas }) => {
-		await expect(
-			canvas.getByRole("heading", { name: "Program Matching Engine", level: 1 }),
-		).toBeVisible();
+		await expect(canvas.getByRole("heading", { name: phoenix.title, level: 1 })).toBeVisible();
 		await expect(canvas.getByRole("link", { name: "Case studies" })).toHaveAttribute(
 			"href",
 			"/case-studies",
 		);
 		await expect(canvas.getByRole("button", { name: "Copy Markdown" })).toBeEnabled();
+		await expect(canvas.getByText("The problem", { exact: true })).toBeVisible();
+		await expect(canvas.getByText("What I built", { exact: true })).toBeVisible();
 	},
 };
 
 export const ShortIntroduction: Story = {
 	args: {
 		title: "Verto",
-		description:
-			"Architecture of a proprietary AI-powered translation engine designed for high-volume document pipelines.",
-		date: "2026-01-26",
+		description: verto.subtitle ?? verto.description,
+		overview: verto.overview,
+		date: verto.date,
+		readingTime: verto.readingTime,
 		markdownHref: "/case-studies/verto.md",
 	},
 };
 
 export const StudentPortal: Story = {
 	args: {
-		title: "Student Applications & Document Collection",
-		description:
-			"Replace WhatsApp document collection with guided student applications that feed the advisor’s existing records.",
-		date: "2026-10-01",
-		readingTime: 4,
+		title: portal.title,
+		description: portal.subtitle ?? portal.description,
+		overview: portal.overview,
+		date: portal.date,
+		readingTime: portal.readingTime,
 		markdownHref: "/case-studies/clearway-portal.md",
 	},
 };
@@ -69,10 +71,15 @@ export const ProjectFacts: Story = {
 			facts={[
 				{
 					label: "Role",
-					value: "Sole engineer",
+					value: "Product Engineer",
 				},
-				{ label: "Status", value: "Delivered · August–October 2025" },
-				{ label: "Domain", value: "Student onboarding" },
+				{
+					label: portal.delivery?.label ?? "Build",
+					value: [portal.delivery?.period, portal.delivery?.duration]
+						.filter(Boolean)
+						.join(" · "),
+				},
+				{ label: "Status", value: "Delivered" },
 			]}
 			stack={[
 				"Next.js",

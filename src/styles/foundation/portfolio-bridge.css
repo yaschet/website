@@ -31,6 +31,7 @@
 :root:not(.dark),
 :root.dark {
 	--surface: var(--foundation-canvas);
+	--border: var(--portfolio-project-line);
 }
 
 /* Transparent warning controls need the deeper existing ink on the portfolio canvas. */
@@ -170,13 +171,14 @@
 :where(.foundation-button-pending[data-icon-only]) > .foundation-button-icon-space {
 	margin-inline: 0;
 }
+/* A full-size editorial chamber must not stretch its loading glyph. */
+.foundation-button-icon [data-slot="spinner"] {
+	max-width: var(--button-glyph-size);
+	max-height: var(--button-glyph-size);
+}
 [data-active="false"] [data-slot="spinner"],
 .foundation-button-icon > .t-icon > [data-slot="spinner"] {
 	animation-play-state: paused;
-}
-[data-reel-trigger] .foundation-button-icon [data-slot="spinner"] {
-	max-width: var(--button-glyph-size);
-	max-height: var(--button-glyph-size);
 }
 
 [data-loading] .foundation-button-icon > .t-icon > [data-slot="spinner"] {
@@ -270,6 +272,60 @@
 	[data-action-reel] {
 		visibility: hidden;
 	}
+}
+
+/* Two flush chambers share one perimeter and one native action. */
+[data-slot="button"].portfolio-gallery-play {
+	--foundation-primary-soft: var(--palette-neutral-900);
+	--foundation-primary-soft-hover: var(--palette-neutral-800);
+	--foundation-primary-soft-active: var(--palette-neutral-700);
+	--gallery-play-chamber-surface: var(--palette-neutral-950);
+	position: relative;
+	width: 160px;
+	height: 48px;
+	padding: 0;
+	border: 0;
+	box-shadow: none;
+}
+.portfolio-gallery-play::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border: var(--foundation-hairline) solid var(--palette-neutral-600);
+	pointer-events: none;
+}
+.portfolio-gallery-play .foundation-button-pending {
+	gap: 0;
+	width: 100%;
+}
+.portfolio-gallery-play .foundation-button-pending-copy {
+	flex: 1;
+	min-width: 0;
+	height: 100%;
+	padding: 0;
+}
+.portfolio-gallery-play-label {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	width: 100%;
+	height: 100%;
+	padding-inline: 12px;
+	background: var(--gallery-play-chamber-surface);
+}
+.portfolio-gallery-play-duration {
+	color: var(--palette-neutral-300);
+	font-weight: 400;
+	font-variant-numeric: tabular-nums;
+}
+.portfolio-gallery-play .foundation-button-icon-space {
+	width: 48px;
+	color: var(--palette-neutral-50);
+	background: transparent;
+}
+.portfolio-gallery-play:focus-visible::after {
+	border: 2px solid var(--palette-neutral-50);
 }
 
 /* Icon-only reels use the control's whole chamber, including pending layers. */
@@ -467,6 +523,7 @@
 	--foundation-control-line-hover: var(--palette-neutral-600);
 	--foundation-popup-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
 }
+
 .video-setting-trigger {
 	gap: 8px;
 }

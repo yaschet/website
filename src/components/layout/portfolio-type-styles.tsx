@@ -56,7 +56,13 @@ const capsizeStyles = [
 			leading: 36,
 		})}
 	}`,
-].join("\n");
+]
+	.join("\n")
+	// Preserve the authored scale while honoring a reader's root text size.
+	.replace(
+		/(font-size|line-height):\s*([\d.]+)px/g,
+		(_, property, pixels) => `${property}: ${Number(pixels) / 16}rem`,
+	);
 
 export function PortfolioTypeStyles() {
 	return (

@@ -3,7 +3,8 @@ import { WorkshopPagePreview } from "../../.storybook/page-preview";
 import NotFound from "./not-found";
 
 const meta = {
-	title: "Pages/Not Found",
+	id: "pages-not-found",
+	title: "Pages/Route States/Not Found",
 	component: NotFound,
 	parameters: {
 		layout: "fullscreen",

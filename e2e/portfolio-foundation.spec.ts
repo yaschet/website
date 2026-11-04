@@ -29,19 +29,26 @@ for (const theme of ["light", "dark"] as const) {
 		const work = page.getByRole("region", { name: "Selected work", exact: true });
 		await expect(work).toBeVisible();
 		const workLayout = await work.evaluate((section) => {
-			const surfaces = [
-				...document.querySelectorAll("main .portfolio-grid-frame"),
-				...section.querySelectorAll(".portfolio-project-card"),
-			];
+			const frames = [...document.querySelectorAll("main .portfolio-grid-frame")];
+			const cards = [...section.querySelectorAll(".portfolio-project-card")];
 			const card = section.querySelector('[data-slot="project-card"]');
 			const preview = card?.querySelector('[data-slot="project-preview"]');
 			if (!card || !preview) throw new Error("Missing first project preview");
 			const rail = section.getBoundingClientRect();
 			const outer = card.getBoundingClientRect();
 			const media = preview.getBoundingClientRect();
-			const cards = [...section.querySelectorAll(".portfolio-project-card")];
+			// Inset frames own the single mobile gutter; project cards retain the page gutter.
+			const mobileBleed = window.matchMedia("(width < 40rem)").matches;
+			const frameLeft = mobileBleed ? 0 : rail.left;
+			const frameRight = mobileBleed ? window.innerWidth : rail.right;
 			return {
-				railOffsets: surfaces.flatMap((surface) => {
+				mobileBleed,
+				workInsets: [rail.left, window.innerWidth - rail.right],
+				frameRailOffsets: frames.flatMap((surface) => {
+					const box = surface.getBoundingClientRect();
+					return [box.left - frameLeft, box.right - frameRight];
+				}),
+				cardRailOffsets: cards.flatMap((surface) => {
 					const box = surface.getBoundingClientRect();
 					return [box.left - rail.left, box.right - rail.right];
 				}),
@@ -60,16 +67,20 @@ for (const theme of ["light", "dark"] as const) {
 				nestedFrame: !!section.querySelector(".portfolio-grid-frame"),
 			};
 		});
-		for (const offset of workLayout.railOffsets) expect(Math.abs(offset)).toBeLessThan(0.5);
+		for (const offset of [...workLayout.frameRailOffsets, ...workLayout.cardRailOffsets])
+			expect(Math.abs(offset)).toBeLessThan(0.5);
+		if (workLayout.mobileBleed)
+			for (const inset of workLayout.workInsets)
+				expect(Math.abs(inset - 20)).toBeLessThan(0.5);
 		expect(Math.max(...workLayout.previewInsets)).toBeLessThanOrEqual(1);
 		expect(
 			Math.max(...workLayout.previewInsets) - Math.min(...workLayout.previewInsets),
 		).toBeLessThan(0.5);
-		for (const gap of workLayout.gaps) expect(gap).toBe(40);
+		for (const gap of workLayout.gaps) expect(Math.abs(gap - 40)).toBeLessThanOrEqual(1 / 64);
 		expect(workLayout.nestedFrame).toBe(false);
 		const projects = page.getByRole("article");
 		await expect(projects.getByRole("heading", { level: 3 })).toHaveText([
-			"Document Translation With Editable Tables",
+			"Verto — AI Translation Platform",
 			"University Program Matching",
 			"Student Applications & Document Collection",
 			"Agency CRM & Billing",
@@ -84,19 +95,18 @@ for (const theme of ["light", "dark"] as const) {
 				const copy = node.querySelector('[data-slot="project-copy"]');
 				const title = node.querySelector("h3");
 				const action = node.querySelector("[data-project-action]");
-				const description = copy?.querySelector(".portfolio-project-description");
-				if (!copy || !title || !action || !description)
+				const description = copy?.querySelector('[data-slot="project-summary"]');
+				const body = copy?.querySelector(".portfolio-project-body");
+				if (!copy || !title || !action || !description || !body)
 					throw new Error("Incomplete project card");
 				const t = title.getBoundingClientRect(),
 					a = action.getBoundingClientRect();
-				const overview = copy.querySelector('[data-slot="project-overview"]');
-				if (!overview) throw new Error("Missing project overview");
-				const style = getComputedStyle(overview);
+				const style = getComputedStyle(body);
 				return {
 					actionWidth: a.width,
 					actionHeight: a.height,
 					centerDifference: Math.abs(t.top + t.height / 2 - a.top - a.height / 2),
-					insets: [
+					bodyInsets: [
 						style.paddingTop,
 						style.paddingRight,
 						style.paddingBottom,
@@ -110,7 +120,8 @@ for (const theme of ["light", "dark"] as const) {
 			expect(layout.actionWidth).toBe(40);
 			expect(layout.actionHeight).toBe(40);
 			expect(layout.centerDifference).toBeLessThan(0.5);
-			expect(new Set(layout.insets).size).toBe(1);
+			expect(new Set(layout.bodyInsets).size).toBe(1);
+			expect(Number.parseFloat(layout.bodyInsets[0] ?? "0")).toBeGreaterThanOrEqual(20);
 			expect(layout.clamped).toBe("none");
 			expect(Number.isInteger(layout.leading)).toBe(true);
 			expect(layout.overflow).toBe(false);
@@ -156,9 +167,9 @@ for (const theme of ["light", "dark"] as const) {
 		const note = work.locator(".portfolio-confidential-work");
 		await expect(note.getByRole("heading", { name: "Confidential work" })).toBeVisible();
 		await expect(note.locator("p")).toHaveText(
-			"Other work spans legal translation, education, onboarding, operations, and reconciliation. Most of it is private. Happy to discuss it in a call.",
+			"Some client work stays private. I can discuss the problems, my contribution and the engineering approach without sharing confidential material. Ask about relevant work.",
 		);
-		const call = note.getByRole("link", { name: "in a call" });
+		const call = note.getByRole("link", { name: "Ask about relevant work" });
 		await expect(call).toHaveAttribute("href", "/contact");
 		await expect(note.getByRole("button")).toHaveCount(0);
 		await call.focus();
@@ -173,7 +184,7 @@ for (const theme of ["light", "dark"] as const) {
 			const title = node.querySelector("h3");
 			const description = node.querySelector("p");
 			const card = node.closest("section")?.querySelector('[data-slot="project-card"]');
-			const cardCopy = card?.querySelector('[data-slot="project-overview"]');
+			const cardCopy = card?.querySelector(".portfolio-project-body");
 			if (!inset || !title || !description || !card || !cardCopy)
 				throw new Error("Missing confidential-work composition");
 			const style = getComputedStyle(inset);
@@ -199,12 +210,8 @@ for (const theme of ["light", "dark"] as const) {
 				background: material.backgroundColor,
 				projectBackground: projectMaterial.backgroundColor,
 				bodyBackground: getComputedStyle(document.body).backgroundColor,
-				border: [material.borderTopWidth, material.borderTopStyle, material.borderTopColor],
-				projectBorder: [
-					projectMaterial.borderTopWidth,
-					projectMaterial.borderTopStyle,
-					projectMaterial.borderTopColor,
-				],
+				frame: getComputedStyle(node, "::after").boxShadow,
+				projectFrame: getComputedStyle(card, "::after").boxShadow,
 				titleSize: Number.parseFloat(getComputedStyle(title).fontSize),
 				copySize: Number.parseFloat(getComputedStyle(description).fontSize),
 				overflow: node.scrollWidth > node.clientWidth,
@@ -220,8 +227,8 @@ for (const theme of ["light", "dark"] as const) {
 		expect(noteLayout.background).toBe(noteLayout.projectBackground);
 		expect(noteLayout.background).not.toBe("rgba(0, 0, 0, 0)");
 		expect(noteLayout.background).not.toBe(noteLayout.bodyBackground);
-		expect(noteLayout.border).toEqual(noteLayout.projectBorder);
-		expect(noteLayout.border[1]).toBe("solid");
+		expect(noteLayout.frame).toBe(noteLayout.projectFrame);
+		expect(noteLayout.frame).not.toBe("none");
 		expect(noteLayout.titleSize).toBeGreaterThan(noteLayout.copySize);
 		expect(noteLayout.overflow).toBe(false);
 		expect(await call.evaluate((node) => getComputedStyle(node).boxShadow)).not.toBe("none");

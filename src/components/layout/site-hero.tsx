@@ -28,17 +28,16 @@ export function SiteHero() {
 							className="portfolio-hero-title portfolio-capsize-hero w-fit max-w-full text-balance text-foreground"
 							style={{ margin: 0 }}
 						>
-							Complex systems, clean interfaces.
+							Business software, built end to end.
 						</HeadingReveal>
 						<Reveal delay={revealSequence.body}>
 							<p
 								className="portfolio-body-lg text-muted-foreground"
 								style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
 							>
-								I build CRMs, billing systems, document workflows, and{" "}
-								<span className="whitespace-nowrap">AI pipelines</span> that replace
-								manual work. Internal tools and SaaS for small businesses, made to
-								feel simple to use.
+								I design and build web applications for onboarding, operations,
+								billing and document workflows—from the first requirements to
+								deployment.
 							</p>
 						</Reveal>
 					</div>

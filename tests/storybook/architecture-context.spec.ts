@@ -28,7 +28,29 @@ for (const theme of ["light", "dark"]) {
 			await expect(
 				figure.getByRole("heading", { name: "A rejected layout returns to its builder." }),
 			).toBeVisible();
-			await expect(figure.locator('[data-architecture-node="auditor"]')).toBeInViewport();
+			const canvas = figure.locator("[data-canvas-viewport]");
+			await expect(canvas).toHaveAttribute("data-step", "check");
+			// The article can place the canvas below the clicked walkthrough control.
+			// Scroll its real reading surface into view before testing canvas framing.
+			await canvas.scrollIntoViewIfNeeded();
+			const auditor = figure.locator('[data-architecture-node="auditor"]');
+			await expect(auditor).toBeInViewport();
+			await expect
+				.poll(() =>
+					auditor.evaluate((node) => {
+						const viewport = node.closest("[data-canvas-viewport]");
+						if (!viewport) throw new Error("Missing architecture viewport");
+						const frame = viewport.getBoundingClientRect();
+						const box = node.getBoundingClientRect();
+						return (
+							box.left >= frame.left - 1 &&
+							box.top >= frame.top - 1 &&
+							box.right <= frame.right + 1 &&
+							box.bottom <= frame.bottom + 1
+						);
+					}),
+				)
+				.toBe(true);
 			const nodes = figure.locator("[data-architecture-node]");
 			const readable = await nodes.evaluateAll((items) =>
 				items.map((node) => {

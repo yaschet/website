@@ -28,6 +28,7 @@ async function deferRouteCapture(page: Page) {
 for (const theme of ["light", "dark"] as const) {
 	test(`outgoing viewport fades above the interactive destination in ${theme}`, async ({
 		page,
+		browserName,
 	}, testInfo) => {
 		const errors: string[] = [];
 		const prefetched = new Set<string>();
@@ -80,6 +81,8 @@ for (const theme of ["light", "dark"] as const) {
 							exitDuration: old.animationDuration,
 							exitFit: old.objectFit,
 							exitTransform: old.transform,
+							exitWidth: Number.parseFloat(old.width),
+							exitHeight: Number.parseFloat(old.height),
 							blend: old.mixBlendMode,
 							incomingCapture: getComputedStyle(document.documentElement)
 								.viewTransitionName,
@@ -135,7 +138,10 @@ for (const theme of ["light", "dark"] as const) {
 		await nav.getByRole("link", { name: "Home", exact: true }).click();
 		await expect(page).toHaveURL(/\/$/);
 		await expect(
-			page.getByRole("heading", { name: "Complex systems, clean interfaces.", exact: true }),
+			page.getByRole("heading", {
+				name: "Business software, built end to end.",
+				exact: true,
+			}),
 		).toBeVisible();
 		await page.evaluate(() => document.fonts.ready);
 		await expect(page.locator("html")).not.toHaveAttribute("data-route-transition");
@@ -149,11 +155,18 @@ for (const theme of ["light", "dark"] as const) {
 		await nav.getByRole("link", { name: "About", exact: true }).click();
 		await expect(page).toHaveURL(/\/about$/);
 		await expect(page.locator("html")).toHaveAttribute("data-route-capture");
-		const capture = JSON.parse(
+		const { exitWidth, exitHeight, ...capture } = JSON.parse(
 			(await page.locator("html").getAttribute("data-route-capture")) ?? "{}",
 		);
+		const viewport = await page.evaluate(() => ({ width: innerWidth, height: innerHeight }));
+		if (browserName === "firefox") {
+			// Firefox's screenshot backend cannot prove native bitmap pixels. Retain
+			// native pseudo-element geometry alongside the lifecycle/hit-testing checks.
+			expect(exitWidth).toBe(viewport.width);
+			expect(exitHeight).toBe(viewport.height);
+		}
 		expect(capture).toEqual({
-			previous: "Complex systems, clean interfaces.",
+			previous: "Business software, built end to end.",
 			current: "How I work.",
 			chromeCapturedSeparately: false,
 			exit: "portfolio-route-out",

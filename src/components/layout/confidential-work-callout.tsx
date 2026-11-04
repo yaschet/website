@@ -20,18 +20,16 @@ export function ConfidentialWorkCallout({
 			)}
 		>
 			<div className="portfolio-project-copy portfolio-project-overview portfolio-confidential-note">
-				<Heading className="portfolio-project-title portfolio-capsize-project-title min-w-0">
-					Confidential work
-				</Heading>
+				<Heading className="portfolio-detail-title min-w-0">Confidential work</Heading>
 				<p className="portfolio-project-description portfolio-body-sm text-muted-foreground">
-					Other work spans legal translation, education, onboarding, operations, and
-					reconciliation. Most of it is private. Happy to discuss it{" "}
+					Some client work stays private. I can discuss the problems, my contribution and
+					the engineering approach without sharing confidential material.{" "}
 					<Link
 						transitionTypes={["navigation"]}
 						href="/contact"
 						className="portfolio-confidential-link font-medium text-foreground underline underline-offset-4"
 					>
-						in a call
+						Ask about relevant work
 					</Link>
 					.
 				</p>

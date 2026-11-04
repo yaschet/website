@@ -28,9 +28,11 @@ export function CodeBlockWrapper({
 				<CopyButton text={rawCode} />
 			</div>
 			<pre
+				// biome-ignore lint/a11y/noNoninteractiveTabindex: Horizontally scrollable code must be reachable with a keyboard.
+				tabIndex={0}
 				className={cn(
-					"code-block-pre m-0 overflow-x-auto p-4",
-					"font-mono text-[13px]/5",
+					"code-block-pre m-0 overflow-x-auto p-4 focus-visible:shadow-[inset_0_0_0_2px_var(--ring)]",
+					"font-mono text-[0.8125rem]/5",
 					"bg-[var(--portfolio-code-surface)]",
 				)}
 				{...props}
