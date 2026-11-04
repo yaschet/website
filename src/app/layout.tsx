@@ -11,7 +11,7 @@ import { SiteHeader } from "@/src/components/layout/site-header";
 export const metadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
 	title: {
-		default: `Yassine Chettouch — ${SITE_ROLE}`,
+		default: `Yassine Chettouch: ${SITE_ROLE}`,
 		template: "%s | Yassine Chettouch",
 	},
 	description: SITE_DESCRIPTION,
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 		canonical: "/",
 	},
 	openGraph: {
-		title: `Yassine Chettouch — ${SITE_ROLE}`,
+		title: `Yassine Chettouch: ${SITE_ROLE}`,
 		description: SITE_DESCRIPTION,
 		url: SITE_URL,
 		siteName: "Yassine Chettouch",

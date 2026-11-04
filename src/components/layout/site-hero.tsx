@@ -36,7 +36,7 @@ export function SiteHero() {
 								style={{ maxWidth: HERO_BODY_MAX_WIDTH, margin: 0 }}
 							>
 								I design and build web applications for onboarding, operations,
-								billing and document workflows—from the first requirements to
+								billing and document workflows, from the first requirements to
 								deployment.
 							</p>
 						</Reveal>

@@ -26,7 +26,7 @@ const roles: Readonly<Record<string, string>> = {
 
 export function getProjectTechnologyRole(name: string, projectTitle: string): string | undefined {
 	if (name === "OpenAI") {
-		if (projectTitle === "Verto — AI Translation Platform") return "Translation and checking";
+		if (projectTitle === "Verto: AI Translation Platform") return "Translation and checking";
 		if (projectTitle === "University Program Matching") return "Academic data import";
 		if (projectTitle === "Student Applications & Document Collection")
 			return "Document processing";

@@ -6,7 +6,7 @@ export const metadata = {
 		"context": "Client portal",
 		"capability": "Document automation",
 		"summary": "I designed and built a four-language student portal: apply before every document is ready, review extracted details and resume across devices, with files and grades reaching the agency’s CRM.",
-		"challenge": "Applications arrived as WhatsApp messages—passports here, transcripts elsewhere. Staff chased missing files and retyped details already sitting on the documents."
+		"challenge": "Applications arrived as WhatsApp messages: passports here, transcripts elsewhere. Staff chased missing files and retyped details already sitting on the documents."
 	},
 	"subtitle": "Replace WhatsApp document collection with guided student applications that feed the advisor's existing records.",
 	"date": "2026-10-30",
@@ -59,7 +59,7 @@ export const metadata = {
 			"caption": "From application to the advisor's records.",
 			"duration": "1:40",
 			"metadata": {
-				"video_title": "Student Applications & Document Collection — Walkthrough",
+				"video_title": "Student Applications & Document Collection: Walkthrough",
 				"video_id": "py6srKiscnxKXhp8ysv101JTA292bA8Si9VYe00GffB5I"
 			}
 		},
@@ -96,15 +96,8 @@ In the prepared example, Mathématiques **17,50 / 20** on the transcript becomes
 			"src": "/images/clearway-portal/clearway-portal-id-prefill-4k.png",
 			"alt": "Identity details prefilled from an uploaded ID, with source badges.",
 			"caption": "The student can check and edit a prefilled name against the identified source."
-		},
-		{
-			"kind": "image",
-			"src": "/images/clearway-portal/clearway-portal-transcript-erp-4k.png",
-			"alt": "The extracted grade 17.50 beside its original transcript in the advisor ERP.",
-			"caption": "The prepared example carries Mathématiques 17,50 on the transcript into the same 17.50 grade on the advisor record. Enlarge to inspect both highlighted values."
 		}
 	]}
-	caption="Review extracted details against their source."
 />
 
 ## Save Progress Beyond The Device
@@ -112,6 +105,17 @@ In the prepared example, Mathématiques **17,50 / 20** on the transcript becomes
 The application changes with the student's answers. Their degree choice, qualifications and passport status determine the relevant questions and uploads. I defined those steps in typed configuration so the flow could follow each education path.
 
 I saved answers and the current step on the backend, allowing a returning session to restore the application on a different device. The interface supports English, French, Arabic and Darija, including right-to-left layouts.
+
+<Gallery
+	items={[
+		{
+			"kind": "image",
+			"src": "/images/clearway-portal/clearway-portal-phone-resume-4k.png",
+			"alt": "A saved academic goal resumed on an iPhone.",
+			"caption": "A goal saved on desktop is restored in a separate iPhone session."
+		}
+	]}
+/>
 
 ## Let Students Apply Before Every Document Is Ready
 
@@ -128,15 +132,8 @@ Uploading and processing are separate states. A stored file may still be waiting
 			"src": "/images/clearway-portal/clearway-portal-document-status-4k.png",
 			"alt": "Student dashboard showing submitted and outstanding documents.",
 			"caption": "A submitted transcript stays visible alongside documents the student still needs to provide."
-		},
-		{
-			"kind": "image",
-			"src": "/images/clearway-portal/clearway-portal-phone-resume-4k.png",
-			"alt": "A saved academic goal resumed on an iPhone.",
-			"caption": "A goal saved on desktop is restored in a separate iPhone session."
 		}
 	]}
-	caption="Continue the application as documents become available."
 />
 
 ## Build On The Records The Agency Already Uses
@@ -146,6 +143,17 @@ I used Next.js for the student experience and kept customer records, authorizati
 The important integration decision was to extend the agency's existing customer model. Saving application progress updates the relevant fields on that record; attachments and grades remain attached to it. Staff can use the information in their current workspace without reconciling a separate student database.
 
 Student requests run through server actions, with session tokens in HttpOnly cookies. Laravel checks that an attachment belongs to the authenticated customer before issuing a temporary S3 download URL.
+
+<Gallery
+	items={[
+		{
+			"kind": "image",
+			"src": "/images/clearway-portal/clearway-portal-transcript-erp-4k.png",
+			"alt": "The extracted grade 17.50 beside its original transcript in the advisor ERP.",
+			"caption": "The prepared example carries Mathématiques 17,50 on the transcript into the same 17.50 grade on the advisor record. Enlarge to inspect both highlighted values."
+		}
+	]}
+/>
 
 The remaining maintenance work is to consolidate duplicated rules for routing, required documents and completion. Those rules need to stay aligned when a student changes their education path.
 

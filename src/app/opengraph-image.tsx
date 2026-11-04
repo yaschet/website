@@ -205,7 +205,7 @@ export default async function Image() {
 								maxWidth: 720,
 							}}
 						>
-							Product engineering for interfaces and systems—measured, shipped,
+							Product engineering for interfaces and systems, measured, shipped,
 							iterated.
 						</div>
 					</div>
