@@ -1,5 +1,29 @@
 # Contact Form
 
+## Launch Availability
+
+The contact page offers email and booking. The form is shown only when the
+server-only `CONTACT_FORM_ENABLED` setting is true; its default is false until
+the receiving address and environment configuration are verified. The same
+setting independently guards delivery.
+
+The Server Action independently rejects disabled submissions before reading
+request headers, configuring providers or consuming quotas. The policy also
+rejects a disabled server context, including attempted input-field overrides.
+The transport factory returns no service while disabled. A browser prop, query
+parameter or submitted field cannot enable delivery.
+
+Only set `CONTACT_FORM_ENABLED=true` after both provider acceptance and delivery
+to the intended recipient have been confirmed with explicit authorization. Record
+that evidence in the release review before enabling it. A successful mock, API
+key, build or provider-accepted request alone does not establish recipient
+delivery. Configuration changes require the normal server restart/deployment;
+this task does not enable or deploy the form.
+
+The working form remains available in explicitly opted-in Storybook fixtures.
+Full Page reflects the email/booking launch state; named validation, pending,
+success and failure states use an isolated mocked action and never send mail.
+
 ## Policy
 
 The public Server Action accepts `unknown`, validates a strict envelope, trims
@@ -63,11 +87,21 @@ window/rule limits do not provide the same shared budgets as this policy.
 
 Set these server-only variables for each environment that should deliver mail:
 
-- `RESEND_API_KEY`: existing authorized email service key.
+- `CONTACT_FORM_ENABLED`: server-only `false` by default; explicitly set `true`
+  only after the launch-availability evidence above is complete.
+- `RESEND_API_KEY`: authorized email service key, required for enabled delivery
+  but optional when the form is disabled.
 - `UPSTASH_REDIS_REST_URL`: HTTPS REST URL for the selected Redis database.
 - `UPSTASH_REDIS_REST_TOKEN`: its server-side credential.
 - `CONTACT_RATE_LIMIT_SALT`: stable random secret of at least 32 characters;
   generate with `openssl rand -hex 32` and store in environment settings.
+
+The server sends from `Yaschet <contact@mail.yaschet.com>` to
+`contact@yaschet.com`, a dedicated Google Workspace receiving alias. Public
+contact links remain `hello@yaschet.com`; the personal mailbox is unchanged.
+Keep the root domain's Google Workspace MX records intact; the transactional
+sender uses its own subdomain. Resend receiving stays disabled.
+Local adapter tests intercept email transport and do not establish live delivery.
 
 Use a dedicated database or reviewed namespace and keep preview/production
 quotas independent. The key prefix is `website:contact:v1:*`. Do not put any of
@@ -131,7 +165,8 @@ synthetic traffic merely to conceal this limitation. See the
 ## Verification
 
 `pnpm test:unit` runs deterministic policy and installed-adapter tests with no
-browser or web server. Provider HTTP calls are intercepted with inert credentials;
+browser or web server. Enabled-adapter fixtures explicitly set the availability
+flag; disabled-policy tests verify zero quota or email calls. Provider HTTP calls are intercepted with inert credentials;
 there is no fallback to real network delivery. Tests cover input/origin rejection,
 bot trapping, every quota, timeout/outage rejection, address trust, identifier
 hashing, retry keys, fixed mail fields, provider failure, and bounded SDK fallback.

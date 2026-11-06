@@ -1,0 +1,219 @@
+.frame {
+	--portfolio-chrome-hairline: var(--portfolio-project-line);
+}
+/* The preceding grid row owns this seam; the rail must not paint it again. */
+.frame [class~="portfolio-technology-rail"]::after {
+	display: none;
+}
+.header {
+	--case-inset: var(--portfolio-box-pad-mobile);
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--portfolio-space-related);
+	width: 100%;
+	padding: var(--case-inset);
+	color: var(--foreground);
+	background: var(--portfolio-project-surface);
+}
+.toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+.publication {
+	display: grid;
+	justify-items: end;
+	gap: 4px;
+	max-width: 100%;
+	margin-inline-start: auto;
+	color: var(--muted-foreground);
+	font-size: 0.75rem;
+	line-height: 1rem;
+	font-variant-numeric: tabular-nums;
+}
+.publication > time {
+	color: var(--foreground);
+	font-weight: 500;
+}
+.introduction {
+	display: grid;
+	gap: 16px;
+}
+.context {
+	margin: 0;
+	color: var(--muted-foreground);
+	font-size: 0.8125rem;
+	line-height: 1.25rem;
+}
+.overview {
+	display: grid;
+	gap: var(--portfolio-space-related);
+	max-width: 62ch;
+	margin: 0;
+}
+.overview > div {
+	display: grid;
+	gap: 0.375rem;
+	min-width: 0;
+}
+.overview dt {
+	color: var(--muted-foreground);
+	font-size: 0.8125rem;
+	line-height: 1.25rem;
+}
+.overview dd {
+	margin: 0;
+	font-size: 1rem;
+	line-height: 1.625rem;
+	overflow-wrap: anywhere;
+}
+.title {
+	max-width: 24ch;
+	margin: 0;
+	font-weight: 500;
+	letter-spacing: -0.035em;
+	text-wrap: balance;
+	overflow-wrap: anywhere;
+}
+.lede {
+	max-width: 62ch;
+	margin: 0;
+	color: var(--muted-foreground);
+	font-size: 1rem;
+	line-height: 1.625rem;
+	text-wrap: pretty;
+	overflow-wrap: anywhere;
+}
+.metaRow {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+}
+.metaItem {
+	display: inline-flex;
+	align-items: center;
+	min-height: 2.5rem;
+	border: var(--foundation-hairline) solid var(--foundation-control-line);
+	color: var(--foreground);
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+}
+.metaIcon {
+	display: grid;
+	place-items: center;
+	align-self: stretch;
+	width: 2.5rem;
+	flex: none;
+	background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.metaLabel {
+	padding-inline: 12px;
+	text-align: center;
+}
+.copyAction {
+	flex: 0 1 auto;
+	min-width: 0;
+	max-width: 100%;
+	margin-inline-start: auto;
+}
+.copyAction [class~="foundation-button-pending"] {
+	width: 100%;
+}
+.copyAction [class~="foundation-button-pending-copy"] {
+	flex: 1;
+}
+.summary {
+	container: project-caption / inline-size;
+	width: 100%;
+	background: var(--portfolio-project-surface);
+}
+.facts {
+	gap: 0;
+}
+.fact {
+	grid-template-columns: minmax(64px, 1fr) minmax(0, 2fr);
+	align-items: baseline;
+	gap: 12px;
+	padding: 0.75rem var(--portfolio-box-pad-mobile);
+}
+.fact + .fact {
+	border-top: var(--foundation-hairline) solid var(--portfolio-project-line);
+}
+.facts dt {
+	font-size: 0.8125rem;
+	font-weight: 500;
+	line-height: 1.25rem;
+}
+.facts dd {
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1.25rem;
+}
+.resources {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	padding: 20px var(--portfolio-box-pad-mobile);
+	border-top: var(--foundation-hairline) solid var(--portfolio-project-line);
+}
+/* Equal chambers when both labels fit; otherwise each takes a full row. */
+@media (max-width: 39.999rem) {
+	.metaItem,
+	.copyAction {
+		flex: 1 1 10.25rem;
+		margin-inline-start: 0;
+	}
+	.metaLabel {
+		flex: 1;
+		padding-inline: 8px;
+		text-align: center;
+	}
+	.copyAction [class~="foundation-button-pending-copy"] {
+		justify-content: center;
+		padding-inline: 8px;
+		text-align: center;
+	}
+}
+@media (min-width: 40rem) {
+	.overview dd {
+		font-size: 1.125rem;
+		line-height: 1.875rem;
+	}
+	.header {
+		--case-inset: 32px;
+		gap: 24px;
+	}
+	.lede {
+		font-size: 1.125rem;
+		line-height: 1.875rem;
+	}
+	.fact {
+		padding: 20px;
+	}
+	.resources {
+		padding: 24px;
+	}
+}
+@media (min-width: 48rem) {
+	.fact {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 8px;
+		padding: 24px;
+	}
+	.facts dd {
+		font-size: 1rem;
+		line-height: 1.5rem;
+	}
+	.fact + .fact {
+		border-top: 0;
+		border-left: var(--foundation-hairline) solid var(--portfolio-project-line);
+	}
+}

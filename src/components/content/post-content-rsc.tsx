@@ -1,19 +1,17 @@
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { Clock } from "@phosphor-icons/react/dist/ssr/Clock";
-import Link from "next/link";
 import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
+import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
-import { Button } from "@/src/components/ui/button";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
+import { PortfolioLink as Link } from "@/src/components/ui/portfolio-link";
 import { Reveal, revealSequence, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
 import type { PostEntry } from "@/src/content/types";
@@ -33,17 +31,16 @@ export function PostContentRSC({ post }: PostContentProps) {
 	return (
 		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
-				<SiteHeader />
-
 				<section id="post-header" className="w-full">
 					<section className="w-full">
-						<PageContainer className="portfolio-section-top">
+						<PageContainer mobileBleed className="portfolio-section-top">
 							<SwissGridBox>
 								<SwissGridRow>
 									<div className="portfolio-box-pad">
 										<ModuleContainer className="portfolio-stack-group">
 											<Reveal delay={revealSequence.backLink}>
 												<Link
+													transitionTypes={["navigation"]}
 													href="/blog"
 													className="portfolio-back-link portfolio-kicker"
 												>
@@ -94,7 +91,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 				<section id="post-content" className="w-full">
 					<ScrollReveal phase={2} className="w-full">
 						<section className="w-full">
-							<PageContainer className="portfolio-section-loose">
+							<PageContainer mobileBleed className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
 										<div className="portfolio-box-pad">
@@ -114,7 +111,7 @@ export function PostContentRSC({ post }: PostContentProps) {
 				<section id="post-cta" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
-							<PageContainer className="portfolio-section-loose">
+							<PageContainer mobileBleed className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
 										<InstrumentActionBand
@@ -122,29 +119,22 @@ export function PostContentRSC({ post }: PostContentProps) {
 											fieldVariant="terrain"
 											tone="inverted"
 										>
-											<ModuleContainer className="mx-auto w-full">
+											<ModuleContainer className="portfolio-stack-related mx-auto w-full">
 												<h2
 													className={`portfolio-heading-lg portfolio-capsize-heading-lg ${INVERTED_ACTION_BAND_TITLE_CLASS}`}
 												>
 													Have thoughts on this?
 												</h2>
-												<Button
-													asChild
-													size="md"
+												<ArrowButtonLink
+													href="/contact"
 													variant="solid"
 													color="default"
 													className={
 														INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS
 													}
 												>
-													<Link href="/contact">
-														Discuss
-														<ArrowRight
-															className="size-4"
-															weight="bold"
-														/>
-													</Link>
-												</Button>
+													Get in touch
+												</ArrowButtonLink>
 											</ModuleContainer>
 										</InstrumentActionBand>
 									</SwissGridRow>

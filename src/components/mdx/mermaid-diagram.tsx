@@ -2,7 +2,6 @@
 
 import { MagnifyingGlassPlus } from "@phosphor-icons/react/dist/ssr/MagnifyingGlassPlus";
 import { AnimatePresence, motion } from "framer-motion";
-import mermaid from "mermaid";
 import { useCallback, useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn, springs } from "@/src/lib/index";
@@ -25,49 +24,51 @@ export function MermaidDiagram({ code, className }: { code: string; className?: 
 	const [isOpen, setIsOpen] = useState(false);
 	const [mounted, setMounted] = useState(false);
 
-	// Theme configuration for "Modern Swiss" aesthetic
-	// Monochromatic, sharp, high contrast
+	// Load the renderer when a diagram mounts, never while Next.js prefetches an article.
 	useEffect(() => {
-		mermaid.initialize({
-			startOnLoad: false,
-			// Preserve the existing diagram when Mermaid's default renderer changes.
-			layout: "dagre",
-			look: "classic",
-			flowchart: { wrappingWidth: 200, minNodeWidth: 0 },
-			theme: "base",
-			themeVariables: {
-				fontFamily: "var(--font-sans)",
-				fontSize: "14px",
-				primaryColor: "#ffffff",
-				primaryTextColor: "#09090b", // surface-950
-				primaryBorderColor: "#18181b", // surface-900
-				lineColor: "#27272a", // surface-800
-				secondaryColor: "#f4f4f5", // surface-100
-				tertiaryColor: "#ffffff",
-				clusterBkg: "#fafafa", // surface-50
-				clusterBorder: "#aeaeae", // surface-400
-				defaultLinkColor: "#52525b", // surface-600
-			},
-			securityLevel: "loose",
-		});
-	}, []);
-
-	// Render the SVG
-	useEffect(() => {
+		let cancelled = false;
 		const renderDiagram = async () => {
 			if (!code) return;
 			try {
+				const { default: mermaid } = await import("mermaid");
+				if (cancelled) return;
+				mermaid.initialize({
+					startOnLoad: false,
+					// Preserve the existing diagram when Mermaid's default renderer changes.
+					layout: "dagre",
+					look: "classic",
+					flowchart: { wrappingWidth: 200, minNodeWidth: 0 },
+					theme: "base",
+					themeVariables: {
+						fontFamily: "var(--font-sans)",
+						fontSize: "14px",
+						primaryColor: "#ffffff",
+						primaryTextColor: "#09090b", // surface-950
+						primaryBorderColor: "#18181b", // surface-900
+						lineColor: "#27272a", // surface-800
+						secondaryColor: "#f4f4f5", // surface-100
+						tertiaryColor: "#ffffff",
+						clusterBkg: "#fafafa", // surface-50
+						clusterBorder: "#aeaeae", // surface-400
+						defaultLinkColor: "#52525b", // surface-600
+					},
+					securityLevel: "loose",
+				});
 				const uniqueId = `mermaid-${layoutId}`;
 				// Render to a temporary element first is handled by mermaid.render internally now
 				const { svg: renderedSvg } = await mermaid.render(uniqueId, code);
+				if (cancelled) return;
 				setSvg(renderedSvg);
 				setError(null);
 			} catch (_err) {
-				setError("Failed to render diagram");
+				if (!cancelled) setError("Failed to render diagram");
 			}
 		};
 
-		renderDiagram();
+		void renderDiagram();
+		return () => {
+			cancelled = true;
+		};
 	}, [code, layoutId]);
 
 	useEffect(() => {

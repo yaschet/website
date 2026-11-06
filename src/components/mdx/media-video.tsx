@@ -14,13 +14,15 @@
 
 "use client";
 
-import { Pause } from "@phosphor-icons/react/dist/ssr/Pause";
-import { Play, Play as PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
+import { RiPauseLine as Pause, RiPlayLine as Play } from "@remixicon/react";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PortfolioMuxVideo } from "@/src/components/ui/portfolio-mux-video";
-import { Spinner } from "@/src/components/ui/spinner";
+import { GalleryPlayButton } from "@/src/components/ui/gallery-play-button";
+import { PortfolioMuxVideo, preloadPortfolioVideo } from "@/src/components/ui/portfolio-mux-video";
+import videoStyles from "@/src/components/ui/portfolio-mux-video.module.css";
+import { StateSwap } from "@/src/components/ui/state-swap";
+import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
 import type { MuxVideoMetadata } from "@/src/content/types";
 import { cn, springs } from "@/src/lib/index";
 import { stopAllPortfolioVideos } from "@/src/lib/portfolio-video-sync";
@@ -66,6 +68,7 @@ export function MediaVideo({
 	// True Lazy Load: Only inject <source> when near viewport
 	const [shouldLoad, setShouldLoad] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const visible = useAnimationVisibility(containerRef);
 
 	const clearHoverPreview = useCallback(() => {
 		if (hoverPreviewTimeoutRef.current !== null) {
@@ -74,6 +77,13 @@ export function MediaVideo({
 		}
 		setHoverPreviewActive(false);
 	}, []);
+
+	useEffect(() => {
+		if (visible) return;
+		clearHoverPreview();
+		videoRef.current?.pause();
+		setIsPlaying(false);
+	}, [visible, clearHoverPreview]);
 
 	const armHoverPreview = useCallback(() => {
 		if (
@@ -130,7 +140,7 @@ export function MediaVideo({
 	}, []);
 
 	useEffect(() => {
-		if (shouldLoad) return;
+		if (shouldLoad || playbackId) return;
 
 		const observer = new IntersectionObserver(
 			(entries) => {
@@ -144,7 +154,7 @@ export function MediaVideo({
 
 		if (containerRef.current) observer.observe(containerRef.current);
 		return () => observer.disconnect();
-	}, [shouldLoad]);
+	}, [playbackId, shouldLoad]);
 
 	// 1. Mux Mode
 	if (playbackId) {
@@ -157,6 +167,7 @@ export function MediaVideo({
 				<div
 					className={cn(
 						"relative aspect-video w-full overflow-hidden",
+						videoStyles.videoStage,
 						"border border-surface-200 bg-surface-100 dark:border-surface-800 dark:bg-surface-800",
 						className,
 					)}
@@ -168,12 +179,18 @@ export function MediaVideo({
 							"0 12px 24px -4px rgba(0, 0, 0, 0.08)",
 						].join(", "),
 					}}
-					onPointerEnter={armHoverPreview}
+					onPointerEnter={() => {
+						void preloadPortfolioVideo().catch(() => {});
+						armHoverPreview();
+					}}
+					onFocusCapture={() => void preloadPortfolioVideo().catch(() => {})}
 					onPointerLeave={clearHoverPreview}
 				>
-					{shouldLoad && (
+					{(isVideoRequested || isVideoVisible) && (
 						<div
 							className="absolute inset-0 z-0"
+							inert={!isVideoVisible}
+							aria-hidden={!isVideoVisible}
 							style={{
 								visibility: "visible",
 								pointerEvents: isVideoVisible ? "auto" : "none",
@@ -182,6 +199,7 @@ export function MediaVideo({
 							<PortfolioMuxVideo
 								playbackId={playbackId}
 								poster={poster}
+								durationLabel={duration}
 								metadata={metadata}
 								loop={loop}
 								muted={muted}
@@ -190,6 +208,7 @@ export function MediaVideo({
 								className="h-full w-full"
 								onPlayingChange={(playing) => {
 									if (playing) {
+										setIsVideoReady(true);
 										setIsVideoVisible(true);
 										setIsVideoPlaying(true);
 										setIsVideoRequested(false);
@@ -198,11 +217,25 @@ export function MediaVideo({
 
 									setIsVideoPlaying(false);
 								}}
-								onReadyChange={(ready) => {
-									setIsVideoReady(ready);
-									if (ready) {
-										setIsVideoVisible(true);
-									}
+								onPlaybackError={(failed) => {
+									if (!failed) return;
+									setIsVideoReady(true);
+									setIsVideoVisible(true);
+									setIsVideoRequested(false);
+									setIsVideoPlaying(false);
+								}}
+								onExit={() => {
+									setIsVideoVisible(false);
+									setIsVideoRequested(false);
+									setIsVideoPlaying(false);
+									setIsVideoReady(false);
+									requestAnimationFrame(() => {
+										containerRef.current
+											?.querySelector<HTMLButtonElement>(
+												"button[aria-label^='Play']",
+											)
+											?.focus({ preventScroll: true });
+									});
 								}}
 							/>
 						</div>
@@ -210,6 +243,8 @@ export function MediaVideo({
 
 					<motion.div
 						className="absolute inset-0 z-10"
+						inert={isVideoVisible}
+						aria-hidden={isVideoVisible || undefined}
 						animate={{ opacity: isVideoVisible ? 0 : 1 }}
 						transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
 						style={{ pointerEvents: isVideoVisible ? "none" : "auto" }}
@@ -237,17 +272,19 @@ export function MediaVideo({
 									transition={springs.snappy}
 									aria-hidden={!hoverPreviewActive}
 								>
-									<Image
-										src={`https://image.mux.com/${playbackId}/animated.webp?width=640&fps=15&start=0&end=4`}
-										alt=""
-										fill
-										unoptimized
-										sizes="100vw"
-										className="object-cover"
-										loading="lazy"
-										decoding="async"
-										aria-hidden="true"
-									/>
+									{hoverPreviewActive ? (
+										<Image
+											src={`https://image.mux.com/${playbackId}/animated.webp?width=640&fps=15&start=0&end=4`}
+											alt=""
+											fill
+											unoptimized
+											sizes="100vw"
+											className="object-cover"
+											loading="lazy"
+											decoding="async"
+											aria-hidden="true"
+										/>
+									) : null}
 								</motion.div>
 								<div
 									className="pointer-events-none absolute inset-0 z-20"
@@ -259,67 +296,27 @@ export function MediaVideo({
 								/>
 							</>
 						)}
+					</motion.div>
 
+					{/* Keep the operable action opaque while the poster artwork crossfades. */}
+					{!isVideoVisible && (
 						<div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6">
-							<motion.button
-								type="button"
-								initial="idle"
-								whileHover="hover"
-								whileTap="tap"
-								variants={{
-									idle: { scale: 1 },
-									hover: { scale: 1.05 },
-									tap: { scale: 0.92 },
-								}}
-								transition={springs.snappy}
-								className={cn(
-									"pointer-events-auto inline-flex h-(--portfolio-control-default) items-center justify-center gap-2",
-									"border border-white/12 bg-surface-950/88 px-(--portfolio-control-pad-default) text-white backdrop-blur-md",
-									"shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-colors duration-150",
-									"hover:border-white/18 hover:bg-surface-950/94",
-									"focus-visible:border-white/18 focus-visible:bg-surface-950/94 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-50/20 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-									hoverPreviewActive && "border-white/20 bg-surface-950",
-								)}
-								aria-label={
-									duration ? `Play video, duration ${duration}` : "Play video"
-								}
+							<GalleryPlayButton
+								duration={duration}
+								loading={isVideoRequested && !isVideoVisible}
 								onClick={() => {
 									clearHoverPreview();
 									stopAllPortfolioVideos();
 									setShouldLoad(true);
 									setIsVideoRequested(true);
 								}}
-							>
-								<span className="inline-grid grid-cols-[14px_auto] items-center gap-x-2">
-									<span className="flex w-3.5 items-center justify-center">
-										{isVideoRequested && !isVideoVisible ? (
-											<Spinner size={14} color="white" aria-hidden="true" />
-										) : (
-											<PlayIcon size={14} weight="fill" />
-										)}
-									</span>
-									<span className="inline-flex items-baseline gap-x-2">
-										<span className="portfolio-control-label">Play</span>
-										{duration ? (
-											<>
-												<span
-													aria-hidden
-													className="h-3 w-px self-center bg-white/16"
-												/>
-												<span className="portfolio-chip-label text-white/72 tabular-nums">
-													{duration}
-												</span>
-											</>
-										) : null}
-									</span>
-								</span>
-							</motion.button>
+							/>
 						</div>
-					</motion.div>
+					)}
 				</div>
 
 				{caption && (
-					<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
+					<figcaption className="mt-(--portfolio-space-tight) text-left text-[0.8125rem]/5 text-muted-foreground">
 						{caption}
 					</figcaption>
 				)}
@@ -424,23 +421,23 @@ export function MediaVideo({
 								"border border-surface-200 bg-white/95 text-surface-900 shadow-lg",
 							)}
 						>
-							{isPlaying ? (
-								<Pause size={24} weight="fill" />
-							) : (
-								<Play size={24} weight="fill" className="ml-1" />
-							)}
+							<StateSwap
+								className="size-5"
+								value={isPlaying ? "playing" : "paused"}
+								items={{ playing: <Pause size={20} />, paused: <Play size={20} /> }}
+							/>
 						</motion.div>
 					</motion.div>
 
 					{/* Corner Badge - "Video" indicator */}
-					<div className="absolute top-3 left-3 border border-surface-200 bg-white/90 px-2 py-0.5 font-mono text-[10px] text-surface-900 uppercase tracking-widest opacity-0 transition-opacity group-hover:opacity-100 dark:border-surface-800 dark:bg-surface-900/90 dark:text-surface-100">
+					<div className="absolute top-3 left-3 border border-surface-200 bg-white/90 px-2 py-0.5 font-mono text-[0.625rem] text-surface-900 uppercase tracking-widest opacity-0 transition-opacity group-hover:opacity-100 dark:border-surface-800 dark:bg-surface-900/90 dark:text-surface-100">
 						Video
 					</div>
 				</button>
 
 				{/* Caption */}
 				{caption && (
-					<figcaption className="mt-(--portfolio-space-tight) text-left font-mono text-surface-500 text-xs dark:text-surface-400">
+					<figcaption className="mt-(--portfolio-space-tight) text-left text-[0.8125rem]/5 text-muted-foreground">
 						{caption}
 					</figcaption>
 				)}
@@ -450,7 +447,7 @@ export function MediaVideo({
 
 	// 3. Error Mode (Missing Config)
 	return (
-		<div className="mb-8 flex aspect-video w-full flex-col items-center justify-center rounded-none border border-destructive-400 border-dashed bg-destructive-50 p-4 text-center text-destructive-900 dark:bg-destructive-950/20 dark:text-destructive-200">
+		<div className="mb-8 flex aspect-video w-full flex-col items-center justify-center rounded-none border border-destructive-400 border-solid bg-destructive-50 p-4 text-center text-destructive-900 dark:bg-destructive-950/20 dark:text-destructive-200">
 			<p className="font-bold">Video Component Error</p>
 			<p className="text-sm">Must provide either `src` (mp4) or `playbackId` (Mux).</p>
 		</div>

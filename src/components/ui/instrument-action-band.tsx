@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/src/lib/utils";
 import { DeferredInstrumentField } from "./deferred-instrument-field";
+import styles from "./instrument-action-band.module.css";
 import {
 	ACTION_BAND_MIN_HEIGHT,
 	INSTRUMENT_DOT_RADIUS,
@@ -60,7 +61,8 @@ export function InstrumentActionBand({
 			/>
 			<div
 				className={cn(
-					"portfolio-action-band relative z-[1] min-h-[var(--portfolio-action-band-min-height)] w-full px-[var(--portfolio-box-pad-mobile)] py-[var(--portfolio-space-3)] sm:px-[var(--portfolio-box-pad-desktop)] sm:py-[var(--portfolio-space-4)]",
+					"portfolio-action-band portfolio-box-pad relative z-[1] min-h-[var(--portfolio-action-band-min-height)] w-full",
+					styles.content,
 					contentClassName,
 				)}
 				style={{

@@ -3,24 +3,34 @@ import { cn } from "@/src/lib/utils";
 
 interface ConfidentialWorkCalloutProps {
 	className?: string;
+	/** Use level two when the note is a standalone section. */
+	headingLevel?: 2 | 3;
 }
 
-export function ConfidentialWorkCallout({ className }: ConfidentialWorkCalloutProps) {
+export function ConfidentialWorkCallout({
+	className,
+	headingLevel = 3,
+}: ConfidentialWorkCalloutProps) {
+	const Heading = headingLevel === 2 ? "h2" : "h3";
 	return (
-		<div className={cn("portfolio-box-pad", className)}>
-			<div className="portfolio-callout">
-				<p className="portfolio-kicker text-surface-600 dark:text-surface-400">
-					Confidential Work
-				</p>
-				<p className="portfolio-body-sm portfolio-callout-copy text-surface-600 dark:text-surface-400">
-					Other work spans legal translation, education, onboarding, operations, and
-					reconciliation. Most of it is private. Happy to discuss it{" "}
+		<div
+			className={cn(
+				"portfolio-project-card portfolio-confidential-work w-full min-w-0 bg-[var(--portfolio-panel)] text-card-foreground",
+				className,
+			)}
+		>
+			<div className="portfolio-project-copy portfolio-project-overview portfolio-confidential-note">
+				<Heading className="portfolio-section-heading min-w-0">Confidential work</Heading>
+				<p className="portfolio-project-description portfolio-body-md text-muted-foreground">
+					Some client work stays private. I can discuss my role and approach without
+					sharing confidential details.{" "}
 					<Link
+						transitionTypes={["navigation"]}
 						href="/contact"
-						className="font-medium text-surface-900 underline decoration-surface-300 underline-offset-4 transition-colors hover:decoration-surface-900 dark:text-surface-100 dark:decoration-surface-700 dark:hover:decoration-surface-100"
+						className="portfolio-confidential-link font-medium text-foreground underline underline-offset-4"
 					>
-						in a call
-					</Link>{" "}
+						Ask about relevant work
+					</Link>
 					.
 				</p>
 			</div>

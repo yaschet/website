@@ -1,0 +1,32 @@
+{
+	"copiedOn": "2026-10-19",
+	"upstream": "Yaschet-owned Private Office Foundation",
+	"files": {
+		"components/ui/alert.tsx": "4fc47d89a94a5c2cc0a545f7608fa1fda1c38a788ff2696989302e104f182f4a",
+		"components/ui/badge.tsx": "5f56e03145a63126ac2700032f60f0290ecccb2b2e58f797517ac0f228d864cd",
+		"components/ui/dialog.tsx": "c8b7b1270c8e9124f16758a72d2d4863ec09add3fff9d6c3155bd12992c4c8e9",
+		"components/ui/dropdown-menu.tsx": "d3b2b96bd86992af3c4591fd3cdeacd55d1064f899daed12d23c3e9d3debfe83",
+		"components/ui/dropdown-menu-feedback.tsx": "7d499907ac680860e5a5a7378300ef9c111427a0a957dbfd47e29b10355d25f1",
+		"components/ui/icon-chamber.tsx": "52e4094ed29dc9c6fc0533c1fb84bf82293149bceb6942b55fa9ee21d84fb730",
+		"components/ui/overlay-heading.tsx": "a17593a3e2f7a0bde5e8dc49c04b867d4132f016ec3c6203f7cf6972d335f1f1",
+		"components/ui/status-display.tsx": "1f8818d4c8840f165f3db4cf81de22fc6d404fc1e7d84b39c1b1791f986b9987",
+		"styles/motion.css": "9b5947ee1788e839676cb969a8fb75fdd6e072f935cc6aa7579d5e8315a8ea7d",
+		"styles/overlays.css": "84a7909a8c5977b30a0b2409cfd495601547ee53adaf1def35e63ab24c7994e4",
+		"styles/dropdown-menu.css": "54d9951b3e8d0bbb901ef583b2dcc9ef37b960c2dfdd322807c4bdf53fb2f5f7",
+		"styles/badge.css": "5ddfb0de5c0846c88213b7a5a3726031b8951d98c4c0a8e7dd6ba8dd0ad0e94a",
+		"styles/foundation.css": "505f1829e9b2937e64c8801ec4d8d74ca19c9485d1b4696d0bd389bc1d5bae7d",
+		"components/ui/button.tsx": "0ac64017ad68b8eeb270430c61a6e368a38fdacec987ac81b31d59b41ab2d84a",
+		"components/ui/input.tsx": "b03a0ebc847adc942eccafc7ab0a9be442bfaab01137d4b51bd79298cbc366f2",
+		"components/ui/textarea.tsx": "52b9d99db52d8b530f48fa58fc061bd57446b4667a295b717451213b39785447",
+		"components/ui/label.tsx": "fbce7919b172bd406dfbfce9c2f15a8e5da333526dd44645ba387811063f5512",
+		"components/ui/toast.tsx": "d3fe69f12ac43b4642c578088a9eff46e307a5e1eff2902a0248cc68c4daa936"
+	},
+	"additionalPorts": {
+		"copiedOn": "2026-10-21",
+		"files": {
+			"components/workspace/workspace-rolling-number.tsx": "9f8bc46c5107f969cc1fbe698974902a16bc15288a7f04d891a892609c454644",
+			"components/workspace/workspace-portfolio-chart.css": "9e3111791294542af70de406ed404ff06f4655bed74554a40e41cfe4290300d2",
+			"lib/theme-transition.ts": "3a37d07fc410dc3b8c127917be7bb9977d927551bb51ba119b43ef49c32702b2"
+		}
+	}
+}

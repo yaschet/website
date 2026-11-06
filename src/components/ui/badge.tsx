@@ -1,219 +1,260 @@
+"use client";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
-import type * as React from "react";
+import type { ReactNode } from "react";
+import { IconChamber } from "@/src/components/ui/icon-chamber";
 import { cn } from "@/src/lib/index";
 
-const badgeVariants = cva(
-	[
-		"inline-flex items-center justify-center gap-[var(--portfolio-control-gap)]",
-		"select-none whitespace-nowrap",
-		"portfolio-chip-label",
-		"transform-gpu transition-all duration-200 ease-out",
-		"cursor-default",
-	],
+const badgeFrame = cva(
+	"group/badge inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap rounded-none border border-transparent align-middle font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset aria-invalid:ring-2 aria-invalid:ring-destructive aria-invalid:ring-inset [&>svg]:pointer-events-none",
 	{
 		variants: {
-			variant: {
-				solid: "border border-transparent",
-				soft: "border",
-				outlined: "border bg-transparent",
-				plain: "border border-transparent bg-transparent",
-			},
-			color: {
-				default: "",
-				primary: "",
-				secondary: "",
-				accent: "",
-				success: "",
-				warning: "",
-				info: "",
-				destructive: "",
-			},
 			size: {
-				sm: "min-h-[var(--portfolio-control-compact)] px-[var(--portfolio-control-pad-compact)]",
-				md: "min-h-[var(--portfolio-control-compact)] px-[var(--portfolio-control-pad-compact)]",
-				lg: "min-h-[var(--portfolio-control-default)] px-[var(--portfolio-control-pad-default)]",
-			},
-			shape: {
-				default: "rounded-none",
-				sm: "rounded-sm",
-				md: "rounded-md",
-				full: "rounded-full",
-			},
-			interactive: {
-				true: "cursor-pointer hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-95 active:shadow-none",
-				false: "",
+				sm: "h-6 gap-1 px-1 text-[length:var(--foundation-type-meta-size)] leading-[var(--foundation-type-meta-leading)] [&>svg]:size-4!",
+				default:
+					"h-7 gap-1.5 px-1.5 text-[length:var(--foundation-type-meta-size)] leading-[var(--foundation-type-meta-leading)] [&>svg]:size-4!",
+				lg: "h-8 gap-1.5 px-1.5 text-[length:var(--foundation-type-description-size)] leading-5 [&>svg]:size-5!",
 			},
 		},
-		compoundVariants: [
-			{
-				variant: "solid",
-				color: "default",
-				class: "bg-surface-900 text-surface-50 hover:bg-surface-800 dark:bg-surface-50 dark:text-surface-900 dark:hover:bg-surface-200",
-			},
-			{
-				variant: "solid",
-				color: "primary",
-				class: "bg-surface-900 text-surface-50 hover:bg-surface-800 dark:bg-surface-50 dark:text-surface-900 dark:hover:bg-surface-200",
-			},
-			{
-				variant: "solid",
-				color: "accent",
-				class: "bg-accent-600 text-accent-950 hover:bg-accent-700 dark:bg-accent-500",
-			},
-			{
-				variant: "solid",
-				color: "success",
-				class: "bg-success-600 text-white hover:bg-success-700 dark:bg-success-500",
-			},
-			{
-				variant: "solid",
-				color: "warning",
-				class: "bg-warning-500 text-white hover:bg-warning-600 dark:bg-warning-500",
-			},
-			{
-				variant: "solid",
-				color: "info",
-				class: "bg-info-600 text-white hover:bg-info-700 dark:bg-info-500",
-			},
-			{
-				variant: "solid",
-				color: "destructive",
-				class: "bg-destructive-600 text-white hover:bg-destructive-700 dark:bg-destructive-500",
-			},
-
-			{
-				variant: "soft",
-				color: "default",
-				class: "border-surface-200 bg-surface-100 text-surface-900 hover:border-surface-300 hover:bg-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300",
-			},
-			{
-				variant: "soft",
-				color: "primary",
-				class: "border-surface-200 bg-surface-100 text-surface-900 hover:border-surface-300 hover:bg-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300",
-			},
-			{
-				variant: "soft",
-				color: "accent",
-				class: "border-accent-100 bg-accent-50 text-accent-700 hover:border-accent-200 hover:bg-accent-100 dark:border-accent-900 dark:bg-accent-950/50 dark:text-accent-300",
-			},
-			{
-				variant: "soft",
-				color: "success",
-				class: "border-success-100 bg-success-50 text-success-700 hover:border-success-200 hover:bg-success-100 dark:border-success-900 dark:bg-success-950/50 dark:text-success-300",
-			},
-			{
-				variant: "soft",
-				color: "warning",
-				class: "border-warning-100 bg-warning-50 text-warning-700 hover:border-warning-200 hover:bg-warning-100 dark:border-warning-900 dark:bg-warning-950/50 dark:text-warning-300",
-			},
-			{
-				variant: "soft",
-				color: "info",
-				class: "border-info-100 bg-info-50 text-info-700 hover:border-info-200 hover:bg-info-100 dark:border-info-900 dark:bg-info-950/50 dark:text-info-300",
-			},
-			{
-				variant: "soft",
-				color: "destructive",
-				class: "border-destructive-100 bg-destructive-50 text-destructive-700 hover:border-destructive-200 hover:bg-destructive-100 dark:border-destructive-900 dark:bg-destructive-950/50 dark:text-destructive-300",
-			},
-
-			{
-				variant: "outlined",
-				color: "default",
-				class: "border-surface-300 text-surface-700 hover:bg-surface-50 hover:text-surface-900 dark:border-surface-700 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200",
-			},
-			{
-				variant: "outlined",
-				color: "primary",
-				class: "border-surface-300 text-surface-700 hover:bg-surface-50 hover:text-surface-900 dark:border-surface-700 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200",
-			},
-			{
-				variant: "outlined",
-				color: "accent",
-				class: "border-accent-200 text-accent-700 hover:border-accent-300 hover:bg-accent-50 dark:border-accent-800 dark:text-accent-400 dark:hover:border-accent-700 dark:hover:bg-accent-950/50",
-			},
-			{
-				variant: "outlined",
-				color: "success",
-				class: "border-success-200 text-success-700 hover:border-success-300 hover:bg-success-50 dark:border-success-800 dark:text-success-400 dark:hover:border-success-700 dark:hover:bg-success-950/50",
-			},
-			{
-				variant: "outlined",
-				color: "warning",
-				class: "border-warning-200 text-warning-700 hover:border-warning-300 hover:bg-warning-50 dark:border-warning-800 dark:text-warning-400 dark:hover:border-warning-700 dark:hover:bg-warning-950/50",
-			},
-			{
-				variant: "outlined",
-				color: "info",
-				class: "border-info-200 text-info-700 hover:border-info-300 hover:bg-info-50 dark:border-info-800 dark:text-info-400 dark:hover:border-info-700 dark:hover:bg-info-950/50",
-			},
-			{
-				variant: "outlined",
-				color: "destructive",
-				class: "border-destructive-200 text-destructive-700 hover:border-destructive-300 hover:bg-destructive-50 dark:border-destructive-800 dark:text-destructive-400 dark:hover:border-destructive-700 dark:hover:bg-destructive-950/50",
-			},
-
-			{
-				variant: "plain",
-				color: "default",
-				class: "text-surface-600 hover:bg-surface-100 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200",
-			},
-			{
-				variant: "plain",
-				color: "primary",
-				class: "text-surface-600 hover:bg-surface-100 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200",
-			},
-			{
-				variant: "plain",
-				color: "accent",
-				class: "text-accent-600 hover:bg-accent-50 hover:text-accent-800 dark:text-accent-400 dark:hover:bg-accent-950/50 dark:hover:text-accent-200",
-			},
-			{
-				variant: "plain",
-				color: "success",
-				class: "text-success-600 hover:bg-success-50 hover:text-success-800 dark:text-success-400 dark:hover:bg-success-950/50 dark:hover:text-success-200",
-			},
-			{
-				variant: "plain",
-				color: "warning",
-				class: "text-warning-600 hover:bg-warning-50 hover:text-warning-800 dark:text-warning-400 dark:hover:bg-warning-950/50 dark:hover:text-warning-200",
-			},
-			{
-				variant: "plain",
-				color: "info",
-				class: "text-info-600 hover:bg-info-50 hover:text-info-800 dark:text-info-400 dark:hover:bg-info-950/50 dark:hover:text-info-200",
-			},
-			{
-				variant: "plain",
-				color: "destructive",
-				class: "text-destructive-600 hover:bg-destructive-50 hover:text-destructive-800 dark:text-destructive-400 dark:hover:bg-destructive-950/50 dark:hover:text-destructive-200",
-			},
-		],
 		defaultVariants: {
-			variant: "solid",
-			color: "default",
-			size: "md",
-			shape: "default",
-			interactive: false,
+			size: "default",
 		},
 	},
 );
 
-// FIX: Omit 'color' from HTMLAttributes to prevent conflict with VariantProps 'color'
-export interface BadgeProps
-	extends Omit<React.HTMLAttributes<HTMLSpanElement>, "color">,
-		VariantProps<typeof badgeVariants> {
-	/** Children of the badge */
-	children?: React.ReactNode;
+type BadgeSize = NonNullable<VariantProps<typeof badgeFrame>["size"]> | "md";
+type BadgeAppearance = "solid" | "soft" | "outline" | "plain";
+type BadgeColor =
+	| "default"
+	| "primary"
+	| "secondary"
+	| "accent"
+	| "success"
+	| "warning"
+	| "info"
+	| "destructive";
+
+type BadgeLegacyVariant =
+	| "default"
+	| "secondary"
+	| "accent"
+	| "success"
+	| "warning"
+	| "info"
+	| "destructive"
+	| "outlined"
+	| "ghost"
+	| "link";
+
+type BadgeVariant = BadgeAppearance | BadgeLegacyVariant;
+
+const badgeColorClasses: Record<BadgeAppearance, Record<BadgeColor, string>> = {
+	solid: {
+		default: "bg-primary text-primary-foreground",
+		primary: "bg-primary text-primary-foreground",
+		secondary: "bg-secondary-solid text-secondary-solid-foreground",
+		accent: "bg-accent-solid text-accent-solid-foreground",
+		success: "bg-success text-success-foreground",
+		warning: "bg-warning text-warning-foreground",
+		info: "bg-info text-info-foreground",
+		destructive: "bg-destructive text-destructive-foreground",
+	},
+	soft: {
+		default: "bg-primary-soft text-primary-ink",
+		primary: "bg-primary-soft text-primary-ink",
+		secondary: "bg-secondary-soft text-secondary-ink",
+		accent: "bg-accent-soft text-accent-ink",
+		success: "bg-success-soft text-success-ink",
+		warning: "bg-warning-soft text-warning-ink",
+		info: "bg-info-soft text-info-ink",
+		destructive: "bg-destructive-soft text-destructive-ink",
+	},
+	outline: {
+		default: "bg-primary-soft text-primary-ink",
+		primary: "bg-primary-soft text-primary-ink",
+		secondary: "bg-secondary-soft text-secondary-ink",
+		accent: "bg-accent-soft text-accent-ink",
+		success: "bg-success-soft text-success-ink",
+		warning: "bg-warning-soft text-warning-ink",
+		info: "bg-info-soft text-info-ink",
+		destructive: "bg-destructive-soft text-destructive-ink",
+	},
+	plain: {
+		default: "bg-transparent text-primary-ink",
+		primary: "bg-transparent text-primary-ink",
+		secondary: "bg-transparent text-secondary-ink",
+		accent: "bg-transparent text-accent-ink",
+		success: "bg-transparent text-success-ink",
+		warning: "bg-transparent text-warning-ink",
+		info: "bg-transparent text-info-ink",
+		destructive: "bg-transparent text-destructive-ink",
+	},
+};
+
+const badgeInteractiveClasses: Record<BadgeAppearance, Record<BadgeColor, string>> = {
+	solid: {
+		default: "hover:bg-primary-hover active:bg-primary-active",
+		primary: "hover:bg-primary-hover active:bg-primary-active",
+		secondary: "hover:bg-secondary-hover active:bg-secondary-active",
+		accent: "hover:bg-accent-solid-hover active:bg-accent-solid-active",
+		success: "hover:bg-success-hover active:bg-success-active",
+		warning: "hover:bg-warning-hover active:bg-warning-active",
+		info: "hover:bg-info-hover active:bg-info-active",
+		destructive: "hover:bg-destructive-hover active:bg-destructive-active",
+	},
+	soft: {
+		default: "hover:bg-primary-soft-hover active:bg-primary-soft-active",
+		primary: "hover:bg-primary-soft-hover active:bg-primary-soft-active",
+		secondary: "hover:bg-secondary-soft-hover active:bg-secondary-soft-active",
+		accent: "hover:bg-accent-soft-hover active:bg-accent-soft-active",
+		success: "hover:bg-success-soft-hover active:bg-success-soft-active",
+		warning: "hover:bg-warning-soft-hover active:bg-warning-soft-active",
+		info: "hover:bg-info-soft-hover active:bg-info-soft-active",
+		destructive: "hover:bg-destructive-soft-hover active:bg-destructive-soft-active",
+	},
+	outline: {
+		default: "hover:bg-primary-soft-hover active:bg-primary-soft-active",
+		primary: "hover:bg-primary-soft-hover active:bg-primary-soft-active",
+		secondary: "hover:bg-secondary-soft-hover active:bg-secondary-soft-active",
+		accent: "hover:bg-accent-soft-hover active:bg-accent-soft-active",
+		success: "hover:bg-success-soft-hover active:bg-success-soft-active",
+		warning: "hover:bg-warning-soft-hover active:bg-warning-soft-active",
+		info: "hover:bg-info-soft-hover active:bg-info-soft-active",
+		destructive: "hover:bg-destructive-soft-hover active:bg-destructive-soft-active",
+	},
+	plain: {
+		default: "hover:bg-primary-soft-hover active:bg-primary-soft-active",
+		primary: "hover:bg-primary-soft-hover active:bg-primary-soft-active",
+		secondary: "hover:bg-secondary-soft-hover active:bg-secondary-soft-active",
+		accent: "hover:bg-accent-soft-hover active:bg-accent-soft-active",
+		success: "hover:bg-success-soft-hover active:bg-success-soft-active",
+		warning: "hover:bg-warning-soft-hover active:bg-warning-soft-active",
+		info: "hover:bg-info-soft-hover active:bg-info-soft-active",
+		destructive: "hover:bg-destructive-soft-hover active:bg-destructive-soft-active",
+	},
+};
+
+const legacyBadgeStyles: Record<
+	BadgeLegacyVariant,
+	{ appearance: BadgeAppearance; color: BadgeColor; link?: boolean }
+> = {
+	default: { appearance: "solid", color: "default" },
+	secondary: { appearance: "soft", color: "secondary" },
+	accent: { appearance: "soft", color: "accent" },
+	success: { appearance: "soft", color: "success" },
+	warning: { appearance: "soft", color: "warning" },
+	info: { appearance: "soft", color: "info" },
+	destructive: { appearance: "soft", color: "destructive" },
+	outlined: { appearance: "outline", color: "default" },
+	ghost: { appearance: "plain", color: "default" },
+	link: { appearance: "plain", color: "primary", link: true },
+};
+
+type BadgeStyleOptions = {
+	variant?: BadgeVariant | null;
+	color?: BadgeColor | null;
+	size?: BadgeSize | null;
+	interactive?: boolean;
+	className?: string;
+};
+
+function resolveBadgeStyle(variant: BadgeVariant = "default", color?: BadgeColor | null) {
+	if (["solid", "soft", "outline", "plain"].includes(variant)) {
+		return {
+			appearance: variant as BadgeAppearance,
+			color: color ?? "default",
+			link: false,
+		};
+	}
+
+	const legacy = legacyBadgeStyles[variant as BadgeLegacyVariant];
+
+	return {
+		appearance: legacy.appearance,
+		color: color ?? legacy.color,
+		link: legacy.link ?? false,
+	};
 }
 
-function Badge({ className, variant, color, size, shape, interactive, ...props }: BadgeProps) {
-	return (
-		<span
-			className={cn(badgeVariants({ variant, color, size, shape, interactive, className }))}
-			{...props}
-		/>
+function badgeVariants({
+	variant = "default",
+	color,
+	size = "default",
+	interactive = false,
+	className,
+}: BadgeStyleOptions = {}) {
+	const resolved = resolveBadgeStyle(variant ?? "default", color);
+
+	return cn(
+		badgeFrame({ size: size === "md" ? "default" : size }),
+		badgeColorClasses[resolved.appearance][resolved.color],
+		interactive && "t-interactive t-pressable cursor-pointer",
+		interactive && badgeInteractiveClasses[resolved.appearance][resolved.color],
+		resolved.link && "underline-offset-4 hover:underline",
+		className,
 	);
 }
 
-export { Badge, badgeVariants };
+type BadgeProps = Omit<useRender.ComponentProps<"span">, "color"> &
+	BadgeStyleOptions & { chamber?: ReactNode; shape?: "default" | "sm" | "md" | "full" };
+
+function Badge({
+	className,
+	variant = "default",
+	color,
+	size = "default",
+	interactive = false,
+	render,
+	shape: _shape,
+	chamber,
+	children,
+	...props
+}: BadgeProps) {
+	const resolvedStyle = resolveBadgeStyle(variant ?? "default", color);
+
+	return useRender({
+		defaultTagName: "span",
+		props: mergeProps<"span">(
+			{
+				children: chamber ? (
+					<>
+						<IconChamber size="xs" aria-hidden="true">
+							{chamber}
+						</IconChamber>
+						<span data-slot="badge-label">{children}</span>
+					</>
+				) : (
+					children
+				),
+				className: badgeVariants({
+					variant,
+					color,
+					size,
+					interactive: interactive && render != null,
+					className,
+				}),
+			},
+			props,
+		),
+		render,
+		state: {
+			slot: "badge",
+			appearance: resolvedStyle.appearance,
+			color: resolvedStyle.color,
+			variant,
+			size,
+			interactive,
+			chamber: Boolean(chamber),
+		},
+	});
+}
+
+export {
+	Badge,
+	type BadgeAppearance,
+	type BadgeColor,
+	type BadgeProps,
+	type BadgeVariant,
+	badgeVariants,
+};

@@ -8,6 +8,7 @@ import {
 	OG_SIZE,
 	sharedGridStyles,
 } from "@/lib/og";
+import { SITE_HOSTNAME, SITE_ROLE } from "@/src/constants/site";
 
 // export const runtime = "edge";
 
@@ -83,7 +84,7 @@ export default async function Image() {
 								letterSpacing: "0.08em",
 							}}
 						>
-							Software Engineer
+							{SITE_ROLE}
 						</div>
 					</div>
 				</div>
@@ -149,7 +150,7 @@ export default async function Image() {
 							color: OG_COLORS.surface900,
 						}}
 					>
-						yaschet.dev
+						{SITE_HOSTNAME}
 					</div>
 					<div
 						style={{
@@ -204,7 +205,7 @@ export default async function Image() {
 								maxWidth: 720,
 							}}
 						>
-							Product engineering for interfaces and systems—measured, shipped,
+							Product engineering for interfaces and systems, measured, shipped,
 							iterated.
 						</div>
 					</div>

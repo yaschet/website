@@ -1,35 +1,24 @@
-/**
- * Form label component based on Radix UI Label.
- *
- * @remarks
- * Renders an accessible label associated with controls. Handles disabled states automatically.
- *
- * @example
- * ```tsx
- * <Label htmlFor="email">Email</Label>
- * <Input id="email" />
- * ```
- *
- * @public
- */
-
 "use client";
 
-import * as LabelPrimitive from "@radix-ui/react-label";
-import { cva, type VariantProps } from "class-variance-authority";
-import * as React from "react";
+import type * as React from "react";
+
 import { cn } from "@/src/lib/index";
 
-const labelVariants = cva(
-	"block font-semibold text-muted text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-);
-
-const Label = React.forwardRef<
-	React.ComponentRef<typeof LabelPrimitive.Root>,
-	React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & VariantProps<typeof labelVariants>
->(({ className, ...props }, ref) => (
-	<LabelPrimitive.Root ref={ref} className={cn(labelVariants(), className)} {...props} />
-));
-Label.displayName = LabelPrimitive.Root.displayName;
+function Label({ className, htmlFor, children, ...props }: React.ComponentProps<"label">) {
+	return (
+		<label
+			data-slot="label"
+			htmlFor={htmlFor}
+			className={cn(
+				"flex select-none items-center gap-2 font-medium text-[length:var(--foundation-type-label-size)] leading-[var(--foundation-type-label-leading)] peer-disabled:cursor-not-allowed peer-disabled:opacity-50 group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]/field:cursor-not-allowed group-data-[disabled=true]:cursor-not-allowed group-data-[disabled=true]:opacity-50",
+				htmlFor && "cursor-pointer",
+				className,
+			)}
+			{...props}
+		>
+			{children}
+		</label>
+	);
+}
 
 export { Label };

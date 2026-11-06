@@ -1,0 +1,57 @@
+.node {
+	--node-soft: var(--foundation-control-surface);
+	--node-ink: var(--foundation-ink);
+	position: absolute;
+	display: grid;
+	grid-template-columns: 40px minmax(0, 1fr);
+	align-items: center;
+	gap: 12px;
+	width: 224px;
+	height: 72px;
+	padding: 16px;
+	background: var(--foundation-surface);
+	color: var(--foundation-ink);
+	box-shadow: inset 0 0 0 var(--foundation-hairline) var(--foundation-line-strong);
+}
+.node[data-tone="info"] {
+	--node-soft: var(--foundation-info-soft);
+	--node-ink: var(--foundation-info-ink);
+}
+.node[data-tone="warning"] {
+	--node-soft: var(--foundation-warning-soft);
+	--node-ink: var(--foundation-warning-ink);
+}
+.node[data-tone="success"] {
+	--node-soft: var(--foundation-success-soft);
+	--node-ink: var(--foundation-success-ink);
+}
+.node > div {
+	display: grid;
+	min-width: 0;
+}
+.node strong {
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 600;
+}
+.node > div > span {
+	color: var(--foundation-muted);
+	font-size: 14px;
+	line-height: 16px;
+}
+.icon {
+	background: var(--node-soft);
+	color: var(--node-ink);
+}
+.node[data-active="true"] {
+	background: color-mix(in oklab, var(--node-soft) 45%, var(--foundation-surface));
+	box-shadow: inset 0 0 0 var(--foundation-hairline) var(--node-ink);
+}
+@media (forced-colors: active) {
+	.node {
+		outline: 1px solid CanvasText;
+	}
+	.node[data-active="true"] {
+		outline: 2px solid Highlight;
+	}
+}

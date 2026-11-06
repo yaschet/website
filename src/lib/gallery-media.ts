@@ -6,6 +6,7 @@ export type GalleryMediaSource =
 			kind: "image";
 			src: string | StaticImageData;
 			alt?: string;
+			title?: string;
 			caption?: string;
 	  }
 	| {

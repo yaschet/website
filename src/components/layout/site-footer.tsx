@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { PageContainer } from "@/src/components/layout/containers";
+import { CopyResourceButton } from "@/src/components/ui/copy-resource-button";
 import { ShellReveal } from "@/src/components/ui/reveal";
+import { SITE_EMAIL } from "@/src/constants/site";
 
 /**
  * SiteFooter component.
@@ -24,10 +26,10 @@ export function SiteFooter() {
 										© 2026 Yassine Chettouch
 									</span>
 									<a
-										href="mailto:hello@yaschet.dev"
-										className="portfolio-caption font-medium text-surface-500 transition-colors hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50"
+										href={`mailto:${SITE_EMAIL}`}
+										className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-400 dark:hover:text-surface-50"
 									>
-										hello@yaschet.dev
+										{SITE_EMAIL}
 									</a>
 								</div>
 
@@ -37,6 +39,7 @@ export function SiteFooter() {
 										aria-label="Social Links"
 									>
 										<Link
+											transitionTypes={["navigation"]}
 											href="https://linkedin.com/in/yassinechettouch"
 											target="_blank"
 											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
@@ -44,6 +47,7 @@ export function SiteFooter() {
 											LinkedIn
 										</Link>
 										<Link
+											transitionTypes={["navigation"]}
 											href="https://github.com/yaschet"
 											target="_blank"
 											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
@@ -51,6 +55,7 @@ export function SiteFooter() {
 											GitHub
 										</Link>
 										<Link
+											transitionTypes={["navigation"]}
 											href="https://x.com/yaschett"
 											target="_blank"
 											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
@@ -58,27 +63,16 @@ export function SiteFooter() {
 											X
 										</Link>
 									</nav>
-									<div>
-										<Link
-											href="https://github.com/yaschet/website"
-											target="_blank"
-											rel="noreferrer"
+									<div className="flex w-full flex-wrap items-center justify-center gap-[var(--portfolio-space-related)] sm:w-auto sm:justify-end">
+										<CopyResourceButton
+											href="/llms-full.txt"
+											label="Copy portfolio"
+											variant="text"
 											className="portfolio-caption font-medium text-surface-600 transition-colors hover:text-surface-900 dark:text-surface-300 dark:hover:text-surface-50"
-										>
-											Source
-										</Link>
+										/>
 									</div>
 								</div>
 							</div>
-
-							<p className="portfolio-body-xs max-w-[72ch] text-surface-500 dark:text-surface-400">
-								<span className="font-medium text-surface-700 dark:text-surface-300">
-									Colophon.
-								</span>{" "}
-								Typeset in Space Grotesk and Space Mono. Built with Next.js 16,
-								Tailwind v4, Framer Motion, and a custom WebGL2 topographic field
-								shader. Deployed on Vercel. Source open on GitHub.
-							</p>
 						</div>
 					</PageContainer>
 				</section>

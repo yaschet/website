@@ -1,0 +1,12 @@
+@media (width < 40rem) {
+	.form input,
+	.form textarea {
+		/* Keep phone form entry at the same comfortable 16px default as body copy. */
+		font-size: 1rem;
+	}
+
+	.form input,
+	.form button[type="submit"] {
+		min-height: 2.75rem;
+	}
+}

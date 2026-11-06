@@ -1,0 +1,94 @@
+.desktop,
+.mobile {
+	display: block;
+	width: 100%;
+	height: auto;
+	margin-inline: auto;
+	overflow: visible;
+}
+.mobile {
+	display: none;
+}
+.boundary {
+	fill: var(--foundation-control-surface);
+	stroke: var(--foundation-line);
+	stroke-width: 1;
+	vector-effect: non-scaling-stroke;
+}
+.phase {
+	fill: var(--foundation-muted);
+	font-size: 13px;
+	font-weight: 500;
+}
+.edge {
+	--edge-ink: var(--foundation-muted);
+}
+.edge[data-active="true"][data-tone="info"] {
+	--edge-ink: var(--foundation-info-ink);
+}
+.edge[data-active="true"][data-tone="warning"] {
+	--edge-ink: var(--foundation-warning-ink);
+}
+.edge[data-active="true"][data-tone="success"] {
+	--edge-ink: var(--foundation-success-ink);
+}
+.edge > path {
+	fill: none;
+	stroke: var(--edge-ink);
+	stroke-width: 1.25;
+	vector-effect: non-scaling-stroke;
+	stroke-linejoin: round;
+}
+.edge[data-active="true"] > path:not(.trace) {
+	stroke: var(--foundation-muted);
+}
+.trace {
+	stroke-dasharray: 1;
+	animation: connection-trace var(--figure-route-duration) var(--ease-in-out) both;
+	animation-delay: calc(var(--edge-order, 0) * var(--figure-route-duration));
+}
+.edgeLabel rect {
+	fill: var(--foundation-canvas);
+}
+.edgeLabel[data-surface="control"] rect {
+	fill: var(--foundation-control-surface);
+}
+.edgeLabel text {
+	fill: var(--edge-ink);
+	font-size: 13px;
+	font-weight: 500;
+	text-anchor: middle;
+}
+@keyframes connection-trace {
+	from {
+		stroke-dashoffset: 1;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+@container case-study-diagram (max-width: 719px) {
+	.desktop {
+		display: none;
+	}
+	.mobile {
+		display: block;
+	}
+}
+[data-motion-input="keyboard"] .trace {
+	animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	.trace {
+		animation: none;
+	}
+}
+@media (forced-colors: active) {
+	.edge > path {
+		stroke: CanvasText;
+	}
+	.phase,
+	.edgeLabel text {
+		fill: CanvasText;
+	}
+}

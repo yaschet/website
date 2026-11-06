@@ -1,0 +1,628 @@
+/* Portfolio compatibility aliases. Foundation owns all control/material values. */
+:root {
+	--portfolio-control-compact: var(--foundation-control-height-sm);
+	--portfolio-control-default: var(--foundation-control-height-md);
+	--portfolio-control-prominent: var(--foundation-control-height-xl);
+	--portfolio-control-sm: var(--foundation-control-height-sm);
+	--portfolio-control-md: var(--foundation-control-height-md);
+	--portfolio-control-lg: var(--foundation-control-height-lg);
+	--portfolio-control-xl: var(--foundation-control-height-xl);
+	--portfolio-icon-touch: var(--foundation-control-height-xl);
+	--portfolio-control-gap: 8px;
+	--portfolio-control-pad-compact: 12px;
+	--portfolio-control-pad-default: 12px;
+	--portfolio-control-pad-prominent: 16px;
+	--text-control: var(--foundation-type-control-size);
+	--text-control--line-height: var(--foundation-type-control-leading);
+}
+
+/* Standalone semantic controls inherit the same document theme as popup portals. */
+.foundation-input-reveal {
+	height: 100%;
+	width: auto;
+}
+.foundation-input-reveal:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--ring);
+}
+.yaschet [data-slot="label"] {
+	line-height: var(--foundation-type-label-leading);
+}
+
+:root:not(.dark),
+:root.dark {
+	--surface: var(--foundation-canvas);
+	--border: var(--portfolio-project-line);
+}
+
+/* Transparent warning controls need the deeper existing ink on the portfolio canvas. */
+:root:not(.dark)
+:is([data-slot="badge"], [data-slot="button"])[data-color="warning"][data-appearance="plain"] {
+	color: var(--foundation-warning-interaction-ink);
+}
+
+/* Floating notifications share the modal heading's paired, padded chambers. */
+.yaschet [data-slot="toast"] {
+	border-width: var(--foundation-hairline);
+	border-color: var(--border);
+	box-shadow: var(--foundation-popup-shadow);
+	--toast-open: var(--duration-fast);
+	--toast-close: 150ms;
+	--toast-blur: 0px;
+}
+.foundation-notification-heading {
+	display: grid;
+	grid-template-columns: 40px minmax(0, 1fr) 40px;
+	align-items: center;
+	gap: 16px;
+	padding: 16px;
+}
+.toast-title {
+	font-size: var(--foundation-type-body-size);
+	line-height: var(--foundation-type-body-leading);
+	font-weight: 500;
+	letter-spacing: normal;
+}
+.toast-description {
+	font-size: var(--foundation-type-meta-size);
+	line-height: var(--foundation-type-meta-leading);
+	font-weight: 400;
+	letter-spacing: normal;
+	color: var(--muted-foreground);
+}
+.toast-action {
+	grid-column: 2;
+	justify-self: start;
+}
+/* Password controls use one frame, with a full-height square utility chamber. */
+.foundation-password-field {
+	--field-height: var(--foundation-control-height-md);
+}
+.foundation-password-field[data-size="xs"] {
+	--field-height: var(--foundation-control-height-xs);
+}
+.foundation-password-field[data-size="sm"] {
+	--field-height: var(--foundation-control-height-sm);
+}
+.foundation-password-field[data-size="lg"] {
+	--field-height: var(--foundation-control-height-lg);
+}
+.foundation-password-field:is([data-size="xl"], [data-size="onboarding"]) {
+	--field-height: var(--foundation-control-height-xl);
+}
+.foundation-password-field [data-slot="input-group-control"] {
+	padding-inline-end: calc(var(--field-height) + 12px);
+}
+.yaschet .foundation-password-field .foundation-input-reveal {
+	width: var(--field-height);
+}
+.foundation-password-field[data-motion-input="keyboard"]::after,
+.foundation-password-field[data-motion-input="keyboard"] .t-icon-swap > svg {
+	transition: none;
+}
+/* Buttons share Foundation materials. Feedback compresses the control, never
+ * fades its readable ink. Press is quicker than release and can be interrupted. */
+[data-slot="button"].t-pressable {
+	--press-opacity: 1;
+	--press-dur: var(--duration-quick);
+	--button-glyph-size: 16px;
+}
+[data-slot="button"].t-pressable:active:not([aria-disabled="true"]) {
+	--interactive-dur: var(--duration-micro);
+	--press-dur: var(--duration-micro);
+}
+[data-slot="button"].t-pressable[aria-disabled="true"] {
+	--press-scale: 1;
+}
+[data-slot="button"][data-loading] {
+	cursor: progress;
+}
+[data-slot="button"][data-motion-input="keyboard"] {
+	transition: none;
+}
+[data-slot="button"]:is([data-size="xs"], [data-size="sm"], [data-size="icon-xs"]) {
+	--button-glyph-size: 14px;
+}
+
+/* One real glyph chamber. Width and its adjoining gap collapse together; there
+ * is no empty counterweight on the opposite side of the label. */
+.foundation-button-pending {
+	display: inline-flex;
+	align-items: center;
+	gap: 0;
+}
+.foundation-button-pending-copy {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--button-content-gap);
+}
+.foundation-button-icon-space {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 0;
+	height: var(--button-glyph-size);
+	margin-inline-end: 0;
+	transition:
+		width var(--resize-dur) var(--resize-ease),
+		margin-inline-start var(--resize-dur) var(--resize-ease),
+		margin-inline-end var(--resize-dur) var(--resize-ease);
+}
+.foundation-button-icon.t-icon-swap {
+	width: var(--button-glyph-size);
+	height: var(--button-glyph-size);
+}
+:where(.foundation-button-pending[data-has-icon], [data-loading] .foundation-button-pending)
+	> .foundation-button-icon-space {
+	width: var(--button-glyph-size);
+	margin-inline-end: var(--button-content-gap);
+}
+:where(.foundation-button-pending[data-icon-position="end"]) > .foundation-button-icon-space {
+	order: 1;
+	margin-inline-end: 0;
+}
+:where(
+		.foundation-button-pending[data-icon-position="end"][data-has-icon],
+		[data-loading] .foundation-button-pending[data-icon-position="end"]
+	)
+	> .foundation-button-icon-space {
+	margin-inline-start: var(--button-content-gap);
+}
+:where(.foundation-button-pending[data-icon-only]) > .foundation-button-icon-space {
+	margin-inline: 0;
+}
+/* A full-size editorial chamber must not stretch its loading glyph. */
+.foundation-button-icon [data-slot="spinner"] {
+	max-width: var(--button-glyph-size);
+	max-height: var(--button-glyph-size);
+}
+[data-active="false"] [data-slot="spinner"],
+.foundation-button-icon > .t-icon > [data-slot="spinner"] {
+	animation-play-state: paused;
+}
+
+[data-loading] .foundation-button-icon > .t-icon > [data-slot="spinner"] {
+	animation-play-state: running;
+}
+:where([data-motion-input="keyboard"]) .foundation-button-icon-space,
+.t-toast[data-motion-input="keyboard"],
+.t-toast[data-motion-input="keyboard"] [data-slot="toast-content"] {
+	transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-slot="button"].t-pressable {
+		--press-scale: 1;
+		transition: none;
+	}
+	.foundation-button-icon-space,
+	.t-toast [data-slot="toast-content"] {
+		transition: none;
+	}
+}
+
+/* Editorial action: a fixed label frame and a true square glyph chamber.
+ * LinkFeedback still owns the spinner independently of the hover reel. */
+[data-slot="button"].portfolio-action-link {
+	gap: 0;
+	padding: 0;
+}
+.portfolio-action-link > [data-slot="link-feedback"],
+.portfolio-action-link .foundation-button-pending {
+	width: 100%;
+	height: 100%;
+}
+.portfolio-action-link .foundation-button-pending {
+	min-width: 0;
+}
+.portfolio-action-link .foundation-button-pending-copy {
+	flex: 1;
+	min-width: 0;
+	padding-inline: 12px;
+}
+.portfolio-action-link .foundation-button-icon-space {
+	align-self: stretch;
+	aspect-ratio: 1;
+	width: auto;
+	height: auto;
+	margin-inline: 0;
+	background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.portfolio-action-link .foundation-button-icon.t-icon-swap {
+	width: 100%;
+	height: 100%;
+}
+
+/* The action's two text layers share their measured grid cell. Character
+ * transforms do not resize the control or disturb its original inline padding. */
+.portfolio-action-reel-label {
+	--action-text-bleed: calc(var(--blur-small) * 3);
+	display: grid;
+	place-items: center;
+	height: calc(20px + var(--action-text-bleed) * 2);
+	line-height: 20px;
+	overflow: clip;
+	/* Real padding expands the paint aperture in WebKit as well as Chromium.
+	 * Counter-margins keep the original label position and control dimensions. */
+	padding: var(--action-text-bleed);
+	margin: calc(-1 * var(--action-text-bleed));
+}
+.portfolio-action-reel-label > span {
+	grid-area: 1 / 1;
+	perspective: 160px;
+}
+.portfolio-action-reel-label [data-action-character] {
+	display: inline-block;
+	white-space: pre;
+	backface-visibility: hidden;
+	transition:
+		transform calc(var(--action-reel-dur) - var(--action-reel-stagger)) var(--action-reel-ease),
+		filter calc(var(--action-reel-dur) - var(--action-reel-stagger)) var(--action-reel-ease);
+	transition-delay: calc((1 - var(--action-character-progress)) * var(--action-reel-stagger));
+}
+.portfolio-action-reel-label [data-action-reel="in"] [data-action-character] {
+	transform: translateY(calc(100% + var(--action-text-bleed) * 2)) rotateX(-60deg);
+	filter: blur(var(--blur-small));
+}
+.portfolio-action-link {
+	overflow: clip;
+}
+/* Immediate access paths expose a resting layer in the same stable grid cell. */
+[data-action-rest] {
+	visibility: hidden;
+}
+.portfolio-action-link:focus-visible [data-action-rest] {
+	visibility: visible;
+}
+.portfolio-action-link:focus-visible [data-action-reel] {
+	visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+	[data-action-rest] {
+		visibility: visible;
+	}
+	[data-action-reel] {
+		visibility: hidden;
+	}
+}
+
+/* Two flush chambers share one perimeter and one native action. */
+[data-slot="button"].portfolio-gallery-play {
+	--foundation-primary-soft: var(--palette-neutral-900);
+	--foundation-primary-soft-hover: var(--palette-neutral-800);
+	--foundation-primary-soft-active: var(--palette-neutral-700);
+	--gallery-play-chamber-surface: var(--palette-neutral-950);
+	--gallery-play-icon-surface: var(--palette-neutral-900);
+	position: relative;
+	width: max-content;
+	min-height: 3rem;
+	height: auto;
+	padding: 0;
+	border: 0;
+	box-shadow: none;
+}
+.portfolio-gallery-play::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border: var(--foundation-hairline) solid var(--palette-neutral-600);
+	pointer-events: none;
+}
+.portfolio-gallery-play .foundation-button-pending {
+	gap: 0;
+	width: 100%;
+}
+.portfolio-gallery-play .foundation-button-pending-copy {
+	flex: 1;
+	min-width: 0;
+	height: 100%;
+	padding: 0;
+}
+.portfolio-gallery-play-label {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	height: 100%;
+	padding: 0.875rem;
+	background: var(--gallery-play-chamber-surface);
+	transition: background-color var(--duration-quick) var(--ease-smooth-out);
+}
+.portfolio-gallery-play-duration {
+	color: var(--palette-neutral-300);
+	font-weight: 400;
+	font-variant-numeric: tabular-nums;
+}
+.portfolio-gallery-play .foundation-button-icon-space {
+	width: 3rem;
+	color: var(--palette-neutral-50);
+	background: var(--gallery-play-icon-surface);
+	transition: background-color var(--duration-quick) var(--ease-smooth-out);
+}
+.portfolio-gallery-play .portfolio-gallery-play-glyph {
+	transition: transform var(--duration-quick) var(--ease-smooth-out);
+}
+@media (hover: hover) and (pointer: fine) {
+	.portfolio-gallery-play:hover:not([aria-disabled="true"]) {
+		--gallery-play-chamber-surface: var(--palette-neutral-900);
+		--gallery-play-icon-surface: var(--palette-neutral-800);
+	}
+	.portfolio-gallery-play:hover:not([aria-disabled="true"]) .portfolio-gallery-play-glyph {
+		transform: scale(1.08);
+	}
+}
+.portfolio-gallery-play:active:not([aria-disabled="true"]) {
+	--gallery-play-chamber-surface: var(--palette-neutral-800);
+	--gallery-play-icon-surface: var(--palette-neutral-700);
+}
+.portfolio-gallery-play:active:not([aria-disabled="true"]) .portfolio-gallery-play-glyph {
+	transform: scale(0.94);
+}
+@media (prefers-reduced-motion: reduce) {
+	.portfolio-gallery-play .portfolio-gallery-play-glyph,
+	.portfolio-gallery-play:is(:hover, :active):not([aria-disabled="true"])
+		.portfolio-gallery-play-glyph {
+		transform: none;
+		transition: none;
+	}
+}
+.portfolio-gallery-play:focus-visible::after {
+	border: 2px solid var(--palette-neutral-50);
+}
+
+/* Icon-only reels use the control's whole chamber, including pending layers. */
+[data-reel-trigger] .foundation-button-pending[data-icon-only],
+[data-reel-trigger] [data-slot="link-feedback"]:has(> [data-icon-only]),
+[data-reel-trigger] .foundation-button-pending[data-icon-only] > .foundation-button-icon-space,
+[data-reel-trigger] .foundation-button-pending[data-icon-only] .foundation-button-icon.t-icon-swap {
+	width: 100%;
+	height: 100%;
+}
+
+/* The aperture ends at the chamber edge, never through the resting glyph. */
+.portfolio-reel-icon {
+	--reel-distance: 80%;
+	--reel-x: var(--reel-distance);
+	--reel-y: 0px;
+	--reel-blur: 0px;
+	display: grid;
+	place-items: center;
+	overflow: clip;
+	width: 100%;
+	height: 100%;
+}
+.portfolio-reel-icon[data-blur] {
+	--reel-blur: var(--blur-small);
+}
+.portfolio-reel-icon[data-direction="up-right"] {
+	--reel-x: var(--reel-distance);
+	--reel-y: calc(var(--reel-x) * -1);
+}
+.portfolio-reel-icon[data-direction="left"] {
+	--reel-x: calc(var(--reel-distance) * -1);
+}
+.portfolio-reel-icon[data-direction="down"] {
+	--reel-x: 0px;
+	--reel-y: var(--reel-distance);
+}
+.portfolio-reel-icon > span {
+	grid-area: 1 / 1;
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+	transition:
+		transform var(--action-reel-dur) var(--action-reel-ease),
+		filter var(--action-reel-dur) var(--action-reel-ease);
+}
+.portfolio-reel-icon > [data-reel-in] {
+	visibility: hidden;
+	transform: translate(calc(-1 * var(--reel-x)), calc(-1 * var(--reel-y)));
+	filter: blur(var(--reel-blur));
+	transition:
+		transform var(--action-reel-dur) var(--action-reel-ease),
+		filter var(--action-reel-dur) var(--action-reel-ease),
+		visibility 0s var(--action-reel-dur);
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+	[data-reel-trigger]:hover:not(:focus-visible):not([aria-disabled="true"]):not(
+		:has([data-loading])
+	) {
+		.portfolio-reel-icon > span {
+			transition-duration: var(--action-reel-dur);
+		}
+		[data-reel-out] {
+			transform: translate(var(--reel-x), var(--reel-y));
+			filter: blur(var(--reel-blur));
+		}
+		[data-reel-in] {
+			visibility: visible;
+			transform: translate(0, 0);
+			filter: blur(0px);
+			transition:
+				transform var(--action-reel-dur) var(--action-reel-ease),
+				filter var(--action-reel-dur) var(--action-reel-ease),
+				visibility 0s;
+		}
+		[data-action-character] {
+			transition-delay: calc(var(--action-character-progress) * var(--action-reel-stagger));
+		}
+		[data-action-reel="out"] [data-action-character] {
+			transform: translateY(calc(-100% - var(--action-text-bleed) * 2)) rotateX(60deg);
+			filter: blur(var(--blur-small));
+		}
+		[data-action-reel="in"] [data-action-character] {
+			transform: translateY(0) rotateX(0deg);
+			filter: blur(0px);
+		}
+	}
+}
+[data-reel-trigger]:focus-visible :is([data-action-character], [data-reel-out], [data-reel-in]) {
+	transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	.portfolio-reel-icon > span,
+	.portfolio-action-reel-label [data-action-character] {
+		transition: none;
+	}
+}
+
+/* Portfolio accent is neutral in every surface, portal and native control. */
+:root,
+:root.dark {
+	--foundation-accent: var(--foundation-primary);
+	--foundation-accent-foreground: var(--foundation-primary-foreground);
+	--foundation-accent-hover: var(--foundation-primary-hover);
+	--foundation-accent-active: var(--foundation-primary-active);
+	--foundation-accent-solid: var(--foundation-primary);
+	--foundation-accent-solid-foreground: var(--foundation-primary-foreground);
+	--foundation-accent-solid-hover: var(--foundation-primary-hover);
+	--foundation-accent-solid-active: var(--foundation-primary-active);
+	--foundation-accent-soft: var(--foundation-primary-soft);
+	--foundation-accent-soft-hover: var(--foundation-primary-soft-hover);
+	--foundation-accent-soft-active: var(--foundation-primary-soft-active);
+	--foundation-accent-ink: var(--foundation-primary-ink);
+	--foundation-accent-line: var(--foundation-primary-line);
+	--foundation-accent-line-hover: var(--foundation-primary-line-hover);
+	--foundation-accent-line-active: var(--foundation-primary-line-active);
+	--accent: var(--foundation-accent);
+	--accent-foreground: var(--foundation-accent-foreground);
+	--accent-color-500: var(--foundation-accent);
+	accent-color: var(--foundation-accent);
+}
+:root {
+	--accent-color-50: var(--palette-neutral-50);
+}
+:root {
+	--accent-color-100: var(--palette-neutral-100);
+}
+:root {
+	--accent-color-200: var(--palette-neutral-200);
+}
+:root {
+	--accent-color-300: var(--palette-neutral-300);
+}
+:root {
+	--accent-color-400: var(--palette-neutral-400);
+}
+:root {
+	--accent-color-600: var(--palette-neutral-600);
+}
+:root {
+	--accent-color-700: var(--palette-neutral-700);
+}
+:root {
+	--accent-color-800: var(--palette-neutral-800);
+}
+:root {
+	--accent-color-900: var(--palette-neutral-900);
+}
+:root {
+	--accent-color-950: var(--palette-neutral-950);
+}
+
+::selection {
+	background: var(--foundation-primary);
+	color: var(--foundation-primary-foreground);
+}
+
+/* Inverted editorial bands need a complete material, including hover and press. */
+.portfolio-inverse-button {
+	--primary: var(--palette-neutral-50);
+	--primary-foreground: var(--palette-neutral-950);
+	--foundation-primary-hover: var(--palette-neutral-200);
+	--foundation-primary-active: var(--palette-neutral-300);
+	--foundation-primary-soft: var(--palette-neutral-800);
+	--foundation-primary-soft-hover: var(--palette-neutral-700);
+	--foundation-primary-soft-active: var(--palette-neutral-600);
+	--foundation-primary-ink: var(--palette-neutral-50);
+}
+.dark .portfolio-inverse-button {
+	--primary: var(--palette-neutral-950);
+	--primary-foreground: var(--palette-neutral-50);
+	--foundation-primary-hover: var(--palette-neutral-800);
+	--foundation-primary-active: var(--palette-neutral-700);
+	--foundation-primary-soft: var(--palette-neutral-100);
+	--foundation-primary-soft-hover: var(--palette-neutral-200);
+	--foundation-primary-soft-active: var(--palette-neutral-300);
+	--foundation-primary-ink: var(--palette-neutral-950);
+}
+
+/* Player controls and their portalled popups keep a dark material in both themes. */
+.portfolio-media-material {
+	color-scheme: dark;
+	--foreground: var(--palette-neutral-50);
+	--muted-foreground: var(--palette-neutral-400);
+	--popover: var(--palette-neutral-900);
+	--popover-foreground: var(--palette-neutral-50);
+	--border: var(--palette-neutral-700);
+	--ring: var(--palette-neutral-50);
+	--foundation-primary-ink: var(--palette-neutral-50);
+	--foundation-primary-soft: var(--palette-neutral-950);
+	--foundation-primary-soft-hover: var(--palette-neutral-800);
+	--foundation-primary-soft-active: var(--palette-neutral-700);
+	--foundation-menu-hover: var(--palette-neutral-800);
+	--foundation-secondary-soft-active: var(--palette-neutral-700);
+	--foundation-control-line-hover: var(--palette-neutral-600);
+	--foundation-popup-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
+}
+
+.video-setting-trigger {
+	gap: 8px;
+}
+.video-setting-chevron {
+	transition: transform var(--duration-quick) var(--ease-smooth-out);
+}
+.video-setting-trigger[aria-expanded="true"] .video-setting-chevron {
+	transform: rotate(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+	.video-setting-chevron {
+		transition: none;
+	}
+}
+
+/* Touch input type stays readable without iOS focus zoom. Geometry remains explicit. */
+@media (hover: none), (pointer: coarse) {
+	.yaschet
+		:is(
+			[data-slot="input"],
+			[data-slot="textarea"],
+			[data-slot="input-group-control"],
+			[data-slot="native-select"]
+		) {
+		font-size: 16px;
+	}
+}
+
+/* Native tap paint is replaced by the existing pressed/focus materials. */
+.yaschet :is(button, a, input, textarea, select, [role="button"]) {
+	-webkit-tap-highlight-color: transparent;
+}
+.yaschet :is(button, [role="button"], [data-slot="button"]) {
+	user-select: none;
+	touch-action: manipulation;
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-slot="spinner"] {
+		animation: none;
+	}
+}
+
+/* Fade through a quiet midpoint instead of overlapping the two labels. */
+@media (prefers-reduced-motion: no-preference) {
+	.portfolio-gallery-play .t-state-label[data-sizing="content"] {
+		overflow: visible;
+		transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	.portfolio-gallery-play .t-state-label > [data-active="false"] {
+		transition: opacity 60ms ease-out;
+	}
+	.portfolio-gallery-play .t-state-label > [data-active="true"] {
+		transition: opacity 120ms ease-out 70ms;
+	}
+	.portfolio-gallery-play[data-motion-input="keyboard"] .t-state-label,
+	.portfolio-gallery-play[data-motion-input="keyboard"] .t-state-label > span {
+		transition: none;
+	}
+}

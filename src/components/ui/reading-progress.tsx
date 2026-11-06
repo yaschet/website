@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 function measureScrollProgress() {
 	const root = document.documentElement;
@@ -14,42 +14,39 @@ function measureScrollProgress() {
 
 export function ReadingProgress() {
 	const pathname = usePathname();
-	const [progress, setProgress] = useState(0);
+	const bar = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		if (typeof window === "undefined") return;
-
+		if (!pathname) return;
+		let frame = 0;
 		const sync = () => {
-			setProgress(measureScrollProgress());
+			frame = 0;
+			if (bar.current) bar.current.style.transform = `scaleX(${measureScrollProgress()})`;
 		};
-
-		sync();
-		window.addEventListener("scroll", sync, { passive: true });
-		window.addEventListener("resize", sync, { passive: true });
+		const schedule = () => {
+			if (!frame) frame = window.requestAnimationFrame(sync);
+		};
+		const observer = new ResizeObserver(schedule);
+		observer.observe(document.body);
+		schedule();
+		window.addEventListener("scroll", schedule, { passive: true });
+		window.addEventListener("resize", schedule, { passive: true });
 
 		return () => {
-			window.removeEventListener("scroll", sync);
-			window.removeEventListener("resize", sync);
+			window.cancelAnimationFrame(frame);
+			observer.disconnect();
+			window.removeEventListener("scroll", schedule);
+			window.removeEventListener("resize", schedule);
 		};
-	}, []);
-
-	useEffect(() => {
-		if (typeof window === "undefined") return;
-		if (!pathname) return;
-
-		setProgress(0);
-		const frameId = window.requestAnimationFrame(() => {
-			setProgress(measureScrollProgress());
-		});
-
-		return () => window.cancelAnimationFrame(frameId);
 	}, [pathname]);
 
 	return (
-		<div aria-hidden="true" className="fixed inset-x-0 top-0 z-[100] h-[4px] dark:h-[2px]">
+		<div aria-hidden="true" className="fixed inset-x-0 top-0 z-[100] h-0.5">
 			<div
-				className="h-full bg-accent-500 transition-[width] duration-150 ease-out"
-				style={{ width: `${progress * 100}%` }}
+				ref={bar}
+				data-slot="reading-progress"
+				className="h-full origin-left bg-foreground"
+				style={{ transform: "scaleX(0)" }}
 			/>
 		</div>
 	);

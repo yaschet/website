@@ -1,0 +1,92 @@
+export const metadata = {
+	"title": "Agency CRM & Billing",
+	"description": "See each student's documents, responsible advisor and outstanding balance in one platform, shared by the application portal and program-matching system.",
+	"overview": {
+		"engagement": "Client project",
+		"context": "CRM / ERP",
+		"capability": "Billing",
+		"summary": "I designed and built the agency's CRM and billing platform, from customer records and staff permissions to invoices, payments and receipts. I made balances and payment statuses follow the underlying entries, then integrated the student portal and program-matching system around the same customer record.",
+		"challenge": "An application does not end when a student submits a form. Staff still have to collect documents, coordinate advisors, invoice services and track payments. Those records need to agree: a payment must change the balance, a case must have a responsible advisor, and new student-facing tools must work with the records already in use."
+	},
+	"subtitle": "See each student's documents, responsible advisor and outstanding balance in one platform, shared by the application portal and program-matching system.",
+	"date": "2026-10-30",
+	"tags": [
+		"ERP",
+		"Customer operations",
+		"Invoicing"
+	],
+	"role": "Product Engineer",
+	"status": "Delivered",
+	"domain": "Study-abroad operations",
+	"stack": [
+		"Cash Plus",
+		"Laravel",
+		"PHP",
+		"Livewire",
+		"Alpine.js",
+		"MySQL",
+		"Redis",
+		"MeiliSearch"
+	],
+	"tech": [
+		"Cash Plus",
+		"Laravel",
+		"PHP",
+		"Livewire",
+		"Alpine.js",
+		"MySQL",
+		"Redis",
+		"MeiliSearch"
+	],
+	"featured": true,
+	"sortOrder": 4,
+	"listed": true,
+	"delivery": {
+		"label": "Years",
+		"period": "2022–2025"
+	}
+};
+
+I built the CRM and billing platform that lets a study-abroad agency follow each student's application and payments in one place. Staff can see missing documents, the responsible advisor and the outstanding balance without piecing together separate records.
+
+The student's record connects their documents, grades, selected programs, invoices and payment history. Balances are calculated from the services, discounts and payments recorded, so staff can check how an amount was reached.
+
+I built the initial platform, then returned for several rounds of client-requested improvements between 2022 and 2025. As the sole engineer, I led discovery, product design, implementation and deployment. The work included the data model, staff interfaces, billing rules, permissions and integrations with the agency's later student portal and university-matching system.
+
+## Keep One Student Record Across The Workflow
+
+The student is the common reference across the agency's work. I connected identity details, uploaded documents, grades, the assigned advisor and selected programs to that customer record. Invoices and payments belong to the same customer too.
+
+That relationship became important as the platform grew. The student portal writes application details, files and extracted grades into the existing record. Phoenix reads the academic information for program matching and saves selected programs back to that student. The student-facing and staff-facing tools contribute to the same case.
+
+I treated compatibility with the existing agency workflow as part of each new product. A new interface had to respect the fields, staff assignments and access rules already in use. It could improve how a student applies or how an advisor searches without requiring a separate copy of the student.
+
+## Derive Invoice Balances From Payments
+
+The difficult part of billing is keeping the answer correct as the record changes. A student can pay part of an invoice, receive a discount or have an invoice cancelled. A manually maintained status can drift away from the amounts staff are looking at.
+
+I connected each invoice to its service items, discount and individual payment entries. The system calculates the invoice total after discount, adds the recorded payments and derives the remaining balance. Partial payment stays visible as partial payment. A cancelled invoice keeps its cancellation state; unpaid invoices are checked against their due dates.
+
+The payment history remains part of the case. Staff can follow an entry to its invoice and customer, and receipts use the related invoice, customer and company details. This gives the displayed amount an explanation rather than leaving it as an isolated number.
+
+I also built expense records and the surrounding staff workflows. Customer operations and billing live in the same application, with their own rules and relationships.
+
+## Keep Access Tied To Responsibility
+
+Sharing a platform does not mean every staff member should see every case. Consultants work with their assigned customers, while managers have views of the records they manage.
+
+I applied those assignments to customer queries as well as the interface. The application retrieves the records appropriate to the staff member's role and responsibility, instead of loading everything and relying on a hidden button or filtered screen.
+
+Staff also have management screens for universities, programs, scholarships and accommodations. The agency can maintain the information used for recommendations inside the same operations platform that holds the student's case.
+
+## Extend The Platform Without Splitting The Records
+
+The work took place in separate engagements. As needs changed, I added capabilities around the existing customer and financial relationships rather than treating each request as a separate application.
+
+Phoenix adds program search, ranking and shortlists. The student portal adds guided applications, document uploads and extraction. Each is a distinct product experience, with this CRM providing the shared student records and staff access rules behind it.
+
+The result is a connected path from a student's submitted documents to the advisor's program selections and the agency's invoices and payments. Staff can follow the application and its financial history without recreating the student for each tool.
+
+*Clearway is an anonymized client identity. The ERP, student portal and program-matching system were built for the same agency.*
+
+Related work: [University Program Matching](/case-studies/clearway-phoenix) shows the program catalog and shortlist workflow built on this foundation.

@@ -13,7 +13,7 @@ These checked-in documents govern the work. Private skills are optional aids; co
 
 ## Public Boundary
 
-- Never copy private application source, personal records, credentials, client exchanges, or internal documentation into this repository.
+- Never copy private features, personal records, credentials, client exchanges, or internal documentation into this repository. The owner-authorized reusable Yaschet Foundation port is documented in `docs/foundation-provenance.md`; review source and imports before any further reuse.
 - Do not import sibling repositories or add local `file:`/`workspace:` dependencies.
 - Use reviewed public assets and evidence. Preserve confidential work boundaries.
 - Keep secrets server-side; `NEXT_PUBLIC_*` values are public build output.
@@ -33,8 +33,18 @@ These checked-in documents govern the work. Private skills are optional aids; co
 
 - `pnpm verify` checks boundaries, lint/format, and types without rewriting source.
 - `pnpm fix` explicitly writes source; inspect its diff.
-- Run `pnpm quality` for release candidates: verify, dependency audit, production build, browser/HTTP tests, and Storybook build.
+- Run `pnpm quality` for release candidates: verify, dependency audit, production build, browser/HTTP tests, Storybook build, and light/dark story interaction/accessibility tests.
 - Review visible changes in a real browser on `localhost:3000`, including mobile, both themes, keyboard focus, and reduced motion where relevant.
 - Never send a real contact email as a test without explicit authorization.
 - Use the configured Git workflow (GitButler in a managed workspace). Keep changes scoped and review the public diff. Do not push, merge, or deploy incidentally during local maintenance. Inspect actual CI/deployment mappings before release.
 - Report what passed, failed, remains, and whether anything was deployed. A build does not prove delivery, accessibility, or field performance.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
