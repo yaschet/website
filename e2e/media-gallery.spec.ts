@@ -46,14 +46,16 @@ for (const theme of ["light", "dark"] as const) {
 		);
 		await expect(dialog.locator(`[id="${titleId}"]`)).toBeVisible();
 		await expect(dialog).toHaveAccessibleDescription(
-			"Document Translation With Editable Tables",
+			"A photographed report becomes a Japanese translation, reviewed beside its source and delivered as a Google Doc with editable table cells.",
 		);
 		const viewport = page.viewportSize();
 		if (!viewport) throw new Error("Expected a gallery viewport");
 		const captionId = await dialog.getAttribute("aria-describedby");
 		if (!captionId) throw new Error("Expected the viewer's header caption reference");
 		const caption = dialog.locator(`[id="${captionId}"]`);
-		await expect(caption).toHaveText("Document Translation With Editable Tables");
+		await expect(caption).toHaveText(
+			"A photographed report becomes a Japanese translation, reviewed beside its source and delivered as a Google Doc with editable table cells.",
+		);
 		if (viewport.width < 760 || viewport.height <= 520) await expect(caption).toBeHidden();
 		else await expect(caption).toBeVisible();
 		await expectBlockedPlayback(dialog);
