@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ContactPage } from "@/src/components/pages/contact-page";
+import { env } from "@/src/env";
 
 export const metadata: Metadata = {
 	title: "Contact",
@@ -11,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function ContactRoute() {
-	return <ContactPage formEnabled />;
+	return <ContactPage formEnabled={env.CONTACT_FORM_ENABLED} />;
 }

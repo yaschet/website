@@ -2,9 +2,10 @@
 
 ## Launch Availability
 
-The contact page renders the form alongside email and booking. Delivery remains
-guarded by the server-only `CONTACT_FORM_ENABLED=false` default until the
-receiving address and environment configuration are verified.
+The contact page offers email and booking. The form is shown only when the
+server-only `CONTACT_FORM_ENABLED` setting is true; its default is false until
+the receiving address and environment configuration are verified. The same
+setting independently guards delivery.
 
 The Server Action independently rejects disabled submissions before reading
 request headers, configuring providers or consuming quotas. The policy also
