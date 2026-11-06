@@ -103,14 +103,14 @@ export const DelayedFirstFrame: Story = {
 
 		Object.defineProperty(media, "readyState", { configurable: true, value: 4 });
 		media.dispatchEvent(new Event("playing"));
-		const pause = await canvas.findByRole("button", { name: "Pause video" });
-		await expect(pause).toBeVisible();
-		await expect(pause.getBoundingClientRect().height).toBe(idleHeight);
-		await expect(pause.getBoundingClientRect().width).toBe(idleHeight);
 		const player = canvasElement.querySelector<HTMLElement>("[data-portfolio-video]");
 		const panel = player?.querySelector<HTMLElement>("[data-player-panel]");
 		if (!player || !panel) throw new Error("Controls did not mount.");
 		await userEvent.hover(player);
+		const pause = await canvas.findByRole("button", { name: "Pause video" });
+		await waitFor(() => expect(pause).toBeVisible());
+		await expect(pause.getBoundingClientRect().height).toBe(idleHeight);
+		await expect(pause.getBoundingClientRect().width).toBe(idleHeight);
 		await userEvent.unhover(player);
 		await waitFor(() => expect(getComputedStyle(panel).visibility).toBe("hidden"));
 		await expect(panel.inert).toBe(true);

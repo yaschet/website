@@ -6,6 +6,13 @@ import { PageGalleryScope } from "@/src/components/ui/page-gallery-scope";
 import { fullPageDecorator, fullPageParameters } from "../../../.storybook/full-page-preview";
 import { erp, phoenix, portal, verto } from "../../../.storybook/project-fixtures";
 
+const mediaPanelCounts: Record<string, number> = {
+	"clearway-erp": 0,
+	"clearway-phoenix": 3,
+	"clearway-portal": 5,
+	verto: 1,
+};
+
 const meta = {
 	id: "pages-case-study",
 	title: "Pages/Case Study",
@@ -45,7 +52,7 @@ const meta = {
 		const panels = canvasElement.querySelectorAll(
 			'#project-main figure[data-slot="media-panel"]',
 		);
-		await expect(panels).toHaveLength(args.project.slug === "clearway-erp" ? 0 : 3);
+		await expect(panels).toHaveLength(mediaPanelCounts[args.project.slug]);
 		if (panels[0] && opening) {
 			await expect(
 				opening.compareDocumentPosition(panels[0]) & Node.DOCUMENT_POSITION_FOLLOWING,

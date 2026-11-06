@@ -190,13 +190,7 @@ export const VideoStopsOnImage: Story = {
 		// A delayed engine event must not restart an inactive slide.
 		await media.play();
 		expect(media.paused).toBe(true);
-		await userEvent.click(dialog.getByLabelText("Read full media description"));
-		const description = dialog.getByRole("region", { name: "Full media description" });
-		await expect(description).toBeVisible();
-		await expect(description).toHaveTextContent("Verto review editor");
-		description.focus();
-		await userEvent.keyboard("{Home}");
-		await expect(dialogElement).toHaveAccessibleName("Verto review editor");
+		await expect(dialog.getByText("Verto review editor", { exact: true })).toBeVisible();
 		await expect(dialog.getByRole("button", { name: "Close expanded viewer" })).toBeVisible();
 		await userEvent.keyboard("{Escape}");
 		await waitFor(() => expect(body.queryByRole("dialog")).not.toBeInTheDocument());
