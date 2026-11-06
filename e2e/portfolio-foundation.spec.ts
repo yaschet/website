@@ -166,7 +166,7 @@ for (const theme of ["light", "dark"] as const) {
 		const note = work.locator(".portfolio-confidential-work");
 		await expect(note.getByRole("heading", { name: "Confidential work" })).toBeVisible();
 		await expect(note.locator("p")).toHaveText(
-			"Some client work stays private. I can discuss the problems, my contribution and the engineering approach without sharing confidential material. Ask about relevant work.",
+			"Some client work stays private. I can discuss my role and approach without sharing confidential details. Ask about relevant work.",
 		);
 		const call = note.getByRole("link", { name: "Ask about relevant work" });
 		await expect(call).toHaveAttribute("href", "/contact");

@@ -176,7 +176,7 @@ for (const theme of ["light", "dark"] as const) {
 			await gate;
 			await route.continue();
 		});
-		await page.goto("/about");
+		await page.goto("/case-studies");
 		const link = page.getByRole("link", { name: "Discuss a project", exact: true });
 		await page.evaluate(() => document.fonts.ready);
 		await link.click({ trial: true });
