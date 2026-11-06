@@ -171,7 +171,7 @@ for (const theme of ["light", "dark"] as const) {
 		}
 	});
 
-	test(`Copy Markdown resizes smoothly and uses Foundation feedback in ${theme}`, async ({
+	test(`Copy Markdown keeps stable geometry and uses Foundation feedback in ${theme}`, async ({
 		page,
 	}, testInfo) => {
 		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
@@ -191,32 +191,23 @@ for (const theme of ["light", "dark"] as const) {
 		await page.evaluate(() => document.fonts.ready);
 		const label = page
 			.getByRole("button", {
-				name: /^(Copy Markdown|Copying|Copied Markdown|Retry copying)$/,
+				name: /^(Copy Markdown|Copying|Copied|Retry copying)$/,
 			})
-			.locator('.t-state-label[data-sizing="content"]');
-		await expect(label).toHaveAttribute("data-measured", "true");
-		await expect(label).toHaveCSS("transition-property", "width");
-		expect(
-			await label.evaluate((node) =>
-				Number.parseFloat(getComputedStyle(node).transitionDuration),
-			),
-		).toBeGreaterThan(0);
-		const before = await copy.boundingBox();
+			.locator(".foundation-button-pending-copy > span");
+		// All feedback labels share one grid cell, reserving their maximum width.
+		await expect(label).toHaveCSS("display", "inline-grid");
+		const before = await copy.evaluate((node) => ({
+			width: getComputedStyle(node).width,
+			height: getComputedStyle(node).height,
+		}));
 		await expect(page.getByText(/^\d+ min read$/).locator("..")).toHaveCSS("height", "40px");
 		await copy.click();
-		const copied = page.getByRole("button", { name: "Copied Markdown", exact: true });
+		const copied = page.getByRole("button", { name: "Copied", exact: true });
 		await expect(copied).toBeVisible();
-		expect((await copied.boundingBox())?.height).toBe(before?.height);
-		const activeLabel = copied.locator('.t-state-label > [data-active="true"]');
-		await expect(activeLabel).toHaveText("Copied Markdown");
-		await expect
-			.poll(async () =>
-				Math.abs(
-					((await label.boundingBox())?.width ?? 0) -
-						((await activeLabel.boundingBox())?.width ?? 0),
-				),
-			)
-			.toBeLessThan(1);
+		await expect(copied).toHaveCSS("height", before.height);
+		await expect(copied).toHaveCSS("width", before.width);
+		const activeLabel = label.getByText("Copied", { exact: true });
+		await expect(activeLabel).toHaveCSS("opacity", "1");
 		const insets = await copied.evaluate((node) => {
 			const outer = node.getBoundingClientRect();
 			const inner = node.querySelector(".foundation-button-pending")?.getBoundingClientRect();
@@ -242,8 +233,8 @@ for (const theme of ["light", "dark"] as const) {
 		).toBeVisible();
 		await page.screenshot({ path: testInfo.outputPath(`case-study-${theme}.png`) });
 		await page.reload();
-		await copy.focus();
-		await copy.press("Enter");
+		await page.getByRole("button", { name: "Copy Markdown", exact: true }).focus();
+		await page.keyboard.press("Enter");
 		await expect(copied).toBeVisible();
 		await expect(copied).toHaveAttribute("data-motion-input", "keyboard");
 		await expect(stateIcon.locator(':scope > .t-icon[data-active="true"]')).toHaveCSS(

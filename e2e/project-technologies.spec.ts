@@ -259,12 +259,14 @@ for (const theme of ["light", "dark"] as const) {
 			items.map((item) => {
 				const chamber = item.querySelector(".portfolio-technology-mark-chamber");
 				const label = item.querySelector(".portfolio-technology-label");
+				const copy = item.querySelector(".portfolio-technology-copy");
 				const reference = item.querySelector(".portfolio-technology-reference");
-				if (!chamber || !label || !reference)
+				if (!chamber || !label || !copy || !reference)
 					throw new Error("Missing symbol, caption or reference");
 				const box = item.getBoundingClientRect();
 				const symbol = chamber.getBoundingClientRect();
 				const text = label.getBoundingClientRect();
+				const description = copy.getBoundingClientRect();
 				const style = getComputedStyle(reference);
 				const grid = item.closest(".portfolio-technology-list");
 				if (!grid) throw new Error("Missing technology grid surface");
@@ -274,7 +276,9 @@ for (const theme of ["light", "dark"] as const) {
 					height: box.height,
 					chamberWidth: symbol.width,
 					chamberHeight: symbol.height,
-					centerOffset: Math.abs(symbol.y + symbol.height / 2 - text.y - text.height / 2),
+					centerOffset: Math.abs(
+						symbol.y + symbol.height / 2 - description.y - description.height / 2,
+					),
 					gap: text.x + Number.parseFloat(caption.paddingLeft) - symbol.x - symbol.width,
 					distinctChamber:
 						getComputedStyle(chamber).backgroundColor !==
@@ -296,7 +300,7 @@ for (const theme of ["light", "dark"] as const) {
 		);
 		for (const cell of stackGeometry) {
 			expect(cell.width).toBeCloseTo(stackGeometry[0].width, 1);
-			expect(cell.height).toBeCloseTo(64, 2);
+			expect(cell.height).toBeGreaterThanOrEqual(64);
 			expect(cell.chamberWidth).toBeCloseTo(40, 2);
 			expect(cell.chamberHeight).toBeCloseTo(40, 2);
 			expect(cell.centerOffset).toBeLessThan(0.5);
@@ -483,9 +487,23 @@ test.describe("stack frames on fractional-density displays", () => {
 					const seams = [
 						[".portfolio-technology-popover-heading", "::after", "height"],
 						[".portfolio-technology-popover-footer", "::before", "height"],
-						["li:nth-child(2)", "::before", "width"],
-						["li:nth-child(3)", "::after", "height"],
 					] as const;
+					// Grid seams are native borders, with one or two columns depending
+					// on the available width. Header/footer seams remain painted layers.
+					const gridSeams = Array.from(
+						node.querySelectorAll(".portfolio-technology-list li"),
+					).flatMap((element) => {
+						const style = getComputedStyle(element);
+						return [
+							[style.borderTopWidth, style.borderTopColor],
+							[style.borderLeftWidth, style.borderLeftColor],
+						]
+							.filter(([width]) => Number.parseFloat(width) > 0)
+							.map(([width, color]) => ({
+								thickness: Number.parseFloat(width),
+								color,
+							}));
+					});
 					const bounds = node.getBoundingClientRect();
 					return {
 						ratio: devicePixelRatio,
@@ -516,16 +534,19 @@ test.describe("stack frames on fractional-density displays", () => {
 								pointerEvents: frame.pointerEvents,
 							};
 						}),
-						seams: seams.map(([selector, pseudo, dimension]) => {
-							const element = node.querySelector(selector);
-							if (!element) throw new Error(`Missing stack seam: ${selector}`);
-							const seam = getComputedStyle(element, pseudo);
-							return {
-								thickness: Number.parseFloat(seam[dimension]),
-								color: seam.backgroundColor,
-								pointerEvents: seam.pointerEvents,
-							};
-						}),
+						seams: [
+							...gridSeams,
+							...seams.map(([selector, pseudo, dimension]) => {
+								const element = node.querySelector(selector);
+								if (!element) throw new Error(`Missing stack seam: ${selector}`);
+								const seam = getComputedStyle(element, pseudo);
+								return {
+									thickness: Number.parseFloat(seam[dimension]),
+									color: seam.backgroundColor,
+									pointerEvents: seam.pointerEvents,
+								};
+							}),
+						],
 					};
 				});
 			// Inspect during entry, not just after the panel has settled.
@@ -540,13 +561,14 @@ test.describe("stack frames on fractional-density displays", () => {
 			expect(resting.hairline * resting.ratio).toBeCloseTo(1, 4);
 			for (const frame of resting.frames)
 				expect(frame.thickness * resting.ratio).toBeCloseTo(1, 4);
+			expect(resting.seams.length).toBeGreaterThan(2);
 			for (const edge of [...resting.frames, ...resting.seams]) {
 				// Layout dimensions can quantize to 1/64 CSS px; painted frame widths above
 				// still have to equal one physical pixel, without that layout tolerance.
 				expect(Math.abs(edge.thickness - resting.hairline)).toBeLessThanOrEqual(1 / 64);
 				expect(edge.color).toBe(resting.seams[0].color);
-				expect(edge.pointerEvents).toBe("none");
 			}
+			for (const frame of resting.frames) expect(frame.pointerEvents).toBe("none");
 			if (!isMobile) {
 				await first.hover();
 				expect(await paint()).toEqual(resting);

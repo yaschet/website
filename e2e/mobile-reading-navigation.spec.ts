@@ -87,11 +87,11 @@ for (const theme of ["light", "dark"] as const) {
 			expect(focusedBox?.y).toBeGreaterThanOrEqual(
 				(remainingTriggerBox?.y ?? 0) + (remainingTriggerBox?.height ?? 0) + 4,
 			);
-			const source = page.getByRole("link", { name: "Source", exact: true });
-			await source.scrollIntoViewIfNeeded();
-			await expect(source).toBeInViewport();
+			const github = page.getByRole("link", { name: "GitHub", exact: true });
+			await github.scrollIntoViewIfNeeded();
+			await expect(github).toBeInViewport();
 			expect(
-				await source.evaluate((node) => {
+				await github.evaluate((node) => {
 					const box = node.getBoundingClientRect();
 					const hit = document.elementFromPoint(
 						box.left + box.width / 2,
@@ -100,7 +100,7 @@ for (const theme of ["light", "dark"] as const) {
 					return hit === node || node.contains(hit);
 				}),
 			).toBe(true);
-			await expect(source).toHaveAttribute("href", "https://github.com/yaschet/website");
+			await expect(github).toHaveAttribute("href", "https://github.com/yaschet");
 			expect(
 				await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
 			).toBe(true);

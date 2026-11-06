@@ -185,14 +185,14 @@ for (const theme of ["light", "dark"] as const) {
 		expect(await header?.evaluate((node) => node === document.getElementById("header"))).toBe(
 			true,
 		);
-		// Destination actions must also stay live while the copy animation is paused.
+		// Destination content must stay exposed while the captured viewport is paused.
 		await nav.getByRole("link", { name: "Case Studies", exact: true }).click();
 		await expect(page).toHaveURL(/\/case-studies$/);
-		const copy = page.getByRole("button", { name: "Copy Portfolio", exact: true });
-		await expect(copy).toBeVisible();
+		const destination = page.getByRole("heading", { name: "Case studies.", exact: true });
+		await expect(destination).toBeVisible();
 		await expect(page.locator("html")).toHaveAttribute("data-route-transition", "true");
 		expect(
-			await copy.evaluate((node) => {
+			await destination.evaluate((node) => {
 				const box = node.getBoundingClientRect();
 				return node.contains(
 					document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2),

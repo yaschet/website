@@ -20,7 +20,7 @@ async function expectCenteredGlyph(button: Locator, selector: string) {
 }
 
 for (const theme of ["light", "dark"] as const) {
-	test(`portfolio copy feedback keeps one centered glyph in ${theme}`, async ({ page }) => {
+	test(`portfolio copy feedback keeps stable geometry in ${theme}`, async ({ page }) => {
 		await page.addInitScript((value) => {
 			localStorage.setItem("theme", value);
 			Object.defineProperty(navigator, "clipboard", {
@@ -29,12 +29,17 @@ for (const theme of ["light", "dark"] as const) {
 			});
 		}, theme);
 		await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
-		await page.goto("/case-studies");
-		await page.evaluate(() => document.fonts.ready);
-		for (const [index, href, label] of [
-			[0, "/portfolio.md", "Copied Portfolio"],
-			[1, "/llms-full.txt", "Copied Context"],
+		for (const [path, href, label, hasIcon] of [
+			[
+				"/case-studies/clearway-phoenix",
+				"/case-study-markdown/clearway-phoenix",
+				"Copy Markdown",
+				true,
+			],
+			["/case-studies", "/llms-full.txt", "Copy portfolio", false],
 		] as const) {
+			await page.goto(path);
+			await page.evaluate(() => document.fonts.ready);
 			let release = () => {};
 			const gate = new Promise<void>((resolve) => {
 				release = resolve;
@@ -43,21 +48,25 @@ for (const theme of ["light", "dark"] as const) {
 				await gate;
 				await route.fulfill({ contentType: "text/markdown", body: "# Copy fixture" });
 			});
-			const button = page.locator(".portfolio-control-row > button").nth(index);
-			await expect(button.locator('.t-state-label[data-measured="true"]')).toHaveCount(1);
-			await expectCenteredGlyph(button, '.t-icon-swap .t-icon[data-active="true"] > svg');
+			const button = page.getByRole("button", {
+				name: new RegExp(`^(${label}|Copying|Copied|Retry copying)$`),
+			});
+			await expect(button).toHaveAccessibleName(label);
+			if (hasIcon)
+				await expectCenteredGlyph(button, '.t-icon-swap .t-icon[data-active="true"] > svg');
 			const height = await button.evaluate((node) => getComputedStyle(node).height);
 			try {
 				await button.click();
 				await expect(button).toHaveAttribute("aria-busy", "true");
-				await expectCenteredGlyph(button, '[data-slot="spinner"]');
+				if (hasIcon) await expectCenteredGlyph(button, '[data-slot="spinner"]');
 				// Press feedback transforms the surface without changing its layout height.
 				await expect(button).toHaveCSS("height", height);
 			} finally {
 				release();
 			}
-			await expect(button).toHaveAccessibleName(label);
-			await expectCenteredGlyph(button, '.t-icon-swap .t-icon[data-active="true"] > svg');
+			await expect(button).toHaveAccessibleName("Copied");
+			if (hasIcon)
+				await expectCenteredGlyph(button, '.t-icon-swap .t-icon[data-active="true"] > svg');
 			await expect(button).toHaveCSS("height", height);
 		}
 	});

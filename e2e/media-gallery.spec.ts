@@ -39,12 +39,12 @@ for (const theme of ["light", "dark"] as const) {
 			name: "Document Translation With Editable Tables: Walkthrough",
 		});
 		await expect(dialog).toBeVisible();
-		await expect(
-			dialog.getByRole("heading", {
-				name: "Document Translation With Editable Tables: Walkthrough",
-				exact: true,
-			}),
-		).toBeVisible();
+		const titleId = await dialog.getAttribute("aria-labelledby");
+		if (!titleId) throw new Error("Expected the viewer's visible title reference");
+		await expect(dialog.locator(`[id="${titleId}"]`)).toHaveText(
+			"Document Translation With Editable Tables: Walkthrough",
+		);
+		await expect(dialog.locator(`[id="${titleId}"]`)).toBeVisible();
 		await expect(dialog).toHaveAccessibleDescription(
 			"Document Translation With Editable Tables",
 		);
