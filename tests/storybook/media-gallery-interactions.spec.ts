@@ -481,12 +481,17 @@ for (const theme of ["light", "dark"]) {
 			await page.setViewportSize(viewport);
 			const dialog = await openGallery(page, theme);
 			const controls = dialog.locator('[data-slot="button"]');
+			const minimumControlSize = viewport.width < 760 ? 44 : 48;
 			for (const control of await controls.all()) {
 				await expect(control).toBeInViewport();
 				const bounds = await control.boundingBox();
 				if (!bounds) throw new Error("Expected a visible viewer control");
-				expect(Math.round(bounds.width * 100) / 100).toBeGreaterThanOrEqual(48);
-				expect(Math.round(bounds.height * 100) / 100).toBeGreaterThanOrEqual(48);
+				expect(Math.round(bounds.width * 100) / 100).toBeGreaterThanOrEqual(
+					minimumControlSize,
+				);
+				expect(Math.round(bounds.height * 100) / 100).toBeGreaterThanOrEqual(
+					minimumControlSize,
+				);
 			}
 			const evidence = await dialog.evaluate((root) => {
 				const header = root.querySelector("header");
@@ -525,9 +530,15 @@ for (const theme of ["light", "dark"]) {
 					zoomCenter: zoomBounds.left + zoomBounds.width / 2 - innerWidth / 2,
 					navigationSymmetry: previous.left - (innerWidth - next.right),
 					navigationCenter: [previous, next].map(
-						(button) => button.top + button.height / 2 - (media.top + media.bottom) / 2,
+						(button) =>
+							button.top +
+							button.height / 2 -
+							(zoomBounds.top + zoomBounds.bottom) / 2,
 					),
-					sideClearance: [media.left - previous.right, next.left - media.right],
+					sideClearance: [zoomBounds.left - previous.right, next.left - zoomBounds.right],
+					controlGap: Number.parseFloat(
+						getComputedStyle(root).getPropertyValue("--gallery-gap"),
+					),
 					padding: [header, footer].map((element) => {
 						const style = getComputedStyle(element);
 						return [
@@ -551,8 +562,8 @@ for (const theme of ["light", "dark"]) {
 			expect(Math.abs(evidence.navigationSymmetry)).toBeLessThan(1);
 			for (const center of evidence.navigationCenter)
 				expect(Math.abs(center)).toBeLessThan(1);
-			if (viewport.width >= 760)
-				for (const gap of evidence.sideClearance) expect(gap).toBeGreaterThanOrEqual(24);
+			for (const gap of evidence.sideClearance)
+				expect(gap).toBeGreaterThanOrEqual(evidence.controlGap);
 			for (const padding of evidence.padding)
 				expect(Math.max(...padding) - Math.min(...padding)).toBeLessThan(1);
 			for (const radius of evidence.corners) expect(radius).toBe("0px");

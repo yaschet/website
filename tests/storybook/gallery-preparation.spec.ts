@@ -135,10 +135,14 @@ test("sharp glass has one complete edge and movement-linked exposure always sett
 			const style = getComputedStyle(element);
 			const edge = getComputedStyle(element, "::after");
 			const before = getComputedStyle(element, "::before");
+			const isHeader = element.tagName === "HEADER";
+			const glass = isHeader ? before : style;
 			return {
-				filter: style.backdropFilter,
-				background: style.backgroundImage,
-				mask: style.maskImage,
+				filter: glass.backdropFilter,
+				background: glass.backgroundImage,
+				mask: glass.maskImage,
+				isHeader,
+				hostFilter: style.backdropFilter,
 				before: before.content,
 				edges: [
 					edge.borderTopWidth,
@@ -151,7 +155,8 @@ test("sharp glass has one complete edge and movement-linked exposure always sett
 		expect(material.filter).toContain("blur(48px)");
 		expect(material.background).toBe("none");
 		expect(material.mask).toBe("none");
-		expect(material.before).toBe("none");
+		expect(material.before).toBe(material.isHeader ? '""' : "none");
+		if (material.isHeader) expect(material.hostFilter).toBe("none");
 		expect(material.edges).toEqual(["1px", "1px", "1px", "1px"]);
 	}
 	await dialog.evaluate((root) => {

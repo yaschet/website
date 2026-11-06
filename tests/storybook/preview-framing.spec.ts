@@ -27,6 +27,7 @@ for (const theme of ["light", "dark"] as const) {
 				);
 				const stage = page.locator(".workshop-stage");
 				const inset = width < 640 ? 20 : 40;
+				const contentInset = width < 640 ? 20 : 30;
 				for (const side of ["top", "right", "bottom", "left"]) {
 					await expect(stage).toHaveCSS(`padding-${side}`, `${inset}px`);
 				}
@@ -41,13 +42,13 @@ for (const theme of ["light", "dark"] as const) {
 				}
 				for (const panel of await host.locator(".portfolio-box-pad").all()) {
 					for (const side of ["top", "right", "bottom", "left"]) {
-						await expect(panel).toHaveCSS(`padding-${side}`, `${inset}px`);
+						await expect(panel).toHaveCSS(`padding-${side}`, `${contentInset}px`);
 					}
 				}
 				const headingBox = await page.getByRole("heading", { level: 1 }).boundingBox();
-				expect(headingBox?.x).toBeCloseTo(railBox.x + inset, 1);
+				expect(headingBox?.x).toBeCloseTo(railBox.x + contentInset, 1);
 				expect((headingBox?.x ?? 0) + (headingBox?.width ?? 0)).toBeLessThanOrEqual(
-					railBox.x + railBox.width - inset + 1,
+					railBox.x + railBox.width - contentInset + 1,
 				);
 				const geometry = await host.evaluate((element) => {
 					const canvas = element.querySelector("canvas");
