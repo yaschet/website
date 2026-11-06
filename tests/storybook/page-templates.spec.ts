@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const templates = [
 	{ id: "pages-home", heading: "Business software, built end to end." },
-	{ id: "pages-about", heading: "How I work." },
+	{ id: "pages-about", heading: "I’m Yassine." },
 	{ id: "pages-case-studies", heading: "Case studies." },
 	{ id: "pages-case-study", heading: "Verto: AI Translation Platform" },
 	{ id: "pages-blog", heading: "Blog" },
@@ -83,9 +83,9 @@ for (const theme of ["light", "dark"] as const) {
 	}) => {
 		await page.setViewportSize({ width: 390, height: 900 });
 		for (const [state, finalSection] of [
-			["full-page", "Generate A Native Google Doc"],
-			["phoenix", "Keep The Shortlist In The Agency's Workflow"],
-			["portal", "Build On The Records The Agency Already Uses"],
+			["full-page", "Build The Business Around The Document"],
+			["phoenix", "Keep Recommendations Connected To Applications"],
+			["portal", "From Application To Advisor"],
 			["erp", "Extend The Platform Without Splitting The Records"],
 		]) {
 			await page.goto(

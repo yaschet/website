@@ -19,11 +19,9 @@ for (const theme of ["light", "dark"]) {
 			);
 			await expect(card.locator('[data-slot="project-role"]')).toHaveText("Product Engineer");
 			await expect(summary).toContainText(
-				"I designed Verto in Figma and built the entire platform",
+				"I designed Verto in Figma and built the complete translation platform",
 			);
-			await expect(card.locator('[data-slot="project-timing"]')).toHaveText(
-				"Built in 3 months",
-			);
+			await expect(card.locator('[data-slot="project-timing"]')).toHaveText("2026");
 			const layout = await card.evaluate((node) => {
 				const copy = node.querySelector('[data-slot="project-copy"]');
 				const rail = node.querySelector('[data-slot="project-facts-rail"]');

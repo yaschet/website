@@ -72,7 +72,7 @@ test.describe("AI-readable Markdown surfaces", () => {
 				"Date: 2025",
 				"clearway-portal-transcript-erp-4k.png",
 				"**17,50 / 20**",
-				"does not measure completion rates or extraction accuracy",
+				"The demonstration uses synthetic student data and prepared document responses",
 			],
 			verto: [
 				"Year: 2026",
@@ -82,10 +82,10 @@ test.describe("AI-readable Markdown surfaces", () => {
 				"rather than live processing speed or customer adoption",
 			],
 			"clearway-erp": [
-				"Platform evolution: Ongoing development",
+				"Years: 2022–2025",
 				"Date: 2026-10-30",
-				"then extended it with features requested by the client",
-				"does not present public payment records or measured financial outcomes",
+				"returned for several rounds of client-requested improvements",
+				"Clearway is an anonymized client identity",
 			],
 		};
 		for (const [slug, evidence] of Object.entries(examples)) {
