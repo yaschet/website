@@ -81,6 +81,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: ./.github/actions/setup
       - run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
+        timeout-minutes: 5
       - run: pnpm build
       - name: Touch and heading regressions
         run: pnpm exec playwright test --project=${{ matrix.project }} --shard=${{ matrix.shard }}/3 --grep='marquee.spec.ts|page-entry-motion.spec.ts'
@@ -100,6 +101,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: ./.github/actions/setup
       - run: pnpm exec playwright install --with-deps chromium
+        timeout-minutes: 5
       - run: pnpm build-storybook
       - run: pnpm test:storybook
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
