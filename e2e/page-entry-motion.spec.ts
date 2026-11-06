@@ -70,8 +70,9 @@ for (const theme of ["light", "dark"] as const) {
 		});
 		await nav.getByRole("link", { name: "About", exact: true }).click();
 		await expect(page).toHaveURL(/\/about$/);
-		const heading = page.getByRole("heading", { name: "How I work.", exact: true });
+		const heading = page.getByRole("heading", { name: "I’m Yassine.", exact: true });
 		await expect(heading).toBeVisible();
+		const wordCount = await heading.locator("[data-heading-word]").count();
 		await expect
 			.poll(() =>
 				page.evaluate(() => ({
@@ -83,11 +84,12 @@ for (const theme of ["light", "dark"] as const) {
 					),
 				})),
 			)
-			.toEqual({ headings: 6, copy: true });
+			.toEqual({ headings: wordCount * 2, copy: true });
 		const samples = await page.evaluate(() => window.portfolioEntrySamples);
 		const words = samples.filter((sample) => sample.id === "portfolio-entry-heading");
-		expect(words[2].delay).toBeGreaterThan(words[0].delay);
-		expect(words[4].delay).toBeGreaterThan(words[2].delay);
+		for (let index = 2; index < words.length; index += 2) {
+			expect(words[index].delay).toBeGreaterThan(words[index - 2].delay);
+		}
 		expect(words.every((sample) => sample.properties.includes("maskPosition"))).toBe(true);
 		expect(words.every((sample) => sample.duration + sample.delay <= 1100)).toBe(true);
 		expect(
@@ -229,7 +231,7 @@ test("keyboard and reduced motion cancel entry without hiding text", async ({ pa
 	// The URL can commit while Next retains the departing Home scene. Address the
 	// destination heading instead of assuming both scenes disappear atomically.
 	await expect(
-		page.getByRole("heading", { name: "How I work.", level: 1, exact: true }),
+		page.getByRole("heading", { name: "I’m Yassine.", level: 1, exact: true }),
 	).toHaveAttribute("data-entry-kind", "heading");
 	const entryCount = () =>
 		page.evaluate(

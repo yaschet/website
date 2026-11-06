@@ -130,7 +130,9 @@ for (const theme of ["light", "dark"] as const) {
 		// Prime both destinations, then observe the real warm navigation.
 		await nav.getByRole("link", { name: "About", exact: true }).click();
 		await expect(page).toHaveURL(/\/about$/);
-		await expect(page.getByRole("heading", { name: "How I work.", exact: true })).toBeVisible();
+		await expect(
+			page.getByRole("heading", { name: "I’m Yassine.", exact: true }),
+		).toBeVisible();
 		await nav.getByRole("link", { name: "Home", exact: true }).click();
 		await expect(page).toHaveURL(/\/$/);
 		await expect(
@@ -163,7 +165,7 @@ for (const theme of ["light", "dark"] as const) {
 		}
 		expect(capture).toEqual({
 			previous: "Business software, built end to end.",
-			current: "How I work.",
+			current: "I’m Yassine.",
 			chromeCapturedSeparately: false,
 			exit: "portfolio-route-out",
 			exitDuration: "0.15s",
@@ -173,7 +175,7 @@ for (const theme of ["light", "dark"] as const) {
 			incomingCapture: "none",
 			incomingFrameAnimated: false,
 			controlsInteractive: true,
-			titleDelays: [0, 0, 45, 45, 135, 135],
+			titleDelays: [0, 0, 45, 45],
 		});
 		expect(
 			await dock?.evaluate(
@@ -290,7 +292,9 @@ for (const failure of ["unsupported", "throw", "reject"] as const) {
 		const nav = page.getByRole("navigation", { name: "Main navigation" });
 		await nav.getByRole("link", { name: "About", exact: true }).click();
 		await expect(page).toHaveURL(/\/about$/);
-		await expect(page.getByRole("heading", { name: "How I work.", exact: true })).toBeVisible();
+		await expect(
+			page.getByRole("heading", { name: "I’m Yassine.", exact: true }),
+		).toBeVisible();
 		await nav.getByRole("link", { name: "Contact", exact: true }).click();
 		await expect(page).toHaveURL(/\/contact$/);
 		await expect(page.locator("html")).not.toHaveAttribute("data-route-transition");

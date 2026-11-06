@@ -490,7 +490,7 @@ for (const theme of ["light", "dark"] as const) {
 			);
 			await nav.getByRole("link", { name: "About", exact: true }).click();
 			await expect(
-				page.getByRole("heading", { name: "How I work.", exact: true }),
+				page.getByRole("heading", { name: "I’m Yassine.", exact: true }),
 			).toBeVisible();
 			for (const position of ["top", "middle", "footer"] as const) {
 				await page.emulateMedia({ reducedMotion: "reduce" });

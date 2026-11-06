@@ -55,10 +55,8 @@ export const Public: Story = {
 		await expect(canvas.getByText("SaaS", { exact: true })).toBeVisible();
 		await expect(canvas.getByText("Document AI", { exact: true })).toBeVisible();
 		await expect(canvas.getByText("Product Engineer", { exact: true })).toBeVisible();
-		await expect(canvas.getByText("Built in 3 months", { exact: true })).toBeVisible();
-		await expect(
-			canvas.getByText(/I designed Verto in Figma and built the entire platform/),
-		).toBeVisible();
+		await expect(canvas.getByText("2026", { exact: true })).toBeVisible();
+		await expect(canvas.getByText(verto.overview.summary, { exact: true })).toBeVisible();
 	},
 };
 
