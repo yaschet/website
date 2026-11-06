@@ -446,22 +446,34 @@ a.portfolio-technology-reference:active:where(:not(:focus-visible))
 	padding: 12px;
 }
 
-/* A single owner for each seam, in either column layout. */
-.portfolio-technology-list :where(li + li) {
-	border-top: var(--foundation-hairline) solid var(--technology-control-line);
+/* Painted seams avoid native border rounding at fractional display densities. */
+.portfolio-technology-list :where(li + li)::before {
+	position: absolute;
+	z-index: 1;
+	inset: 0 0 auto;
+	height: var(--foundation-hairline);
+	background: var(--technology-control-line);
+	content: "";
+	pointer-events: none;
 }
 @container (min-width: 30rem) {
 	.portfolio-technology-list {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
-	.portfolio-technology-list :where(li + li) {
-		border-top: 0;
+	.portfolio-technology-list :where(li + li)::before {
+		content: none;
 	}
-	.portfolio-technology-list :where(li:nth-child(n + 3)) {
-		border-top: var(--foundation-hairline) solid var(--technology-control-line);
+	.portfolio-technology-list :where(li:nth-child(n + 3))::before {
+		content: "";
 	}
-	.portfolio-technology-list :where(li:nth-child(even)) {
-		border-left: var(--foundation-hairline) solid var(--technology-control-line);
+	.portfolio-technology-list :where(li:nth-child(even))::after {
+		position: absolute;
+		z-index: 1;
+		inset: 0 auto 0 0;
+		width: var(--foundation-hairline);
+		background: var(--technology-control-line);
+		content: "";
+		pointer-events: none;
 	}
 	.portfolio-technology-list :where(li:last-child:nth-child(odd)) {
 		grid-column: 1 / -1;

@@ -488,22 +488,26 @@ test.describe("stack frames on fractional-density displays", () => {
 						[".portfolio-technology-popover-heading", "::after", "height"],
 						[".portfolio-technology-popover-footer", "::before", "height"],
 					] as const;
-					// Grid seams are native borders, with one or two columns depending
-					// on the available width. Header/footer seams remain painted layers.
+					// Each visible grid seam shares the header/footer paint material.
+					const gridEdges = [
+						["::before", "height"],
+						["::after", "width"],
+					] as const;
 					const gridSeams = Array.from(
 						node.querySelectorAll(".portfolio-technology-list li"),
-					).flatMap((element) => {
-						const style = getComputedStyle(element);
-						return [
-							[style.borderTopWidth, style.borderTopColor],
-							[style.borderLeftWidth, style.borderLeftColor],
-						]
-							.filter(([width]) => Number.parseFloat(width) > 0)
-							.map(([width, color]) => ({
-								thickness: Number.parseFloat(width),
-								color,
-							}));
-					});
+					).flatMap((element) =>
+						gridEdges.flatMap(([pseudo, dimension]) => {
+							const seam = getComputedStyle(element, pseudo);
+							if (seam.content === "none" || seam.content === "normal") return [];
+							return [
+								{
+									thickness: Number.parseFloat(seam[dimension]),
+									color: seam.backgroundColor,
+									pointerEvents: seam.pointerEvents,
+								},
+							];
+						}),
+					);
 					const bounds = node.getBoundingClientRect();
 					return {
 						ratio: devicePixelRatio,
