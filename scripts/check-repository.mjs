@@ -19,6 +19,8 @@ const localDependency = /^(?:file:|link:|portal:|workspace:|\.\.\/|\/|[A-Za-z]:\
 
 for (const path of files) {
 	if (generated.test(path)) failures.push(`${path}: generated output must stay ignored.`);
+	if (path.startsWith("content/archive/"))
+		failures.push(`${path}: local editorial snapshots must stay ignored.`);
 	if (path !== ".env.example" && privateFile.test(path))
 		failures.push(`${path}: private configuration or key file must stay ignored.`);
 	if (!/\.(?:[cm]?[jt]sx?|json)$/.test(path)) continue;

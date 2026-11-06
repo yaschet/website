@@ -1,0 +1,181 @@
+export const metadata = {
+	"title": "Student Applications & Document Collection",
+	"description": "A student application portal that reads details from documents, saves progress across devices and delivers files and grades to the advisor's existing records.",
+	"overview": {
+		"engagement": "Client project",
+		"context": "Client portal",
+		"capability": "Document automation",
+		"summary": "I designed and built a four-language student portal that reads identity details and grades from uploaded documents, saves progress across devices and lets students apply before every file is ready. Students check the extracted details; advisors receive the files and grades in their existing records, without retyping them.",
+		"challenge": "Student applications were scattered across WhatsApp conversations. Staff chased missing passports and transcripts, then retyped details already on the documents. Students needed to apply while still waiting for final results. The agency needed a complete application process that could handle documents arriving at different times and turn them into usable student records."
+	},
+	"subtitle": "A student application portal that reads details from documents, saves progress across devices and delivers files and grades to the advisor's existing records.",
+	"date": "2025",
+	"tags": [
+		"Customer portal",
+		"Document extraction",
+		"Multilingual UX"
+	],
+	"role": "Product Engineer",
+	"status": "Delivered",
+	"domain": "Student onboarding",
+	"stack": [
+		"Next.js",
+		"React",
+		"TypeScript",
+		"Laravel",
+		"PHP",
+		"AWS Textract",
+		"OpenAI",
+		"S3",
+		"next-intl",
+		"TanStack Query"
+	],
+	"tech": [
+		"Next.js",
+		"React",
+		"TypeScript",
+		"Laravel",
+		"PHP",
+		"AWS Textract",
+		"OpenAI",
+		"S3",
+		"next-intl",
+		"TanStack Query"
+	],
+	"featured": true,
+	"sortOrder": 3,
+	"listed": true,
+	"image": "/images/clearway-portal/portal-film-poster.jpg",
+	"coverImages": [
+		"/images/clearway-portal/portal-film-poster.jpg"
+	],
+	"coverMedia": [
+		{
+			"kind": "mux-video",
+			"playbackId": "00k600fYHJNfFfMsU1vnVSlbNq5geNXDhXdZju29cSCRc",
+			"poster": "/images/clearway-portal/portal-film-poster.jpg",
+			"title": "Student portal walkthrough",
+			"alt": "A student uploads an ID, reviews prefilled details, resumes on an iPhone and submits documents that appear in the advisor's record.",
+			"caption": "Follow an application from ID upload to the advisor's record: document prefill, cross-device resume, later uploads and a grade checked against its source.",
+			"duration": "1:40",
+			"metadata": {
+				"video_title": "Student Applications & Document Collection: Walkthrough",
+				"video_id": "py6srKiscnxKXhp8ysv101JTA292bA8Si9VYe00GffB5I"
+			}
+		},
+		{
+			"kind": "image",
+			"src": "/images/clearway-portal/clearway-portal-poster-4k.png",
+			"alt": "Student dashboard with saved application progress and document actions.",
+			"caption": "Returning students can continue their application and see which documents remain."
+		}
+	],
+	"delivery": {
+		"label": "Year",
+		"period": "2025"
+	}
+};
+
+Students sent passports, IDs and transcripts to the study-abroad agency over WhatsApp. A passport arrived in one message, a transcript in another, and the remaining files came later. Staff had to piece each application together, chase what was missing and copy names, dates and grades into the agency's records. The information was already on the documents, but both sides still had more work to do.
+
+The application also had to fit the student's circumstances. Someone waiting for final exam results still needed to start applying. Someone who began on a computer needed to continue on their phone. A single form that demanded every file in one sitting would not solve those problems.
+
+I designed and built Portal to connect that entire journey. Students upload documents, check extracted details, save their progress and submit before every academic document is ready. They return to a dashboard to add the rest. Advisors receive the files and grades in the student records they already use.
+
+I owned the product design and engineering from the client brief through production deployment: the four-language student experience, conditional application flow, document-processing integration and Laravel backend changes.
+
+## Extract The Details, Then Let The Student Check
+
+An ID already contains a name and date of birth. A transcript already contains grades. Asking the student to type them, then asking staff to enter them again, repeats the work and creates more opportunities for mistakes.
+
+I connected the upload flow to document extraction using AWS Textract and OpenAI. An uploaded ID prefills identity fields; a transcript supplies grades for the student's academic record. Instead of treating the extracted text as unquestionable, the interface gives the student a chance to check it. Identity fields remain editable before confirmation.
+
+Source badges make that review practical. A name filled from an ID is marked as coming from that ID, so the student knows why it appeared and what to compare it with.
+
+The same connection continues into the advisor's workspace. Extracted grades stay linked to the original transcript, so an advisor can check the numbers against the document. That matters beyond filling in a profile: Phoenix, the program-matching system I built for the same agency, uses those academic records when evaluating university options.
+
+The film follows one prepared example all the way through: Mathématiques **17,50 / 20** on the transcript becomes **17.50 / 20** on the advisor's record, with the source still available to inspect.
+
+<Gallery
+	items={[
+		{
+			"kind": "image",
+			"src": "/images/clearway-portal/clearway-portal-id-prefill-4k.png",
+			"alt": "Identity details prefilled from an uploaded ID, with source badges.",
+			"caption": "The uploaded ID fills the name. The source badge explains where it came from, and the student can correct it before continuing."
+		}
+	]}
+/>
+
+## Save Progress Beyond The Device
+
+The student sees a focused question or upload at each step. Behind that simple interface, the next step depends on their answers: the degree they want, the qualifications they already hold and whether they have a passport.
+
+I defined the steps and their conditions in typed configuration, separate from the screen components. The flow can ask for the relevant academic documents without sending every applicant through the same questions. Moving back, changing an answer and returning later all have to follow those conditions.
+
+Progress is saved to the backend, including the answers and current step. Returning students recover the application from their account rather than relying on one browser's local storage. The film shows an academic goal saved on desktop, then restored in a separate session on an iPhone.
+
+I built the experience in English, French, Arabic and Darija, including right-to-left layouts. The guided flow, document instructions and review screens follow the student's chosen language.
+
+<Gallery
+	items={[
+		{
+			"kind": "image",
+			"src": "/images/clearway-portal/clearway-portal-phone-resume-4k.png",
+			"alt": "A saved academic goal resumed on an iPhone.",
+			"caption": "A goal saved on desktop is restored in a separate iPhone session."
+		}
+	]}
+/>
+
+## Let Students Apply Before Every Document Is Ready
+
+An application can be ready to begin before its documents are complete. Students finishing secondary school may still be waiting for final results. Requiring every transcript at the start would block them for something they cannot yet provide.
+
+I separated submitting the initial application from completing the document collection. Students provide their core identity information and submit, then use the dashboard to see what has arrived and add the remaining files as they become available. Finishing the guided application does not make outstanding documents disappear.
+
+The processing states matter here too. A successful upload means the file arrived, not that its contents have been read. I made uploading, processing, completion and failure visible as separate states. Documents that need extraction follow that path; administrative files that only need storage do not pretend to have been processed.
+
+<Gallery
+	items={[
+		{
+			"kind": "image",
+			"src": "/images/clearway-portal/clearway-portal-document-status-4k.png",
+			"alt": "Student dashboard showing submitted and outstanding documents.",
+			"caption": "A submitted transcript stays visible alongside documents the student still needs to provide."
+		}
+	]}
+/>
+
+## Build On The Records The Agency Already Uses
+
+A polished student portal would still leave the job unfinished if staff had to copy its submissions into another system. I connected Portal directly to the agency's existing customer records, including the attachments and academic grades that advisors need for their work.
+
+My earlier work on Phoenix had exposed the difficulty of building this kind of continuous, interactive journey with our Livewire setup. I chose Next.js for the student interface while keeping Laravel responsible for the established records, validation, authorization and document processing.
+
+That meant adapting the new application to the existing data model. Saving a step preserves the working application state and updates the relevant customer fields. Documents and extracted grades attach to that same customer. There is no second student database for the agency to reconcile.
+
+Passports and transcripts also needed deliberate access controls. Authenticated requests run through Next.js server actions, with session tokens held in HttpOnly cookies. Laravel checks that a requested attachment belongs to the signed-in customer before issuing a temporary S3 download URL.
+
+<Gallery
+	items={[
+		{
+			"kind": "image",
+			"src": "/images/clearway-portal/clearway-portal-transcript-erp-4k.png",
+			"alt": "The extracted grade 17.50 beside its original transcript in the advisor ERP.",
+			"caption": "Mathématiques 17,50 on the source transcript becomes 17.50 in the advisor's record. Both remain available together, so the grade can be checked without typing it again."
+		}
+	]}
+/>
+
+The main maintenance lesson is to keep navigation, required documents and completion tied to the same rules. Some rules remain duplicated; consolidating them would make future changes to an education path easier to carry through consistently.
+
+## From Application To Advisor
+
+The result is a connected application process: students can start with the documents they have, check prefilled details, continue on another device and supply missing files later. Advisors can open the resulting record with the documents and grades already attached. The handoff no longer depends on staff re-entering what the student has already provided.
+
+The walkthrough follows that handoff from the first ID upload through the matching grade in the advisor's record.
+
+*Clearway is an anonymized client identity. The demonstration uses synthetic student data and prepared document responses.*
+
+Related work: [University Program Matching](/case-studies/clearway-phoenix) uses these academic records to explain suitable programs.

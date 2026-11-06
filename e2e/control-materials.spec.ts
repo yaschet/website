@@ -1,0 +1,220 @@
+import { expect, type Locator, test } from "@playwright/test";
+
+// Verify control materials without software-rendering the decorative shader.
+test.use({
+	launchOptions: async ({ browserName }, use) => {
+		await use(browserName === "chromium" ? { args: ["--disable-webgl"] } : {});
+	},
+});
+
+async function material(control: Locator) {
+	return control.evaluate((node) => {
+		const context = document.createElement("canvas").getContext("2d");
+		if (!context) throw new Error("Missing color test context");
+		const bytes = (color: string) => {
+			context.clearRect(0, 0, 1, 1);
+			context.fillStyle = color;
+			context.fillRect(0, 0, 1, 1);
+			return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3);
+		};
+		const luminance = (rgb: number[]) =>
+			rgb
+				.map((byte) => {
+					const value = byte / 255;
+					return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+				})
+				.reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+		const style = getComputedStyle(node);
+		const ink = bytes(style.color);
+		const fill = bytes(style.backgroundColor);
+		const values = [luminance(ink), luminance(fill)].sort((a, b) => b - a);
+		return { contrast: (values[0] + 0.05) / (values[1] + 0.05), ink, fill };
+	});
+}
+
+for (const theme of ["light", "dark"] as const) {
+	for (const group of ["primary", "projects", "media and inverted"] as const) {
+		test(`${group} materials retain readable hover and press states in ${theme}`, async ({
+			page,
+		}, info) => {
+			await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+			await page.emulateMedia({ colorScheme: theme, reducedMotion: "no-preference" });
+			await page.goto("/");
+			const playButtons = page.getByRole("button", { name: /^Play .+ video$/ });
+			if (group === "media and inverted") await expect(playButtons.first()).toBeVisible();
+			const actions =
+				group === "primary"
+					? [
+							page
+								.locator("#hero")
+								.getByRole("link", { name: "Book a call", exact: true }),
+							page.getByRole("link", { name: "View my work", exact: true }),
+						]
+					: group === "projects"
+						? [page.locator("[data-project-action]").first()]
+						: [
+								...(await playButtons.all()),
+								page.locator(".portfolio-inverse-button").first(),
+							];
+			for (const action of actions) {
+				// Hover retries if the poster upgrades to its deferred gallery during the scroll.
+				await action.hover();
+				await page.mouse.move(0, 0);
+				await expect
+					.poll(async () => (await material(action)).contrast)
+					.toBeGreaterThanOrEqual(4.5);
+				await action.hover();
+				await expect
+					.poll(async () => (await material(action)).contrast)
+					.toBeGreaterThanOrEqual(4.5);
+				await page.mouse.down();
+				await expect
+					.poll(async () => (await material(action)).contrast)
+					.toBeGreaterThanOrEqual(4.5);
+				await page.mouse.move(0, 0);
+				await page.mouse.up();
+			}
+			await page.screenshot({ path: info.outputPath(`controls-${group}-${theme}.png`) });
+			if (group !== "media and inverted") return;
+			const progress = page.locator('[data-slot="reading-progress"]');
+			await expect(progress).toHaveCount(1);
+			const progressColor = await progress.evaluate(
+				(node) => getComputedStyle(node).backgroundColor,
+			);
+			expect(progressColor).toBe(
+				await page.locator("body").evaluate((node) => getComputedStyle(node).color),
+			);
+			await expect
+				.poll(() =>
+					progress.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).a),
+				)
+				.toBeGreaterThan(0);
+			await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+				"content",
+				"https://yaschet.com",
+			);
+			await page.evaluate(() => {
+				scrollTo({ top: 0, behavior: "instant" });
+			});
+			await page.screenshot({ path: info.outputPath(`hero-${theme}.png`) });
+			expect(
+				await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+			).toBe(true);
+		});
+	}
+
+	test(`a slow project link keeps its title and square action stable in ${theme}`, async ({
+		page,
+	}) => {
+		await page.emulateMedia({ reducedMotion: "reduce" });
+		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+		let release = () => {};
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		await page.route("**/*", async (route) => {
+			const url = new URL(route.request().url());
+			if (!url.pathname.startsWith("/case-studies/") || !url.searchParams.has("_rsc"))
+				return route.continue();
+			if (route.request().headers()["next-router-prefetch"]) return route.abort();
+			await gate;
+			await route.continue();
+		});
+		await page.goto("/");
+		const copy = page.getByRole("article").first().locator('[data-slot="project-copy"]');
+		const link = copy.locator("a.portfolio-project-link");
+		const action = link.locator("[data-project-action]");
+		const title = await link.getByRole("heading", { level: 3 }).innerText();
+		const href = await link.getAttribute("href");
+		await link.click({ trial: true });
+		await expect(action).toBeVisible();
+		const initial = await action.boundingBox();
+		const initialCopy = await copy.boundingBox();
+		if (!initial) throw new Error("Missing project action before navigation");
+		if (!initialCopy) throw new Error("Missing project caption before navigation");
+		try {
+			await link.click();
+			const feedback = link.locator('[data-slot="link-feedback"][data-loading]');
+			await expect(feedback).toBeVisible();
+			await expect(link.locator('[aria-busy="true"]')).toHaveCount(1);
+			await expect(link).toHaveAccessibleName(title);
+			const pending = await action.boundingBox();
+			const spinner = await feedback.locator('[data-slot="spinner"]').boundingBox();
+			if (!pending) throw new Error("Missing project action during navigation");
+			if (!spinner) throw new Error("Missing project navigation spinner");
+			expect(pending.width).toBe(initial.width);
+			expect(pending.height).toBe(initial.height);
+			expect(spinner.width).toBe(16);
+			expect(spinner.height).toBe(16);
+			expect(
+				Math.abs(pending.x + pending.width / 2 - spinner.x - spinner.width / 2),
+			).toBeLessThan(0.5);
+			expect(
+				Math.abs(pending.y + pending.height / 2 - spinner.y - spinner.height / 2),
+			).toBeLessThan(0.5);
+			expect(await copy.boundingBox()).toEqual(initialCopy);
+		} finally {
+			release();
+		}
+		await expect(page).toHaveURL(new URL(href ?? "", page.url()).href);
+		await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+	});
+
+	test(`a slow real link keeps its frame and balanced padding with the shared spinner in ${theme}`, async ({
+		page,
+	}) => {
+		await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+		let release = () => {};
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		await page.route("**/*", async (route) => {
+			const url = new URL(route.request().url());
+			if (url.pathname !== "/contact" || !url.searchParams.has("_rsc"))
+				return route.continue();
+			if (route.request().headers()["next-router-prefetch"]) return route.abort();
+			await gate;
+			await route.continue();
+		});
+		await page.goto("/about");
+		const link = page.getByRole("link", { name: "Discuss a project", exact: true });
+		await page.evaluate(() => document.fonts.ready);
+		await link.click({ trial: true });
+		// Touch actionability checks and the real tap can leave a press transition
+		// settling. Compare the resting frames, rather than two animation instants.
+		const settlePress = () =>
+			expect
+				.poll(() =>
+					link.evaluate(
+						(node) =>
+							!node.matches(":active") &&
+							new DOMMatrix(getComputedStyle(node).transform).isIdentity,
+					),
+				)
+				.toBe(true);
+		await settlePress();
+		const initial = await link.boundingBox();
+		try {
+			await link.click();
+			await expect(link.locator("[data-loading]")).toHaveCount(1);
+			await expect(link.locator('[aria-busy="true"]')).toHaveCount(1);
+			await settlePress();
+			expect(await link.boundingBox()).toEqual(initial);
+			const spacing = await link.evaluate((node) => {
+				const outer = node.getBoundingClientRect();
+				const inner = node
+					.querySelector(".foundation-button-pending")
+					?.getBoundingClientRect();
+				return inner ? [inner.left - outer.left, outer.right - inner.right] : [];
+			});
+			expect(spacing).toHaveLength(2);
+			expect(spacing[0]).toBeCloseTo(spacing[1], 0);
+			await expect(link).toHaveAccessibleName("Discuss a project");
+		} finally {
+			release();
+		}
+		await expect(page).toHaveURL(/\/contact$/);
+		await expect(page.getByRole("heading", { name: "Let’s talk.", level: 1 })).toBeVisible();
+		await expect(page.getByRole("link", { name: "Email", exact: true })).toBeVisible();
+	});
+}

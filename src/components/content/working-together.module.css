@@ -1,0 +1,120 @@
+.frame {
+	background: var(--portfolio-project-surface);
+}
+
+.header,
+.questions {
+	--working-inset: var(--portfolio-box-pad-mobile);
+}
+
+.header {
+	color: var(--foreground);
+	gap: var(--portfolio-space-2);
+	padding: var(--working-inset);
+}
+
+.questions {
+	position: relative;
+	isolation: isolate;
+	overflow: clip;
+	min-width: 0;
+}
+
+.item {
+	position: relative;
+	overflow: clip;
+	border: 0;
+	transition: none;
+}
+
+.item[data-state="open"] {
+	background-color: var(--foundation-primary-soft);
+}
+
+.item:has(.trigger:focus-visible) {
+	background-color: var(--foundation-primary-soft-hover);
+}
+
+.item:not(:last-child)::after {
+	content: "";
+	position: absolute;
+	z-index: 3;
+	inset-inline: 0;
+	bottom: 0;
+	height: var(--portfolio-hairline-width);
+	background: var(--portfolio-chrome-hairline);
+	pointer-events: none;
+}
+
+.trigger {
+	position: relative;
+	z-index: 2;
+	min-width: 0;
+	min-height: 2.75rem;
+	gap: var(--portfolio-space-2);
+	padding: var(--portfolio-space-2) var(--working-inset);
+	color: color-mix(in srgb, var(--foreground) 85%, var(--muted-foreground));
+	background-color: transparent;
+	transition: none;
+	font-size: 1rem;
+	line-height: 1.5;
+	text-align: start;
+	text-decoration: none;
+}
+
+.trigger svg {
+	color: var(--muted-foreground);
+	stroke: currentColor;
+	stroke-width: 0;
+	stroke-linejoin: round;
+	transition: none;
+}
+
+.trigger:is([aria-expanded="true"], :focus-visible, :active) {
+	color: var(--foreground);
+}
+
+.trigger:is([aria-expanded="true"], :focus-visible, :active) svg {
+	color: var(--foreground);
+	stroke-width: 0.5;
+}
+
+.trigger:focus-visible {
+	outline: 2px solid var(--ring);
+	outline-offset: -2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.item:has(.trigger:hover) {
+		background-color: var(--foundation-primary-soft-hover);
+	}
+
+	.trigger:hover {
+		color: var(--foreground);
+	}
+
+	.trigger:hover svg {
+		color: var(--foreground);
+		stroke-width: 0.5;
+	}
+}
+
+.item:has(.trigger:active) {
+	background-color: var(--foundation-primary-soft-active);
+}
+
+.answer {
+	position: relative;
+	z-index: 2;
+	padding: 0 var(--working-inset) var(--portfolio-space-2);
+	color: var(--muted-foreground);
+	font-size: 1rem;
+	line-height: 1.625;
+}
+
+@media (min-width: 40rem) {
+	.header,
+	.questions {
+		--working-inset: var(--portfolio-box-pad-desktop);
+	}
+}

@@ -9,14 +9,14 @@
  *
  * Architecture:
  * 1. SwissGridProvider - Context for section registration
- * 2. SwissGridCanvas - Fixed canvas overlay
+ * 2. SwissGridCanvas - Locally contained canvas overlay
  * 3. SwissGridSection - Section boundary registration
  *
  * Implementation:
  * - ResizeObserver for position tracking
  * - requestAnimationFrame for batching
  * - Device pixel ratio scaling
- * - GPU-accelerated rendering
+ * - Bounded canvas allocation
  */
 import { useReducedMotion, useSpring } from "framer-motion";
 import {
@@ -103,9 +103,9 @@ export { useSwissGrid };
 
 interface SwissGridProviderProps {
 	children: ReactNode;
-	/** Dash length in pixels (default: 8) */
+	/** Dash length in pixels (default: 9) */
 	dashSize?: number;
-	/** Gap length in pixels (default: 8) */
+	/** Gap length in pixels (default: 7) */
 	gapSize?: number;
 }
 
@@ -114,9 +114,9 @@ interface SwissGridProviderProps {
  *
  * This component:
  * 1. Provides context for section registration
- * 2. Tracks the max-w-3xl container bounds
- * 3. Renders a fixed canvas overlay
- * 4. Draws pixel-perfect dashed grid lines
+ * 2. Tracks a centered 768px content rail with clearance for corner marks
+ * 3. Renders an overlay contained by this provider, including in inline Docs
+ * 4. Registers the grid to local section boundaries
  */
 export function SwissGridProvider({
 	children,
@@ -124,6 +124,7 @@ export function SwissGridProvider({
 	gapSize = GAP_SIZE,
 }: SwissGridProviderProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const hostRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const sectionsRef = useRef<Map<string, HTMLElement>>(new Map());
 	const [sections, setSections] = useState<SectionBoundary[]>([]);
@@ -181,28 +182,28 @@ export function SwissGridProvider({
 			return;
 		}
 
-		// Get scroll offsets
-		const scrollX = window.scrollX || window.pageXOffset;
-		const scrollY = window.scrollY || window.pageYOffset;
+		const host = hostRef.current;
+		if (!host) return;
+		const origin = host.getBoundingClientRect();
 
-		// Get container bounds (absolute)
+		// All measurements share the canvas host's local coordinate system.
 		if (containerRef.current) {
 			const rect = containerRef.current.getBoundingClientRect();
 			setContainerBounds({
-				left: rect.left + scrollX,
-				right: rect.right + scrollX,
+				left: rect.left - origin.left,
+				right: rect.right - origin.left,
 				width: rect.width,
 			});
 		}
 
-		// Get section boundaries (absolute)
+		// Register section boundaries without document scroll or Docs offsets.
 		const newSections: SectionBoundary[] = [];
 		sectionsRef.current.forEach((element, id) => {
 			const rect = element.getBoundingClientRect();
 			newSections.push({
 				id,
-				top: rect.top + scrollY,
-				bottom: rect.bottom + scrollY,
+				top: rect.top - origin.top,
+				bottom: rect.bottom - origin.top,
 			});
 		});
 
@@ -245,22 +246,35 @@ export function SwissGridProvider({
 				const ctx = canvas.getContext("2d");
 				if (!ctx) return;
 
+				const host = hostRef.current;
+				if (!host) return;
 				const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-				const width = document.documentElement.scrollWidth;
-				const height = document.documentElement.scrollHeight;
+				const width = host.clientWidth;
+				const canvasHeight = host.clientHeight;
+				const top = sections[0]?.top ?? 0;
+				const height = Math.max(0, (sections.at(-1)?.bottom ?? canvasHeight) - top);
+				if (!width || !height) return;
+				const localSections = sections.map((section) => ({
+					...section,
+					top: section.top - top,
+					bottom: section.bottom - top,
+				}));
+				const pixelWidth = Math.round(width * dpr);
+				const pixelHeight = Math.round(canvasHeight * dpr);
 
 				// Ensure canvas is sized correctly
-				if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
-					canvas.width = width * dpr;
-					canvas.height = height * dpr;
+				if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+					canvas.width = pixelWidth;
+					canvas.height = pixelHeight;
 					canvas.style.width = "100%";
-					canvas.style.height = `${height}px`;
+					canvas.style.height = `${canvasHeight}px`;
 				}
 
 				ctx.save();
 				ctx.setTransform(1, 0, 0, 1, 0, 0);
 				ctx.scale(dpr, dpr);
-				ctx.clearRect(0, 0, width, height);
+				ctx.clearRect(0, 0, width, canvasHeight);
+				ctx.translate(0, top);
 
 				// Colors
 				const dashColor = isDark ? config.colorDark : config.colorLight;
@@ -282,9 +296,9 @@ export function SwissGridProvider({
 				const currentY = height * leadProgress;
 
 				// Get horizontal line Y positions for crosshair alignment
-				// We now FORCE the top to be 0 (Page Top) to avoid scroll-based drift during nav
+				// The first registered boundary is the drawing origin, not the document top.
 				const firstSectionTop = 0;
-				const horizontalYs = [firstSectionTop, ...sections.map((s) => s.bottom)];
+				const horizontalYs = [firstSectionTop, ...localSections.map((s) => s.bottom)];
 
 				// PASS 1: Base Scaffold
 				if (progress > 0) {
@@ -358,7 +372,7 @@ export function SwissGridProvider({
 					};
 
 					drawScaffoldLine(firstSectionTop);
-					for (const s of sections) {
+					for (const s of localSections) {
 						drawScaffoldLine(s.bottom);
 					}
 					ctx.globalAlpha = 1;
@@ -418,9 +432,9 @@ export function SwissGridProvider({
 				const linesToDraw = [{ y: firstSectionTop, isTop: true, sectionIndex: 0 }];
 
 				// Add intermediate separators
-				for (let i = 0; i < sections.length - 1; i++) {
+				for (let i = 0; i < localSections.length - 1; i++) {
 					linesToDraw.push({
-						y: sections[i].bottom,
+						y: localSections[i].bottom,
 						isTop: false,
 						sectionIndex: i,
 					});
@@ -436,10 +450,8 @@ export function SwissGridProvider({
 				}
 
 				for (const line of linesToDraw) {
-					// VISUAL CLAMP:
-					// 1. Top: Clamp to 1px so the top half of the 2px stroke isn't clipped off-screen (0 -> -1 clip)
-					// 2. Bottom: Clamp to height-1px so bottom half isn't clipped (height -> height+1 clip)
-					const lineY = Math.max(1, Math.min(line.y, height - 1));
+					// Corner clearance keeps the first and last boundaries inside the canvas.
+					const lineY = Math.round(line.y);
 
 					// Trigger based on Y position
 					const trigger = (lineY / height) * 0.7;
@@ -637,6 +649,7 @@ export function SwissGridProvider({
 
 	useEffect(() => {
 		recalculatePositions();
+		let pendingFrame = 0;
 
 		// Guarded recalculation (Instant - Real Physics)
 		// ONLY checks for view-transition-active class to prevent specific animation shifts.
@@ -648,27 +661,26 @@ export function SwissGridProvider({
 			recalculatePositions();
 		};
 
-		// Observe container size changes
-		const resizeObserver = new ResizeObserver(() => {
-			requestAnimationFrame(safeRecalculate);
-		});
+		// Coalesce measurements and cancel pending work when the preview unmounts.
+		const scheduleRecalculate = () => {
+			cancelAnimationFrame(pendingFrame);
+			pendingFrame = requestAnimationFrame(safeRecalculate);
+		};
+		const resizeObserver = new ResizeObserver(scheduleRecalculate);
 
 		if (containerRef.current) {
 			resizeObserver.observe(containerRef.current);
 		}
 
-		// Observe body height changes (crucial for absolute positioning)
-		resizeObserver.observe(document.body);
+		// Only allocate and redraw for this example, not the entire Docs document.
+		if (hostRef.current) resizeObserver.observe(hostRef.current);
 
 		// Observe all sections
 		sectionsRef.current.forEach((element) => {
 			resizeObserver.observe(element);
 		});
 
-		// Window resize
-		// We can use the same debounced function content here
-		const handleResize = () => safeRecalculate();
-		window.addEventListener("resize", handleResize);
+		window.addEventListener("resize", scheduleRecalculate);
 
 		// Force recalculation when view-transition-active class is removed
 		// This ensures we get correct positions after the animation completes
@@ -679,10 +691,7 @@ export function SwissGridProvider({
 					mutation.attributeName === "class" &&
 					!document.documentElement.classList.contains("view-transition-active")
 				) {
-					// Small delay to ensure DOM has fully settled
-					setTimeout(() => {
-						recalculatePositions();
-					}, 50);
+					scheduleRecalculate();
 					break;
 				}
 			}
@@ -696,17 +705,19 @@ export function SwissGridProvider({
 		return () => {
 			resizeObserver.disconnect();
 			classObserver.disconnect();
-			window.removeEventListener("resize", handleResize);
+			cancelAnimationFrame(pendingFrame);
+			window.removeEventListener("resize", scheduleRecalculate);
 		};
 	}, [recalculatePositions]);
 
 	// Draw when positions change
 	useEffect(() => {
-		requestAnimationFrame(() => draw(drawProgress.get()));
+		const frame = requestAnimationFrame(() => draw(drawProgress.get()));
+		return () => cancelAnimationFrame(frame);
 	}, [draw, drawProgress]);
 
 	// ─────────────────────────────────────────────────────────────────────────
-	// Animation Loop - Decoupled RAF (240hz Target)
+	// Animation Loop - Decoupled From React
 	// ─────────────────────────────────────────────────────────────────────────
 
 	const isVisible = phase >= 0;
@@ -732,7 +743,7 @@ export function SwissGridProvider({
 	}, [isVisible, drawProgress, shouldReduceMotion]);
 
 	// Single Independent Render Loop
-	// Decoupled from React render cycle and Framer Motion events for stable 240Hz+ performance
+	// Stop scheduling frames once the drawing spring has settled.
 	useEffect(() => {
 		let rafId: number;
 		let lastProgress = -1;
@@ -771,17 +782,21 @@ export function SwissGridProvider({
 
 	return (
 		<SwissGridProviderInternal value={contextValue}>
-			{/* Hidden container to measure max-w-3xl bounds */}
-			<div
-				ref={containerRef}
-				className="pointer-events-none fixed top-0 right-0 left-0 z-[-1] mx-auto h-px max-w-3xl"
-				aria-hidden="true"
-			/>
-
-			{/* Canvas - procedurally animated via draw() */}
-			<canvas ref={canvasRef} className="pointer-events-none absolute inset-0 z-[5]" />
-
-			{children}
+			<div ref={hostRef} className="relative isolate w-full" data-swiss-grid-host="">
+				<div
+					ref={containerRef}
+					className="pointer-events-none mx-auto h-0 w-[calc(100%-20px)] max-w-3xl"
+					data-swiss-grid-bounds=""
+					aria-hidden="true"
+				/>
+				<canvas
+					ref={canvasRef}
+					className="pointer-events-none absolute inset-0 z-[5]"
+					tabIndex={-1}
+					aria-hidden="true"
+				/>
+				{children}
+			</div>
 		</SwissGridProviderInternal>
 	);
 }

@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import { ThemeProvider } from "next-themes";
 import type { ReactNode } from "react";
+import { FloatingNav } from "@/src/components/layout/floating-nav";
+import { HairlineScale } from "./hairline-scale";
 import { RevealProvider } from "./reveal-provider";
 
 const DeferredRootEnhancements = dynamic(
@@ -18,8 +20,10 @@ const DeferredRootEnhancements = dynamic(
 export default function RootProvider({ children }: { children: ReactNode }) {
 	return (
 		<ThemeProvider attribute="class" defaultTheme="system" enableSystem={true}>
+			<HairlineScale />
 			<RevealProvider>
-				{children}
+				<div className="portfolio-theme-surface">{children}</div>
+				<FloatingNav />
 				<DeferredRootEnhancements />
 			</RevealProvider>
 		</ThemeProvider>

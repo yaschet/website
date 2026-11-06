@@ -1,0 +1,107 @@
+.map {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+.groupHeading {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	height: 24px;
+	font-size: 13px;
+	line-height: 20px;
+}
+.groupHeading strong {
+	font-weight: 600;
+	color: var(--foundation-ink);
+}
+.groupHeading span {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--foundation-muted);
+}
+.map .connections {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	max-width: none;
+	height: 100%;
+	overflow: visible;
+}
+.edge {
+	--edge-ink: var(--foundation-muted);
+	color: var(--edge-ink);
+}
+.edge[data-active="true"] {
+	--edge-ink: var(--foundation-info-ink);
+}
+.edge[data-active="true"][data-tone="warning"] {
+	--edge-ink: var(--foundation-warning-ink);
+}
+.edge[data-active="true"][data-tone="success"] {
+	--edge-ink: var(--foundation-success-ink);
+}
+.edge > path {
+	fill: none;
+	stroke: var(--edge-ink);
+	stroke-width: 1.25;
+	vector-effect: non-scaling-stroke;
+	stroke-linecap: square;
+	stroke-linejoin: round;
+}
+.edge[data-active="true"] > path:not(.trace) {
+	stroke: var(--foundation-muted);
+}
+.edgeLabel rect {
+	fill: var(--foundation-canvas);
+}
+.edgeLabel text {
+	fill: var(--edge-ink);
+	font-size: 13px;
+	line-height: 20px;
+	text-anchor: middle;
+	font-weight: 500;
+}
+.trace {
+	stroke-dasharray: 1;
+	animation: connection-trace var(--figure-route-duration) var(--ease-in-out) both;
+	animation-delay: calc(var(--edge-order) * var(--figure-route-duration));
+}
+@keyframes connection-trace {
+	from {
+		stroke-dashoffset: 1;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+[data-motion-input="keyboard"] .trace {
+	animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	.trace {
+		animation: none;
+	}
+}
+@media (forced-colors: active) {
+	.edge > path {
+		stroke: CanvasText;
+	}
+	.edgeLabel text {
+		fill: CanvasText;
+	}
+	.edge[data-active="true"] > path:not(.trace) {
+		stroke: var(--foundation-muted);
+	}
+	.edgeLabel rect {
+		fill: Canvas;
+	}
+}
+
+.groupHeading span svg {
+	width: 16px;
+	height: 16px;
+}

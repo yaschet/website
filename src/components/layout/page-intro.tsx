@@ -3,6 +3,7 @@ import { ProseContainer } from "@/src/components/layout/containers";
 import { HeadingReveal } from "@/src/components/ui/heading-reveal";
 import { Reveal, revealSequence } from "@/src/components/ui/reveal";
 import { cn } from "@/src/lib/utils";
+import { SiteHeroField } from "./site-hero-field";
 
 interface PageIntroProps {
 	eyebrow?: string;
@@ -33,7 +34,7 @@ export function PageIntro({
 		>
 			{eyebrow && (
 				<Reveal delay={revealSequence.eyebrow}>
-					<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
+					<p className="portfolio-kicker portfolio-page-eyebrow text-muted-foreground">
 						{eyebrow}
 					</p>
 				</Reveal>
@@ -43,7 +44,7 @@ export function PageIntro({
 				<HeadingReveal
 					as="h1"
 					delay={revealSequence.heading}
-					className="portfolio-heading-xl portfolio-capsize-heading-xl text-surface-900 dark:text-surface-100"
+					className="portfolio-hero-title portfolio-capsize-hero text-[32px] text-foreground leading-[40px] sm:text-[48px] sm:leading-[56px] min-[360px]:text-[36px] min-[360px]:leading-[44px]"
 				>
 					{title}
 				</HeadingReveal>
@@ -51,7 +52,7 @@ export function PageIntro({
 				{description && (
 					<Reveal delay={revealSequence.body}>
 						<ProseContainer className={cn(isCentered && "mx-auto")}>
-							<p className="portfolio-body-lg text-surface-600 dark:text-surface-400">
+							<p className="portfolio-intro-copy text-muted-foreground">
 								{description}
 							</p>
 						</ProseContainer>
@@ -59,6 +60,18 @@ export function PageIntro({
 				)}
 
 				{children && <Reveal delay={revealSequence.children}>{children}</Reveal>}
+			</div>
+		</div>
+	);
+}
+
+/** Reuses the Contact page's framed introduction across secondary pages. */
+export function PageIntroPanel(props: PageIntroProps) {
+	return (
+		<div className="relative isolate overflow-hidden" data-instrument-host="">
+			<SiteHeroField />
+			<div className="portfolio-box-pad relative z-[1]">
+				<PageIntro {...props} />
 			</div>
 		</div>
 	);

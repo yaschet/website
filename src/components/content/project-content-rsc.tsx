@@ -1,110 +1,25 @@
-import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import { Clock } from "@phosphor-icons/react/dist/ssr/Clock";
-import Link from "next/link";
-import { ModuleContainer, PageContainer, ProseContainer } from "@/src/components/layout/containers";
+import { CaseStudyFacts, CaseStudyHeader } from "@/src/components/content/case-study-summary";
+import { ModuleContainer, PageContainer } from "@/src/components/layout/containers";
 import { SiteFooter } from "@/src/components/layout/site-footer";
-import { SiteHeader } from "@/src/components/layout/site-header";
 import { mdxComponents } from "@/src/components/mdx/mdx-components";
+import { MediaGallery } from "@/src/components/mdx/media-gallery";
+import { ArrowButtonLink } from "@/src/components/ui/arrow-button-link";
 import { ReadingBracket } from "@/src/components/ui/article-toc";
-import { Button } from "@/src/components/ui/button";
-import { CopyResourceButton } from "@/src/components/ui/copy-resource-button";
-import { HeadingReveal } from "@/src/components/ui/heading-reveal";
+import { ButtonLink } from "@/src/components/ui/button-link";
 import { InstrumentActionBand } from "@/src/components/ui/instrument-action-band";
 import {
 	INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS,
 	INVERTED_ACTION_BAND_TITLE_CLASS,
 } from "@/src/components/ui/instrument-action-band-theme";
-import { MediaGallery } from "@/src/components/ui/media-gallery";
-import { Reveal, revealSequence, ScrollReveal } from "@/src/components/ui/reveal";
+import { Reveal, ScrollReveal } from "@/src/components/ui/reveal";
 import { SwissGridBox, SwissGridRow } from "@/src/components/ui/swiss-grid";
+import { getProjectTechnologyHighlights } from "@/src/content/project-technology-highlights";
 import type { ProjectEntry } from "@/src/content/types";
-import { formatDate } from "@/src/lib/format-date";
 import { getProjectCoverMedia } from "@/src/lib/gallery-media";
+import styles from "./case-study-summary.module.css";
 
 interface ProjectContentProps {
 	project: ProjectEntry;
-}
-
-function ProjectMasthead({
-	project,
-	galleryItems,
-}: {
-	project: ProjectEntry;
-	galleryItems: ReturnType<typeof getProjectCoverMedia>;
-}) {
-	const projectLede = project.subtitle ?? project.description;
-
-	return (
-		<div className="w-full">
-			<div className="portfolio-stack-group items-stretch">
-				<Reveal delay={revealSequence.backLink}>
-					<Link href="/case-studies" className="portfolio-back-link portfolio-kicker">
-						<ArrowLeft size={14} weight="bold" />
-						<span>Back to Case Studies</span>
-					</Link>
-				</Reveal>
-
-				<div className="portfolio-case-study-hero">
-					<Reveal delay={revealSequence.kicker}>
-						<p className="portfolio-kicker text-surface-400 dark:text-surface-500">
-							Case study · {formatDate(project.date)}
-						</p>
-					</Reveal>
-
-					<div className="flex flex-col items-center">
-						<HeadingReveal
-							as="h1"
-							delay={revealSequence.headingLate}
-							className="portfolio-masthead-title text-foreground"
-						>
-							{project.title}
-						</HeadingReveal>
-
-						<Reveal delay={revealSequence.bodyLate}>
-							<ProseContainer className="portfolio-case-study-lede">
-								<p className="m-0">{projectLede}</p>
-							</ProseContainer>
-						</Reveal>
-					</div>
-
-					<Reveal delay={revealSequence.meta}>
-						<div className="portfolio-inline-meta justify-center">
-							<span className="portfolio-badge-label flex h-[var(--portfolio-badge-height)] items-center gap-[var(--portfolio-control-gap)] border border-transparent px-[var(--portfolio-badge-inset)] text-muted-foreground">
-								<Clock size={12} weight="bold" />
-								{project.readingTime} min read
-							</span>
-							{project.featured && (
-								<span className="portfolio-chip border-primary text-primary">
-									Featured
-								</span>
-							)}
-							<CopyResourceButton
-								href={`/case-studies/${project.slug}.md`}
-								label="Copy Markdown"
-								copiedLabel="Copied Markdown"
-								variant="badge"
-							/>
-						</div>
-					</Reveal>
-				</div>
-			</div>
-
-			{galleryItems.length > 0 && !project.hideCoverGallery && (
-				<div className="mt-[var(--portfolio-space-4)]">
-					<MediaGallery
-						items={galleryItems}
-						altPrefix={project.title}
-						aspectRatio="16/9"
-						showArrows={galleryItems.length > 1}
-						showProgress={galleryItems.length > 1}
-						showCounter={galleryItems.length > 1}
-						expandable
-					/>
-				</div>
-			)}
-		</div>
-	);
 }
 
 /**
@@ -117,107 +32,58 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 	const galleryItems = getProjectCoverMedia(project);
 	const projectFacts = [
 		project.role ? { label: "Role", value: project.role } : null,
+		project.delivery
+			? {
+					label: project.delivery.label,
+					value: [project.delivery.period, project.delivery.duration]
+						.filter(Boolean)
+						.join(" · "),
+				}
+			: null,
 		project.status ? { label: "Status", value: project.status } : null,
-		project.domain ? { label: "Domain", value: project.domain } : null,
 	].filter((fact): fact is { label: string; value: string } => fact !== null);
 	const projectStack = project.stack?.length ? project.stack : (project.tech ?? []);
 	const projectStackLabel = project.stack?.length ? "Engine Stack" : "Technologies";
 
 	return (
-		<div className="flex flex-1 flex-col text-surface-900 selection:bg-surface-900 selection:text-surface-50 dark:text-surface-50 dark:selection:bg-surface-100 dark:selection:text-surface-900">
+		<div className="flex flex-1 flex-col text-foreground selection:bg-foreground selection:text-background">
 			<main className="relative z-10 flex flex-1 flex-col" style={{ overflowAnchor: "none" }}>
-				<SiteHeader />
-
 				<section id="project-main" className="w-full">
-					<PageContainer className="portfolio-section-top">
-						<SwissGridBox>
+					<PageContainer mobileBleed className="portfolio-section-top">
+						<SwissGridBox className={styles.frame}>
 							<SwissGridRow>
-								<div className="portfolio-box-pad">
-									<ModuleContainer className="portfolio-stack-group">
-										<ProjectMasthead
-											project={project}
-											galleryItems={galleryItems}
-										/>
-									</ModuleContainer>
-								</div>
+								<CaseStudyHeader
+									title={project.title}
+									description={project.subtitle ?? project.description}
+									date={project.date}
+									readingTime={project.readingTime}
+									markdownHref={`/case-studies/${project.slug}.md`}
+									overview={project.overview}
+								/>
 							</SwissGridRow>
+
 							<SwissGridRow>
 								<Reveal phase={2} delay={0.04} className="w-full">
-									<div className="portfolio-box-pad">
-										<ModuleContainer className="portfolio-stack-related">
-											<div className="portfolio-project-facts">
-												{projectFacts.map((fact) => (
-													<div
-														key={fact.label}
-														className="portfolio-project-fact"
-													>
-														<span className="portfolio-meta-label text-muted-foreground">
-															{fact.label}
-														</span>
-														<span className="portfolio-meta-value text-foreground">
-															{fact.value}
-														</span>
-													</div>
-												))}
-												{projectStack.length > 0 && (
-													<div className="portfolio-project-fact portfolio-project-fact-stack">
-														<span className="portfolio-meta-label text-muted-foreground">
-															{projectStackLabel}
-														</span>
-														<div className="flex flex-wrap gap-(--portfolio-space-tight)">
-															{projectStack.map((item) => (
-																<span
-																	key={item}
-																	className="portfolio-chip"
-																>
-																	{item}
-																</span>
-															))}
-														</div>
-													</div>
-												)}
-											</div>
-
-											{(project.url || project.github) && (
-												<div className="portfolio-control-row">
-													{project.url && (
-														<Button
-															asChild
-															size="md"
-															variant="outlined"
-															color="default"
-														>
-															<a
-																href={project.url}
-																target="_blank"
-																rel="noopener noreferrer"
-															>
-																Visit Site
-															</a>
-														</Button>
-													)}
-													{project.github && (
-														<Button
-															asChild
-															size="md"
-															variant="outlined"
-															color="default"
-														>
-															<a
-																href={project.github}
-																target="_blank"
-																rel="noopener noreferrer"
-															>
-																View Code
-															</a>
-														</Button>
-													)}
-												</div>
-											)}
-										</ModuleContainer>
-									</div>
+									<CaseStudyFacts
+										facts={projectFacts}
+										stack={[]}
+										stackLabel={projectStackLabel}
+										projectTitle={project.title}
+									/>
 								</Reveal>
 							</SwissGridRow>
+							{galleryItems.length > 0 && !project.hideCoverGallery && (
+								<SwissGridRow>
+									<MediaGallery
+										items={galleryItems}
+										altPrefix={project.title}
+										aspectRatio="16/9"
+										sizes="(min-width: 1024px) 984px, (min-width: 640px) calc(100vw - 40px), 100vw"
+										breakout={false}
+										prioritizeFirstImage
+									/>
+								</SwissGridRow>
+							)}
 							<SwissGridRow>
 								<ScrollReveal phase={2} className="w-full">
 									<div className="portfolio-box-pad">
@@ -229,6 +95,44 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 									</div>
 								</ScrollReveal>
 							</SwissGridRow>
+							<SwissGridRow>
+								<CaseStudyFacts
+									facts={[]}
+									stack={projectStack}
+									stackLabel={projectStackLabel}
+									projectTitle={project.title}
+									stackHighlights={getProjectTechnologyHighlights(project.slug)}
+								/>
+
+								{(project.url || project.github) && (
+									<div className={styles.resources}>
+										{project.url && (
+											<ButtonLink
+												size="md"
+												variant="outlined"
+												color="default"
+												href={project.url}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												Visit Site
+											</ButtonLink>
+										)}
+										{project.github && (
+											<ButtonLink
+												size="md"
+												variant="outlined"
+												color="default"
+												href={project.github}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												View Code
+											</ButtonLink>
+										)}
+									</div>
+								)}
+							</SwissGridRow>
 						</SwissGridBox>
 					</PageContainer>
 				</section>
@@ -236,7 +140,7 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 				<section id="project-cta" className="w-full">
 					<ScrollReveal phase={3} className="w-full">
 						<section className="w-full">
-							<PageContainer className="portfolio-section-loose">
+							<PageContainer mobileBleed className="portfolio-section-loose">
 								<SwissGridBox>
 									<SwissGridRow>
 										<InstrumentActionBand
@@ -249,18 +153,14 @@ export function ProjectContentRSC({ project }: ProjectContentProps) {
 											>
 												Building something similar?
 											</h2>
-											<Button
-												asChild
-												size="md"
+											<ArrowButtonLink
 												variant="solid"
 												color="default"
 												className={INVERTED_ACTION_BAND_SOLID_BUTTON_CLASS}
+												href="/contact"
 											>
-												<Link href="/contact">
-													Email
-													<ArrowRight className="size-4" weight="bold" />
-												</Link>
-											</Button>
+												Discuss a project
+											</ArrowButtonLink>
 										</InstrumentActionBand>
 									</SwissGridRow>
 								</SwissGridBox>

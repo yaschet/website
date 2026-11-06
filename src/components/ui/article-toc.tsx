@@ -1,358 +1,188 @@
-/**
- * Architectural navigation sidebar for long-form content.
- *
- * @remarks
- * Engineered for high-readability in technical documentation. Features:
- * - Dynamic heading extraction (h2, h3) with coordinate synchronization.
- * - Continuous tracking based on scroll velocity and position.
- * - Typographic active state contrast (monochromatic Swiss standard).
- * - Automatic image-load detection for coordinate recalculation.
- * - Responsive mobile drawer fallback.
- *
- * @example
- * ```tsx
- * <ArticleTOC contentSelector="article" />
- * ```
- *
- * @public
- */
-
 "use client";
 
-import { List, X } from "@phosphor-icons/react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useCallback, useEffect, useState } from "react";
-import { cn, springs } from "@/src/lib/index";
-
-// ═══════════════════════════════════════════════════════════════════════════
-// TYPES
-// ═══════════════════════════════════════════════════════════════════════════
+import * as Dialog from "@radix-ui/react-dialog";
+import { RiCloseLine, RiListCheck2 } from "@remixicon/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { cn } from "@/src/lib/index";
+import styles from "./article-toc.module.css";
 
 interface HeadingMeta {
 	id: string;
 	text: string;
 	level: number;
-	/** Absolute top position from document top */
 	offsetTop: number;
 }
-
 interface ArticleTOCProps {
 	contentSelector?: string;
 	className?: string;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
+/** Quiet reading rail on wide screens and an accessible contents sheet on smaller screens. */
 export function ArticleTOC({ contentSelector = "article", className }: ArticleTOCProps) {
 	const [headings, setHeadings] = useState<HeadingMeta[]>([]);
 	const [activeIndex, setActiveIndex] = useState(0);
-	const [mounted, setMounted] = useState(false);
-	const [isVisible, setIsVisible] = useState(false);
-	const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-	// Reduced motion preference
-	const prefersReducedMotion = useReducedMotion();
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Mount Guard
-	// ─────────────────────────────────────────────────────────────────────────
+	const [visible, setVisible] = useState(false);
+	const [open, setOpen] = useState(false);
+	const [instant, setInstant] = useState(false);
+	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
+	const destination = useRef<{ heading: HTMLElement; instant: boolean } | null>(null);
+	useEffect(() => setPortalContainer(document.body), []);
 
 	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Extract Headings with Positions
-	// ─────────────────────────────────────────────────────────────────────────
-
-	const calculateHeadingPositions = useCallback(() => {
-		if (!mounted) return;
-
 		const content = document.querySelector(contentSelector);
 		if (!content) return;
-
-		const headingElements = content.querySelectorAll("h2, h3");
-		const extracted: HeadingMeta[] = [];
-
-		headingElements.forEach((heading) => {
-			const id = heading.id;
-			const text = heading.textContent?.replace(/#$/, "").trim() || "";
-			const level = parseInt(heading.tagName.charAt(1), 10);
-
-			if (id && text) {
-				const rect = heading.getBoundingClientRect();
-				const offsetTop = rect.top + window.scrollY;
-				extracted.push({ id, text, level, offsetTop });
-			}
-		});
-
-		setHeadings(extracted);
-	}, [contentSelector, mounted]);
-
-	// Initial calculation + recalculate on resize
-	useEffect(() => {
-		calculateHeadingPositions();
-
-		const handleResize = () => calculateHeadingPositions();
-		window.addEventListener("resize", handleResize);
-		return () => window.removeEventListener("resize", handleResize);
-	}, [calculateHeadingPositions]);
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Dynamic Content Handling (images loading, etc.)
-	// ─────────────────────────────────────────────────────────────────────────
-
-	useEffect(() => {
-		if (!mounted) return;
-
-		// Recalculate after images load (they shift content)
-		const images = document.querySelectorAll("article img");
-		let loadedCount = 0;
-		const totalImages = images.length;
-
-		if (totalImages === 0) return;
-
-		const handleImageLoad = () => {
-			loadedCount++;
-			if (loadedCount === totalImages) {
-				// All images loaded, recalculate positions
-				calculateHeadingPositions();
-			}
-		};
-
-		images.forEach((img) => {
-			if ((img as HTMLImageElement).complete) {
-				loadedCount++;
-			} else {
-				img.addEventListener("load", handleImageLoad);
-				img.addEventListener("error", handleImageLoad);
-			}
-		});
-
-		// If all images were already loaded
-		if (loadedCount === totalImages) {
-			calculateHeadingPositions();
-		}
-
+		const measure = () =>
+			setHeadings(
+				Array.from(content.querySelectorAll<HTMLElement>("h2[id], h3[id]"), (heading) => ({
+					id: heading.id,
+					text: heading.textContent?.trim() ?? "",
+					level: Number(heading.tagName[1]),
+					offsetTop: heading.getBoundingClientRect().top + window.scrollY,
+				})),
+			);
+		measure();
+		const observer = new ResizeObserver(measure);
+		observer.observe(content);
+		window.addEventListener("resize", measure);
 		return () => {
-			images.forEach((img) => {
-				img.removeEventListener("load", handleImageLoad);
-				img.removeEventListener("error", handleImageLoad);
-			});
+			observer.disconnect();
+			window.removeEventListener("resize", measure);
 		};
-	}, [mounted, calculateHeadingPositions]);
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Continuous Active Section Tracking
-	// ─────────────────────────────────────────────────────────────────────────
+	}, [contentSelector]);
 
 	useEffect(() => {
-		if (!mounted || headings.length === 0) return;
-
-		const handleScroll = () => {
-			const currentScrollY = window.scrollY;
-			const scrollOffset = currentScrollY + 120; // Account for sticky header
-
-			let newActiveIndex = 0;
+		const content = document.querySelector(contentSelector);
+		const track = () => {
+			let index = 0;
 			for (let i = headings.length - 1; i >= 0; i--) {
-				if (scrollOffset >= headings[i].offsetTop) {
-					newActiveIndex = i;
+				if (window.scrollY + 140 >= headings[i].offsetTop) {
+					index = i;
 					break;
 				}
 			}
-
-			setActiveIndex(newActiveIndex);
-			setIsVisible(currentScrollY > 200);
+			setActiveIndex(index);
+			const bounds = content?.getBoundingClientRect();
+			setVisible(Boolean(bounds && bounds.top <= 128 && bounds.bottom > 128));
 		};
+		track();
+		window.addEventListener("scroll", track, { passive: true });
+		return () => window.removeEventListener("scroll", track);
+	}, [contentSelector, headings]);
 
-		window.addEventListener("scroll", handleScroll, { passive: true });
-		handleScroll(); // Initial call
+	const navigate = useCallback((heading: HTMLElement, keyboard = false) => {
+		const hash = `#${encodeURIComponent(heading.id)}`;
+		if (window.location.hash !== hash) window.history.pushState(null, "", hash);
+		if (!heading.hasAttribute("tabindex")) heading.tabIndex = -1;
+		heading.focus({ preventScroll: true });
+		heading.scrollIntoView({
+			behavior:
+				keyboard || window.matchMedia("(prefers-reduced-motion: reduce)").matches
+					? "instant"
+					: "smooth",
+			block: "start",
+		});
+	}, []);
 
-		return () => window.removeEventListener("scroll", handleScroll);
-	}, [mounted, headings]);
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Navigate to Heading
-	// ─────────────────────────────────────────────────────────────────────────
-
-	const scrollToHeading = (id: string) => {
-		const element = document.getElementById(id);
-		if (element) {
-			const offset = 100;
-			const top = element.getBoundingClientRect().top + window.scrollY - offset;
-			window.scrollTo({
-				top,
-				behavior: prefersReducedMotion ? "auto" : "smooth",
-			});
-			setIsMobileOpen(false);
-		}
-	};
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Keyboard Navigation
-	// ─────────────────────────────────────────────────────────────────────────
-
-	const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
-		if (e.key === "ArrowDown" && index < headings.length - 1) {
-			e.preventDefault();
-			const nextButton = document.querySelector(
-				`[data-toc-index="${index + 1}"]`,
-			) as HTMLButtonElement;
-			nextButton?.focus();
-		} else if (e.key === "ArrowUp" && index > 0) {
-			e.preventDefault();
-			const prevButton = document.querySelector(
-				`[data-toc-index="${index - 1}"]`,
-			) as HTMLButtonElement;
-			prevButton?.focus();
-		}
-	};
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Animation Variants (respect reduced motion)
-	// ─────────────────────────────────────────────────────────────────────────
-
-	const containerVariants = prefersReducedMotion
-		? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
-		: {
-				hidden: { opacity: 0, x: -16 },
-				visible: { opacity: 1, x: 0 },
-			};
-
-	const mobileVariants = prefersReducedMotion
-		? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
-		: {
-				hidden: { opacity: 0, y: 8 },
-				visible: { opacity: 1, y: 0 },
-			};
-
-	// ─────────────────────────────────────────────────────────────────────────
-	// Render
-	// ─────────────────────────────────────────────────────────────────────────
-
-	if (!mounted || headings.length === 0) return null;
-
-	const TOCList = ({ isMobile = false }: { isMobile?: boolean }) => (
-		<ul className="flex flex-col">
-			{headings.map(({ id, text, level }, index) => {
-				const isActive = index === activeIndex;
-
-				return (
-					<li key={id}>
-						<button
-							type="button"
-							data-toc-index={index}
-							onClick={() => scrollToHeading(id)}
-							onKeyDown={(e) => handleKeyDown(e, index)}
-							className={cn(
-								"block w-full py-1.5 text-left font-mono text-xs transition-colors duration-150",
-								isMobile ? "max-w-full" : "max-w-[180px] truncate",
-								level === 3 && "pl-3",
-								isActive
-									? "font-medium text-surface-950 dark:text-surface-50"
-									: "text-surface-400 hover:text-surface-600 dark:text-surface-500 dark:hover:text-surface-300",
-							)}
-						>
-							{text}
-						</button>
-					</li>
-				);
-			})}
-		</ul>
-	);
-
-	return (
-		<>
-			{/* Desktop TOC */}
-			<motion.nav
-				initial="hidden"
-				animate={isVisible ? "visible" : "hidden"}
-				variants={containerVariants}
-				transition={prefersReducedMotion ? { duration: 0 } : springs.responsive}
-				className={cn(
-					"fixed top-1/2 left-8 z-40 hidden -translate-y-1/2 xl:block",
-					className,
-				)}
-				aria-label="Table of contents"
-			>
-				<div className="mb-3 font-mono text-[10px] text-surface-400 uppercase tracking-widest dark:text-surface-500">
-					On this page
-				</div>
-				<TOCList />
-			</motion.nav>
-
-			{/* Mobile TOC Button */}
-			<AnimatePresence>
-				{isVisible && (
-					<motion.button
-						type="button"
-						initial={{ opacity: 0, scale: 0.9 }}
-						animate={{ opacity: 1, scale: 1 }}
-						exit={{ opacity: 0, scale: 0.9 }}
-						transition={prefersReducedMotion ? { duration: 0 } : springs.snappy}
-						onClick={() => setIsMobileOpen(true)}
-						className={cn(
-							"fixed right-6 bottom-6 z-40 flex size-12 items-center justify-center xl:hidden",
-							"border border-surface-200 bg-white dark:border-surface-700 dark:bg-surface-900",
-							"shadow-lg",
-						)}
-						aria-label="Open table of contents"
+	if (!headings.length || !portalContainer) return null;
+	const links = (
+		<ol className={styles.list}>
+			{headings.map(({ id, text, level }, index) => (
+				<li key={id}>
+					<a
+						href={`#${id}`}
+						aria-current={index === activeIndex ? "location" : undefined}
+						data-level={level}
+						onClick={(event) => {
+							if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+								return;
+							const heading = document.getElementById(id);
+							if (!heading) return;
+							event.preventDefault();
+							if (open) {
+								destination.current = { heading, instant: event.detail === 0 };
+								setInstant(event.detail === 0);
+								setOpen(false);
+							} else navigate(heading, event.detail === 0);
+						}}
 					>
-						<List size={20} weight="bold" />
-					</motion.button>
-				)}
-			</AnimatePresence>
-
-			{/* Mobile TOC Drawer */}
-			<AnimatePresence>
-				{isMobileOpen && (
-					<>
-						{/* Backdrop */}
-						<motion.div
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							exit={{ opacity: 0 }}
-							transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-							className="fixed inset-0 z-50 bg-black/50 xl:hidden"
-							onClick={() => setIsMobileOpen(false)}
-						/>
-
-						{/* Drawer */}
-						<motion.nav
-							initial="hidden"
-							animate="visible"
-							exit="hidden"
-							variants={mobileVariants}
-							transition={prefersReducedMotion ? { duration: 0 } : springs.responsive}
-							className={cn(
-								"fixed right-0 bottom-0 left-0 z-50 max-h-[70vh] overflow-y-auto xl:hidden",
-								"border-surface-200 border-t bg-white p-6 dark:border-surface-700 dark:bg-surface-900",
-							)}
-							aria-label="Table of contents"
-						>
-							<div className="mb-4 flex items-center justify-between">
-								<span className="font-mono text-surface-400 text-xs uppercase tracking-widest dark:text-surface-500">
-									On this page
-								</span>
-								<button
-									type="button"
-									onClick={() => setIsMobileOpen(false)}
-									className="flex size-8 items-center justify-center text-surface-500 hover:text-surface-900 dark:hover:text-surface-100"
-									aria-label="Close"
-								>
-									<X size={18} weight="bold" />
-								</button>
-							</div>
-							<TOCList isMobile />
-						</motion.nav>
-					</>
-				)}
-			</AnimatePresence>
-		</>
+						<span className={styles.number} aria-hidden="true">
+							{String(index + 1).padStart(2, "0")}
+						</span>
+						<span>{text}</span>
+					</a>
+				</li>
+			))}
+		</ol>
+	);
+	return createPortal(
+		<>
+			<nav
+				className={cn(styles.rail, className)}
+				aria-label="On this page"
+				data-visible={visible}
+				aria-hidden={!visible}
+				inert={!visible}
+			>
+				<p className={styles.label}>
+					On this page{" "}
+					<span>
+						{String(activeIndex + 1).padStart(2, "0")} /{" "}
+						{String(headings.length).padStart(2, "0")}
+					</span>
+				</p>
+				{links}
+			</nav>
+			<Dialog.Root open={open} onOpenChange={setOpen}>
+				<Dialog.Trigger
+					className={styles.trigger}
+					data-visible={visible}
+					inert={!visible}
+					tabIndex={visible ? 0 : -1}
+					aria-label="Open table of contents"
+					onClick={(event) => setInstant(event.detail === 0)}
+				>
+					<RiListCheck2 size={18} />
+					<span>Contents</span>
+					<span className={styles.triggerCount}>
+						{String(activeIndex + 1).padStart(2, "0")} /{" "}
+						{String(headings.length).padStart(2, "0")}
+					</span>
+				</Dialog.Trigger>
+				<Dialog.Portal>
+					<Dialog.Overlay className={styles.overlay} data-instant={instant} />
+					<Dialog.Content
+						className={styles.sheet}
+						data-instant={instant}
+						onEscapeKeyDown={() => setInstant(true)}
+						onCloseAutoFocus={(event) => {
+							const target = destination.current;
+							if (!target) return;
+							event.preventDefault();
+							destination.current = null;
+							queueMicrotask(() => navigate(target.heading, target.instant));
+						}}
+					>
+						<div className={styles.sheetHeader}>
+							<Dialog.Title className={styles.sheetTitle}>On this page</Dialog.Title>
+							<Dialog.Close
+								className={styles.close}
+								aria-label="Close table of contents"
+								onClick={(event) => setInstant(event.detail === 0)}
+							>
+								<RiCloseLine size={20} />
+							</Dialog.Close>
+						</div>
+						<Dialog.Description className="sr-only">
+							Choose a section to continue reading.
+						</Dialog.Description>
+						<nav aria-label="Article sections">{links}</nav>
+					</Dialog.Content>
+				</Dialog.Portal>
+			</Dialog.Root>
+		</>,
+		portalContainer,
 	);
 }
 
-// Re-export for backwards compatibility
 export { ArticleTOC as ReadingBracket };

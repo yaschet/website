@@ -1,7 +1,7 @@
 "use client";
 
 export type DotGridLength = number | string;
-export type DotGridOrigin = "center" | "inset";
+export type DotGridOrigin = "center" | "inset" | "registered";
 
 export function computeGridAxis(
 	size: number,
@@ -9,6 +9,13 @@ export function computeGridAxis(
 	minInset: number,
 	origin: DotGridOrigin,
 ) {
+	if (origin === "registered") {
+		// Keep the leading origin fixed; any remainder stays at the trailing edge.
+		return {
+			count: Math.max(0, Math.floor((size - minInset * 2) / step) + 1),
+			offset: minInset,
+		};
+	}
 	const usable = Math.max(size - minInset * 2, step);
 	const count = Math.max(2, Math.floor(usable / step) + 1);
 	const span = count * step;

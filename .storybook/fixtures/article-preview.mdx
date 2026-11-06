@@ -1,0 +1,91 @@
+import { CaseStudyDiagram } from "../../src/components/content/case-study-diagram";
+import { oneToManyDiagram } from "../../src/components/content/case-study-diagram.examples";
+
+export const metadata = {
+  title: "Article layout preview",
+  description: "Workshop content for reviewing the complete article template. This is not a published post.",
+  date: "2026-10-31",
+  tags: ["Workshop"],
+  published: false,
+};
+
+This sample exists only in Storybook. It exercises the reading layout before a real article is published, including long lines, links, tables and code.
+
+## Start With A Clear Question
+
+A useful technical article gives the reader a question to follow. This paragraph is sample copy, not a claim about a client project. [Explore the case studies](/case-studies) for the actual work.
+
+### Keep The Reading Order Predictable
+
+1. Introduce the constraint.
+2. Explain the decision and its tradeoffs.
+3. Show enough evidence for the reader to evaluate it.
+
+> A short quotation should stay readable without competing with the heading above it.
+
+## Make The Details Inspectable
+
+The code block deliberately includes a long line so its horizontal scrolling can be reviewed on a narrow screen without widening the whole page.
+
+```typescript
+type Result = { ok: true; value: string } | { ok: false; reason: string };
+
+export function describe(result: Result): string {
+  return result.ok ? result.value : `The operation could not complete: ${result.reason}. Preserve the draft and offer a clear retry action.`;
+}
+```
+
+| Review surface | What to check |
+| --- | --- |
+| Mobile | Reading width, wrapped headings and code overflow |
+| Desktop | Line length, spacing and the article outline |
+| Both themes | Text contrast, links and focus visibility |
+
+## Place Media Beside The Claim
+
+These existing Verto demonstration assets exercise the image and mixed-gallery roles. They are layout samples for this unpublished article, not evidence of a new project or customer result.
+
+<Image
+  src="/images/verto/review-editor.png"
+  alt="A scanned financial report beside its Japanese translation and editable table in Verto."
+  caption="Workshop image: the source and translated table share one review workspace."
+  width={1920}
+  height={1080}
+/>
+
+The gallery pairs the existing walkthrough with a separate Arabic Google Docs example. The reading point is available here without playing the film: source, translation and editable delivery need to remain inspectable.
+
+<Gallery
+  items={[
+    {
+      "kind": "mux-video",
+      "playbackId": "yiAwSuxIOVkCUZemf5jOzwfqwG01lH46A2GjtF8moZ8Q",
+      "poster": "/images/verto/verto-film-poster.jpg",
+      "title": "Verto walkthrough — workshop media sample",
+      "alt": "A financial report moves from photograph to reviewed translation and editable delivery.",
+      "caption": "Workshop film: an existing prepared walkthrough, not a live processing-speed test.",
+      "duration": "1:40"
+    },
+    {
+      "kind": "image",
+      "src": "/images/verto/screenshots/arabic-google-docs-file.png",
+      "alt": "An Arabic agreement with right-to-left headings and a table in Google Docs.",
+      "caption": "Workshop still: a separate completed Arabic example exercises the gallery caption and enlargement."
+    }
+  ]}
+  caption="Existing Verto demonstration assets — unpublished layout review."
+/>
+
+<aside role="note" aria-label="Workshop note" className="my-(--portfolio-space-group) border border-border bg-muted/30 p-(--portfolio-space-related)"><strong>Workshop note.</strong> The film uses synthetic agency records and existing completed translations. These samples demonstrate the interface rather than customer adoption or live processing speed.</aside>
+
+## Keep The Diagram Optional
+
+This existing illustrative diagram uses one saved source for three outputs: the article reads the full body, search reads its title and summary, and the feed distributes the record. It is a layout example, not a claim about this portfolio's architecture. The complete explanation remains in this paragraph when the diagram is left untouched.
+
+<div data-breakout="true" className="not-prose my-(--portfolio-space-section)">
+  <CaseStudyDiagram {...oneToManyDiagram} />
+</div>
+
+## Close The Loop
+
+The final section checks the spacing before the closing action and footer. Replace this workshop fixture with your own article when it is ready; adding this story does not publish it to the website.

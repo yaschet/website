@@ -1,19 +1,23 @@
 import type { Metadata } from "next";
+import { IS_PREVIEW_DEPLOYMENT, SITE_DESCRIPTION, SITE_ROLE, SITE_URL } from "@/src/constants/site";
 import "./globals.css";
 
 import RootProvider from "@components/providers/root-provider";
 import { fontVariables } from "@/lib/fonts";
+import { PortfolioScene } from "@/src/components/layout/portfolio-scene";
 import { PortfolioTypeStyles } from "@/src/components/layout/portfolio-type-styles";
+import { SiteHeader } from "@/src/components/layout/site-header";
 
 export const metadata: Metadata = {
-	metadataBase: new URL("https://yaschet.dev"),
+	metadataBase: new URL(SITE_URL),
 	title: {
-		default: "Yassine Chettouch — Software Engineer",
+		default: `Yassine Chettouch: ${SITE_ROLE}`,
 		template: "%s | Yassine Chettouch",
 	},
-	description:
-		"Building systems that scale and experiences that convert. High-performance execution for ambitious products.",
+	description: SITE_DESCRIPTION,
 	keywords: [
+		SITE_ROLE,
+		"Applied AI",
 		"Software Engineer",
 		"Senior Software Engineer",
 		"Design Systems",
@@ -35,20 +39,19 @@ export const metadata: Metadata = {
 		canonical: "/",
 	},
 	openGraph: {
-		title: "Yassine Chettouch — Software Engineer",
-		description:
-			"Building systems that scale and experiences that convert. High-performance execution for ambitious products.",
-		url: "https://yaschet.dev",
+		title: `Yassine Chettouch: ${SITE_ROLE}`,
+		description: SITE_DESCRIPTION,
+		url: SITE_URL,
 		siteName: "Yassine Chettouch",
 		locale: "en_US",
 		type: "website",
 	},
 	robots: {
-		index: true,
-		follow: true,
+		index: !IS_PREVIEW_DEPLOYMENT,
+		follow: !IS_PREVIEW_DEPLOYMENT,
 		googleBot: {
-			index: true,
-			follow: true,
+			index: !IS_PREVIEW_DEPLOYMENT,
+			follow: !IS_PREVIEW_DEPLOYMENT,
 			"max-video-preview": -1,
 			"max-image-preview": "large",
 			"max-snippet": -1,
@@ -67,8 +70,8 @@ const personSchema = {
 	"@type": "Person",
 	name: "Yassine Chettouch",
 	alternateName: "yaschet",
-	jobTitle: "Software Engineer",
-	url: "https://yaschet.dev",
+	jobTitle: SITE_ROLE,
+	url: SITE_URL,
 	sameAs: [
 		"https://x.com/yaschett",
 		"https://github.com/yaschet",
@@ -79,6 +82,7 @@ const personSchema = {
 const THEME_BOOTSTRAP_SCRIPT = `(() => {
   try {
     const root = document.documentElement;
+    root.style.setProperty("--foundation-hairline", 1 / (window.devicePixelRatio || 1) + "px");
     const cookieTheme = document.cookie
       .split("; ")
       .find((entry) => entry.startsWith("theme="))
@@ -109,13 +113,13 @@ export default function RootLayout({
 		<html
 			suppressHydrationWarning
 			lang="en"
-			className={fontVariables}
+			className={`${fontVariables} yaschet`}
 			data-scroll-behavior="smooth"
 		>
 			<head>
 				<script
 					id="theme-bootstrap"
-					// biome-ignore lint/security/noDangerouslySetInnerHtml: theme bootstrap must run before first paint
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: theme and hairline bootstrap must run before first paint
 					dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }}
 				/>
 				<link rel="preconnect" href="https://image.mux.com" crossOrigin="" />
@@ -131,10 +135,13 @@ export default function RootLayout({
 				/>
 			</head>
 			<body
-				className="relative min-h-screen text-surface-900 antialiased dark:text-surface-50"
+				className="relative min-h-screen text-foreground antialiased"
 				suppressHydrationWarning={true}
 			>
-				<RootProvider>{children}</RootProvider>
+				<RootProvider>
+					<SiteHeader />
+					<PortfolioScene>{children}</PortfolioScene>
+				</RootProvider>
 			</body>
 		</html>
 	);

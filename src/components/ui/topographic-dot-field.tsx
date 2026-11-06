@@ -4,6 +4,7 @@ import { useReducedMotion } from "framer-motion";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useRevealState } from "@/src/components/providers/reveal-provider";
+import { useAnimationVisibility } from "@/src/components/ui/use-animation-visibility";
 import { tweens } from "@/src/lib/index";
 import {
 	computeGridAxis,
@@ -207,7 +208,11 @@ float snoise(vec3 v){
 
 float terrainFieldValue(vec2 uv, float time) {
   float aspect = uRes.x / uRes.y;
-  vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
+  // Finer terrain on portrait fields, blended continuously into the desktop scale.
+  float portraitWeight = 1.0 - smoothstep(0.9, 1.8, aspect);
+  float introSurface = 1.0 - step(1.5, uSurface);
+  float compositionScale = 1.0 + portraitWeight * introSurface * 0.65;
+  vec2 p = (uv - 0.5) * vec2(aspect, 1.0) * compositionScale;
 
   mat2 orient = mat2(0.951, -0.309, 0.309, 0.951);
   vec2 base = orient * p;
@@ -320,7 +325,9 @@ float contentShield(vec2 uv) {
   float body = gauss2(uv, vec2(0.29, 0.50), vec2(0.29, 0.22));
   float cta = gauss2(uv, vec2(0.20, 0.73), vec2(0.20, 0.14));
   float mobile = gauss2(uv, vec2(0.30, 0.46), vec2(0.34, 0.34));
-  float shield = max(max(title, body), max(cta, mobile * 0.66));
+  float desktopShield = max(max(title, body), cta);
+  float desktopWeight = smoothstep(1.1, 2.4, uRes.x / uRes.y);
+  float shield = mix(mobile * 0.78, desktopShield, desktopWeight);
   return sm3(0.08, 0.90, shield);
 }
 
@@ -485,9 +492,19 @@ void main() {
   dots.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.16, 0.28, uDark);
   contourStroke.a *= 1.0 + mouseInfluence * uMouseStrength * mix(0.46, 0.72, uDark) * mix(1.0, 0.72, terrainSurface);
 
+  // Compress bright dot peaks independently of the broad terrain bands.
+  float peakWeight = smoothstep(0.24, 0.64, dots.a);
+  dots.a *= 1.0 - terrainSurface * peakWeight * 0.38;
+  // Keep atmospheric dots subordinate to the reading layer without dimming the ground.
+  float introDotWeight = terrainSurface * (1.0 - step(1.5, uSurface));
+  dots.a *= mix(1.0, mix(0.80, 0.65, uDark), introDotWeight);
+
   if (uDark < 0.5) {
     vec4 lightBase = vec4(uBG, 1.0);
-    float lightMix = underlay.a * mix(0.62, 0.72, terrainSurface);
+    // Lighter broad fills leave the registered dots and contours as the structure.
+    float introFillWeight = terrainSurface * (1.0 - step(1.5, uSurface));
+    float lightMix = underlay.a * mix(0.62, 0.72, terrainSurface)
+      * mix(1.0, 0.65, introFillWeight);
     vec4 lightUnderlay = vec4(mix(lightBase.rgb, underlay.rgb, lightMix), 1.0);
     vec4 contouredLight = alphaOver(contourStroke, lightUnderlay);
     oColor = alphaOver(dots, contouredLight);
@@ -725,6 +742,11 @@ function resolveSurfaceTone(node: HTMLElement, tone: number, fallback: RGB) {
 	);
 }
 
+function resolveOptionalFieldColor(node: HTMLElement, property: string, fallback: RGB): RGB {
+	const value = getComputedStyle(node).getPropertyValue(property).trim();
+	return value ? resolveCssColor(node, value, fallback) : fallback;
+}
+
 function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 	const alphaPalette = isDark ? DARK_ALPHA_PALETTE : LIGHT_ALPHA_PALETTE;
 	const neutralFallback: RGB = isDark ? [255, 255, 255] : [0, 0, 0];
@@ -766,15 +788,29 @@ function resolvePalette(node: HTMLElement, isDark: boolean): Palette {
 				alpha: alphaPalette.underlay[0].alpha,
 			},
 			{
-				color: isDark ? resolveTone(900) : lightBandOneUnderlay,
+				color: isDark
+					? resolveOptionalFieldColor(node, "--instrument-underlay-one", resolveTone(900))
+					: lightBandOneUnderlay,
 				alpha: alphaPalette.underlay[1].alpha,
 			},
 			{
-				color: isDark ? darkBandTwoUnderlay : lightBandTwoUnderlay,
+				color: isDark
+					? resolveOptionalFieldColor(
+							node,
+							"--instrument-underlay-two",
+							darkBandTwoUnderlay,
+						)
+					: lightBandTwoUnderlay,
 				alpha: alphaPalette.underlay[2].alpha,
 			},
 			{
-				color: isDark ? darkPeakUnderlay : lightPeakUnderlay,
+				color: isDark
+					? resolveOptionalFieldColor(
+							node,
+							"--instrument-underlay-peak",
+							darkPeakUnderlay,
+						)
+					: lightPeakUnderlay,
 				alpha: alphaPalette.underlay[3].alpha,
 			},
 		],
@@ -949,12 +985,16 @@ export function InstrumentField({
 		targetY: 0.5,
 	});
 	const supportsHoverRef = useRef(false);
+	// Preserve terrain phase across resize, theme and rendering-budget changes.
+	const fieldTimeRef = useRef(0);
 
 	const shouldReduceMotion = useReducedMotion();
 	const { environment } = useRevealState();
 	const [documentIsDark, setDocumentIsDark] = useState(false);
 	const [isCanvasReady, setIsCanvasReady] = useState(false);
-	const [isInViewport, setIsInViewport] = useState(surface !== "band");
+	const isInViewport = useAnimationVisibility(containerRef);
+	const [lightweight, setLightweight] = useState(false);
+	const [saveData, setSaveData] = useState(false);
 	const [paletteSignature, setPaletteSignature] = useState("");
 	const [isThemeReady, setIsThemeReady] = useState(false);
 	const [metrics, setMetrics] = useState<Metrics>({
@@ -964,21 +1004,7 @@ export function InstrumentField({
 		step: typeof step === "number" ? step : 18,
 		width: 0,
 	});
-	const shouldFreezeField = environment !== "normal" || shouldReduceMotion;
-
-	useEffect(() => {
-		let cancelled = false;
-		const fallbackTimer = window.setTimeout(() => {
-			if (!cancelled) {
-				setIsCanvasReady(true);
-			}
-		}, 800);
-
-		return () => {
-			cancelled = true;
-			clearTimeout(fallbackTimer);
-		};
-	}, []);
+	const shouldFreezeField = environment !== "normal" || shouldReduceMotion || saveData;
 
 	useLayoutEffect(() => {
 		if (typeof window === "undefined") return;
@@ -1033,27 +1059,30 @@ export function InstrumentField({
 	}, []);
 
 	useEffect(() => {
-		if (typeof window === "undefined") return;
+		const hints = navigator as Navigator & {
+			deviceMemory?: number;
+			connection?: EventTarget & { saveData?: boolean; effectiveType?: string };
+		};
+		const syncBudget = () => {
+			setSaveData(
+				hints.connection?.saveData === true ||
+					["slow-2g", "2g"].includes(hints.connection?.effectiveType ?? ""),
+			);
+			setLightweight(
+				(hints.deviceMemory !== undefined && hints.deviceMemory <= 4) ||
+					(hints.hardwareConcurrency > 0 && hints.hardwareConcurrency <= 4),
+			);
+		};
+		syncBudget();
+		hints.connection?.addEventListener("change", syncBudget);
+		return () => hints.connection?.removeEventListener("change", syncBudget);
+	}, []);
 
-		const container = containerRef.current;
-		if (!container || !("IntersectionObserver" in window)) return;
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				const nextIsInViewport = entry?.isIntersecting ?? false;
-				setIsInViewport(nextIsInViewport);
-				if (!nextIsInViewport) {
-					mouseRef.current.targetStrength = 0;
-					mouseRef.current.currentStrength = 0;
-				}
-			},
-			{ rootMargin: surface === "band" ? "320px 0px" : "160px 0px" },
-		);
-
-		observer.observe(container);
-
-		return () => observer.disconnect();
-	}, [surface]);
+	useEffect(() => {
+		if (isInViewport) return;
+		mouseRef.current.targetStrength = 0;
+		mouseRef.current.currentStrength = 0;
+	}, [isInViewport]);
 
 	useEffect(() => {
 		const container = containerRef.current;
@@ -1132,7 +1161,7 @@ export function InstrumentField({
 
 		const updateMetrics = () => {
 			const rect = container.getBoundingClientRect();
-			const dpr = Math.min(window.devicePixelRatio || 1, 2);
+			const dpr = Math.min(window.devicePixelRatio || 1, lightweight ? 1 : 2);
 			const nextStep = Math.max(1, resolveLength(container, step, 18));
 			const nextMinInset = Math.max(0, resolveLength(container, minInset, 12));
 			const nextWidth = Math.round(rect.width);
@@ -1164,7 +1193,7 @@ export function InstrumentField({
 			observer.disconnect();
 			window.removeEventListener("resize", updateMetrics);
 		};
-	}, [minInset, step]);
+	}, [minInset, step, lightweight]);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -1357,16 +1386,19 @@ export function InstrumentField({
 		const shouldAnimate = isInViewport && !shouldFreezeField;
 		let frameId = 0;
 		let hasMarkedReady = false;
-		let startTime = 0;
 		let lastFrameTime = 0;
 
 		const render = (now: number) => {
-			if (startTime === 0) startTime = now;
+			if (lightweight && lastFrameTime > 0 && now - lastFrameTime < 1000 / 30 - 1) {
+				frameId = requestAnimationFrame(render);
+				return;
+			}
 			if (lastFrameTime === 0) lastFrameTime = now;
-			const deltaSeconds = (now - lastFrameTime) / 1000;
+			const deltaSeconds = Math.min((now - lastFrameTime) / 1000, 0.1);
 			lastFrameTime = now;
 
-			const elapsed = shouldAnimate ? ((now - startTime) / 1000) * speed : 0;
+			if (shouldAnimate) fieldTimeRef.current += deltaSeconds * speed;
+			const elapsed = fieldTimeRef.current;
 			const mouse = mouseRef.current;
 			const pointerTau = 0.1;
 			const strengthTau = mouse.targetStrength > mouse.currentStrength ? 0.12 : 0.6;
@@ -1401,6 +1433,7 @@ export function InstrumentField({
 		isDark,
 		isInViewport,
 		metrics,
+		lightweight,
 		origin,
 		paletteSignature,
 		radius,
@@ -1415,6 +1448,8 @@ export function InstrumentField({
 	return (
 		<div
 			ref={containerRef}
+			data-field-motion={shouldFreezeField ? "static" : lightweight ? "budget" : "full"}
+			aria-hidden="true"
 			className={cn(
 				className,
 				"pointer-events-none absolute inset-0 overflow-hidden transition-[background-color]",
@@ -1423,10 +1458,16 @@ export function InstrumentField({
 		>
 			<canvas
 				ref={canvasRef}
-				className="pointer-events-none absolute inset-0 h-full w-full transition-[opacity,background-color]"
+				data-field-ready={isThemeReady && isCanvasReady ? "true" : "false"}
+				className="pointer-events-none absolute inset-0 h-full w-full transition-[background-color]"
 				style={{
 					backgroundColor: backgroundPaint,
 					opacity: isThemeReady && isCanvasReady ? 1 : 0,
+					animationName:
+						isThemeReady && isCanvasReady ? "portfolio-field-arrive" : "none",
+					animationDuration: shouldReduceMotion ? "0s" : "0.9s",
+					animationTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+					animationFillMode: "both",
 					transitionDuration: `${tweens.field.duration}s`,
 					transitionTimingFunction: `cubic-bezier(${tweens.field.ease.join(",")})`,
 				}}
