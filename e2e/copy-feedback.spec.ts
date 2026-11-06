@@ -32,7 +32,7 @@ for (const theme of ["light", "dark"] as const) {
 		for (const [path, href, label, hasIcon] of [
 			[
 				"/case-studies/clearway-phoenix",
-				"/case-study-markdown/clearway-phoenix",
+				"/case-studies/clearway-phoenix.md",
 				"Copy Markdown",
 				true,
 			],

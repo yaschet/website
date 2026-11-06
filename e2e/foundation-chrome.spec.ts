@@ -183,7 +183,7 @@ for (const theme of ["light", "dark"] as const) {
 			}),
 		);
 		// Resource content and HTTP delivery have separate coverage; keep motion checks deterministic.
-		await page.route("**/case-study-markdown/clearway-phoenix", (route) =>
+		await page.route("**/case-studies/clearway-phoenix.md", (route) =>
 			route.fulfill({ contentType: "text/markdown", body: "# Copy feedback verification\n" }),
 		);
 		await page.goto("/case-studies/clearway-phoenix");
@@ -194,8 +194,8 @@ for (const theme of ["light", "dark"] as const) {
 				name: /^(Copy Markdown|Copying|Copied|Retry copying)$/,
 			})
 			.locator(".foundation-button-pending-copy > span");
-		// All feedback labels share one grid cell, reserving their maximum width.
-		await expect(label).toHaveCSS("display", "inline-grid");
+		// The inline grid is blockified inside flex; its labels still share one cell.
+		await expect(label).toHaveCSS("display", "grid");
 		const before = await copy.evaluate((node) => ({
 			width: getComputedStyle(node).width,
 			height: getComputedStyle(node).height,
